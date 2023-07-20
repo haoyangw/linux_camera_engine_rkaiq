@@ -1109,10 +1109,22 @@ RkAiqCore::pushStats(SmartPtr<VideoBuffer> &buffer)
     ENTER_ANALYZER_FUNCTION();
 
     XCAM_ASSERT(buffer.ptr());
-    mLatestStatsId = buffer->get_sequence();
-    int32_t delta = mLatestStatsId - mLatestEvtsId;
+    uint32_t seq = buffer->get_sequence();
+    int32_t delta = seq - mLatestEvtsId;
+    int32_t interval = seq - mLatestStatsId;
+
+    if (interval == 1) {
+        // do nothing
+    } else if ((interval == 0 && (mLatestStatsId != 0)) || (interval < 0)) {
+        LOGE_ANALYZER("stats disorder, latest:%u, new:%u", mLatestStatsId, seq);
+        return XCAM_RETURN_NO_ERROR;
+    } else if (interval > 1) {
+        LOGW_ANALYZER("stats not continuous, latest:%u, new:%u", mLatestStatsId, seq);
+    }
+
+    mLatestStatsId = seq;
     if (delta > 3) {
-        LOGW_ANALYZER("stats delta: %d, skip stats %u", delta, mLatestStatsId);
+        LOGW_ANALYZER("stats delta: %d, skip stats %u", delta, seq);
         return XCAM_RETURN_NO_ERROR;
     }
 
@@ -1136,12 +1148,25 @@ RkAiqCore::pushEvts(SmartPtr<ispHwEvt_t> &evts)
     if (evts->evt_code == V4L2_EVENT_FRAME_SYNC) {
         Isp20Evt* isp20Evts =
             evts.get_cast_ptr<Isp20Evt>();
+        uint32_t seq= isp20Evts->sequence;
+        int32_t delta = seq - mLatestStatsId;
+        int32_t interval = seq - mLatestEvtsId;
+
+        if (interval == 1) {
+            // do nothing
+        } else if ((interval == 0 && (mLatestEvtsId != 0)) || (interval < 0)) {
+            LOGE_ANALYZER("sof disorder, latest:%u, new:%u", mLatestEvtsId, seq);
+            return XCAM_RETURN_NO_ERROR;
+        } else if (interval > 1) {
+            LOGW_ANALYZER("sof not continuous, latest:%u, new:%u", mLatestEvtsId, seq);
+        }
+
         mLatestEvtsId = isp20Evts->sequence;
-        int32_t delta = mLatestEvtsId - mLatestStatsId;
         if (delta > 3) {
-            LOGW_ANALYZER("sof delta: %d, skip sof %u", delta, mLatestEvtsId);
+            LOGW_ANALYZER("sof delta: %d, skip sof %u", delta, seq);
             return XCAM_RETURN_NO_ERROR;
         }
+
 #ifndef RKAIQ_DISABLE_CORETHRD
         mRkAiqCoreEvtsTh->push_evts(evts);
 #else

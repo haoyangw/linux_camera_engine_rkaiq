@@ -133,6 +133,19 @@ bool RkAiqAnalyzerGroup::msgHandle(RkAiqCoreVdBufMsg* msg) {
     msgWrapper.msg_flags |= 1ULL << msg->msg_id;
     //msgWrapper.msgList.push_back(msg);
     int& msg_cnts = msgWrapper.msg_cnts;
+    if (msg_cnts >= MAX_MESSAGES) {
+        LOGE_ANALYZER_SUBM(ANALYZER_SUBM,
+            "camId: %d, group(%s): id[%d] push msg(%s), msg_cnts: %d overflow",
+             AnalyzerGroupType2Str[mGroupType], msg->frame_id,
+             MessageType2Str[msg->msg_id]);
+        for (int i = 0; i < msg_cnts; i++) {
+            LOGE_ANALYZER_SUBM(ANALYZER_SUBM, "%d: fid:%d, msg:%s",
+                               i, msgWrapper.msgList[i].frame_id, MessageType2Str[msgWrapper.msgList[i].msg_id]);
+        }
+
+        return true;
+    }
+
     msgWrapper.msgList[msg_cnts++] = *msg;
 
     LOGD_ANALYZER_SUBM(ANALYZER_SUBM,
