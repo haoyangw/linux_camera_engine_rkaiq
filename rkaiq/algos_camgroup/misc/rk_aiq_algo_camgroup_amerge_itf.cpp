@@ -354,6 +354,8 @@ static XCamReturn AmergeProcess(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* o
                     __FUNCTION__, pAmergeGrpCtx->FrameID);
     }
 
+    IS_UPDATE_MEM((pAmergeGrpProcRes->camgroupParmasArray[0]->_amergeConfig), pAmergeGrpParams->_offset_is_update) =
+        outparams->cfg_update;
     for (int i = 1; i < pAmergeGrpProcRes->arraySize; i++) {
         memcpy(pAmergeGrpProcRes->camgroupParmasArray[i]->_amergeConfig,
                pAmergeGrpProcRes->camgroupParmasArray[0]->_amergeConfig,

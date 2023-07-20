@@ -189,7 +189,8 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
             result = XCAM_RETURN_ERROR_FAILED;
             LOGE_ADPCC("%s: processing Adpcc failed (%d)", __FUNCTION__, ret);
         }
-
+        IS_UPDATE_MEM((procResParaGroup->camgroupParmasArray[0]->_adehazeConfig), procParaGroup->_offset_is_update) =
+            true;
         for (int i = 1; i < procResParaGroup->arraySize; i++) {
             procResParaGroup->camgroupParmasArray[i]->_dpccConfig = procResParaGroup->camgroupParmasArray[0]->_dpccConfig;
             IS_UPDATE_MEM((procResParaGroup->camgroupParmasArray[i]->_adehazeConfig), procParaGroup->_offset_is_update) =
@@ -199,6 +200,8 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
         outparams->cfg_update = true;
         pAdpccCtx->isReCal_ = false;
     } else {
+        IS_UPDATE_MEM((procResParaGroup->camgroupParmasArray[0]->_adehazeConfig), procParaGroup->_offset_is_update) =
+            false;
         for (int i = 1; i < procResParaGroup->arraySize; i++) {
             procResParaGroup->camgroupParmasArray[i]->_dpccConfig = procResParaGroup->camgroupParmasArray[0]->_dpccConfig;
             IS_UPDATE_MEM((procResParaGroup->camgroupParmasArray[i]->_adehazeConfig), procParaGroup->_offset_is_update) =

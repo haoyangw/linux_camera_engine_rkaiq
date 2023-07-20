@@ -128,6 +128,8 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
 
     // set proc res
     outparams->cfg_update = !bypass;
+    IS_UPDATE_MEM((pAgammaGrpProcRes->camgroupParmasArray[0]->_agammaConfig), ((RkAiqAlgoCamGroupProcIn*)inparams)->_offset_is_update) =
+        outparams->cfg_update;
     for (int i = 1; i < pAgammaGrpProcRes->arraySize; i++) {
         if (outparams->cfg_update) {
             memcpy(pAgammaGrpProcRes->camgroupParmasArray[i]->_agammaConfig,
