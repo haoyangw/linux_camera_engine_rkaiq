@@ -1109,25 +1109,27 @@ RkAiqCore::pushStats(SmartPtr<VideoBuffer> &buffer)
     ENTER_ANALYZER_FUNCTION();
 
     XCAM_ASSERT(buffer.ptr());
-    uint32_t seq = buffer->get_sequence();
-    int32_t delta = seq - mLatestEvtsId;
-    int32_t interval = seq - mLatestStatsId;
 
-    if (interval == 1) {
-        // do nothing
-    } else if ((interval == 0 && (mLatestStatsId != 0)) || (interval < 0)) {
-        LOGE_ANALYZER("stats disorder, latest:%u, new:%u", mLatestStatsId, seq);
-        return XCAM_RETURN_NO_ERROR;
-    } else if (interval > 1) {
-        LOGW_ANALYZER("stats not continuous, latest:%u, new:%u", mLatestStatsId, seq);
+    if (buffer->_buf_type == ISP_POLL_3A_STATS) {
+        uint32_t seq = buffer->get_sequence();
+        int32_t delta = seq - mLatestEvtsId;
+        int32_t interval = seq - mLatestStatsId;
+
+        if (interval == 1) {
+            // do nothing
+        } else if ((interval == 0 && (mLatestStatsId != 0)) || (interval < 0)) {
+            LOGE_ANALYZER("stats disorder, latest:%u, new:%u", mLatestStatsId, seq);
+            return XCAM_RETURN_NO_ERROR;
+        } else if (interval > 1) {
+            LOGW_ANALYZER("stats not continuous, latest:%u, new:%u", mLatestStatsId, seq);
+        }
+
+        mLatestStatsId = seq;
+        if (delta > 3) {
+            LOGW_ANALYZER("stats delta: %d, skip stats %u", delta, seq);
+            return XCAM_RETURN_NO_ERROR;
+        }
     }
-
-    mLatestStatsId = seq;
-    if (delta > 3) {
-        LOGW_ANALYZER("stats delta: %d, skip stats %u", delta, seq);
-        return XCAM_RETURN_NO_ERROR;
-    }
-
 #ifndef RKAIQ_DISABLE_CORETHRD
     mRkAiqCoreTh->push_stats(buffer);
 #else
