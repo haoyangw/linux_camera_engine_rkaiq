@@ -5803,7 +5803,7 @@ CamHwIsp20::setIspConfig(cam3aResultList* result_list)
             LOGE_CAMHW_SUBM(ISP20HW_SUBM, "ISP parameter translation error\n");
 
         if (isp_params->module_cfg_update == 0 &&
-            isp_params->module_en_update) {
+            isp_params->module_en_update == 0) {
             mIspParamsDev->return_buffer_to_pool(v4l2buf);
             LOGE_CAMHW_SUBM(ISP20HW_SUBM, "no new ISP parameters to drv");
             return ret;
