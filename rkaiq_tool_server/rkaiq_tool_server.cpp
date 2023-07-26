@@ -50,6 +50,7 @@ int g_stream_dev_index = -1; // for yuv capture rkisp_iqtool node. RKISP_CMD_SET
 std::string iqfile;
 std::string g_sensor_name;
 int g_sensorMemoryMode = -1;
+int g_sensorSyncMode = -1;
 
 std::shared_ptr<TCPServer> tcpServer = nullptr;
 #if 0
@@ -192,7 +193,7 @@ static int parse_args(int argc, char** argv)
 int main(int argc, char** argv)
 {
     int ret = -1;
-    LOG_ERROR("#### 2023-4-4 09:46:45 ####\n");
+    LOG_ERROR("#### 2023-6-15 16:22:53 ####\n");
     signal(SIGPIPE, SIG_IGN);
 
 #ifdef _WIN32

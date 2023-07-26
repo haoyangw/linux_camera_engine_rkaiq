@@ -27,6 +27,7 @@ extern std::shared_ptr<RKAiqMedia> rkaiq_media;
 extern int g_device_id;
 extern uint32_t g_sensorHdrMode;
 extern int g_sensorMemoryMode;
+extern int g_sensorSyncMode;
 extern std::string g_capture_dev_name;
 extern int g_frameDroppedFlag;
 extern uint g_lastCapturedSequense;
@@ -1544,6 +1545,7 @@ static int DoCaptureOnlineRaw(int sockfd)
     }
 
     DumpCapinfo();
+
     if (g_sensorHdrMode == NO_HDR)
     {
         start_capturing(&cap_info);
@@ -1630,6 +1632,7 @@ static int DoCaptureOnlineRaw(int sockfd)
                 LOG_DEBUG("get 3a lock fail 2\n");
                 assert(NULL);
             }
+
             cap_info.ispStatsList.clear();
             cap_info_hdr2_1.ispStatsList.clear();
             cap_info_hdr2_2.ispStatsList.clear();
@@ -1900,7 +1903,19 @@ static int DoCaptureOnlineRaw(int sockfd)
                 LOG_INFO("cif node %s set to mode %d.\n", cap_info.dev_name, g_sensorMemoryMode);
             }
         }
-        close(fd);
+
+        // recover sync mode for dual camera
+        int sensorfd = open(cap_info.sd_path.device_name, O_RDWR, 0);
+        int ret = ioctl(sensorfd, RKMODULE_SET_SYNC_MODE, &g_sensorSyncMode); // recover sync mode
+        if (ret > 0)
+        {
+            LOG_ERROR("set cif node %s sync mode failed.\n", cap_info.dev_name);
+        }
+        else
+        {
+            LOG_INFO("cif node %s set to sync mode:%d.\n", cap_info.dev_name, g_sensorSyncMode);
+        }
+        close(sensorfd);
     }
 
     return 0;
@@ -2757,24 +2772,49 @@ static void ReplyOnlineRawSensorPara(int sockfd, CommandData_t* cmd)
         return;
     }
 
-    int fd = open(cap_info.dev_name, O_RDWR, 0);
-    LOG_INFO("fd: %d\n", fd);
-    if (fd < 0)
+    if (g_capture_dev_name.length() == 0)
     {
-        LOG_ERROR("Open dev %s failed.\n", cap_info.dev_name);
-    }
-    else
-    {
-        int value = CSI_LVDS_MEM_WORD_LOW_ALIGN;
-        int ret = ioctl(fd, RKCIF_CMD_SET_CSI_MEMORY_MODE, &value); // set to no compact
-        if (ret > 0)
+        int fd = open(cap_info.dev_name, O_RDWR, 0);
+        LOG_INFO("fd: %d\n", fd);
+        if (fd < 0)
         {
-            LOG_ERROR("set cif node %s compact mode failed.\n", cap_info.dev_name);
+            LOG_ERROR("Open dev %s failed.\n", cap_info.dev_name);
         }
         else
         {
-            LOG_INFO("cif node %s set to no compact mode.\n", cap_info.dev_name);
+            int value = CSI_LVDS_MEM_WORD_LOW_ALIGN;
+            int ret = ioctl(fd, RKCIF_CMD_SET_CSI_MEMORY_MODE, &value); // set to no compact
+            if (ret > 0)
+            {
+                LOG_ERROR("set cif node %s compact mode failed.\n", cap_info.dev_name);
+            }
+            else
+            {
+                LOG_INFO("cif node %s set to no compact mode.\n", cap_info.dev_name);
+            }
         }
+        // set sync mode to no sync for dual camera
+        int sensorfd = open(cap_info.sd_path.device_name, O_RDWR, 0);
+        int ret = ioctl(sensorfd, RKMODULE_GET_SYNC_MODE, &g_sensorSyncMode); // get original memory mode
+        if (ret > 0)
+        {
+            LOG_ERROR("get cif node %s sync mode failed.\n", cap_info.dev_name);
+        }
+        else
+        {
+            LOG_INFO("get cif node sync mode:%d .\n", g_sensorSyncMode);
+        }
+        int value = NO_SYNC_MODE;
+        ret = ioctl(sensorfd, RKMODULE_SET_SYNC_MODE, &value); // set to no sync
+        if (ret > 0)
+        {
+            LOG_ERROR("set cif node %s sync mode failed.\n", cap_info.dev_name);
+        }
+        else
+        {
+            LOG_INFO("cif node %s set to no sync mode.\n", cap_info.dev_name);
+        }
+        close(sensorfd);
     }
 
     //

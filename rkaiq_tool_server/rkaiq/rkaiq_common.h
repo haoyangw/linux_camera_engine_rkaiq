@@ -169,4 +169,8 @@ struct bayer_blc
     uint8_t pattern03;
 };
 
+#define BASE_VIDIOC_PRIVATE 192 /* 192-255 are private */
+#define RKMODULE_GET_SYNC_MODE _IOR('V', BASE_VIDIOC_PRIVATE + 21, __u32)
+#define RKMODULE_SET_SYNC_MODE _IOW('V', BASE_VIDIOC_PRIVATE + 22, __u32)
+
 #endif

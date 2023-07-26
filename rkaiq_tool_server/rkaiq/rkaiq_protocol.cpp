@@ -353,81 +353,12 @@ int RKAiqProtocol::StartApp()
 
 int RKAiqProtocol::StartRTSP()
 {
-    int ret = -1;
-    return ret;
-    KillApp();
-    ret = rkaiq_media->LinkToIsp(true);
-    if (ret)
-    {
-        LOG_ERROR("link isp failed!!!\n");
-        return ret;
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    media_info_t mi = rkaiq_media->GetMediaInfoT(g_device_id);
-#ifdef __ANDROID__
-    int readback = 0;
-    // std::string isp3a_server_cmd = "/vendor/bin/rkaiq_3A_server -mmedia=";
-    // if (mi.isp.media_dev_path.length() > 0)
-    // {
-    //     isp3a_server_cmd.append(mi.isp.media_dev_path);
-    //     LOG_DEBUG("#### using isp dev path.\n");
-    // }
-    // else if (mi.cif.media_dev_path.length() > 0)
-    // {
-    //     isp3a_server_cmd.append(mi.cif.media_dev_path);
-    //     LOG_DEBUG("#### using cif dev path.\n");
-    // }
-    // else
-    // {
-    //     isp3a_server_cmd.append("/dev/media2");
-    //     LOG_DEBUG("#### using default dev path.\n");
-    // }
-    // isp3a_server_cmd.append(" --sensor_index=");
-    // isp3a_server_cmd.append(std::to_string(g_device_id));
-    // isp3a_server_cmd.append(" &");
-    // system("pkill rkaiq_3A_server*");
-    // system(isp3a_server_cmd.c_str());
-    // std::this_thread::sleep_for(std::chrono::milliseconds(200));
-#endif
-    // if (true)
-    // {
-    //     int isp_ver = rkaiq_media->GetIspVer();
-    //     LOG_DEBUG(">>>>>>>> isp ver = %d\n", isp_ver);
-    //     if (isp_ver == 4)
-    //     {
-    //         ret = init_rtsp(mi.ispp.pp_scale0_path.c_str(), g_width, g_height);
-    //     }
-    //     else if (isp_ver == 5)
-    //     {
-    //         ret = init_rtsp(mi.isp.main_path.c_str(), g_width, g_height);
-    //     }
-    //     else
-    //     {
-    //         ret = init_rtsp(mi.isp.main_path.c_str(), g_width, g_height);
-    //     }
-    // }
-    // else
-    // {
-    //     ret = init_rtsp(g_stream_dev_name.c_str(), g_width, g_height);
-    // }
-    if (ret)
-    {
-        LOG_ERROR("init_rtsp failed!!");
-        return ret;
-    }
-
-    LOG_DEBUG("Started RTSP !!!");
-    return 0;
+    LOG_DEBUG("Not start RTSP.");
+    return -1;
 }
 
 int RKAiqProtocol::StopRTSP()
 {
-    LOG_DEBUG("Stopping RTSP !!!");
-    // deinit_rtsp();
-#ifdef __ANDROID__
-    system("pkill rkaiq_3A_server*");
-#endif
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     LOG_DEBUG("Stopped RTSP !!!");
     return 0;
 }
