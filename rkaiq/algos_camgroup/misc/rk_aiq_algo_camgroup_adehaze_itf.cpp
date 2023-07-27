@@ -140,10 +140,10 @@ static XCamReturn processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
     LOGD_ADEHAZE("/*************************Adehaze Group Start******************/ \n");
 
     AdehazeGetCurrDataGroup(pAdehazeGrpHandle, pGrpProcPara->camgroupParmasArray[0]);
+    dehaze_bypass_processing = AdehazeByPassProcessing(pAdehazeGrpHandle);
 
     if (DehazeEnableSetting(pAdehazeGrpHandle,
                             pGrpProcResPara->camgroupParmasArray[0]->_adehazeConfig)) {
-        dehaze_bypass_processing = AdehazeByPassProcessing(pAdehazeGrpHandle);
 #if RKAIQ_HAVE_DEHAZE_V10
         // dehaze group dehaze not ready for now
         dehaze_stats_v10_t dehazeStats;

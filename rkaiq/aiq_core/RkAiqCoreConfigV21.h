@@ -206,7 +206,7 @@ const static struct RkAiqAlgoDesCommExt g_camgroup_algos[] = {
     { &g_RkIspAlgoDescCamgroupAdhaz.common,         RK_AIQ_CORE_ANALYZE_DHAZ,   0,  1,  0, {0, 0} },
     // { &g_RkIspAlgoDescamgroupAgamma.common,      RK_AIQ_CORE_ANALYZE_GRP0,   0,  0,  0, {0, 0} },
     { &g_RkIspAlgoDescCamgroupAdrc.common,          RK_AIQ_CORE_ANALYZE_GRP0,   0,  1,  0, {0, 0} },
-    // { &g_RkIspAlgoDescCamgroupAmerge.common,     RK_AIQ_CORE_ANALYZE_GRP0,   0,  0,  0, {0, 0} },
+    { &g_RkIspAlgoDescCamgroupAmerge.common,        RK_AIQ_CORE_ANALYZE_GRP0,   0,  0,  0, {0, 0} },
     { &g_RkIspAlgoDescCamgroupAynrV2.common,        RK_AIQ_CORE_ANALYZE_OTHER,  2,  2,  2, {0, 0} },
     { &g_RkIspAlgoDescCamgroupAcnr.common,          RK_AIQ_CORE_ANALYZE_OTHER,  1,  1,  1, {0, 0} },
     { &g_RkIspAlgoDescCamgroupAbayernrV2.common,    RK_AIQ_CORE_ANALYZE_OTHER,  2,  2,  2, {0, 0} },

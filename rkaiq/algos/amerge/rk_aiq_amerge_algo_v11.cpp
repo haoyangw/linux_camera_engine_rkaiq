@@ -258,6 +258,8 @@ void MergeDampingV11(AmergeContext_t* pAmergeCtx) {
 void AmergeTuningProcessing(AmergeContext_t* pAmergeCtx, RkAiqAmergeProcResult_t* pAmergeProcRes) {
     LOG1_AMERGE("%s:enter!\n", __FUNCTION__);
 
+    pAmergeCtx->NextData.HandleData.Merge_v11.MergeMode = pAmergeCtx->FrameNumber - 1;
+
     if (pAmergeCtx->mergeAttrV11.opMode == MERGE_OPMODE_AUTO) {
         int lo = 0, hi = 0;
         float ratio     = 0.0f;
@@ -580,7 +582,6 @@ bool AmergeByPassProcessing(AmergeContext_t* pAmergeCtx) {
     else if (pAmergeCtx->mergeAttrV11.opMode == MERGE_OPMODE_MANUAL)
         bypass = !pAmergeCtx->ifReCalcStManual;
     else if (pAmergeCtx->mergeAttrV11.opMode == MERGE_OPMODE_AUTO) {
-        pAmergeCtx->NextData.HandleData.Merge_v11.MergeMode = pAmergeCtx->FrameNumber - 1;
         if (pAmergeCtx->mergeAttrV11.stAuto.MergeTuningPara.CtrlDataType == CTRLDATATYPE_ENVLV) {
             diff = pAmergeCtx->CurrData.CtrlData.ExpoData.EnvLv -
                    pAmergeCtx->NextData.CtrlData.ExpoData.EnvLv;

@@ -144,9 +144,9 @@ static XCamReturn processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
     LOGD_ADEHAZE("/*************************Adehaze Start******************/ \n");
 
     AdehazeGetCurrData(pAdehazeHandle, pProcPara);
+    dehaze_bypass_processing = AdehazeByPassProcessing(pAdehazeHandle);
 
     if (DehazeEnableSetting(pAdehazeHandle, pProcRes->AdehzeProcRes)) {
-        dehaze_bypass_processing = AdehazeByPassProcessing(pAdehazeHandle);
         // process
         if (!dehaze_bypass_processing) {
 #if RKAIQ_HAVE_DEHAZE_V10
