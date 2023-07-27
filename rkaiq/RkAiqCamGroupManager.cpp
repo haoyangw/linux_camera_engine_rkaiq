@@ -1023,6 +1023,11 @@ RkAiqCamGroupManager::reProcess(rk_aiq_groupcam_result_t* gc_res)
                 scam_3a_res->aec.exp_tbl = aiqParams->mExposureParams->data()->result.ae_proc_res_rk.exp_set_tbl;
                 scam_3a_res->aec.exp_tbl_size = &aiqParams->mExposureParams->data()->result.ae_proc_res_rk.exp_set_cnt;
                 scam_3a_res->aec.exp_i2c_params = &aiqParams->mExposureParams->data()->result.exp_i2c_params;
+                if (mInit) {
+                    scam_3a_res->aec._effAecExpInfo =
+                        aiqParams->mExposureParams->data()->result.ae_proc_res_rk.exp_set_tbl[0];
+                    scam_3a_res->aec._bEffAecExpValid = true;
+                }
             } else {
                 LOGW_CAMGROUP("camId:%d, framId:%u, exp is null", i, gc_res->_frameId);
                 // frame 1,2 exp may be null now

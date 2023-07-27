@@ -156,7 +156,6 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
             *(procResParaGroup->camgroupParmasArray[i]->_lscConfig) =
                 hAlsc->lscHwConf;
             outparams->cfg_update = true;
-            hAlsc->isReCal_ = false;
         } else {
             outparams->cfg_update = false;
         }
@@ -164,6 +163,7 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
         IS_UPDATE_MEM((procResParaGroup->camgroupParmasArray[i]->_lscConfig), procParaGroup->_offset_is_update) =
             outparams->cfg_update;
     }
+    hAlsc->isReCal_ = false;
 
     LOG1_ALSC( "%s: (exit)\n", __FUNCTION__);
     return XCAM_RETURN_NO_ERROR;

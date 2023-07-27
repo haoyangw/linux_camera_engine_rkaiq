@@ -344,9 +344,17 @@ XCamReturn RkAiqAfHandleInt::prepare() {
     af_config_int->otp_af = sharedCom->snsDes.otp_af;
     af_config_int->otp_pdaf = sharedCom->snsDes.otp_pdaf;
 
-    RkAiqAlgoDescription* des = (RkAiqAlgoDescription*)mDes;
-    ret                       = des->prepare(mConfig);
-    RKAIQCORE_CHECK_RET(ret, "af algo prepare failed");
+    if ((af_config_int->com.u.prepare.sns_op_width != 0) &&
+        (af_config_int->com.u.prepare.sns_op_height != 0)) {
+        RkAiqAlgoDescription* des = (RkAiqAlgoDescription*)mDes;
+        ret                       = des->prepare(mConfig);
+        RKAIQCORE_CHECK_RET(ret, "af algo prepare failed");
+    } else {
+        LOGI_AF("%s: input sns_op_width %d or sns_op_height %d is zero, bypass!",
+            __func__,
+            af_config_int->com.u.prepare.sns_op_width,
+            af_config_int->com.u.prepare.sns_op_height);
+    }
 
     EXIT_ANALYZER_FUNCTION();
     return XCAM_RETURN_NO_ERROR;

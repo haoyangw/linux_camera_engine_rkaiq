@@ -195,79 +195,31 @@ void AmergeGetTuningProcResV12(AmergeContext_t* pAmergeCtx,
         for (int i = 0; i < HDRMGE_V12_OE_CURVE_NUM; i++)
             pAmergeProcRes->Merge_v12.e_y[i] = HDR_LONG_FRMAE_MODE_OECURVE;
     } else {
-        if ((pAmergeCtx->NextData.HandleData.Merge_v12.OECurve_smooth -
-             pAmergeCtx->CurrData.HandleData.Merge_v12.OECurve_smooth) > FLT_EPSILON ||
-            (pAmergeCtx->NextData.HandleData.Merge_v12.OECurve_smooth -
-             pAmergeCtx->CurrData.HandleData.Merge_v12.OECurve_smooth) < -FLT_EPSILON ||
-            (pAmergeCtx->NextData.HandleData.Merge_v12.OECurve_offset -
-             pAmergeCtx->CurrData.HandleData.Merge_v12.OECurve_offset) > FLT_EPSILON ||
-            (pAmergeCtx->NextData.HandleData.Merge_v12.OECurve_offset -
-             pAmergeCtx->CurrData.HandleData.Merge_v12.OECurve_offset) < -FLT_EPSILON)
-            CalibrateOECurve(pAmergeCtx->NextData.HandleData.Merge_v12.OECurve_smooth,
-                             pAmergeCtx->NextData.HandleData.Merge_v12.OECurve_offset,
-                             pAmergeProcRes->Merge_v12.e_y);
+        CalibrateOECurve(pAmergeCtx->NextData.HandleData.Merge_v12.OECurve_smooth,
+                         pAmergeCtx->NextData.HandleData.Merge_v12.OECurve_offset,
+                         pAmergeProcRes->Merge_v12.e_y);
     }
     if (pAmergeCtx->NextData.HandleData.Merge_v12.BaseFrm == BASEFRAME_LONG) {
-        if ((pAmergeCtx->NextData.HandleData.Merge_v12.MDCurveLM_smooth -
-             pAmergeCtx->CurrData.HandleData.Merge_v12.MDCurveLM_smooth) > FLT_EPSILON ||
-            (pAmergeCtx->NextData.HandleData.Merge_v12.MDCurveLM_smooth -
-             pAmergeCtx->CurrData.HandleData.Merge_v12.MDCurveLM_smooth) < -FLT_EPSILON ||
-            (pAmergeCtx->NextData.HandleData.Merge_v12.MDCurveLM_offset -
-             pAmergeCtx->CurrData.HandleData.Merge_v12.MDCurveLM_offset) > FLT_EPSILON ||
-            (pAmergeCtx->NextData.HandleData.Merge_v12.MDCurveLM_offset -
-             pAmergeCtx->CurrData.HandleData.Merge_v12.MDCurveLM_offset) < -FLT_EPSILON)
-            CalibrateMDCurveLongFrmMode(pAmergeCtx->NextData.HandleData.Merge_v12.MDCurveLM_smooth,
-                                        pAmergeCtx->NextData.HandleData.Merge_v12.MDCurveLM_offset,
-                                        pAmergeProcRes->Merge_v12.l1_y);
-        if ((pAmergeCtx->NextData.HandleData.Merge_v12.MDCurveMS_smooth -
-             pAmergeCtx->CurrData.HandleData.Merge_v12.MDCurveMS_smooth) > FLT_EPSILON ||
-            (pAmergeCtx->NextData.HandleData.Merge_v12.MDCurveMS_smooth -
-             pAmergeCtx->CurrData.HandleData.Merge_v12.MDCurveMS_smooth) < -FLT_EPSILON ||
-            (pAmergeCtx->NextData.HandleData.Merge_v12.MDCurveMS_offset -
-             pAmergeCtx->CurrData.HandleData.Merge_v12.MDCurveMS_offset) > FLT_EPSILON ||
-            (pAmergeCtx->NextData.HandleData.Merge_v12.MDCurveMS_offset -
-             pAmergeCtx->CurrData.HandleData.Merge_v12.MDCurveMS_offset) < -FLT_EPSILON)
-            CalibrateMDCurveLongFrmMode(pAmergeCtx->NextData.HandleData.Merge_v12.MDCurveMS_smooth,
-                                        pAmergeCtx->NextData.HandleData.Merge_v12.MDCurveMS_offset,
-                                        pAmergeProcRes->Merge_v12.l0_y);
+        CalibrateMDCurveLongFrmMode(pAmergeCtx->NextData.HandleData.Merge_v12.MDCurveLM_smooth,
+                                    pAmergeCtx->NextData.HandleData.Merge_v12.MDCurveLM_offset,
+                                    pAmergeProcRes->Merge_v12.l1_y);
+        CalibrateMDCurveLongFrmMode(pAmergeCtx->NextData.HandleData.Merge_v12.MDCurveMS_smooth,
+                                    pAmergeCtx->NextData.HandleData.Merge_v12.MDCurveMS_offset,
+                                    pAmergeProcRes->Merge_v12.l0_y);
         // merge v12 add
         if (pAmergeProcRes->Merge_v12.each_raw_en) {
-            if ((pAmergeCtx->NextData.HandleData.Merge_v12.EachChnCurve_smooth -
-                 pAmergeCtx->CurrData.HandleData.Merge_v12.EachChnCurve_smooth) > FLT_EPSILON ||
-                (pAmergeCtx->NextData.HandleData.Merge_v12.EachChnCurve_smooth -
-                 pAmergeCtx->CurrData.HandleData.Merge_v12.EachChnCurve_smooth) < -FLT_EPSILON ||
-                (pAmergeCtx->NextData.HandleData.Merge_v12.EachChnCurve_offset -
-                 pAmergeCtx->CurrData.HandleData.Merge_v12.EachChnCurve_offset) > FLT_EPSILON ||
-                (pAmergeCtx->NextData.HandleData.Merge_v12.EachChnCurve_offset -
-                 pAmergeCtx->CurrData.HandleData.Merge_v12.EachChnCurve_offset) < -FLT_EPSILON)
-                CalibrateEachChnCurve(pAmergeCtx->NextData.HandleData.Merge_v12.EachChnCurve_smooth,
-                                      pAmergeCtx->NextData.HandleData.Merge_v12.EachChnCurve_offset,
-                                      pAmergeProcRes->Merge_v12.l_raw0);
-            if ((pAmergeCtx->NextData.HandleData.Merge_v12.EachChnCurve_smooth -
-                 pAmergeCtx->CurrData.HandleData.Merge_v12.EachChnCurve_smooth) > FLT_EPSILON ||
-                (pAmergeCtx->NextData.HandleData.Merge_v12.EachChnCurve_smooth -
-                 pAmergeCtx->CurrData.HandleData.Merge_v12.EachChnCurve_smooth) < -FLT_EPSILON ||
-                (pAmergeCtx->NextData.HandleData.Merge_v12.EachChnCurve_offset -
-                 pAmergeCtx->CurrData.HandleData.Merge_v12.EachChnCurve_offset) > FLT_EPSILON ||
-                (pAmergeCtx->NextData.HandleData.Merge_v12.EachChnCurve_offset -
-                 pAmergeCtx->CurrData.HandleData.Merge_v12.EachChnCurve_offset) < -FLT_EPSILON)
-                CalibrateEachChnCurve(pAmergeCtx->NextData.HandleData.Merge_v12.EachChnCurve_smooth,
-                                      pAmergeCtx->NextData.HandleData.Merge_v12.EachChnCurve_offset,
-                                      pAmergeProcRes->Merge_v12.l_raw1);
+            CalibrateEachChnCurve(pAmergeCtx->NextData.HandleData.Merge_v12.EachChnCurve_smooth,
+                                  pAmergeCtx->NextData.HandleData.Merge_v12.EachChnCurve_offset,
+                                  pAmergeProcRes->Merge_v12.l_raw0);
+            CalibrateEachChnCurve(pAmergeCtx->NextData.HandleData.Merge_v12.EachChnCurve_smooth,
+                                  pAmergeCtx->NextData.HandleData.Merge_v12.EachChnCurve_offset,
+                                  pAmergeProcRes->Merge_v12.l_raw1);
         }
     } else if (pAmergeCtx->NextData.HandleData.Merge_v12.BaseFrm == BASEFRAME_SHORT) {
-        if ((pAmergeCtx->NextData.HandleData.Merge_v12.MDCurveLM_smooth -
-             pAmergeCtx->CurrData.HandleData.Merge_v12.MDCurveLM_smooth) > FLT_EPSILON ||
-            (pAmergeCtx->NextData.HandleData.Merge_v12.MDCurveLM_smooth -
-             pAmergeCtx->CurrData.HandleData.Merge_v12.MDCurveLM_smooth) < -FLT_EPSILON ||
-            (pAmergeCtx->NextData.HandleData.Merge_v12.MDCurveLM_offset -
-             pAmergeCtx->CurrData.HandleData.Merge_v12.MDCurveLM_offset) > FLT_EPSILON ||
-            (pAmergeCtx->NextData.HandleData.Merge_v12.MDCurveLM_offset -
-             pAmergeCtx->CurrData.HandleData.Merge_v12.MDCurveLM_offset) < -FLT_EPSILON)
-            CalibrateMDCurveShortFrmMode(pAmergeCtx->NextData.HandleData.Merge_v12.MDCurveLM_smooth,
-                                         pAmergeCtx->NextData.HandleData.Merge_v12.MDCurveLM_offset,
-                                         pAmergeProcRes->Merge_v12.l1_y,
-                                         pAmergeProcRes->Merge_v12.l0_y);
+        CalibrateMDCurveShortFrmMode(pAmergeCtx->NextData.HandleData.Merge_v12.MDCurveLM_smooth,
+                                     pAmergeCtx->NextData.HandleData.Merge_v12.MDCurveLM_offset,
+                                     pAmergeProcRes->Merge_v12.l1_y,
+                                     pAmergeProcRes->Merge_v12.l0_y);
     }
 
     LOG1_AMERGE("%s:Eixt!\n", __FUNCTION__);

@@ -516,7 +516,7 @@ void AdrcTuningParaProcessing(AdrcContext_t* pAdrcCtx, RkAiqAdrcProcResult_t* pA
             pAdrcCtx->drcAttrV11.stAuto.DrcTuningPara.LocalSetting.Space_sgm_pre;
         // scale y
         for (int i = 0; i < ADRC_Y_NUM; i++)
-            pAdrcProcRes->DrcProcRes.Drc_v11.scale_y[i] =
+            pAdrcCtx->NextData.staticParams.Scale_y[i] =
                 pAdrcCtx->drcAttrV11.stAuto.DrcTuningPara.Scale_y[i];
         pAdrcCtx->NextData.staticParams.ByPassThr =
             pAdrcCtx->drcAttrV11.stAuto.DrcTuningPara.ByPassThr;
@@ -590,7 +590,7 @@ void AdrcTuningParaProcessing(AdrcContext_t* pAdrcCtx, RkAiqAdrcProcResult_t* pA
         pAdrcCtx->NextData.staticParams.Space_sgm_pre = LIMIT_VALUE(
             pAdrcCtx->drcAttrV11.stManual.LocalSetting.Space_sgm_pre, SPACESGMMAX, SPACESGMMIN);
         for (int i = 0; i < ADRC_Y_NUM; i++)
-            pAdrcProcRes->DrcProcRes.Drc_v11.scale_y[i] =
+            pAdrcCtx->NextData.staticParams.Scale_y[i] =
                 LIMIT_VALUE(pAdrcCtx->drcAttrV11.stManual.Scale_y[i], SCALEYMAX, SCALEYMIN);
         pAdrcCtx->NextData.staticParams.Edge_Weit =
             LIMIT_VALUE(pAdrcCtx->drcAttrV11.stManual.Edge_Weit, NORMALIZE_MAX, NORMALIZE_MIN);
