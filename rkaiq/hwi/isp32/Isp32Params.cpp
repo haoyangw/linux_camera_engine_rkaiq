@@ -1702,14 +1702,60 @@ void Isp32Params::convertAiqAdehazeToIsp32Params(struct isp32_isp_params_cfg& is
     for (int i = 0; i < ISP32_DHAZ_ENH_LUMA_NUM; i++)
         cfg->enh_luma[i] = dhaze.ProcResV12.enh_luma[i];
 
-#if 0
-    LOGE_ADEHAZE("%s(%d) dehaze local gain IDX(0~5): 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x\n", __func__, __LINE__, cfg->sigma_idx[0], cfg->sigma_idx[1],
-                 cfg->sigma_idx[2], cfg->sigma_idx[3], cfg->sigma_idx[4], cfg->sigma_idx[5]);
-    LOGE_ADEHAZE("%s(%d) dehaze local gain LUT(0~5): 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x\n", __func__, __LINE__, cfg->sigma_lut[0], cfg->sigma_lut[1],
-                 cfg->sigma_lut[2], cfg->sigma_lut[3], cfg->sigma_lut[4], cfg->sigma_lut[5]);
-    LOGE_ADEHAZE("%s(%d) enh_luma(0~5): 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x\n", __func__, __LINE__, cfg->enh_luma[0], cfg->enh_luma[1],
-                 cfg->enh_luma[2], cfg->enh_luma[3], cfg->enh_luma[4], cfg->enh_luma[5]);
-#endif
+    LOG1_ADEHAZE(
+        "%s: color_deviate_en:%d round_en:%d soft_wr_en:%d enhance_en:%d air_lc_en:%d hpara_en:%d "
+        "hist_en:%d "
+        "dc_en:%d\n",
+        __func__, cfg->color_deviate_en, cfg->round_en, cfg->soft_wr_en, cfg->enhance_en,
+        cfg->air_lc_en, cfg->hpara_en, cfg->hist_en, cfg->dc_en);
+    LOG1_ADEHAZE(
+        "%s: yblk_th:%d yhist_th:%d dc_max_th:%d dc_min_th:%d wt_max:%d bright_max:%d "
+        "bright_min:%d \n",
+        __func__, cfg->yblk_th, cfg->yhist_th, cfg->dc_max_th, cfg->dc_min_th, cfg->wt_max,
+        cfg->bright_max, cfg->bright_min);
+    LOG1_ADEHAZE("%s: tmax_base:%d dark_th:%d air_max:%d air_min:%d tmax_max:%d tmax_off:%d \n",
+                 __func__, cfg->tmax_base, cfg->dark_th, cfg->air_max, cfg->air_min, cfg->tmax_max,
+                 cfg->tmax_off);
+    LOG1_ADEHAZE("%s: hist_k:%d hist_th_off:%d hist_min:%d hist_gratio:%d hist_scale:%d \n",
+                 __func__, cfg->hist_k, cfg->hist_th_off, cfg->hist_min, cfg->hist_gratio,
+                 cfg->hist_scale);
+    LOG1_ADEHAZE("%s: gaus_h0:%d gaus_h1:%d gaus_h2:%d enhance_value:%d enhance_chroma:%d \n",
+                 __func__, cfg->gaus_h0, cfg->gaus_h1, cfg->gaus_h2, cfg->enhance_value,
+                 cfg->enhance_chroma);
+    LOG1_ADEHAZE(
+        "%s: iir_wt_sigma:%d iir_sigma:%d stab_fnum:%d iir_tmax_sigma:%d iir_air_sigma:%d "
+        "iir_pre_wet:%d \n",
+        __func__, cfg->iir_wt_sigma, cfg->iir_sigma, cfg->stab_fnum, cfg->iir_tmax_sigma,
+        cfg->iir_air_sigma, cfg->iir_pre_wet);
+    LOG1_ADEHAZE("%s: cfg_alpha:%d cfg_wt:%d cfg_air:%d cfg_gratio:%d cfg_tmax:%d \n", __func__,
+                 cfg->cfg_alpha, cfg->cfg_wt, cfg->cfg_air, cfg->cfg_gratio, cfg->cfg_tmax);
+    LOG1_ADEHAZE(
+        "%s: range_sima:%d space_sigma_cur:%d space_sigma_pre:%d dc_weitcur:%d bf_weight:%d \n",
+        __func__, cfg->range_sima, cfg->space_sigma_cur, cfg->space_sigma_pre, cfg->dc_weitcur,
+        cfg->bf_weight);
+    LOG1_ADEHAZE("%s: sigma_idx: %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n", __FUNCTION__,
+                 cfg->sigma_idx[0], cfg->sigma_idx[1], cfg->sigma_idx[2], cfg->sigma_idx[3],
+                 cfg->sigma_idx[4], cfg->sigma_idx[5], cfg->sigma_idx[6], cfg->sigma_idx[7],
+                 cfg->sigma_idx[8], cfg->sigma_idx[9], cfg->sigma_idx[10], cfg->sigma_idx[11],
+                 cfg->sigma_idx[12], cfg->sigma_idx[13], cfg->sigma_idx[14]);
+    LOG1_ADEHAZE("%s: sigma_lut: %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n",
+                 __FUNCTION__, cfg->sigma_lut[0], cfg->sigma_lut[1], cfg->sigma_lut[2],
+                 cfg->sigma_lut[3], cfg->sigma_lut[4], cfg->sigma_lut[5], cfg->sigma_lut[6],
+                 cfg->sigma_lut[7], cfg->sigma_lut[8], cfg->sigma_lut[9], cfg->sigma_lut[10],
+                 cfg->sigma_lut[11], cfg->sigma_lut[12], cfg->sigma_lut[13], cfg->sigma_lut[14],
+                 cfg->sigma_lut[15], cfg->sigma_lut[16]);
+    LOG1_ADEHAZE("%s: enh_curve: %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n",
+                 __FUNCTION__, cfg->enh_curve[0], cfg->enh_curve[1], cfg->enh_curve[2],
+                 cfg->enh_curve[3], cfg->enh_curve[4], cfg->enh_curve[5], cfg->enh_curve[6],
+                 cfg->enh_curve[7], cfg->enh_curve[8], cfg->enh_curve[9], cfg->enh_curve[10],
+                 cfg->enh_curve[11], cfg->enh_curve[12], cfg->enh_curve[13], cfg->enh_curve[14],
+                 cfg->enh_curve[15], cfg->enh_curve[16]);
+    LOG1_ADEHAZE(
+        "%s: enh_luma_en:%d enh_luma: %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n",
+        __FUNCTION__, cfg->enh_luma_en, cfg->enh_luma[0], cfg->enh_luma[1], cfg->enh_luma[2],
+        cfg->enh_luma[3], cfg->enh_luma[4], cfg->enh_luma[5], cfg->enh_luma[6], cfg->enh_luma[7],
+        cfg->enh_luma[8], cfg->enh_luma[9], cfg->enh_luma[10], cfg->enh_luma[11], cfg->enh_luma[12],
+        cfg->enh_luma[13], cfg->enh_luma[14], cfg->enh_luma[15], cfg->enh_luma[16]);
 }
 #endif
 

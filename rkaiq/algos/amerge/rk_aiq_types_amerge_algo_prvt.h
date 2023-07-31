@@ -24,8 +24,8 @@
 
 /********************also use for gamma, dehaze, tmo and drc*******************/
 // for noramlize EnvLv
-#define MAX_ENV_LUMA (200)
-#define MAX_ENV_EXPO (0.001*1.0)
+#define MAX_ENV_LUMA (65)
+#define MAX_ENV_EXPO (10.0*1.0)
 #define MIN_ENV_LUMA (0)
 #define MIN_ENV_EXPO (30.0*256.0)
 #define MAX_ENV_LV (MAX_ENV_LUMA / MAX_ENV_EXPO)

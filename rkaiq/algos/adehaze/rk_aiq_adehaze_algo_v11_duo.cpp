@@ -157,11 +157,11 @@ void stManuGetDehazeParamsV11duo(mDehazeAttrV11_t* pStManu, RkAiqAdehazeProcResu
 
     if (pProcRes->ProcResV11duo.dc_en && !(pProcRes->ProcResV11duo.enhance_en)) {
         if (pProcRes->ProcResV11duo.cfg_alpha == 255) {
-            LOGD_ADEHAZE("%s cfg_alpha:1 cfg_air:%f cfg_tmax:%f cfg_wt:%f\n", __func__,
-                         pProcRes->ProcResV11duo.cfg_air / 1.0f,
+            LOGD_ADEHAZE("%s cfg_alpha:1 MDehazeStrth:%d cfg_air:%f cfg_tmax:%f cfg_wt:%f\n",
+                         __func__, MDehazeStrth, pProcRes->ProcResV11duo.cfg_air / 1.0f,
                          pProcRes->ProcResV11duo.cfg_tmax / 1023.0f,
                          pProcRes->ProcResV11duo.cfg_wt / 255.0f);
-            LOGD_ADEHAZE("%s cfg_alpha_reg:0x255 cfg_air:0x%x cfg_tmax:0x%x cfg_wt:0x%x\n",
+            LOGV_ADEHAZE("%s cfg_alpha_reg:0x255 cfg_air:0x%x cfg_tmax:0x%x cfg_wt:0x%x\n",
                          __func__, pProcRes->ProcResV11duo.cfg_air,
                          pProcRes->ProcResV11duo.cfg_tmax, pProcRes->ProcResV11duo.cfg_wt);
         } else if (pProcRes->ProcResV11duo.cfg_alpha == 0) {
@@ -169,7 +169,7 @@ void stManuGetDehazeParamsV11duo(mDehazeAttrV11_t* pStManu, RkAiqAdehazeProcResu
                 "%s cfg_alpha:0 air_max:%f air_min:%f tmax_base:%f wt_max:%f\n", __func__,
                 pProcRes->ProcResV11duo.air_max / 1.0f, pProcRes->ProcResV11duo.air_min / 1.0f,
                 pProcRes->ProcResV11duo.tmax_base / 1.0f, pProcRes->ProcResV11duo.wt_max / 255.0f);
-            LOGD_ADEHAZE(
+            LOGV_ADEHAZE(
                 "%s cfg_alpha_reg:0x0 air_max:0x%x air_min:0x%x tmax_base:0x%x wt_max:0x%x\n",
                 __func__, pProcRes->ProcResV11duo.air_max, pProcRes->ProcResV11duo.air_min,
                 pProcRes->ProcResV11duo.tmax_base, pProcRes->ProcResV11duo.wt_max);
@@ -224,10 +224,12 @@ void stManuGetEnhanceParamsV11duo(mDehazeAttrV11_t* pStManu, RkAiqAdehazeProcRes
         pProcRes->ProcResV11duo.enh_curve[i] = (int)(pStManu->enhance_setting.enhance_curve[i]);
 
     if (pProcRes->ProcResV11duo.dc_en && pProcRes->ProcResV11duo.enhance_en) {
-        LOGD_ADEHAZE("%s enhance_value:%f enhance_chroma:%f\n", __func__,
-                     pStManu->enhance_setting.EnhanceData.enhance_value / 1024.0f,
-                     pStManu->enhance_setting.EnhanceData.enhance_chroma / 1024.0f);
-        LOGD_ADEHAZE("%s enhance_value_reg:0x%x enhance_chroma_reg:0x%x\n", __func__,
+        LOGD_ADEHAZE(
+            "%s MEnhanceStrth:%d MEnhanceChromeStrth:%d enhance_value:%f enhance_chroma:%f\n",
+            __func__, MEnhanceStrth, MEnhanceChromeStrth,
+            pStManu->enhance_setting.EnhanceData.enhance_value / 1024.0f,
+            pStManu->enhance_setting.EnhanceData.enhance_chroma / 1024.0f);
+        LOGV_ADEHAZE("%s enhance_value_reg:0x%x enhance_chroma_reg:0x%x\n", __func__,
                      pProcRes->ProcResV11duo.enhance_value, pProcRes->ProcResV11duo.enhance_chroma);
     }
 
@@ -264,7 +266,7 @@ void stManuGetHistParamsV11duo(mDehazeAttrV11_t* pStManu, RkAiqAdehazeProcResult
             pProcRes->ProcResV11duo.hist_th_off / 1.0f, pProcRes->ProcResV11duo.hist_k / 4.0f,
             pProcRes->ProcResV11duo.hist_min / 256.0f, pProcRes->ProcResV11duo.hist_scale / 256.0f,
             pProcRes->ProcResV11duo.cfg_gratio / 256.0f);
-        LOGD_ADEHAZE(
+        LOGV_ADEHAZE(
             "%s cfg_alpha_reg:0x%x hist_gratio_reg:0x%x hist_th_off_reg:0x%x hist_k_reg:0x%x "
             "hist_min_reg:0x%x hist_scale_reg:0x%x cfg_gratio_reg:0x%x\n",
             __func__, pProcRes->ProcResV11duo.cfg_alpha, pProcRes->ProcResV11duo.hist_gratio,
@@ -446,11 +448,12 @@ void GetDehazeParamsV11duo(CalibDbDehazeV11_t* pCalibV11Duo, RkAiqAdehazeProcRes
 
     if (pProcRes->ProcResV11duo.dc_en && !(pProcRes->ProcResV11duo.enhance_en)) {
         if (pProcRes->ProcResV11duo.cfg_alpha == 255) {
-            LOGD_ADEHAZE("%s cfg_alpha:1 CtrlValue:%f cfg_air:%f cfg_tmax:%f cfg_wt:%f\n", __func__,
-                         CtrlValue, pProcRes->ProcResV11duo.cfg_air / 1.0f,
-                         pProcRes->ProcResV11duo.cfg_tmax / 1023.0f,
-                         pProcRes->ProcResV11duo.cfg_wt / 255.0f);
-            LOGD_ADEHAZE("%s cfg_alpha_reg:0x255 cfg_air:0x%x cfg_tmax:0x%x cfg_wt:0x%x\n",
+            LOGD_ADEHAZE(
+                "%s cfg_alpha:1 CtrlValue:%f MDehazeStrth:%d cfg_air:%f cfg_tmax:%f cfg_wt:%f\n",
+                __func__, CtrlValue, MDehazeStrth, pProcRes->ProcResV11duo.cfg_air / 1.0f,
+                pProcRes->ProcResV11duo.cfg_tmax / 1023.0f,
+                pProcRes->ProcResV11duo.cfg_wt / 255.0f);
+            LOGV_ADEHAZE("%s cfg_alpha_reg:0x255 cfg_air:0x%x cfg_tmax:0x%x cfg_wt:0x%x\n",
                          __func__, pProcRes->ProcResV11duo.cfg_air,
                          pProcRes->ProcResV11duo.cfg_tmax, pProcRes->ProcResV11duo.cfg_wt);
         } else if (pProcRes->ProcResV11duo.cfg_alpha == 0) {
@@ -459,7 +462,7 @@ void GetDehazeParamsV11duo(CalibDbDehazeV11_t* pCalibV11Duo, RkAiqAdehazeProcRes
                 __func__, CtrlValue, pProcRes->ProcResV11duo.air_max / 1.0f,
                 pProcRes->ProcResV11duo.air_min / 1.0f, pProcRes->ProcResV11duo.tmax_base / 1.0f,
                 pProcRes->ProcResV11duo.wt_max / 255.0f);
-            LOGD_ADEHAZE(
+            LOGV_ADEHAZE(
                 "%s cfg_alpha_reg:0x0 air_max:0x%x air_min:0x%x tmax_base:0x%x wt_max:0x%x\n",
                 __func__, pProcRes->ProcResV11duo.air_max, pProcRes->ProcResV11duo.air_min,
                 pProcRes->ProcResV11duo.tmax_base, pProcRes->ProcResV11duo.wt_max);
@@ -525,10 +528,13 @@ void GetEnhanceParamsV11duo(CalibDbDehazeV11_t* pCalibV11Duo, RkAiqAdehazeProcRe
             (int)(pCalibV11Duo->enhance_setting.enhance_curve[i]);
 
     if (pProcRes->ProcResV11duo.dc_en && pProcRes->ProcResV11duo.enhance_en) {
-        LOGD_ADEHAZE("%s CtrlValue:%f enhance_value:%f enhance_chroma:%f\n", __func__, CtrlValue,
-                     pProcRes->ProcResV11duo.enhance_value / 1024.0f,
-                     pProcRes->ProcResV11duo.enhance_chroma / 1024.0f);
-        LOGD_ADEHAZE("%s enhance_value_reg:0x%x enhance_chroma_reg:0x%x\n", __func__,
+        LOGD_ADEHAZE(
+            "%s CtrlValue:%f MEnhanceStrth:%d MEnhanceChromeStrth:%d enhance_value:%f "
+            "enhance_chroma:%f\n",
+            __func__, CtrlValue, MEnhanceStrth, MEnhanceChromeStrth,
+            pProcRes->ProcResV11duo.enhance_value / 1024.0f,
+            pProcRes->ProcResV11duo.enhance_chroma / 1024.0f);
+        LOGV_ADEHAZE("%s enhance_value_reg:0x%x enhance_chroma_reg:0x%x\n", __func__,
                      pProcRes->ProcResV11duo.enhance_value, pProcRes->ProcResV11duo.enhance_chroma);
     }
 
@@ -588,7 +594,7 @@ void GetHistParamsV11duo(CalibDbDehazeV11_t* pCalibV11Duo, RkAiqAdehazeProcResul
             pProcRes->ProcResV11duo.hist_th_off / 1.0f, pProcRes->ProcResV11duo.hist_k / 4.0f,
             pProcRes->ProcResV11duo.hist_min / 256.0f, pProcRes->ProcResV11duo.hist_scale / 256.0f,
             pProcRes->ProcResV11duo.cfg_gratio / 256.0f);
-        LOGD_ADEHAZE(
+        LOGV_ADEHAZE(
             "%s cfg_alpha_reg:0x%x hist_gratio_reg:0x%x hist_th_off_reg:0x%x hist_k_reg:0x%x "
             "hist_min_reg:0x%x hist_scale_reg:0x%x cfg_gratio_reg:0x%x\n",
             __func__, pProcRes->ProcResV11duo.cfg_alpha, pProcRes->ProcResV11duo.hist_gratio,
@@ -886,16 +892,15 @@ XCamReturn AdehazeProcess(AdehazeHandle_t* pAdehazeCtx, dehaze_stats_v11_duo_t* 
                         BIT_8_MAX, BIT_MIN);
 
         // dehaze setting
-        if (pAdehazeCtx->AdehazeAtrrV11duo.stAuto.DehazeTuningPara.dehaze_setting.en ||
-            pAdehazeCtx->AdehazeAtrrV11duo.stAuto.DehazeTuningPara.enhance_setting.en ||
-            (pAdehazeCtx->AdehazeAtrrV11duo.stAuto.DehazeTuningPara.hist_setting.en &&
-             !pAdehazeCtx->AdehazeAtrrV11duo.stAuto.DehazeTuningPara.hist_setting.hist_para_en))
+        if (pAdehzeProcRes->ProcResV11duo.dc_en)
             GetDehazeParamsV11duo(&pAdehazeCtx->AdehazeAtrrV11duo.stAuto.DehazeTuningPara,
                                   pAdehzeProcRes, pAdehazeCtx->width, pAdehazeCtx->height,
                                   pAdehazeCtx->AdehazeAtrrV11duo.Info.MDehazeStrth, CtrlValue);
 
         // enhance setting
-        if (pAdehazeCtx->AdehazeAtrrV11duo.stAuto.DehazeTuningPara.enhance_setting.en)
+        // enhance curve is effective in dehaze function. when dc_en on, GetEnhanceParamsV11duo is
+        // on
+        if (pAdehzeProcRes->ProcResV11duo.dc_en)
             GetEnhanceParamsV11duo(
                 &pAdehazeCtx->AdehazeAtrrV11duo.stAuto.DehazeTuningPara, pAdehzeProcRes,
                 pAdehazeCtx->AdehazeAtrrV11duo.Info.MEnhanceStrth,
@@ -911,16 +916,15 @@ XCamReturn AdehazeProcess(AdehazeHandle_t* pAdehazeCtx, dehaze_stats_v11_duo_t* 
             SHIFT8BIT(pAdehazeCtx->AdehazeAtrrV11duo.stManual.cfg_alpha), BIT_8_MAX, BIT_MIN);
 
         // dehaze setting
-        if (pAdehazeCtx->AdehazeAtrrV11duo.stManual.dehaze_setting.en ||
-            pAdehazeCtx->AdehazeAtrrV11duo.stManual.enhance_setting.en ||
-            (pAdehazeCtx->AdehazeAtrrV11duo.stManual.hist_setting.en &&
-             !pAdehazeCtx->AdehazeAtrrV11duo.stManual.hist_setting.hist_para_en))
+        if (pAdehzeProcRes->ProcResV11duo.dc_en)
             stManuGetDehazeParamsV11duo(&pAdehazeCtx->AdehazeAtrrV11duo.stManual, pAdehzeProcRes,
                                         pAdehazeCtx->width, pAdehazeCtx->height,
                                         pAdehazeCtx->AdehazeAtrrV11duo.Info.MDehazeStrth);
 
         // enhance setting
-        if (pAdehazeCtx->AdehazeAtrrV11duo.stManual.enhance_setting.en)
+        // enhance curve is effective in dehaze function. when dc_en on, GetEnhanceParamsV11duo is
+        // on
+        if (pAdehzeProcRes->ProcResV11duo.dc_en)
             stManuGetEnhanceParamsV11duo(&pAdehazeCtx->AdehazeAtrrV11duo.stManual, pAdehzeProcRes,
                                          pAdehazeCtx->AdehazeAtrrV11duo.Info.MEnhanceStrth,
                                          pAdehazeCtx->AdehazeAtrrV11duo.Info.MEnhanceChromeStrth);

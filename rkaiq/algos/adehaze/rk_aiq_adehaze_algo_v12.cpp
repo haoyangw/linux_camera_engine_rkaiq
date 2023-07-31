@@ -402,11 +402,11 @@ void stManuGetDehazeParamsV12(mDehazeAttrV12_t* pStManu, RkAiqAdehazeProcResult_
 
     if (pProcRes->ProcResV12.dc_en && !(pProcRes->ProcResV12.enhance_en)) {
         if (pProcRes->ProcResV12.cfg_alpha == 255) {
-            LOGD_ADEHAZE("%s cfg_alpha:1 cfg_air:%f cfg_tmax:%f cfg_wt:%f\n", __func__,
-                         pProcRes->ProcResV12.cfg_air / 1.0f,
+            LOGD_ADEHAZE("%s cfg_alpha:1 MDehazeStrth:%d cfg_air:%f cfg_tmax:%f cfg_wt:%f\n",
+                         __func__, MDehazeStrth, pProcRes->ProcResV12.cfg_air / 1.0f,
                          pProcRes->ProcResV12.cfg_tmax / 1023.0f,
                          pProcRes->ProcResV12.cfg_wt / 255.0f);
-            LOGD_ADEHAZE("%s cfg_alpha_reg:0x255 cfg_air:0x%x cfg_tmax:0x%x cfg_wt:0x%x\n",
+            LOGV_ADEHAZE("%s cfg_alpha_reg:0x255 cfg_air:0x%x cfg_tmax:0x%x cfg_wt:0x%x\n",
                          __func__, pProcRes->ProcResV12.cfg_air, pProcRes->ProcResV12.cfg_tmax,
                          pProcRes->ProcResV12.cfg_wt);
         } else if (pProcRes->ProcResV12.cfg_alpha == 0) {
@@ -414,7 +414,7 @@ void stManuGetDehazeParamsV12(mDehazeAttrV12_t* pStManu, RkAiqAdehazeProcResult_
                          pProcRes->ProcResV12.air_max / 1.0f, pProcRes->ProcResV12.air_min / 1.0f,
                          pProcRes->ProcResV12.tmax_base / 1.0f,
                          pProcRes->ProcResV12.wt_max / 255.0f);
-            LOGD_ADEHAZE(
+            LOGV_ADEHAZE(
                 "%s cfg_alpha_reg:0x0 air_max:0x%x air_min:0x%x tmax_base:0x%x wt_max:0x%x\n",
                 __func__, pProcRes->ProcResV12.air_max, pProcRes->ProcResV12.air_min,
                 pProcRes->ProcResV12.tmax_base, pProcRes->ProcResV12.wt_max);
@@ -507,18 +507,28 @@ void stManuGetEnhanceParamsV12(mDehazeAttrV12_t* pStManu, RkAiqAdehazeProcResult
     if (pProcRes->ProcResV12.dc_en && pProcRes->ProcResV12.enhance_en) {
         LOGD_ADEHAZE("%s color_deviate_en:%d enh_luma_en:%d\n", __func__,
                      pProcRes->ProcResV12.color_deviate_en, pProcRes->ProcResV12.enh_luma_en);
-        LOGD_ADEHAZE("%s enhance_value:%f enhance_chroma:%f\n", __func__,
-                     pStManu->enhance_setting.EnhanceData.enhance_value / 1024.0f,
-                     pStManu->enhance_setting.EnhanceData.enhance_chroma / 1024.0f);
+        LOGD_ADEHAZE(
+            "%s MEnhanceStrth:%d MEnhanceChromeStrth:%d enhance_value:%f enhance_chroma:%f\n",
+            __func__, MEnhanceStrth, MEnhanceChromeStrth,
+            pStManu->enhance_setting.EnhanceData.enhance_value / 1024.0f,
+            pStManu->enhance_setting.EnhanceData.enhance_chroma / 1024.0f);
         if (pProcRes->ProcResV12.enh_luma_en) {
             LOGD_ADEHAZE(
-                "%s enh_luma[0~7]:%f %f %f %f %f %f %f %f\n", __func__,
+                "%s enh_luma: %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n", __func__,
                 pProcRes->ProcResV12.enh_luma[0] / 64.0f, pProcRes->ProcResV12.enh_luma[1] / 64.0f,
                 pProcRes->ProcResV12.enh_luma[2] / 64.0f, pProcRes->ProcResV12.enh_luma[3] / 64.0f,
                 pProcRes->ProcResV12.enh_luma[4] / 64.0f, pProcRes->ProcResV12.enh_luma[5] / 64.0f,
-                pProcRes->ProcResV12.enh_luma[6] / 64.0f, pProcRes->ProcResV12.enh_luma[7] / 64.0f);
+                pProcRes->ProcResV12.enh_luma[6] / 64.0f, pProcRes->ProcResV12.enh_luma[7] / 64.0f,
+                pProcRes->ProcResV12.enh_luma[8] / 64.0f, pProcRes->ProcResV12.enh_luma[9] / 64.0f,
+                pProcRes->ProcResV12.enh_luma[10] / 64.0f,
+                pProcRes->ProcResV12.enh_luma[11] / 64.0f,
+                pProcRes->ProcResV12.enh_luma[12] / 64.0f,
+                pProcRes->ProcResV12.enh_luma[13] / 64.0f,
+                pProcRes->ProcResV12.enh_luma[14] / 64.0f,
+                pProcRes->ProcResV12.enh_luma[15] / 64.0f,
+                pProcRes->ProcResV12.enh_luma[16] / 64.0f);
         }
-        LOGD_ADEHAZE("%s enhance_value_reg:0x%x enhance_chroma_reg:0x%x\n", __func__,
+        LOGV_ADEHAZE("%s enhance_value_reg:0x%x enhance_chroma_reg:0x%x\n", __func__,
                      pProcRes->ProcResV12.enhance_value, pProcRes->ProcResV12.enhance_chroma);
     }
 
@@ -554,8 +564,12 @@ void stManuGetHistParamsV12(mDehazeAttrV12_t* pStManu, RkAiqAdehazeProcResult_t*
     } else if (pStManu->hist_setting.hist_wr.mode == HIST_WR_AUTO) {
         pProcRes->ProcResV12.soft_wr_en = FUNCTION_DISABLE;
     } else if (pStManu->hist_setting.hist_wr.mode == HIST_WR_SEMIAUTO) {
-        ret = TransferHistWrSemiAtuos2Res(pProcRes, &pStManu->hist_setting.hist_wr.semiauto_curve,
-                                          pStats, stats_true);
+        if (stats_true)
+            ret = TransferHistWrSemiAtuos2Res(
+                pProcRes, &pStManu->hist_setting.hist_wr.semiauto_curve, pStats, stats_true);
+        else
+            ret = XCAM_RETURN_ERROR_PARAM;
+
         if (ret == XCAM_RETURN_NO_ERROR)
             pProcRes->ProcResV12.soft_wr_en = FUNCTION_ENABLE;
         else
@@ -563,17 +577,20 @@ void stManuGetHistParamsV12(mDehazeAttrV12_t* pStManu, RkAiqAdehazeProcResult_t*
     }
 
     if (pProcRes->ProcResV12.hist_en) {
-        LOGV_ADEHAZE(
-            "%s:  stats_true:%d dhaz_adp_air_base:%d dhaz_adp_wt:%d dhaz_adp_gratio:%d "
-            "dhaz_adp_tmax:%d "
-            "dhaz_pic_sumh:%d \n",
-            __FUNCTION__, stats_true, pStats->dhaz_adp_air_base, pStats->dhaz_adp_wt,
-            pStats->dhaz_adp_gratio, pStats->dhaz_adp_tmax, pStats->dhaz_pic_sumh);
-        LOGV_ADEHAZE(
-            "%s h_rgb_iir[0~1]:0x%x 0x%x 0x%x "
-            "0x%x 0x%x 0x%x 0x%x\n",
-            __func__, pStats->h_rgb_iir[0], pStats->h_rgb_iir[1], pStats->h_rgb_iir[2],
-            pStats->h_rgb_iir[3], pStats->h_rgb_iir[4], pStats->h_rgb_iir[5], pStats->h_rgb_iir[6]);
+        if (stats_true) {
+            LOGV_ADEHAZE(
+                "%s:  stats_true:%d dhaz_adp_air_base:%d dhaz_adp_wt:%d dhaz_adp_gratio:%d "
+                "dhaz_adp_tmax:%d "
+                "dhaz_pic_sumh:%d \n",
+                __FUNCTION__, stats_true, pStats->dhaz_adp_air_base, pStats->dhaz_adp_wt,
+                pStats->dhaz_adp_gratio, pStats->dhaz_adp_tmax, pStats->dhaz_pic_sumh);
+            LOGV_ADEHAZE(
+                "%s h_rgb_iir[0~1]:0x%x 0x%x 0x%x "
+                "0x%x 0x%x 0x%x 0x%x\n",
+                __func__, pStats->h_rgb_iir[0], pStats->h_rgb_iir[1], pStats->h_rgb_iir[2],
+                pStats->h_rgb_iir[3], pStats->h_rgb_iir[4], pStats->h_rgb_iir[5],
+                pStats->h_rgb_iir[6]);
+        }
         LOGD_ADEHAZE(
             "%s cfg_alpha:%f hist_para_en:%d hist_gratio:%f hist_th_off:%f hist_k:%f "
             "hist_min:%f hist_scale:%f cfg_gratio:%f\n",
@@ -778,11 +795,11 @@ void GetDehazeParamsV12(CalibDbDehazeV12_t* pCalibV12, RkAiqAdehazeProcResult_t*
 
     if (pProcRes->ProcResV12.dc_en && !(pProcRes->ProcResV12.enhance_en)) {
         if (pProcRes->ProcResV12.cfg_alpha == 255) {
-            LOGD_ADEHAZE("%s cfg_alpha:1 CtrlValue:%f cfg_air:%f cfg_tmax:%f cfg_wt:%f\n", __func__,
-                         CtrlValue, pProcRes->ProcResV12.cfg_air / 1.0f,
-                         pProcRes->ProcResV12.cfg_tmax / 1023.0f,
-                         pProcRes->ProcResV12.cfg_wt / 255.0f);
-            LOGD_ADEHAZE("%s cfg_alpha_reg:0x255 cfg_air:0x%x cfg_tmax:0x%x cfg_wt:0x%x\n",
+            LOGD_ADEHAZE(
+                "%s cfg_alpha:1 CtrlValue:%f MDehazeStrth:%d cfg_air:%f cfg_tmax:%f cfg_wt:%f\n",
+                __func__, CtrlValue, MDehazeStrth, pProcRes->ProcResV12.cfg_air / 1.0f,
+                pProcRes->ProcResV12.cfg_tmax / 1023.0f, pProcRes->ProcResV12.cfg_wt / 255.0f);
+            LOGV_ADEHAZE("%s cfg_alpha_reg:0x255 cfg_air:0x%x cfg_tmax:0x%x cfg_wt:0x%x\n",
                          __func__, pProcRes->ProcResV12.cfg_air, pProcRes->ProcResV12.cfg_tmax,
                          pProcRes->ProcResV12.cfg_wt);
         } else if (pProcRes->ProcResV12.cfg_alpha == 0) {
@@ -791,7 +808,7 @@ void GetDehazeParamsV12(CalibDbDehazeV12_t* pCalibV12, RkAiqAdehazeProcResult_t*
                 __func__, CtrlValue, pProcRes->ProcResV12.air_max / 1.0f,
                 pProcRes->ProcResV12.air_min / 1.0f, pProcRes->ProcResV12.tmax_base / 1.0f,
                 pProcRes->ProcResV12.wt_max / 255.0f);
-            LOGD_ADEHAZE(
+            LOGV_ADEHAZE(
                 "%s cfg_alpha_reg:0x0 air_max:0x%x air_min:0x%x tmax_base:0x%x wt_max:0x%x\n",
                 __func__, pProcRes->ProcResV12.air_max, pProcRes->ProcResV12.air_min,
                 pProcRes->ProcResV12.tmax_base, pProcRes->ProcResV12.wt_max);
@@ -924,16 +941,27 @@ void GetEnhanceParamsV12(CalibDbDehazeV12_t* pCalibV12, RkAiqAdehazeProcResult_t
     if (pProcRes->ProcResV12.dc_en && pProcRes->ProcResV12.enhance_en) {
         LOGD_ADEHAZE("%s color_deviate_en:%d enh_luma_en:%d\n", __func__,
                      pProcRes->ProcResV12.color_deviate_en, pProcRes->ProcResV12.enh_luma_en);
-        LOGD_ADEHAZE("%s CtrlValue:%f enhance_value:%f enhance_chroma:%f\n", __func__, CtrlValue,
-                     pProcRes->ProcResV12.enhance_value / 1024.0f,
-                     pProcRes->ProcResV12.enhance_chroma / 1024.0f);
+        LOGD_ADEHAZE(
+            "%s CtrlValue:%f MEnhanceStrth:%d MEnhanceChromeStrth:%d enhance_value:%f "
+            "enhance_chroma:%f\n",
+            __func__, CtrlValue, MEnhanceStrth, MEnhanceChromeStrth,
+            pProcRes->ProcResV12.enhance_value / 1024.0f,
+            pProcRes->ProcResV12.enhance_chroma / 1024.0f);
         if (pProcRes->ProcResV12.enh_luma_en) {
             LOGD_ADEHAZE(
-                "%s enh_luma[0~7]:%f %f %f %f %f %f %f %f\n", __func__,
+                "%s enh_luma: %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n", __func__,
                 pProcRes->ProcResV12.enh_luma[0] / 64.0f, pProcRes->ProcResV12.enh_luma[1] / 64.0f,
                 pProcRes->ProcResV12.enh_luma[2] / 64.0f, pProcRes->ProcResV12.enh_luma[3] / 64.0f,
                 pProcRes->ProcResV12.enh_luma[4] / 64.0f, pProcRes->ProcResV12.enh_luma[5] / 64.0f,
-                pProcRes->ProcResV12.enh_luma[6] / 64.0f, pProcRes->ProcResV12.enh_luma[7] / 64.0f);
+                pProcRes->ProcResV12.enh_luma[6] / 64.0f, pProcRes->ProcResV12.enh_luma[7] / 64.0f,
+                pProcRes->ProcResV12.enh_luma[8] / 64.0f, pProcRes->ProcResV12.enh_luma[9] / 64.0f,
+                pProcRes->ProcResV12.enh_luma[10] / 64.0f,
+                pProcRes->ProcResV12.enh_luma[11] / 64.0f,
+                pProcRes->ProcResV12.enh_luma[12] / 64.0f,
+                pProcRes->ProcResV12.enh_luma[13] / 64.0f,
+                pProcRes->ProcResV12.enh_luma[14] / 64.0f,
+                pProcRes->ProcResV12.enh_luma[15] / 64.0f,
+                pProcRes->ProcResV12.enh_luma[16] / 64.0f);
         }
         LOGD_ADEHAZE("%s enhance_value_reg:0x%x enhance_chroma_reg:0x%x\n", __func__,
                      pProcRes->ProcResV12.enhance_value, pProcRes->ProcResV12.enhance_chroma);
@@ -1012,7 +1040,10 @@ void GetHistParamsV12(CalibDbDehazeV12_t* pCalibV12, RkAiqAdehazeProcResult_t* p
             ratio * (pCalibV12->hist_setting.hist_wr.semiauto_curve.dark_th[hi] -
                      pCalibV12->hist_setting.hist_wr.semiauto_curve.dark_th[lo]) +
             pCalibV12->hist_setting.hist_wr.semiauto_curve.dark_th[lo];
-        ret = TransferHistWrSemiAtuos2Res(pProcRes, &semi_auto_curve, pStats, stats_true);
+        if (stats_true)
+            ret = TransferHistWrSemiAtuos2Res(pProcRes, &semi_auto_curve, pStats, stats_true);
+        else
+            ret = XCAM_RETURN_ERROR_PARAM;
 
         if (ret == XCAM_RETURN_NO_ERROR)
             pProcRes->ProcResV12.soft_wr_en = FUNCTION_ENABLE;
@@ -1021,17 +1052,20 @@ void GetHistParamsV12(CalibDbDehazeV12_t* pCalibV12, RkAiqAdehazeProcResult_t* p
     }
 
     if (pProcRes->ProcResV12.hist_en) {
-        LOGV_ADEHAZE(
-            "%s:  stats_true:%d dhaz_adp_air_base:%d dhaz_adp_wt:%d dhaz_adp_gratio:%d "
-            "dhaz_adp_tmax:%d "
-            "dhaz_pic_sumh:%d \n",
-            __FUNCTION__, stats_true, pStats->dhaz_adp_air_base, pStats->dhaz_adp_wt,
-            pStats->dhaz_adp_gratio, pStats->dhaz_adp_tmax, pStats->dhaz_pic_sumh);
-        LOGV_ADEHAZE(
-            "%s h_rgb_iir[0~1]:0x%x 0x%x 0x%x "
-            "0x%x 0x%x 0x%x 0x%x\n",
-            __func__, pStats->h_rgb_iir[0], pStats->h_rgb_iir[1], pStats->h_rgb_iir[2],
-            pStats->h_rgb_iir[3], pStats->h_rgb_iir[4], pStats->h_rgb_iir[5], pStats->h_rgb_iir[6]);
+        if (stats_true) {
+            LOGV_ADEHAZE(
+                "%s:  stats_true:%d dhaz_adp_air_base:%d dhaz_adp_wt:%d dhaz_adp_gratio:%d "
+                "dhaz_adp_tmax:%d "
+                "dhaz_pic_sumh:%d \n",
+                __FUNCTION__, stats_true, pStats->dhaz_adp_air_base, pStats->dhaz_adp_wt,
+                pStats->dhaz_adp_gratio, pStats->dhaz_adp_tmax, pStats->dhaz_pic_sumh);
+            LOGV_ADEHAZE(
+                "%s h_rgb_iir[0~1]:0x%x 0x%x 0x%x "
+                "0x%x 0x%x 0x%x 0x%x\n",
+                __func__, pStats->h_rgb_iir[0], pStats->h_rgb_iir[1], pStats->h_rgb_iir[2],
+                pStats->h_rgb_iir[3], pStats->h_rgb_iir[4], pStats->h_rgb_iir[5],
+                pStats->h_rgb_iir[6]);
+        }
         LOGD_ADEHAZE(
             "%s cfg_alpha:%f CtrlValue:%f hist_para_en:%d hist_gratio:%f hist_th_off:%f hist_k:%f "
             "hist_min:%f hist_scale:%f cfg_gratio:%f\n",
@@ -1312,10 +1346,7 @@ XCamReturn AdehazeProcess(AdehazeHandle_t* pAdehazeCtx, dehaze_stats_v12_t* pSta
             CtrlValue = pAdehazeCtx->CurrDataV12.ISO;
 
         // dehaze setting
-        if (pAdehazeCtx->AdehazeAtrrV12.stAuto.DehazeTuningPara.dehaze_setting.en ||
-            pAdehazeCtx->AdehazeAtrrV12.stAuto.DehazeTuningPara.enhance_setting.en ||
-            (pAdehazeCtx->AdehazeAtrrV12.stAuto.DehazeTuningPara.hist_setting.en &&
-             !pAdehazeCtx->AdehazeAtrrV12.stAuto.DehazeTuningPara.hist_setting.hist_para_en))
+        if (pAdehzeProcRes->ProcResV12.dc_en)
             GetDehazeParamsV12(&pAdehazeCtx->AdehazeAtrrV12.stAuto.DehazeTuningPara, pAdehzeProcRes,
                                pAdehazeCtx->width, pAdehazeCtx->height,
                                pAdehazeCtx->AdehazeAtrrV12.Info.MDehazeStrth, CtrlValue);
@@ -1324,7 +1355,8 @@ XCamReturn AdehazeProcess(AdehazeHandle_t* pAdehazeCtx, dehaze_stats_v12_t* pSta
         pAdehzeProcRes->ProcResV12.round_en = FUNCTION_ENABLE;
 
         // enhance setting
-        if (pAdehazeCtx->AdehazeAtrrV12.stAuto.DehazeTuningPara.enhance_setting.en)
+        // enhance curve is effective in dehaze function. when dc_en on, GetEnhanceParamsV12 is on
+        if (pAdehzeProcRes->ProcResV12.dc_en)
             GetEnhanceParamsV12(&pAdehazeCtx->AdehazeAtrrV12.stAuto.DehazeTuningPara,
                                 pAdehzeProcRes, pAdehazeCtx->AdehazeAtrrV12.Info.MEnhanceStrth,
                                 pAdehazeCtx->AdehazeAtrrV12.Info.MEnhanceChromeStrth, CtrlValue);
@@ -1342,16 +1374,15 @@ XCamReturn AdehazeProcess(AdehazeHandle_t* pAdehazeCtx, dehaze_stats_v12_t* pSta
         pAdehzeProcRes->ProcResV12.round_en = FUNCTION_ENABLE;
 
         // dehaze setting
-        if (pAdehazeCtx->AdehazeAtrrV12.stManual.dehaze_setting.en ||
-            pAdehazeCtx->AdehazeAtrrV12.stManual.enhance_setting.en ||
-            (pAdehazeCtx->AdehazeAtrrV12.stManual.hist_setting.en &&
-             !pAdehazeCtx->AdehazeAtrrV12.stManual.hist_setting.hist_para_en))
+        if (pAdehzeProcRes->ProcResV12.dc_en)
             stManuGetDehazeParamsV12(&pAdehazeCtx->AdehazeAtrrV12.stManual, pAdehzeProcRes,
                                      pAdehazeCtx->width, pAdehazeCtx->height,
                                      pAdehazeCtx->AdehazeAtrrV12.Info.MDehazeStrth);
 
         // enhance setting
-        if (pAdehazeCtx->AdehazeAtrrV12.stManual.enhance_setting.en)
+        // enhance curve is effective in dehaze function. when dc_en on,
+        // stManuGetEnhanceParamsV12 is on
+        if (pAdehzeProcRes->ProcResV12.dc_en)
             stManuGetEnhanceParamsV12(&pAdehazeCtx->AdehazeAtrrV12.stManual, pAdehzeProcRes,
                                       pAdehazeCtx->AdehazeAtrrV12.Info.MEnhanceStrth,
                                       pAdehazeCtx->AdehazeAtrrV12.Info.MEnhanceChromeStrth);

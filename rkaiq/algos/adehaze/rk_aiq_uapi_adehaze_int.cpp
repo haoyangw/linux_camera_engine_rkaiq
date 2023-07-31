@@ -35,6 +35,12 @@ XCamReturn rk_aiq_uapi_adehaze_v11_SetAttrib(RkAiqAlgoContext* ctx, adehaze_sw_v
                                              bool need_sync) {
     XCamReturn ret                 = XCAM_RETURN_NO_ERROR;
     AdehazeHandle_t* pAdehazeHandle = (AdehazeHandle_t*)ctx;
+    LOGI_ADEHAZE(
+        "%s api_mode:%d updateMDehazeStrth:%d MDehazeStrth:%d updateMEnhanceStrth:%d "
+        "MEnhanceStrth:%d updateMEnhanceChromeStrth:%d MEnhanceChromeStrth:%d\n",
+        __func__, attr->mode, attr->Info.updateMDehazeStrth, attr->Info.MDehazeStrth,
+        attr->Info.updateMEnhanceStrth, attr->Info.MEnhanceStrth,
+        attr->Info.updateMEnhanceChromeStrth, attr->Info.MEnhanceChromeStrth);
 
 #if RKAIQ_HAVE_DEHAZE_V11
     pAdehazeHandle->AdehazeAtrrV11.mode = attr->mode;
@@ -120,6 +126,12 @@ XCamReturn rk_aiq_uapi_adehaze_v12_SetAttrib(RkAiqAlgoContext* ctx, adehaze_sw_v
                                              bool need_sync) {
     XCamReturn ret                 = XCAM_RETURN_NO_ERROR;
     AdehazeHandle_t* pAdehazeHandle = (AdehazeHandle_t*)ctx;
+    LOGI_ADEHAZE(
+        "%s api_mode:%d updateMDehazeStrth:%d MDehazeStrth:%d updateMEnhanceStrth:%d "
+        "MEnhanceStrth:%d updateMEnhanceChromeStrth:%d MEnhanceChromeStrth:%d\n",
+        __func__, attr->mode, attr->Info.updateMDehazeStrth, attr->Info.MDehazeStrth,
+        attr->Info.updateMEnhanceStrth, attr->Info.MEnhanceStrth,
+        attr->Info.updateMEnhanceChromeStrth, attr->Info.MEnhanceChromeStrth);
 
     pAdehazeHandle->AdehazeAtrrV12.mode = attr->mode;
     if (attr->mode == DEHAZE_API_MANUAL) {
