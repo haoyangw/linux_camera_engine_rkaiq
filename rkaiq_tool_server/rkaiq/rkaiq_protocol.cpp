@@ -49,15 +49,15 @@ std::mutex RKAiqProtocol::mutex_;
 
 int g_offlineRawModeControl;
 
-int g_offlineRAWCaptureYUVStepCounter = -1;
+// int g_offlineRAWCaptureYUVStepCounter = -1;
 int g_startOfflineRawFlag = 0;
-int g_inCaptureYUVProcess = 0;
-std::mutex g_offlineRawEnqueuedMutex;
-std::unique_lock<std::mutex> g_offlineRawEnqueuedLock(g_offlineRawEnqueuedMutex);
-std::condition_variable g_offlineRawEnqueued;
-std::mutex g_yuvCapturedMutex;
-std::unique_lock<std::mutex> g_yuvCapturedLock(g_yuvCapturedMutex);
-std::condition_variable g_yuvCaptured;
+// int g_inCaptureYUVProcess = 0;
+// std::mutex g_offlineRawEnqueuedMutex;
+// std::unique_lock<std::mutex> g_offlineRawEnqueuedLock(g_offlineRawEnqueuedMutex);
+// std::condition_variable g_offlineRawEnqueued;
+// std::mutex g_yuvCapturedMutex;
+// std::unique_lock<std::mutex> g_yuvCapturedLock(g_yuvCapturedMutex);
+// std::condition_variable g_yuvCaptured;
 
 #define MAX_PACKET_SIZE 8192
 #pragma pack(1)
@@ -230,7 +230,7 @@ static void SendMessageToPC(int sockfd, char* data, unsigned long long dataSize 
 
 static void SendFileToPC(int sockfd, char* fileName, char* fileData, unsigned long long fileDataSize = 0)
 {
-    char* opStr = "#&#^ToolServerMsg#&#^SendFile#&#^";
+    char* opStr = (char*)"#&#^ToolServerMsg#&#^SendFile#&#^";
     unsigned long long packetSize = strlen(opStr) + strlen(fileName) + strlen("#&#^") + fileDataSize + strlen("#&#^@`#`@`#`");
     char* dataToSend = (char*)malloc(packetSize);
     unsigned long long offSet = 0;
@@ -753,9 +753,9 @@ void RKAiqProtocol::HandlerReceiveFile(int sockfd, char* buffer, int size)
     LOG_DEBUG("g_offlineRawModeControl:%d\n", g_offlineRawModeControl);
     if (g_offlineRawModeControl == 3) // one frame offline raw
     {
-        // g_startOfflineRawFlag = 1;
+        g_startOfflineRawFlag = 1;
         LOG_DEBUG("offlineRawProcess begin\n");
-        // while (g_startOfflineRawFlag == 1)
+        while (g_startOfflineRawFlag == 1)
         {
             DIR* dir = opendir("/data/OfflineRAW");
             struct dirent* dir_ent = NULL;
@@ -790,10 +790,10 @@ void RKAiqProtocol::HandlerReceiveFile(int sockfd, char* buffer, int size)
             for (auto raw_file : raw_files)
             {
                 cout << raw_file.c_str() << endl;
-                // if (g_startOfflineRawFlag == 0)
-                // {
-                //     break;
-                // }
+                if (g_startOfflineRawFlag == 0)
+                {
+                    break;
+                }
                 // LOG_DEBUG("ENUM_ID_SYSCTL_ENQUEUERKRAWFILE begin\n");
                 struct timeval tv;
                 struct timezone tz;
@@ -831,7 +831,7 @@ void RKAiqProtocol::HandlerReceiveFile(int sockfd, char* buffer, int size)
                 LOG_DEBUG("####################################### time spend: %ld ms\n", endTime - startTime); // ms
                 LOG_DEBUG("ENUM_ID_SYSCTL_ENQUEUERKRAWFILE end\n");
 
-                SendMessageToPC(sockfd, "ENQUEUERKRAWFILE#&#^Success#&#^Success");
+                SendMessageToPC(sockfd, (char*)"ENQUEUERKRAWFILE#&#^Success#&#^Success");
                 usleep(1000 * 50);
                 g_tcpClient.m_inetSocketOperationMtx.unlock();
             }
@@ -964,7 +964,7 @@ void RKAiqProtocol::HandlerGetAWBParaFileProcess(int sockfd, char* buffer, int s
     system("rm /tmp/awbinput_*");
     usleep(1000 * 100);
     LOG_INFO("call RkAiqSocketClientINETSend(ENUM_ID_AIQ_UAPI2_AWB_WRITEAWBIN);\n");
-    char* tmpData = "0";
+    char* tmpData = (char*)"0";
 
     if (RkAiqSocketClientINETSend(ENUM_ID_AIQ_UAPI2_AWB_WRITEAWBIN, (void*)tmpData, 1) != 0)
     {
@@ -1164,74 +1164,76 @@ int RKAiqProtocol::offlineRawProcess(int sockfd)
         }
 
         std::sort(raw_files.begin(), raw_files.end(), natural_less);
-        for (int i = 0; i < raw_files.size(); i++)
-        // for (auto raw_file : raw_files)
+        for (auto raw_file : raw_files)
+        // for (int i = 0; i < raw_files.size(); i++)
         {
             // cout << raw_file.c_str() << endl;
             if (g_startOfflineRawFlag == 0)
             {
                 break;
             }
-            if (g_inCaptureYUVProcess == 1)
-            {
-                if (g_offlineRAWCaptureYUVStepCounter == 0)
-                {
-                    g_offlineRAWCaptureYUVStepCounter = 1;
-                    i = 0;
-                }
-                else if (g_offlineRAWCaptureYUVStepCounter == 1)
-                {
-                    g_yuvCaptured.wait(g_yuvCapturedLock);
-                }
+            // if (g_inCaptureYUVProcess == 1)
+            // if (false)
+            // {
+            //     // if (g_offlineRAWCaptureYUVStepCounter == 0)
+            //     // {
+            //     //     g_offlineRAWCaptureYUVStepCounter = 1;
+            //     //     i = 0;
+            //     // }
+            //     // else if (g_offlineRAWCaptureYUVStepCounter == 1)
+            //     // {
+            //     //     g_yuvCaptured.wait(g_yuvCapturedLock);
+            //     // }
 
+            //     // LOG_DEBUG("ENUM_ID_SYSCTL_ENQUEUERKRAWFILE begin\n");
+            //     // struct timeval tv;
+            //     // struct timezone tz;
+            //     // gettimeofday(&tv, &tz);
+            //     // long startTime = tv.tv_sec * 1000 + tv.tv_usec / 1000;
+            //     // LOG_DEBUG("begin millisecond: %ld\n", startTime); // ms
+            //     std::string filePath = "/data/OfflineRAW/" + raw_files.at(i);
+            //     LOG_INFO("process raw 1: %s \n", filePath.c_str());
+
+            //     g_tcpClient.m_inetSocketOperationMtx.try_lock_for(std::chrono::seconds(2));
+            //     if (RkAiqSocketClientINETSend(ENUM_ID_SYSCTL_ENQUEUERKRAWFILE, (void*)filePath.c_str(), (unsigned int)filePath.length() + 1) != 0)
+            //     {
+            //         LOG_ERROR("########################################################\n");
+            //         LOG_ERROR("#### OfflineRawProcess failed. Please check AIQ.####\n");
+            //         LOG_ERROR("########################################################\n\n");
+            //         // return 1;
+            //     }
+            //     else
+            //     {
+            //         char tmp[1024];
+            //         g_tcpClient.Receive(tmp, sizeof(tmp));
+            //     }
+            //     g_tcpClient.m_inetSocketOperationMtx.unlock();
+
+            //     uint32_t frameInterval = 1000 / g_offlineFrameRate;
+            //     frameInterval = frameInterval - 50;
+            //     if (frameInterval < 0)
+            //     {
+            //         frameInterval = 0;
+            //     }
+            //     std::this_thread::sleep_for(std::chrono::milliseconds(frameInterval));
+
+            //     // gettimeofday(&tv, &tz);
+            //     // long endTime = tv.tv_sec * 1000 + tv.tv_usec / 1000;
+            //     // LOG_DEBUG("end millisecond: %ld\n", endTime);                                                   // ms
+            //     // LOG_DEBUG("####################################### time spend: %ld ms\n", endTime - startTime); // ms
+            //     // LOG_DEBUG("ENUM_ID_SYSCTL_ENQUEUERKRAWFILE end\n");
+            //     // g_offlineRawEnqueued.notify_one();
+            // }
+            // else
+            {
                 // LOG_DEBUG("ENUM_ID_SYSCTL_ENQUEUERKRAWFILE begin\n");
                 // struct timeval tv;
                 // struct timezone tz;
                 // gettimeofday(&tv, &tz);
                 // long startTime = tv.tv_sec * 1000 + tv.tv_usec / 1000;
                 // LOG_DEBUG("begin millisecond: %ld\n", startTime); // ms
-                std::string filePath = "/data/OfflineRAW/" + raw_files.at(i);
-                LOG_INFO("process raw 1: %s \n", filePath.c_str());
-
-                g_tcpClient.m_inetSocketOperationMtx.try_lock_for(std::chrono::seconds(2));
-                if (RkAiqSocketClientINETSend(ENUM_ID_SYSCTL_ENQUEUERKRAWFILE, (void*)filePath.c_str(), (unsigned int)filePath.length() + 1) != 0)
-                {
-                    LOG_ERROR("########################################################\n");
-                    LOG_ERROR("#### OfflineRawProcess failed. Please check AIQ.####\n");
-                    LOG_ERROR("########################################################\n\n");
-                    // return 1;
-                }
-                else
-                {
-                    char tmp[1024];
-                    g_tcpClient.Receive(tmp, sizeof(tmp));
-                }
-                g_tcpClient.m_inetSocketOperationMtx.unlock();
-
-                uint32_t frameInterval = 1000 / g_offlineFrameRate;
-                frameInterval = frameInterval - 50;
-                if (frameInterval < 0)
-                {
-                    frameInterval = 0;
-                }
-                std::this_thread::sleep_for(std::chrono::milliseconds(frameInterval));
-
-                // gettimeofday(&tv, &tz);
-                // long endTime = tv.tv_sec * 1000 + tv.tv_usec / 1000;
-                // LOG_DEBUG("end millisecond: %ld\n", endTime);                                                   // ms
-                // LOG_DEBUG("####################################### time spend: %ld ms\n", endTime - startTime); // ms
-                // LOG_DEBUG("ENUM_ID_SYSCTL_ENQUEUERKRAWFILE end\n");
-                g_offlineRawEnqueued.notify_one();
-            }
-            else
-            {
-                // LOG_DEBUG("ENUM_ID_SYSCTL_ENQUEUERKRAWFILE begin\n");
-                // struct timeval tv;
-                // struct timezone tz;
-                // gettimeofday(&tv, &tz);
-                // long startTime = tv.tv_sec * 1000 + tv.tv_usec / 1000;
-                // LOG_DEBUG("begin millisecond: %ld\n", startTime); // ms
-                std::string filePath = "/data/OfflineRAW/" + raw_files.at(i);
+                // std::string filePath = "/data/OfflineRAW/" + raw_files.at(i);
+                std::string filePath = "/data/OfflineRAW/" + raw_file;
                 LOG_INFO("process raw 2: %s \n", filePath.c_str());
 
                 g_tcpClient.m_inetSocketOperationMtx.try_lock_for(std::chrono::seconds(2));

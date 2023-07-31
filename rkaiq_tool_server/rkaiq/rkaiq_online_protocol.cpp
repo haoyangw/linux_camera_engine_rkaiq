@@ -34,15 +34,15 @@ extern uint g_lastCapturedSequense;
 extern DomainTCPClient g_tcpClient;
 extern uint32_t g_mmapNumber;
 
-extern int g_offlineRAWCaptureYUVStepCounter;
+// extern int g_offlineRAWCaptureYUVStepCounter;
 extern int g_startOfflineRawFlag;
-extern int g_inCaptureYUVProcess;
-extern std::mutex g_offlineRawEnqueuedMutex;
-extern std::unique_lock<std::mutex> g_offlineRawEnqueuedLock;
-extern std::condition_variable g_offlineRawEnqueued;
-extern std::mutex g_yuvCapturedMutex;
-extern std::unique_lock<std::mutex> g_yuvCapturedLock;
-extern std::condition_variable g_yuvCaptured;
+// extern int g_inCaptureYUVProcess;
+// extern std::mutex g_offlineRawEnqueuedMutex;
+// extern std::unique_lock<std::mutex> g_offlineRawEnqueuedLock;
+// extern std::condition_variable g_offlineRawEnqueued;
+// extern std::mutex g_yuvCapturedMutex;
+// extern std::unique_lock<std::mutex> g_yuvCapturedLock;
+// extern std::condition_variable g_yuvCaptured;
 
 static uint16_t capture_check_sum;
 static int capture_status = READY;
@@ -456,7 +456,7 @@ void ExecuteCMD(const char* cmd, char* result)
 static int DoCaptureYuv(int sockfd)
 {
     LOG_DEBUG("DoCaptureYuv\n");
-    g_offlineRAWCaptureYUVStepCounter = 0;
+    // g_offlineRAWCaptureYUVStepCounter = 0;
     bool videoDevNodeFindedFlag = false;
     char cmdResStr[128] = {0};
     memset(captureDevNode, 0, sizeof(captureDevNode));
@@ -682,10 +682,10 @@ static int DoCaptureYuv(int sockfd)
         return -1;
     }
 
-    g_inCaptureYUVProcess = 0;
+    // g_inCaptureYUVProcess = 0;
     while (1)
     {
-        g_inCaptureYUVProcess = 1;
+        // g_inCaptureYUVProcess = 1;
 
         fd_set fds;
         struct timeval tv;
@@ -708,7 +708,7 @@ static int DoCaptureYuv(int sockfd)
             fprintf(stderr, "select timeout\n");
             // SendMessageToPC(sockfd, "select dev timeout");
             LOG_ERROR("select timeout\n");
-            g_inCaptureYUVProcess = 0;
+            // g_inCaptureYUVProcess = 0;
             return -1;
             // exit(EXIT_FAILURE);
         }
@@ -720,7 +720,7 @@ static int DoCaptureYuv(int sockfd)
         {
             if (g_startOfflineRawFlag == 1)
             {
-                g_offlineRawEnqueued.wait(g_offlineRawEnqueuedLock);
+                // g_offlineRawEnqueued.wait(g_offlineRawEnqueuedLock);
                 //
                 struct v4l2_buffer buf;
                 struct v4l2_plane planes[FMT_NUM_PLANES];
@@ -750,7 +750,7 @@ static int DoCaptureYuv(int sockfd)
                 }
 
                 capture_frames_index++;
-                g_yuvCaptured.notify_one();
+                // g_yuvCaptured.notify_one();
             }
             else
             {
@@ -787,7 +787,7 @@ static int DoCaptureYuv(int sockfd)
         // fclose(file_fd);
         break;
     }
-    g_inCaptureYUVProcess = 0;
+    // g_inCaptureYUVProcess = 0;
 
     // unmap
     for (uint i = 0; i < n_buffers; ++i)
