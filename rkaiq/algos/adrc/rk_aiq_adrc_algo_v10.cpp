@@ -308,7 +308,7 @@ void AdrcGetTuningProcResV10(AdrcContext_t* pAdrcCtx, RkAiqAdrcProcResult_t* pAd
     pAdrcProcRes->DrcProcRes.Drc_v10.sw_drc_lpdetail_ratio =
         (unsigned short)(SHIFT12BIT(pAdrcCtx->NextData.dynParams.Drc_v10.GlobalContrast) + 0.5f);
     pAdrcProcRes->DrcProcRes.Drc_v10.sw_drc_weipre_frame =
-        LIMIT_VALUE(pAdrcProcRes->DrcProcRes.Drc_v10.sw_drc_weipre_frame, 255.0f, 0.0f);
+        LIMIT_VALUE_UNSIGNED(pAdrcProcRes->DrcProcRes.Drc_v10.sw_drc_weipre_frame, BIT_8_MAX);
     pAdrcProcRes->DrcProcRes.Drc_v10.sw_drc_weig_maxl =
         (unsigned char)(SHIFT4BIT(pAdrcCtx->NextData.dynParams.Drc_v10.Strength) + 0.5f);
     pAdrcProcRes->DrcProcRes.Drc_v10.sw_drc_weig_bilat =

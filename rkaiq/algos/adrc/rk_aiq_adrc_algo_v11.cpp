@@ -327,7 +327,7 @@ void AdrcGetTuningProcResV11(AdrcContext_t* pAdrcCtx, RkAiqAdrcProcResult_t* pAd
     pAdrcProcRes->DrcProcRes.Drc_v11.lpdetail_ratio =
         (unsigned short)(SHIFT12BIT(pAdrcCtx->NextData.dynParams.Drc_v11.GlobalContrast) + 0.5f);
     pAdrcProcRes->DrcProcRes.Drc_v11.weipre_frame =
-        LIMIT_VALUE(pAdrcProcRes->DrcProcRes.Drc_v11.weipre_frame, INT8BITMAX, 0);
+        LIMIT_VALUE_UNSIGNED(pAdrcProcRes->DrcProcRes.Drc_v11.weipre_frame, BIT_8_MAX);
     pAdrcProcRes->DrcProcRes.Drc_v11.weig_maxl =
         (unsigned char)(SHIFT4BIT(pAdrcCtx->NextData.dynParams.Drc_v11.Strength) + 0.5f);
     pAdrcProcRes->DrcProcRes.Drc_v11.weig_bilat =
@@ -337,7 +337,7 @@ void AdrcGetTuningProcResV11(AdrcContext_t* pAdrcCtx, RkAiqAdrcProcResult_t* pAd
     pAdrcProcRes->DrcProcRes.Drc_v11.bilat_soft_thd =
         (unsigned short)(SHIFT14BIT(pAdrcCtx->NextData.dynParams.Drc_v11.LocalAutoWeit) + 0.5f);
     pAdrcProcRes->DrcProcRes.Drc_v11.bilat_soft_thd =
-        LIMIT_VALUE(pAdrcProcRes->DrcProcRes.Drc_v11.bilat_soft_thd, INT14BITMAX, 0);
+        LIMIT_VALUE_UNSIGNED(pAdrcProcRes->DrcProcRes.Drc_v11.bilat_soft_thd, BIT_14_MAX);
     // get sw_drc_gain_y
     CalibrateDrcGainYV11(&pAdrcProcRes->DrcProcRes, pAdrcCtx->NextData.dynParams.Drc_v11.DrcGain,
                          pAdrcCtx->NextData.dynParams.Drc_v11.Alpha);

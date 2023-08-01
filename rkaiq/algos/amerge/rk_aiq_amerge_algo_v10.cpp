@@ -141,7 +141,7 @@ void AmergeGetTuningProcResV10(AmergeContext_t* pAmergeCtx,
     pAmergeProcRes->Merge_v10.sw_hdrmge_mode = pAmergeCtx->NextData.HandleData.Merge_v10.MergeMode;
     if (CHECK_ISP_HW_V21())
         pAmergeProcRes->Merge_v10.sw_hdrmge_mode =
-            LIMIT_VALUE(pAmergeProcRes->Merge_v10.sw_hdrmge_mode, 1, 0);
+            LIMIT_VALUE_UNSIGNED(pAmergeProcRes->Merge_v10.sw_hdrmge_mode, 1);
     pAmergeProcRes->Merge_v10.sw_hdrmge_lm_dif_0p9 = SW_HDRMGE_LM_DIF_0P9_FIX;
     pAmergeProcRes->Merge_v10.sw_hdrmge_ms_dif_0p8 = SW_HDRMGE_MS_DIF_0P8_FIX;
     pAmergeProcRes->Merge_v10.sw_hdrmge_lm_dif_0p15 =

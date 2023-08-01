@@ -164,8 +164,9 @@ void AdrcV12ClipStAutoParams(AdrcContext_t* pAdrcCtx) {
                     SPACESGMMAX, SPACESGMMIN);
     for (int i = 0; i < ADRC_Y_NUM; i++) {
         pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[i] =
-            LIMIT_VALUE(pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[i],
-                        SCALEYMAX, SCALEYMIN);
+            LIMIT_VALUE_UNSIGNED(
+                pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[i],
+                SCALEYMAX);
         pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[i] =
             LIMIT_VALUE(pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[i], SCALEYMAX, SCALEYMIN);
     }

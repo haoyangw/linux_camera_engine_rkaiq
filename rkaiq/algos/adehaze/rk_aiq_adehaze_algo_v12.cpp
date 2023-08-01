@@ -272,7 +272,7 @@ XCamReturn TransferHistWrSemiAtuos2Res(RkAiqAdehazeProcResult_t* pProcRes,
     }
 
     for (i = 63; i > 0; --i) {
-        hist[i] = LIMIT_VALUE(pStats->h_rgb_iir[i] - pStats->h_rgb_iir[i - 1], 1023, 0);
+        hist[i] = LIMIT_VALUE_UNSIGNED(pStats->h_rgb_iir[i] - pStats->h_rgb_iir[i - 1], 1023);
         mean += (i + 1) * 16 * hist[i];
     }
 
@@ -345,27 +345,27 @@ void stManuGetDehazeParamsV12(mDehazeAttrV12_t* pStManu, RkAiqAdehazeProcResult_
         ClipValueV12(pStManu->dehaze_setting.DehazeData.dc_weitcur, 0, 8);
     pProcRes->ProcResV12.stab_fnum      = ClipValueV12(pStManu->dehaze_setting.stab_fnum, 5, 0);
     if (pStManu->dehaze_setting.sigma)
-        pProcRes->ProcResV12.iir_sigma =
-            LIMIT_VALUE(int(256.0f / pStManu->dehaze_setting.sigma), 255, 0);
+        pProcRes->ProcResV12.iir_sigma = (unsigned char)(LIMIT_VALUE(
+            int(256.0f / pStManu->dehaze_setting.sigma), BIT_8_MAX, BIT_MIN));
     else
         pProcRes->ProcResV12.iir_sigma = 0x1;
     if (pStManu->dehaze_setting.wt_sigma >= 0.0f)
-        pProcRes->ProcResV12.iir_wt_sigma =
-            LIMIT_VALUE(int(1024.0f / (8.0f * pStManu->dehaze_setting.wt_sigma + 0.5f)), 0x7ff, 0);
+        pProcRes->ProcResV12.iir_wt_sigma = (unsigned short)(LIMIT_VALUE(
+            int(1024.0f / (8.0f * pStManu->dehaze_setting.wt_sigma + 0.5f)), 0x7ff, BIT_MIN));
     else
         pProcRes->ProcResV12.iir_wt_sigma = 0x7ff;
     if (pStManu->dehaze_setting.air_sigma)
-        pProcRes->ProcResV12.iir_air_sigma =
-            LIMIT_VALUE(int(1024.0f / pStManu->dehaze_setting.air_sigma), 255, 0);
+        pProcRes->ProcResV12.iir_air_sigma = (unsigned char)(LIMIT_VALUE(
+            int(1024.0f / pStManu->dehaze_setting.air_sigma), BIT_8_MAX, BIT_MIN));
     else
         pProcRes->ProcResV12.iir_air_sigma = 0x8;
     if (pStManu->dehaze_setting.tmax_sigma)
-        pProcRes->ProcResV12.iir_tmax_sigma =
-            LIMIT_VALUE(int(1.0f / pStManu->dehaze_setting.tmax_sigma), 0x7ff, 0);
+        pProcRes->ProcResV12.iir_tmax_sigma = (unsigned short)(LIMIT_VALUE(
+            int(1.0f / pStManu->dehaze_setting.tmax_sigma), 0x7ff, BIT_MIN));
     else
         pProcRes->ProcResV12.iir_tmax_sigma = 0x5f;
     pProcRes->ProcResV12.iir_pre_wet =
-        LIMIT_VALUE(int(pStManu->dehaze_setting.pre_wet - 1.0f), 15, 0);
+        (unsigned char)(LIMIT_VALUE(int(pStManu->dehaze_setting.pre_wet - 1.0f), 15, BIT_MIN));
     pProcRes->ProcResV12.gaus_h0        = DEHAZE_GAUS_H4;
     pProcRes->ProcResV12.gaus_h1        = DEHAZE_GAUS_H1;
     pProcRes->ProcResV12.gaus_h2        = DEHAZE_GAUS_H0;
@@ -736,29 +736,29 @@ void GetDehazeParamsV12(CalibDbDehazeV12_t* pCalibV12, RkAiqAdehazeProcResult_t*
                      0, 8);
     pProcRes->ProcResV12.air_lc_en =
         pCalibV12->dehaze_setting.air_lc_en ? FUNCTION_ENABLE : FUNCTION_DISABLE;
-    pProcRes->ProcResV12.stab_fnum      = ClipValueV12(pCalibV12->dehaze_setting.stab_fnum, 5, 0);
+    pProcRes->ProcResV12.stab_fnum = ClipValueV12(pCalibV12->dehaze_setting.stab_fnum, 5, BIT_MIN);
     if (pCalibV12->dehaze_setting.sigma)
-        pProcRes->ProcResV12.iir_sigma =
-            LIMIT_VALUE(int(256.0f / pCalibV12->dehaze_setting.sigma), 255, 0);
+        pProcRes->ProcResV12.iir_sigma = (unsigned char)(LIMIT_VALUE(
+            int(256.0f / pCalibV12->dehaze_setting.sigma), BIT_8_MAX, BIT_MIN));
     else
         pProcRes->ProcResV12.iir_sigma = 0x1;
     if (pCalibV12->dehaze_setting.wt_sigma >= 0.0f)
-        pProcRes->ProcResV12.iir_wt_sigma = LIMIT_VALUE(
-            int(1024.0f / (8.0f * pCalibV12->dehaze_setting.wt_sigma + 0.5f)), 0x7ff, 0);
+        pProcRes->ProcResV12.iir_wt_sigma = (unsigned short)(LIMIT_VALUE(
+            int(1024.0f / (8.0f * pCalibV12->dehaze_setting.wt_sigma + 0.5f)), 0x7ff, BIT_MIN));
     else
         pProcRes->ProcResV12.iir_wt_sigma = 0x7ff;
     if (pCalibV12->dehaze_setting.air_sigma)
-        pProcRes->ProcResV12.iir_air_sigma =
-            LIMIT_VALUE(int(1024.0f / pCalibV12->dehaze_setting.air_sigma), 255, 0);
+        pProcRes->ProcResV12.iir_air_sigma = (unsigned char)(LIMIT_VALUE(
+            int(1024.0f / pCalibV12->dehaze_setting.air_sigma), BIT_8_MAX, BIT_MIN));
     else
         pProcRes->ProcResV12.iir_air_sigma = 0x8;
     if (pCalibV12->dehaze_setting.tmax_sigma)
-        pProcRes->ProcResV12.iir_tmax_sigma =
-            LIMIT_VALUE(int(1.0f / pCalibV12->dehaze_setting.tmax_sigma), 0x7ff, 0);
+        pProcRes->ProcResV12.iir_tmax_sigma = (unsigned short)(LIMIT_VALUE(
+            int(1.0f / pCalibV12->dehaze_setting.tmax_sigma), 0x7ff, BIT_MIN));
     else
         pProcRes->ProcResV12.iir_tmax_sigma = 0x5f;
     pProcRes->ProcResV12.iir_pre_wet =
-        LIMIT_VALUE(int(pCalibV12->dehaze_setting.pre_wet - 1.0f), 15, 0);
+        (unsigned char)(LIMIT_VALUE(int(pCalibV12->dehaze_setting.pre_wet - 1.0f), 15, BIT_MIN));
     pProcRes->ProcResV12.gaus_h0        = DEHAZE_GAUS_H4;
     pProcRes->ProcResV12.gaus_h1        = DEHAZE_GAUS_H1;
     pProcRes->ProcResV12.gaus_h2        = DEHAZE_GAUS_H0;
@@ -1116,7 +1116,7 @@ XCamReturn GetDehazeLocalGainSettingV12(RkAiqAdehazeProcResult_t* pProcRes, floa
         int tmp = 0;
         for (int i = 0; i < DHAZ_V12_SIGMA_LUT_NUM; i++) {
             tmp                               = LIMIT_VALUE(8.0f * sigma[i], BIT_10_MAX, BIT_MIN);
-            pProcRes->ProcResV12.sigma_lut[i] = tmp;
+            pProcRes->ProcResV12.sigma_lut[i] = (unsigned short)tmp;
         }
     }
 
@@ -1337,9 +1337,9 @@ XCamReturn AdehazeProcess(AdehazeHandle_t* pAdehazeCtx, dehaze_stats_v12_t* pSta
 
     if (pAdehazeCtx->AdehazeAtrrV12.mode == DEHAZE_API_AUTO) {
         // cfg setting
-        pAdehzeProcRes->ProcResV12.cfg_alpha =
-            LIMIT_VALUE(SHIFT8BIT(pAdehazeCtx->AdehazeAtrrV12.stAuto.DehazeTuningPara.cfg_alpha),
-                        BIT_8_MAX, BIT_MIN);
+        pAdehzeProcRes->ProcResV12.cfg_alpha = (unsigned char)(LIMIT_VALUE(
+            SHIFT8BIT(pAdehazeCtx->AdehazeAtrrV12.stAuto.DehazeTuningPara.cfg_alpha), BIT_8_MAX,
+            BIT_MIN));
 
         float CtrlValue = pAdehazeCtx->CurrDataV12.EnvLv;
         if (pAdehazeCtx->CurrDataV12.CtrlDataType == CTRLDATATYPE_ISO)
@@ -1367,8 +1367,8 @@ XCamReturn AdehazeProcess(AdehazeHandle_t* pAdehazeCtx, dehaze_stats_v12_t* pSta
                              pStats, stats_true, CtrlValue);
     } else if (pAdehazeCtx->AdehazeAtrrV12.mode == DEHAZE_API_MANUAL) {
         // cfg setting
-        pAdehzeProcRes->ProcResV12.cfg_alpha = LIMIT_VALUE(
-            SHIFT8BIT(pAdehazeCtx->AdehazeAtrrV12.stManual.cfg_alpha), BIT_8_MAX, BIT_MIN);
+        pAdehzeProcRes->ProcResV12.cfg_alpha = (unsigned char)(LIMIT_VALUE(
+            SHIFT8BIT(pAdehazeCtx->AdehazeAtrrV12.stManual.cfg_alpha), BIT_8_MAX, BIT_MIN));
 
         // fix register
         pAdehzeProcRes->ProcResV12.round_en = FUNCTION_ENABLE;
