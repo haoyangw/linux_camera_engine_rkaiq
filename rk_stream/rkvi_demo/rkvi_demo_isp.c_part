@@ -114,7 +114,7 @@ static void init_mmap(void)
         if (xioctl(g_ispfd, VIDIOC_EXPBUF, &expbuf) < 0) {
             errno_exit("get dma buf failed\n");
         } else {
-            printf("%s: get dma buf(%d)-fd: %d\n",g_sns_name, n_buffers, expbuf.fd);
+            printf("%s: get dma buf(%u)-fd: %d\n",g_sns_name, n_buffers, expbuf.fd);
         }
         tmp_buffers[n_buffers].export_fd = expbuf.fd;
     }

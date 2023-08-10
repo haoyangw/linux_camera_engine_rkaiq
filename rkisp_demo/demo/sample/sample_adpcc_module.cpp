@@ -116,7 +116,6 @@ uapi_case_t dpcc_uapi_list[] = {
 };
 
 XCamReturn sample_adpcc_module(const void *arg) {
-  int key = -1;
   CLEAR();
   const demo_context_t *demo_ctx = (demo_context_t *)arg;
   const rk_aiq_sys_ctx_t *ctx;

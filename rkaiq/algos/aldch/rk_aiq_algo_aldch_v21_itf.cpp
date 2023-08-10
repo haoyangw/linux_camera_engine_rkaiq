@@ -62,20 +62,27 @@ updateCalibConfig(RkAiqAlgoCom* params)
     if (calib_ldch->ldch_en) {
         if ((!ldchCtx->ldch_en || calib_ldch->correct_level != hLDCH->correct_level) && \
             ldchCtx->user_config.update_lut_mode == RK_AIQ_LDCH_UPDATE_LUT_ON_LINE) {
-            if (aiqGenLdchMeshInit(hLDCH) != XCAM_RETURN_NO_ERROR) {
+            if (aiqGenLdchMeshInit(hLDCH) < 0) {
                 LOGE_ALDCH("Failed to init gen mesh");
                 return XCAM_RETURN_ERROR_FAILED;
             }
 
-            bool success = aiqGenMesh(hLDCH, calib_ldch->correct_level);
-            if (!success) {
-                LOGE_ALDCH("lut is not exist");
-                put_ldch_buf(hLDCH);
-                return XCAM_RETURN_ERROR_PARAM;
-            }
+            for (uint8_t i = 0; i < ldchCtx->multi_isp_number; i++) {
+                if (get_ldch_buf(hLDCH, i) != XCAM_RETURN_NO_ERROR) {
+                    LOGE_ALDCH("Failed to get ldch buf\n");
+                    return XCAM_RETURN_ERROR_FAILED;
+                }
 
-            if (ldchCtx->ldch_mem_info)
-                hLDCH->ready_lut_mem_fd = ldchCtx->ldch_mem_info->fd;
+                bool success = aiqGenMesh(hLDCH, calib_ldch->correct_level, i);
+                if (!success) {
+                    LOGW_ALDCH("lut is not exist");
+                    put_ldch_buf(hLDCH, i);
+                    return XCAM_RETURN_ERROR_FAILED;
+                }
+
+                if (hLDCH->ldch_mem_info[i])
+                    hLDCH->ready_lut_mem_fd[i] = hLDCH->ldch_mem_info[i]->fd;
+            }
 
             ldchCtx->isLutUpdated.store(true, std::memory_order_release);
         }
@@ -103,7 +110,7 @@ static XCamReturn update_custom_lut_from_file(LDCHContext_t* ldchCtx)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
-    if (get_ldch_buf(ldchCtx) != XCAM_RETURN_NO_ERROR) {
+    if (get_ldch_buf(ldchCtx, 0) != XCAM_RETURN_NO_ERROR) {
         LOGE_ALDCH("Failed to get ldch buf\n");
         ret = XCAM_RETURN_ERROR_MEM;
     } else {
@@ -122,10 +129,10 @@ static XCamReturn update_custom_lut_from_file(LDCHContext_t* ldchCtx)
         if (!ret1) {
             LOGE_ALDCH("Failed to read mesh, disable ldch!");
             ldchCtx->ldch_en = ldchCtx->user_config.en = false;
-            put_ldch_buf(ldchCtx);
+            put_ldch_buf(ldchCtx, 0);
             ret = XCAM_RETURN_ERROR_FILE;
         } else {
-            uint16_t *addr = (uint16_t *)ldchCtx->ldch_mem_info->addr;
+            uint16_t *addr = (uint16_t *)ldchCtx->ldch_mem_info[0]->addr;
             LOGD_ALDCH("lut[0:15]: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
                     addr[0], addr[1], addr[2], addr[3],
                     addr[4], addr[5], addr[6], addr[7],
@@ -133,12 +140,12 @@ static XCamReturn update_custom_lut_from_file(LDCHContext_t* ldchCtx)
                     addr[12], addr[13], addr[14], addr[15]);
         }
 
-        if (ldchCtx->ldch_mem_info) {
-            ldchCtx->ready_lut_mem_fd = ldchCtx->ldch_mem_info->fd;
-            ldchCtx->update_lut_mem_fd = ldchCtx->ready_lut_mem_fd;
+        if (ldchCtx->ldch_mem_info[0]) {
+            ldchCtx->ready_lut_mem_fd[0] = ldchCtx->ldch_mem_info[0]->fd;
+            ldchCtx->update_lut_mem_fd[0] = ldchCtx->ready_lut_mem_fd[0];
         }
 
-        LOGD_ALDCH("update custom lut from external file, lut_mem_fd %d\n", ldchCtx->update_lut_mem_fd);
+        LOGD_ALDCH("update custom lut from external file, lut_mem_fd %d\n", ldchCtx->update_lut_mem_fd[0]);
     }
 
     return ret;
@@ -153,7 +160,7 @@ static XCamReturn update_custom_lut_from_external_buffer(LDCHContext_t* ldchCtx)
         ret = XCAM_RETURN_ERROR_MEM;
     }
 
-    if (get_ldch_buf(ldchCtx) != XCAM_RETURN_NO_ERROR) {
+    if (get_ldch_buf(ldchCtx, 0) != XCAM_RETURN_NO_ERROR) {
         LOGE_ALDCH("Failed to get ldch buf\n");
         ret = XCAM_RETURN_ERROR_MEM;
     } else {
@@ -172,13 +179,13 @@ static XCamReturn update_custom_lut_from_external_buffer(LDCHContext_t* ldchCtx)
         LOGD_ALDCH("lut info: [%d-%d-%d-%d-%d-%d]", hpic, vpic, hsize, vsize, hstep, vstep);
 
         if (ldchCtx->src_width != hpic || ldchCtx->src_height != vpic || \
-            lut_size > (uint32_t)ldchCtx->ldch_mem_info->size) {
+            lut_size > (uint32_t)ldchCtx->ldch_mem_info[0]->size) {
             LOGE_ALDCH("mismatched lut pic resolution: src %dx%d, lut %dx%d, disable ldch",
                     ldchCtx->src_width, ldchCtx->src_height, hpic, vpic);
             LOGE_ALDCH("Invalid lut buffer size %zu, ldch drv bufer size is %u, disable ldch",
-                       lut_size, ldchCtx->ldch_mem_info->size);
+                       lut_size, ldchCtx->ldch_mem_info[0]->size);
             ldchCtx->ldch_en = ldchCtx->user_config.en = false;
-            put_ldch_buf(ldchCtx);
+            put_ldch_buf(ldchCtx, 0);
             ret = XCAM_RETURN_ERROR_PARAM;
         } else {
             ldchCtx->lut_h_size = hsize;
@@ -186,7 +193,7 @@ static XCamReturn update_custom_lut_from_external_buffer(LDCHContext_t* ldchCtx)
             ldchCtx->lut_mapxy_size = lut_size;
             ldchCtx->lut_h_size = hsize / 2; //word unit
 
-            memcpy(ldchCtx->ldch_mem_info->addr, addr, ldchCtx->lut_mapxy_size);
+            memcpy(ldchCtx->ldch_mem_info[0]->addr, addr, ldchCtx->lut_mapxy_size);
             LOGD_ALDCH("lut[0:15]: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
                     addr[0], addr[1], addr[2], addr[3],
                     addr[4], addr[5], addr[6], addr[7],
@@ -196,12 +203,12 @@ static XCamReturn update_custom_lut_from_external_buffer(LDCHContext_t* ldchCtx)
             ldchCtx->_lutCache = nullptr;
         }
 
-        if (ldchCtx->ldch_mem_info) {
-            ldchCtx->ready_lut_mem_fd = ldchCtx->ldch_mem_info->fd;
-            ldchCtx->update_lut_mem_fd = ldchCtx->ready_lut_mem_fd;
+        if (ldchCtx->ldch_mem_info[0]) {
+            ldchCtx->ready_lut_mem_fd[0] = ldchCtx->ldch_mem_info[0]->fd;
+            ldchCtx->update_lut_mem_fd[0] = ldchCtx->ready_lut_mem_fd[0];
         }
 
-        LOGD_ALDCH("update custom lut from external buffer, lut_mem_fd %d\n", ldchCtx->update_lut_mem_fd);
+        LOGD_ALDCH("update custom lut from external buffer, lut_mem_fd %d\n", ldchCtx->update_lut_mem_fd[0]);
     }
 
     return ret;
@@ -342,11 +349,16 @@ create_context(RkAiqAlgoContext **context, const AlgoCtxInstanceCfg* cfg)
     ldchCtx->map13p3_en     = 0;
     memcpy(ldchCtx->bicubic, default_bic_table, sizeof(default_bic_table));
 
-    ldchCtx->update_lut_mem_fd = -1;
-    ldchCtx->ready_lut_mem_fd = -1;
+    for (int i = 0; i < 2; i++) {
+        ldchCtx->update_lut_mem_fd[i] = -1;
+        ldchCtx->ready_lut_mem_fd[i] = -1;
+    }
 
     ldchCtx->hasAllocShareMem.store(false, std::memory_order_release);
     ldchCtx->_lutCache = nullptr;
+    ldchCtx->is_multi_isp = false;
+    ldchCtx->multi_isp_extended_pixel = 0;
+    ldchCtx->multi_isp_number = 1;
 
     LOGD_ALDCH("bic table0: 0x%x, table1: 0x%x, table2: 0x%x, table3: 0x%x,",
                *(uint32_t *)ldchCtx->bicubic,
@@ -388,7 +400,10 @@ destroy_context(RkAiqAlgoContext *context)
         genLdchMeshDeInit(ldchCtx->ldchParams);
     }
 
-    release_ldch_buf(ldchCtx);
+    release_ldch_buf(ldchCtx, 0);
+    if (ldchCtx->is_multi_isp)
+        release_ldch_buf(ldchCtx, 1);
+
     delete context->hLDCH;
     context->hLDCH = NULL;
     delete context;
@@ -409,8 +424,17 @@ prepare(RkAiqAlgoCom* params)
     ldchCtx->dst_height = params->u.prepare.sns_op_height;
     ldchCtx->resource_path = rkaiqAldchConfig->resource_path;
     ldchCtx->share_mem_ops = rkaiqAldchConfig->mem_ops_ptr;
+    ldchCtx->is_multi_isp = rkaiqAldchConfig->is_multi_isp;
+    ldchCtx->multi_isp_extended_pixel = rkaiqAldchConfig->multi_isp_extended_pixel;
+    if (ldchCtx->is_multi_isp)
+        ldchCtx->multi_isp_number = 2;
+    else
+        ldchCtx->multi_isp_number = 1;
+
 
     LOGD_ALDCH("update_lut_mode %d\n", ldchCtx->user_config.update_lut_mode);
+    LOGD_ALDCH("is_multi_isp %d, multi_isp_extended_pixel %d\n", ldchCtx->is_multi_isp,
+               ldchCtx->multi_isp_extended_pixel);
 
     // 1.update cailb
     bool config_calib = !!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB);
@@ -434,7 +458,7 @@ prepare(RkAiqAlgoCom* params)
 
     // discard the lut generated ReadMeshThread in before aiq prepare
     if (ldchCtx->isLutUpdated.load(std::memory_order_acquire)) {
-        put_ldch_buf(hLDCH);
+        put_ldch_buf(hLDCH, 0);
         ldchCtx->isLutUpdated.store(false, std::memory_order_release);
     }
 
@@ -462,16 +486,23 @@ prepare(RkAiqAlgoCom* params)
                 }
             }
         } else if (ldchCtx->user_config.update_lut_mode == RK_AIQ_LDCH_UPDATE_LUT_ON_LINE) {
-            if (aiqGenLdchMeshInit(ldchCtx) == XCAM_RETURN_NO_ERROR) {
-                bool success = aiqGenMesh(hLDCH, ldchCtx->correct_level);
-                if (!success) {
-                    LOGW_ALDCH("lut is not exist, disable ldch!");
-                    put_ldch_buf(hLDCH);
-                    ldchCtx->ldch_en = false;
-                }
+            if (aiqGenLdchMeshInit(ldchCtx) >= 0) {
+                for (uint8_t i = 0; i < ldchCtx->multi_isp_number; i++) {
+                    if (get_ldch_buf(ldchCtx, i) != XCAM_RETURN_NO_ERROR) {
+                        LOGE_ALDCH("Failed to get mesh buf, disable LDCH\n");
+                        ldchCtx->ldch_en = ldchCtx->user_config.en = false;
+                    }
 
-                if (ldchCtx->ldch_mem_info)
-                    hLDCH->ready_lut_mem_fd = ldchCtx->ldch_mem_info->fd;
+                    bool success = aiqGenMesh(ldchCtx, ldchCtx->correct_level, i);
+                    if (!success) {
+                        LOGE_ALDCH("Failed to gen mesh, disable LDCH\n");
+                        put_ldch_buf(ldchCtx, i);
+                        ldchCtx->ldch_en = ldchCtx->user_config.en = false;
+                    }
+
+                    if (ldchCtx->ldch_mem_info[i])
+                        ldchCtx->ready_lut_mem_fd[i] = ldchCtx->ldch_mem_info[i]->fd;
+                }
             }
         } else if (ldchCtx->user_config.update_lut_mode == RK_AIQ_LDCH_UPDATE_LUT_FROM_EXTERNAL_BUFFER) {
             if (ldchCtx->user_config.lut.update_flag) {
@@ -511,9 +542,13 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
 
     // 1.initial state processing or updating uapi attrib after lut is generated by RKAiqAldchThread
     if (inparams->u.proc.init) {
-        if (ldchCtx->ready_lut_mem_fd >= 0) {
-            ldchCtx->update_lut_mem_fd = ldchCtx->ready_lut_mem_fd;
+        for (uint8_t i = 0; i < ldchCtx->multi_isp_number; i++) {
+            if (ldchCtx->ready_lut_mem_fd[i] >= 0)
+                ldchCtx->update_lut_mem_fd[i] = ldchCtx->ready_lut_mem_fd[i];
+            LOGD_ALDCH("isp_id: %d, update update_lut_mem_fd %d\n",
+                        i, ldchCtx->update_lut_mem_fd[i]);
         }
+
         update_params = true;
     } else if (ldchCtx->isLutUpdated.load(std::memory_order_acquire)) {
         // update user params after lut is generated by RKAiqAldchThread
@@ -524,9 +559,11 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
         ldchCtx->bic_mode_en      = ldchCtx->user_config.bic_mode_en;
         memcpy(ldchCtx->bicubic, ldchCtx->user_config.bic_weight, sizeof(ldchCtx->bicubic));
 
-        if (ldchCtx->ready_lut_mem_fd >= 0)
-            ldchCtx->update_lut_mem_fd = ldchCtx->ready_lut_mem_fd;
-        LOGD_ALDCH("update update_lut_mem_fd %d\n", ldchCtx->update_lut_mem_fd);
+        for (uint8_t i = 0; i < ldchCtx->multi_isp_number; i++) {
+            if (ldchCtx->ready_lut_mem_fd[i] >= 0)
+                ldchCtx->update_lut_mem_fd[i] = ldchCtx->ready_lut_mem_fd[i];
+            LOGD_ALDCH("isp_id: %d, update update_lut_mem_fd %d\n", i, ldchCtx->update_lut_mem_fd[i]);
+        }
 
         update_params = true;
         ldchCtx->isLutUpdated.store(false, std::memory_order_release);
@@ -535,7 +572,7 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
     // 2.update uapi attribute
     if (ldchCtx->isAttribUpdated) {
         if (update_uapi_attribute(ldchCtx) < 0) {
-            LOGE_ALDCH("Failed to update uapi attribute %d", ldchCtx->update_lut_mem_fd);
+            LOGE_ALDCH("Failed to update uapi attribute %d", ldchCtx->update_lut_mem_fd[0]);
         }
 
         // update params asynchronously after lut is generated by RKAiqAldchThread
@@ -549,20 +586,23 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
 
     // 3.update ldch result
     if (ldchCtx->ldch_en) {
-        if (ldchCtx->update_lut_mem_fd < 0) {
-            LOGE_ALDCH("no available ldch buf, lut fd: %d", ldchCtx->update_lut_mem_fd);
-            if (inparams->u.proc.init) {
-                LOGE_ALDCH("mesh buf is invalid, disable LDCH!");
-                ldchCtx->ldch_en = ldchCtx->user_config.en = false;
-                ldchPreOut->ldch_result->base.sw_ldch_en = false;
-                outparams->cfg_update = true;
-            } else {
-                outparams->cfg_update = false;
+        for (uint8_t i = 0; i < ldchCtx->multi_isp_number; i++) {
+            if (ldchCtx->update_lut_mem_fd[i] < 0) {
+                LOGE_ALDCH("isp_id: %d, invalid mesh buf!", i);
+                if (inparams->u.proc.init) {
+                    LOGE_ALDCH("mesh buf is invalid, disable LDCH!");
+                    ldchCtx->ldch_en = ldchCtx->user_config.en = false;
+                    ldchPreOut->ldch_result->base.sw_ldch_en = false;
+                    outparams->cfg_update = true;
+                } else {
+                    outparams->cfg_update = false;
+                }
+                return XCAM_RETURN_NO_ERROR;
             }
-            return XCAM_RETURN_NO_ERROR;
+
+            ldchPreOut->ldch_result->base.lut_mapxy_buf_fd[i] = ldchCtx->update_lut_mem_fd[i];
         }
 
-        ldchPreOut->ldch_result->base.lut_mapxy_buf_fd = ldchCtx->update_lut_mem_fd;
         ldchPreOut->ldch_result->base.lut_h_size = ldchCtx->lut_h_size;
         ldchPreOut->ldch_result->base.lut_v_size = ldchCtx->lut_v_size;
         ldchPreOut->ldch_result->base.lut_map_size = ldchCtx->lut_mapxy_size;
@@ -579,21 +619,24 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
     ldchPreOut->ldch_result->base.sw_ldch_en = ldchCtx->ldch_en;
     outparams->cfg_update = update_params;
 
-    LOGV_ALDCH("en:%d, level:%d, h/v: %dx%d, interp_en:%d, avr_en:%d, bic_en:%d, force_map_en:%d, map13p3_en:%d\n",
-            ldchCtx->ldch_en,
-            ldchCtx->correct_level,
-            ldchCtx->lut_h_size,
-            ldchCtx->lut_v_size,
-            ldchCtx->zero_interp_en,
-            ldchCtx->sample_avr_en,
-            ldchCtx->bic_mode_en,
-            ldchCtx->force_map_en,
-            ldchCtx->map13p3_en);
+    if (update_params) {
+        LOGD_ALDCH("en:%d, level:%d, h/v: %dx%d, interp_en:%d, avr_en:%d, bic_en:%d, "
+                   "force_map_en:%d, map13p3_en:%d\n",
+                   ldchCtx->ldch_en, ldchCtx->correct_level,
+                   ldchCtx->lut_h_size, ldchCtx->lut_v_size,
+                   ldchCtx->zero_interp_en, ldchCtx->sample_avr_en,
+                   ldchCtx->bic_mode_en, ldchCtx->force_map_en,
+                   ldchCtx->map13p3_en);
+        LOGD_ALDCH("cfg_update %d, update_lut_mode %d, lut fd %d\n",
+                   outparams->cfg_update,
+                   ldchCtx->user_config.update_lut_mode,
+                   ldchPreOut->ldch_result->base.lut_mapxy_buf_fd[0]);
 
-    LOGV_ALDCH("update_lut_mode %d, lut fd %d, cfg_update %d\n",
-            ldchCtx->user_config.update_lut_mode,
-            ldchPreOut->ldch_result->base.lut_mapxy_buf_fd,
-            outparams->cfg_update);
+        if (ldchCtx->is_multi_isp) {
+            LOGD_ALDCH("multi isp: ldch mesh fd of right isp: %d",
+                    ldchPreOut->ldch_result->base.lut_mapxy_buf_fd[1]);
+        }
+    }
 
     return XCAM_RETURN_NO_ERROR;
 }
@@ -625,7 +668,6 @@ RKAIQ_END_DECLARE
 
 bool RKAiqAldchThread::loop()
 {
-    XCamReturn ret = XCAM_RETURN_NO_ERROR;
     ENTER_ANALYZER_FUNCTION();
 
     const static int32_t timeout = -1;
@@ -637,33 +679,33 @@ bool RKAiqAldchThread::loop()
     }
 
     if (!hLDCH->ldch_en || attrib->correct_level != hLDCH->correct_level) {
-        if (aiqGenLdchMeshInit(hLDCH) == XCAM_RETURN_NO_ERROR) {
-            bool success = aiqGenMesh(hLDCH, attrib->correct_level);
-            if (!success) {
-                LOGW_ALDCH("lut is not exist");
-                ret = XCAM_RETURN_ERROR_PARAM;
-                put_ldch_buf(hLDCH);
-                return true;
-            }
-        } else {
+        if (aiqGenLdchMeshInit(hLDCH) < 0) {
             LOGE_ALDCH("Failed to init gen mesh");
-            ret = XCAM_RETURN_ERROR_PARAM;
             return true;
         }
-    }
 
-    if (ret == XCAM_RETURN_NO_ERROR) {
-        if (hLDCH->ldch_mem_info)
-            hLDCH->ready_lut_mem_fd = hLDCH->ldch_mem_info->fd;
+        for (uint8_t i = 0; i < hLDCH->multi_isp_number; i++) {
+            if (get_ldch_buf(hLDCH, i) != XCAM_RETURN_NO_ERROR) {
+                LOGE_ALDCH("Failed to get ldch buf\n");
+                return true;
+            }
+
+            bool success = aiqGenMesh(hLDCH, attrib->correct_level, i);
+            if (!success) {
+                LOGE_ALDCH("Failed to gen mesh\n");
+                put_ldch_buf(hLDCH, i);
+                return true;
+            }
+
+            if (hLDCH->ldch_mem_info[i])
+                hLDCH->ready_lut_mem_fd[i] = hLDCH->ldch_mem_info[i]->fd;
+
+            LOGD_ALDCH("ldch gen mesh: level %d, ready lut fd %d : %d\n",
+                       attrib->correct_level, hLDCH->ready_lut_mem_fd[i]);
+        }
+
         hLDCH->isLutUpdated.store(true, std::memory_order_release);
-
-        LOGD_ALDCH("ldch update attrib en(%d), level(%d), ready lut fd%d\n",
-                attrib->en, attrib->correct_level, hLDCH->ready_lut_mem_fd);
-
-        return true;
     }
-
-    LOGE_ALDCH("RKAiqAldchThread failed to read mesh table!");
 
     EXIT_ANALYZER_FUNCTION();
 

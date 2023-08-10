@@ -9251,10 +9251,6 @@ uint32_t calib_check_calc_checksum() {
  ***************************************************************/
 int calib_check_getID_by_name(char* tag_name, CALIB_IQ_TAG_ID_T parent_tag_id, CALIB_IQ_TAG_ID_T * tag_id ) {
 
-    uint32_t i = 0;
-    calib_tag_check_info_t* parent_check_info =
-        (calib_tag_check_info_t*)(g_calib_tag_infos[parent_tag_id].check_info);
-
     if(parent_tag_id >= CALIB_IQ_TAG_END) {
         LOGE("%s(%d): parent_tag_id:%d tag_name:%s --- tag id is is wrong: min:0 max:%d \n",
              __FUNCTION__, __LINE__,
@@ -9262,6 +9258,10 @@ int calib_check_getID_by_name(char* tag_name, CALIB_IQ_TAG_ID_T parent_tag_id, C
         DCT_ASSERT(false);
         return -1;
     }
+
+    uint32_t i = 0;
+    calib_tag_check_info_t* parent_check_info =
+        (calib_tag_check_info_t*)(g_calib_tag_infos[parent_tag_id].check_info);
 
 
 #ifdef CALIBDB_CHECK_DEBUG
@@ -9309,10 +9309,6 @@ int calib_check_getID_by_name(char* tag_name, CALIB_IQ_TAG_ID_T parent_tag_id, C
  ***************************************************************/
 int calib_check_cell_set_size(CALIB_IQ_TAG_ID_T tag_id, CALIB_IQ_TAG_ID_T parent_tag_id, int size) {
 
-    calib_tag_info_t* tag_info = &(g_calib_tag_infos[tag_id]);
-    calib_tag_check_info_t* parent_check_info =
-        (calib_tag_check_info_t*)(g_calib_tag_infos[parent_tag_id].check_info);
-
     if(tag_id >= CALIB_IQ_TAG_END || parent_tag_id >= CALIB_IQ_TAG_END) {
         LOGE("%s(%d): parent_tag_id:%d tag_id:%d tag_name:%s --- tag id is is wrong: min:0 max:%d \n",
              __FUNCTION__, __LINE__,
@@ -9320,6 +9316,10 @@ int calib_check_cell_set_size(CALIB_IQ_TAG_ID_T tag_id, CALIB_IQ_TAG_ID_T parent
         DCT_ASSERT(false);
         return -1;
     }
+
+    calib_tag_info_t* tag_info = &(g_calib_tag_infos[tag_id]);
+    calib_tag_check_info_t* parent_check_info =
+        (calib_tag_check_info_t*)(g_calib_tag_infos[parent_tag_id].check_info);
 
 #ifdef CALIBDB_CHECK_DEBUG
     LOGD("%s(%d): parent_tag_id:%d parent_tag_name:%s tag id:%d tagname:%s size:%d \n",
@@ -9391,7 +9391,7 @@ int calib_check_tag_attrs(CALIB_IQ_TAG_ID_T tag_id,
 
     // check type
     if(tag_info->type != type) {
-        LOGE("%s(%d): parent_tag_id:%d parent_tag_name:%s  tag_id:%d tag_name:%s --- tag_info type not match (%d) != (%d) \n",
+        LOGE("%s(%d): parent_tag_id:%d parent_tag_name:%s  tag_id:%d tag_name:%s --- tag_info type not match (%d) != (%u) \n",
              __FUNCTION__, __LINE__,
              parent_tag_id, TAG_NAME(parent_tag_id), tag_id, TAG_NAME(tag_id),
              tag_info->type, type);
@@ -9552,9 +9552,6 @@ failure:
 int calib_check_tag_mark(CALIB_IQ_TAG_ID_T tag_id, CALIB_IQ_TAG_ID_T parent_tag_id)
 {
     // remove the checkd tag from parent's checking tag list
-    calib_tag_check_info_t* parent_check_info =
-        (calib_tag_check_info_t*)(g_calib_tag_infos[parent_tag_id].check_info);
-
     if(tag_id >= CALIB_IQ_TAG_END || parent_tag_id >= CALIB_IQ_TAG_END ) {
         LOGE("%s(%d): parent_tag_id:%d tag_id:%d --- tag_id is wrong:  min:0 max:%d\n",
              __FUNCTION__, __LINE__,
@@ -9562,6 +9559,9 @@ int calib_check_tag_mark(CALIB_IQ_TAG_ID_T tag_id, CALIB_IQ_TAG_ID_T parent_tag_
         DCT_ASSERT(false);
         return -1;
     }
+
+    calib_tag_check_info_t* parent_check_info =
+        (calib_tag_check_info_t*)(g_calib_tag_infos[parent_tag_id].check_info);
 
 #ifdef CALIBDB_CHECK_DEBUG
     LOGD("%s(%d): parent_tag_id:%d parent_tag_name:%s  tag id:%d tagname:%s \n",

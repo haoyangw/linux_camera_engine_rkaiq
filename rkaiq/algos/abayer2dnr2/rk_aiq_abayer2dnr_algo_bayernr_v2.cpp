@@ -33,11 +33,9 @@ Abayer2dnr_result_V2_t bayer2dnr_select_params_by_ISO_V2(RK_Bayer2dnr_Params_V2_
     int isoGain = MAX(int(iso / 50), 1);
     int isoGainLow = 0;
     int isoGainHig = 0;
-    int isoGainCorrect = 1;
     int isoLevelLow = 0;
     int isoLevelHig = 0;
-    int isoLevelCorrect = 0;
-    int i, j;
+    int i;
     float tmpf;
 
 #ifndef RK_SIMULATOR_HW
@@ -58,8 +56,6 @@ Abayer2dnr_result_V2_t bayer2dnr_select_params_by_ISO_V2(RK_Bayer2dnr_Params_V2_
             isoGainHig = isoGainStd[i + 1];
             isoLevelLow = i;
             isoLevelHig = i + 1;
-            isoGainCorrect = ((isoGain - isoGainStd[i]) <= (isoGainStd[i + 1] - isoGain)) ? isoGainStd[i] : isoGainStd[i + 1];
-            isoLevelCorrect = ((isoGain - isoGainStd[i]) <= (isoGainStd[i + 1] - isoGain)) ? i : (i + 1);
         }
     }
 
@@ -482,8 +478,6 @@ Abayer2dnr_result_V2_t bayer2dnr_init_params_json_V2(RK_Bayer2dnr_Params_V2_t *p
     Abayer2dnr_result_V2_t res = ABAYER2DNR_RET_SUCCESS;
     CalibDbV2_Bayer2dnrV2_C_ISO_t *pCalibIso = NULL;
     CalibDbV2_Bayer2dnrV2_T_ISO_t *pTuningISO = NULL;
-    int i = 0;
-    int j = 0;
 
     LOGI_ANR("%s:(%d) oyyf bayerner xml config start\n", __FUNCTION__, __LINE__);
     if(pParams == NULL || pCalibdb == NULL || calib_idx < 0 || tuning_idx < 0) {

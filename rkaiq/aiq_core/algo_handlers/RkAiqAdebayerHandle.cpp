@@ -278,10 +278,6 @@ XCamReturn RkAiqAdebayerHandleInt::prepare() {
     ret = RkAiqHandle::prepare();
     RKAIQCORE_CHECK_RET(ret, "adebayer handle prepare failed");
 
-    RkAiqAlgoConfigAdebayer* adebayer_config_int = (RkAiqAlgoConfigAdebayer*)mConfig;
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
-
     RkAiqAlgoDescription* des = (RkAiqAlgoDescription*)mDes;
     ret                       = des->prepare(mConfig);
     RKAIQCORE_CHECK_RET(ret, "adebayer algo prepare failed");
@@ -322,9 +318,9 @@ XCamReturn RkAiqAdebayerHandleInt::processing() {
 
     RkAiqAlgoProcAdebayer* adebayer_proc_int = (RkAiqAlgoProcAdebayer*)mProcInParam;
     RkAiqAlgoProcResAdebayer* adebayer_proc_res_int =
-        (RkAiqAlgoProcResAdebayer*)mProcOutParam;
+            (RkAiqAlgoProcResAdebayer*)mProcOutParam;
     RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
+            (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
 #if RKAIQ_HAVE_DEBAYER_V1

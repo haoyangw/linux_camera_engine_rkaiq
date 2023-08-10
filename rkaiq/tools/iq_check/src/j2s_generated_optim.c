@@ -20,7 +20,7 @@
 int main(int argc, char** argv) {
 
 	FILE* fp = NULL;
-	int magic = 0;
+	// int magic = 0;
 	j2s_struct *struct_obj = NULL;
 
 	DASSERT_MSG(argc > 1, return -1,

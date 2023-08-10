@@ -45,11 +45,11 @@ class RawProcThread;
 class SimpleFdBuf
 {
     public:
-    int _fd;
-    int _index;
-    int _seq;
-    uint64_t _ts;
-    uint8_t *_userptr;
+    int _fd{-1};
+    int _index{-1};
+    int _seq{-1};
+    uint64_t _ts{0};
+    uint8_t *_userptr{NULL};
 	    SimpleFdBuf(int fd, int index) {_fd = fd; _index = index;}
         SimpleFdBuf() {_fd = 0; _userptr = NULL;}
 	//    ~EmptyClass() {}

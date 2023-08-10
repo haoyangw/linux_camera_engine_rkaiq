@@ -78,8 +78,10 @@ cJSON *RkAiqsceneManager::mergeMainMultiScene(cJSON *main_scene_list) {
   int main_scene_sum = cJSON_GetArraySize(main_scene_list);
   for (int i = 0; i < main_scene_sum; i++) {
     // need skip first main scene's sub scene
+    if (json_item == NULL)
+      break;
     cJSON *sub_scene_list = cJSONUtils_GetPointer(json_item, "/sub_scene");
-    if (json_item && sub_scene_list) {
+    if (sub_scene_list) {
       mergeSubMultiScene(sub_scene_list, full_param, i == 0);
     }
     json_item = json_item->next;

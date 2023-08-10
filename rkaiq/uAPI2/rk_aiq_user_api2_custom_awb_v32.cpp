@@ -274,7 +274,7 @@ static XCamReturn  ConfigBlc2(const AblcProc_V32_t *ablc,  const rk_aiq_wb_gain_
     // 1 interpolation
 
     // 2 blc2 recalc base on ablc
-    short int rawAwbPieplBlc[AWB_CHANNEL_MAX]={0,0,0,0};
+    // short int rawAwbPieplBlc[AWB_CHANNEL_MAX]={0,0,0,0};
     short int blc1[AWB_CHANNEL_MAX]={0,0,0,0};
     short ob =0;
     float dgain2 = 1.0;
@@ -344,8 +344,10 @@ static XCamReturn  ConfigOverexposureValue(const AblcProc_V32_t *ablc,
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
     float dgain = 1.0;
     int max_blc = 0;
-    short ob = ablc->isp_ob_offset;
+    short ob = 0;
     int overexposure_value = 254;
+    if (ablc)
+        ob = ablc->isp_ob_offset;
     if (awb_hw32_para->frameChoose == CUSTOM_AWB_INPUT_DRC) {
         awb_hw32_para->overexposure_value = overexposure_value;
     }else if(awb_hw32_para->frameChoose == CUSTOM_AWB_INPUT_BAYERNR) {
@@ -424,13 +426,13 @@ void ConfigWbgainBaseOnBlc(const AblcProc_V32_t *blc,rk_aiq_wb_gapin_aplly_pos_e
 
     short int mainPieplineBLC[AWB_CHANNEL_MAX];
     memset(mainPieplineBLC,0,sizeof(mainPieplineBLC[0])*AWB_CHANNEL_MAX);
-    if(blc->enable){
+    if(blc && blc->enable){
         mainPieplineBLC[AWB_CHANNEL_R] += blc->blc_r - blc->isp_ob_offset;
         mainPieplineBLC[AWB_CHANNEL_GR] += blc->blc_gr - blc->isp_ob_offset;
         mainPieplineBLC[AWB_CHANNEL_B] += blc->blc_b - blc->isp_ob_offset;
         mainPieplineBLC[AWB_CHANNEL_GB] += blc->blc_gb - blc->isp_ob_offset;
     }
-    if(wbgainApplyPosition == IN_AWBGAIN1 && blc->blc1_enable){
+    if(wbgainApplyPosition == IN_AWBGAIN1 && blc && blc->blc1_enable){
         mainPieplineBLC[AWB_CHANNEL_R] += blc->blc1_r + blc->isp_ob_offset;
         mainPieplineBLC[AWB_CHANNEL_GR] += blc->blc1_gr + blc->isp_ob_offset;
         mainPieplineBLC[AWB_CHANNEL_B] += blc->blc1_b + blc->isp_ob_offset;

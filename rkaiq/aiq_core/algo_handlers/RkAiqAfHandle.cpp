@@ -63,7 +63,7 @@ XCamReturn RkAiqAfHandleInt::setAttrib(rk_aiq_af_attrib_t* att) {
     ENTER_ANALYZER_FUNCTION();
 
     XCamReturn ret                              = XCAM_RETURN_NO_ERROR;
-    RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
+    // RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     mCfgMutex.lock();
 #ifdef DISABLE_HANDLE_ATTRIB
@@ -557,9 +557,9 @@ XCamReturn RkAiqAfHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPara
         }
 
         SmartPtr<RkAiqHandle>* ae_handle = mAiqCore->getCurAlgoTypeHandle(RK_AIQ_ALGO_TYPE_AE);
-        int algo_id                      = (*ae_handle)->getAlgoId();
 
         if (ae_handle) {
+            int algo_id = (*ae_handle)->getAlgoId();
             if (algo_id == 0) {
                 RkAiqAeHandleInt* ae_algo = dynamic_cast<RkAiqAeHandleInt*>(ae_handle->ptr());
 

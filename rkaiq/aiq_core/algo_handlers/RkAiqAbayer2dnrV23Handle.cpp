@@ -202,8 +202,6 @@ XCamReturn RkAiqAbayer2dnrV23HandleInt::prepare() {
     ret = RkAiqHandle::prepare();
     RKAIQCORE_CHECK_RET(ret, "arawnr handle prepare failed");
 
-    RkAiqAlgoConfigAbayer2dnrV23* aynr_config_int = (RkAiqAlgoConfigAbayer2dnrV23*)mConfig;
-
     RkAiqAlgoDescription* des = (RkAiqAlgoDescription*)mDes;
     ret                       = des->prepare(mConfig);
     RKAIQCORE_CHECK_RET(ret, "arawnr algo prepare failed");
@@ -247,7 +245,7 @@ XCamReturn RkAiqAbayer2dnrV23HandleInt::processing() {
 
     RkAiqAlgoProcAbayer2dnrV23* arawnr_proc_int = (RkAiqAlgoProcAbayer2dnrV23*)mProcInParam;
     RkAiqAlgoProcResAbayer2dnrV23* arawnr_proc_res_int =
-        (RkAiqAlgoProcResAbayer2dnrV23*)mProcOutParam;
+            (RkAiqAlgoProcResAbayer2dnrV23*)mProcOutParam;
     RkAiqCore::RkAiqAlgosGroupShared_t* shared =
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;

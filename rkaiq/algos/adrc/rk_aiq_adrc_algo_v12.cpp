@@ -40,7 +40,7 @@ XCamReturn AdrcStart(AdrcContext_t* pAdrcCtx) {
     return (XCAM_RETURN_NO_ERROR);
 }
 
-float DrcGetInterpRatioV12(float* pX, int lo, int hi, float CtrlValue, int length_max) {
+float DrcGetInterpRatioV12(float* pX, int& lo, int& hi, float CtrlValue, int length_max) {
     float ratio = 0.0f;
 
     if (CtrlValue < pX[0]) {

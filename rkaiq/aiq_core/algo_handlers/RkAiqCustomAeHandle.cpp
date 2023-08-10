@@ -185,8 +185,6 @@ XCamReturn RkAiqCustomAeHandle::preProcess() {
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
-    RkAiqAlgoPreAe* ae_pre_int        = (RkAiqAlgoPreAe*)mPreInParam;
-    bool postMsg = true;
 #ifdef BYPASS_CUSTOM_AE
     if (0) {
 #else

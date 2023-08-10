@@ -90,6 +90,7 @@ void rk_aiq_ctx_set_tool_mode(const rk_aiq_sys_ctx_t* ctx, bool status)
     } else if(ctx->_socket) {
         ctx->_socket->tool_mode_set(status);
     }
+    LOGK("%s: status: %d", __func__, status);
 }
 
 bool is_ctx_need_bypass(const rk_aiq_sys_ctx_t* ctx)
@@ -193,7 +194,7 @@ rk_aiq_uapi_sysctl_preInit_scene(const char* sns_ent_name, const char *main_scen
 
     std::string sns_ent_name_str(sns_ent_name);
 
-    LOGI("main_scene: %s, sub_scene: %s", main_scene, sub_scene);
+    LOGK("%s: main_scene: %s, sub_scene: %s", __func__, main_scene, sub_scene);
     g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].main_scene   = main_scene;
     g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].sub_scene    = sub_scene;
 
@@ -218,7 +219,7 @@ rk_aiq_uapi_sysctl_preInit_tb_info(const char* sns_ent_name,
     }
     std::string sns_ent_name_str(sns_ent_name);
     ret = _get_fast_aewb_from_drv(sns_ent_name_str, fastAeAwbInfo);
-    LOGI("%s: magic %x, is_pre_aiq : %d, prd_type : %d, kernel status %d",
+    LOGK("%s: magic %x, is_pre_aiq : %d, prd_type : %d, kernel status %d",
          __func__, info->magic, info->is_pre_aiq, info->prd_type, ret);
 
     if (ret == XCAM_RETURN_NO_ERROR) {
@@ -232,7 +233,8 @@ rk_aiq_uapi_sysctl_preInit_tb_info(const char* sns_ent_name,
 
     } else {
         g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.prd_type = RK_AIQ_PRD_TYPE_NORMAL;
-        LOGE("%s: get fast aewb error, skip set tb_info!", __func__);
+        if (info->prd_type != RK_AIQ_PRD_TYPE_NORMAL)
+            LOGE("%s: get fast aewb error, skip set tb_info!", __func__);
     }
     return (ret);
 }
@@ -247,6 +249,8 @@ XCamReturn rk_aiq_uapi_sysctl_preInit_devBufCnt(const char* sns_ent_name, const 
     std::string sns_ent_name_str(sns_ent_name);
 
     g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].dev_buf_cnt_map[dev_ent] = buf_cnt;
+
+    LOGK("%s: dev_ent:%s, buf_cnt:%d", __func__, dev_ent, buf_cnt);
 
     return XCAM_RETURN_NO_ERROR;
 }
@@ -655,7 +659,7 @@ rk_aiq_uapi_sysctl_init(const char* sns_ent_name,
         }
 #endif
     }
-
+    LOGK("cid[%d] %s success. iq:%s", ctx->_camPhyId, __func__, config_file);
     EXIT_XCORE_FUNCTION();
 
     return ctx;
@@ -713,6 +717,7 @@ rk_aiq_uapi_sysctl_deinit_locked(rk_aiq_sys_ctx_t* ctx)
     if (ctx->_sensor_entity_name)
         xcam_free((void*)(ctx->_sensor_entity_name));
 
+    LOGK("cid[%d] %s success.", ctx->_camPhyId, __func__);
 #if 0
     // TODO: this will release all sensor's calibs, and should
     // only release the current sensor's calib
@@ -809,6 +814,8 @@ rk_aiq_uapi_sysctl_prepare(const rk_aiq_sys_ctx_t* ctx,
     ret = ctx->_rkAiqManager->prepare(width, height, mode);
     RKAIQSYS_CHECK_RET(ret, ret, "prepare failed !");
 
+    LOGK("cid[%d] %s success. mode:%d ", ctx->_camPhyId, __func__, mode);
+
     EXIT_XCORE_FUNCTION();
 
     return ret;
@@ -824,6 +831,8 @@ rk_aiq_uapi_sysctl_start(const rk_aiq_sys_ctx_t* ctx)
 
     ret = ctx->_rkAiqManager->start();
 
+    LOGK("cid[%d] %s success.", ctx->_camPhyId, __func__);
+
     EXIT_XCORE_FUNCTION();
 
     return ret;
@@ -838,6 +847,8 @@ rk_aiq_uapi_sysctl_stop(const rk_aiq_sys_ctx_t* ctx, bool keep_ext_hw_st)
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
     ret = ctx->_rkAiqManager->stop(keep_ext_hw_st);
+
+    LOGK("cid[%d] %s success.", ctx->_camPhyId, __func__);
 
     EXIT_XCORE_FUNCTION();
 
@@ -1450,6 +1461,7 @@ static void rk_aiq_init_lib(void)
         else
             LOGE("do not support isp hw ver %d now !", s_info->isp_hw_ver);
     }
+    LOGK("%s, ISP HW ver: %d", __func__, g_rkaiq_isp_hw_ver);
 #endif
 #if defined(ISP_HW_V20)
     assert(g_rkaiq_isp_hw_ver == 20);
@@ -1637,6 +1649,7 @@ rk_aiq_uapi_sysctl_setMulCamConc(const rk_aiq_sys_ctx_t* ctx, bool cc)
     ENTER_XCORE_FUNCTION();
     RKAIQ_API_SMART_LOCK(ctx);
     ctx->_rkAiqManager->setMulCamConc(cc);
+    LOGK("cid[%d] %s: cc:%d", ctx->_camPhyId, __func__, cc);
     EXIT_XCORE_FUNCTION();
 }
 
@@ -1660,6 +1673,8 @@ rk_aiq_uapi_sysctl_setCrop(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_rect_t rect)
     } else {
         ret = sys_ctx->_camHw->setSensorCrop(rect);
     }
+
+    LOGK("cid[%d] %s: %dx%d(%d,%d)", sys_ctx->_camPhyId, __func__, rect.width, rect.height, rect.left, rect.top);
     return ret;
 }
 
@@ -1712,6 +1727,8 @@ rk_aiq_uapi_sysctl_updateIq(rk_aiq_sys_ctx_t* sys_ctx, char* iqfile)
     }
 
     sys_ctx->_calibDbProj = calibDbProj;
+
+    LOGK("cid[%d] %s: success. new iq:%s ", sys_ctx->_camPhyId, __func__, iqfile);
 
     return XCAM_RETURN_NO_ERROR;
 }
@@ -1939,6 +1956,8 @@ int rk_aiq_uapi_sysctl_switch_scene(const rk_aiq_sys_ctx_t* sys_ctx,
       }
     }
 
+    LOGK("cid[%d] %s: success. main:%s, sub:%s", sys_ctx->_camPhyId, __func__, main_scene, sub_scene);
+
     return XCAM_RETURN_NO_ERROR;
 }
 
@@ -2003,6 +2022,9 @@ static void _set_fast_aewb_as_init(const rk_aiq_sys_ctx_t* ctx, rk_aiq_working_m
 
         rk_aiq_user_api2_awb_SetFFWbgainAttrib(ctx, attr);
 
+        LOGK("cid[%d] %s: ffwb:%f,%f,%f,%f", ctx->_camPhyId, __func__,
+             attr.wggain.rgain, attr.wggain.grgain, attr.wggain.gbgain, attr.wggain.bgain);
+
         // set initial exposure
         if( mode == RK_AIQ_WORKING_MODE_NORMAL) {
             Uapi_LinExpAttrV2_t LinExpAttr;
@@ -2014,6 +2036,9 @@ static void _set_fast_aewb_as_init(const rk_aiq_sys_ctx_t* ctx, rk_aiq_working_m
             LinExpAttr.Params.InitExp.InitGainValue = (float)fastAeAwbInfo.head.exp_gain[0] / (1 << 16);
 
             ret = rk_aiq_user_api2_ae_setLinExpAttr(ctx, LinExpAttr);
+
+            LOGK("cid[%d] %s: ffexp:%f,%f", ctx->_camPhyId, __func__,
+                 LinExpAttr.Params.InitExp.InitTimeValue, LinExpAttr.Params.InitExp.InitGainValue);
         } else {
             Uapi_HdrExpAttrV2_t HdrExpAttr;
             ret = rk_aiq_user_api2_ae_getHdrExpAttr(ctx, &HdrExpAttr);
@@ -2028,6 +2053,11 @@ static void _set_fast_aewb_as_init(const rk_aiq_sys_ctx_t* ctx, rk_aiq_working_m
             HdrExpAttr.Params.InitExp.InitGainValue[2] = (float)fastAeAwbInfo.head.exp_gain[2] / (1 << 16);
 
             ret = rk_aiq_user_api2_ae_setHdrExpAttr(ctx, HdrExpAttr);
+
+            LOGK("cid[%d] %s: hdr ffexp:%f,%f,%f,%f", ctx->_camPhyId, __func__,
+                 HdrExpAttr.Params.InitExp.InitTimeValue[0], HdrExpAttr.Params.InitExp.InitGainValue[0],
+                 HdrExpAttr.Params.InitExp.InitTimeValue[1], HdrExpAttr.Params.InitExp.InitGainValue[1],
+                 HdrExpAttr.Params.InitExp.InitTimeValue[2], HdrExpAttr.Params.InitExp.InitGainValue[2]);
         }
     }
 }

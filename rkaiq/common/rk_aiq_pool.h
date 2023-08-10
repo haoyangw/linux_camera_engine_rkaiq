@@ -258,6 +258,8 @@ public:
         awb_stats_valid      = false;
         awb_cfg_effect_valid = false;
         af_stats_valid       = false;
+        atmo_stats_valid     = false;
+        adehaze_stats_valid  = false;
         frame_id             = -1;
     };
     virtual ~RkAiqIspStats() {

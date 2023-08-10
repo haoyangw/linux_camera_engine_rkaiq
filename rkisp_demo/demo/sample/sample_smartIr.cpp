@@ -182,7 +182,6 @@ static void* switch_ir_thread(void* args)
 
 static void sample_smartIr_start(const void* arg)
 {
-    const rk_aiq_sys_ctx_t* ctx = (rk_aiq_sys_ctx_t*)(arg);
     sample_smartIr_t* smartIr_ctx = &g_sample_smartIr_ctx;
 
     smartIr_ctx->ir_ctx = rk_smart_ir_init((rk_aiq_sys_ctx_t*)arg);
@@ -195,7 +194,6 @@ static void sample_smartIr_start(const void* arg)
 
 static void sample_smartIr_stop(const void* arg)
 {
-    const rk_aiq_sys_ctx_t* ctx = (rk_aiq_sys_ctx_t*)(arg);
     sample_smartIr_t* smartIr_ctx = &g_sample_smartIr_ctx;
 
     if (smartIr_ctx->started) {

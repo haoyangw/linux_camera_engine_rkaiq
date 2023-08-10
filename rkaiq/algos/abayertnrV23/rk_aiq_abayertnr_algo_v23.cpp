@@ -324,12 +324,13 @@ Abayertnr_result_V23_t Abayertnr_ConfigSettingParam_V23(Abayertnr_Context_V23_t 
 
 Abayertnr_result_V23_t Abayertnr_ParamModeProcess_V23(Abayertnr_Context_V23_t *pAbayertnrCtx, Abayertnr_ExpInfo_V23_t *pExpInfo, Abayertnr_ParamMode_V23_t *mode) {
     Abayertnr_result_V23_t res  = ABAYERTNRV23_RET_SUCCESS;
-    *mode = pAbayertnrCtx->eParamMode;
 
     if(pAbayertnrCtx == NULL) {
         LOGE_ANR("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
         return ABAYERTNRV23_RET_INVALID_PARM;
     }
+
+    *mode = pAbayertnrCtx->eParamMode;
 
     if(pAbayertnrCtx->isGrayMode) {
         *mode = ABAYERTNRV23_PARAM_MODE_GRAY;

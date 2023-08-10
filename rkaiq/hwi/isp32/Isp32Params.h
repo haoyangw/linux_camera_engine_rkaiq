@@ -74,8 +74,9 @@ private:
                                    const rk_aiq_isp_af_v32_t& af_data, bool af_cfg_udpate);
 #endif
 #if RKAIQ_HAVE_CAC_V11
-    void convertAiqCacToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
-                                    const rk_aiq_isp_cac_v32_t& cac_cfg);
+   void convertAiqCacToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
+            struct isp32_isp_params_cfg& isp_cfg_right,
+            const rk_aiq_isp_cac_v32_t& cac_cfg, bool is_multi_isp);
 #endif
 #if RKAIQ_HAVE_DEBAYER_V2 || RKAIQ_HAVE_DEBAYER_V2_LITE
     void convertAiqAdebayerToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
@@ -98,7 +99,9 @@ private:
                                     const rk_aiq_ccm_cfg_v2_t& ccm);
 #endif
     void convertAiqAldchToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
-                                      const rk_aiq_isp_ldch_v21_t& ldch_cfg);
+                                      struct isp32_isp_params_cfg& isp_cfg_right,
+                                      const rk_aiq_isp_ldch_v21_t& ldch_cfg,
+                                      bool is_multi_isp);
     void convertAiqExpIspDgainToIsp32Params(struct isp32_isp_params_cfg& isp_cfg, RKAiqAecExpInfo_t ae_exp);
 };
 

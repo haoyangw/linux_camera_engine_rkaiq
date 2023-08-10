@@ -36,6 +36,7 @@ IspParamsAssembler::IspParamsAssembler (const char* name)
     , mCondNum(0)
     , started(false)
 {
+    mCamPhyId = -1;
 }
 
 IspParamsAssembler::~IspParamsAssembler ()
@@ -69,7 +70,7 @@ IspParamsAssembler::addReadyCondition(uint32_t cond)
             return;
         }
 
-        mCondMaskMap[cond] = 1 << mCondNum;
+        mCondMaskMap[cond] = 1ULL << mCondNum;
         mReadyMask |= mCondMaskMap[cond];
         mCondNum++;
         LOGI_CAMHW_SUBM(ISP20PARAM_SUBM, "%s: map cond %s 0x%x -> 0x%llx, mask: 0x%llx",
@@ -1464,11 +1465,10 @@ template<class T>
 void Isp20Params::convertAiqAdehazeToIsp20Params(T& isp_cfg,
         const rk_aiq_isp_dehaze_t& dhaze                     )
 {
-    int i;
-
+#if 0
     int rawWidth = 1920;
     int rawHeight = 1080;
-
+#endif
     if (dhaze.ProcResV10.enable) {
         isp_cfg.module_ens |= ISP2X_MODULE_DHAZ;
         isp_cfg.module_en_update |= ISP2X_MODULE_DHAZ;
@@ -2015,9 +2015,6 @@ void Isp20Params::convertAiqRawnrToIsp20Params(T& isp_cfg,
     }
     isp_cfg.module_en_update |= ISP2X_MODULE_RAWNR;
     isp_cfg.module_cfg_update |= ISP2X_MODULE_RAWNR;
-
-    int rawbit = 12;//rawBit;
-    float tmp;
 
     //(0x0004)
     pRawnrCfg->gauss_en = rawnr.gauss_en;
@@ -2911,7 +2908,7 @@ Isp20Params::convertAiqAldchToIsp20Params(T& isp_cfg,
 
         pLdchCfg->hsize = ldch_cfg.lut_h_size;
         pLdchCfg->vsize = ldch_cfg.lut_v_size;
-        pLdchCfg->buf_fd = ldch_cfg.lut_mapxy_buf_fd;
+        pLdchCfg->buf_fd = ldch_cfg.lut_mapxy_buf_fd[0];
     } else {
         isp_cfg.module_ens &= ~ISP2X_MODULE_LDCH;
         isp_cfg.module_en_update |= ISP2X_MODULE_LDCH;
@@ -3717,8 +3714,6 @@ Isp20Params::hdrtmoPredictK(float* luma, float* expo, s32 frameNum, PredictKPara
     float correction_factor = TmoPara->correction_factor;
     float ratio = 1;
     float offset = TmoPara->correction_offset;
-    float LongExpoRatio = 1;
-    float ShortExpoRatio = 1;
     float MiddleExpoRatio = 1;
     float MiddleLumaChange = 1;
     float LongLumaChange = 1;
@@ -3727,22 +3722,16 @@ Isp20Params::hdrtmoPredictK(float* luma, float* expo, s32 frameNum, PredictKPara
 
     //get expo change
     if(frameNum == 3 || frameNum == 2) {
-        if(nextLExpo != 0 && curLExpo != 0)
-            LongExpoRatio = nextLExpo / curLExpo;
-        else
+        if(nextLExpo == 0 && curLExpo == 0)
             LOGE_CAMHW_SUBM(ISP20PARAM_SUBM, "Wrong Long frame expo!!!");
     }
 
     if(frameNum == 3) {
-        if(nextMExpo != 0 && curMExpo != 0)
-            ShortExpoRatio = nextMExpo / curMExpo;
-        else
+        if(nextMExpo == 0 && curMExpo == 0)
             LOGE_CAMHW_SUBM(ISP20PARAM_SUBM, "Wrong Short frame expo!!!");
     }
 
-    if(nextSExpo != 0 && curSExpo != 0)
-        ShortExpoRatio = nextSExpo / curSExpo;
-    else
+    if(nextSExpo == 0 && curSExpo == 0)
         LOGE_CAMHW_SUBM(ISP20PARAM_SUBM, "Wrong Short frame expo!!!");
 
     float nextLMeanLuma = 0;

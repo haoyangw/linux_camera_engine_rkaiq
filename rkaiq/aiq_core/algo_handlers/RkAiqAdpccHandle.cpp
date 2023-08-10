@@ -126,10 +126,6 @@ XCamReturn RkAiqAdpccHandleInt::prepare() {
     ret = RkAiqHandle::prepare();
     RKAIQCORE_CHECK_RET(ret, "adpcc handle prepare failed");
 
-    RkAiqAlgoConfigAdpcc* adpcc_config_int = (RkAiqAlgoConfigAdpcc*)mConfig;
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
-
     RkAiqAlgoDescription* des = (RkAiqAlgoDescription*)mDes;
     ret                       = des->prepare(mConfig);
     RKAIQCORE_CHECK_RET(ret, "adpcc algo prepare failed");
@@ -171,7 +167,8 @@ XCamReturn RkAiqAdpccHandleInt::processing() {
     RkAiqAlgoProcAdpcc* adpcc_proc_int        = (RkAiqAlgoProcAdpcc*)mProcInParam;
     RkAiqAlgoProcResAdpcc* adpcc_proc_res_int = (RkAiqAlgoProcResAdpcc*)mProcOutParam;
     RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
+            (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
+
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     adpcc_proc_res_int->stAdpccProcResult = &shared->fullParams->mDpccParams->data()->result;

@@ -554,12 +554,13 @@ Amfnr_Result_V1_t Amfnr_ConfigSettingParam_V1(Amfnr_Context_V1_t *pAmfnrCtx, Amf
 
 Amfnr_Result_V1_t Amfnr_ParamModeProcess_V1(Amfnr_Context_V1_t *pAmfnrCtx, Amfnr_ExpInfo_V1_t *pExpInfo, Amfnr_ParamMode_V1_t *mode) {
     Amfnr_Result_V1_t res  = AMFNR_RET_V1_SUCCESS;
-    *mode = pAmfnrCtx->eParamMode;
 
     if(pAmfnrCtx == NULL) {
         LOGE_ANR("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
         return AMFNR_RET_V1_INVALID_PARM;
     }
+
+    *mode = pAmfnrCtx->eParamMode;
 
     if(pAmfnrCtx->isGrayMode) {
         *mode = AMFNR_PARAM_MODE_V1_GRAY;

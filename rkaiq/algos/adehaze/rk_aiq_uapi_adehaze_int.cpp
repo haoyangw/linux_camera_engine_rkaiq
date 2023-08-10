@@ -6,7 +6,7 @@
 XCamReturn rk_aiq_uapi_adehaze_v10_SetAttrib(RkAiqAlgoContext* ctx, adehaze_sw_v10_t* attr,
                                              bool need_sync) {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-    AdehazeHandle_t* pAdehazeHandle = (AdehazeHandle_t*)ctx;
+    // AdehazeHandle_t* pAdehazeHandle = (AdehazeHandle_t*)ctx;
 
     // AdehazeHandle->AdehazeAtrrV10.mode = attr->mode;
     // if(attr->mode == DEHAZE_API_MANUAL)
@@ -21,7 +21,7 @@ XCamReturn rk_aiq_uapi_adehaze_v10_SetAttrib(RkAiqAlgoContext* ctx, adehaze_sw_v
 
 XCamReturn rk_aiq_uapi_adehaze_v10_GetAttrib(RkAiqAlgoContext* ctx, adehaze_sw_v10_t* attr) {
     XCamReturn ret                 = XCAM_RETURN_NO_ERROR;
-    AdehazeHandle_t* pAdehazeHandle = (AdehazeHandle_t*)ctx;
+    // AdehazeHandle_t* pAdehazeHandle = (AdehazeHandle_t*)ctx;
 
     // attr->mode = AdehazeHandle->AdehazeAtrrV10.mode;
     // memcpy(&attr->stManual, &AdehazeHandle->AdehazeAtrrV10.stManual, sizeof(mDehazeAttrV11_t));

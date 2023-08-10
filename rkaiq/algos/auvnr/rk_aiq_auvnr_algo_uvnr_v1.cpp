@@ -102,7 +102,6 @@ Auvnr_result_t init_uvnr_params_v1(RK_UVNR_Params_V1_t *pParams, CalibDb_UVNR_2_
 {
     Auvnr_result_t res = AUVNR_RET_SUCCESS;
     int i = 0;
-    int j = 0;
 
     LOGE_ANR("%s:%d enter\n", __FUNCTION__, __LINE__);
 
@@ -231,7 +230,6 @@ Auvnr_result_t init_uvnr_params_json_v1(RK_UVNR_Params_V1_t *pParams, CalibDbV2_
 {
     Auvnr_result_t res = AUVNR_RET_SUCCESS;
     int i = 0;
-    int j = 0;
     float luma[9] = {0.0000, 32.0000, 64.0000, 96.0000, 128.0000, 160.0000, 192.0000, 224.0000, 256.0000 };
 
     if(pParams == NULL || pCalibdb == NULL) {
@@ -329,7 +327,7 @@ Auvnr_result_t init_uvnr_params_json_v1(RK_UVNR_Params_V1_t *pParams, CalibDbV2_
 
 Auvnr_result_t uvnr_algo_param_printf_v1(RK_UVNR_Params_V1_t *pParams)
 {
-    int i, j;
+    int i;
 
     if(pParams != NULL) {
         for(i = 0; i < UVNR_MAX_ISO_STEP; i++) {
@@ -443,7 +441,7 @@ Auvnr_result_t select_uvnr_params_by_ISO_v1(RK_UVNR_Params_V1_t *stRKUVNrParams,
     } else {
         iso = pExpInfo->arIso[pExpInfo->hdr_mode];
     }
-    //È·¶¨isoµÈ¼¶
+    //È·ï¿½ï¿½isoï¿½È¼ï¿½
     //rkuvnriso@50 100 200 400 800 1600 3200  6400 12800
     //      isogain: 1  2   4   8   16  32   64    128  256
     //     isoindex: 0  1   2   3   4   5    6     7    8
@@ -514,25 +512,25 @@ Auvnr_result_t select_uvnr_params_by_ISO_v1(RK_UVNR_Params_V1_t *stRKUVNrParams,
              __FUNCTION__, __LINE__,
              iso, isoGainHigh, isoGainLow);
 
-    //È¡Êý
+    //È¡ï¿½ï¿½
     memcpy(stRKUVNrParamsSelected->select_iso, stRKUVNrParams->rkuvnrISO, sizeof(char) * 256);
-    //step0:uvgainÔ¤´¦Àí
+    //step0:uvgainÔ¤ï¿½ï¿½ï¿½ï¿½
     stRKUVNrParamsSelected->ratio = ufnr_interpISO_v1(isoGainLow, isoGainHigh, stRKUVNrParams->ratio[isoIndexLow],
                                     stRKUVNrParams->ratio[isoIndexHigh], iso, stRKUVNrParamsSelected->ratio);
     stRKUVNrParamsSelected->offset = ufnr_interpISO_v1(isoGainLow, isoGainHigh, stRKUVNrParams->offset[isoIndexLow],
                                      stRKUVNrParams->offset[isoIndexHigh], iso, stRKUVNrParamsSelected->offset);
-    //step1-ÏÂ²ÉÑù1
-    //¾ùÖµ1
+    //step1-ï¿½Â²ï¿½ï¿½ï¿½1
+    //ï¿½ï¿½Öµ1
     stRKUVNrParamsSelected->wStep1 = stRKUVNrParams->wStep1[isoIndex];
     stRKUVNrParamsSelected->hStep1 = stRKUVNrParams->hStep1[isoIndex];
     stRKUVNrParamsSelected->meanSize1 = stRKUVNrParams->meanSize1[isoIndex];
-    //ÖÐÖµ1
+    //ï¿½ï¿½Öµ1
     memcpy(stRKUVNrParamsSelected->nonMed1, stRKUVNrParams->nonMed1, sizeof(int) * 4);
     stRKUVNrParamsSelected->medSize1 = stRKUVNrParams->medSize1[isoIndex];
     stRKUVNrParamsSelected->medRatio1 = ufnr_interpISO_v1(isoGainLow, isoGainHigh, stRKUVNrParams->medRatio1[isoIndexLow],
                                         stRKUVNrParams->medRatio1[isoIndexHigh], iso, stRKUVNrParamsSelected->medRatio1);
     stRKUVNrParamsSelected->isMedIIR1 = stRKUVNrParams->isMedIIR1[isoIndex];
-    //Ë«±ß1
+    //Ë«ï¿½ï¿½1
     memcpy(stRKUVNrParamsSelected->nonBf1, stRKUVNrParams->nonBf1, sizeof(int) * 4);
     stRKUVNrParamsSelected->bfSize1 = stRKUVNrParams->bfSize1[isoIndex];
     stRKUVNrParamsSelected->sigmaR1 = ufnr_interpISO_v1(isoGainLow, isoGainHigh, stRKUVNrParams->sigmaR1[isoIndexLow],
@@ -546,19 +544,19 @@ Auvnr_result_t select_uvnr_params_by_ISO_v1(RK_UVNR_Params_V1_t *stRKUVNrParams,
     stRKUVNrParamsSelected->isRowIIR1 = stRKUVNrParams->isRowIIR1[isoIndex];
     stRKUVNrParamsSelected->isYcopy1 = stRKUVNrParams->isYcopy1[isoIndex];
 
-    //step2-ÏÂ²ÉÑù2
+    //step2-ï¿½Â²ï¿½ï¿½ï¿½2
     memcpy(stRKUVNrParamsSelected->block2_ext, stRKUVNrParams->block2_ext, sizeof(int) * 4);
-    //¾ùÖµ2
+    //ï¿½ï¿½Öµ2
     stRKUVNrParamsSelected->wStep2 = stRKUVNrParams->wStep2[isoIndex];
     stRKUVNrParamsSelected->hStep2 = stRKUVNrParams->hStep2[isoIndex];
     stRKUVNrParamsSelected->meanSize2 = stRKUVNrParams->meanSize2[isoIndex];
-    //ÖÐÖµ2
+    //ï¿½ï¿½Öµ2
     memcpy(stRKUVNrParamsSelected->nonMed2, stRKUVNrParams->nonMed2, sizeof(int) * 4);
     stRKUVNrParamsSelected->medSize2 = stRKUVNrParams->medSize2[isoIndex];
     stRKUVNrParamsSelected->medRatio2 = ufnr_interpISO_v1(isoGainLow, isoGainHigh, stRKUVNrParams->medRatio2[isoIndexLow],
                                         stRKUVNrParams->medRatio2[isoIndexHigh], iso, stRKUVNrParamsSelected->medRatio2);
     stRKUVNrParamsSelected->isMedIIR2 = stRKUVNrParams->isMedIIR2[isoIndex];
-    //Ë«±ß2
+    //Ë«ï¿½ï¿½2
     memcpy(stRKUVNrParamsSelected->nonBf2, stRKUVNrParams->nonBf2, sizeof(int) * 4);
     stRKUVNrParamsSelected->bfSize2 = stRKUVNrParams->bfSize2[isoIndex];
     stRKUVNrParamsSelected->sigmaR2 = ufnr_interpISO_v1(isoGainLow, isoGainHigh, stRKUVNrParams->sigmaR2[isoIndexLow],
@@ -574,7 +572,7 @@ Auvnr_result_t select_uvnr_params_by_ISO_v1(RK_UVNR_Params_V1_t *stRKUVNrParams,
 
     //step3
     memcpy(stRKUVNrParamsSelected->nonBf3, stRKUVNrParams->nonBf3, sizeof(int) * 4);
-    //Ë«±ß3
+    //Ë«ï¿½ï¿½3
     stRKUVNrParamsSelected->bfSize3 = stRKUVNrParams->bfSize3[isoIndex];
     stRKUVNrParamsSelected->sigmaR3 = ufnr_interpISO_v1(isoGainLow, isoGainHigh, stRKUVNrParams->sigmaR3[isoIndexLow],
                                       stRKUVNrParams->sigmaR3[isoIndexHigh], iso, stRKUVNrParamsSelected->sigmaR3);

@@ -27,7 +27,7 @@ void SPStreamProcUnit::start()
         struct rkispp_trigger_mode tnr_trigger;
         tnr_trigger.module = ISPP_MODULE_TNR;
         tnr_trigger.on = 1;
-        int ret = _ispp_dev->io_control(RKISPP_CMD_TRIGGER_MODE, &tnr_trigger);
+        _ispp_dev->io_control(RKISPP_CMD_TRIGGER_MODE, &tnr_trigger);
     }
 
     if (ldg_enable) {
@@ -44,7 +44,7 @@ void SPStreamProcUnit::stop()
         struct rkispp_trigger_mode tnr_trigger;
         tnr_trigger.module = ISPP_MODULE_TNR;
         tnr_trigger.on = 0;
-        int ret = _ispp_dev->io_control(RKISPP_CMD_TRIGGER_MODE, &tnr_trigger);
+        _ispp_dev->io_control(RKISPP_CMD_TRIGGER_MODE, &tnr_trigger);
     }
 
     RKStream::stop();//stopDeviceOnly&stopThreadOnly

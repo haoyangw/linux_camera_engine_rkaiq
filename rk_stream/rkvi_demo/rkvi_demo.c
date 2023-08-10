@@ -100,9 +100,6 @@ static rk_aiq_sys_ctx_t* g_aiq_ctx;
 static int capture_raw(uint8_t *rkraw_data, uint32_t rkraw_len)
 {
     rkrawstream_rkraw2_t rkraw;
-    struct _block_header _header;
-    _header.block_id = NORMAL_RAW_TAG;
-    uint16_t end_tag = END_TAG;
 
     rkrawstream_uapi_parase_rkraw2(rkraw_data, &rkraw);
 
@@ -448,11 +445,10 @@ int main(int argc, char **argv)
     bool use_rawstream = false;
     bool test_switch = false;
     bool use_offline = false;
-    pthread_t isp_tid;
     g_aiq_test_mode = 0;
 
     //rkraw_vi_sensor_info_t m_info = {0};
-    rk_aiq_static_info_t s_info;
+    // rk_aiq_static_info_t s_info;
 
     parse_args(argc, argv);
     if (!modul_select)

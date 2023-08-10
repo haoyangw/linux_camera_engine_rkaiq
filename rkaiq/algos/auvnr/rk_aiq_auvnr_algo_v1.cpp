@@ -534,13 +534,14 @@ Auvnr_result_t Auvnr_ConfigSettingParam_V1(Auvnr_Context_V1_t *pAuvnrCtx, Auvnr_
 }
 
 Auvnr_result_t Auvnr_ParamModeProcess_V1(Auvnr_Context_V1_t *pAuvnrCtx, Auvnr_ExpInfo_t *pExpInfo, Auvnr_ParamMode_t *mode) {
-    Auvnr_result_t res  = AUVNR_RET_SUCCESS;
-    *mode = pAuvnrCtx->eParamMode;
 
     if(pAuvnrCtx == NULL) {
         LOGE_ANR("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
         return AUVNR_RET_INVALID_PARM;
     }
+
+    Auvnr_result_t res  = AUVNR_RET_SUCCESS;
+    *mode = pAuvnrCtx->eParamMode;
 
     if(pAuvnrCtx->isGrayMode) {
         *mode = AUVNR_PARAM_MODE_GRAY;

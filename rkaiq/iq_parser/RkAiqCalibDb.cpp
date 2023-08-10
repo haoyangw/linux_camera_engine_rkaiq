@@ -159,7 +159,7 @@ static int persistCalib(int fd, CamCalibDbContext_t* pcalib) {
     }
     CamCalibDbContextIsp20_t* calib = TO_CALIBDBV1_ISP20(pcalib);
     ret |= persist(fd, sizeof(CamCalibDbContextIsp20_t), (char*)calib);
-    LOGD("CamCalibDbContextIsp20_t size %d bytes", sizeof(CamCalibDbContextIsp20_t));
+    LOGD("CamCalibDbContextIsp20_t size %u bytes", sizeof(CamCalibDbContextIsp20_t));
     // points
     ret |= persist(fd,
                    sizeof(CalibDb_BayerNr_ModeCell_t) * calib->bayerNr.mode_num,
@@ -196,7 +196,7 @@ static int reconstructCalib(int fd, CamCalibDbContext_t* pcalib) {
     CamCalibDbContextIsp20_t* calib = TO_CALIBDBV1_ISP20(pcalib);
     if (read(fd, calib, sizeof(CamCalibDbContextIsp20_t)) <= 0)
         return -1;
-    LOGD("CamCalibDbContextIsp20_t size %d bytes", sizeof(CamCalibDbContextIsp20_t));
+    LOGD("CamCalibDbContextIsp20_t size %u bytes", sizeof(CamCalibDbContextIsp20_t));
     // reconstruct points
     ret |= reconstruct(fd,
                        sizeof(CalibDb_BayerNr_ModeCell_t) * calib->bayerNr.mode_num,

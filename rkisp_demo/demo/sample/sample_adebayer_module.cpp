@@ -278,8 +278,8 @@ sample_adebayer_translate_params_v2(adebayer_v2_attrib_t* attr, int32_t iso)
     }
 
     if(i == ISO_STEP_MAX) {
-        iso_low = attr->stAuto.g_interp.iso[i - 1];
-        iso_high = attr->stAuto.g_interp.iso[i - 1];
+        // iso_low = attr->stAuto.g_interp.iso[i - 1];
+        // iso_high = attr->stAuto.g_interp.iso[i - 1];
         iso_low_index = i - 1;
         iso_high_index = i - 1;
         ratio = 1;
@@ -398,8 +398,8 @@ sample_adebayer_translate_params_v2lite(adebayer_v2lite_attrib_t* attr, int32_t 
     }
 
     if(i == ISO_STEP_MAX) {
-        iso_low = attr->stAuto.g_interp.iso[i - 1];
-        iso_high = attr->stAuto.g_interp.iso[i - 1];
+        // iso_low = attr->stAuto.g_interp.iso[i - 1];
+        // iso_high = attr->stAuto.g_interp.iso[i - 1];
         iso_low_index = i - 1;
         iso_high_index = i - 1;
         ratio = 1;

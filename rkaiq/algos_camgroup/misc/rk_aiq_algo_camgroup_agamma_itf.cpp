@@ -67,7 +67,6 @@ prepare(RkAiqAlgoCom* params)
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
     AgammaHandle_t * pAgammaGrpCtx = (AgammaHandle_t *)params->ctx;
     RkAiqAlgoCamGroupPrepare* pCfgParam = (RkAiqAlgoCamGroupPrepare*)params;
-    rk_aiq_gamma_cfg_t *agamma_config = &pAgammaGrpCtx->agamma_config;
 
     if (!!(pCfgParam->gcom.com.u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB)) {
 #if RKAIQ_HAVE_GAMMA_V10

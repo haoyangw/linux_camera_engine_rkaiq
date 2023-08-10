@@ -23,7 +23,17 @@ namespace RkCam {
 
 CamHwBase::CamHwBase()
     : mKpHwSt (false)
-{}
+{
+    mHwResLintener = NULL;
+    mWorkingMode   = 0;
+    mCalibDb       = NULL;
+    mCalibDbV2     = NULL;
+    mCamPhyId      = -1;
+    mIsGroupMode   = false;
+    mIsMain        = false;
+    xcam_mem_clear (mTbInfo);
+    mDevBufCntMap.clear();
+}
 
 CamHwBase::~CamHwBase()
 {}

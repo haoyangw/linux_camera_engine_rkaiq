@@ -1299,10 +1299,12 @@ XCamReturn AlscPrepare(alsc_handle_t hAlsc)
     }
 
 #ifdef ARCHER_DEBUG
-    LOGE_ALSC( "%s\n", PRT_ARRAY(cur_grad->LscXGradTbl) );
-    LOGE_ALSC( "%s\n", PRT_ARRAY(cur_grad->LscYGradTbl) );
-    LOGE_ALSC( "%s\n", PRT_ARRAY(hAlsc->lscHwConf.x_grad_tbl) );
-    LOGE_ALSC( "%s\n", PRT_ARRAY(hAlsc->lscHwConf.y_grad_tbl) );
+    if (cur_grad) {
+        LOGE_ALSC( "%s\n", PRT_ARRAY(cur_grad->LscXGradTbl) );
+        LOGE_ALSC( "%s\n", PRT_ARRAY(cur_grad->LscYGradTbl) );
+        LOGE_ALSC( "%s\n", PRT_ARRAY(hAlsc->lscHwConf.x_grad_tbl) );
+        LOGE_ALSC( "%s\n", PRT_ARRAY(hAlsc->lscHwConf.y_grad_tbl) );
+    }
 #endif
 
     LOGI_ALSC("%s: (exit)\n", __FUNCTION__);

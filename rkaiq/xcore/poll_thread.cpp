@@ -565,11 +565,12 @@ XCamReturn
 PollThread::poll_buffer_loop (int type)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
+#if 0
     int poll_ret = 0;
     SmartPtr<V4l2Buffer> buf;
     SmartPtr<V4l2Device> dev;
     int stop_fd = -1;
-#if 0
+
     if (type == ISP_POLL_LUMA) {
         dev = _isp_luma_dev;
         stop_fd = _luma_poll_stop_fd[0];

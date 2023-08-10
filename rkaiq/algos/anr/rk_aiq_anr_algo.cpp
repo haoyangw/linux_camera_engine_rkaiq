@@ -698,12 +698,13 @@ ANRresult_t ANRConfigSettingParam(ANRContext_t *pANRCtx, ANRParamMode_t eParamMo
 
 ANRresult_t ANRParamModeProcess(ANRContext_t *pANRCtx, ANRExpInfo_t *pExpInfo, ANRParamMode_t *mode) {
     ANRresult_t res  = ANR_RET_SUCCESS;
-    *mode = pANRCtx->eParamMode;
 
     if(pANRCtx == NULL) {
         LOGE_ANR("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
         return ANR_RET_INVALID_PARM;
     }
+
+    *mode = pANRCtx->eParamMode;
 
     if(pANRCtx->isGrayMode) {
         *mode = ANR_PARAM_MODE_GRAY;

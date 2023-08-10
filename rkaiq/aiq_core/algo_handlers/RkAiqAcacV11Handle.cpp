@@ -81,7 +81,7 @@ XCamReturn RkAiqAcacV11HandleInt::processing() {
     auto* shared = (RkAiqCore::RkAiqAlgosGroupShared_t*)getGroupShared();
     if (!shared) return XCAM_RETURN_BYPASS;
 
-    acac_proc_res_int->config = &shared->fullParams->mCacV32Params->data()->result.cfg;
+    acac_proc_res_int->config = shared->fullParams->mCacV32Params->data()->result.cfg;
 
     RKAiqAecExpInfo_t* aeCurExp = &shared->curExp;
     acac_proc_int->hdr_ratio = 1;

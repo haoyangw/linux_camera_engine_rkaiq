@@ -255,8 +255,6 @@ XCamReturn RkAiqAnrHandleInt::prepare() {
     ret = RkAiqHandle::prepare();
     RKAIQCORE_CHECK_RET(ret, "anr handle prepare failed");
 
-    RkAiqAlgoConfigAnr* anr_config_int = (RkAiqAlgoConfigAnr*)mConfig;
-
     RkAiqAlgoDescription* des = (RkAiqAlgoDescription*)mDes;
     ret                       = des->prepare(mConfig);
     RKAIQCORE_CHECK_RET(ret, "anr algo prepare failed");
@@ -269,12 +267,6 @@ XCamReturn RkAiqAnrHandleInt::preProcess() {
     ENTER_ANALYZER_FUNCTION();
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-
-    RkAiqAlgoPreAnr* anr_pre_int        = (RkAiqAlgoPreAnr*)mPreInParam;
-    RkAiqAlgoPreResAnr* anr_pre_res_int = (RkAiqAlgoPreResAnr*)mPreOutParam;
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
-    RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     ret = RkAiqHandle::preProcess();
     if (ret) {
@@ -296,9 +288,6 @@ XCamReturn RkAiqAnrHandleInt::processing() {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
     RkAiqAlgoProcAnr* anr_proc_int        = (RkAiqAlgoProcAnr*)mProcInParam;
-    RkAiqAlgoProcResAnr* anr_proc_res_int = (RkAiqAlgoProcResAnr*)mProcOutParam;
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
     static int anr_proc_framecnt                = 0;
     anr_proc_framecnt++;
@@ -333,12 +322,6 @@ XCamReturn RkAiqAnrHandleInt::postProcess() {
     ENTER_ANALYZER_FUNCTION();
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-
-    RkAiqAlgoPostAnr* anr_post_int        = (RkAiqAlgoPostAnr*)mPostInParam;
-    RkAiqAlgoPostResAnr* anr_post_res_int = (RkAiqAlgoPostResAnr*)mPostOutParam;
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
-    RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     ret = RkAiqHandle::postProcess();
     if (ret) {

@@ -95,7 +95,7 @@ void DehazeHistWrTableInterpV12(const HistWr_t* pCurveIn, mManual_curve_t* pCurv
 #endif
 }
 
-float GetInterpRatioV12(float* pX, int lo, int hi, float CtrlValue, int length_max) {
+float GetInterpRatioV12(float* pX, int& lo, int& hi, float CtrlValue, int length_max) {
     float ratio = 0.0f;
 
     if (CtrlValue < pX[0]) {

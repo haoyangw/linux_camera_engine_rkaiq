@@ -42,8 +42,6 @@ XCamReturn RkAiqAfecHandleInt::prepare() {
 
     RkAiqAlgoConfigAfec* afec_config_int     = (RkAiqAlgoConfigAfec*)mConfig;
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
 
     /* memcpy(&afec_config_int->afec_calib_cfg, &shared->calib->afec, sizeof(CalibDb_FEC_t)); */
     afec_config_int->resource_path = sharedCom->resourcePath;

@@ -161,8 +161,8 @@ static XCamReturn groupAbayer2dnrV23Processing(const RkAiqAlgoCom* inparams, RkA
     }
 
     //group empty
-    if(procParaGroup->camgroupParmasArray == nullptr) {
-        LOGE_ANR("camgroupParmasArray is null");
+    if(procParaGroup == nullptr || procParaGroup->camgroupParmasArray == nullptr) {
+        LOGE_ANR("procParaGroup or camgroupParmasArray is null");
         return(XCAM_RETURN_ERROR_FAILED);
     }
 

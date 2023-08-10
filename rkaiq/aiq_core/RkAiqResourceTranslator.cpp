@@ -35,9 +35,9 @@
 #include <arm_neon.h>
 #endif
 
-#define DEFAULT_PD_RAW_PATH "/data/pdaf/frm%04d_pdAll.raw"
-#define DEFAULT_PD_LRAW_PATH "/data/pdaf/frm%04d_pdLeft.raw"
-#define DEFAULT_PD_RRAW_PATH "/data/pdaf/frm%04d_pdRight.raw"
+#define DEFAULT_PD_RAW_PATH "/data/pdaf/frm%04u_pdAll.raw"
+#define DEFAULT_PD_LRAW_PATH "/data/pdaf/frm%04u_pdLeft.raw"
+#define DEFAULT_PD_RRAW_PATH "/data/pdaf/frm%04u_pdRight.raw"
 
 namespace RkCam {
 
@@ -374,7 +374,7 @@ RkAiqResourceTranslator::translateAecStats (const SmartPtr<VideoBuffer> &from, S
     if (irisParams.ptr()) {
 
         float sof_time = (float)irisParams->data()->sofTime / 1000000000.0f;
-        float start_time = (float)irisParams->data()->PIris.StartTim.tv_sec + (float)irisParams->data()->PIris.StartTim.tv_usec / 1000000.0f;
+        // float start_time = (float)irisParams->data()->PIris.StartTim.tv_sec + (float)irisParams->data()->PIris.StartTim.tv_usec / 1000000.0f;
         float end_time = (float)irisParams->data()->PIris.EndTim.tv_sec + (float)irisParams->data()->PIris.EndTim.tv_usec / 1000000.0f;
         float frm_intval = 1 / (statsInt->aec_stats.ae_exp.pixel_clock_freq_mhz * 1000000.0f /
                                 (float)statsInt->aec_stats.ae_exp.line_length_pixels / (float)statsInt->aec_stats.ae_exp.frame_length_lines);

@@ -103,7 +103,7 @@ public:
 protected:
     XCAM_DEAD_COPY (BaseSensorHw);
     uint32_t get_v4l2_pixelformat(uint32_t pixelcode);
-    int mCamPhyId;
+    int mCamPhyId{-1};
     bool mTbIsPreAiq;
 };
 

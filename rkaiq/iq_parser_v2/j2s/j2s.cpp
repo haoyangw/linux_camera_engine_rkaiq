@@ -662,7 +662,7 @@ static int _j2s_obj_free(j2s_ctx* ctx, int obj_index, void* ptr_)
     /* Handle dynamic array */
     if (J2S_IS_POINTER(obj)) {
         j2s_obj tmp_obj;
-        void* root_ptr = *(void**)ptr;
+        // void* root_ptr = *(void**)ptr;
         int len;
 
         if (obj->len_index < 0) {

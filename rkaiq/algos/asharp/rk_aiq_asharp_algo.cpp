@@ -619,12 +619,13 @@ AsharpResult_t ASharpConfigSettingParam(AsharpContext_t *pAsharpCtx, AsharpParam
 AsharpResult_t AsharpParamModeProcess(AsharpContext_t *pAsharpCtx, AsharpExpInfo_t *pExpInfo, AsharpParamMode_t *mode)
 {
 	AsharpResult_t res  = ASHARP_RET_SUCCESS;
-	*mode = pAsharpCtx->eParamMode;
 		
 	if(pAsharpCtx == NULL) {
     	LOGE_ASHARP("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
     	return ASHARP_RET_NULL_POINTER;
 	}
+
+    *mode = pAsharpCtx->eParamMode;
 
 	if(pAsharpCtx->isGrayMode){
 		*mode = ASHARP_PARAM_MODE_GRAY;

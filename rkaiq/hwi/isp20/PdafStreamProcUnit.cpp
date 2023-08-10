@@ -10,6 +10,7 @@ namespace RkCam {
 
 PdafStreamProcUnit::PdafStreamProcUnit (int type)
 {
+    mCamHw = NULL;
     mPdafDev = NULL;
     mPdafStream = NULL;
     mStartFlag = false;
@@ -35,7 +36,6 @@ XCamReturn
 PdafStreamProcUnit::prepare(rk_sensor_pdaf_info_t *pdaf_inf)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-    uint32_t pixelformat;
 
     stop();
     mPdafDev = new V4l2Device(pdaf_inf->pdaf_vdev);
@@ -93,6 +93,17 @@ void PdafStreamProcUnit::stop()
     mStreamMutex.unlock();
 }
 
+int64_t PdafStreamProcUnit::get_systime_us()
+{
+    struct timespec times = {0, 0};
+    int64_t time;
+
+    clock_gettime(CLOCK_MONOTONIC, &times);
+    time = times.tv_sec * 1000000LL + times.tv_nsec / 1000LL;
+
+    return time;
+}
+
 XCamReturn
 PdafStreamProcUnit::poll_buffer_ready (SmartPtr<V4l2BufferProxy> &buf, int dev_index)
 {
@@ -103,6 +114,11 @@ PdafStreamProcUnit::poll_buffer_ready (SmartPtr<V4l2BufferProxy> &buf, int dev_i
         SmartPtr<PdafBufferProxy> pdaf_buf = buf.dynamic_cast_ptr<PdafBufferProxy>();
 
         pdaf_buf->pdaf_meas = mPdafMeas;
+        //LOGD_AF("%s: PDAF_STATS seq: %d, driver_time : %lld, aiq_time: %lld", __func__,
+        //    video_buf->get_sequence(), video_buf->get_timestamp(), get_systime_us());
+
+        // change timestamp as vicap driver set timestamp using fs, we need fe time as 3a stats use fe time.
+        video_buf->set_timestamp(get_systime_us());
         mCamHw->mHwResLintener->hwResCb(video_buf);
     }
 

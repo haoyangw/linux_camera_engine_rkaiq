@@ -710,10 +710,22 @@
  *   poll
  *
  *   Change-Id: I9b366a9f47ce24783651c93512125dca7c49917f
+ * 
+ * v5.0x1.3-rc1
+ * - multi isp: isp32 support 4k
+ * - ldch: support multi isp mode
+ * - output ERROR and KEY logs as default
+ * - fix lots of CppCheck errors
+ * - kernel depandency: isp32 use 4k need this patch:
+ *   https://10.10.10.29/c/rk/kernel/+/184947
+ *   media: rockchip: isp: support unite mode for isp32
+ * 
+ *   Change-Id: Iae10911ee0f199210c7913d3e99dd85ec4642f81
+ * 
  */
 
-#define RK_AIQ_VERSION_REAL_V "v5.0x1.3"
-#define RK_AIQ_RELEASE_DATE "2023-07-06"
+#define RK_AIQ_VERSION_REAL_V "v5.0x1.3-rc1"
+#define RK_AIQ_RELEASE_DATE "2023-08-9"
 
 /******* DO NOT EDIT THE FOLLOWINGS ***********/
 

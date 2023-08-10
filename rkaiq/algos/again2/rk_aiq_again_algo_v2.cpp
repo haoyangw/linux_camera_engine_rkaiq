@@ -298,6 +298,15 @@ Again_result_V2_t Again_Process_V2(Again_Context_V2_t *pAgainCtx, Again_ExpInfo_
 #if AGAIN_USE_JSON_FILE_V2
         if(pExpInfo->snr_mode != pAgainCtx->stExpInfo.snr_mode || pAgainCtx->eParamMode != mode) {
             LOGD_ANR("param mode:%d snr_mode:%d\n", mode, pExpInfo->snr_mode);
+            if (pAgainCtx->isGrayMode) {
+                mode = AGAINV2_PARAM_MODE_GRAY;
+            } else if (pExpInfo->hdr_mode == 0) {
+                mode = AGAINV2_PARAM_MODE_NORMAL;
+            } else if (pExpInfo->hdr_mode >= 1) {
+                mode = AGAINV2_PARAM_MODE_HDR;
+            } else {
+                mode = AGAINV2_PARAM_MODE_NORMAL;
+            }
             pAgainCtx->eParamMode = mode;
             Again_ConfigSettingParam_V2(pAgainCtx, pAgainCtx->eParamMode, pExpInfo->snr_mode);
         }
@@ -394,12 +403,13 @@ Again_result_V2_t Again_ConfigSettingParam_V2(Again_Context_V2_t *pAgainCtx, Aga
 Again_result_V2_t Again_ParamModeProcess_V2(Again_Context_V2_t *pAgainCtx, Again_ExpInfo_V2_t *pExpInfo, Again_ParamMode_V2_t *mode)
 {
     Again_result_V2_t res  = AGAINV2_RET_SUCCESS;
-    *mode = pAgainCtx->eParamMode;
 
     if(pAgainCtx == NULL) {
         LOGE_ANR("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
         return AGAINV2_RET_INVALID_PARM;
     }
+
+    *mode = pAgainCtx->eParamMode;
 
     if(pAgainCtx->isGrayMode) {
         *mode = AGAINV2_PARAM_MODE_GRAY;

@@ -455,7 +455,11 @@ void Saturationadjust(float fScale, float flevel1, float *pccMatrixA)
         }
      } else {
         flevel1 = (flevel1 - 50) / 50 + 1;
-        LOGD_ACCM("Satura: %f \n", flevel1);
+        LOGV_ACCM("Satura: %f \n", flevel1);
+        if (pccMatrixA == NULL) {
+            LOGE_ACCM("%s: pointer pccMatrixA is NULL", __FUNCTION__);
+            return;
+        }
         memcpy(&Matrix_tmp, pccMatrixA, sizeof(Matrix_tmp));
         float *pccMatrixB;
         pccMatrixB = Matrix_tmp;

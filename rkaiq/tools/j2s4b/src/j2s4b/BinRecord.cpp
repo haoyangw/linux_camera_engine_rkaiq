@@ -30,7 +30,7 @@ int BinMapLoader::collectBinMap() {
 
     if (buffer_map[(uint64_t)tmap.ptr_offset]) {
 #ifdef DEBUG
-      printf("skip:[%zu][%zu]!\n", map_index, (uint64_t)tmap.ptr_offset);
+      printf("skip:[%zu][%lu]!\n", map_index, (uint64_t)tmap.ptr_offset);
 #endif
       continue;
     } else {
@@ -66,7 +66,7 @@ int BinMapLoader::genBinary(void *buffer, size_t buffer_size) {
          &map_len, sizeof(map_len));
 
 #ifdef DEBUG
-  printf("[BIN] file size:%ld, %ld, %ld\n", file_size, block_vec.size(),
+  printf("[BIN] file size:%lu, %lu, %lu\n", file_size, block_vec.size(),
          map_vec.size());
 #endif
 
@@ -80,9 +80,9 @@ int BinMapLoader::dumpMap() {
     map_index_t *temp_item =
         (map_index_t *)&map_vec[curr_index * sizeof(map_index_t)];
 #ifdef DEBUG
-    printf("[%ld]---dst:%ld-", curr_index, (uint64_t)temp_item->dst_offset);
-    printf("ptr:%ld-", (uint64_t)temp_item->ptr_offset);
-    printf("len:%ld\n", temp_item->len);
+    printf("[%lu]---dst:%lu-", curr_index, (uint64_t)temp_item->dst_offset);
+    printf("ptr:%lu-", (uint64_t)temp_item->ptr_offset);
+    printf("len:%lu\n", temp_item->len);
 #endif
 
     dst_map[(uint64_t)temp_item->dst_offset] = (void *)0xfffff;
@@ -104,9 +104,9 @@ int BinMapLoader::parseBinStructMap(uint8_t *data, size_t len) {
     void **dst_obj_addr = (void **)(data + (size_t)tmap.dst_offset);
     *dst_obj_addr = data + (uintptr_t)tmap.ptr_offset;
 #ifdef DEBUG
-    printf("ori[%ld]---dst:%ld-", map_index, (uint64_t)tmap.dst_offset);
-    printf("ptr:%ld-", (uint64_t)tmap.ptr_offset);
-    printf("len:%ld\n", tmap.len);
+    printf("ori[%lu]---dst:%lu-", map_index, (uint64_t)tmap.dst_offset);
+    printf("ptr:%lu-", (uint64_t)tmap.ptr_offset);
+    printf("len:%lu\n", tmap.len);
 #endif
   }
 
@@ -307,10 +307,10 @@ int BinMapLoader::findDuplicate(map_index_t *map_item, size_t map_index,
 
     if (0 == compareBinStruct(map_item, item)) {
 #ifdef DEBUG
-      printf("[BIN][%ld]-", curr_index);
-      printf("duplicate-dst:%ld-", (uint64_t)item->dst_offset);
-      printf("ptr:%ld-", (uint64_t)item->ptr_offset);
-      printf("len:%ld\n", item->len);
+      printf("[BIN][%lu]-", curr_index);
+      printf("duplicate-dst:%lu-", (uint64_t)item->dst_offset);
+      printf("ptr:%lu-", (uint64_t)item->ptr_offset);
+      printf("len:%lu\n", item->len);
 #endif
       *ori_item = *item;
       return 0;
@@ -335,7 +335,7 @@ int BinMapLoader::removeBlock(map_index_t *map_item, size_t map_index,
   uint64_t end_addr = (uint64_t)map_item->ptr_offset + map_item->len;
 
 #ifdef DEBUG
-  printf("fix ptr after:%ld\n", (uint64_t)map_item->ptr_offset);
+  printf("fix ptr after:%lu\n", (uint64_t)map_item->ptr_offset);
 #endif
 
   for (curr_index = 0; curr_index < (int)block_count; curr_index++) {
@@ -389,7 +389,7 @@ int BinMapLoader::removeMap(map_index_t *map_item, size_t map_index) {
     if ((uint64_t)temp_item->dst_offset >= start_addr &&
         (uint64_t)temp_item->dst_offset < end_addr) {
 #ifdef DEBUG
-      printf("[BIN]remove the map->%d\n", curr_index);
+      printf("[BIN]remove the map->%lu\n", curr_index);
 #endif
       map_vec.erase(map_vec.begin() + curr_index * sizeof(map_index_t),
                     map_vec.begin() + (1 + curr_index) * sizeof(map_index_t));

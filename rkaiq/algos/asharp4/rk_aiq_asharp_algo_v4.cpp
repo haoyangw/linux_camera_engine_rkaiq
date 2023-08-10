@@ -329,12 +329,13 @@ Asharp4_result_t Asharp_ConfigSettingParam_V4(Asharp_Context_V4_t *pAsharpCtx, A
 
 Asharp4_result_t Asharp_ParamModeProcess_V4(Asharp_Context_V4_t *pAsharpCtx, Asharp4_ExpInfo_t *pExpInfo, Asharp4_ParamMode_t *mode) {
     Asharp4_result_t res  = ASHARP4_RET_SUCCESS;
-    *mode = pAsharpCtx->eParamMode;
 
     if(pAsharpCtx == NULL) {
         LOGE_ASHARP("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
         return ASHARP4_RET_INVALID_PARM;
     }
+
+    *mode = pAsharpCtx->eParamMode;
 
     if(pAsharpCtx->isGrayMode) {
         *mode = ASHARP4_PARAM_MODE_GRAY;

@@ -31,6 +31,8 @@ TnrStreamProcUnit::TnrStreamProcUnit (const rk_sensor_full_info_t *s_info)
     mTnrStatsStream = new TnrStatsStream(mTnrStatsDev, ISPP_POLL_TNR_STATS);
     mTnrParamStream = new RKStream(mTnrParamsDev, ISPP_POLL_TNR_PARAMS);
     mParamsAssembler = new IspParamsAssembler("TNR_PARAMS_ASSEMBLER");
+    mCamHw = NULL;
+    memset(&last_ispp_tnr_params, 0, sizeof(last_ispp_tnr_params));
 }
 
 TnrStreamProcUnit::~TnrStreamProcUnit()

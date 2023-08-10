@@ -738,7 +738,7 @@ protected:
     XMLNode*        next;
 
 private:
-    MemPool*        memPool;
+    MemPool*        memPool{NULL};
     void Unlink( XMLNode* child );
 };
 
@@ -1013,7 +1013,7 @@ private:
     mutable StrPair name;
     mutable StrPair value;
     XMLAttribute* next;
-    MemPool* memPool;
+    MemPool* memPool{NULL};
 };
 
 

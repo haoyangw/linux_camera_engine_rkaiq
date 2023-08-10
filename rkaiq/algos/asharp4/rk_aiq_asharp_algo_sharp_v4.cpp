@@ -18,7 +18,6 @@ Asharp4_result_t sharp_select_params_by_ISO_V4(
     int iso_low = iso, iso_high = iso;
     int gain_high = 0, gain_low = 0;
     int max_iso_step = RK_SHARP_V4_MAX_ISO_NUM;
-    int sum_coeff, offset;
 
     LOGI_ASHARP("%s(%d): enter\n", __FUNCTION__, __LINE__);
 
@@ -52,16 +51,12 @@ Asharp4_result_t sharp_select_params_by_ISO_V4(
     }
 
     if(iso < pParams->iso[0] ) {
-        iso_low = pParams->iso[0] ;
-        iso_high = pParams->iso[1];
         gain_low = 0;
         gain_high = 1;
         ratio = 0;
     }
 
     if(iso > pParams->iso[max_iso_step - 1] ) {
-        iso_low = pParams->iso[max_iso_step - 2] ;
-        iso_high = pParams->iso[max_iso_step - 1];
         gain_low = max_iso_step - 2;
         gain_high = max_iso_step - 1;
         ratio = 1;
@@ -216,7 +211,6 @@ Asharp4_result_t sharp_fix_transfer_V4(RK_SHARP_Params_V4_Select_t *pSelect, RK_
     int sigma_inte_bits = 1;
     int max_val         = 0;
     int min_val         = 65536;
-    int shf_bits        = 0;
     short sigma_bits[3];
     for(int i = 0; i < RK_SHARP_V4_LUMA_POINT_NUM; i++)
     {
@@ -242,7 +236,6 @@ Asharp4_result_t sharp_fix_transfer_V4(RK_SHARP_Params_V4_Select_t *pSelect, RK_
     sigma_inte_bits = 1;
     max_val         = 0;
     min_val         = 65536;
-    shf_bits        = 0;
     for(int i = 0; i < RK_SHARP_V4_LUMA_POINT_NUM; i++)
     {
         int cur_sigma = FLOOR((pSelect->luma_sigma[i] * pSelect->bf_gain + pSelect->bf_add) / fPercent );
@@ -423,7 +416,6 @@ Asharp4_result_t sharp_fix_transfer_V4(RK_SHARP_Params_V4_Select_t *pSelect, RK_
 
 Asharp4_result_t sharp_fix_printf_V4(RK_SHARP_Fix_V4_t  * pFix)
 {
-    int i = 0;
     Asharp4_result_t res = ASHARP4_RET_SUCCESS;
 
     LOGI_ASHARP("%s:(%d) enter \n", __FUNCTION__, __LINE__);
@@ -541,12 +533,6 @@ Asharp4_result_t sharp_init_params_json_V4(RK_SHARP_Params_V4_t *pSharpParams, C
     Asharp4_result_t res = ASHARP4_RET_SUCCESS;
     int i = 0;
     int j = 0;
-    short isoCurveSectValue;
-    short isoCurveSectValue1;
-    float ave1, ave2, ave3, ave4;
-    int bit_calib = 12;
-    int bit_proc;
-    int bit_shift;
     CalibDbV2_SharpV4_Set_ISO_t *pTuningISO;
 
     LOGI_ASHARP("%s(%d): enter\n", __FUNCTION__, __LINE__);

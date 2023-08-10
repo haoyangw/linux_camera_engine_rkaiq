@@ -1091,7 +1091,8 @@ void Isp32Params::convertAiqAfLiteToIsp32Params(struct isp32_isp_params_cfg& isp
 #endif
 #if RKAIQ_HAVE_CAC_V11
 void Isp32Params::convertAiqCacToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
-        const rk_aiq_isp_cac_v32_t& cac_cfg) {
+        struct isp32_isp_params_cfg& isp_cfg_right,
+        const rk_aiq_isp_cac_v32_t& cac_cfg, bool is_multi_isp) {
 
     LOGD_ACAC("convert CAC params enable %d", cac_cfg.enable);
 
@@ -1106,8 +1107,12 @@ void Isp32Params::convertAiqCacToIsp32Params(struct isp32_isp_params_cfg& isp_cf
     }
 
     struct isp32_cac_cfg* cfg = &isp_cfg.others.cac_cfg;
-    memcpy(cfg, &cac_cfg.cfg, sizeof(*cfg));
-
+    memcpy(cfg, &cac_cfg.cfg[0], sizeof(*cfg));
+    struct isp32_cac_cfg* cfg_right = nullptr;
+    if (is_multi_isp) {
+        cfg_right = &isp_cfg_right.others.cac_cfg;
+        memcpy(cfg_right, &cac_cfg.cfg[1], sizeof(*cfg));
+    }
 #if 1
     LOGD_ACAC("Dump CAC config: ");
     LOGD_ACAC("current enable: %d",    cac_cfg.enable);
@@ -1118,6 +1123,9 @@ void Isp32Params::convertAiqCacToIsp32Params(struct isp32_isp_params_cfg& isp_cf
     LOGD_ACAC("psf shift bits: %d",    cfg->psf_sft_bit);
     LOGD_ACAC("psf cfg num: %d",       cfg->cfg_num);
     LOGD_ACAC("psf buf fd: %d",        cfg->buf_fd);
+    if (is_multi_isp) {
+        LOGD_ACAC("driver psf buf fd right : %d", cfg_right->buf_fd);
+    }
     LOGD_ACAC("psf hwsize: %d",        cfg->hsize);
     LOGD_ACAC("psf vsize: %d",          cfg->vsize);
     for (int i = 0; i < RKCAC_STRENGTH_TABLE_LEN; i++) {
@@ -2050,7 +2058,9 @@ void Isp32Params::convertAiqBlcToIsp32Params(struct isp32_isp_params_cfg& isp_cf
 }
 
 void Isp32Params::convertAiqAldchToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
-        const rk_aiq_isp_ldch_v21_t& ldch_cfg)
+        struct isp32_isp_params_cfg& isp_cfg_right,
+        const rk_aiq_isp_ldch_v21_t& ldch_cfg,
+        bool is_multi_isp)
 {
     struct isp32_ldch_cfg *pLdchCfg = &isp_cfg.others.ldch_cfg;
 
@@ -2061,7 +2071,7 @@ void Isp32Params::convertAiqAldchToIsp32Params(struct isp32_isp_params_cfg& isp_
 
         pLdchCfg->hsize = ldch_cfg.base.lut_h_size;
         pLdchCfg->vsize = ldch_cfg.base.lut_v_size;
-        pLdchCfg->buf_fd = ldch_cfg.base.lut_mapxy_buf_fd;
+        pLdchCfg->buf_fd = ldch_cfg.base.lut_mapxy_buf_fd[0];
 
         pLdchCfg->frm_end_dis = ldch_cfg.frm_end_dis;
         pLdchCfg->zero_interp_en = ldch_cfg.zero_interp_en;
@@ -2071,9 +2081,17 @@ void Isp32Params::convertAiqAldchToIsp32Params(struct isp32_isp_params_cfg& isp_
         pLdchCfg->map13p3_en = ldch_cfg.map13p3_en;
         memcpy(pLdchCfg->bicubic, ldch_cfg.bicubic, sizeof(ldch_cfg.bicubic));
 
-        LOGV_CAMHW_SUBM(ISP20PARAM_SUBM, "enable ldch h/v size: %dx%d, buf_fd: %d",
+        LOGD_CAMHW_SUBM(ISP20PARAM_SUBM, "enable ldch h/v size: %dx%d, buf_fd: %d",
                         pLdchCfg->hsize, pLdchCfg->vsize, pLdchCfg->buf_fd);
 
+        if (is_multi_isp) {
+            struct isp32_ldch_cfg *cfg_right = &isp_cfg.others.ldch_cfg;
+            cfg_right = &isp_cfg_right.others.ldch_cfg;
+            memcpy(cfg_right, pLdchCfg, sizeof(*cfg_right));
+            cfg_right->buf_fd = ldch_cfg.base.lut_mapxy_buf_fd[1];
+
+            LOGD_CAMHW_SUBM(ISP20PARAM_SUBM, "multi isp: ldch right isp buf fd: %d", cfg_right->buf_fd);
+        }
     } else {
         isp_cfg.module_ens &= ~ISP32_MODULE_LDCH;
         isp_cfg.module_en_update |= ISP32_MODULE_LDCH;
@@ -2139,7 +2157,7 @@ void Isp32Params::convertAiqExpIspDgainToIsp32Params(struct isp32_isp_params_cfg
 
 bool Isp32Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult>& result, void* isp_cfg_p, bool is_multi_isp) {
     struct isp32_isp_params_cfg& isp_cfg       = *(struct isp32_isp_params_cfg*)isp_cfg_p;
-
+    struct isp32_isp_params_cfg& isp_cfg_right = *((struct isp32_isp_params_cfg*)isp_cfg_p + 1);
     if (result.ptr() == NULL) {
         LOGE_CAMHW_SUBM(ISP20PARAM_SUBM, "3A result empty");
         return false;
@@ -2215,8 +2233,9 @@ bool Isp32Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult>& result, void* 
 #if RKAIQ_HAVE_CAC_V11
         RkAiqIspCacParamsProxyV32* params =
             result.get_cast_ptr<RkAiqIspCacParamsProxyV32>();
-        if (params)
-            convertAiqCacToIsp32Params(isp_cfg, params->data()->result);
+        if (params) {
+            convertAiqCacToIsp32Params(isp_cfg, isp_cfg_right, params->data()->result, is_multi_isp);
+        }
 #endif
     }
     break;
@@ -2379,14 +2398,13 @@ bool Isp32Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult>& result, void* 
     {
         RkAiqIspLdchParamsProxyV32* params = result.get_cast_ptr<RkAiqIspLdchParamsProxyV32>();
         if (params)
-            convertAiqAldchToIsp32Params(isp_cfg, params->data()->result);
+            convertAiqAldchToIsp32Params(isp_cfg, isp_cfg_right, params->data()->result, is_multi_isp);
     }
     break;
     default:
         LOGE("unknown param type: 0x%x!", type);
         return false;
     }
-
     return true;
 }
 

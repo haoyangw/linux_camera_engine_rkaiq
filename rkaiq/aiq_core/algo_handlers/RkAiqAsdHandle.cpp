@@ -103,10 +103,6 @@ XCamReturn RkAiqAsdHandleInt::prepare() {
     ret = RkAiqHandle::prepare();
     RKAIQCORE_CHECK_RET(ret, "asd handle prepare failed");
 
-    RkAiqAlgoConfigAsd* asd_config_int = (RkAiqAlgoConfigAsd*)mConfig;
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
-
     RkAiqAlgoDescription* des = (RkAiqAlgoDescription*)mDes;
     ret                       = des->prepare(mConfig);
     RKAIQCORE_CHECK_RET(ret, "asd algo prepare failed");
@@ -120,10 +116,7 @@ XCamReturn RkAiqAsdHandleInt::preProcess() {
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
-    RkAiqAlgoPreAsd* asd_pre_int        = (RkAiqAlgoPreAsd*)mPreInParam;
-    RkAiqAlgoPreResAsd* asd_pre_res_int = (RkAiqAlgoPreResAsd*)mPreOutParam;
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
+    RkAiqAlgoPreAsd* asd_pre_int                = (RkAiqAlgoPreAsd*)mPreInParam;
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     ret = RkAiqHandle::preProcess();
@@ -147,12 +140,6 @@ XCamReturn RkAiqAsdHandleInt::processing() {
     ENTER_ANALYZER_FUNCTION();
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-
-    RkAiqAlgoProcAsd* asd_proc_int        = (RkAiqAlgoProcAsd*)mProcInParam;
-    RkAiqAlgoProcResAsd* asd_proc_res_int = (RkAiqAlgoProcResAsd*)mProcOutParam;
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
-    RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     ret = RkAiqHandle::processing();
     if (ret) {
@@ -203,9 +190,6 @@ XCamReturn RkAiqAsdHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPar
     ENTER_ANALYZER_FUNCTION();
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
-    RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
     RkAiqAlgoPreResAsd* asd_pre_res_int = (RkAiqAlgoPreResAsd*)mPreOutParam;
 
     if (!asd_pre_res_int) {

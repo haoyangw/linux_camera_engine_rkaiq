@@ -156,6 +156,11 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
     Abayertnr_ExpInfo_V23_t stExpInfo;
     memset(&stExpInfo, 0x00, sizeof(Abayertnr_ExpInfo_V23_t));
 
+    if (pAbayertnrProcParams == NULL) {
+        LOGE_ANR("%s: ANRProcessing pAbayertnrProcParams is NULL\n", __FUNCTION__);
+        return XCAM_RETURN_BYPASS;
+    }
+
     LOGD_ANR("%s:%d init:%d hdr mode:%d  \n",
              __FUNCTION__, __LINE__,
              inparams->u.proc.init,
@@ -199,14 +204,14 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
     stExpInfo.snr_mode = 0;
 
     stExpInfo.blc_ob_predgain = 1.0f;
-    if(pAbayertnrProcParams != NULL) {
-        LOGD_ANR(" predgain:%f\n",
-                 pAbayertnrProcParams->stAblcV32_proc_res->isp_ob_predgain);
-        stExpInfo.blc_ob_predgain = pAbayertnrProcParams->stAblcV32_proc_res->isp_ob_predgain;
-        if(stExpInfo.blc_ob_predgain != pAbayertnrCtx->stExpInfo.blc_ob_predgain) {
-            pAbayertnrCtx->isReCalculate |= 1;
-        }
+
+    LOGD_ANR(" predgain:%f\n",
+             pAbayertnrProcParams->stAblcV32_proc_res->isp_ob_predgain);
+    stExpInfo.blc_ob_predgain = pAbayertnrProcParams->stAblcV32_proc_res->isp_ob_predgain;
+    if(stExpInfo.blc_ob_predgain != pAbayertnrCtx->stExpInfo.blc_ob_predgain) {
+        pAbayertnrCtx->isReCalculate |= 1;
     }
+
 #if 0// TODO Merge:
     XCamVideoBuffer* xCamAePreRes = pAbayertnrProcParams->com.u.proc.res_comb->ae_pre_res;
     RkAiqAlgoPreResAe* pAEPreRes = nullptr;

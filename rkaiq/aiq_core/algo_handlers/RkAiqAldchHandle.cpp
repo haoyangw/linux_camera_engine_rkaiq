@@ -53,6 +53,8 @@ XCamReturn RkAiqAldchHandleInt::prepare() {
     // memcpy(&aldch_config_int->aldch_calib_cfg, &shared->calib->aldch, sizeof(CalibDb_LDCH_t));
     aldch_config_int->resource_path = sharedCom->resourcePath;
     aldch_config_int->mem_ops_ptr   = mAiqCore->mShareMemOps;
+    aldch_config_int->is_multi_isp = sharedCom->is_multi_isp_mode;
+    aldch_config_int->multi_isp_extended_pixel = sharedCom->multi_isp_extended_pixels;
     RkAiqAlgoDescription* des       = (RkAiqAlgoDescription*)mDes;
     ret                             = des->prepare(mConfig);
     RKAIQCORE_CHECK_RET(ret, "aldch algo prepare failed");
@@ -364,6 +366,7 @@ XCamReturn RkAiqAldchHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullP
 
     if (sharedCom->init) {
         ldch_param->frame_id = 0;
+        shared->frameId = 0;
     } else {
         ldch_param->frame_id = shared->frameId;
     }
@@ -404,7 +407,7 @@ XCamReturn RkAiqAldchHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullP
     } else {
         // do nothing, result in buf needn't update
         ldch_param->is_update = false;
-        LOGD_ALDCH("[%d] params needn't update", shared->frameId);
+        LOG1_ALDCH("[%d] params needn't update", shared->frameId);
     }
 
     EXIT_ANALYZER_FUNCTION();

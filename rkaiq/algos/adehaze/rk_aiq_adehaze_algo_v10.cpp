@@ -601,8 +601,6 @@ XCamReturn AdehazeProcess(AdehazeHandle_t* pAdehazeCtx, dehaze_stats_v10_t* pSta
                      (pAdehzeProcRes->ProcResV10.enhance_en & FUNCTION_ENABLE),
                  pAdehzeProcRes->ProcResV10.hist_en);
 
-    float CtrlValue = 0.0;
-
     // todo
 
     // store pre data

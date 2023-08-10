@@ -351,7 +351,6 @@ FakeSensorHw::get_selection (int pad, uint32_t target, struct v4l2_subdev_select
 XCamReturn
 FakeSensorHw::getFormat(struct v4l2_subdev_format &aFormat)
 {
-    int ret = 0;
     ENTER_CAMHW_FUNCTION();
     aFormat.format.width = _width;
     aFormat.format.height = _height;

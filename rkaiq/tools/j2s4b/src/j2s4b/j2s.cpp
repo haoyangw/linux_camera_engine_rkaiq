@@ -531,7 +531,7 @@ static cJSON *_j2s_obj_to_json(j2s_ctx *ctx, int obj_index, void *ptr_) {
 
   obj = &ctx->objs[obj_index];
 
-  DBG("handling obj: %s from %p[%d]\n", obj->name, ptr, obj->offset);
+  DBG("handling obj: %s from %p[%u]\n", obj->name, ptr, obj->offset);
 
   /* Handle simple string */
   if (J2S_IS_SIMPLE_STRING(obj)) {
@@ -595,7 +595,7 @@ static cJSON *_j2s_obj_to_json(j2s_ctx *ctx, int obj_index, void *ptr_) {
     DASSERT_MSG(j2s_template_dumping || ptr, return NULL,
                 "found null pointer at %s\n", obj->name);
 
-    DBG("handling dynamic array: %s %d*%d from %p\n", obj->name, obj->elem_size,
+    DBG("handling dynamic array: %s %u*%d from %p\n", obj->name, obj->elem_size,
         obj->num_elem, ptr);
 
     root = _j2s_obj_to_json(ctx, obj_index, ptr);
@@ -744,7 +744,7 @@ static int _j2s_obj_free(j2s_ctx *ctx, int obj_index, void *ptr_) {
   /* Handle dynamic array */
   if (J2S_IS_POINTER(obj)) {
     j2s_obj tmp_obj;
-    void *root_ptr = *(void **)ptr;
+    // void *root_ptr = *(void **)ptr;
     int len;
 
     if (obj->len_index < 0) {
@@ -857,7 +857,7 @@ static int _j2s_obj_to_bin(j2s_ctx *ctx, int obj_index, void *ptr_,
   /* Handle dynamic array */
   if (J2S_IS_POINTER(obj)) {
     j2s_obj tmp_obj;
-    void *root_ptr = *(void **)ptr;
+    // void *root_ptr = *(void **)ptr;
     int len;
 
     if (obj->len_index < 0) {
@@ -880,7 +880,7 @@ static int _j2s_obj_to_bin(j2s_ctx *ctx, int obj_index, void *ptr_,
     _j2s_obj_to_bin(ctx, obj_index, ptr, struct_map);
 
     if (ptr) {
-      DBG("%s-----dynamic size:[%d]x[%d]\n", obj->name, obj->base_elem_size,
+      DBG("%s-----dynamic size:[%d]x[%u]\n", obj->name, obj->base_elem_size,
           len);
       struct_map_record(struct_map, (const uint8_t *)ptr, (uint64_t)ptr,
                         obj->base_elem_size * len);
@@ -1015,7 +1015,7 @@ static int _j2s_json_to_obj(j2s_ctx *ctx, cJSON *json, cJSON *parent,
 
   obj = &ctx->objs[obj_index];
 
-  DBG("handling obj: %s from %p[%d]\n", obj->name, ptr, obj->offset);
+  DBG("handling obj: %s from %p[%u]\n", obj->name, ptr, obj->offset);
 
   /* Handle simple string */
   if (J2S_IS_SIMPLE_STRING(obj)) {
@@ -1160,7 +1160,7 @@ static int _j2s_json_to_obj(j2s_ctx *ctx, cJSON *json, cJSON *parent,
 
       j2s_obj_set_value(ctx, obj->len_index, len, ptr);
 
-      DBG("re-alloc %s from %d*%d to %d*%d = %p\n", obj->name, old_len,
+      DBG("re-alloc %s from %d*%u to %d*%u = %p\n", obj->name, old_len,
           obj->elem_size, len, obj->elem_size, *buf);
     }
 
@@ -1173,7 +1173,7 @@ static int _j2s_json_to_obj(j2s_ctx *ctx, cJSON *json, cJSON *parent,
     ptr = (char *)j2s_extract_dynamic_array(obj, len, ptr);
     DASSERT_MSG(ptr, return -1, "found null pointer at %s\n", obj->name);
 
-    DBG("handling dynamic array: %s %d*%d from %p\n", obj->name, obj->elem_size,
+    DBG("handling dynamic array: %s %u*%d from %p\n", obj->name, obj->elem_size,
         obj->num_elem, ptr);
 
     ret = _j2s_json_to_obj(ctx, root, parent, obj_index, ptr, query);

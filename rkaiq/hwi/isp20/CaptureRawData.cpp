@@ -256,7 +256,7 @@ CaptureRawData::set_value_to_file(const char* path, int value, uint32_t sequence
     if (fp != -1) {
         ftruncate(fp, 0);
         lseek(fp, 0, SEEK_SET);
-        snprintf(buffer, sizeof(buffer), "%3d %8d\n", _capture_raw_num, sequence);
+        snprintf(buffer, sizeof(buffer), "%3d %8u\n", _capture_raw_num, sequence);
         if (write(fp, buffer, sizeof(buffer)) <= 0) {
             LOGW_CAMHW_SUBM(CAPTURERAW_SUBM, "%s write %s failed!\n", __func__, path);
         }
@@ -352,7 +352,7 @@ int CaptureRawData::dynamic_capture_raw
             memset(raw_name, 0, sizeof(raw_name));
             if (mipi_dev_max == 1)
                 snprintf(raw_name, sizeof(raw_name),
-                         "%s/frame%d_%dx%d_%s.raw",
+                         "%s/frame%u_%ux%u_%s.raw",
                          raw_dir_path,
                          sequence,
                          sns_width,
@@ -360,7 +360,7 @@ int CaptureRawData::dynamic_capture_raw
                          "normal");
             else if (mipi_dev_max == 2)
                 snprintf(raw_name, sizeof(raw_name),
-                         "%s/frame%d_%dx%d_%s.raw",
+                         "%s/frame%u_%ux%u_%s.raw",
                          raw_dir_path,
                          sequence,
                          sns_width,
@@ -368,7 +368,7 @@ int CaptureRawData::dynamic_capture_raw
                          i == 0 ? "short" : "long");
             else
                 snprintf(raw_name, sizeof(raw_name),
-                         "%s/frame%d_%dx%d_%s.raw",
+                         "%s/frame%u_%ux%u_%s.raw",
                          raw_dir_path,
                          sequence,
                          sns_width,
@@ -433,7 +433,7 @@ CaptureRawData::write_metadata_to_file(const char* dir_path,
 #ifdef ISP_HW_V20
                 snprintf(buffer,
                          sizeof(buffer),
-                         "frame%08d-l_m_s-gain[%08.5f_%08.5f_%08.5f]-time[%08.5f_%08.5f_%08.5f]-"
+                         "frame%08u-l_m_s-gain[%08.5f_%08.5f_%08.5f]-time[%08.5f_%08.5f_%08.5f]-"
                          "awbGain[%08d_%08d_%08d_%08d]-dgain[%08d]-afcode[%08d_%08d]\n",
                          frame_id,
                          expParams->data()->aecExpInfo.HdrExp[2].exp_real_params.analog_gain,
@@ -454,7 +454,7 @@ CaptureRawData::write_metadata_to_file(const char* dir_path,
 #ifdef ISP_HW_V21
                 snprintf(buffer,
                          sizeof(buffer),
-                         "frame%08d-l_m_s-gain[%08.5f_%08.5f_%08.5f]-time[%08.5f_%08.5f_%08.5f]-"
+                         "frame%08u-l_m_s-gain[%08.5f_%08.5f_%08.5f]-time[%08.5f_%08.5f_%08.5f]-"
                          "awbGain[%08d_%08d_%08d_%08d]-dgain[%08d]-afcode[%08d_%08d]\n",
                          frame_id,
                          expParams->data()->aecExpInfo.HdrExp[2].exp_real_params.analog_gain,
@@ -475,7 +475,7 @@ CaptureRawData::write_metadata_to_file(const char* dir_path,
 #ifdef ISP_HW_V30
                 snprintf(buffer,
                          sizeof(buffer),
-                         "frame%08d-l_m_s-gain[%08.5f_%08.5f_%08.5f]-time[%08.5f_%08.5f_%08.5f]-"
+                         "frame%08u-l_m_s-gain[%08.5f_%08.5f_%08.5f]-time[%08.5f_%08.5f_%08.5f]-"
                          "awbGain[%08d_%08d_%08d_%08d]-dgain[%08d]-afcode[%08d_%08d]\n",
                          frame_id,
                          expParams->data()->aecExpInfo.HdrExp[2].exp_real_params.analog_gain,
@@ -496,7 +496,7 @@ CaptureRawData::write_metadata_to_file(const char* dir_path,
 #if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
                 snprintf(buffer,
                          sizeof(buffer),
-                         "frame%08d-l_m_s-gain[%08.5f_%08.5f_%08.5f]-time[%08.5f_%08.5f_%08.5f]-"
+                         "frame%08u-l_m_s-gain[%08.5f_%08.5f_%08.5f]-time[%08.5f_%08.5f_%08.5f]-"
                          "awbGain0[%08d_%08d_%08d_%08d]-dgain[%08d]-afcode[%08d_%08d]\n",
                          frame_id,
                          expParams->data()->aecExpInfo.HdrExp[2].exp_real_params.analog_gain,
@@ -519,7 +519,7 @@ CaptureRawData::write_metadata_to_file(const char* dir_path,
 #ifdef ISP_HW_V20
                 snprintf(buffer,
                          sizeof(buffer),
-                         "frame%08d-l_s-gain[%08.5f_%08.5f]-time[%08.5f_%08.5f]-"
+                         "frame%08u-l_s-gain[%08.5f_%08.5f]-time[%08.5f_%08.5f]-"
                          "awbGain[%08d_%08d_%08d_%08d]-dgain[%08d]-afcode[%08d_%08d]\n",
                          frame_id,
                          expParams->data()->aecExpInfo.HdrExp[1].exp_real_params.analog_gain,
@@ -538,7 +538,7 @@ CaptureRawData::write_metadata_to_file(const char* dir_path,
 #ifdef ISP_HW_V21
                 snprintf(buffer,
                          sizeof(buffer),
-                         "frame%08d-l_s-gain[%08.5f_%08.5f]-time[%08.5f_%08.5f]-"
+                         "frame%08u-l_s-gain[%08.5f_%08.5f]-time[%08.5f_%08.5f]-"
                          "awbGain[%08d_%08d_%08d_%08d]-dgain[%08d]-afcode[%08d_%08d]\n",
                          frame_id,
                          expParams->data()->aecExpInfo.HdrExp[1].exp_real_params.analog_gain,
@@ -557,7 +557,7 @@ CaptureRawData::write_metadata_to_file(const char* dir_path,
 #ifdef ISP_HW_V30
                 snprintf(buffer,
                          sizeof(buffer),
-                         "frame%08d-l_s-gain[%08.5f_%08.5f]-time[%08.5f_%08.5f]-"
+                         "frame%08u-l_s-gain[%08.5f_%08.5f]-time[%08.5f_%08.5f]-"
                          "awbGain[%08d_%08d_%08d_%08d]-dgain[%08d]-afcode[%08d_%08d]\n",
                          frame_id,
                          expParams->data()->aecExpInfo.HdrExp[1].exp_real_params.analog_gain,
@@ -576,7 +576,7 @@ CaptureRawData::write_metadata_to_file(const char* dir_path,
 #if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
                 snprintf(buffer,
                          sizeof(buffer),
-                         "frame%08d-l_s-gain[%08.5f_%08.5f]-time[%08.5f_%08.5f]-"
+                         "frame%08u-l_s-gain[%08.5f_%08.5f]-time[%08.5f_%08.5f]-"
                          "awbGain0[%08d_%08d_%08d_%08d]-dgain[%08d]-afcode[%08d_%08d]\n",
                          frame_id,
                          expParams->data()->aecExpInfo.HdrExp[1].exp_real_params.analog_gain,
@@ -596,7 +596,7 @@ CaptureRawData::write_metadata_to_file(const char* dir_path,
 #ifdef ISP_HW_V20
                 snprintf(buffer,
                          sizeof(buffer),
-                         "frame%08d-gain[%08.5f]-time[%08.5f]-"
+                         "frame%08u-gain[%08.5f]-time[%08.5f]-"
                          "awbGain[%08d_%08d_%08d_%08d]-dgain[%08d]-afcode[%08d_%08d]\n",
                          frame_id,
                          expParams->data()->aecExpInfo.LinearExp.exp_real_params.analog_gain,
@@ -613,7 +613,7 @@ CaptureRawData::write_metadata_to_file(const char* dir_path,
 #ifdef ISP_HW_V21
                 snprintf(buffer,
                          sizeof(buffer),
-                         "frame%08d-gain[%08.5f]-time[%08.5f]-"
+                         "frame%08u-gain[%08.5f]-time[%08.5f]-"
                          "awbGain[%08d_%08d_%08d_%08d]-dgain[%08d]-afcode[%08d_%08d]\n",
                          frame_id,
                          expParams->data()->aecExpInfo.LinearExp.exp_real_params.analog_gain,
@@ -630,7 +630,7 @@ CaptureRawData::write_metadata_to_file(const char* dir_path,
 #ifdef ISP_HW_V30
                 snprintf(buffer,
                          sizeof(buffer),
-                         "frame%08d-gain[%08.5f]-time[%08.5f]-"
+                         "frame%08u-gain[%08.5f]-time[%08.5f]-"
                          "awbGain[%08d_%08d_%08d_%08d]-dgain[%08d]-afcode[%08d_%08d]\n",
                          frame_id,
                          expParams->data()->aecExpInfo.LinearExp.exp_real_params.analog_gain,
@@ -647,7 +647,7 @@ CaptureRawData::write_metadata_to_file(const char* dir_path,
 #if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
                 snprintf(buffer,
                          sizeof(buffer),
-                         "frame%08d-gain[%08.5f]-time[%08.5f]-"
+                         "frame%08u-gain[%08.5f]-time[%08.5f]-"
                          "awbGain1[%08d_%08d_%08d_%08d]-dgain[%08d]-afcode[%08d_%08d]\n",
                          frame_id,
                          expParams->data()->aecExpInfo.LinearExp.exp_real_params.analog_gain,
@@ -677,12 +677,12 @@ int CaptureRawData::calculate_stride_per_line(const struct capture_fmt& fmt,
 {
     uint32_t pixelsPerLine = 0, stridePerLine = 0;
     /* The actual size stored in the memory */
-    uint32_t actualBytesPerLine = 0;
+    // uint32_t actualBytesPerLine = 0;
 
     bytesPerLine = sns_width * fmt.bpp[0] / 8;
 
     pixelsPerLine = fmt.pcpp * DIV_ROUND_UP(sns_width, fmt.pcpp);
-    actualBytesPerLine = pixelsPerLine * fmt.bpp[0] / 8;
+    // actualBytesPerLine = pixelsPerLine * fmt.bpp[0] / 8;
 
 #if 0
     /* mipi wc(Word count) must be 4 byte aligned */

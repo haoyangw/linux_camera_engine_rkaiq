@@ -37,7 +37,7 @@ CamProfiles::~CamProfiles() = default;
 
 void CamProfiles::ParseFromIni(const std::string ini_path) {
     if (-1 == access(ini_path.c_str(), R_OK)) {
-        XCAM_LOG_ERROR("Failed to access profile config file %s\n", ini_path.c_str(),
+        XCAM_LOG_WARNING("Failed to access profile config file %s\n", ini_path.c_str(),
                        strerror(errno));
         return;
     }

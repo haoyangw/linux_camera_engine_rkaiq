@@ -133,7 +133,7 @@ static const struct {
 //look for vicap linked to isp
 static const char *get_isp_dev_info_by_name(const char *name, struct dev_pipeline *pipeline)
 {
-    char sys_path[64], devpath[32];
+    char sys_path[64];
     FILE *fp = NULL;
     struct media_device *device = NULL;
     bool sensor_flag = false;
@@ -259,7 +259,7 @@ static const char *get_isp_dev_info_by_name(const char *name, struct dev_pipelin
 //look for camera linkde to vicap
 static int get_vicap_dev_info_by_name(const char *name, struct dev_pipeline *pipeline)
 {
-    char sys_path[64], devpath[32];
+    char sys_path[64];
     FILE *fp = NULL;
     struct media_device *device = NULL;
     std::string pipeline_str = "";
@@ -478,9 +478,15 @@ static int pipelin_dev_info_print_two(struct dev_pipeline *pipeline)
             break;
         }
     }
-    printf("\nSensor %s Detail Information", sensor_name);
-    printf("\n=======================================================================================================================================\n");
-    printf("Sensor %s Pipeline Link:\n\n", sensor_name);
+    if (sensor_name) {
+        printf("\nSensor %s Detail Information", sensor_name);
+        printf("\n=======================================================================================================================================\n");
+        printf("Sensor %s Pipeline Link:\n\n", sensor_name);
+    } else {
+        printf("\nSensor NO FOUND Detail Information");
+        printf("\n=======================================================================================================================================\n");
+        printf("Sensor NO FOUND Pipeline Link:\n\n");
+    }
     for (i = int(pipeline->entity_num)-1; i >= 0; i--) {
         struct media_entity *entity = pipeline->entities[i];
         const struct media_entity_desc *info = media_entity_get_info(entity);
@@ -656,7 +662,7 @@ static int all_pipelin_info_print(struct dev_pipeline *pipeline)
 
 static const char *get_pipeline_info_by_cameraid(const char *name)
 {
-    char sys_path[64], devpath[32];
+    char sys_path[64];
     FILE *fp = NULL;
     struct media_device *device = NULL;
     const struct media_entity_desc *entity_info = NULL;
@@ -695,10 +701,10 @@ static const char *get_pipeline_info_by_cameraid(const char *name)
             break;
     }
 
-    if (camera_entity) {
+    if (camera_entity && model_name) {
         if (strncmp(model_name, "rkisp", 5) == 0) {
             return device->info.driver;
-        }else if (model_name) {
+        }else {
             for (int i = 0; i < MAX_MEDIA_INDEX; i++)
             {
                 snprintf(sys_path, 64, "/dev/media%d", i);

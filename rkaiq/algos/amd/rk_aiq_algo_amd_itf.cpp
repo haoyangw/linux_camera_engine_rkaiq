@@ -259,10 +259,10 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
         LOGD_AMD("MediaBufPool get free buffer, baseaddress %p",mediabuf->pBaseAddress);
         MotionBufMetaData_t *metadata = (MotionBufMetaData_t *)mediabuf->pMetaData;
         metadata->frame_id = ctx->amdCtx.spImage->frame_id;
+        motion_detect(pCurIn, pPreIn, ctx->amdCtx.pTmpBuf, mediabuf->pBaseAddress, ctx->amdCtx.pPreAlpha, (uint8_t*)pCurGain,
+                      ctx->amdCtx.imgAlignedH, imgStride, ctx->amdCtx.imgHeight, ctx->amdCtx.imgWidth, gain_blk_isp_stride,
+                      mparams_selected.sigmaHScale, mparams_selected.sigmaLScale, mparams_selected.uv_weight, mparams_selected.light_clp, static_ratio_r_bit);
     }
-    motion_detect(pCurIn, pPreIn, ctx->amdCtx.pTmpBuf, mediabuf->pBaseAddress, ctx->amdCtx.pPreAlpha, (uint8_t*)pCurGain,
-                  ctx->amdCtx.imgAlignedH, imgStride, ctx->amdCtx.imgHeight, ctx->amdCtx.imgWidth, gain_blk_isp_stride,
-                  mparams_selected.sigmaHScale, mparams_selected.sigmaLScale, mparams_selected.uv_weight, mparams_selected.light_clp, static_ratio_r_bit);
     LOGD_AMD("motion detect end");
 
 	ctx->amdCtx.spImage->unmap(ctx->amdCtx.spImage);

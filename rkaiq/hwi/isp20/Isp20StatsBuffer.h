@@ -72,8 +72,8 @@ public:
     ~SofEventData() {}
     virtual uint8_t *map () {return NULL;}
     virtual bool unmap () {return false;}
-    int64_t _timestamp;
-    uint32_t _frameid;
+    int64_t _timestamp{0};
+    uint32_t _frameid{0};
 };
 
 class SofEventBuffer

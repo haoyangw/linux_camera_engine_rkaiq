@@ -540,7 +540,7 @@ int elimate_affine_transform(ORBList* matched_keypoints, double homography[9])
         return -1;
     }
 
-    int max, M0, count = 0;
+    int max, count = 0;
     int maxLength = 10;
     int subX, subY;
     int length = matched_keypoints->length > maxLength ? maxLength : matched_keypoints->length;

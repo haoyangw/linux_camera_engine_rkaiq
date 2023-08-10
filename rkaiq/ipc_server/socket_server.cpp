@@ -140,7 +140,6 @@ int rkaiq_ipc_send(int sockfd, int id, int ack, int seqn, void *data,
   char *out_data = (char *)malloc(out_len);
   RkAiqSocketPacket_t *out_res = (RkAiqSocketPacket_t *)out_data;
   const std::lock_guard<std::mutex> lock(SocketServer::send_mutex);
-  int ret = 0;
 
   out_res->magic[0] = 'R';
   out_res->magic[1] = 0xAA;
@@ -155,51 +154,11 @@ int rkaiq_ipc_send(int sockfd, int id, int ack, int seqn, void *data,
 
   memcpy(&out_res->data, data, data_len);
 
-  ret = send(sockfd, out_data, out_len, 0);
+  send(sockfd, out_data, out_len, 0);
 
   free(out_data);
 
   return 0;
-}
-
-// return 0 if a sigle packet or payload size
-int rkaiq_packet_parse_old(RkAiqSocketPacket *aiq_data, uint8_t *buffer,
-                           int len) {
-  uint8_t *start_pos = NULL;
-  uint32_t packet_size = 0;
-  uint32_t valid_size = 0;
-  RkAiqSocketPacket *aiq_pkt = NULL;
-
-  if (buffer[0] == 'R' && buffer[1] == 'K') {
-    start_pos = buffer;
-  }
-
-  if (start_pos) {
-    if ((len - (start_pos - buffer)) < (int)sizeof(RkAiqSocketPacket)) {
-      LOGE_IPC("Not a complete packet [%d], discard!\n", len);
-      return -1;
-    }
-
-    aiq_pkt = (RkAiqSocketPacket *)start_pos;
-    memcpy(aiq_data, aiq_pkt, sizeof(RkAiqSocketPacket));
-
-    packet_size = (start_pos[2] & 0xff) | ((start_pos[3] & 0xff) << 8) |
-                  ((start_pos[4] & 0xff) << 16) | ((start_pos[5] & 0xff) << 24);
-
-    // refer to the real offset of data
-    aiq_data->data = (char *)(&start_pos);
-    aiq_data->dataSize = packet_size;
-    valid_size = (buffer + len) - start_pos;
-
-    // sigle packet : HEAD:24byte + PAYLOAD + CRC:1byte
-    if (valid_size == packet_size) {
-      return 0;
-    }
-    return packet_size;
-  } else {
-    // may be fragment packet, head already parsed just return full size
-    return -1;
-  }
 }
 
 // return 0 if a sigle packet or payload size
@@ -351,7 +310,7 @@ int SocketServer::Recvieve(int sync) {
     // 1. recv MAX SIZE every timne.
     recv_len = recv(client_socket, buffer, MAXPACKETSIZE, 0);
 
-    LOGD_IPC("SocketServer::%s recv_len %d", __func__, recv_len);
+    LOGK_IPC("cid[%d] SocketServer::%s recv_len %d",camId_, __func__, recv_len);
     if (recv_len == 0) {
       break;
     }
@@ -426,7 +385,8 @@ void SocketServer::Accepted() {
         LOGE_IPC("Error socket accept failed %d %d\n", client_socket, errno);
       continue;
     }
-    LOGD_IPC("socket accept ip %s\n", serverAddress);
+    LOGK_IPC("cid[%d] socket accept server:%s, client:%s\n",
+             camId_, serverAddress.sun_path, clientAddress.sun_path);
     tool_mode_set(true);
 
     // std::shared_ptr<std::thread> recv_thread;
@@ -434,7 +394,7 @@ void SocketServer::Accepted() {
     // client_socket); recv_thread->join(); recv_thread = nullptr;
     this->Recvieve(0);
     close(client_socket);
-    LOGD_IPC("socket accept close\n");
+    LOGK_IPC("cid[%d], socket accept close\n", camId_);
     tool_mode_set(false);
   }
   LOGD_IPC("socket accept exit\n");
@@ -445,6 +405,7 @@ int SocketServer::getAndroidLocalSocket() {
   static const char socketName[] = "camera_tool";
   int sock = android_get_control_socket(socketName);
 
+  LOGK_IPC("cid[%d] %s path:%s, sockfd:%d", camId_, __func__, socketName, sockfd);
   if (sock < 0) {
     // TODO(Cody): will always failed with permission denied
     // Should let init to create socket
@@ -458,13 +419,12 @@ int SocketServer::getAndroidLocalSocket() {
 
 int SocketServer::Process(rk_aiq_sys_ctx_t *ctx, int camid) {
   LOGV_IPC("SocketServer::%s enter", __func__);
-  int opt = 1;
   aiq_ctx = ctx;
-
+  camId_ = camid;
 #ifdef __ANDROID__
   sockfd = getAndroidLocalSocket();
   if (sockfd < 0) {
-    LOGE_IPC("Error get socket %s\n", strerror(errno));
+    LOGE_IPC("cid[%d] Error get socket %s\n", camid, strerror(errno));
     return -1;
   }
   fcntl(sockfd, F_SETFD, FD_CLOEXEC);
@@ -482,6 +442,8 @@ int SocketServer::Process(rk_aiq_sys_ctx_t *ctx, int camid) {
     LOGE_IPC("Error bind %s\n", strerror(errno));
     return -1;
   }
+  LOGK_IPC("cid[%d] %s path:%s, sockfd:%d", camid, __func__,
+           serverAddress.sun_path, sockfd);
 #endif
   if (listen(sockfd, 5) < 0) {
     LOGE_IPC("Error listen\n");
@@ -504,9 +466,9 @@ int SocketServer::Process(rk_aiq_sys_ctx_t *ctx, int camid) {
 
 void SocketServer::Deinit() {
   LOGV_IPC("SocketServer::%s enter", __func__);
-  struct linger so_linger;
-  so_linger.l_onoff = 1;
-  so_linger.l_linger = 0;
+  // struct linger so_linger;
+  // so_linger.l_onoff = 1;
+  // so_linger.l_linger = 0;
   this->SaveEixt();
   // setsockopt(client_socket,SOL_SOCKET,SO_LINGER,&so_linger,sizeof(so_linger));
   // struct timeval interval = {0, 0};
@@ -531,4 +493,5 @@ void SocketServer::Deinit() {
   if (msg_parser) {
     msg_parser->stop();
   }
+  LOGK_IPC("cid[%d] %s success", camId_, __func__);
 }

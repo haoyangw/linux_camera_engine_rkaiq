@@ -88,8 +88,6 @@ ANRresult_t mfnr_get_setting_idx_by_name(CalibDb_MFNR_2_t *pCalibdb, char *name,
 ANRresult_t init_mfnr_dynamic_params(RKAnr_Mfnr_Dynamic_t *pDynamic, CalibDb_MFNR_2_t *pCalibdb, int mode_idx)
 {
     ANRresult_t res = ANR_RET_SUCCESS;
-    int i = 0;
-    int j = 0;
 
     if(pDynamic == NULL) {
         LOGE_ANR("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
@@ -117,7 +115,6 @@ ANRresult_t mfnr_config_dynamic_param(RKAnr_Mfnr_Dynamic_t *pDynamic,  CalibDb_M
 
     ANRresult_t res = ANR_RET_SUCCESS;
     int mode_idx = 0;
-    int setting_idx = 0;
 
     if(pDynamic == NULL) {
         LOGE_ANR("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
@@ -151,7 +148,6 @@ ANRresult_t mfnr_config_motion_param_json(CalibDb_MFNR_Motion_t *pMotion,  Calib
 
     ANRresult_t res = ANR_RET_SUCCESS;
     int mode_idx = 0;
-    int setting_idx = 0;
     CalibDbV2_MFNR_Motion_ISO_t *pMotion_ISO = NULL;
 
     if(pMotion == NULL) {
@@ -269,7 +265,6 @@ ANRresult_t init_mfnr_params(RKAnr_Mfnr_Params_t *pParams, CalibDb_MFNR_2_t *pCa
     }
 
     int max_iso_step        = MAX_ISO_STEP;
-    int dir_num             = MFNR_DIR_NUM;
     int polyorder           = MFNR_POLYORDER;
     int max_lvl             = MFNR_MAX_LVL;
     int max_lvl_uv          = MFNR_MAX_LVL_UV;
@@ -538,8 +533,6 @@ ANRresult_t mfnr_config_dynamic_param_json(RKAnr_Mfnr_Dynamic_t *pDynamic,  Cali
 {
 
     ANRresult_t res = ANR_RET_SUCCESS;
-    int mode_idx = 0;
-    int setting_idx = 0;
 
     if(pDynamic == NULL) {
         LOGE_ANR("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
@@ -581,8 +574,6 @@ ANRresult_t init_mfnr_params_json(RKAnr_Mfnr_Params_t *pParams, CalibDbV2_MFNR_t
         return ANR_RET_NULL_POINTER;
     }
 
-    int max_iso_step        = MAX_ISO_STEP;
-    int dir_num             = MFNR_DIR_NUM;
     int polyorder           = MFNR_POLYORDER;
     int max_lvl             = MFNR_MAX_LVL;
     int max_lvl_uv          = MFNR_MAX_LVL_UV;
@@ -880,8 +871,6 @@ ANRresult_t mfnr_algo_param_printf(RKAnr_Mfnr_Params_t *pParams)
 ANRresult_t init_mfnr_dynamic_params_json(RKAnr_Mfnr_Dynamic_t *pDynamic, CalibDbV2_MFNR_t *pCalibdb)
 {
     ANRresult_t res = ANR_RET_SUCCESS;
-    int i = 0;
-    int j = 0;
 
     if(pDynamic == NULL) {
         LOGE_ANR("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
@@ -1197,7 +1186,6 @@ ANRresult_t select_mfnr_params_by_ISO(RKAnr_Mfnr_Params_t *stmfnrParams,    RKAn
 
     int off = 0;
     int st;
-    int idx;
     int off4    = (0x4 * step_x1);
     int off8    = (0x8 * step_x1);
     int off16   = (0x10 * step_x1);
@@ -1919,11 +1907,6 @@ ANRresult_t mfnr_dynamic_calc(RKAnr_Mfnr_Dynamic_t  * pDynamic, ANRExpInfo_t *pE
 {
     LOGI_ANR("%s:(%d) enter \n", __FUNCTION__, __LINE__);
 
-    ANRresult_t res = ANR_RET_SUCCESS;
-    float time = pExpInfo->arTime[pExpInfo->hdr_mode];
-    float iso = pExpInfo->arIso[pExpInfo->hdr_mode];
-    float exp = time * iso;
-
     if(pDynamic == NULL) {
         LOGE_ANR("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
         return ANR_RET_NULL_POINTER;
@@ -1934,6 +1917,9 @@ ANRresult_t mfnr_dynamic_calc(RKAnr_Mfnr_Dynamic_t  * pDynamic, ANRExpInfo_t *pE
         return ANR_RET_NULL_POINTER;
     }
 
+    ANRresult_t res = ANR_RET_SUCCESS;
+    float time = pExpInfo->arTime[pExpInfo->hdr_mode];
+    float iso = pExpInfo->arIso[pExpInfo->hdr_mode];
 
     if(iso >= pDynamic->highth_iso && time >= pDynamic->highth_time) {
         pDynamic->mfnr_enable_state = 1;

@@ -685,7 +685,7 @@ XCamReturn sample_adehaze_module(const void *arg)
             printf("\t ADEHAZE test rk_aiq_uapi2_getMDehazeStrth\n\n");
             unsigned int level = 60;
             rk_aiq_uapi2_getMDehazeStrth(ctx, &level);
-            printf("\t rk_aiq_uapi2_getMDehazeStrth level: %d\n\n", level);
+            printf("\t rk_aiq_uapi2_getMDehazeStrth level: %u\n\n", level);
             break;
         }
         case 'c': {
@@ -694,7 +694,7 @@ XCamReturn sample_adehaze_module(const void *arg)
             rk_aiq_uapi2_setDehazeEnable(ctx, true);
             unsigned int level = 70;
             rk_aiq_uapi2_setMDehazeStrth(ctx, level);
-            printf("\t rk_aiq_uapi2_setMDehazeStrth level: %d\n\n", level);
+            printf("\t rk_aiq_uapi2_setMDehazeStrth level: %u\n\n", level);
             break;
         }
         case 'd': {
@@ -706,7 +706,7 @@ XCamReturn sample_adehaze_module(const void *arg)
             printf("\t ADEHAZE test rk_aiq_uapi2_getMEnhanceStrth\n\n");
             unsigned int level = 60;
             rk_aiq_uapi2_getMEnhanceStrth(ctx, &level);
-            printf("\t rk_aiq_uapi2_getMEnhanceStrth level: %d\n\n", level);
+            printf("\t rk_aiq_uapi2_getMEnhanceStrth level: %u\n\n", level);
             break;
         }
         case 'f': {
@@ -715,14 +715,14 @@ XCamReturn sample_adehaze_module(const void *arg)
             rk_aiq_uapi2_setMEnhanceStrth(ctx, true);
             unsigned int level = 70;
             rk_aiq_uapi2_setMEnhanceStrth(ctx, level);
-            printf("\t rk_aiq_uapi2_setMEnhanceStrth level: %d\n\n", level);
+            printf("\t rk_aiq_uapi2_setMEnhanceStrth level: %u\n\n", level);
             break;
         }
         case 'g': {
             printf("\t ADEHAZE test rk_aiq_uapi2_getMEnhanceChromeStrth\n\n");
             unsigned int level = 60;
             rk_aiq_uapi2_getMEnhanceChromeStrth(ctx, &level);
-            printf("\t rk_aiq_uapi2_getMEnhanceChromeStrth level: %d\n\n", level);
+            printf("\t rk_aiq_uapi2_getMEnhanceChromeStrth level: %u\n\n", level);
             break;
         }
         case 'h': {
@@ -731,7 +731,7 @@ XCamReturn sample_adehaze_module(const void *arg)
             rk_aiq_uapi2_setMEnhanceStrth(ctx, true);
             unsigned int level = 70;
             rk_aiq_uapi2_setMEnhanceChromeStrth(ctx, level);
-            printf("\t rk_aiq_uapi2_setMEnhanceChromeStrth level: %d\n\n", level);
+            printf("\t rk_aiq_uapi2_setMEnhanceChromeStrth level: %u\n\n", level);
             break;
         }
         default:

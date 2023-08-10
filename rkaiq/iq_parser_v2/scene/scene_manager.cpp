@@ -308,8 +308,11 @@ cJSON *RkAiqSceneManager::mergeSubMultiScene(cJSON *sub_scene_list,
   }
 
   // need skip first full param scene
-  if (cJSON_GetArraySize(sub_scene_list) <= skip) {
-    XCAM_LOG_ERROR("invalid main scene len!\n");
+  if (skip)
+    return NULL;
+
+  if (cJSON_GetArraySize(sub_scene_list) <= 0) {
+    XCAM_LOG_ERROR("invalid sub scene len!\n");
     return NULL;
   }
 
@@ -370,8 +373,10 @@ cJSON *RkAiqSceneManager::mergeMainMultiScene(cJSON *main_scene_list) {
   int main_scene_sum = cJSON_GetArraySize(main_scene_list);
   for (int i = 0; i < main_scene_sum; i++) {
     // need skip first main scene's sub scene
+    if (json_item == NULL)
+      break;
     cJSON *sub_scene_list = cJSONUtils_GetPointer(json_item, "/sub_scene");
-    if (json_item && sub_scene_list) {
+    if (sub_scene_list) {
       mergeSubMultiScene(sub_scene_list, full_param, i == 0);
     }
     json_item = json_item->next;

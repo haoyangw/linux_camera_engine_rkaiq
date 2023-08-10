@@ -7,17 +7,17 @@
 #if OPENCV_SUPPORT
 #include <Eigen/Core>
 #include <opencv2/opencv.hpp>
-#define MIN_VALUE 2.2204e-16                        //¸ù¾ÝÐèÒªµ÷ÕûÕâ¸öÖµ
+#define MIN_VALUE 2.2204e-16                        //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµ
 #define IS_DOUBLE_ZERO(d) ((d < MIN_VALUE)&&((-d)<MIN_VALUE))
-/* ÓãÑÛ²ÎÊý */
+/* ï¿½ï¿½ï¿½Û²ï¿½ï¿½ï¿½ */
 struct CameraCoeff
 {
-    double cx, cy;                  // Ïà»ú¾µÍ·µÄ¹âÐÄ
-    double a0, a2, a3, a4;          // ÓãÑÛ¾µÍ·µÄ»û±äÏµÊý
-    double sf;                      // sf¿ØÖÆÊÓ½Ç£¬sfÔ½´óÊÓ½ÇÔ½´ó
+    double cx, cy;                  // ï¿½ï¿½ï¿½ï¿½ï¿½Í·ï¿½Ä¹ï¿½ï¿½ï¿½
+    double a0, a2, a3, a4;          // ï¿½ï¿½ï¿½Û¾ï¿½Í·ï¿½Ä»ï¿½ï¿½ï¿½Ïµï¿½ï¿½
+    double sf;                      // sfï¿½ï¿½ï¿½ï¿½ï¿½Ó½Ç£ï¿½sfÔ½ï¿½ï¿½ï¿½Ó½ï¿½Ô½ï¿½ï¿½
     double invpol[8];
-    double big_rho[2002];           // Ô¤ÏÈÉú³ÉµÄtan(theta)ÓërhoµÄ¶ÔÓ¦±í
-    double small_rho[2001];         // Ô¤ÏÈÉú³ÉµÄcot(theta)ÓërhoµÄ¶ÔÓ¦±í
+    double big_rho[2002];           // Ô¤ï¿½ï¿½ï¿½ï¿½ï¿½Éµï¿½tan(theta)ï¿½ï¿½rhoï¿½Ä¶ï¿½Ó¦ï¿½ï¿½
+    double small_rho[2001];         // Ô¤ï¿½ï¿½ï¿½ï¿½ï¿½Éµï¿½cot(theta)ï¿½ï¿½rhoï¿½Ä¶ï¿½Ó¦ï¿½ï¿½
     double Z[5000];
 };
 
@@ -29,7 +29,7 @@ void SmallMeshCorrect(int imgWidth, int imgHeight, int meshSizeW, int meshSizeH,
     a0 = camCoeff.a0;
 
     double *invpol = camCoeff.invpol;
-    double sf = camCoeff.sf;// sf¿ØÖÆÊÓ½Ç£¬sfÔ½´óÊÓ½ÇÔ½´ó
+    double sf = camCoeff.sf;// sfï¿½ï¿½ï¿½ï¿½ï¿½Ó½Ç£ï¿½sfÔ½ï¿½ï¿½ï¿½Ó½ï¿½Ô½ï¿½ï¿½
     double Nz = a0 / sf;
     double x1, y1, rho_1;
     double theta_1, r, t_i;
@@ -45,7 +45,7 @@ void SmallMeshCorrect(int imgWidth, int imgHeight, int meshSizeW, int meshSizeH,
     {
         for (int i = 0; i < meshSizeW; ++i)
         {
-            /* ´ÓÐ£Õý×ø±ê·´ÍÆµ½»û±ä×ø±ê */
+            /* ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½ï¿½ê·´ï¿½Æµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
             x1 = mapx[index] - cx;
             y1 = mapy[index] - cy;
             rho_1 = sqrt(x1 * x1 + y1 * y1);
@@ -71,7 +71,7 @@ void SmallMeshCorrect(int imgWidth, int imgHeight, int meshSizeW, int meshSizeH,
             }
             mapX.at<double>(j, i) = x2;
             mapY.at<double>(j, i) = y2;
-            // ÏÞÖÆ±ß½ç
+            // ï¿½ï¿½ï¿½Æ±ß½ï¿½
             if (x2 < 0) {
                 x2 = 0;
             }
@@ -85,13 +85,13 @@ void SmallMeshCorrect(int imgWidth, int imgHeight, int meshSizeW, int meshSizeH,
                 y2 = (imgHeight - 1);    // 1079
             }
 
-            // X×ø±ê¶¨µã»¯
+            // Xï¿½ï¿½ï¿½ê¶¨ï¿½ã»¯
             pMeshXY[x_cnt] = (unsigned short)x2;
             temp = x2 - pMeshXY[x_cnt];
             pMeshXY[x_cnt + 1] = unsigned short(temp * 128);
             x_cnt = x_cnt + 2;
 
-            // Y×ø±ê¶¨µã»¯
+            // Yï¿½ï¿½ï¿½ê¶¨ï¿½ã»¯
             pMeshXY[y_cnt] = (unsigned short)y2;
             temp = y2 - pMeshXY[y_cnt];
             pMeshXY[y_cnt + 1] = unsigned short(temp * 128);
@@ -108,11 +108,11 @@ void GenMeshTable(int imgWidth, int imgHeight, int meshStepW, int meshStepH, int
     double stride_h = meshStepH;
 
 
-    /* ¸¡µãµÄmeshÍø¸ñ */
+    /* ï¿½ï¿½ï¿½ï¿½ï¿½meshï¿½ï¿½ï¿½ï¿½ */
     double *mapx = new double[meshSizeW * meshSizeH];
     double *mapy = new double[meshSizeW * meshSizeH];
     double *mapz = new double[meshSizeW * meshSizeH];
-    // ÆðÊ¼µã
+    // ï¿½ï¿½Ê¼ï¿½ï¿½
     double start_w = 0;
     double start_h = 0;
 
@@ -131,10 +131,10 @@ void GenMeshTable(int imgWidth, int imgHeight, int meshStepW, int meshStepH, int
         }
     }
 
-    /* Éú³ÉÐ£ÕýºóµÄmeshXY */
+    /* ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½ï¿½meshXY */
     SmallMeshCorrect(imgWidth, imgHeight, meshSizeW, meshSizeH, camCoeff, mapx, mapy, pMeshXY);
 
-    /* Éú³ÉpMeshXI£¬pMeshXF£¬pMeshYI£¬pMeshYF */
+    /* ï¿½ï¿½ï¿½ï¿½pMeshXIï¿½ï¿½pMeshXFï¿½ï¿½pMeshYIï¿½ï¿½pMeshYF */
     unsigned short *pTmpXi = (unsigned short *)&pMeshXY[0];
     unsigned short *pTmpXf = (unsigned short *)&pMeshXY[1];
     unsigned short *pTmpYi = (unsigned short *)&pMeshXY[meshSizeW * meshSizeH * 2];
@@ -152,7 +152,7 @@ void GenMeshTable(int imgWidth, int imgHeight, int meshStepW, int meshStepH, int
         pTmpYf += 2;
     }
 
-    /* ±£´æÎªbinÎÄ¼þ */
+    /* ï¿½ï¿½ï¿½ï¿½Îªbinï¿½Ä¼ï¿½ */
     /* MeshXY.bin */
     FILE *fpMeshXY = fopen("MeshXY.bin", "wb");
     if (fpMeshXY == NULL) {
@@ -224,7 +224,7 @@ err:
 int gen_default_mesh_table(int imgWidth, int imgHeight, int mesh_density,
                            unsigned short* pMeshXI, unsigned short* pMeshYI, unsigned char* pMeshXF, unsigned char* pMeshYF)
 {
-    /* ¸ù¾Ý»û±ä²ÎÊýÉú³Émesh±í */
+    /* ï¿½ï¿½ï¿½Ý»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½meshï¿½ï¿½ */
     CameraCoeff camCoeff;
     camCoeff.cx = 951.813257;
     camCoeff.cy = 700.761832;
@@ -253,9 +253,9 @@ int gen_default_mesh_table(int imgWidth, int imgHeight, int mesh_density,
 
     int imgWidth = 1920;
     int imgHeight = 1080;
-    int meshSizeW = imgWidth / meshStepW + 1;       // Èç1920->121
-    int meshSizeH = imgHeight / meshStepH + 1;      // Èç1080->136
-    unsigned short  *pMeshXY;               // remapÊý¾Ý
+    int meshSizeW = imgWidth / meshStepW + 1;       // ï¿½ï¿½1920->121
+    int meshSizeH = imgHeight / meshStepH + 1;      // ï¿½ï¿½1080->136
+    unsigned short  *pMeshXY;               // remapï¿½ï¿½ï¿½ï¿½
     unsigned short  *pMeshXI;
     unsigned short  *pMeshYI;
     unsigned char   *pMeshXF;
@@ -273,8 +273,8 @@ int gen_default_mesh_table(int imgWidth, int imgHeight, int mesh_density,
         int mapStepW = 16;
         int mapStepH = 8;
     }
-    int meshSizeW = imgWidth / meshStepW + 1;       // Èç1920->121
-    int meshSizeH = imgHeight / meshStepH + 1;      // Èç1080->136
+    int meshSizeW = imgWidth / meshStepW + 1;       // ï¿½ï¿½1920->121
+    int meshSizeH = imgHeight / meshStepH + 1;      // ï¿½ï¿½1080->136
 #endif
 
     GenMeshTable(imgWidth, imgHeight, meshStepW, meshStepH, meshSizeW, meshSizeH, camCoeff, pMeshXY, pMeshXI, pMeshYI, pMeshXF, pMeshYF);

@@ -64,8 +64,8 @@ private:
     rk_aiq_sharp_attrib_v3_t mNewAtt;
     rk_aiq_sharp_IQPara_V3_t mCurIQPara;
     rk_aiq_sharp_IQPara_V3_t mNewIQPara;
-    float mCurStrength;
-    float mNewStrength;
+    float mCurStrength{0};
+    float mNewStrength{0};
     bool updateIQpara   = false;
     bool updateStrength = false;
 #endif

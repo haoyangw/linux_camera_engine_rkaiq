@@ -255,7 +255,7 @@ AcnrV2_result_t cnr_fix_transfer_V2(RK_CNR_Params_V2_Select_t *pSelect, RK_CNR_F
 
     // ISP_CNR_2800_LBF5_WEITD0_3
     // bilateral filter kernels
-    for (int i = 0; i < 5; i++) {
+    for (i = 0; i < 5; i++) {
         tmp = (int)(pSelect->kernel_5x5[i] * (1 << RK_CNR_V2_kernels));
         pFix->cnr_lbf5_weit_d[i] = CLIP(tmp, 0, 128);
     }
@@ -282,7 +282,7 @@ AcnrV2_result_t cnr_fix_transfer_V2(RK_CNR_Params_V2_Select_t *pSelect, RK_CNR_F
 
 
     //sigma
-    for(int i = 0; i < 13; i++) {
+    for(i = 0; i < 13; i++) {
         tmp = pSelect->gain_adj_strength_ratio[i];
         pFix->cnr_sigma_y[i] = CLIP(tmp, 0, (1 << 8) - 1);
     }
@@ -362,7 +362,7 @@ AcnrV2_result_t cnr_fix_printf_V2(RK_CNR_Fix_V2_t  * pFix)
              pFix->cnr_lbf3_sigma);
 
     // ISP_CNR_2800_LBF5_WEITD0_4 (0x002c - 0x0038)
-    for(int i = 0; i < 13; i++) {
+    for(i = 0; i < 13; i++) {
         LOGD_ANR("(0x002c - 0x0038) cnr_sigma_y[%d]:0x%x \n",
                  i, pFix->cnr_sigma_y[i]);
     }

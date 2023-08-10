@@ -299,12 +299,13 @@ Abayer2dnr_result_V23_t Abayer2dnr_ConfigSettingParam_V23(Abayer2dnr_Context_V23
 
 Abayer2dnr_result_V23_t Abayer2dnr_ParamModeProcess_V23(Abayer2dnr_Context_V23_t *pAbayernrCtx, Abayer2dnr_ExpInfo_V23_t *pExpInfo, Abayer2dnr_ParamMode_V23_t *mode) {
     Abayer2dnr_result_V23_t res  = ABAYER2DNR_V23_RET_SUCCESS;
-    *mode = pAbayernrCtx->eParamMode;
 
     if(pAbayernrCtx == NULL) {
         LOGE_ANR("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
         return ABAYER2DNR_V23_RET_INVALID_PARM;
     }
+
+    *mode = pAbayernrCtx->eParamMode;
 
     if(pAbayernrCtx->isGrayMode) {
         *mode = ABAYER2DNR_V23_PARAM_MODE_GRAY;

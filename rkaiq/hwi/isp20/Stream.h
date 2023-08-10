@@ -51,7 +51,7 @@ protected:
     }
     XCamReturn create_stop_fds ();
     void destroy_stop_fds ();
-    int mCamPhyId;
+    int mCamPhyId{-1};
 protected:
     static const int default_poll_timeout;
     SmartPtr<V4l2Device> _dev;
@@ -139,7 +139,7 @@ protected:
     int _dev_type;
     SmartPtr<RkPollThread> _poll_thread;
     bool _dev_prepared;
-    int mCamPhyId;
+    int mCamPhyId{-1};
 };
 
 class BaseSensorHw;
@@ -163,7 +163,7 @@ private:
     SmartPtr<BaseSensorHw> _event_handle_dev;
     SmartPtr<LensHw> _iris_handle_dev;
     SmartPtr<LensHw> _focus_handle_dev;
-    CamHwIsp20* _rx_handle_dev;
+    CamHwIsp20* _rx_handle_dev{NULL};
 };
 
 class RKSofEventStream : public RKStream
@@ -195,8 +195,8 @@ public:
     void set_reserved_data(int bpp);
 public:
     int _dev_index;
-    int _bpp;
-    int _reserved[2];
+    int _bpp{16};
+    int _reserved[2]{0};
 protected:
     XCAM_DEAD_COPY (RKRawStream);
 };
@@ -228,6 +228,8 @@ public:
     explicit SubVideoBuffer(int fd)
              :VideoBuffer()
     {
+        _buff_num = 0;
+        _buff_idx = -1;
         _buff_fd = fd;
         _buff_size = 0;
         _buff_ptr = MAP_FAILED;
@@ -236,6 +238,8 @@ public:
     explicit SubVideoBuffer(SmartPtr<V4l2BufferProxy> &buf)
             :VideoBuffer()
     {
+        _buff_num = 0;
+        _buff_idx = -1;
         _buff_fd = -1;
         _buff_size = 0;
         _buff_ptr = MAP_FAILED;
@@ -244,6 +248,8 @@ public:
     explicit SubVideoBuffer()
              :VideoBuffer()
     {
+        _buff_num = 0;
+        _buff_idx = -1;
         _buff_fd = -1;
         _buff_size = 0;
         _buff_ptr = MAP_FAILED;

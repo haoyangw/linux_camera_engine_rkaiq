@@ -60,7 +60,8 @@ public:
         : _buf_type(0), _timestamp(timestamp)
     {}
     explicit VideoBuffer (const VideoBufferInfo &info, int64_t timestamp = InvalidTimestamp)
-        : _videoinfo (info)
+        : _buf_type(0)
+        , _videoinfo (info)
         , _timestamp (timestamp)
     {}
     virtual ~VideoBuffer ();
@@ -103,7 +104,7 @@ private:
 private:
     VideoBufferInfo           _videoinfo;
     int64_t                   _timestamp; // in microseconds
-    uint32_t                  _sequence;
+    uint32_t                  _sequence{0};
 };
 
 XCamVideoBuffer *convert_to_external_buffer (const SmartPtr<VideoBuffer> &buf);

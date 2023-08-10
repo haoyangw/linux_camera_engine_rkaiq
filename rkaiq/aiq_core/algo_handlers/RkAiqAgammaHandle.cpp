@@ -205,8 +205,6 @@ XCamReturn RkAiqAgammaHandleInt::prepare() {
 
     RkAiqAlgoConfigAgamma* agamma_config_int = (RkAiqAlgoConfigAgamma*)mConfig;
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
 
 #ifdef RKAIQ_ENABLE_PARSER_V1
     agamma_config_int->calib = sharedCom->calib;
@@ -254,6 +252,7 @@ XCamReturn RkAiqAgammaHandleInt::processing() {
     RkAiqAlgoProcResAgamma* agamma_proc_res_int = (RkAiqAlgoProcResAgamma*)mProcOutParam;
     RkAiqCore::RkAiqAlgosGroupShared_t* shared =
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
+
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     agamma_proc_res_int->GammaProcRes = &shared->fullParams->mAgammaParams->data()->result;

@@ -221,8 +221,6 @@ XCamReturn RkAiqAynrHandleInt::prepare() {
     ret = RkAiqHandle::prepare();
     RKAIQCORE_CHECK_RET(ret, "aynr handle prepare failed");
 
-    RkAiqAlgoConfigAynr* aynr_config_int = (RkAiqAlgoConfigAynr*)mConfig;
-
     RkAiqAlgoDescription* des = (RkAiqAlgoDescription*)mDes;
     ret                       = des->prepare(mConfig);
     RKAIQCORE_CHECK_RET(ret, "aynr algo prepare failed");
@@ -235,13 +233,6 @@ XCamReturn RkAiqAynrHandleInt::preProcess() {
     ENTER_ANALYZER_FUNCTION();
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-
-    RkAiqAlgoPreAynr* aynr_pre_int        = (RkAiqAlgoPreAynr*)mPreInParam;
-    RkAiqAlgoPreResAynr* aynr_pre_res_int = (RkAiqAlgoPreResAynr*)mPreOutParam;
-
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
-    RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     ret = RkAiqHandle::preProcess();
     if (ret) {
@@ -261,11 +252,7 @@ XCamReturn RkAiqAynrHandleInt::processing() {
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
-    RkAiqAlgoProcAynr* aynr_proc_int        = (RkAiqAlgoProcAynr*)mProcInParam;
-    RkAiqAlgoProcResAynr* aynr_proc_res_int = (RkAiqAlgoProcResAynr*)mProcOutParam;
-
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
+    RkAiqAlgoProcAynr* aynr_proc_int            = (RkAiqAlgoProcAynr*)mProcInParam;
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     ret = RkAiqHandle::processing();
@@ -295,13 +282,6 @@ XCamReturn RkAiqAynrHandleInt::postProcess() {
     ENTER_ANALYZER_FUNCTION();
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-
-    RkAiqAlgoPostAynr* aynr_post_int        = (RkAiqAlgoPostAynr*)mPostInParam;
-    RkAiqAlgoPostResAynr* aynr_post_res_int = (RkAiqAlgoPostResAynr*)mPostOutParam;
-
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
-    RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     ret = RkAiqHandle::postProcess();
     if (ret) {

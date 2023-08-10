@@ -164,8 +164,6 @@ void sample_set_anglez(const rk_aiq_sys_ctx_t* ctx)
     printf("setAngleZ %f degree\n", angleZ);
 }
 
-
-
 void sample_add_zoom_position(const rk_aiq_sys_ctx_t* ctx)
 {
     rk_aiq_af_zoomrange range;
@@ -523,8 +521,8 @@ void sample_set_af_manual_meascfg(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_
 
         // Vertical filter
         // lowlit [0.025, 0.075], max=0.5
-        int ver_flt_lowlit[6] =
-            { -372, 851, 465, -77, 0, 77 };
+        // int ver_flt_lowlit[6] =
+        //     { -372, 851, 465, -77, 0, 77 };
 
         // normal [0.042, 0.14], max=0.5
         int ver_flt_normal[6] =
@@ -547,11 +545,11 @@ void sample_set_af_manual_meascfg(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_
 
         // Horizontal filter
         // lowlit [0.025, 0.075], max=0.5
-        int hor_flt_lowlit[2][6] =
-        {
-            { 512,   811,  -375,   266,     0,  -266 },
-            { 249,   945,  -448,    41,     0,   -41 },
-        };
+        // int hor_flt_lowlit[2][6] =
+        // {
+        //     { 512,   811,  -375,   266,     0,  -266 },
+        //     { 249,   945,  -448,    41,     0,   -41 },
+        // };
         // normal [0.042, 0.14], max=0.5
         int hor_flt_normal[2][6] =
         {

@@ -341,12 +341,13 @@ Asharp_result_V33_t Asharp_ParamModeProcess_V33(Asharp_Context_V33_t* pAsharpCtx
         Asharp_ExpInfo_V33_t* pExpInfo,
         Asharp_ParamMode_V33_t* mode) {
     Asharp_result_V33_t res = ASHARP_V33_RET_SUCCESS;
-    *mode                   = pAsharpCtx->eParamMode;
 
     if (pAsharpCtx == NULL) {
         LOGE_ASHARP("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
         return ASHARP_V33_RET_INVALID_PARM;
     }
+
+    *mode = pAsharpCtx->eParamMode;
 
     if (pAsharpCtx->isGrayMode) {
         *mode = ASHARP_V33_PARAM_MODE_GRAY;

@@ -318,13 +318,14 @@ Aynr_result_V22_t Aynr_ConfigSettingParam_V22(Aynr_Context_V22_t *pAynrCtx, Aynr
 }
 
 Aynr_result_V22_t Aynr_ParamModeProcess_V22(Aynr_Context_V22_t *pAynrCtx, Aynr_ExpInfo_V22_t *pExpInfo, Aynr_ParamMode_V22_t *mode) {
-    Aynr_result_V22_t res  = AYNRV22_RET_SUCCESS;
-    *mode = pAynrCtx->eParamMode;
 
     if(pAynrCtx == NULL) {
         LOGE_ANR("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
         return AYNRV22_RET_INVALID_PARM;
     }
+
+    Aynr_result_V22_t res  = AYNRV22_RET_SUCCESS;
+    *mode = pAynrCtx->eParamMode;
 
     if(pAynrCtx->isGrayMode) {
         *mode = AYNRV22_PARAM_MODE_GRAY;

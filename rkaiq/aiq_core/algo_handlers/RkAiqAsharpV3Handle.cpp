@@ -189,8 +189,6 @@ XCamReturn RkAiqAsharpV3HandleInt::prepare() {
     ret = RkAiqHandle::prepare();
     RKAIQCORE_CHECK_RET(ret, "asharp handle prepare failed");
 
-    RkAiqAlgoConfigAsharpV3* asharp_config_int = (RkAiqAlgoConfigAsharpV3*)mConfig;
-
     RkAiqAlgoDescription* des = (RkAiqAlgoDescription*)mDes;
     ret                       = des->prepare(mConfig);
     RKAIQCORE_CHECK_RET(ret, "asharp algo prepare failed");
@@ -203,12 +201,6 @@ XCamReturn RkAiqAsharpV3HandleInt::preProcess() {
     ENTER_ANALYZER_FUNCTION();
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-
-    RkAiqAlgoPreAsharpV3* asharp_pre_int        = (RkAiqAlgoPreAsharpV3*)mPreInParam;
-    RkAiqAlgoPreResAsharpV3* asharp_pre_res_int = (RkAiqAlgoPreResAsharpV3*)mPreOutParam;
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
-    RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     ret = RkAiqHandle::preProcess();
     if (ret) {
@@ -228,10 +220,11 @@ XCamReturn RkAiqAsharpV3HandleInt::processing() {
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
-    RkAiqAlgoProcAsharpV3* asharp_proc_int        = (RkAiqAlgoProcAsharpV3*)mProcInParam;
+    RkAiqAlgoProcAsharpV3* asharp_proc_int      = (RkAiqAlgoProcAsharpV3*)mProcInParam;
     RkAiqAlgoProcResAsharpV3* asharp_proc_res_int = (RkAiqAlgoProcResAsharpV3*)mProcOutParam;
     RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
+            (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
+
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     asharp_proc_res_int->stAsharpProcResult.stFix = &shared->fullParams->mSharpenV21Params->data()->result;
@@ -263,12 +256,6 @@ XCamReturn RkAiqAsharpV3HandleInt::postProcess() {
     ENTER_ANALYZER_FUNCTION();
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-
-    RkAiqAlgoPostAsharpV3* asharp_post_int        = (RkAiqAlgoPostAsharpV3*)mPostInParam;
-    RkAiqAlgoPostResAsharpV3* asharp_post_res_int = (RkAiqAlgoPostResAsharpV3*)mPostOutParam;
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
-    RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     ret = RkAiqHandle::postProcess();
     if (ret) {

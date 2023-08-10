@@ -1555,14 +1555,14 @@ static XCamReturn _customGruopAwbRes2rkAwbRes(rk_aiq_singlecam_3a_result_t ** rk
     //awb_window_check(rkCfg,customAwbProcRes->awbHwConfig.windowSet);
     _customAwbHw2rkAwbHwCfg(customAwbProcRes,awbHwConfigFull);//update by first camera
     awb_window_check(rkCfg,awbHwConfigFull->windowSet);
-    XCamVideoBuffer* xCamAwbProcRes;
-    RkAiqAlgoProcResAwb* procResPara;
+    RkAiqAlgoProcResAwbShared_t* xCamAwbProcRes;
+    RkAiqAlgoProcResAwbShared_t* procResPara;
     rk_aiq_customeAwb_single_results_t* customAwbProcRes2 = customAwbProcRes->next;
     for(int i=0; i<camera_num; i++){
-        xCamAwbProcRes =rk_aiq_singlecam_3a_result[i]->awb._awbProcRes;
+        xCamAwbProcRes = &rk_aiq_singlecam_3a_result[i]->awb._awbProcRes;
         procResPara = nullptr;
         if (xCamAwbProcRes) {
-            procResPara = (RkAiqAlgoProcResAwb*)xCamAwbProcRes->map(xCamAwbProcRes);
+            procResPara = (RkAiqAlgoProcResAwbShared_t*)xCamAwbProcRes;
             if(procResPara==nullptr){
                 LOGE_AWBGROUP("_awbProcRes is null for %dth camera",i);
                 return(XCAM_RETURN_ERROR_FAILED);
@@ -1577,13 +1577,13 @@ static XCamReturn _customGruopAwbRes2rkAwbRes(rk_aiq_singlecam_3a_result_t ** rk
             awb_window_check(rkCfg,awbHwConfigFull->windowSet);
         }
         memcpy(rk_aiq_singlecam_3a_result[i]->awb._awbCfgV3x,awbHwConfigFull,sizeof(rk_aiq_isp_awb_meas_cfg_v3x_t));
-        memcpy(&procResPara->awb_hw1_para,awbHwConfigFull,sizeof(rk_aiq_isp_awb_meas_cfg_v3x_t));
+        //memcpy(&procResPara->awb_hw1_para,awbHwConfigFull,sizeof(rk_aiq_isp_awb_meas_cfg_v3x_t));
         memcpy(rk_aiq_singlecam_3a_result[i]->awb._awbGainParams,_awbGainParams,sizeof(rk_aiq_wb_gain_t));
         memcpy(&procResPara->awb_gain_algo, _awbGainParams, sizeof(rk_aiq_wb_gain_t));
         procResPara->awb_smooth_factor = customAwbProcRes->awb_smooth_factor;
         procResPara->awbConverged = customAwbProcRes->IsConverged;
-        procResPara->awb_cfg_update = true;
-        procResPara->awb_gain_update= true;
+        //procResPara->awb_cfg_update = true;
+        //procResPara->awb_gain_update= true;
         //WriteDataForThirdParty(*rk_aiq_singlecam_3a_result[i]->awb._awbCfgV3x,XCORE_LOG_LEVEL_LOW1+1,i);
     }
     LOG1_AWB_SUBM(0xff, "%s EXIT", __func__);

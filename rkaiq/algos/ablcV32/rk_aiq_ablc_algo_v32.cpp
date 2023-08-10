@@ -397,7 +397,6 @@ AblcResult_V32_t AblcV32Release(AblcContext_V32_t* pAblcCtx) {
 AblcResult_V32_t AblcV32Process(AblcContext_V32_t* pAblcCtx, AblcExpInfo_V32_t* pExpInfo) {
     LOGD_ABLC("%s(%d): enter!\n", __FUNCTION__, __LINE__);
     AblcResult_V32_t ret = ABLC_V32_RET_SUCCESS;
-    float tmp;
 
     if (pAblcCtx == NULL) {
         LOGE_ABLC("%s(%d): null pointer\n", __FUNCTION__, __LINE__);

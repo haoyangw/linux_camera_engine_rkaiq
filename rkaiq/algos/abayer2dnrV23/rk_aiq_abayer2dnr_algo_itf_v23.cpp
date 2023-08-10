@@ -170,6 +170,11 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
         LOGE_ANR("%s: ANRPreProcess failed (%d)\n", __FUNCTION__, ret);
     }
 
+    if (pAbayernrProcParams == NULL) {
+            LOGE_ANR("%s: ANRProcessing pAbayernrProcParams is NULL\n", __FUNCTION__);
+        return XCAM_RETURN_BYPASS;
+    }
+
     LOGD_ANR("%s:%d init:%d hdr mode:%d  \n",
              __FUNCTION__, __LINE__,
              inparams->u.proc.init,

@@ -799,7 +799,7 @@ AsharpResult_t init_sharp_params_v1_json(RKAsharp_Sharp_HW_Params_t *pParams, Ca
 
 AsharpResult_t sharp_algo_param_printf(RKAsharp_Sharp_HW_Params_t *pParams)
 {
-    int i, j;
+    int i;
 
     if(pParams != NULL) {
 
@@ -1405,7 +1405,6 @@ AsharpResult_t rk_Sharp_V1_fix_transfer(RKAsharp_Sharp_HW_Params_Select_t *pShar
     int sigma_inte_bits = 1;
     int max_val         = 0;
     int min_val         = 65536;
-    int shf_bits        = 0;
     short sigma_bits[3];
     for(int i = 0; i < 8; i++)
     {
@@ -1423,7 +1422,6 @@ AsharpResult_t rk_Sharp_V1_fix_transfer(RKAsharp_Sharp_HW_Params_Select_t *pShar
     // mf bf sigma inv
     max_val = 0;
     min_val = 65536;
-    shf_bits = 0;
     for(int i = 0; i < 8; i++)
     {
         int cur_sigma = FLOOR(pSharpV1->luma_sigma[i]
@@ -1442,7 +1440,6 @@ AsharpResult_t rk_Sharp_V1_fix_transfer(RKAsharp_Sharp_HW_Params_Select_t *pShar
     // hf bf sigma inv
     max_val = 0;
     min_val = 65536;
-    shf_bits = 0;
     for(int i = 0; i < 8; i++)
     {
         int cur_sigma = FLOOR(pSharpV1->luma_sigma[i] * pSharpV1->hbf_gain + pSharpV1->hbf_add);
@@ -1463,7 +1460,6 @@ AsharpResult_t rk_Sharp_V1_fix_transfer(RKAsharp_Sharp_HW_Params_Select_t *pShar
     sigma_inte_bits = 1;
     max_val         = 0;
     min_val         = 65536;
-    shf_bits        = 0;
     for(int i = 0; i < RK_SHARPFILTER_LUMA_POINT_NUM; i++)
     {
         int cur_sigma = FLOOR((pSharpV1->luma_sigma[i] * pSharpV1->pbf_gain + pSharpV1->pbf_add));
@@ -1506,7 +1502,6 @@ AsharpResult_t rk_Sharp_V1_fix_transfer(RKAsharp_Sharp_HW_Params_Select_t *pShar
     // mf bf sigma inv
     max_val = 0;
     min_val = 65536;
-    shf_bits = 0;
     for(int i = 0; i < RK_SHARPFILTER_LUMA_POINT_NUM; i++)
     {
         int cur_sigma = FLOOR(pSharpV1->luma_sigma[i] * pSharpV1->mbf_gain + pSharpV1->mbf_add);
@@ -1539,7 +1534,6 @@ AsharpResult_t rk_Sharp_V1_fix_transfer(RKAsharp_Sharp_HW_Params_Select_t *pShar
 
     max_val = 0;
     min_val = 65536;
-    shf_bits = 0;
     for(int i = 0; i < RK_SHARPFILTER_LUMA_POINT_NUM; i++)
     {
         int cur_sigma = FLOOR(pSharpV1->luma_sigma[i] * pSharpV1->hbf_gain + pSharpV1->hbf_add);

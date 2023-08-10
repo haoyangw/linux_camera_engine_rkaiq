@@ -60,6 +60,7 @@ FecRemapBackend::FecRemapBackend(const FecMeshConfig& config,
     : config_(config),
       mem_ops_(mem_ops),
       user_buffer_index_(-1),
+      hw_buffer_index_(-1),
       last_result_id_(-1) {
     assert(mem_ops != nullptr);
 

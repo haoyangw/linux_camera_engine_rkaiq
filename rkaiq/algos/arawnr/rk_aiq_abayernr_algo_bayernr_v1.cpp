@@ -469,11 +469,11 @@ Abayernr_result_v1_t selsec_bayernrV1_hdr_parmas_by_ISO(RK_Bayernr_Params_V1_t *
         int isoGainLow = 0; //向下一个isoGain,用做参数插值：y=float(isoGainHig-isoGain)/float(isoGainHig-isoGainLow)*y[isoLevelLow]
         //                                  +float(isoGain-isoGainLow)/float(isoGainHig-isoGainLow)*y[isoLevelHig];
         int isoGainHig = 0; //向上一个isoGain
-        int isoGainCorrect = 1; //选择最近的一档iso的配置
+        // int isoGainCorrect = 1; //选择最近的一档iso的配置
 
         int isoLevelLow = 0;
         int isoLevelHig = 0;
-        int isoLevelCorrect = 0;
+        // int isoLevelCorrect = 0;
 
 #ifndef RK_SIMULATOR_HW
         for(int i = 0; i < MAX_ISO_STEP; i++) {
@@ -493,8 +493,6 @@ Abayernr_result_v1_t selsec_bayernrV1_hdr_parmas_by_ISO(RK_Bayernr_Params_V1_t *
                 isoGainHig = isoGainStd[i + 1];
                 isoLevelLow = i;
                 isoLevelHig = i + 1;
-                isoGainCorrect = ((isoGain - isoGainStd[i]) <= (isoGainStd[i + 1] - isoGain)) ? isoGainStd[i] : isoGainStd[i + 1];
-                isoLevelCorrect = ((isoGain - isoGainStd[i]) <= (isoGainStd[i + 1] - isoGain)) ? i : (i + 1);
             }
         }
 
@@ -527,11 +525,11 @@ Abayernr_result_v1_t selsec_bayernrV1_hdr_parmas_by_ISO(RK_Bayernr_Params_V1_t *
 #endif
     }
 
-    float filtParDiscount = (float)0.1;
     for (i = 0; i < framenum; i++)
     {
         float gainsqrt = sqrt(fdgain[i]);
 #if 0
+        float filtParDiscount = (float)0.1;
         float par = (stBayerNrParamsSelected->filtPar[i] * filtParDiscount);
 
         LOGD_ANR("gainsqrt:%f filtpar:%f, total:%f\n",
@@ -580,11 +578,9 @@ Abayernr_result_v1_t select_bayernrV1_params_by_ISO(RK_Bayernr_Params_V1_t *stBa
     int isoGain = MAX(int(iso / 50), 1);
     int isoGainLow = 0;
     int isoGainHig = 0;
-    int isoGainCorrect = 1;
     int isoLevelLow = 0;
     int isoLevelHig = 0;
-    int isoLevelCorrect = 0;
-    int i, j;
+    int i;
 
 #ifndef RK_SIMULATOR_HW
     for(int i = 0; i < MAX_ISO_STEP; i++) {
@@ -605,8 +601,6 @@ Abayernr_result_v1_t select_bayernrV1_params_by_ISO(RK_Bayernr_Params_V1_t *stBa
             isoGainHig = isoGainStd[i + 1];
             isoLevelLow = i;
             isoLevelHig = i + 1;
-            isoGainCorrect = ((isoGain - isoGainStd[i]) <= (isoGainStd[i + 1] - isoGain)) ? isoGainStd[i] : isoGainStd[i + 1];
-            isoLevelCorrect = ((isoGain - isoGainStd[i]) <= (isoGainStd[i + 1] - isoGain)) ? i : (i + 1);
             break;
         }
     }
@@ -617,8 +611,6 @@ Abayernr_result_v1_t select_bayernrV1_params_by_ISO(RK_Bayernr_Params_V1_t *stBa
             isoGainHig = isoGainStd[1];
             isoLevelLow = 0;
             isoLevelHig = 1;
-            isoGainCorrect = ((isoGain - isoGainStd[0]) <= (isoGainStd[1] - isoGain)) ? isoGainStd[0] : isoGainStd[1];
-            isoLevelCorrect = ((isoGain - isoGainStd[0]) <= (isoGainStd[1] - isoGain)) ? 0 : (1);
         }
 
         if(isoGain > isoGainStd[MAX_ISO_STEP - 1]) {
@@ -626,8 +618,6 @@ Abayernr_result_v1_t select_bayernrV1_params_by_ISO(RK_Bayernr_Params_V1_t *stBa
             isoGainHig = isoGainStd[MAX_ISO_STEP - 1];
             isoLevelLow = MAX_ISO_STEP - 2;
             isoLevelHig = MAX_ISO_STEP - 1;
-            isoGainCorrect = ((isoGain - isoGainStd[MAX_ISO_STEP - 2]) <= (isoGainStd[MAX_ISO_STEP - 1] - isoGain)) ? isoGainStd[MAX_ISO_STEP - 2] : isoGainStd[MAX_ISO_STEP - 1];
-            isoLevelCorrect = ((isoGain - isoGainStd[MAX_ISO_STEP - 2]) <= (isoGainStd[MAX_ISO_STEP - 1] - isoGain)) ? (MAX_ISO_STEP - 2) : (MAX_ISO_STEP - 1);
         }
     }
 

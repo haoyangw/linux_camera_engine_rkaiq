@@ -468,9 +468,9 @@ void writeFile(char *fileName, uint16_t *buf)
 
 void lightFallOff(uint16_t *table, float *percenttable, float percent, int width, int height)
 {
-    float ratio = (float)width / (float)height;
-    float rMax = sqrt(pow((float)(16 / 2 * ratio), 2) + pow((float)(16 / 2), 2));
-    float r = 0.0, alpha = 0.0, falloff = 0.0, halfPi = 3.1415926 / 2;
+    // float ratio = (float)width / (float)height;
+    // float rMax = sqrt(pow((float)(16 / 2 * ratio), 2) + pow((float)(16 / 2), 2));
+    // float r = 0.0, alpha = 0.0, falloff = 0.0, halfPi = 3.1415926 / 2;
 
     percent = percent / 100.0;
 

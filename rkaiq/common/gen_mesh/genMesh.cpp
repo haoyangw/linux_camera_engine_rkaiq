@@ -97,11 +97,13 @@ void genLdchMeshInit(int srcW, int srcH, int dstW, int dstH, LdchParams &ldchPar
 	int map_scale_bit_X = 4;
 	int map_scale_bit_Y = 3;
 	/* 定点化左移位数 */
-	ldchParams.mapxFixBit = 4;
-	if (dstW > 4096)
-	{
-		ldchParams.mapxFixBit = 3;
-	}
+    if (RKALGO_LDCH_VERSION_0 == ldchParams.enLdchVersion) {
+        ldchParams.mapxFixBit = (dstW > 4096) ? 3 : 4;
+    }
+    if (RKALGO_LDCH_VERSION_1 == ldchParams.enLdchVersion) {
+        ldchParams.mapxFixBit = (dstW > 4080) ? 3 : 4;
+    }
+
 	// mesh表的宽, 如2688->169
 	ldchParams.meshSizeW = ((dstW + (1 << map_scale_bit_X) - 1) >> map_scale_bit_X) + 1;
 	// mesh表的高, 如1520->191
@@ -127,7 +129,7 @@ void genLdchMeshInit(int srcW, int srcH, int dstW, int dstH, LdchParams &ldchPar
 	genLdchPreCalcPart(ldchParams, camCoeff);
 
 	/* LDCH: 计算LDCH能够校正的最大程度 */
-	if (ldchParams.isLdchOld)
+	if (RKALGO_LDCH_VERSION_0 == ldchParams.enLdchVersion || RKALGO_LDCH_VERSION_1 == ldchParams.enLdchVersion)
 	{
 		calcLdchMaxLevel(ldchParams, camCoeff);
 	}
@@ -140,13 +142,7 @@ void genLdchMeshInit(int srcW, int srcH, int dstW, int dstH, LdchParams &ldchPar
 /* LDCH: 反初始化 */
 void genLdchMeshDeInit(LdchParams &ldchParams)
 {
-    if (ldchParams.mapx) {
-        delete[] ldchParams.mapx;
-        ldchParams.mapx = nullptr;
-    }
-    if (ldchParams.mapy) {
-        delete[] ldchParams.mapy;
-        ldchParams.mapy = nullptr;
-    }
+	delete[] ldchParams.mapx;
+	delete[] ldchParams.mapy;
 }
 

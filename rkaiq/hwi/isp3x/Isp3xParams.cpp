@@ -1147,6 +1147,41 @@ void Isp3xParams::convertAiqCacToIsp3xParams(struct isp3x_isp_params_cfg& isp_cf
 }
 #endif
 
+#if defined(ISP_HW_V30)
+void Isp3xParams::convertAiqLdchToIsp3xParams(struct isp3x_isp_params_cfg& isp_cfg,
+        struct isp3x_isp_params_cfg& isp_cfg_right,
+        const rk_aiq_isp_ldch_t& ldch_cfg, bool is_multi_isp)
+{
+    struct isp2x_ldch_cfg  *pLdchCfg = &isp_cfg.others.ldch_cfg;
+
+    // TODO: add update flag for ldch
+    if (ldch_cfg.sw_ldch_en) {
+        isp_cfg.module_ens |= ISP2X_MODULE_LDCH;
+        isp_cfg.module_en_update |= ISP2X_MODULE_LDCH;
+        isp_cfg.module_cfg_update |= ISP2X_MODULE_LDCH;
+
+        pLdchCfg->hsize = ldch_cfg.lut_h_size;
+        pLdchCfg->vsize = ldch_cfg.lut_v_size;
+        pLdchCfg->buf_fd = ldch_cfg.lut_mapxy_buf_fd[0];
+
+        LOGD_CAMHW_SUBM(ISP20PARAM_SUBM, "enable ldch h/v size: %dx%d, buf_fd: %d",
+                        pLdchCfg->hsize, pLdchCfg->vsize, pLdchCfg->buf_fd);
+
+        if (is_multi_isp) {
+            struct isp2x_ldch_cfg *cfg_right = &isp_cfg.others.ldch_cfg;
+            cfg_right = &isp_cfg_right.others.ldch_cfg;
+            memcpy(cfg_right, pLdchCfg, sizeof(*cfg_right));
+            cfg_right->buf_fd = ldch_cfg.lut_mapxy_buf_fd[1];
+
+            LOGD_CAMHW_SUBM(ISP20PARAM_SUBM, "multi isp: ldch right isp buf fd: %d", cfg_right->buf_fd);
+        }
+    } else {
+        isp_cfg.module_ens &= ~ISP2X_MODULE_LDCH;
+        isp_cfg.module_en_update |= ISP2X_MODULE_LDCH;
+    }
+}
+#endif
+
 #if RKAIQ_HAVE_DEHAZE_V11_DUO
 void Isp3xParams::convertAiqAdehazeToIsp3xParams(struct isp3x_isp_params_cfg& isp_cfg,
         const rk_aiq_isp_dehaze_v3x_t& dhaze)
@@ -1281,8 +1316,8 @@ void Isp3xParams::convertAiqAdehazeToIsp3xParams(struct isp3x_isp_params_cfg& is
 bool Isp3xParams::convert3aResultsToIspCfg(SmartPtr<cam3aResult> &result,
         void* isp_cfg_p, bool is_multi_isp)
 {
-    struct isp3x_isp_params_cfg& isp_cfg = *(struct isp3x_isp_params_cfg*)isp_cfg_p;
-    struct isp3x_isp_params_cfg isp_cfg_right = {};
+    struct isp3x_isp_params_cfg& isp_cfg       = *(struct isp3x_isp_params_cfg*)isp_cfg_p;
+    struct isp3x_isp_params_cfg& isp_cfg_right = *((struct isp3x_isp_params_cfg*)isp_cfg_p + 1);
 
     if (result.ptr() == NULL) {
         LOGE_CAMHW_SUBM(ISP20PARAM_SUBM, "3A result empty");
@@ -1439,8 +1474,9 @@ bool Isp3xParams::convert3aResultsToIspCfg(SmartPtr<cam3aResult> &result,
     {
 #if RKAIQ_HAVE_CAC_V03 || RKAIQ_HAVE_CAC_V10
         RkAiqIspCacParamsProxyV3x* params = result.get_cast_ptr<RkAiqIspCacParamsProxyV3x>();
-        if (params)
+        if (params) {
             convertAiqCacToIsp3xParams(isp_cfg, isp_cfg_right, params->data()->result, is_multi_isp);
+        }
 #endif
     }
     break;
@@ -1514,11 +1550,14 @@ bool Isp3xParams::convert3aResultsToIspCfg(SmartPtr<cam3aResult> &result,
     }
     break;
     case RESULT_TYPE_LDCH_PARAM:
+#if defined(ISP_HW_V30)
     {
         RkAiqIspLdchParamsProxy* params = result.get_cast_ptr<RkAiqIspLdchParamsProxy>();
-        if (params)
-            convertAiqAldchToIsp20Params(isp_cfg, params->data()->result);
+        if (params && params->data()->is_update) {
+            convertAiqLdchToIsp3xParams(isp_cfg, isp_cfg_right, params->data()->result, is_multi_isp);
+        }
     }
+#endif
     break;
     case RESULT_TYPE_ADEGAMMA_PARAM:
     {
@@ -1581,10 +1620,6 @@ bool Isp3xParams::convert3aResultsToIspCfg(SmartPtr<cam3aResult> &result,
         return false;
     }
 
-    if (is_multi_isp) {
-        memcpy(&((struct isp3x_isp_params_cfg*)isp_cfg_p + 1)->others.cac_cfg,
-               &isp_cfg_right.others.cac_cfg, sizeof(struct isp3x_cac_cfg));
-    }
     return true;
 }
 

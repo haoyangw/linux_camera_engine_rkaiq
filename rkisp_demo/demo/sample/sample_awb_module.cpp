@@ -114,7 +114,7 @@ static int sample_get_mwb_ct(const rk_aiq_sys_ctx_t* ctx)
 {
     unsigned int cct;
     rk_aiq_uapi2_getWBCT(ctx, &cct);
-    printf("get cct=%d\n\n", cct);
+    printf("get cct=%u\n\n", cct);
     return 0;
 }
 
@@ -1041,7 +1041,6 @@ XCamReturn sample_awb_module(const void *arg)
         ERR ("%s, ctx is nullptr\n", __FUNCTION__);
         return XCAM_RETURN_ERROR_PARAM;
     }
-    unsigned int cct;
 
     sample_awb1_usage ();
     do {
@@ -1292,7 +1291,6 @@ XCamReturn sample_awb32_module(const void *arg)
         ERR ("%s, ctx is nullptr\n", __FUNCTION__);
         return XCAM_RETURN_ERROR_PARAM;
     }
-    unsigned int cct;
 
     sample_awb32_usage ();
     do {

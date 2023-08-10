@@ -553,8 +553,8 @@ RawStreamCapUnit::do_capture_callback
 {
     struct v4l2_buffer *vbuf[3];
     struct v4l2_format *vfmt[3];
-    int vfd[3];
-    int state = -1;
+    // int vfd[3];
+    // int state = -1;
 
     int index = buf_s->get_v4l2_buf_index();
     if(index > STREAM_VIPCAP_BUF_NUM-1){

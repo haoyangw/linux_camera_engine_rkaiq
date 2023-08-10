@@ -97,8 +97,6 @@ XCamReturn RkAiqAtmoHandleInt::prepare() {
     RKAIQCORE_CHECK_RET(ret, "atmo handle prepare failed");
 
     RkAiqAlgoConfigAtmo* atmo_config_int = (RkAiqAlgoConfigAtmo*)mConfig;
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     // TODO
@@ -119,8 +117,6 @@ XCamReturn RkAiqAtmoHandleInt::preProcess() {
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
-    RkAiqAlgoPreAtmo* atmo_pre_int        = (RkAiqAlgoPreAtmo*)mPreInParam;
-    RkAiqAlgoPreResAtmo* atmo_pre_res_int = (RkAiqAlgoPreResAtmo*)mPreOutParam;
     RkAiqCore::RkAiqAlgosGroupShared_t* shared =
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
@@ -159,7 +155,6 @@ XCamReturn RkAiqAtmoHandleInt::processing() {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
     RkAiqAlgoProcAtmo* atmo_proc_int        = (RkAiqAlgoProcAtmo*)mProcInParam;
-    RkAiqAlgoProcResAtmo* atmo_proc_res_int = (RkAiqAlgoProcResAtmo*)mProcOutParam;
     RkAiqCore::RkAiqAlgosGroupShared_t* shared =
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
@@ -232,8 +227,6 @@ XCamReturn RkAiqAtmoHandleInt::postProcess() {
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
-    RkAiqAlgoPostAtmo* atmo_post_int        = (RkAiqAlgoPostAtmo*)mPostInParam;
-    RkAiqAlgoPostResAtmo* atmo_post_res_int = (RkAiqAlgoPostResAtmo*)mPostOutParam;
     RkAiqCore::RkAiqAlgosGroupShared_t* shared =
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;

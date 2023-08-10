@@ -39,7 +39,6 @@ Asharp_result_V33_t sharp_select_params_by_ISO_V33(void* pParams_v, void* pSelec
     int iso_low = iso, iso_high = iso;
     int gain_high = 0, gain_low = 0;
     int max_iso_step = RK_SHARP_V33_MAX_ISO_NUM;
-    int sum_coeff, offset;
 
     LOGI_ASHARP("%s(%d): enter\n", __FUNCTION__, __LINE__);
 
@@ -405,7 +404,6 @@ Asharp_result_V33_t sharp_fix_transfer_V33(void* pSelect_v, RK_SHARP_Fix_V33_t* 
     int sigma_inte_bits = 1;
     int max_val         = 0;
     int min_val         = 65536;
-    int shf_bits        = 0;
     short sigma_bits[3];
     for (int i = 0; i < RK_SHARP_V33_LUMA_POINT_NUM; i++) {
         int cur_sigma = FLOOR((pSelect->luma_sigma[i] * pSelect->pbf_gain +
@@ -429,7 +427,6 @@ Asharp_result_V33_t sharp_fix_transfer_V33(void* pSelect_v, RK_SHARP_Fix_V33_t* 
     sigma_inte_bits = 1;
     max_val         = 0;
     min_val         = 65536;
-    shf_bits        = 0;
     for (int i = 0; i < RK_SHARP_V33_LUMA_POINT_NUM; i++) {
         int cur_sigma = FLOOR((pSelect->luma_sigma[i] * pSelect->bf_gain
                                + pSelect->bf_add) / fPercent);
@@ -738,7 +735,7 @@ Asharp_result_V33_t sharp_fix_transfer_V33(void* pSelect_v, RK_SHARP_Fix_V33_t* 
 }
 
 Asharp_result_V33_t sharp_fix_printf_V33(RK_SHARP_Fix_V33_t* pFix) {
-    int i                   = 0;
+
     Asharp_result_V33_t res = ASHARP_V33_RET_SUCCESS;
 
     LOGD_ASHARP("%s:(%d) enter \n", __FUNCTION__, __LINE__);
@@ -887,12 +884,6 @@ Asharp_result_V33_t sharp_init_params_json_V33(void* pSharpParams_v, void* pCali
     Asharp_result_V33_t res = ASHARP_V33_RET_SUCCESS;
     int i                   = 0;
     int j                   = 0;
-    short isoCurveSectValue;
-    short isoCurveSectValue1;
-    float ave1, ave2, ave3, ave4;
-    int bit_calib = 12;
-    int bit_proc;
-    int bit_shift;
 #if RKAIQ_HAVE_SHARP_V33
     CalibDbV2_SharpV33_t* pCalibdbV2    = (CalibDbV2_SharpV33_t*)pCalibdbV2_v;
     RK_SHARP_Params_V33_t* pSharpParams = (RK_SHARP_Params_V33_t*)pSharpParams_v;
@@ -1028,7 +1019,8 @@ Asharp_result_V33_t sharp_config_setting_param_json_V33(void* pParams_v, void* p
 
     if (pParams == NULL || pCalibdbV2 == NULL || param_mode == NULL || snr_name == NULL) {
         LOGE_ASHARP("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
-        pParams->enable = false;
+        if (pParams)
+            pParams->enable = false;
         return ASHARP_V33_RET_NULL_POINTER;
     }
 

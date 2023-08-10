@@ -74,7 +74,6 @@ prepare(RkAiqAlgoCom* params)
 
     AdpccContext_t* pAdpccCtx = (AdpccContext_t *)params->ctx;
     RkAiqAlgoConfigAdpcc* pCfgParam = (RkAiqAlgoConfigAdpcc*)params;
-    AdpccConfig_t* pAdpccConfig = &pCfgParam->stAdpccConfig;
     pAdpccCtx->prepare_type = params->u.prepare.conf_type;
 
     if(!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB )) {
@@ -101,7 +100,6 @@ static XCamReturn
 processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
 {
     XCamReturn result = XCAM_RETURN_NO_ERROR;
-    int iso;
 
     LOG1_ADPCC("%s: (enter)", __FUNCTION__ );
 

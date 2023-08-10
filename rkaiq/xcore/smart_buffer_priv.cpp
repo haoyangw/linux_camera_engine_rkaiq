@@ -84,6 +84,7 @@ SmartBufferPriv::SmartBufferPriv (const SmartPtr<VideoBuffer> &buf)
     this->get_bo = SmartBufferPriv::buf_get_bo;
     this->notify = NULL;
     this->pUserContext = NULL;
+    memset(this->nameStr, 0, sizeof(this->nameStr));
 #ifndef NDEBUG
     buf_type_to_str(buf->_buf_type, this->nameStr);
 #endif
@@ -117,6 +118,7 @@ SmartBufferPriv::SmartBufferPriv (uint32_t frameId, const SmartPtr<VideoBuffer> 
     this->get_bo = SmartBufferPriv::buf_get_bo;
     this->notify = NULL;
     this->pUserContext = NULL;
+    memset(this->nameStr, 0, sizeof(this->nameStr));
 }
 
 SmartBufferPriv::~SmartBufferPriv ()

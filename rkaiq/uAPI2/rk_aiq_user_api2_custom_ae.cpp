@@ -162,7 +162,7 @@ static XCamReturn AeReg2RealConv
     float timeC0 = pConfig->stSensorInfo.Time2Reg.fCoeff[0];
     float timeC1 = pConfig->stSensorInfo.Time2Reg.fCoeff[1];
     float timeC2 = pConfig->stSensorInfo.Time2Reg.fCoeff[2];
-    float timeC3 = pConfig->stSensorInfo.Time2Reg.fCoeff[3];
+    // float timeC3 = pConfig->stSensorInfo.Time2Reg.fCoeff[3];
 
     realInttime = ((sensorInttime - timeC0 * pConfig->LinePeriodsPerField - timeC1) / timeC2 /*- timeC3*/) *
                   pConfig->PixelPeriodsPerLine / (pConfig->PixelClockFreqMHZ * 1000000);
@@ -381,7 +381,6 @@ static void AeGridWeight15x15to5x5
 
     uint8_t line_5x5, col_5x5;
     uint8_t line_15x15, col_15x15;
-    int i, j, k;
 
     int SumWeight[RAWAELITE_WIN_NUM] = {0};
 

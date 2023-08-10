@@ -28,7 +28,8 @@ public:
     IRkAiqResourceTranslator ()
         : mCamPhyId(-1)
         , mIsGroupMode(false)
-        , mModuleRotation(0) {};
+        , mModuleRotation(0)
+        , mWorkingMode(0) {};
     virtual ~IRkAiqResourceTranslator () {};
 
     virtual XCamReturn translateIspStats(const SmartPtr<VideoBuffer>& from,

@@ -41,11 +41,9 @@ Abayertnr_result_V23_t bayertnr_select_params_by_ISO_V23(void* pParams_v, void* 
     int isoGain = MAX(int(iso / 50), 1);
     int isoGainLow = 0;
     int isoGainHig = 0;
-    int isoGainCorrect = 1;
     int isoLevelLow = 0;
     int isoLevelHig = 0;
-    int isoLevelCorrect = 0;
-    int i, j;
+    int i;
     float tmpf;
 
 #ifndef RK_SIMULATOR_HW
@@ -64,8 +62,6 @@ Abayertnr_result_V23_t bayertnr_select_params_by_ISO_V23(void* pParams_v, void* 
             isoGainHig = isoGainStd[i + 1];
             isoLevelLow = i;
             isoLevelHig = i + 1;
-            isoGainCorrect = ((isoGain - isoGainStd[i]) <= (isoGainStd[i + 1] - isoGain)) ? isoGainStd[i] : isoGainStd[i + 1];
-            isoLevelCorrect = ((isoGain - isoGainStd[i]) <= (isoGainStd[i + 1] - isoGain)) ? i : (i + 1);
             break;
         }
     }
@@ -75,8 +71,6 @@ Abayertnr_result_V23_t bayertnr_select_params_by_ISO_V23(void* pParams_v, void* 
         isoGainHig = isoGainStd[RK_BAYERNR_V23_MAX_ISO_NUM - 1];
         isoLevelLow = RK_BAYERNR_V23_MAX_ISO_NUM - 2;
         isoLevelHig = RK_BAYERNR_V23_MAX_ISO_NUM - 1;
-        isoGainCorrect = isoGainStd[RK_BAYERNR_V23_MAX_ISO_NUM - 1];
-        isoLevelCorrect = RK_BAYERNR_V23_MAX_ISO_NUM - 1;
     }
 
     if(iso < pParams->iso[0]) {
@@ -84,8 +78,6 @@ Abayertnr_result_V23_t bayertnr_select_params_by_ISO_V23(void* pParams_v, void* 
         isoGainHig = isoGainStd[1];
         isoLevelLow = 0;
         isoLevelHig = 1;
-        isoGainCorrect = isoGainStd[0];
-        isoLevelCorrect = 0;
     }
 
     LOGD_ANR("%s:%d iso:%d high:%d low:%d\n",
@@ -454,7 +446,7 @@ Abayertnr_result_V23_t bayertnr_fix_transfer_V23(void* pSelect_v, RK_Bayertnr_Fi
     pFix->wgtratio = CLIP(tmp, 0, 0x3ff);
 
 
-    for(int i = 0; i < 16; i++) {
+    for(i = 0; i < 16; i++) {
         // BAY3D_BAY3D_SIG_X0  0x2c14 - 0x2c30
         //no need transfer to log domain
         //tmp = bayertnr_get_trans_V23(pSelect->bayertnrv23_tnr_luma_point[i]);

@@ -227,11 +227,11 @@ uint32_t cal_fec_mesh(uint32_t width, uint32_t height, uint32_t mode, uint32_t &
 static XCamReturn
 read_mesh_table(FECContext_t* fecCtx, unsigned int correct_level)
 {
-    bool ret;
 #if OPENCV_SUPPORT
     gen_default_mesh_table(fecCtx->src_width, fecCtx->src_height, fecCtx->mesh_density,
                            fecCtx->meshxi, fecCtx->meshyi, fecCtx->meshxf, fecCtx->meshyf);
 #elif GENMESH_ONLINE
+    bool ret;
     ret = genFECMeshNLevel(fecCtx->fecParams, fecCtx->camCoeff, correct_level, fecCtx->meshxi,
                            fecCtx->meshxf, fecCtx->meshyi, fecCtx->meshyf);
     if (!ret) {
@@ -241,7 +241,7 @@ read_mesh_table(FECContext_t* fecCtx, unsigned int correct_level)
 #else
     FILE* ofp;
     char filename[512];
-    sprintf(filename, "%s/%s/meshxi_level%d.bin",
+    sprintf(filename, "%s/%s/meshxi_level%u.bin",
             fecCtx->resource_path,
             fecCtx->meshfile,
             correct_level);
@@ -259,7 +259,7 @@ read_mesh_table(FECContext_t* fecCtx, unsigned int correct_level)
         fecCtx->fec_en = 0;
     }
 
-    sprintf(filename, "%s/%s/meshxf_level%d.bin",
+    sprintf(filename, "%s/%s/meshxf_level%u.bin",
             fecCtx->resource_path,
             fecCtx->meshfile,
             correct_level);
@@ -276,7 +276,7 @@ read_mesh_table(FECContext_t* fecCtx, unsigned int correct_level)
         fecCtx->fec_en = 0;
     }
 
-    sprintf(filename, "%s/%s/meshyi_level%d.bin",
+    sprintf(filename, "%s/%s/meshyi_level%u.bin",
             fecCtx->resource_path,
             fecCtx->meshfile,
             correct_level);
@@ -293,7 +293,7 @@ read_mesh_table(FECContext_t* fecCtx, unsigned int correct_level)
         fecCtx->fec_en = 0;
     }
 
-    sprintf(filename, "%s/%s/meshyf_level%d.bin",
+    sprintf(filename, "%s/%s/meshyf_level%u.bin",
             fecCtx->resource_path,
             fecCtx->meshfile,
             correct_level);
@@ -494,7 +494,6 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
 {
     FECHandle_t hFEC = (FECHandle_t)inparams->ctx->hFEC;
     FECContext_t* fecCtx = (FECContext_t*)hFEC;
-    RkAiqAlgoProcAfec* fecProcParams = (RkAiqAlgoProcAfec*)inparams;
     RkAiqAlgoProcResAfec* fecPreOut = (RkAiqAlgoProcResAfec*)outparams;
 
     if (!fecCtx->fec_en)

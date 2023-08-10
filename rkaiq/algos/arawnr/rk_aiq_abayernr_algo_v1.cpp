@@ -381,12 +381,13 @@ Abayernr_result_v1_t Abayernr_ConfigSettingParam_V1(Abayernr_Context_V1_t *pAbay
 
 Abayernr_result_v1_t Abayernr_ParamModeProcess_V1(Abayernr_Context_V1_t *pAbayernrCtx, Abayernr_ExpInfo_V1_t *pExpInfo, Abayernr_ParamMode_V1_t *mode) {
     Abayernr_result_v1_t res  = ABAYERNR_RET_V1_SUCCESS;
-    *mode = pAbayernrCtx->eParamMode;
 
     if(pAbayernrCtx == NULL) {
         LOGE_ANR("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
         return ABAYERNR_RET_V1_INVALID_PARM;
     }
+
+    *mode = pAbayernrCtx->eParamMode;
 
     if(pAbayernrCtx->isGrayMode) {
         *mode = ABAYERNR_PARAM_MODE_V1_GRAY;

@@ -23,7 +23,7 @@
 #include "RkAiqResourceTranslatorV21.h"
 
 #define ISP3X_DHAZ_HIST_IIR_MAX     (1023)
-
+#define ISP3X_DHAZ_PIC_SUM_MIN      (1)
 
 namespace RkCam {
 

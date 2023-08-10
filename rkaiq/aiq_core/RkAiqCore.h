@@ -705,11 +705,12 @@ private:
     bool mPdafSupport{false};
     int64_t mFrmInterval = 30000LL;
     int64_t mSofTime = 0LL;
-    int64_t mAfStatsTime;
-    int64_t mPdafStatsTime;
-    uint32_t mAfStatsFrmId;
-    SmartPtr<RkAiqAfStatsProxy> mAfStats;
-    SmartPtr<RkAiqPdafStatsProxy> mPdafStats;
+    int64_t mAfStatsTime[2] {0};
+    int64_t mPdafStatsTime[2] {0};
+    uint32_t mAfStatsFrmId[2] {(uint32_t)-1, (uint32_t)-1};
+    uint32_t mPdafStatsFrmId[2] {(uint32_t)-1, (uint32_t)-1};
+    SmartPtr<RkAiqAfStatsProxy> mAfStats[2];
+    SmartPtr<RkAiqPdafStatsProxy> mPdafStats[2];
     CamProfiles mProfiles;
     SmartPtr<RkAiqVicapRawBuf_t> mVicapBufs;
     bool mIsEnableVicap{false};

@@ -220,8 +220,6 @@ XCamReturn RkAiqAbayer2dnrV2HandleInt::prepare() {
     ret = RkAiqHandle::prepare();
     RKAIQCORE_CHECK_RET(ret, "arawnr handle prepare failed");
 
-    RkAiqAlgoConfigAbayer2dnrV2* aynr_config_int = (RkAiqAlgoConfigAbayer2dnrV2*)mConfig;
-
     RkAiqAlgoDescription* des = (RkAiqAlgoDescription*)mDes;
     ret                       = des->prepare(mConfig);
     RKAIQCORE_CHECK_RET(ret, "arawnr algo prepare failed");
@@ -234,13 +232,6 @@ XCamReturn RkAiqAbayer2dnrV2HandleInt::preProcess() {
     ENTER_ANALYZER_FUNCTION();
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-
-    RkAiqAlgoPreAbayer2dnrV2* arawnr_pre_int = (RkAiqAlgoPreAbayer2dnrV2*)mPreInParam;
-    RkAiqAlgoPreResAbayer2dnrV2* arawnr_pre_res_int =
-        (RkAiqAlgoPreResAbayer2dnrV2*)mPreOutParam;
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
-    RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     ret = RkAiqHandle::preProcess();
     if (ret) {
@@ -263,9 +254,10 @@ XCamReturn RkAiqAbayer2dnrV2HandleInt::processing() {
 
     RkAiqAlgoProcAbayer2dnrV2* arawnr_proc_int = (RkAiqAlgoProcAbayer2dnrV2*)mProcInParam;
     RkAiqAlgoProcResAbayer2dnrV2* arawnr_proc_res_int =
-        (RkAiqAlgoProcResAbayer2dnrV2*)mProcOutParam;
+            (RkAiqAlgoProcResAbayer2dnrV2*)mProcOutParam;
     RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
+            (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
+
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     arawnr_proc_res_int->stArawnrProcResult.st2DFix = &shared->fullParams->mBaynrV3xParams->data()->result;
@@ -297,13 +289,6 @@ XCamReturn RkAiqAbayer2dnrV2HandleInt::postProcess() {
     ENTER_ANALYZER_FUNCTION();
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-
-    RkAiqAlgoPostAbayer2dnrV2* arawnr_post_int = (RkAiqAlgoPostAbayer2dnrV2*)mPostInParam;
-    RkAiqAlgoPostResAbayer2dnrV2* arawnr_post_res_int =
-        (RkAiqAlgoPostResAbayer2dnrV2*)mPostOutParam;
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
-    RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     ret = RkAiqHandle::postProcess();
     if (ret) {

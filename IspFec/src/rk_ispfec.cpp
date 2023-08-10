@@ -71,6 +71,7 @@ _load_mesh(const char* file, void* vir_addr, size_t size)
         ret = fseek(fp, 0L, SEEK_END);
         if (ret < 0) {
             printf("E: %s fseek to end failed\n", file);
+            fclose(fp);
             return ret;
         }
 
@@ -78,7 +79,7 @@ _load_mesh(const char* file, void* vir_addr, size_t size)
         rewind(fp);
 
         if (len > size)
-            printf("E: mesh file len %ld > buf size %ld", len, size);
+            printf("E: mesh file len %lu > buf size %lu", len, size);
 #if 0
         void* map = mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, dstFd, 0);
 
@@ -88,13 +89,13 @@ _load_mesh(const char* file, void* vir_addr, size_t size)
         } else {
             size_t rd_size = fread(map, 1, len, fp);
             if (rd_size < len)
-                printf("file read size:%ld < %ld \n", rd_size, len);
+                printf("file read size:%lu < %lu \n", rd_size, len);
             munmap(map, len);
         }
 #else
         size_t rd_size = fread(vir_addr, 1, len, fp);
         if (rd_size < len)
-            printf("file read size:%ld < %ld \n", rd_size, len);
+            printf("file read size:%lu < %lu \n", rd_size, len);
 #endif
         fclose(fp);
     } else {

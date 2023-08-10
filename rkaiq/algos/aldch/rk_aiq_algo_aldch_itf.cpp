@@ -47,12 +47,23 @@ updateCalibConfig(RkAiqAlgoCom* params)
 
     if (calib_ldch->ldch_en) {
         if (!ldchCtx->ldch_en || calib_ldch->correct_level != hLDCH->correct_level) {
-            aiqGenLdchMeshInit(hLDCH);
-            bool success = aiqGenMesh(hLDCH, calib_ldch->correct_level);
-            if (!success) {
-                LOGE_ALDCH("lut is not exist");
-                put_ldch_buf(hLDCH);
-                return XCAM_RETURN_ERROR_PARAM;
+            if (aiqGenLdchMeshInit(hLDCH) < 0) {
+                LOGE_ALDCH("Failed to init gen mesh");
+                return XCAM_RETURN_ERROR_FAILED;
+            }
+
+            for (uint8_t i = 0; i < ldchCtx->multi_isp_number; i++) {
+                if (get_ldch_buf(hLDCH, i) != XCAM_RETURN_NO_ERROR) {
+                    LOGE_ALDCH("Failed to get mesh buf\n");
+                    return XCAM_RETURN_ERROR_FAILED;
+                }
+
+                bool success = aiqGenMesh(hLDCH, calib_ldch->correct_level, i);
+                if (!success) {
+                    LOGE_ALDCH("Failed to gen mesh\n");
+                    put_ldch_buf(hLDCH, i);
+                    return XCAM_RETURN_ERROR_FAILED;
+                }
             }
         }
     }
@@ -131,6 +142,9 @@ create_context(RkAiqAlgoContext **context, const AlgoCtxInstanceCfg* cfg)
 #endif
     ldchCtx->correct_level = calib_ldch->correct_level;
     ldchCtx->correct_level_max = calib_ldch->correct_level_max;
+    ldchCtx->is_multi_isp = false;
+    ldchCtx->multi_isp_extended_pixel = 0;
+    ldchCtx->multi_isp_number = 1;
 
     LOGI_ALDCH("ldch en %d, meshfile: %s, correct_level-max: %d-%d from xml file",
                calib_ldch->ldch_en,
@@ -157,7 +171,11 @@ destroy_context(RkAiqAlgoContext *context)
 #if GENMESH_ONLINE
 	genLdchMeshDeInit(ldchCtx->ldchParams);
 #endif
-    release_ldch_buf(ldchCtx);
+
+    release_ldch_buf(ldchCtx, 0);
+    if (ldchCtx->is_multi_isp)
+        release_ldch_buf(ldchCtx, 1);
+
     delete context->hLDCH;
     context->hLDCH = NULL;
     delete context;
@@ -178,6 +196,15 @@ prepare(RkAiqAlgoCom* params)
     ldchCtx->dst_height = params->u.prepare.sns_op_height;
     ldchCtx->resource_path = rkaiqAldchConfig->resource_path;
     ldchCtx->share_mem_ops = rkaiqAldchConfig->mem_ops_ptr;
+    ldchCtx->is_multi_isp = rkaiqAldchConfig->is_multi_isp;
+    ldchCtx->multi_isp_extended_pixel = rkaiqAldchConfig->multi_isp_extended_pixel;
+    if (ldchCtx->is_multi_isp)
+        ldchCtx->multi_isp_number = 2;
+    else
+        ldchCtx->multi_isp_number = 1;
+
+    LOGD_ALDCH("is_multi_isp %d, multi_isp_extended_pixel %d\n", ldchCtx->is_multi_isp,
+               ldchCtx->multi_isp_extended_pixel);
 
     bool config_calib = !!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB);
     if (config_calib) {
@@ -208,12 +235,22 @@ prepare(RkAiqAlgoCom* params)
     if (!ldchCtx->ldch_en)
         return XCAM_RETURN_NO_ERROR;
 
-    if (aiqGenLdchMeshInit(ldchCtx) == XCAM_RETURN_NO_ERROR) {
-        bool success = aiqGenMesh(hLDCH, ldchCtx->correct_level);
-        if (!success) {
-            LOGW_ALDCH("lut is not exist");
-            put_ldch_buf(hLDCH);
-            ldchCtx->ldch_en = 0;
+    if (aiqGenLdchMeshInit(ldchCtx) >= 0) {
+        for (uint8_t i = 0; i < ldchCtx->multi_isp_number; i++) {
+            if (get_ldch_buf(ldchCtx, i) != XCAM_RETURN_NO_ERROR) {
+                LOGE_ALDCH("Failed to get mesh buf, disable LDCH\n");
+                ldchCtx->ldch_en = ldchCtx->user_config.en = false;
+            }
+
+            bool success = aiqGenMesh(ldchCtx, ldchCtx->correct_level, i);
+            if (!success) {
+                LOGE_ALDCH("Failed to gen mesh, disable LDCH\n");
+                put_ldch_buf(ldchCtx, i);
+                ldchCtx->ldch_en = ldchCtx->user_config.en = false;
+            }
+
+            if (ldchCtx->ldch_mem_info[i])
+                ldchCtx->ready_lut_mem_fd[i] = ldchCtx->ldch_mem_info[i]->fd;
         }
     }
 #else
@@ -256,14 +293,6 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
         } else {
             update_params = false;
         }
-
-        LOGV_ALDCH("(%s) en(%d), level(%d), user en(%d), level(%d), result update(%d)\n",
-                __FUNCTION__,
-                ldchCtx->ldch_en,
-                ldchCtx->correct_level,
-                ldchCtx->user_config.en,
-                ldchCtx->user_config.correct_level,
-                update_params);
     }
 
     if (update_params) {
@@ -272,15 +301,37 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
         ldchPreOut->ldch_result->lut_v_size = ldchCtx->lut_v_size;
         ldchPreOut->ldch_result->lut_map_size = ldchCtx->lut_mapxy_size;
         if (ldchCtx->ldch_en) {
-            if (!ldchCtx->ldch_mem_info) {
-                LOGE_ALDCH("no available ldch buf, ldch_mem_info: %p", ldchCtx->ldch_mem_info);
-                outparams->cfg_update = false;
-                return XCAM_RETURN_NO_ERROR;
-            }
+            for (uint8_t i = 0; i < ldchCtx->multi_isp_number; i++) {
+                if (!ldchCtx->ldch_mem_info[i]) {
+                    LOGE_ALDCH("isp_id: %d, invalid mesh buf!", i);
+                    if (inparams->u.proc.init) {
+                        LOGE_ALDCH("mesh buf is invalid, disable LDCH!");
+                        ldchCtx->ldch_en = ldchCtx->user_config.en = false;
+                        ldchPreOut->ldch_result->sw_ldch_en = false;
+                        outparams->cfg_update = true;
+                    } else {
+                        outparams->cfg_update = false;
+                    }
+                    return XCAM_RETURN_NO_ERROR;
+                }
 
-            ldchPreOut->ldch_result->lut_mapxy_buf_fd = ldchCtx->ldch_mem_info->fd;
+                ldchPreOut->ldch_result->lut_mapxy_buf_fd[i] = ldchCtx->ldch_mem_info[i]->fd;
+            }
+        }
+
+        LOGD_ALDCH("en(%d), level(%d), user en(%d), level(%d), mesh fd(%d), result update(%d)\n",
+                ldchCtx->ldch_en,
+                ldchCtx->correct_level,
+                ldchCtx->user_config.en,
+                ldchCtx->user_config.correct_level,
+                ldchPreOut->ldch_result->lut_mapxy_buf_fd[0],
+                update_params);
+        if (ldchCtx->is_multi_isp) {
+            LOGD_ALDCH("multi isp: ldch mesh fd of right isp: %d",
+                    ldchPreOut->ldch_result->lut_mapxy_buf_fd[1]);
         }
     }
+
     outparams->cfg_update = update_params;
 
     return XCAM_RETURN_NO_ERROR;
@@ -326,27 +377,34 @@ bool RKAiqAldchThread::loop()
 #if GENMESH_ONLINE
     if (attrib->en) {
         if (!hLDCH->ldch_en || attrib->correct_level != hLDCH->correct_level) {
-            aiqGenLdchMeshInit(hLDCH);
-            bool success = aiqGenMesh(hLDCH, attrib->correct_level);
-            if (!success) {
-                LOGW_ALDCH("lut is not exist");
-                put_ldch_buf(hLDCH);
+            if (aiqGenLdchMeshInit(hLDCH) < 0) {
+                LOGE_ALDCH("Failed to init gen mesh");
+                return true;
+            }
+
+            for (uint8_t i = 0; i < hLDCH->multi_isp_number; i++) {
+                if (get_ldch_buf(hLDCH, i) != XCAM_RETURN_NO_ERROR) {
+                    LOGE_ALDCH("Failed to get mesh buf\n");
+                    return true;
+                }
+
+                bool success = aiqGenMesh(hLDCH, attrib->correct_level, i);
+                if (!success) {
+                    LOGE_ALDCH("Failed to gen mesh\n");
+                    put_ldch_buf(hLDCH, i);
+                    return true;
+                }
+
+                hLDCH->ldch_en = hLDCH->user_config.en;
+                hLDCH->correct_level = hLDCH->user_config.correct_level;
+
+                hLDCH->isAttribUpdated = true;
             }
         }
     }
-
-    hLDCH->ldch_en = hLDCH->user_config.en;
-    hLDCH->correct_level = hLDCH->user_config.correct_level;
 #endif
-    if (ret == XCAM_RETURN_NO_ERROR) {
-        hLDCH->isAttribUpdated = true;
-        LOGV_ALDCH("ldch en(%d), level(%d)\n", hLDCH->ldch_en, hLDCH->correct_level);
-        return true;
-    }
-
-    LOGE_ALDCH("RKAiqAldchThread failed to read mesh table!");
 
     EXIT_ANALYZER_FUNCTION();
 
-    return false;
+    return true;
 }

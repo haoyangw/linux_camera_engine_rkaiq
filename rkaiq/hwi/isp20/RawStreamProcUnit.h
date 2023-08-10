@@ -102,10 +102,10 @@ protected:
     int mCamPhyId;
 protected:
     SmartPtr<V4l2Device> _dev[3];
-    int _dev_index[3];
+    int _dev_index[3]{0};
     SmartPtr<RKStream> _stream[3];
-    int _working_mode;
-    int _mipi_dev_max;
+    int _working_mode{0};
+    int _mipi_dev_max{1};
     bool _is_multi_cam_conc;
     //
     Mutex _buf_mutex;
@@ -117,7 +117,7 @@ protected:
     SafeList<V4l2BufferProxy> cache_list[3];
 
     SmartPtr<RawProcThread> _raw_proc_thread;
-    CamHwIsp20* _camHw;
+    CamHwIsp20* _camHw{NULL};
     SmartPtr<V4l2SubDevice> _isp_core_dev;
     bool _first_trigger;
     Mutex _mipi_trigger_mutex;

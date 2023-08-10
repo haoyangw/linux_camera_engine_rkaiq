@@ -62,6 +62,8 @@ int8_t pixFmt2Bpp(uint32_t pixFmt)
 
 MediaInfo::MediaInfo (){
     LOGD_RKSTREAM ("MediaInfo constructed.");
+    mIsMultiIspMode = false;
+    mMultiIspExtendedPixel = 0;
 }
 
 MediaInfo::~MediaInfo(){
@@ -111,7 +113,6 @@ out:
 static XCamReturn get_sensor_caps(rk_sensor_full_info_t *sensor_info) {
     struct v4l2_subdev_frame_size_enum fsize_enum;
     struct v4l2_subdev_mbus_code_enum  code_enum;
-    std::vector<uint32_t> formats;
     rk_frame_fmt_t frameSize;
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 

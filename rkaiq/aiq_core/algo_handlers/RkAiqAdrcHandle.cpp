@@ -392,7 +392,6 @@ XCamReturn RkAiqAdrcHandleInt::processing() {
     RkAiqAlgoProcResAdrc* adrc_proc_res_int = (RkAiqAlgoProcResAdrc*)mProcOutParam;
     RkAiqCore::RkAiqAlgosGroupShared_t* shared =
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
-    RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     adrc_proc_res_int->AdrcProcRes = &shared->fullParams->mDrcParams->data()->result;
     adrc_proc_int->LongFrmMode = mAeProcRes.LongFrmMode;
@@ -462,7 +461,6 @@ XCamReturn RkAiqAdrcHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPa
         return XCAM_RETURN_NO_ERROR;
     }
 
-    RkAiqAlgoProcResAdrc* adrc_rk = (RkAiqAlgoProcResAdrc*)adrc_com;
     if (!this->getAlgoId()) {
         RkAiqAlgoProcResAdrc* ahdr_rk = (RkAiqAlgoProcResAdrc*)adrc_com;
 

@@ -28,6 +28,10 @@ V4l2Buffer::V4l2Buffer (const struct v4l2_buffer &buf, const struct v4l2_format 
     _buf = buf;
     _format = format;
     _queued = false;
+    _length = 0;
+    _expbuf_fd = -1;
+    _expbuf_usrptr = 0;
+    _reserved = 0;
 }
 
 V4l2Buffer::~V4l2Buffer ()

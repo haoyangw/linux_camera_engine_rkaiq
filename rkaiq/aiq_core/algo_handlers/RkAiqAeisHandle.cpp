@@ -30,7 +30,6 @@ XCamReturn RkAiqAeisHandleInt::prepare() {
     RKAIQCORE_CHECK_RET(ret, "aeis handle prepare failed");
 
     RkAiqAlgoConfigAeis* aeis_config_int     = (RkAiqAlgoConfigAeis*)mConfig;
-    RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     aeis_config_int->mem_ops = mAiqCore->mShareMemOps;
 
@@ -89,7 +88,6 @@ XCamReturn RkAiqAeisHandleInt::processing() {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
     RkAiqAlgoProcAeis* aeis_proc_int         = (RkAiqAlgoProcAeis*)mProcInParam;
-    RkAiqAlgoProcResAeis* aeis_proc_res_int  = (RkAiqAlgoProcResAeis*)mProcOutParam;
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     auto* shared = (RkAiqCore::RkAiqAlgosGroupShared_t*)getGroupShared();

@@ -53,7 +53,6 @@ rk_aiq_uapi_camgroup_abayer2dnrV2_SetStrength(const RkAiqAlgoContext *ctx,
     Abayer2dnr_Context_V2_t* pCtx = pGroupCtx->abayer2dnr_contex_v2;
 
     float fStrength = 1.0f;
-    float fMax = RAWNR_LUMA_SF_STRENGTH_MAX_PERCENT;
     float fPercent = 0.5;
 
     fPercent = pStrength->percent;
@@ -84,7 +83,6 @@ rk_aiq_uapi_camgroup_abayer2dnrV2_GetStrength(const RkAiqAlgoContext *ctx,
     Abayer2dnr_Context_V2_t* pCtx = pGroupCtx->abayer2dnr_contex_v2;
 
     float fStrength = 1.0f;
-    float fMax = RAWNR_LUMA_SF_STRENGTH_MAX_PERCENT;
     float fPercent = 0.5;
 
     fStrength = pCtx->stStrength.percent;

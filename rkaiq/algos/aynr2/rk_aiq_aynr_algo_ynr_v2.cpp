@@ -6,7 +6,6 @@ RKAIQ_BEGIN_DECLARE
 
 Aynr_result_t ynr_get_mode_by_name_V2(struct list_head* pCalibdbList, char *name, Calibdb_Ynr_V2_t** ppProfile)
 {
-    int i = 0;
     Aynr_result_t res = AYNR_RET_SUCCESS;
 
     if(pCalibdbList == NULL) {
@@ -54,7 +53,6 @@ Aynr_result_t ynr_get_mode_by_name_V2(struct list_head* pCalibdbList, char *name
 
 Aynr_result_t ynr_get_setting_by_name_V2(struct list_head *pSettingList, char *name, Calibdb_Ynr_params_V2_t** ppSetting)
 {
-    int i = 0;
     Aynr_result_t res = AYNR_RET_SUCCESS;
 
     if(pSettingList == NULL) {
@@ -237,7 +235,6 @@ Aynr_result_t ynr_init_params_V2(RK_YNR_Params_V2_t *pYnrParams, Calibdb_Ynr_par
 
 Aynr_result_t ynr_select_params_by_ISO_V2(RK_YNR_Params_V2_t *pParams, RK_YNR_Params_V2_Select_t *pSelect, Aynr_ExpInfo_t *pExpInfo)
 {
-    short multBit;
     float ratio = 0.0f;
     int iso = 50;
     RK_YNR_Params_V2_Select_t *pParamHi = NULL;

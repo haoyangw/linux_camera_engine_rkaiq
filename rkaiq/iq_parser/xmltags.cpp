@@ -258,7 +258,7 @@ int XmlCellTag::Index()
     int value = 0;
 
     const XMLAttribute *pattr = m_Element->FindAttribute( CALIB_ATTRIBUTE_INDEX );
-    if ( !pattr )
+    if ( pattr )
     {
         pattr->QueryIntValue(&value);
     }

@@ -165,42 +165,42 @@ XCamReturn sample_acnr_setAuto_v30(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode
     cnr_attr.eMode = ACNRV30_OP_MODE_AUTO;
 
 
-    int enable;
+    // int enable;
 
-    int down_scale_x;
-    int down_scale_y;
+    // int down_scale_x;
+    // int down_scale_y;
 
-    float thumb_sigma;
-    float thumb_bf_ratio;
+    // float thumb_sigma;
+    // float thumb_bf_ratio;
 
-    float chroma_filter_strength;
-    float chroma_filter_wgt_clip;
-    float anti_chroma_ghost;
-    float chroma_filter_uv_gain;
-    float wgt_slope;
+    // float chroma_filter_strength;
+    // float chroma_filter_wgt_clip;
+    // float anti_chroma_ghost;
+    // float chroma_filter_uv_gain;
+    // float wgt_slope;
 
-    float gaus_ratio;
+    // float gaus_ratio;
 
-    float bf_sigmaR;
-    float bf_uvgain;
-    float bf_ratio;
-    float hbf_wgt_clip;
-    float bf_wgt0_sel;
-    float global_alpha;
+    // float bf_sigmaR;
+    // float bf_uvgain;
+    // float bf_ratio;
+    // float hbf_wgt_clip;
+    // float bf_wgt0_sel;
+    // float global_alpha;
 
-    float saturation_adj_offset;
-    float saturation_adj_ratio;
+    // float saturation_adj_offset;
+    // float saturation_adj_ratio;
 
-    float global_gain;
-    float global_gain_alpha;
-    float local_gain_scale;
-    float global_gain_thumb;
-    float global_gain_alpha_thumb;
+    // float global_gain;
+    // float global_gain_alpha;
+    // float local_gain_scale;
+    // float global_gain_thumb;
+    // float global_gain_alpha_thumb;
 
-    float gain_adj_strength_ratio[13];
+    // float gain_adj_strength_ratio[13];
 
-    float thumb_filter_wgt_coeff[4];
-    float gaus_coeff[6];
+    // float thumb_filter_wgt_coeff[4];
+    // float gaus_coeff[6];
 
 
     for(int i = 0; i < RK_CNR_V30_MAX_ISO_NUM; i++) {

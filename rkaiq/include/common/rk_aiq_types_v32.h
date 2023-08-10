@@ -47,7 +47,7 @@ typedef struct rk_aiq_isp_bay3d_v32_s {
 
 typedef struct rk_aiq_isp_cac_v32_s {
     bool enable;
-    rkaiq_cac_v11_hw_param_t cfg;
+    rkaiq_cac_v11_hw_param_t cfg[2];
 } rk_aiq_isp_cac_v32_t;
 
 

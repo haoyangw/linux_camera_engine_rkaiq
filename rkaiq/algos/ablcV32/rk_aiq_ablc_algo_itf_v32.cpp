@@ -90,7 +90,6 @@ static XCamReturn prepare(RkAiqAlgoCom* params) {
 
 static XCamReturn processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams) {
     XCamReturn result = XCAM_RETURN_NO_ERROR;
-    int iso;
     int delta_iso = 0;
     LOG1_ABLC("%s: (enter)\n", __FUNCTION__);
 

@@ -77,7 +77,6 @@ static XCamReturn AtmoPrepare(RkAiqAlgoCom* params)
 
     AtmoHandle_t pAtmoCtx = params->ctx->AtmoInstConfig.hAtmo;
     RkAiqAlgoConfigAtmo* AtmoCfgParam = (RkAiqAlgoConfigAtmo*)params; //come from params in html
-    const CamCalibDbContext_t* pCalibDb = AtmoCfgParam->com.u.prepare.calib;
     const CamCalibDbV2Context_t* pCalibDbv2 = AtmoCfgParam->com.u.prepare.calibv2;
     pAtmoCtx->width = AtmoCfgParam->rawWidth;
     pAtmoCtx->height = AtmoCfgParam->rawHeight;
@@ -125,7 +124,6 @@ static XCamReturn AtmoPreProcess(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* 
     RESULT ret = ATMO_RET_SUCCESS;
 
     AtmoHandle_t pAtmoCtx = inparams->ctx->AtmoInstConfig.hAtmo;
-    RkAiqAlgoConfigAtmo* AtmoCfgParam = (RkAiqAlgoConfigAtmo*)inparams;
 
     if(pAtmoCtx->tmoAttr.opMode == TMO_OPMODE_TOOL) {
         newMalloc(&pAtmoCtx->AtmoConfig, &pAtmoCtx->tmoAttr.stTool);

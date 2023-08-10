@@ -11,15 +11,13 @@ uint32_t FLOAT_LIM2_INT(float In, int bit_deci_dst, int type = 0)
     int exp_val = ((in_u8[3] << 1) & (in_u8[2] >> 7) & 0xff);
 
     uint32_t dst;
-    int shf_bit;
     if(exp_val - 127 <= bit_deci_dst || type == 1)
     {
-        shf_bit = bit_deci_dst - (exp_val - 127);
+
         dst     = ROUND_F(In * (1 << bit_deci_dst));
     }
     else
     {
-        shf_bit = (exp_val - 127) - bit_deci_dst;
         dst     = ROUND_F(In / (1 << bit_deci_dst));
     }
     return dst;
@@ -62,8 +60,6 @@ ANRresult_t gain_fix_transfer(RKAnr_Mfnr_Params_Select_t *pMfnrSelect, RKAnr_Gai
     uint16_t sigma_bits_max;
     uint16_t sigma_bits_act = GAIN_SIGMA_BITS_ACT;
     double noise_sigma_dehaze[MAX_INTEPORATATION_LUMAPOINT];
-    unsigned short noise_sigma_dehaze_x[MAX_INTEPORATATION_LUMAPOINT];
-
 
     LOGI_ANR("%s:(%d) oyyf bayerner xml config start\n", __FUNCTION__, __LINE__);
     if(pMfnrSelect == NULL) {

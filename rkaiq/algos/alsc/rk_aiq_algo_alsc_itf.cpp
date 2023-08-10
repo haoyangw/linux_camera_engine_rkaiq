@@ -161,7 +161,7 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
          */
         txBuf->ref(txBuf);
         LOGD_ALSC("tx buf fd is: %d", txBuf->get_fd(txBuf));
-        uint8_t *virTxBuf = txBuf->map(txBuf);
+        // uint8_t *virTxBuf = txBuf->map(txBuf);
         txBuf->unref(txBuf);
     }
 #endif

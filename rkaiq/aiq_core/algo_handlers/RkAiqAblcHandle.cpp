@@ -159,10 +159,6 @@ XCamReturn RkAiqAblcHandleInt::prepare() {
     ret = RkAiqHandle::prepare();
     RKAIQCORE_CHECK_RET(ret, "ablc handle prepare failed");
 
-    RkAiqAlgoConfigAblc* ablc_config_int = (RkAiqAlgoConfigAblc*)mConfig;
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
-
     RkAiqAlgoDescription* des = (RkAiqAlgoDescription*)mDes;
     ret                       = des->prepare(mConfig);
     RKAIQCORE_CHECK_RET(ret, "ablc algo prepare failed");

@@ -271,7 +271,7 @@ rk_aiq_uapi2_camgroup_getOverlapMap_from_file(const char* map_file, struct RK_PS
         fclose(fp2);
         return XCAM_RETURN_NO_ERROR;
     } else {
-        LOGE("get overlap data from %s error!", map_file);
+        LOGW("get overlap data from %s error!", map_file);
         return XCAM_RETURN_ERROR_FAILED;
     }
 #else

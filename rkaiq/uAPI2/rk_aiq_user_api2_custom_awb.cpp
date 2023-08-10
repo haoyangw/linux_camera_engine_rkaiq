@@ -352,8 +352,8 @@ static XCamReturn AwbDemoGroupProcessing(const RkAiqAlgoCom* inparams, RkAiqAlgo
 
 static XCamReturn AwbDemoPostProcess(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
 {
-    RESULT ret = RK_AIQ_RET_SUCCESS;
-    RkAiqAwbAlgoContext* algo_ctx = (RkAiqAwbAlgoContext*)inparams->ctx;
+    // RESULT ret = RK_AIQ_RET_SUCCESS;
+    // RkAiqAwbAlgoContext* algo_ctx = (RkAiqAwbAlgoContext*)inparams->ctx;
 
 
     return XCAM_RETURN_NO_ERROR;

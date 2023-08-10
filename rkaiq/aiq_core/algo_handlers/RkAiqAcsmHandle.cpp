@@ -40,10 +40,6 @@ XCamReturn RkAiqAcsmHandleInt::prepare() {
     ret = RkAiqHandle::prepare();
     RKAIQCORE_CHECK_RET(ret, "acsm handle prepare failed");
 
-    RkAiqAlgoConfigAcsm* acsm_config_int = (RkAiqAlgoConfigAcsm*)mConfig;
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
-
     RkAiqAlgoDescription* des = (RkAiqAlgoDescription*)mDes;
     ret                       = des->prepare(mConfig);
     RKAIQCORE_CHECK_RET(ret, "acsm algo prepare failed");

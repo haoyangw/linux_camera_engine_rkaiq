@@ -80,8 +80,6 @@ XCamReturn DmaBuffer::endCpuAccess(DmaBufferDirection direction) {
 }
 
 void* DmaBuffer::map() {
-    int ret;
-
     assert(((void)"could not map invalid dma_buf", fd_.Get() > 0 && ptr_ == nullptr && size_ > 0));
 
     ptr_ = mmap(0, size_, PROT_READ | PROT_WRITE, MAP_SHARED, fd_.Get(), 0);

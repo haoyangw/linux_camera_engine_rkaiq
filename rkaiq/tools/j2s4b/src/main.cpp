@@ -77,7 +77,7 @@ size_t j2s_root_struct_size(j2s_ctx *ctx) {
   while (obj_index >= 0) {
     obj = &ctx->objs[obj_index];
     root_size += obj->base_elem_size;
-    printf("[%s] struct size:%d\n", obj->name, obj->base_elem_size);
+    printf("[%s] struct size:%u\n", obj->name, obj->base_elem_size);
     obj_index = obj->next_index;
   }
 

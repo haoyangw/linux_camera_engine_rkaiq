@@ -46,8 +46,8 @@ SensorHw::SensorHw(const char* name)
     _mirror = false;
     _update_mirror_flip = false;
     _is_i2c_exp = false;
+    _dcg_gain_mode_with_time = false;
     mTbIsPreAiq = false;
-
     EXIT_CAMHW_FUNCTION();
 }
 
@@ -488,7 +488,6 @@ int
 SensorHw::get_sensor_desc(rk_aiq_exposure_sensor_descriptor* sns_des)
 {
     struct v4l2_subdev_format fmt;
-    uint32_t format_code;
 
     memset(&fmt, 0, sizeof(fmt));
     fmt.pad = 0;
@@ -1158,7 +1157,6 @@ XCamReturn
 SensorHw::handle_sof_internal(int64_t time, uint32_t frameid)
 {
     ENTER_CAMHW_FUNCTION();
-    int effecting_frame_id = 0;
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
     _mutex.lock();
@@ -1292,7 +1290,7 @@ XCamReturn
 SensorHw::set_sync_mode(uint32_t mode)
 {
     if (io_control(RKMODULE_SET_SYNC_MODE, &mode) < 0) {
-        LOGE_CAMHW_SUBM(SENSOR_SUBM, "failed to set sync mode %d", mode);
+        LOGW_CAMHW_SUBM(SENSOR_SUBM, "failed to set sync mode %d", mode);
         //return XCAM_RETURN_ERROR_IOCTL;
     }
 

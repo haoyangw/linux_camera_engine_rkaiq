@@ -107,8 +107,6 @@ typedef struct LDCHContext_s {
     int correct_level_max;
     const char* resource_path;
     std::atomic<bool> genLdchMeshInit;
-    int32_t update_lut_mem_fd;
-    int32_t ready_lut_mem_fd;
 
     struct CameraCoeff camCoeff;
     LdchParams ldchParams;
@@ -122,8 +120,10 @@ typedef struct LDCHContext_s {
 #endif
     SmartPtr<RKAiqAldchThread> aldchReadMeshThread;
     isp_drv_share_mem_ops_t *share_mem_ops;
-    rk_aiq_ldch_share_mem_info_t *ldch_mem_info;
     void* share_mem_ctx;
+    rk_aiq_ldch_share_mem_info_t *ldch_mem_info[2];
+    int32_t update_lut_mem_fd[2];
+    int32_t ready_lut_mem_fd[2];
 
     uint8_t frm_end_dis;
     uint8_t zero_interp_en;
@@ -135,6 +135,14 @@ typedef struct LDCHContext_s {
 
     std::atomic<bool> hasAllocShareMem;
     SmartPtr<LutCache> _lutCache;
+
+    bool is_multi_isp {false};
+    uint8_t multi_isp_extended_pixel {0};
+    uint8_t multi_isp_number {1};
+    struct CameraCoeff camCoeff_left;
+    struct CameraCoeff camCoeff_right;
+    LdchParams ldchParams_left;
+    LdchParams ldchParams_right;
 } LDCHContext_t;
 
 typedef struct LDCHContext_s* LDCHHandle_t;

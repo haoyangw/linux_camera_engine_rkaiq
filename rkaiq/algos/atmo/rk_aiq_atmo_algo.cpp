@@ -442,7 +442,6 @@ void ApiOffProcess(AtmoHandle_t     pAtmoCtx)
                 pAtmoCtx->AtmoConfig.DtsHiLit.EnvLv, pAtmoCtx->AtmoConfig.DtsHiLit.DetailsHighLight, pAtmoCtx->AtmoConfig.DtsHiLit.len);
 
     //get Current DetailsLowLight
-    int DetailsLowLight_mode = (int)pAtmoCtx->AtmoConfig.DtsLoLit.DetailsLowLightMode;
     if (pAtmoCtx->AtmoConfig.DtsLoLit.DetailsLowLightMode == DETAILSLOWLIGHTMODE_FOCUSLUMA)
     {
 #if 0

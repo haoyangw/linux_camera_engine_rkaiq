@@ -90,8 +90,8 @@ private:
     uint32_t sns_height;
     uint32_t pixelformat;
     uint32_t _stride_perline;
-    char raw_dir_path[64];
-    char user_set_raw_dir[64];
+    char raw_dir_path[64]{0};
+    char user_set_raw_dir[64]{0};
     bool _is_raw_dir_exist;
     bool _is_capture_raw;
     sint32_t _capture_raw_num;

@@ -29,6 +29,7 @@ namespace XCam {
 DmaVideoBuffer::DmaVideoBuffer(const VideoBufferInfo& info, int dma_fd, bool need_close_fd)
     : DmaBuffer(dma_fd, info.size), VideoBuffer(info), _need_close_fd(need_close_fd) {
     XCAM_ASSERT(dma_fd >= 0);
+    _dma_fd = dma_fd;
 }
 
 DmaVideoBuffer::~DmaVideoBuffer() {

@@ -147,7 +147,7 @@ XCamReturn RkAiqAdegammaHandleInt::processing() {
     RkAiqAlgoProcAdegamma* adegamma_proc_int        = (RkAiqAlgoProcAdegamma*)mProcInParam;
     RkAiqAlgoProcResAdegamma* adegamma_proc_res_int = (RkAiqAlgoProcResAdegamma*)mProcOutParam;
     RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
+            (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     adegamma_proc_res_int->adegamma_proc_res = &shared->fullParams->mAdegammaParams->data()->result;

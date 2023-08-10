@@ -9,15 +9,12 @@ uint32_t FLOAT_LIM2_INT_V1(float In, int bit_deci_dst, int type = 0)
     // would trigger strict-aliasing compile warning on -Os level
     int exp_val = (((uint32_t*)(&In))[0] >> 23) & 0xff;
     uint32_t dst;
-    int shf_bit;
     if(exp_val - 127 <= bit_deci_dst || type == 1)
     {
-        shf_bit = bit_deci_dst - (exp_val - 127);
         dst     = ROUND_F(In * (1 << bit_deci_dst));
     }
     else
     {
-        shf_bit = (exp_val - 127) - bit_deci_dst;
         dst     = ROUND_F(In / (1 << bit_deci_dst));
     }
     return dst;
@@ -60,7 +57,6 @@ Again_result_t gain_fix_transfer_v1(RK_GAIN_Params_V1_Select_t *pSelect, RK_GAIN
     uint16_t sigma_bits_max;
     uint16_t sigma_bits_act = GAIN_SIGMA_BITS_ACT_V1;
     double noise_sigma_dehaze[GAIN_MAX_INTEPORATATION_LUMAPOINT];
-    unsigned short noise_sigma_dehaze_x[GAIN_MAX_INTEPORATATION_LUMAPOINT];
 
 
     LOGI_ANR("%s:(%d) enter\n", __FUNCTION__, __LINE__);

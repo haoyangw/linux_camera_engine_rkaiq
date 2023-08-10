@@ -46,10 +46,6 @@ typedef struct rk_aiq_singlecam_result_s {
         if (stats_buf)
             stats_buf->unref(stats_buf);
 
-        stats_buf = _3aResults.awb._awbProcRes;
-        if (stats_buf)
-            stats_buf->unref(stats_buf);
-
         stats_buf = _3aResults.aec._aecStats;
         if (stats_buf)
             stats_buf->unref(stats_buf);
@@ -97,6 +93,7 @@ typedef struct rk_aiq_groupcam_sofsync_s {
     uint8_t _validCamSofSyncBits;
     rk_aiq_groupcam_sofsync_s() {
         _validCamSofSyncBits = 0;
+        _refCnt              = 0;
     }
     uint32_t _refCnt;
     void reset() {

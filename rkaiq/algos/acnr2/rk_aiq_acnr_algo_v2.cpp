@@ -322,12 +322,13 @@ AcnrV2_result_t Acnr_ConfigSettingParam_V2(Acnr_Context_V2_t *pAcnrCtx, AcnrV2_P
 
 AcnrV2_result_t Acnr_ParamModeProcess_V2(Acnr_Context_V2_t *pAcnrCtx, AcnrV2_ExpInfo_t *pExpInfo, AcnrV2_ParamMode_t *mode) {
     AcnrV2_result_t res  = ACNRV2_RET_SUCCESS;
-    *mode = pAcnrCtx->eParamMode;
 
     if(pAcnrCtx == NULL) {
         LOGE_ANR("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
         return ACNRV2_RET_INVALID_PARM;
     }
+
+    *mode = pAcnrCtx->eParamMode;
 
     if(pAcnrCtx->isGrayMode) {
         *mode = ACNRV2_PARAM_MODE_GRAY;

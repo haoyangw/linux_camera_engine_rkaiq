@@ -60,6 +60,7 @@ public:
     virtual XCamReturn poll_event_failed (int64_t timestamp, const char *msg) { return XCAM_RETURN_ERROR_FAILED; }
 
     void set_devices(CamHwIsp20* camHw);
+    int64_t get_systime_us();
     XCamReturn prepare(rk_sensor_pdaf_info_t *pdaf_inf);
     XCamReturn start_stream();
     XCamReturn stop_stream();

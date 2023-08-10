@@ -20,7 +20,7 @@
 #include <string.h>
 #include "xcam_log.h"
 
-float GetInterpRatioV11Duo(float* pX, int lo, int hi, float CtrlValue, int length_max) {
+float GetInterpRatioV11Duo(float* pX, int& lo, int& hi, float CtrlValue, int length_max) {
     float ratio = 0.0f;
 
     if (CtrlValue < pX[0]) {

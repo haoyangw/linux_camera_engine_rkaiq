@@ -149,11 +149,6 @@ XCamReturn RkAiqAgainV2HandleInt::prepare() {
     ret = RkAiqHandle::prepare();
     RKAIQCORE_CHECK_RET(ret, "again handle prepare failed");
 
-    RkAiqAlgoConfigAgainV2* again_config_int = (RkAiqAlgoConfigAgainV2*)mConfig;
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
-    RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
-
     RkAiqAlgoDescription* des = (RkAiqAlgoDescription*)mDes;
     ret                       = des->prepare(mConfig);
     RKAIQCORE_CHECK_RET(ret, "again algo prepare failed");
@@ -195,9 +190,10 @@ XCamReturn RkAiqAgainV2HandleInt::processing() {
 
     RkAiqAlgoProcAgainV2* again_proc_int        = (RkAiqAlgoProcAgainV2*)mProcInParam;
     RkAiqAlgoProcResAgainV2* again_proc_res_int = (RkAiqAlgoProcResAgainV2*)mProcOutParam;
-
+ 
     RkAiqCore::RkAiqAlgosGroupShared_t* shared =
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
+
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     again_proc_res_int->stAgainProcResult.stFix = &shared->fullParams->mGainV3xParams->data()->result;

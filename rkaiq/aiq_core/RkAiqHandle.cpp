@@ -41,6 +41,8 @@ RkAiqHandle::RkAiqHandle(RkAiqAlgoDesComm* des, RkAiqCore* aiqCore)
     mParentHdl = NULL;
     mIsMulRun = false;
     mPostShared = true;
+    mGroupId      = 0;
+    mAlogsGroupSharedParams = NULL;
     mSyncFlag = (uint32_t)(-1);
 }
 

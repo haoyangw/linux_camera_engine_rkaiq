@@ -52,7 +52,7 @@ private:
   uint8_t *struct_buffer;
   size_t buffer_size;
   size_t same_block;
-  size_t block_count;
+  size_t block_count{0};
   std::unordered_map<uint64_t, void *> buffer_map;
   std::unordered_map<uint64_t, void *> dst_map;
   std::vector<uint8_t> block_vec;

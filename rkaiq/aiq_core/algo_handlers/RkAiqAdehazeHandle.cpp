@@ -134,7 +134,6 @@ XCamReturn RkAiqAdehazeHandleInt::processing() {
     RkAiqAlgoProcResAdhaz* adhaz_proc_res_int = (RkAiqAlgoProcResAdhaz*)mProcOutParam;
     RkAiqCore::RkAiqAlgosGroupShared_t* shared =
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
-    RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     RkAiqAdehazeStats* xDehazeStats = nullptr;
     if (shared->adehazeStatsBuf) {

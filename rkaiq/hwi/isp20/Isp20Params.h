@@ -99,6 +99,8 @@ public:
         AntiTmoFlicker.FirstChangeDone = false;
         AntiTmoFlicker.FirstChangeDoneNum = 0;
         _working_mode = RK_AIQ_WORKING_MODE_ISP_HDR3;
+        _CamPhyId = -1;
+        _lsc_en = false;
     };
     virtual ~Isp20Params() {};
     virtual void setCamPhyId(int phyId) {

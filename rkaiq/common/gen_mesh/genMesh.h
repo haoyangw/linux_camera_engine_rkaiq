@@ -20,6 +20,13 @@
 
 #define INV_POLY_COEFF_NUM 21								/* 多项式系数个数, 最高次数(INV_POLY_COEFF_NUM-1)次 */
 
+enum RKALGO_LDCH_VERSION_E
+{
+    RKALGO_LDCH_VERSION_0 = 0,  /* old version: for rv1109，rv1126，rk356x，rk3588 */
+    RKALGO_LDCH_VERSION_1 = 1,  /* new version: for 1106，rk3562 */
+    RKALGO_LDCH_VERSION_BUTT
+};
+
  /* 相机参数 */
 struct CameraCoeff
 {
@@ -73,7 +80,7 @@ struct FecParams
 struct LdchParams
 {
 	int saveMaxFovX;									/* 保留水平x方向最大FOV: 1代表保留, 0代表不保留 */
-	int isLdchOld;										/* 是否旧版LDCH: 1代表是，0代表不是 */
+    RKALGO_LDCH_VERSION_E enLdchVersion;			    /* LDCH版本 */
 	int saveMeshX;										/* 是否保存MeshX.bin文件: 1代表保存, 0代表不保存 */
 	char meshPath[256];									/* 保存MeshX.bin文件的路径 */
 	int srcW, srcH, dstW, dstH;							/* 输入输出图像的分辨率 */

@@ -74,7 +74,12 @@ private:
     // LSC
     template <typename U>
     XCamReturn SplitAlscParams(U* ori, U* left, U* right);
-
+    // ynr
+    template <typename U>
+    XCamReturn SplitAynrParams(U* ori, U* left, U* right);
+    // sharp
+    template <typename U>
+    XCamReturn SplitAsharpParams(U* ori, U* left, U* right);
 
     Rectangle pic_rect_;
     Rectangle left_isp_rect_;

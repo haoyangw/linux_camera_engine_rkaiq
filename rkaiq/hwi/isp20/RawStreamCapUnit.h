@@ -78,25 +78,25 @@ protected:
     XCAM_DEAD_COPY (RawStreamCapUnit);
     XCamReturn sync_raw_buf(SmartPtr<V4l2BufferProxy> &buf_s, SmartPtr<V4l2BufferProxy> &buf_m, SmartPtr<V4l2BufferProxy> &buf_l);
     bool check_skip_frame(int32_t buf_seq);
-    int mCamPhyId;
+    int mCamPhyId{-1};
     bool _is_1608_stream;
 protected:
     SmartPtr<V4l2Device> _dev[3];
     SmartPtr<V4l2Device> _dev_bakup[3];
-    int _dev_index[3];
+    int _dev_index[3]{0};
     SmartPtr<RKStream> _stream[3];
     Mutex _buf_mutex;
-    int _working_mode;
-    int _mipi_dev_max;
+    int _working_mode{0};
+    int _mipi_dev_max{1};
     int _skip_num;
-    int64_t _skip_to_seq;
+    int64_t _skip_to_seq{0};
     Mutex _mipi_mutex;
     enum RawCapState _state;
 
     SafeList<V4l2BufferProxy> buf_list[3];
-    CamHwIsp20* _camHw;
+    CamHwIsp20* _camHw{NULL};
     SmartPtr<V4l2SubDevice> _isp_core_dev;
-    RawStreamProcUnit *_proc_stream;
+    RawStreamProcUnit *_proc_stream{NULL};
     //
     SafeList<V4l2BufferProxy> _NrImg_ready_list;
 };

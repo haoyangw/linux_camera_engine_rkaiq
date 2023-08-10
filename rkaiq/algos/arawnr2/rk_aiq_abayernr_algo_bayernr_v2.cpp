@@ -6,7 +6,6 @@ RKAIQ_BEGIN_DECLARE
 
 Abayernr_result_t bayernr_get_mode_by_name_V2(struct list_head *pCalibdbList, char *name, CalibDb_Bayernr_V2_t** ppProfile)
 {
-    int i = 0;
     Abayernr_result_t res = ABAYERNR_RET_SUCCESS;
 
     if(pCalibdbList == NULL) {
@@ -53,7 +52,6 @@ Abayernr_result_t bayernr_get_mode_by_name_V2(struct list_head *pCalibdbList, ch
 
 Abayernr_result_t bayernr2D_get_setting_by_name_V2(struct list_head *pSettingList, char *name, Calibdb_Bayernr_2Dparams_V2_t** ppSetting)
 {
-    int i = 0;
     Abayernr_result_t res = ABAYERNR_RET_SUCCESS;
 
     if(pSettingList == NULL) {
@@ -95,7 +93,6 @@ Abayernr_result_t bayernr2D_get_setting_by_name_V2(struct list_head *pSettingLis
 
 Abayernr_result_t bayernr3D_get_setting_by_name_V2(struct list_head *pSettingList, char *name, CalibDb_Bayernr_3DParams_V2_t** ppSetting)
 {
-    int i = 0;
     Abayernr_result_t res = ABAYERNR_RET_SUCCESS;
 
     if(pSettingList == NULL) {
@@ -230,8 +227,6 @@ Abayernr_result_t bayernr3D_config_setting_param_V2(RK_Bayernr_3D_Params_V2_t *p
 Abayernr_result_t bayernr2D_init_params_V2(RK_Bayernr_2D_Params_V2_t *pParams, Calibdb_Bayernr_2Dparams_V2_t* pCalibdbParams)
 {
     Abayernr_result_t res = ABAYERNR_RET_SUCCESS;
-    int i = 0;
-    int j = 0;
 
     LOGI_ANR("%s:(%d) oyyf bayerner xml config start\n", __FUNCTION__, __LINE__);
     if(pParams == NULL) {
@@ -277,7 +272,6 @@ Abayernr_result_t bayernr3D_init_params_V2(RK_Bayernr_3D_Params_V2_t *pParams, C
 {
     Abayernr_result_t res = ABAYERNR_RET_SUCCESS;
     int i = 0;
-    int j = 0;
 
     LOGI_ANR("%s:(%d) oyyf bayerner xml config start\n", __FUNCTION__, __LINE__);
     if(pParams == NULL) {
@@ -290,7 +284,7 @@ Abayernr_result_t bayernr3D_init_params_V2(RK_Bayernr_3D_Params_V2_t *pParams, C
         return ABAYERNR_RET_NULL_POINTER;
     }
 
-    for(int i = 0; i < RK_BAYERNR_V2_MAX_ISO_NUM; i++) {
+    for(i = 0; i < RK_BAYERNR_V2_MAX_ISO_NUM; i++) {
         pParams->iso[i] = pCalibdbParams->iso[i];
         pParams->bayernrv2_tnr_filter_strength_r[i] = pCalibdbParams->bayernrv2_tnr_filter_strength_r[i];
         pParams->bayernrv2_tnr_lo_clipwgt_r[i] = pCalibdbParams->bayernrv2_tnr_lo_clipwgt_r[i];
@@ -303,7 +297,7 @@ Abayernr_result_t bayernr3D_init_params_V2(RK_Bayernr_3D_Params_V2_t *pParams, C
 
     }
 
-    for(int i = 0; i < 16; i++) {
+    for(i = 0; i < 16; i++) {
         pParams->bayernrv2_lumapoint_r[i] = pCalibdbParams->bayernrv2_lumapoint_r[i];
     }
 
@@ -341,11 +335,9 @@ Abayernr_result_t bayernr2D_select_params_by_ISO_V2(RK_Bayernr_2D_Params_V2_t *p
     int isoGain = MAX(int(iso / 50), 1);
     int isoGainLow = 0;
     int isoGainHig = 0;
-    int isoGainCorrect = 1;
     int isoLevelLow = 0;
     int isoLevelHig = 0;
-    int isoLevelCorrect = 0;
-    int i, j;
+    int i;
     float tmpf;
 
 #ifndef RK_SIMULATOR_HW
@@ -366,8 +358,6 @@ Abayernr_result_t bayernr2D_select_params_by_ISO_V2(RK_Bayernr_2D_Params_V2_t *p
             isoGainHig = isoGainStd[i + 1];
             isoLevelLow = i;
             isoLevelHig = i + 1;
-            isoGainCorrect = ((isoGain - isoGainStd[i]) <= (isoGainStd[i + 1] - isoGain)) ? isoGainStd[i] : isoGainStd[i + 1];
-            isoLevelCorrect = ((isoGain - isoGainStd[i]) <= (isoGainStd[i + 1] - isoGain)) ? i : (i + 1);
         }
     }
 
@@ -442,12 +432,9 @@ Abayernr_result_t bayernr3D_select_params_by_ISO_V2(RK_Bayernr_3D_Params_V2_t *p
     int isoGain = MAX(int(iso / 50), 1);
     int isoGainLow = 0;
     int isoGainHig = 0;
-    int isoGainCorrect = 1;
     int isoLevelLow = 0;
     int isoLevelHig = 0;
-    int isoLevelCorrect = 0;
-    int i, j;
-    float tmpf;
+    int i;
 
 #ifndef RK_SIMULATOR_HW
     for(int i = 0; i < RK_BAYERNR_V2_MAX_ISO_NUM; i++) {
@@ -465,8 +452,6 @@ Abayernr_result_t bayernr3D_select_params_by_ISO_V2(RK_Bayernr_3D_Params_V2_t *p
             isoGainHig = isoGainStd[i + 1];
             isoLevelLow = i;
             isoLevelHig = i + 1;
-            isoGainCorrect = ((isoGain - isoGainStd[i]) <= (isoGainStd[i + 1] - isoGain)) ? isoGainStd[i] : isoGainStd[i + 1];
-            isoLevelCorrect = ((isoGain - isoGainStd[i]) <= (isoGainStd[i + 1] - isoGain)) ? i : (i + 1);
         }
     }
 
@@ -907,7 +892,6 @@ Abayernr_result_t bayernr2D_init_params_json_V2(RK_Bayernr_2D_Params_V2_t *pPara
     CalibDbV2_BayerNrV2_C_ISO_t *pCalibIso = NULL;
     CalibDbV2_BayerNrV2_2d_ISO_t *pTuningISO = NULL;
     int i = 0;
-    int j = 0;
 
     LOGI_ANR("%s:(%d) oyyf bayerner xml config start\n", __FUNCTION__, __LINE__);
     if(pParams == NULL || pCalibdb == NULL || calib_idx < 0 || tuning_idx < 0) {

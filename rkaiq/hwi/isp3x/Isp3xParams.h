@@ -85,6 +85,11 @@ private:
     void convertAiqAdehazeToIsp3xParams(struct isp3x_isp_params_cfg& isp_cfg,
                                         const rk_aiq_isp_dehaze_v3x_t& dhaze);
 #endif
+#if defined(ISP_HW_V30)
+void convertAiqLdchToIsp3xParams(struct isp3x_isp_params_cfg& isp_cfg,
+        struct isp3x_isp_params_cfg& isp_cfg_right,
+        const rk_aiq_isp_ldch_t& ldch_cfg, bool is_multi_isp);
+#endif
 };
 
 }

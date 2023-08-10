@@ -26,6 +26,8 @@ FecParamStream::FecParamStream (SmartPtr<V4l2Device> dev, int type)
 {
     _dev->open();
     mParamsAssembler = new IspParamsAssembler("FEC_PARAMS_ASSEMBLER");
+    mCamHw = NULL;
+    memset(&last_ispp_fec_params, 0, sizeof(last_ispp_fec_params));
 }
 
 FecParamStream::FecParamStream (const rk_sensor_full_info_t *s_info)
@@ -33,6 +35,8 @@ FecParamStream::FecParamStream (const rk_sensor_full_info_t *s_info)
 {
     _dev->open();
     mParamsAssembler = new IspParamsAssembler("FEC_PARAMS_ASSEMBLER");
+    mCamHw = NULL;
+    memset(&last_ispp_fec_params, 0, sizeof(last_ispp_fec_params));
 }
 
 

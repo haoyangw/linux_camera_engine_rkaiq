@@ -5,7 +5,6 @@ RKAIQ_BEGIN_DECLARE
 
 Aynr_result_V3_t ynr_select_params_by_ISO_V3(RK_YNR_Params_V3_t *pParams, RK_YNR_Params_V3_Select_t *pSelect, Aynr_ExpInfo_V3_t *pExpInfo)
 {
-    short multBit;
     float ratio = 0.0f;
     int iso = 50;
     RK_YNR_Params_V3_Select_t *pParamHi = NULL;

@@ -396,7 +396,7 @@ rk_aiq_uapi2_sysctl_rawReproc_preInit(const char* isp_driver,
         std::string sns_ent_name = std::string(sns_name);
         rk_aiq_sys_preinit_cfg_t cfg;
         memcpy(cfg.frame_exp_info, two_frm_exp_info, sizeof(cfg.frame_exp_info));
-        g_rk_aiq_offline_raw_exp_map[sns_name] = cfg;
+        g_rk_aiq_offline_raw_exp_map[sns_ent_name] = cfg;
     }
 
     return sns_name;

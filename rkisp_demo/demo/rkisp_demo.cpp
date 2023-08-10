@@ -306,7 +306,7 @@ void test_update_iqfile(const demo_context_t* demo_ctx)
     printf("\nspecial an new iqfile:\n");
     strcat(iqfile, demo_ctx->iqpath);
     strcat(iqfile, "/");
-    char* ret = fgets(iqfile + strlen(iqfile), IQFILE_PATH_MAX_LEN, stdin);
+    fgets(iqfile + strlen(iqfile), IQFILE_PATH_MAX_LEN, stdin);
 
     char* json = strstr(iqfile, "json");
 
@@ -1140,7 +1140,6 @@ static void process_image(const void *p, int sequence, int size, demo_context_t 
         fclose(ctx->fp);
         ctx->fp = NULL;
     } else if (ctx->writeFileSync) {
-        int ret = 0;
         if (!ctx->is_capture_yuv) {
             char file_name[32] = {0};
             int rawFrameId = 0;
@@ -1565,7 +1564,7 @@ static void init_mmap(int pp_onframe, demo_context_t *ctx)
         if (xioctl(fd_tmp, VIDIOC_EXPBUF, &expbuf) < 0) {
             errno_exit(ctx, "get dma buf failed\n");
         } else {
-            DBG("%s: get dma buf(%d)-fd: %d\n", get_sensor_name(ctx), ctx->n_buffers, expbuf.fd);
+            DBG("%s: get dma buf(%u)-fd: %d\n", get_sensor_name(ctx), ctx->n_buffers, expbuf.fd);
         }
         tmp_buffers[ctx->n_buffers].export_fd = expbuf.fd;
     }
@@ -1838,11 +1837,11 @@ static void parse_args(int argc, char **argv, demo_context_t *ctx)
         {
             // parse raw fmt
             char* raw_dir = strstr(optarg, ",");
-            size_t raw_dir_str_len = raw_dir - optarg;
             if (!raw_dir) {
                 printf("orp dir error ! \n");
                 exit(-1);
             }
+            size_t raw_dir_str_len = raw_dir - optarg;
             strncpy(ctx->orppath, optarg, raw_dir_str_len);
 
             char* raw_fmt_w_start = raw_dir + 1;
@@ -2129,7 +2128,7 @@ static void print_af_stats(rk_aiq_isp_stats_t *stats_ref)
         return;
 
     sof_time = stats_ref->af_stats.sof_tim / 1000000LL;
-    printf("sof_tim %ld, sharpness roia: 0x%llx-0x%08x roib: 0x%x-0x%08x\n",
+    printf("sof_tim %lu, sharpness roia: 0x%llx-0x%08x roib: 0x%x-0x%08x\n",
            sof_time,
            stats_ref->af_stats.roia_sharpness,
            stats_ref->af_stats.roia_luminance,

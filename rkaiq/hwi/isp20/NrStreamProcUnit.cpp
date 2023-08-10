@@ -31,6 +31,8 @@ NrStreamProcUnit::NrStreamProcUnit (const rk_sensor_full_info_t *s_info)
     mNrStatsStream = new NrStatsStream(mNrStatsDev, ISPP_POLL_NR_STATS);
     mNrParamStream = new RKStream(mNrParamsDev, ISPP_POLL_NR_PARAMS);
     mParamsAssembler = new IspParamsAssembler("NR_PARAMS_ASSEMBLER");
+    mCamHw = NULL;
+    memset(&last_ispp_nr_params, 0, sizeof(last_ispp_nr_params));
 }
 
 NrStreamProcUnit::~NrStreamProcUnit()

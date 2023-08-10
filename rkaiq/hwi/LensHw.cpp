@@ -37,6 +37,33 @@ LensHw::LensHw(const char* name)
     _lenshw_thd1 = new LensHwHelperThd(this, 1);
     _piris_step = -1;
     _max_logical_pos = 64;
+    _iris_enable = false;
+    _focus_enable = false;
+    _zoom_enable = false;
+    _zoom_correction = false;
+    _focus_correction = false;
+    _last_piris_step = -1;
+    _dciris_pwmduty = 0;
+    _last_dciris_pwmduty = 0;
+    _hdciris_target = 0;
+    _last_hdciris_target = 0;
+    _focus_pos = 0;
+    _zoom_pos = 0;
+    _last_zoomchg_focus = 0;
+    _last_zoomchg_zoom = 0;
+    memset(_lowfv_fv4_4, 0, sizeof(_lowfv_fv4_4));
+    memset(_lowfv_fv8_8, 0, sizeof(_lowfv_fv8_8));
+    memset(_lowfv_highlht, 0, sizeof(_lowfv_highlht));
+    memset(_lowfv_highlht2, 0, sizeof(_lowfv_highlht2));
+    memset(_lowfv_seq, 0, sizeof(_lowfv_seq));
+    _rec_lowfv_idx = 0;
+    _otp_valid = false;
+    _posture = 0.0;
+    _hysteresis = 0.0;
+    _startCurrent = 0.0;
+    _endCurrent = 0.0;
+    _angleZ = 0.0;
+
     EXIT_CAMHW_FUNCTION();
 }
 
@@ -361,7 +388,6 @@ LensHw::setFocusParams(SmartPtr<RkAiqFocusParamsProxy>& focus_params)
 {
     ENTER_CAMHW_FUNCTION();
     SmartLock locker (_mutex);
-    unsigned long end_time;
     rk_aiq_focus_params_t* p_focus = &focus_params->data()->result;
 
     if (!_focus_enable) {
@@ -613,7 +639,7 @@ LensHw::setZoomFocusRebackSync(SmartPtr<rk_aiq_focus_params_t> attrPtr, bool is_
     struct rk_cam_vcm_tim zoomtim, focustim;
     struct rk_cam_set_zoom set_zoom;
     struct v4l2_control control;
-    unsigned long time0, time1;
+    unsigned long time0;
     int zoom_pos = 0, focus_pos = 0;
 
 #ifdef DISABLE_ZOOM_FOCUS
@@ -1012,7 +1038,6 @@ LensHw::FocusCorrection()
 {
     ENTER_CAMHW_FUNCTION();
     SmartLock locker (_mutex);
-    unsigned long end_time;
 
     if (!_focus_enable) {
         LOGE_CAMHW_SUBM(LENS_SUBM, "focus is not supported");
@@ -1072,7 +1097,6 @@ LensHw::ZoomCorrection()
 {
     ENTER_CAMHW_FUNCTION();
     SmartLock locker (_mutex);
-    unsigned long end_time;
 
     if (!_zoom_enable) {
         LOGE_CAMHW_SUBM(LENS_SUBM, "focus is not supported");
@@ -1143,7 +1167,6 @@ LensHw::ZoomFocusModifyPosition(SmartPtr<RkAiqFocusParamsProxy>& focus_params)
     ENTER_CAMHW_FUNCTION();
     SmartLock locker (_mutex);
     rk_aiq_focus_params_t* p_focus = &focus_params->data()->result;
-    unsigned long end_time;
 
     if (!_zoom_enable) {
         LOGE_CAMHW_SUBM(LENS_SUBM, "focus is not supported");
@@ -1365,7 +1388,6 @@ bool LensHwHelperThd::loop()
 
     const static int32_t timeout = -1;
     SmartPtr<rk_aiq_focus_params_t> attrib = mAttrQueue.pop (timeout);
-    int pos;
 
     if (!attrib.ptr()) {
         LOGE_CAMHW_SUBM(LENS_SUBM, "LensHwHelperThd got empty attrib, stop thread");

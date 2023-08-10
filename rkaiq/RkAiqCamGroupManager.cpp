@@ -79,7 +79,7 @@ RkAiqCamGroupManager::RkAiqCamGroupManager()
     mRequiredMsgsMask |= (1ULL << XCAM_MESSAGE_AEC_STATS_OK) | (1ULL << XCAM_MESSAGE_AE_PRE_RES_OK);
 #endif
 #if RKAIQ_HAVE_AWB_V20 | RKAIQ_HAVE_AWB_V21 | RKAIQ_HAVE_AWB_V32
-    mRequiredMsgsMask |= (1ULL << XCAM_MESSAGE_AWB_STATS_OK) | (1ULL << XCAM_MESSAGE_AWB_PROC_RES_OK);
+    mRequiredMsgsMask |= (1ULL << XCAM_MESSAGE_AWB_STATS_OK);
 #endif
 
     mGroupAlgosDesArray = g_camgroup_algos;
@@ -401,7 +401,7 @@ RkAiqCamGroupManager::processAiqCoreMsgs(RkAiqCore* src, RkAiqCoreVdBufMsg& msg)
         singleCamRes->_3aResults.awb._awbStats = convert_to_XCamVideoBuffer(vdBufMsg->msg);
         break;
     case XCAM_MESSAGE_AWB_PROC_RES_OK:
-        singleCamRes->_3aResults.awb._awbProcRes = convert_to_XCamVideoBuffer(vdBufMsg->msg);
+        //singleCamRes->_3aResults.awb._awbProcRes = convert_to_XCamVideoBuffer(vdBufMsg->msg);
         break;
     case XCAM_MESSAGE_AEC_STATS_OK:
         singleCamRes->_3aResults.aec._aecStats = convert_to_XCamVideoBuffer(vdBufMsg->msg);
@@ -991,7 +991,6 @@ RkAiqCamGroupManager::reProcess(rk_aiq_groupcam_result_t* gc_res)
     // assume all single cam runs same algos
     RkAiqManager* aiqManager = (mBindAiqsMap.begin())->second;
     RkAiqCore* aiqCore = aiqManager->mRkAiqAnalyzer.ptr();
-    RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &aiqCore->mAlogsComSharedParams;
 
     LOGD_CAMGROUP("camgroup: set reprocess params ... ");
 
@@ -1408,7 +1407,6 @@ RkAiqCamGroupManager::enableAlgo(int algoType, int id, bool enable)
         if (mState >= CAMGROUP_MANAGER_PREPARED) {
             RkAiqManager* aiqManager = (mBindAiqsMap.begin())->second;
             RkAiqCore* aiqCore = aiqManager->mRkAiqAnalyzer.ptr();
-            RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &aiqCore->mAlogsComSharedParams;
             it->second->prepare(aiqCore);
         }
     }

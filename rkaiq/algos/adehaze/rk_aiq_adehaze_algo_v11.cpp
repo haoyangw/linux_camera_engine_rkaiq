@@ -21,7 +21,7 @@
 #include "xcam_log.h"
 #include "rkisp21-config.h"
 
-float GetInterpRatioV11(float* pX, int lo, int hi, float CtrlValue, int length_max) {
+float GetInterpRatioV11(float* pX, int& lo, int& hi, float CtrlValue, int length_max) {
     float ratio = 0.0f;
 
     if (CtrlValue < pX[0]) {

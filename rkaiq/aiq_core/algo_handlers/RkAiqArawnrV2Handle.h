@@ -66,10 +66,10 @@ private:
     rk_aiq_bayernr_attrib_v2_t mNewAtt;
     rk_aiq_bayernr_IQPara_V2_t mCurIQPara;
     rk_aiq_bayernr_IQPara_V2_t mNewIQPara;
-    float mCur2DStrength;
-    float mNew2DStrength;
-    float mCur3DStrength;
-    float mNew3DStrength;
+    float mCur2DStrength{0};
+    float mNew2DStrength{0};
+    float mCur3DStrength{0};
+    float mNew3DStrength{0};
     bool updateIQpara     = false;
     bool update2DStrength = false;
     bool update3DStrength = false;

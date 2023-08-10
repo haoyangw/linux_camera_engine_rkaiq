@@ -105,7 +105,6 @@ pre_process(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
 {
     LOG1_ABLC("%s: (enter)\n", __FUNCTION__ );
     XCamReturn result = XCAM_RETURN_NO_ERROR;
-    AblcContext_t* pAblcCtx = (AblcContext_t *)inparams->ctx;
 
     LOG1_ABLC("%s: (exit)\n", __FUNCTION__ );
     return result;
@@ -115,7 +114,6 @@ static XCamReturn
 processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
 {
     XCamReturn result = XCAM_RETURN_NO_ERROR;
-    int iso;
     int delta_iso = 0;
     LOG1_ABLC("%s: (enter)\n", __FUNCTION__ );
 

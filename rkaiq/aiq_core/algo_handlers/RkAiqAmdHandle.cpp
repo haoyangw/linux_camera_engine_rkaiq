@@ -32,8 +32,6 @@ XCamReturn RkAiqAmdHandleInt::prepare() {
     RKAIQCORE_CHECK_RET(ret, "amd handle prepare failed");
 
     RkAiqAlgoConfigAmd* amd_config_int = (RkAiqAlgoConfigAmd*)mConfig;
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     amd_config_int->spWidth    = sharedCom->spWidth;
@@ -103,7 +101,6 @@ XCamReturn RkAiqAmdHandleInt::processing() {
 
     RkAiqCore::RkAiqAlgosGroupShared_t* shared =
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
-    RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     ret = RkAiqHandle::processing();
     if (ret) {
@@ -178,10 +175,6 @@ XCamReturn RkAiqAmdHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPar
     }
 
     md_param->result = amd_com->amd_proc_res;
-
-    if (!this->getAlgoId()) {
-        RkAiqAlgoProcResAmd* amd_rk = (RkAiqAlgoProcResAmd*)amd_com;
-    }
 
     cur_params->mMdParams = params->mMdParams;
 

@@ -152,7 +152,7 @@ void dump_enum(j2s_ctx *ctx, int enum_index) {
 
 	printf("typedef enum {\n");
 	for (int i = 0; i < enum_obj->num_value; i++) {
-		j2s_enum_value *enum_value =
+		enum_value =
 			&ctx->enum_values[enum_obj->value_index + i];
 
 		printf("\t%s = %d;\n", enum_value->name, enum_value->value);
@@ -163,7 +163,6 @@ void dump_enum(j2s_ctx *ctx, int enum_index) {
 int main(int argc, char** argv) {
 	j2s_struct *root_struct;
 	j2s_ctx ctx = {0};
-	cJSON *json;
 	char *buf;
 	bool template_ = false;
 	bool dump_desc = true;

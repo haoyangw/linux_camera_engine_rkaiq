@@ -34,7 +34,6 @@ AcnrV30_result_t cnr_select_params_by_ISO_V30(RK_CNR_Params_V30_t *pParams, RK_C
     //      isogain: 1  2   4   8   16  32   64    128  256
     //     isoindex: 0  1   2   3   4   5    6     7    8
 
-    int isoIndex = 0;
     int isoGainLow = 0;
     int isoGainHigh = 0;
     int isoIndexLow = 0;
@@ -49,7 +48,6 @@ AcnrV30_result_t cnr_select_params_by_ISO_V30(RK_CNR_Params_V30_t *pParams, RK_C
             isoGainHigh = pParams->iso[i + 1];
             isoIndexLow = i;
             isoIndexHigh = i + 1;
-            isoIndex = isoIndexLow;
         }
     }
 
@@ -58,7 +56,6 @@ AcnrV30_result_t cnr_select_params_by_ISO_V30(RK_CNR_Params_V30_t *pParams, RK_C
         isoGainHigh = pParams->iso[1];
         isoIndexLow = 0;
         isoIndexHigh = 1;
-        isoIndex = 0;
     }
 
     if(iso > pParams->iso[max_iso_step - 1] ) {
@@ -66,10 +63,8 @@ AcnrV30_result_t cnr_select_params_by_ISO_V30(RK_CNR_Params_V30_t *pParams, RK_C
         isoGainHigh = pParams->iso[max_iso_step - 1];
         isoIndexLow = max_iso_step - 2;
         isoIndexHigh = max_iso_step - 1;
-        isoIndex = max_iso_step - 1;
     }
 #else
-    isoIndex = int(log(float(iso / iso_div)) / log(2.0f));
 
     for (int i = max_iso_step - 1; i >= 0; i--) {
         if (iso < iso_div * (2 << i)) {
@@ -257,12 +252,11 @@ AcnrV30_result_t cnr_fix_transfer_V30(RK_CNR_Params_V30_Select_t *pSelect, RK_CN
 
 
     /* CNR_THUMB_BF_RATIO */
-    uint16_t thumb_bf_ratio;
     tmp = ROUND_F((1 << RKCNR_V30_FIX_BIT_BF_RATIO) * pSelect->thumb_bf_ratio * fStrength);
     pFix->thumb_bf_ratio = CLIP(tmp, 0, 0x7ff);
 
     /* CNR_LBF_WEITD */
-    for(int i = 0; i < RKCNR_V30_THUMB_BF_RADIUS + 1; i++) {
+    for(i = 0; i < RKCNR_V30_THUMB_BF_RADIUS + 1; i++) {
         tmp = ROUND_F(pSelect->thumb_filter_wgt_coeff[i] * (1 << RKCNR_V30_exp2_lut_y));
         pFix->lbf1x7_weit_d[i] = CLIP(tmp, 0, 0xff);
     }
@@ -296,7 +290,7 @@ AcnrV30_result_t cnr_fix_transfer_V30(RK_CNR_Params_V30_Select_t *pSelect, RK_CN
     pFix->iir_uv_clip = CLIP(tmp, 0, 0x7f);
 
     /* CNR_GAUS_COE */
-    for(int i = 0; i < 6; i++) {
+    for(i = 0; i < 6; i++) {
         tmp = pSelect->gaus_coeff[5 - i];
         pFix->gaus_coe[i] = CLIP(tmp, 0, 0x7f);
     }
@@ -324,8 +318,7 @@ AcnrV30_result_t cnr_fix_transfer_V30(RK_CNR_Params_V30_Select_t *pSelect, RK_CN
     pFix->adj_ratio = CLIP(tmp, 0, 0x7fff);
 
     /* CNR_SIGMA */
-    uint8_t  sigma_y[13];
-    for(int i = 0; i < 13; i++) {
+    for(i = 0; i < 13; i++) {
         tmp = ROUND_F(pSelect->gain_adj_strength_ratio[i] * (1 << RKCNR_V30_sgmRatio));
         pFix->sigma_y[i] = CLIP(tmp, 0, 0xff);
     }
@@ -401,7 +394,7 @@ AcnrV30_result_t cnr_fix_printf_V30(RK_CNR_Fix_V30_t  * pFix)
              pFix->iir_uv_clip);
 
     // CNR_GAUS_COE (0x001c - 0x0020)
-    for(int i = 0; i < 6; i++) {
+    for(i = 0; i < 6; i++) {
         LOGD_ANR("(0x001c - 0x0020) gaus_coe[%d]:0x%x \n",
                  i, pFix->gaus_coe[i]);
     }
@@ -424,7 +417,7 @@ AcnrV30_result_t cnr_fix_printf_V30(RK_CNR_Fix_V30_t  * pFix)
              pFix->adj_ratio);
 
     // CNR_SIGMA (0x0030 - 0x003c)
-    for(int i = 0; i < 13; i++) {
+    for(i = 0; i < 13; i++) {
         LOGD_ANR("(0x0030 - 0x003c) sigma_y[%d]:0x%x \n", i, pFix->sigma_y[i]);
     }
 

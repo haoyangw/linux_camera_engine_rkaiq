@@ -66,7 +66,6 @@ Asharp3_result_t sharp_get_mode_by_name_V3(struct list_head* pCalibdbList, char 
 
 Asharp3_result_t sharp_get_setting_by_name_V3(struct list_head *pSettingList, char *name, Calibdb_Sharp_params_V3_t** ppSetting)
 {
-    int i = 0;
     Asharp3_result_t res = ASHARP3_RET_SUCCESS;
 
     LOGI_ASHARP("%s(%d): enter  \n", __FUNCTION__, __LINE__);
@@ -174,12 +173,6 @@ Asharp3_result_t sharp_init_params_V3(RK_SHARP_Params_V3_t *pSharpParams, Calibd
     Asharp3_result_t res = ASHARP3_RET_SUCCESS;
     int i = 0;
     int j = 0;
-    short isoCurveSectValue;
-    short isoCurveSectValue1;
-    float ave1, ave2, ave3, ave4;
-    int bit_calib = 12;
-    int bit_proc;
-    int bit_shift;
 
     LOGI_ASHARP("%s(%d): enter\n", __FUNCTION__, __LINE__);
 
@@ -251,7 +244,6 @@ Asharp3_result_t sharp_select_params_by_ISO_V3(
     int iso_low = iso, iso_high = iso;
     int gain_high = 0, gain_low = 0;
     int max_iso_step = RK_SHARP_V3_MAX_ISO_NUM;
-    int sum_coeff, offset;
 
     LOGI_ASHARP("%s(%d): enter\n", __FUNCTION__, __LINE__);
 
@@ -444,7 +436,6 @@ Asharp3_result_t sharp_fix_transfer_V3(RK_SHARP_Params_V3_Select_t *pSelect, RK_
     int sigma_inte_bits = 1;
     int max_val         = 0;
     int min_val         = 65536;
-    int shf_bits        = 0;
     short sigma_bits[3];
     for(int i = 0; i < RK_SHARP_V3_LUMA_POINT_NUM; i++)
     {
@@ -470,7 +461,6 @@ Asharp3_result_t sharp_fix_transfer_V3(RK_SHARP_Params_V3_Select_t *pSelect, RK_
     sigma_inte_bits = 1;
     max_val         = 0;
     min_val         = 65536;
-    shf_bits        = 0;
     for(int i = 0; i < RK_SHARP_V3_LUMA_POINT_NUM; i++)
     {
         int cur_sigma = FLOOR((pSelect->luma_sigma[i] * pSelect->bf_gain + pSelect->bf_add) / fPercent );
@@ -589,7 +579,6 @@ Asharp3_result_t sharp_fix_transfer_V3(RK_SHARP_Params_V3_Select_t *pSelect, RK_
 
 Asharp3_result_t sharp_fix_printf_V3(RK_SHARP_Fix_V3_t  * pFix)
 {
-    int i = 0;
     Asharp3_result_t res = ASHARP3_RET_SUCCESS;
 
     LOGI_ASHARP("%s:(%d) enter \n", __FUNCTION__, __LINE__);
@@ -707,12 +696,6 @@ Asharp3_result_t sharp_init_params_json_V3(RK_SHARP_Params_V3_t *pSharpParams, C
     Asharp3_result_t res = ASHARP3_RET_SUCCESS;
     int i = 0;
     int j = 0;
-    short isoCurveSectValue;
-    short isoCurveSectValue1;
-    float ave1, ave2, ave3, ave4;
-    int bit_calib = 12;
-    int bit_proc;
-    int bit_shift;
     CalibDbV2_SharpV3_T_ISO_t *pTuningISO;
 
     LOGI_ASHARP("%s(%d): enter\n", __FUNCTION__, __LINE__);

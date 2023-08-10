@@ -99,7 +99,7 @@ private:
   std::condition_variable proc_cond;
   std::shared_ptr<std::thread> proc_thread;
   std::atomic<bool> is_running;
-  MessageCallBack mCallBackFunc;
+  MessageCallBack mCallBackFunc{NULL};
 
   int notify_wakeup();
   void process();

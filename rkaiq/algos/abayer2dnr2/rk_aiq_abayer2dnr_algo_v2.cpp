@@ -300,12 +300,13 @@ Abayer2dnr_result_V2_t Abayer2dnr_ConfigSettingParam_V2(Abayer2dnr_Context_V2_t 
 
 Abayer2dnr_result_V2_t Abayer2dnr_ParamModeProcess_V2(Abayer2dnr_Context_V2_t *pAbayernrCtx, Abayer2dnr_ExpInfo_V2_t *pExpInfo, Abayer2dnr_ParamMode_V2_t *mode) {
     Abayer2dnr_result_V2_t res  = ABAYER2DNR_RET_SUCCESS;
-    *mode = pAbayernrCtx->eParamMode;
 
     if(pAbayernrCtx == NULL) {
         LOGE_ANR("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
         return ABAYER2DNR_RET_INVALID_PARM;
     }
+
+    *mode = pAbayernrCtx->eParamMode;
 
     if(pAbayernrCtx->isGrayMode) {
         *mode = ABAYER2DNR_PARAM_MODE_GRAY;

@@ -783,6 +783,8 @@ typedef struct _RkAiqAlgoConfigAldch {
     CalibDb_LDCH_t aldch_calib_cfg;
     const char* resource_path;
     isp_drv_share_mem_ops_t *mem_ops_ptr;
+    bool is_multi_isp;
+    uint8_t multi_isp_extended_pixel;
 } RkAiqAlgoConfigAldch;
 
 typedef struct _RkAiqAlgoProcAldch {

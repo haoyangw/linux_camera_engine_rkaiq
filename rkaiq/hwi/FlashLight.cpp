@@ -36,6 +36,7 @@ FlashLightHw::FlashLightHw(std::string name[], int num)
     _active_fl_num = 0;
     _keep_status = false;
     xcam_mem_clear (_flash_settings);
+    memset(_v4l_flash_info, 0, sizeof(struct rk_aiq_v4l_flash_info_s) * FLASH_MAX_NUM);
 }
 
 FlashLightHw::~FlashLightHw()
@@ -246,7 +247,6 @@ int
 FlashLightHw::get_flash_info ()
 {
     struct v4l2_queryctrl ctrl;
-    int flash_power, torch_power;
     SmartPtr<V4l2SubDevice> fl_device;
 
     for (int i = 0; i < _active_fl_num; i++) {

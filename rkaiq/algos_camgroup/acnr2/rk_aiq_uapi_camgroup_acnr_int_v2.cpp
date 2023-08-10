@@ -51,7 +51,6 @@ rk_aiq_uapi_camgroup_acnrV2_SetChromaSFStrength(const RkAiqAlgoContext *ctx,
     Acnr_Context_V2_t* pCtx = pGroupCtx->acnr_contex_v2;
 
     float fStrength = 1.0f;
-    float fMax = ACNRV2_CHROMA_SF_STRENGTH_MAX_PERCENT;
     float fPercent = 0.5;
 
     fPercent = pStrength->percent;
@@ -80,7 +79,6 @@ rk_aiq_uapi_camgroup_acnrV2_GetChromaSFStrength(const RkAiqAlgoContext *ctx,
     Acnr_Context_V2_t* pCtx = pGroupCtx->acnr_contex_v2;
 
     float fStrength = 1.0f;
-    float fMax = ACNRV2_CHROMA_SF_STRENGTH_MAX_PERCENT;
     float fPercent = 0.5;
 
     fStrength = pCtx->stStrength.percent;

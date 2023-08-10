@@ -89,11 +89,11 @@ int RkAiqCalibParser::ParseCharToHex
 
     *reg_value = tag->ValueToUInt(&ok);
     if (!ok) {
-        LOGE( "%s(%d): parse error: invalid register value:\n", __FUNCTION__, __LINE__, tag->Value());
+        LOGE( "%s(%d): parse error: invalid register value: %s\n", __FUNCTION__, __LINE__, tag->Value());
         return (false);
     } else {
 #ifdef DEBUG_LOG
-        LOGD( "%s(%d): parse reg valevalue:\n", __FUNCTION__, __LINE__, *reg_value);
+        LOGD( "%s(%d): parse reg valevalue: %u\n", __FUNCTION__, __LINE__, *reg_value);
 #endif
     }
 
@@ -427,7 +427,7 @@ int RkAiqCalibParser::ParseUintArray
         for (int i = 0; i < rows; i++)
         {
             for (int k = 0; k < cols; k++) {
-                snprintf(tmp_val_str, sizeof(tmp_val_str), "%d ", values[i * cols + k]);
+                snprintf(tmp_val_str, sizeof(tmp_val_str), "%u ", values[i * cols + k]);
                 strcat(str, tmp_val_str);
             }
             if (i < rows - 1) {
@@ -7866,8 +7866,8 @@ bool RkAiqCalibParser::parseEntrySensorAec
             }
         }
         else if (XML_CHECK_TAGID_COMPARE(CALIB_SENSOR_AEC_AECDELAYFRMNUM_TAG_ID)) {
-            if (!parseEntrySensorAecDelayFrmNum(pchild->ToElement())) {
-                LOGE("parse error in Aec (%s)", tagname.c_str(), param);
+            if (!parseEntrySensorAecDelayFrmNum(pchild->ToElement(), param)) {
+                LOGE("parse error in Aec (%s)", tagname.c_str());
                 return (false);
             }
         }
@@ -11140,7 +11140,7 @@ bool RkAiqCalibParser::parseEntrySensorAecTunePara
         }
         else if (XML_CHECK_TAGID_COMPARE(CALIB_SENSOR_AEC_V21_AECDELAYFRMNUM_TAG_ID)) {
             if (!parseEntrySensorAecDelayFrmNumV21(pchild->ToElement(), &aec_tune.CommCtrl.stAuto)) {
-                LOGE("parse error in Aec (%s)", tagname.c_str(), &aec_tune.CommCtrl.stAuto);
+                LOGE("parse error in Aec (%s)", tagname.c_str());
                 return (false);
             }
         }
@@ -11320,7 +11320,7 @@ bool RkAiqCalibParser::parseEntrySensorInfoGainRange
                 char str[10];
                 int i = sensor->GainRange.array_size;
                 DCT_ASSERT(((i % 7) == 0));
-                snprintf(str, sizeof(str), "[%u 7]", (i / 7));
+                snprintf(str, sizeof(str), "[%d 7]", (i / 7));
                 XMLElement* pElement = (((XMLNode*)pthrdsubchild)->ToElement());
                 pElement->SetAttribute(CALIB_ATTRIBUTE_SIZE, str);
                 int no = ParseFloatArray(pthrdsubchild, sensor->GainRange.pGainRange, i);
@@ -13839,7 +13839,7 @@ bool RkAiqCalibParser::parseEntrySensorCCMModeCell
         XML_CHECK_WHILE_SUBTAG_MARK((char *)(tagname.c_str()), tag.Type(), tag.Size());
 
         if (XML_CHECK_TAGID_COMPARE(CALIB_SENSOR_CCM_MODE_NAME_TAG_ID)) {
-            char mode[CCM_PROFILE_NAME];
+            // char mode[CCM_PROFILE_NAME];
             //ParseString(pchild,  mode, sizeof(mode));
             ParseString(pchild, ccm->mode_cell[index].name, sizeof(ccm->mode_cell[index].name));
             indexValid = true;
@@ -20456,7 +20456,7 @@ bool RkAiqCalibParser::parseEntryExpSetGain2Reg
                 char str[10];
                 int i = expset->Gain2Reg.array_size;
                 DCT_ASSERT(((i % 7) == 0));
-                snprintf(str, sizeof(str), "[%u 7]", (i / 7));
+                snprintf(str, sizeof(str), "[%d 7]", (i / 7));
                 XMLElement* pElement = (((XMLNode*)pthrdsubchild)->ToElement());
                 pElement->SetAttribute(CALIB_ATTRIBUTE_SIZE, str);
                 int no = ParseFloatArray(pthrdsubchild, expset->Gain2Reg.pGainRange, i);

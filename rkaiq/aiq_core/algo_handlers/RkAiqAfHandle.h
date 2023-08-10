@@ -36,6 +36,7 @@ class RkAiqAfHandleInt : virtual public RkAiqHandle {
         isUpdateAttDone     = false;
 #endif
         isUpdateZoomPosDone = false;
+        mLastZoomIndex      = 0;
     };
     virtual ~RkAiqAfHandleInt() { RkAiqHandle::deInit(); };
     virtual XCamReturn updateConfig(bool needSync);

@@ -5,7 +5,6 @@ RKAIQ_BEGIN_DECLARE
 
 Acnr_result_t cnr_get_mode_by_name_V1(struct list_head* pCalibdbList, char *name, Calibdb_Cnr_V1_t** ppProfile)
 {
-    int i = 0;
     Acnr_result_t res = ACNR_RET_SUCCESS;
 
     if(pCalibdbList == NULL) {
@@ -54,7 +53,6 @@ Acnr_result_t cnr_get_mode_by_name_V1(struct list_head* pCalibdbList, char *name
 
 Acnr_result_t cnr_get_setting_by_name_V1(struct list_head *pSettingList, char *name, Calibdb_Cnr_params_V1_t** ppSetting)
 {
-    int i = 0;
     Acnr_result_t res = ACNR_RET_SUCCESS;
 
     if(pSettingList == NULL) {
@@ -141,7 +139,6 @@ Acnr_result_t cnr_init_params_V1(RK_CNR_Params_V1_t *pParams, Calibdb_Cnr_params
 {
     Acnr_result_t res = ACNR_RET_SUCCESS;
     int i = 0;
-    int j = 0;
 
     if(pParams == NULL) {
         LOGE_ANR("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
@@ -221,7 +218,7 @@ Acnr_result_t cnr_select_params_by_ISO_V1(RK_CNR_Params_V1_t *pParams, RK_CNR_Pa
 
     iso = pExpInfo->arIso[pExpInfo->hdr_mode];
 
-    //确定iso等级
+    //确锟斤拷iso锟饺硷拷
     //rkuvnriso@50 100 200 400 800 1600 3200  6400 12800
     //      isogain: 1  2   4   8   16  32   64    128  256
     //     isoindex: 0  1   2   3   4   5    6     7    8
@@ -406,7 +403,7 @@ Acnr_result_t cnr_fix_transfer_V1(RK_CNR_Params_V1_Select_t *pSelect, RK_CNR_Fix
 
     // ISP_CNR_2800_LBF5_WEITD0_3
     // bilateral filter kernels
-    for (int i = 0; i < 5; i++) {
+    for (i = 0; i < 5; i++) {
         tmp = (int)(pSelect->kernel_5x5_table[i] * (1 << RK_CNR_V1_kernels));
         pFix->cnr_lbf5_weit_d[i] = CLIP(tmp, 0, 128);
     }
@@ -484,7 +481,7 @@ Acnr_result_t cnr_fix_printf_V1(RK_CNR_Fix_V1_t  * pFix)
              pFix->cnr_lbf5_gain_c);
 
     // ISP_CNR_2800_LBF5_WEITD0_4 (0x0018 - 0x001c)
-    for(int i = 0; i < 5; i++) {
+    for(i = 0; i < 5; i++) {
         LOGD_ANR("(0x0018 - 0x001c) lbf5_weit_d[%d]:0x%x \n",
                  i, pFix->cnr_lbf5_weit_d[i]);
     }

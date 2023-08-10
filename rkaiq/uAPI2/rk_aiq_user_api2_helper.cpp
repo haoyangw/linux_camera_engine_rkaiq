@@ -386,7 +386,6 @@ int rkaiq_uapi_unified_ctl(rk_aiq_sys_ctx_t *sys_ctx, const char *js_str,
     cJSON *arr_item = NULL;
     int list_len = -1;
     int change_sum = -1;
-    int max_length = -1;
     int i = 0;
     rk_aiq_sys_ctx_t* msys_ctx = NULL;
     *ret_str = NULL;
@@ -406,7 +405,7 @@ int rkaiq_uapi_unified_ctl(rk_aiq_sys_ctx_t *sys_ctx, const char *js_str,
 
     arr_item = cmd_js->child;
 
-    for (int i = 0; i <= (change_sum - 1); ++i) {
+    for (i = 0; i <= (change_sum - 1); ++i) {
         if (arr_item) {
             if (cJSON_GetObjectItem(arr_item, JSON_PATCH_PATH)->valuestring) {
                 cmd_path_str = std::string(

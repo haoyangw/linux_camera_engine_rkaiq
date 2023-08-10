@@ -236,12 +236,6 @@ XCamReturn RkAiqAynrV3HandleInt::preProcess() {
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
-    RkAiqAlgoPreAynrV3* aynr_pre_int        = (RkAiqAlgoPreAynrV3*)mPreInParam;
-    RkAiqAlgoPreResAynrV3* aynr_pre_res_int = (RkAiqAlgoPreResAynrV3*)mPreOutParam;
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
-    RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
-
     ret = RkAiqHandle::preProcess();
     if (ret) {
         RKAIQCORE_CHECK_RET(ret, "aynr handle preProcess failed");
@@ -312,12 +306,6 @@ XCamReturn RkAiqAynrV3HandleInt::postProcess() {
     ENTER_ANALYZER_FUNCTION();
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-
-    RkAiqAlgoPostAynrV3* aynr_post_int        = (RkAiqAlgoPostAynrV3*)mPostInParam;
-    RkAiqAlgoPostResAynrV3* aynr_post_res_int = (RkAiqAlgoPostResAynrV3*)mPostOutParam;
-    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
-        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
-    RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     ret = RkAiqHandle::postProcess();
     if (ret) {

@@ -66,7 +66,10 @@ struct rga_ops_s {
 
 class RGAOperator : public ImageOperator {
  public:
-    RGAOperator() : ImageOperator("rga"){};
+    RGAOperator() : ImageOperator("rga")
+                  , handle_(NULL) {
+        memset(&rga_ops_, 0, sizeof(rga_ops_));
+    };
 
     virtual ~RGAOperator() {
 #ifdef HAS_LIBDL

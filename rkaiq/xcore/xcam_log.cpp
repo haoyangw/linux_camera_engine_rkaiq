@@ -93,7 +93,7 @@ static char log_file_name[LOG_FILE_NAME_MAX_LENGTH] = {0};
  *    Linux:
  *      export persist_camera_engine_log=0x4014
  */
-static unsigned long long g_cam_engine_log_level = 0xff0;
+static unsigned long long g_cam_engine_log_level = 0xff1;
 
 #if 0
 typedef struct xcore_cam_log_module_info_s {
@@ -253,6 +253,7 @@ void xcam_print_log (int module, int sub_modules, int level, const char* format,
         ALOGW("[%s]:%s", g_xcore_log_infos[module].module_name, buffer);
         break;
     case XCORE_LOG_LEVEL_INFO:
+    case XCORE_LOG_LEVEL_KEY:
         ALOGI("[%s]:%s", g_xcore_log_infos[module].module_name, buffer);
         break;
     case XCORE_LOG_LEVEL_VERBOSE:
