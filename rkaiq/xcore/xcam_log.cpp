@@ -246,6 +246,9 @@ void xcam_print_log (int module, int sub_modules, int level, const char* format,
 #endif
 #ifdef ANDROID_OS
     switch(level) {
+    case XCORE_LOG_LEVEL_NONE:
+        ALOGI("[%s]:%s", g_xcore_log_infos[module].module_name, buffer);
+        break;
     case XCORE_LOG_LEVEL_ERR:
         ALOGE("[%s]:%s", g_xcore_log_infos[module].module_name, buffer);
         break;
@@ -253,7 +256,6 @@ void xcam_print_log (int module, int sub_modules, int level, const char* format,
         ALOGW("[%s]:%s", g_xcore_log_infos[module].module_name, buffer);
         break;
     case XCORE_LOG_LEVEL_INFO:
-    case XCORE_LOG_LEVEL_KEY:
         ALOGI("[%s]:%s", g_xcore_log_infos[module].module_name, buffer);
         break;
     case XCORE_LOG_LEVEL_VERBOSE:

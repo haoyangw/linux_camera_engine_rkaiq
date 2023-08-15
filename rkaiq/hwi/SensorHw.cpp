@@ -1315,7 +1315,7 @@ SensorHw::set_working_mode(int mode)
                mode == RK_AIQ_ISP_HDR_MODE_3_LINE_HDR) {
         hdr_mode = HDR_X3;
     } else {
-        LOGE_CAMHW_SUBM(SENSOR_SUBM, "failed to set hdr mode to %d", mode);
+        LOGW_CAMHW_SUBM(SENSOR_SUBM, "failed to set hdr mode to %d", mode);
         return XCAM_RETURN_ERROR_FAILED;
     }
     hdr_cfg.hdr_mode = hdr_mode;

@@ -1066,6 +1066,7 @@ XCamReturn RkAiqAwbHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPar
         cur_params->mAwbGainParams = params->mAwbGainParams ;
 #endif
         awb_gain_param->is_update = true;
+        awb_com->awb_gain_update = false;
         LOGD_AWB("[%d] wbgain params from algo", mWbGainSyncFlag);
     } else if (mWbGainSyncFlag != awb_param->sync_flag) {
         awb_gain_param->sync_flag = mWbGainSyncFlag;
@@ -1107,6 +1108,7 @@ XCamReturn RkAiqAwbHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPar
         cur_params->mAwbParams     = params->mAwbParams;
 #endif
         awb_param->is_update = true;
+        awb_com->awb_cfg_update = false;
         LOGD_AWB("[%d] params from algo", mWbParamSyncFlag);
     } else if (mWbParamSyncFlag != awb_param->sync_flag) {
         awb_param->sync_flag = mWbParamSyncFlag;

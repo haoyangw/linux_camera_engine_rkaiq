@@ -128,6 +128,19 @@ rk_aiq_uapiV2_camgroup_awbV32_SetAttrib(RkAiqAlgoContext *ctx,
 XCamReturn
 rk_aiq_uapiV2_camgroup_awbV32_GetAttrib(RkAiqAlgoContext *ctx,
                           rk_aiq_uapiV2_wbV32_attrib_t *attr);
-
+XCamReturn
+rk_aiq_uapiV2_camgroup_awb_GetIQAutoExtPara(RkAiqAlgoContext *ctx,
+                          rk_aiq_uapiV2_Wb_Awb_IqAtExtPa_V32_t *autoExtPara);
+XCamReturn
+rk_aiq_uapiV2_camgroup_awb_SetIQAutoExtPara(RkAiqAlgoContext *ctx,
+                          const rk_aiq_uapiV2_Wb_Awb_IqAtExtPa_V32_t *autoExtPara,
+                          bool need_sync);
+XCamReturn
+rk_aiq_uapiV2_camgroup_awb_GetIQAutoPara(RkAiqAlgoContext *ctx,
+                          rk_aiq_uapiV2_Wb_Awb_IqAtPa_V32_t *autoPara);
+XCamReturn
+rk_aiq_uapiV2_camgroup_awb_SetIQAutoPara(RkAiqAlgoContext *ctx,
+                          const rk_aiq_uapiV2_Wb_Awb_IqAtPa_V32_t *autoPara,
+                          bool need_sync);
 #endif
 

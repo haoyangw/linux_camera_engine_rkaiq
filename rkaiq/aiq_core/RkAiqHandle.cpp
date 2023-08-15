@@ -123,6 +123,9 @@ XCamReturn RkAiqHandle::processing() {
 
     configInparamsCom(procParam, RKAIQ_CONFIG_COM_PROC);
 
+    if (mProcOutParam)
+        mProcOutParam->cfg_update = false;
+
     EXIT_ANALYZER_FUNCTION();
 
     return XCAM_RETURN_NO_ERROR;

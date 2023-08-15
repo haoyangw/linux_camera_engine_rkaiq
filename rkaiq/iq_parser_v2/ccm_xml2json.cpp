@@ -30,18 +30,21 @@ void CalibV2CCMFree(CamCalibDbV2Context_t *calibV2)
     if(ccm_v2 ==NULL){
           return;
     }
-    CalibDbV2_Ccm_Accm_Cof_Para_t* aCcmCofV2 = ccm_v2->TuningPara.aCcmCof;
-    CalibDbV2_Ccm_Matrix_Para_t* matrixAllV2 =  ccm_v2->TuningPara.matrixAll;
 
-    for (int i = 0; i < aCcmCofV2->matrixUsed_len; i++)
-        free(aCcmCofV2->matrixUsed[i]);
-    free(aCcmCofV2->matrixUsed);
-    free(aCcmCofV2->name);
-    free(matrixAllV2->name);
-    free(matrixAllV2->illumination);
+    for (int i = 0; i < ccm_v2->TuningPara.aCcmCof_len; i++) {
+        for (int j = 0; j < ccm_v2->TuningPara.aCcmCof[i].matrixUsed_len; j++)
+            free(ccm_v2->TuningPara.aCcmCof[i].matrixUsed[j]);
+        free(ccm_v2->TuningPara.aCcmCof[i].matrixUsed);
+        free(ccm_v2->TuningPara.aCcmCof[i].name);
+    }
 
-    free(aCcmCofV2);
-    free(matrixAllV2);
+    for (int i = 0; i < ccm_v2->TuningPara.matrixAll_len; i++) {
+        free(ccm_v2->TuningPara.matrixAll[i].name);
+        free(ccm_v2->TuningPara.matrixAll[i].illumination);
+    }
+
+    free(ccm_v2->TuningPara.aCcmCof);
+    free(ccm_v2->TuningPara.matrixAll);
     free(ccm_v2->TuningPara.illu_estim.default_illu);
 }
 

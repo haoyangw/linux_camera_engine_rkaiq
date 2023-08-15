@@ -66,11 +66,13 @@ typedef struct prob_node_s {
 typedef struct accm_context_s {
 #if RKAIQ_HAVE_CCM_V1
     const CalibDbV2_Ccm_Para_V2_t* ccm_v1;
+    CalibDbV2_Ccm_Para_V2_t ApiCalib_v1;
     rk_aiq_ccm_cfg_t ccmHwConf;
     rk_aiq_ccm_attrib_t mCurAtt;
 #endif
 #if RKAIQ_HAVE_CCM_V2
     const CalibDbV2_Ccm_Para_V32_t* ccm_v2;
+    CalibDbV2_Ccm_Para_V32_t ApiCalib_v2;
     rk_aiq_ccm_cfg_v2_t ccmHwConf_v2;
     rk_aiq_ccm_v2_attrib_t mCurAttV2;
 #endif
@@ -86,6 +88,7 @@ typedef struct accm_context_s {
     bool updateAtt;
     bool update;
     bool calib_update;
+    bool isApiUpdateCalib;
     bool isReCal_;
 } accm_context_t ;
 

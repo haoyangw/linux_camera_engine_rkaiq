@@ -32,10 +32,14 @@ class RkAiqAccmHandleInt : virtual public RkAiqHandle {
 #if RKAIQ_HAVE_CCM_V1
         memset(&mCurAtt, 0, sizeof(rk_aiq_ccm_attrib_t));
         memset(&mNewAtt, 0, sizeof(rk_aiq_ccm_attrib_t));
+        memset(&mCurCalibAtt, 0, sizeof(rk_aiq_ccm_calib_attrib_t));
+        memset(&mNewCalibAtt, 0, sizeof(rk_aiq_ccm_calib_attrib_t));
 #endif
 #if RKAIQ_HAVE_CCM_V2
         memset(&mCurAttV2, 0, sizeof(rk_aiq_ccm_v2_attrib_t));
         memset(&mNewAttV2, 0, sizeof(rk_aiq_ccm_v2_attrib_t));
+        memset(&mCurCalibAttV2, 0, sizeof(rk_aiq_ccm_v2_calib_attrib_t));
+        memset(&mNewCalibAttV2, 0, sizeof(rk_aiq_ccm_v2_calib_attrib_t));
 #endif
 #endif
     };
@@ -50,10 +54,14 @@ class RkAiqAccmHandleInt : virtual public RkAiqHandle {
 #if RKAIQ_HAVE_CCM_V1
     XCamReturn setAttrib(const rk_aiq_ccm_attrib_t* att);
     XCamReturn getAttrib(rk_aiq_ccm_attrib_t* att);
+    XCamReturn setIqParam(const rk_aiq_ccm_calib_attrib_t* att);
+    XCamReturn getIqParam(rk_aiq_ccm_calib_attrib_t* att);
 #endif
 #if RKAIQ_HAVE_CCM_V2
     XCamReturn setAttribV2(const rk_aiq_ccm_v2_attrib_t* att);
     XCamReturn getAttribV2(rk_aiq_ccm_v2_attrib_t* att);
+    XCamReturn setIqParamV2(const rk_aiq_ccm_v2_calib_attrib_t* att);
+    XCamReturn getIqParamV2(rk_aiq_ccm_v2_calib_attrib_t* att);
 #endif
     XCamReturn queryCcmInfo(rk_aiq_ccm_querry_info_t* ccm_querry_info);
 
@@ -65,13 +73,18 @@ class RkAiqAccmHandleInt : virtual public RkAiqHandle {
 #ifndef DISABLE_HANDLE_ATTRIB
     // TODO
 #if RKAIQ_HAVE_CCM_V1
-    rk_aiq_ccm_attrib_t mCurAtt;
-    rk_aiq_ccm_attrib_t mNewAtt;
+    rk_aiq_ccm_attrib_t          mCurAtt;
+    rk_aiq_ccm_calib_attrib_t    mCurCalibAtt;
+    rk_aiq_ccm_attrib_t          mNewAtt;
+    rk_aiq_ccm_calib_attrib_t    mNewCalibAtt;
 #endif
 #if RKAIQ_HAVE_CCM_V2
-    rk_aiq_ccm_v2_attrib_t mCurAttV2;
-    rk_aiq_ccm_v2_attrib_t mNewAttV2;
+    rk_aiq_ccm_v2_attrib_t       mCurAttV2;
+    rk_aiq_ccm_v2_calib_attrib_t mCurCalibAttV2;
+    rk_aiq_ccm_v2_attrib_t       mNewAttV2;
+    rk_aiq_ccm_v2_calib_attrib_t mNewCalibAttV2;
 #endif
+    mutable std::atomic<bool>    updateCalibAttr;
 #endif
  private:
     DECLARE_HANDLE_REGISTER_TYPE(RkAiqAccmHandleInt);

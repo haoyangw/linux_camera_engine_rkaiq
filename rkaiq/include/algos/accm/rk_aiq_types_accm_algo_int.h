@@ -68,6 +68,48 @@ typedef struct rk_aiq_ccm_v2_attrib_s {
     rk_aiq_ccm_accm_attrib_t stAuto;
 } rk_aiq_ccm_v2_attrib_t;
 
+typedef struct CalibDbV2_Ccm_Control_Para_s rk_aiq_ccm_ctrlcfg_t;
+typedef struct CalibDbV2_Ccm_Luma_Ccm_s     rk_aiq_ccm_yalpcfg_t;
+typedef struct CalibDbV2_Ccm_Luma_Ccm_V2_s  rk_aiq_ccm_v2_yalpcfg_t;
+typedef struct rk_aiq_ccm_illucfg_s {
+    char  name[CCM_ILLUMINATION_NAME];
+    float awbGain[2];
+    float minDist;
+    char  matrixUsed[CCM_PROFILES_NUM_MAX][CCM_PROFILE_NAME];
+    int   matrixUsed_len;
+    CalibDbV2_Ccm_Gain_Sat_Curve_t gain_sat_curve;
+} rk_aiq_ccm_illucfg_t;
+
+typedef struct rk_aiq_ccm_matrixcfg_s {
+    char  name[CCM_PROFILE_NAME];
+    char  illumination[CCM_ILLUMINATION_NAME];
+    float saturation;
+    float ccMatrix[9];
+    float ccOffsets[3];
+} rk_aiq_ccm_matrixcfg_t;
+
+typedef struct rk_aiq_ccm_calib_attrib_s {
+    rk_aiq_uapi_sync_t           sync;
+    CalibDbV2_Ccm_Control_Para_t control;
+    CalibDbV2_Ccm_Luma_Ccm_t     lumaCCM;
+    bool                         damp_enable;
+    rk_aiq_ccm_illucfg_t         aCcmCof[CCM_ILLUMINATION_MAX];
+    int                          aCcmCof_len;
+    rk_aiq_ccm_matrixcfg_t       matrixAll[CCM_ILLUMINATION_MAX*CCM_PROFILES_NUM_MAX];
+    int                          matrixAll_len;
+} rk_aiq_ccm_calib_attrib_t;
+
+typedef struct rk_aiq_ccm_v2_calib_attrib_s {
+    rk_aiq_uapi_sync_t           sync;
+    CalibDbV2_Ccm_Control_Para_t control;
+    CalibDbV2_Ccm_Luma_Ccm_V2_t  lumaCCM;
+    bool                         damp_enable;
+    rk_aiq_ccm_illucfg_t         aCcmCof[CCM_ILLUMINATION_MAX];
+    int                          aCcmCof_len;
+    rk_aiq_ccm_matrixcfg_t       matrixAll[CCM_ILLUMINATION_MAX*CCM_PROFILES_NUM_MAX];
+    int                          matrixAll_len;
+} rk_aiq_ccm_v2_calib_attrib_t;
+
 
 RKAIQ_END_DECLARE
 

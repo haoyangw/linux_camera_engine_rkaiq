@@ -453,7 +453,8 @@ typedef SharedItemProxy<rk_aiq_isp_af_params_v32_lite_t>    RkAiqIspAfParamsProx
 class RkAiqFullParams : public XCam::BufferData {
 public:
     explicit RkAiqFullParams()
-        : mExposureParams(NULL)
+        : mFrmId(0)
+        , mExposureParams(NULL)
         , mFocusParams(NULL)
         , mIrisParams(NULL)
         , mCpslParams(NULL)

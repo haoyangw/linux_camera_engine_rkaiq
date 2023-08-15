@@ -30,7 +30,7 @@
 #include <string.h>
 
 typedef enum {
-    XCORE_LOG_LEVEL_NONE = 1,
+    XCORE_LOG_LEVEL_NONE = 10,
     XCORE_LOG_LEVEL_ERR  = 1,
     XCORE_LOG_LEVEL_WARNING,
     XCORE_LOG_LEVEL_INFO,

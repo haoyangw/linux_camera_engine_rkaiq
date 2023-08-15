@@ -453,7 +453,7 @@ RkAiqCamGroupManager::RelayAiqCoreResults(RkAiqCore* src, SmartPtr<RkAiqFullPara
 
 #define SET_TO_CAMGROUP(lc, BC) \
     if (aiqParams->m##lc##Params.ptr()) { \
-        frame_id = aiqParams->m##lc##Params->data()->frame_id; \
+        frame_id = aiqParams->mFrmId; \
         rk_aiq_groupcam_result_t* camGroupRes = getGroupCamResult(frame_id); \
         if (!camGroupRes) { \
             LOGW_CAMGROUP("camgroup: get cam result faild for type:%s, camId: %d, frame: %d", #BC, camId, frame_id); \

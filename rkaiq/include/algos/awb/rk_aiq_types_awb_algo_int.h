@@ -29,6 +29,8 @@
 #include "awb_uapi_head.h"
 #define RK_UAPI_AWB_CT_GRID_NUM 15
 #define RK_UAPI_AWB_CT_LUT_NUM 8
+#define RK_UAPI_AWB_LWR_NUM_MAX 8
+#define ABLC_MAX_ISO_LEVEL (13)
 typedef enum rk_aiq_wb_scene_e {
     RK_AIQ_WBCT_INCANDESCENT = 0,
     RK_AIQ_WBCT_FLUORESCENT,
@@ -302,6 +304,221 @@ typedef struct rk_aiq_uapiV2_awb_ffwbgain_attr_s{
     rk_aiq_uapi_sync_t sync;
     rk_aiq_wb_gain_t wggain;
 }rk_aiq_uapiV2_awb_ffwbgain_attr_t;
+
+typedef struct rk_aiq_uapiV2_awb_ExtR_Wei_V32_s {
+    float lumaValue[CALD_AWB_LV_NUM_MAX];
+    int lumaValue_len;
+    float weight[CALD_AWB_LV_NUM_MAX];
+    int weight_len;
+} rk_aiq_uapiV2_awb_ExtR_Wei_V32_t;
+
+
+typedef struct rk_aiq_uapiV2_ExtRange_V32_s {
+    CalibDbV2_Awb_Ext_Range_Dom_t domain;
+    CalibDbV2_Awb_Ext_Range_Mode_t mode;
+    int region[4];
+    rk_aiq_uapiV2_awb_ExtR_Wei_V32_t weightInculde;
+} rk_aiq_uapiV2_ExtRange_V32_t;
+
+typedef struct rk_aiq_uapiV2_Awb_Luma_Weight_Lv_s {
+    float LvValue;
+    CalibDbV2_Awb_Lum_Wgt_Lv_Rto_t ratioSet[RK_UAPI_AWB_LWR_NUM_MAX];
+    int ratioSet_len;
+} rk_aiq_uapiV2_Awb_Luma_Weight_Lv_t;
+
+typedef struct rk_aiq_uapiV2_Awb_Luma_Weight_s {
+    bool enable;
+    CalibDbV2_Awb_Lu_Wgt_En_Th_t wpDiffWeiEnableTh;
+    unsigned char wpDiffwei_y[9];
+    unsigned char  perfectBin[8];// true means the luma is appropriate
+    rk_aiq_uapiV2_Awb_Luma_Weight_Lv_t wpDiffWeightLvSet[CALD_AWB_LV_NUM_MAX];
+    int wpDiffWeightLvSet_len;
+} rk_aiq_uapiV2_Awb_Luma_Weight_t;
+
+
+typedef struct rk_aiq_uapiV2_Awb_Light_V32_s {
+    char name[CALD_AWB_ILLUMINATION_NAME];
+    CalibDbV2_Awb_DoorType_t doorType;
+    float standardGainValue[4];
+    CalibDbV2_Uv_Range_Ill_t uvRegion;
+    CalibDbV2_Tcs_Range_Ill2_t xyRegion;
+    CalibDbV2_Yuv3D_2_Range_Ill_t rtYuvRegion;
+    unsigned char staWeight[CALD_AWB_LV_NUM_MAX];
+    unsigned int dayGainLvThSet[2];
+    float defaultDayGainLow[4];
+    float defaultDayGainHigh[4];
+    rk_aiq_uapiV2_awb_ExtR_Wei_V32_t weight;
+} rk_aiq_uapiV2_Awb_Light_V32_t;
+
+
+typedef struct rk_aiq_uapiV2_Awb_offset_data_s {
+    float ISO[ABLC_MAX_ISO_LEVEL];
+    int ISO_len;
+    float R_Channel[ABLC_MAX_ISO_LEVEL];
+    int R_Channel_len;
+    float Gr_Channel[ABLC_MAX_ISO_LEVEL];
+    int Gr_Channel_len;
+    float Gb_Channel[ABLC_MAX_ISO_LEVEL];
+    int Gb_Channel_len;
+    float B_Channel[ABLC_MAX_ISO_LEVEL];
+    int B_Channel_len;
+} rk_aiq_uapiV2_Awb_offset_data_t;
+
+typedef struct rk_aiq_uapiV2_Awb_Blc_s {
+    bool enable;
+    rk_aiq_uapiV2_Awb_offset_data_t offset;//r gr gb b
+} rk_aiq_uapiV2_Awb_Blc_t;
+
+typedef struct rk_aiq_uapiV2_Awb_Limit_Range_V32_s {
+    float lumaValue[CALD_AWB_LV_NUM_MAX];
+    int lumaValue_len;
+    float maxR[CALD_AWB_LV_NUM_MAX];
+    int maxR_len;
+    float minR[CALD_AWB_LV_NUM_MAX];
+    int minR_len;
+    float maxG[CALD_AWB_LV_NUM_MAX];
+    int maxG_len;
+    float minG[CALD_AWB_LV_NUM_MAX];
+    int minG_len;
+    float maxB[CALD_AWB_LV_NUM_MAX];
+    int maxB_len;
+    float minB[CALD_AWB_LV_NUM_MAX];
+    int minB_len;
+    float maxY[CALD_AWB_LV_NUM_MAX];
+    int maxY_len;
+    float minY[CALD_AWB_LV_NUM_MAX];
+    int minY_len;
+} rk_aiq_uapiV2_Awb_Limit_Range_V32_t;
+
+typedef struct rk_aiq_uapiV2_Wb_Awb_IqAtPa_V32_s {
+    CalibDbV2_Awb_Raw_Select_t rawSelectPara;
+    rk_aiq_uapiV2_Awb_Blc_t blc2ForAwb;
+    bool                lscBypass;
+    bool                uvDetectionEnable;
+    bool                xyDetectionEnable;
+    bool                yuvDetectionEnable;
+    bool                blkStatisticsEnable;
+    CalibDbV2_Awb_Down_Scale_Mode_t       downScaleMode;
+    CalibDbV2_Awb_Blk_Stat_V21_t      blkMeasureMode;
+    CalibDbV2_StatWindow_t mainWindow;
+    rk_aiq_uapiV2_Awb_Limit_Range_V32_t limitRange;
+    CalibDbV2_Rgb2Tcs_t rgb2TcsPara;
+    float rgb2RotationYuvMat[16];
+    rk_aiq_uapiV2_ExtRange_V32_t extraWpRange[CALD_AWB_EXCRANGE_NUM_MAX];
+    rk_aiq_uapiV2_Awb_Luma_Weight_t wpDiffLumaWeight;
+    bool           wpDiffBlkWeiEnable;
+    unsigned short wpDiffBlkWeight[CALD_AWB_GRID_NUM_TOTAL];
+    rk_aiq_uapiV2_Awb_Light_V32_t lightSources[CALD_AWB_LS_NUM_MAX];
+    int lightSources_len;
+    CalibDbV2_Wb_Awb_EarlAct_t earlierAwbAct;
+
+} rk_aiq_uapiV2_Wb_Awb_IqAtPa_V32_t;
+
+typedef struct rk_aiq_uapiV2_Awb_xyRg_stb_WpTh_s {
+    float lumaValue[CALD_AWB_LV_NUM_MAX];
+    int lumaValue_len;
+    float forBigType[CALD_AWB_LV_NUM_MAX];
+    int forBigType_len;
+    float forExtraType[CALD_AWB_LV_NUM_MAX];
+    int forExtraType_len;
+} rk_aiq_uapiV2_Awb_xyRg_stb_WpTh_t;
+
+typedef struct rk_aiq_uapiV2_Awb_xyRegion_stable_s {
+    bool enable;
+    rk_aiq_uapiV2_Awb_xyRg_stb_WpTh_t wpNumTh;
+    int xyTypeListSize;
+    float varianceLumaTh;
+} rk_aiq_uapiV2_Awb_xyRegion_stable_t;
+
+typedef struct rk_aiq_uapiV2_Awb_Sgc_Ls_s {
+    char name[CALD_AWB_ILLUMINATION_NAME];
+    float RGain;
+    float BGain;
+} rk_aiq_uapiV2_Awb_Sgc_Ls_t;
+
+typedef struct rk_aiq_uapiV2_Awb_Sgc_s {
+    bool enable;
+    CalibDbV2_Awb_Sgc_Cblk_t colorBlock[CALD_AWB_SGC_NUM_MAX];
+    int colorBlock_len;
+    rk_aiq_uapiV2_Awb_Sgc_Ls_t lsUsedForEstimation[CALD_AWB_LS_NUM_MAX];
+    int lsUsedForEstimation_len;
+    float alpha;
+} rk_aiq_uapiV2_Awb_Sgc_t;
+
+typedef struct rk_aiq_uapiV2_Wb_Awb_Div_WpTh_s {
+    float lumaValue[CALD_AWB_LV_NUM_MAX];
+    int lumaValue_len;
+    float low[CALD_AWB_LV_NUM_MAX];
+    int low_len;
+    float high[CALD_AWB_LV_NUM_MAX];
+    int high_len;
+} rk_aiq_uapiV2_Wb_Awb_Div_WpTh_t;
+
+typedef struct rk_aiq_uapiV2_Wb_Awb_Div_s {
+    unsigned int lumaValThLow;
+    unsigned int lumaValThLow2;
+    unsigned int lumaValThHigh;
+    unsigned int lumaValThHigh2;
+    rk_aiq_uapiV2_Wb_Awb_Div_WpTh_t wpNumTh;
+} rk_aiq_uapiV2_Wb_Awb_Div_t;
+
+
+typedef struct rk_aiq_uapiV2_Awb_Tolerance_s {
+    float lumaValue[CALD_AWB_LV_NUM_MAX];
+    int lumaValue_len;
+    float toleranceValue[CALD_AWB_LV_NUM_MAX];
+    int toleranceValue_len;
+}  rk_aiq_uapiV2_Awb_Tolerance_t;
+
+typedef struct rk_aiq_uapiV2_Awb_runinterval_s {
+    float lumaValue[CALD_AWB_LV_NUM_MAX];
+    int lumaValue_len;
+    float intervalValue[CALD_AWB_LV_NUM_MAX];
+    int intervalValue_len;
+}  rk_aiq_uapiV2_Awb_runinterval_t;
+
+typedef struct rk_aiq_uapiV2_Awb_SmartRun_cfg_s {
+    float lumaValue[CALD_AWB_LV_NUM_MAX];
+    int lumaValue_len;
+    float lvVarTh[CALD_AWB_LV_NUM_MAX];
+    int lvVarTh_len;
+    float wbgainAlgDiffTh[CALD_AWB_LV_NUM_MAX];
+    int wbgainAlgDiffTh_len;
+    float wbgainHwDiffTh[CALD_AWB_LV_NUM_MAX];
+    int wbgainHwDiffTh_len;
+} rk_aiq_uapiV2_Awb_SmartRun_cfg_t;
+
+typedef struct rk_aiq_uapiV2_Awb_SmartRun_s {
+    bool  enable;
+    rk_aiq_uapiV2_Awb_SmartRun_cfg_t cfg;
+} rk_aiq_uapiV2_Awb_SmartRun_t;
+
+typedef struct rk_aiq_uapiV2_Wb_Awb_IqAtExtPa_V32_s {
+    char lightSourceForFirstFrame[CALD_AWB_ILLUMINATION_NAME];
+    rk_aiq_uapiV2_Awb_SmartRun_t smartRun;
+    rk_aiq_uapiV2_Awb_Tolerance_t tolerance;
+    rk_aiq_uapiV2_Awb_runinterval_t runInterval;
+    CalibDbV2_Awb_DampFactor_t dampFactor;
+    rk_aiq_uapiV2_wbV32_awb_gainAdjust_t wbGainAdjust;
+    CalibDbV2_Awb_DaylgtClip_Cfg_t wbGainDaylightClip;
+    rk_aiq_uapiV2_wb_awb_cctClipCfg_t wbGainClip;
+    rk_aiq_uapiV2_Wb_Awb_Div_t division;
+    float defaultNightGain[4];
+    unsigned int lumaValueMatrix[CALD_AWB_LV_NUM_MAX];
+    unsigned char defaultNightGainWeight[CALD_AWB_LV_NUM_MAX];
+    CalibDbV2_Wb_Awb_Prob_Calc_Dt_t probCalcDis;
+    CalibDbV2_Wb_Awb_Prob_Calc_Lv_t probCalcLv;
+    CalibDbV2_Wb_Awb_Prob_Calc_Wp_t probCalcWp;
+    CalibDbV2_Wb_Awb_Convg_t converged;
+    rk_aiq_uapiV2_Awb_xyRegion_stable_t xyRegionStableSelection;
+    unsigned char weightForNightGainCalc[CALD_AWB_LV_NUM_MAX];
+    int weightForNightGainCalc_len;
+    rk_aiq_uapiV2_Awb_Sgc_t singleColorProces;
+    float lineRgBg[3];
+    float lineRgProjCCT[3];
+    CalibDbV2_Awb_gain_offset_cfg_t wbGainOffset;
+    CalibDbV2_Awb_Ava_Site_Rec_t avaSiteRec;
+} rk_aiq_uapiV2_Wb_Awb_IqAtExtPa_V32_t;
 
 #endif
 

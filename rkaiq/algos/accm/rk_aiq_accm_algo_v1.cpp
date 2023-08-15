@@ -274,25 +274,11 @@ XCamReturn AccmConfig
 
 }
 
-/**********************************
-*Update CCM CalibV2 Para
-*      Prepare init
-*      Mode change: reinit
-*      Res change: continue
-*      Calib change: continue
-***************************************/
-static XCamReturn UpdateCcmCalibV2ParaV1(accm_handle_t hAccm)
-{
+XCamReturn ConfigbyCalib(accm_handle_t hAccm) {
     LOG1_ACCM("%s: (enter)  \n", __FUNCTION__);
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
-    bool config_calib = !!(hAccm->accmSwInfo.prepare_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB);
     const CalibDbV2_Ccm_Para_V2_t* calib_ccm = hAccm->ccm_v1;
-
-    if (!config_calib)
-    {
-        return(ret);
-    }
 
     if (hAccm->mCurAtt.mode == RK_AIQ_CCM_MODE_AUTO) {
 #if RKAIQ_ACCM_ILLU_VOTE
@@ -313,6 +299,32 @@ static XCamReturn UpdateCcmCalibV2ParaV1(accm_handle_t hAccm)
     }
 
     clear_list(&hAccm->accmRest.problist);
+
+    LOG1_ACCM("%s: (exit)\n", __FUNCTION__);
+    return (ret);
+}
+
+/**********************************
+*Update CCM CalibV2 Para
+*      Prepare init
+*      Mode change: reinit
+*      Res change: continue
+*      Calib change: continue
+***************************************/
+static XCamReturn UpdateCcmCalibV2ParaV1(accm_handle_t hAccm)
+{
+    LOG1_ACCM("%s: (enter)  \n", __FUNCTION__);
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    bool config_calib = !!(hAccm->accmSwInfo.prepare_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB);
+    config_calib |= hAccm->isApiUpdateCalib;
+    if (!config_calib)
+    {
+        return(ret);
+    }
+
+    ret = ConfigbyCalib(hAccm);
+    hAccm->isApiUpdateCalib = false;
 
     LOG1_ACCM("%s: (exit)\n", __FUNCTION__);
     return(ret);

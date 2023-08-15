@@ -30,6 +30,7 @@ XCamReturn AccmPrepare(accm_handle_t hAccm);
 XCamReturn AccmConfig(accm_handle_t hAccm);
 XCamReturn AccmPreProc(accm_handle_t hAccm);
 XCamReturn AccmProcessing(accm_handle_t hAccm);
+XCamReturn ConfigbyCalib(accm_handle_t hAccm);
 
 RKAIQ_END_DECLARE
 

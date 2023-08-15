@@ -396,7 +396,7 @@ public:
         rk_aiq_scale_raw_info_t scaleRawInfo;
         RkAiqFullParams* fullParams;
         void reset() {
-            frameId = -1;
+            frameId = 0;
             sof     = 0;
             xcam_mem_clear(res_comb);
             xcam_mem_clear(amdResParams);

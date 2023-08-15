@@ -299,23 +299,11 @@ XCamReturn AccmConfig(accm_handle_t hAccm) {
     return ret;
 }
 
-/**********************************
- *Update CCM CalibV2 Para
- *      Prepare init
- *      Mode change: reinit
- *      Res change: continue
- *      Calib change: continue
- ***************************************/
-static XCamReturn UpdateCcmCalibV2ParaV2(accm_handle_t hAccm) {
+XCamReturn ConfigbyCalib(accm_handle_t hAccm) {
     LOG1_ACCM("%s: (enter)  \n", __FUNCTION__);
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
-    bool config_calib = !!(hAccm->accmSwInfo.prepare_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB);
     const CalibDbV2_Ccm_Para_V32_t* calib_ccm = hAccm->ccm_v2;
-
-    if (!config_calib) {
-        return (ret);
-    }
 
 #if RKAIQ_ACCM_ILLU_VOTE
         ReloadCCMCalibV2(hAccm, &calib_ccm->TuningPara);
@@ -364,6 +352,31 @@ static XCamReturn UpdateCcmCalibV2ParaV2(accm_handle_t hAccm) {
     return (ret);
 }
 
+/**********************************
+ *Update CCM CalibV2 Para
+ *      Prepare init
+ *      Mode change: reinit
+ *      Res change: continue
+ *      Calib change: continue
+ ***************************************/
+static XCamReturn UpdateCcmCalibV2ParaV2(accm_handle_t hAccm) {
+    LOG1_ACCM("%s: (enter)  \n", __FUNCTION__);
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    bool config_calib = !!(hAccm->accmSwInfo.prepare_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB);
+    config_calib |= hAccm->isApiUpdateCalib;
+
+    if (!config_calib) {
+        return (ret);
+    }
+
+    ret = ConfigbyCalib(hAccm);
+    hAccm->isApiUpdateCalib = false;
+
+    LOG1_ACCM("%s: (exit)\n", __FUNCTION__);
+    return (ret);
+}
+
 XCamReturn AccmInit(accm_handle_t* hAccm, const CamCalibDbV2Context_t* calibv2) {
     LOGI_ACCM("%s: (enter)\n", __FUNCTION__);
 
@@ -402,6 +415,9 @@ XCamReturn AccmInit(accm_handle_t* hAccm, const CamCalibDbV2Context_t* calibv2) 
 
     // todo whm --- CalibDbV2_Ccm_Para_V2
     accm_context->ccm_v2 = calib_ccm;
+    accm_context->isApiUpdateCalib = false;
+    accm_context->ApiCalib_v2.enhCCM = calib_ccm->enhCCM;
+    accm_context->ApiCalib_v2.TuningPara.illu_estim = calib_ccm->TuningPara.illu_estim;
     accm_context->mCurAttV2.mode = RK_AIQ_CCM_MODE_AUTO;
 #if RKAIQ_ACCM_ILLU_VOTE
     INIT_LIST_HEAD(&accm_context->accmRest.dominateIlluList);
@@ -428,6 +444,7 @@ XCamReturn AccmRelease(accm_handle_t hAccm) {
     LOGI_ACCM("%s: (enter)\n", __FUNCTION__);
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
 #if RKAIQ_ACCM_ILLU_VOTE
     clear_list(&hAccm->accmRest.dominateIlluList);
 #endif

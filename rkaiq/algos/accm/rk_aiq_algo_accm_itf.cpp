@@ -61,17 +61,28 @@ prepare(RkAiqAlgoCom* params)
     accm_handle_t hAccm = (accm_handle_t)(params->ctx->accm_para);
     //RkAiqAlgoConfigAccmInt *para = (RkAiqAlgoConfigAccmInt*)params;
     hAccm->accmSwInfo.prepare_type = params->u.prepare.conf_type;
-    if(!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB)){
+    if(hAccm->isApiUpdateCalib || !!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB)){
         RkAiqAlgoConfigAccm* confPara = (RkAiqAlgoConfigAccm*)params;
+        if (hAccm->isApiUpdateCalib) {
 #if RKAIQ_HAVE_CCM_V1
-        hAccm->ccm_v1 = (CalibDbV2_Ccm_Para_V2_t*)(CALIBDBV2_GET_MODULE_PTR(
-            confPara->com.u.prepare.calibv2, ccm_calib));
+            hAccm->ccm_v1 = &hAccm->ApiCalib_v1;
 #endif
 
 #if RKAIQ_HAVE_CCM_V2
-        hAccm->ccm_v2 = (CalibDbV2_Ccm_Para_V32_t*)(CALIBDBV2_GET_MODULE_PTR(
-            confPara->com.u.prepare.calibv2, ccm_calib_v2));
+            hAccm->ccm_v2 = &hAccm->ApiCalib_v2;
 #endif
+        }
+        else {
+#if RKAIQ_HAVE_CCM_V1
+            hAccm->ccm_v1 = (CalibDbV2_Ccm_Para_V2_t*)(CALIBDBV2_GET_MODULE_PTR(
+                confPara->com.u.prepare.calibv2, ccm_calib));
+#endif
+
+#if RKAIQ_HAVE_CCM_V2
+            hAccm->ccm_v2 = (CalibDbV2_Ccm_Para_V32_t*)(CALIBDBV2_GET_MODULE_PTR(
+                confPara->com.u.prepare.calibv2, ccm_calib_v2));
+#endif
+        }
     }
     AccmPrepare((accm_handle_t)(params->ctx->accm_para));
 
@@ -97,6 +108,16 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
     RkAiqAlgoProcAccm *procAccm = (RkAiqAlgoProcAccm*)inparams;
     RkAiqAlgoProcResAccm *proResAccm = (RkAiqAlgoProcResAccm*)outparams;
     accm_handle_t hAccm = (accm_handle_t)(inparams->ctx->accm_para);
+
+    if (hAccm->isApiUpdateCalib) {
+#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
+        hAccm->ccm_v2 = &hAccm->ApiCalib_v2;
+#else
+        hAccm->ccm_v1 = &hAccm->ApiCalib_v1;
+#endif
+        ConfigbyCalib(hAccm);
+        hAccm->isApiUpdateCalib = false;
+    }
 
     hAccm->isReCal_ = hAccm->isReCal_ ||
                     (procAccm->accm_sw_info.grayMode != procAccm->com.u.proc.gray_mode);

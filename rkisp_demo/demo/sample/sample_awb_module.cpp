@@ -973,6 +973,41 @@ static int sample_awb_setFFWbgain(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_
 
     return 0;
 }
+static int sample_awb_setIqPara(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync)
+{
+    //get
+
+    printf("sample_awb_getIqPara 0 \n\n");
+    rk_aiq_uapiV2_Wb_Awb_IqAtPa_V32_t autoPara,autoPara_backup,autoPara_get;
+    rk_aiq_user_api2_awbV32_GetIQAutoPara(ctx, &autoPara);
+    printf("sample_awb_getIqPara 1\n\n");
+
+    memcpy(&autoPara_backup,&autoPara,sizeof(rk_aiq_uapiV2_Wb_Awb_IqAtPa_V32_t));
+    rk_aiq_uapiV2_Wb_Awb_IqAtExtPa_V32_t autoExtPara,autoExtPara_backup,autoExtPara_get;
+    rk_aiq_user_api2_awbV32_GetIQAutoExtPara(ctx,&autoExtPara );
+    memcpy(&autoExtPara_backup,&autoExtPara,sizeof(rk_aiq_uapiV2_Wb_Awb_IqAtExtPa_V32_t));
+    printf("sample_awb_getIqPara 2\n\n");
+
+    //modify
+
+    autoPara.rgb2TcsPara.pseudoLuminanceWeight[0] -=0.02;
+    autoPara.rgb2TcsPara.pseudoLuminanceWeight[2] -=0.02;
+    autoPara.rgb2TcsPara.rotationMat[0] -=0.02;
+    autoPara.rgb2TcsPara.rotationMat[8] -=0.02;
+    autoExtPara.lineRgBg[2]++;
+    autoExtPara.lineRgProjCCT[2]++;
+
+    //set
+    printf("sample_awb_setIqPara finish -11111 \n\n");
+    rk_aiq_user_api2_awbV32_SetIQAutoPara(ctx, &autoPara);
+    printf("sample_awb_setIqPara finish 0 \n\n");
+
+    rk_aiq_user_api2_awbV32_SetIQAutoExtPara(ctx,&autoExtPara);
+
+    printf("sample_awb_setIqPara finish 11111 \n\n");
+    return 0;
+}
+
 
 //#if rk356x || rk3588
 static void sample_awb1_usage()

@@ -1246,6 +1246,7 @@ XCamReturn RkAiqAeHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPara
         // set as the latest result
         cur_params->mAecParams = params->mAecParams;
         aec_param->is_update = true;
+        ae_proc->ae_meas->ae_meas_update = false;
         LOGD_AEC("[%d] meas params from algo", mMeasSyncFlag);
     } else if (mMeasSyncFlag != aec_param->sync_flag) {
         aec_param->sync_flag = mMeasSyncFlag;
@@ -1272,6 +1273,7 @@ XCamReturn RkAiqAeHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPara
         // set as the latest result
         cur_params->mHistParams = params->mHistParams;
         hist_param->is_update = true;
+        ae_proc->hist_meas->hist_meas_update = false;
         LOGD_AEC("[%d] hist params from algo", mHistSyncFlag);
     } else if (mHistSyncFlag != hist_param->sync_flag) {
         hist_param->sync_flag = mHistSyncFlag;

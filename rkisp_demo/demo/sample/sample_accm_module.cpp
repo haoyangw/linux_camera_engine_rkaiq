@@ -548,6 +548,188 @@ static int sample_query_ccm_info_V2(const rk_aiq_sys_ctx_t* ctx)
     return 0;
 }
 
+static int sample_ccm_getIqParam_V2(const rk_aiq_sys_ctx_t* ctx)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    rk_aiq_ccm_v2_calib_attrib_t attr;
+    memset(&attr,0,sizeof(rk_aiq_ccm_v2_calib_attrib_t));
+    //get
+    ret = rk_aiq_user_api2_accm_v2_GetIqParam(ctx, &attr);
+    RKAIQ_SAMPLE_CHECK_RET(ret, "GetIqParam failed!");
+    printf("GetIqParam:\n\n");
+    printf("\t sync = %d, done = %d\n", attr.sync.sync_mode, attr.sync.done);
+    printf("\t aCcmCof_len = %d\n", attr.aCcmCof_len);
+    printf("\t aCcmCof[0].awbgain = [%f %f]\n", attr.aCcmCof[0].awbGain[0],
+                                                attr.aCcmCof[0].awbGain[1]);
+
+    printf("\t aCcmCof[0].matrixUsed = [");
+    for (int i = 0; i < attr.aCcmCof[0].matrixUsed_len; i++) {
+        printf("%s ", attr.aCcmCof[0].matrixUsed[i]);
+    }
+    printf("]\n");
+    printf("\t aCcmCof[1].name = %s\n ", attr.aCcmCof[1].name);
+
+    printf("\t aCcmCof[1].awbgain = [%f %f]\n", attr.aCcmCof[1].awbGain[0],
+                                                attr.aCcmCof[1].awbGain[1]);
+    printf("\t aCcmCof[1].matrixUsed = [");
+    for (int i = 0; i < attr.aCcmCof[1].matrixUsed_len; i++) {
+        printf("%s ", attr.aCcmCof[1].matrixUsed[i]);
+    }
+    printf("]\n");
+    printf("\t aCcmCof[1].gainSatCurve = {");
+    for (int i = 0; i < 4; i++) {
+        printf("%f - %f ", attr.aCcmCof[1].gain_sat_curve.gains[i],
+                attr.aCcmCof[1].gain_sat_curve.sat[i]);
+    }
+    printf("}\n");
+    printf("\t matrixAll_len = %d\n", attr.matrixAll_len);
+    printf("\t matrixAll[0].name = %s\n ", attr.matrixAll[0].name);
+    printf("\t matrixAll[0].illuname = %s\n ", attr.matrixAll[0].illumination);
+    printf("\t matrixAll[0].ccMatrix = [%f, %f, %f, %f, %f, %f, %f, %f, %f]\n",
+                                        attr.matrixAll[0].ccMatrix[0],
+                                        attr.matrixAll[0].ccMatrix[1],
+                                        attr.matrixAll[0].ccMatrix[2],
+                                        attr.matrixAll[0].ccMatrix[3],
+                                        attr.matrixAll[0].ccMatrix[4],
+                                        attr.matrixAll[0].ccMatrix[5],
+                                        attr.matrixAll[0].ccMatrix[6],
+                                        attr.matrixAll[0].ccMatrix[7],
+                                        attr.matrixAll[0].ccMatrix[8]);
+    printf("\t matrixAll[%d].ccMatrix = [%f, %f, %f, %f, %f, %f, %f, %f, %f]\n",
+                                        attr.matrixAll_len-1,
+                                        attr.matrixAll[attr.matrixAll_len-1].ccMatrix[0],
+                                        attr.matrixAll[attr.matrixAll_len-1].ccMatrix[1],
+                                        attr.matrixAll[attr.matrixAll_len-1].ccMatrix[2],
+                                        attr.matrixAll[attr.matrixAll_len-1].ccMatrix[3],
+                                        attr.matrixAll[attr.matrixAll_len-1].ccMatrix[4],
+                                        attr.matrixAll[attr.matrixAll_len-1].ccMatrix[5],
+                                        attr.matrixAll[attr.matrixAll_len-1].ccMatrix[6],
+                                        attr.matrixAll[attr.matrixAll_len-1].ccMatrix[7],
+                                        attr.matrixAll[attr.matrixAll_len-1].ccMatrix[8]);
+
+    return 0;
+}
+
+static int sample_ccm_setIqParam_V2_T0(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    rk_aiq_ccm_v2_calib_attrib_t attr;
+    memset(&attr,0,sizeof(rk_aiq_ccm_v2_calib_attrib_t));
+    //get
+    ret = rk_aiq_user_api2_accm_v2_GetIqParam(ctx, &attr);
+    RKAIQ_SAMPLE_CHECK_RET(ret, "setIqParam failed in GetIqParam!");
+    //modify
+    attr.sync.sync_mode = sync;
+
+    attr.aCcmCof[0].awbGain[0] = 1.3959;
+    attr.aCcmCof[0].awbGain[1] = 3.179;
+    attr.matrixAll[0].ccMatrix[0] = 1.7416;
+    attr.matrixAll[0].ccMatrix[1] = -0.518;
+    attr.matrixAll[0].ccMatrix[2] = -0.2236;
+    attr.matrixAll[0].ccMatrix[3] = -0.3781;
+    attr.matrixAll[0].ccMatrix[4] = 1.3448;
+    attr.matrixAll[0].ccMatrix[5] = 0.0333;
+    attr.matrixAll[0].ccMatrix[6] = -0.028;
+    attr.matrixAll[0].ccMatrix[7] = -1.6919;
+    attr.matrixAll[0].ccMatrix[8] = 2.7199;
+
+    //set
+    ret = rk_aiq_user_api2_accm_v2_SetIqParam(ctx, &attr);
+    RKAIQ_SAMPLE_CHECK_RET(ret, "IqParam failed!");
+    printf("IqParam test 0\n");
+
+    return 0;
+}
+
+
+static int sample_ccm_setIqParam_V2_T1(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    rk_aiq_ccm_v2_calib_attrib_t attr;
+    memset(&attr,0,sizeof(rk_aiq_ccm_v2_calib_attrib_t));
+    //get
+    ret = rk_aiq_user_api2_accm_v2_GetIqParam(ctx, &attr);
+    RKAIQ_SAMPLE_CHECK_RET(ret, "setIqParam failed in GetIqParam!");
+    //modify
+    attr.sync.sync_mode = sync;
+
+    attr.aCcmCof_len = 2;
+    for (int i = 1; i < attr.aCcmCof_len; i++) {
+        attr.aCcmCof[i].gain_sat_curve = attr.aCcmCof[0].gain_sat_curve;
+    }
+    sprintf(attr.aCcmCof[0].name, "%s", "A");
+    attr.aCcmCof[0].matrixUsed_len = 2;
+    sprintf(attr.aCcmCof[0].matrixUsed[0], "%s", "A_100");
+    sprintf(attr.aCcmCof[0].matrixUsed[1], "%s", "A_70");
+    attr.aCcmCof[0].awbGain[0] = 1.3959;
+    attr.aCcmCof[0].awbGain[1] = 3.179;
+    sprintf(attr.aCcmCof[1].name, "%s", "D65");
+    attr.aCcmCof[1].matrixUsed_len = 2;
+    sprintf(attr.aCcmCof[1].matrixUsed[0], "%s", "D65_100");
+    sprintf(attr.aCcmCof[1].matrixUsed[1], "%s", "D65_70");
+    attr.aCcmCof[1].awbGain[0] = 2.4965;
+    attr.aCcmCof[1].awbGain[1] = 1.5597;
+
+    attr.matrixAll_len = 4;
+    int k = 0;
+    for (int j = 0; j < attr.aCcmCof_len; j++) {
+        if (k > (attr.matrixAll_len-1)) break;
+        attr.matrixAll[k].saturation = 100;
+        attr.matrixAll[k+1].saturation = 70;
+        for (int i = 0; i < attr.aCcmCof[j].matrixUsed_len; i++) {
+            strcpy(attr.matrixAll[k].illumination, attr.aCcmCof[j].name);
+            if (k > (attr.matrixAll_len-1)) break;
+            strcpy(attr.matrixAll[k].name, attr.aCcmCof[j].matrixUsed[i]);
+            k++;
+        }
+    }
+    attr.matrixAll[0].ccMatrix[0] = 1.7416;
+    attr.matrixAll[0].ccMatrix[1] = -0.518;
+    attr.matrixAll[0].ccMatrix[2] = -0.2236;
+    attr.matrixAll[0].ccMatrix[3] = -0.3781;
+    attr.matrixAll[0].ccMatrix[4] = 1.3448;
+    attr.matrixAll[0].ccMatrix[5] = 0.0333;
+    attr.matrixAll[0].ccMatrix[6] = -0.028;
+    attr.matrixAll[0].ccMatrix[7] = -1.6919;
+    attr.matrixAll[0].ccMatrix[8] = 2.7199;
+
+    attr.matrixAll[1].ccMatrix[0] = 1.2241;
+    attr.matrixAll[1].ccMatrix[1] = -0.2362;
+    attr.matrixAll[1].ccMatrix[2] = 0.0121;
+    attr.matrixAll[1].ccMatrix[3] = -0.2307;
+    attr.matrixAll[1].ccMatrix[4] = 1.1783;
+    attr.matrixAll[1].ccMatrix[5] = 0.0524;
+    attr.matrixAll[1].ccMatrix[6] = 0.0405;
+    attr.matrixAll[1].ccMatrix[7] = -1.3682;
+    attr.matrixAll[1].ccMatrix[8] = 2.3277;
+
+    attr.matrixAll[2].ccMatrix[0] = 1.5676;
+    attr.matrixAll[2].ccMatrix[1] = -0.6055;
+    attr.matrixAll[2].ccMatrix[2] = 0.0378;
+    attr.matrixAll[2].ccMatrix[3] = -0.2491;
+    attr.matrixAll[2].ccMatrix[4] = 1.5287;
+    attr.matrixAll[2].ccMatrix[5] = -0.2796;
+    attr.matrixAll[2].ccMatrix[6] = 0.0423;
+    attr.matrixAll[2].ccMatrix[7] = -0.7914;
+    attr.matrixAll[2].ccMatrix[8] = 1.7491;
+
+    attr.matrixAll[3].ccMatrix[0] = 1.3244;
+    attr.matrixAll[3].ccMatrix[1] = -0.3646;
+    attr.matrixAll[3].ccMatrix[2] = 0.0402;
+    attr.matrixAll[3].ccMatrix[3] = -0.1083;
+    attr.matrixAll[3].ccMatrix[4] = 1.3275;
+    attr.matrixAll[3].ccMatrix[5] = -0.2193;
+    attr.matrixAll[3].ccMatrix[6] = 0.1245;
+    attr.matrixAll[3].ccMatrix[7] = -0.4216;
+    attr.matrixAll[3].ccMatrix[8] = 1.2972;
+    //set
+    ret = rk_aiq_user_api2_accm_v2_SetIqParam(ctx, &attr);
+    RKAIQ_SAMPLE_CHECK_RET(ret, "IqParam failed!");
+    printf("IqParam test 1\n\n");
+
+    return 0;
+}
+
 XCamReturn sample_accm_module(const void *arg)
 {
     int key = -1;
@@ -775,6 +957,18 @@ XCamReturn sample_accm_v2_module(const void *arg)
                 break;
             case 'l':
                 sample_query_ccm_info_V2(ctx);
+                break;
+            case 'm':
+                sample_ccm_getIqParam_V2(ctx);
+                sample_ccm_setIqParam_V2_T0(ctx, RK_AIQ_UAPI_MODE_DEFAULT);
+                usleep(40*1000);
+                sample_ccm_getIqParam_V2(ctx);
+                break;
+            case 'n':
+                sample_ccm_getIqParam_V2(ctx);
+                sample_ccm_setIqParam_V2_T1(ctx, RK_AIQ_UAPI_MODE_DEFAULT);
+                usleep(40*1000);
+                sample_ccm_getIqParam_V2(ctx);
                 break;
             default:
                 break;
