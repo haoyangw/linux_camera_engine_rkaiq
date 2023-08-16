@@ -841,7 +841,7 @@ void GetEnhanceParamsV12(CalibDbDehazeV12_t* pCalibV12, RkAiqAdehazeProcResult_t
             if (CtrlValue >= pCalibV12->enhance_setting.EnhanceData[i].CtrlData &&
                 CtrlValue < pCalibV12->enhance_setting.EnhanceData[i + 1].CtrlData) {
                 lo    = i;
-                lo    = i + 1;
+                hi    = i + 1;
                 ratio = (CtrlValue - pCalibV12->enhance_setting.EnhanceData[i].CtrlData) /
                         (pCalibV12->enhance_setting.EnhanceData[i + 1].CtrlData -
                          pCalibV12->enhance_setting.EnhanceData[i].CtrlData);
