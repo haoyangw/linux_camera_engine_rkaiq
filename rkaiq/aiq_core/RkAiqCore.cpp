@@ -2291,11 +2291,12 @@ RkAiqCore::setGrayMode(rk_aiq_gray_mode_t mode)
     CalibDbV2_ColorAsGrey_t *colorAsGrey =
         (CalibDbV2_ColorAsGrey_t*)CALIBDBV2_GET_MODULE_PTR((void*)(mAlogsComSharedParams.calibv2), colorAsGrey);
 
+#if 0
     if (colorAsGrey->param.enable) {
         LOGE_ANALYZER("%s: not support,since color_as_grey is enabled in xml", __FUNCTION__);
         return XCAM_RETURN_ERROR_PARAM;
     }
-
+#endif
     mGrayMode = mode;
     if (mode == RK_AIQ_GRAY_MODE_OFF)
         mAlogsComSharedParams.gray_mode = false;
