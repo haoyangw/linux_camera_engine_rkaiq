@@ -5885,13 +5885,16 @@ CamHwIsp20::setIspConfig(cam3aResultList* result_list)
 #ifdef DISABLE_PARAMS_POLL_THREAD
         int timeout = is_wait_params_done ? 100 : 1;
         int buf_counts = mIspParamsDev->get_buffer_count ();
+        int try_time = 3;
         while (mIspParamsDev->get_queued_bufcnt() > 2 || is_wait_params_done) {
             if (mIspParamsDev->poll_event (timeout, -1) <= 0) {
                 LOGW_CAMHW_SUBM(ISP20HW_SUBM, "poll params error, queue cnts: %d !",
                                 mIspParamsDev->get_queued_bufcnt());
-                if (mIspParamsDev->get_queued_bufcnt() == buf_counts)
-                   timeout = 100 ;
-                else
+                if (mIspParamsDev->get_queued_bufcnt() == buf_counts && try_time > 0) {
+                   timeout = 30;
+                   try_time--;
+                   continue;
+                } else
                     break;
             }
             SmartPtr<V4l2Buffer> buf;
