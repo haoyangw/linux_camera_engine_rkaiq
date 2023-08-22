@@ -785,28 +785,30 @@ XCamReturn selectCCM(const CalibDbV2_Ccm_Tuning_Para_t* pCcm, accm_handle_t hAcc
                     pDomIlluProfile->gain_sat_curve.sat,
                     4,
                     hAccm->accmSwInfo.sensorGain, &fSaturation);
+    bool flag0 = false;
+    flag0 = hAccm->isReCal_ ||
+            hAccm->calib_update ||
+            (dominateIlluProfileIdx != hAccm->accmRest.dominateIlluProfileIdx) ||
+            (fabs(fSaturation - hAccm->accmRest.fSaturation) > DIVMIN);
     LOGD_ACCM("pickCCMprof = graymode chg (%d) || calib_update (%d) || dominateIlluProfileIdx: %d->%d || fSaturation: %f->%f\n",
-            hAccm->isReCal_, hAccm->calib_update, hAccm->accmRest.dominateIlluProfileIdx, dominateIlluProfileIdx,
+            flag0, hAccm->calib_update, hAccm->accmRest.dominateIlluProfileIdx, dominateIlluProfileIdx,
             hAccm->accmRest.fSaturation, fSaturation);
 
-    hAccm->isReCal_ = hAccm->isReCal_ ||
-                        hAccm->calib_update ||
-                        (dominateIlluProfileIdx != hAccm->accmRest.dominateIlluProfileIdx) ||
-                        (fabs(fSaturation - hAccm->accmRest.fSaturation) > DIVMIN);
-
-    hAccm->accmRest.dominateIlluProfileIdx = dominateIlluProfileIdx;
-    hAccm->accmRest.fSaturation =  fSaturation;
-
     //3)
-    if (hAccm->isReCal_) {
+    if (flag0) {
+        hAccm->isReCal_ = hAccm->calib_update ||
+                          (fabs(fSaturation - hAccm->accmRest.fSaturation) > 0);
+        hAccm->accmRest.fSaturation =  fSaturation;
+        hAccm->accmRest.dominateIlluProfileIdx = dominateIlluProfileIdx;
+
         ret = SatSelectCcmProfiles(hAccm->accmRest.fSaturation, pDomIlluProfile->matrixUsed_len,
                                 hAccm->pCcmMatrixAll[dominateIlluProfileIdx], &pCcmProfile1,
                                 &pCcmProfile2);
         if (pCcmProfile1 && pCcmProfile2) {
-            hAccm->isReCal_ = hAccm->calib_update ||
+            hAccm->isReCal_ = hAccm->isReCal_ ||
                             strcmp(pCcmProfile1->name, hAccm->accmRest.pCcmProfile1->name) ||
                             strcmp(pCcmProfile2->name, hAccm->accmRest.pCcmProfile2->name);
-            LOGD_ACCM("CcmProfile changed: %d = calib_update(%d) || pCcmProfile1/2 changed",
+            LOGD_ACCM("CcmProfile changed: %d = calib_update(%d) || fSaturation changed || pCcmProfile1/2 changed",
                         hAccm->isReCal_, hAccm->calib_update);
         } else {
             LOGD_ACCM("check %s pCcmProfile: %p %p \n", pDomIlluProfile->name, pCcmProfile1, pCcmProfile2);

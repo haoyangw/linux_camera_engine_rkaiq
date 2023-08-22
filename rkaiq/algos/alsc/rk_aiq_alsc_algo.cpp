@@ -920,14 +920,16 @@ XCamReturn AlscAutoConfig(alsc_handle_t hAlsc)
     *       Interpolate tbl by vig
     *       update hAlsc->alscRest.pLscProfile1/2
     * **************/
-    hAlsc->isReCal_ = fabs(hAlsc->alscRest.fVignetting - fVignetting) > DIVMIN ||
+    bool flag0 = fabs(hAlsc->alscRest.fVignetting - fVignetting) > DIVMIN ||
                         hAlsc->alscRest.estimateIlluCaseIdx != estimateIlluCaseIdx ||
                         hAlsc->alscRest.resIdx != resIdx ||
                         hAlsc->smartRunRes.forceRunFlag; //forceRunFlag: prepare(init or calib/res/graymode change) or updateAttr
-    LOGD_ALSC("hAlsc->isReCal_: %d = fVignetting(%f->%f)/estimateIlluCaseIdx(%d->%d)/resIdx(%d->%d) changed or forceRunFlag",
-                hAlsc->isReCal_, hAlsc->alscRest.fVignetting, fVignetting, hAlsc->alscRest.estimateIlluCaseIdx, estimateIlluCaseIdx,
+    LOGD_ALSC("pickLscProfile: %d = fVignetting(%f->%f)/estimateIlluCaseIdx(%d->%d)/resIdx(%d->%d) changed or forceRunFlag",
+                flag0, hAlsc->alscRest.fVignetting, fVignetting, hAlsc->alscRest.estimateIlluCaseIdx, estimateIlluCaseIdx,
                 hAlsc->alscRest.resIdx, resIdx, hAlsc->smartRunRes.forceRunFlag);
-    if (hAlsc->isReCal_) {
+    if (flag0) {
+        hAlsc->isReCal_ = hAlsc->smartRunRes.forceRunFlag ||
+                            fabs(hAlsc->alscRest.fVignetting - fVignetting) > DIVMIN;
         hAlsc->alscRest.estimateIlluCaseIdx = estimateIlluCaseIdx;
         hAlsc->alscRest.resIdx = resIdx;
         hAlsc->alscRest.fVignetting =  fVignetting;
@@ -937,10 +939,10 @@ XCamReturn AlscAutoConfig(alsc_handle_t hAlsc)
         pLscTableProfile_t pLscProfile2 = NULL;
         ret = VignSelectLscProfiles(illu_case, fVignetting, pLscProfile1, pLscProfile2);
         if (pLscProfile1 && pLscProfile2) {
-            hAlsc->isReCal_ = hAlsc->smartRunRes.forceRunFlag ||
+            hAlsc->isReCal_ = hAlsc->isReCal_ ||
                             strcmp(pLscProfile1->name, hAlsc->alscRest.pLscProfile1->name) ||
                             strcmp(pLscProfile2->name, hAlsc->alscRest.pLscProfile2->name);
-            LOGD_ALSC("hAlsc->isReCal_: %d = forceRunFlag(%d) || pLscProfile1/2 changed", hAlsc->isReCal_, hAlsc->smartRunRes.forceRunFlag);
+            LOGD_ALSC("hAlsc->isReCal_: %d = forceRunFlag(%d) || fVignetting changed || pLscProfile1/2 changed", hAlsc->isReCal_, hAlsc->smartRunRes.forceRunFlag);
         } else {
             LOGE_ALSC("check %s %s pLscProfile: %p %p \n", hAlsc->cur_res.name, illu_case->alsc_cof->name, pLscProfile1, pLscProfile2);
             return XCAM_RETURN_ERROR_PARAM;
