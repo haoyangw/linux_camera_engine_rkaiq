@@ -6,6 +6,7 @@
 #include <thread>
 #include <sys/types.h>
 #include <dirent.h>
+#include <memory>
 
 #include "camera_infohw.h"
 #include "domain_tcp_client.h"
