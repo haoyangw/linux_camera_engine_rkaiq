@@ -88,6 +88,10 @@ prepare(RkAiqAlgoCom* params)
 	pAsharpCtx->prepare_type = params->u.prepare.conf_type;
 
 	if(!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB )){
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
+            return XCAM_RETURN_NO_ERROR;
+        }
 		#if(ASHARP_USE_JSON_PARA)	
 		CalibDbV2_SharpV1_t *calibv2_sharp = (CalibDbV2_SharpV1_t *)(CALIBDBV2_GET_MODULE_PTR(pCfgParam->com.u.prepare.calibv2, sharp_v1));
 		CalibDbV2_Edgefilter_t *calibv2_edgefilter = (CalibDbV2_Edgefilter_t*)(CALIBDBV2_GET_MODULE_PTR(pCfgParam->com.u.prepare.calibv2, edgefilter_v1));

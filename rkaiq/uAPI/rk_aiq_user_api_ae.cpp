@@ -268,6 +268,45 @@ XCamReturn rk_aiq_user_api_ae_getExpWinAttr
 
 }
 
+XCamReturn rk_aiq_user_api_ae_setAecStatsCfg
+(
+    const rk_aiq_sys_ctx_t* sys_ctx,
+    const Uapi_AecStatsCfg_t AecStatsCfg
+) {
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    CHECK_USER_API_ENABLE2(sys_ctx);
+    CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_AE);
+    RKAIQ_API_SMART_LOCK(sys_ctx);
+
+    RkAiqAeHandleInt* algo_handle =
+        algoHandle<RkAiqAeHandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_AE);
+
+    if (algo_handle) {
+        return algo_handle->setAecStatsCfg(AecStatsCfg);
+    }
+
+    return(ret);
+
+}
+XCamReturn rk_aiq_user_api_ae_getAecStatsCfg
+(
+    const rk_aiq_sys_ctx_t* sys_ctx,
+    Uapi_AecStatsCfg_t* pAecStatsCfg
+) {
+    RKAIQ_API_SMART_LOCK(sys_ctx);
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    RkAiqAeHandleInt* algo_handle =
+        algoHandle<RkAiqAeHandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_AE);
+
+    if (algo_handle) {
+        return algo_handle->getAecStatsCfg(pAecStatsCfg);
+    }
+
+    return(ret);
+
+}
+
 #else
 
 XCamReturn rk_aiq_user_api_ae_setExpSwAttr
@@ -359,6 +398,20 @@ XCamReturn rk_aiq_user_api_ae_getExpWinAttr
 (
     const rk_aiq_sys_ctx_t* sys_ctx,
     Uapi_ExpWin_t* pExpWin
+) {
+    return XCAM_RETURN_ERROR_UNKNOWN;
+}
+XCamReturn rk_aiq_user_api_ae_setAecStatsCfg
+(
+    const rk_aiq_sys_ctx_t* sys_ctx,
+    const Uapi_AecStatsCfg_t AecStatsCfg
+) {
+    return XCAM_RETURN_ERROR_UNKNOWN;
+}
+XCamReturn rk_aiq_user_api_ae_getAecStatsCfg
+(
+    const rk_aiq_sys_ctx_t* sys_ctx,
+    Uapi_AecStatsCfg_t* pAecStatsCfg
 ) {
     return XCAM_RETURN_ERROR_UNKNOWN;
 }

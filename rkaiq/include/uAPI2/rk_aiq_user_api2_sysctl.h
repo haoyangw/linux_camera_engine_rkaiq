@@ -544,6 +544,10 @@ void rk_aiq_uapi2_sysctl_setIspParamsDelayCnts(const rk_aiq_sys_ctx_t* sys_ctx, 
  */
 void rk_aiq_uapi2_sysctl_setUserSensorFormat(rk_aiq_sys_ctx_t* sys_ctx, uint16_t width, uint16_t height,
                                                  uint16_t code);
+
+XCamReturn
+rk_aiq_uapi2_sysctl_setCrop(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_rect_t rect);
+
 RKAIQ_END_DECLARE
 
 #endif

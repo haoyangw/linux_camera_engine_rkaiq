@@ -65,6 +65,8 @@ XCamReturn
 rk_aiq_user_api_af_resetZoom(const rk_aiq_sys_ctx_t* sys_ctx);
 XCamReturn
 rk_aiq_user_api_af_setAngleZ(const rk_aiq_sys_ctx_t* sys_ctx, float angleZ);
+XCamReturn
+rk_aiq_user_api_af_GetFocusPos(const rk_aiq_sys_ctx_t* sys_ctx, int* pos);
 
 RKAIQ_END_DECLARE
 

@@ -292,6 +292,8 @@ Abayer2dnr_result_V23_t Abayer2dnr_ConfigSettingParam_V23(Abayer2dnr_Context_V23
 
 #if (ABAYER2DNR_USE_JSON_FILE_V23)
     bayer2dnr_config_setting_param_json_V23(&pAbayernrCtx->stAuto.st2DParams, &pAbayernrCtx->bayernr_v23, param_mode_name, snr_name);
+    // init 2dnr manual params
+    pAbayernrCtx->stManual.st2DSelect = pAbayernrCtx->stAuto.st2DParams.Bayer2dnrParamsISO[0];
 #endif
     LOGI_ANR("%s(%d): exit!\n", __FUNCTION__, __LINE__);
     return ABAYER2DNR_V23_RET_SUCCESS;

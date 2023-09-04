@@ -40,6 +40,7 @@ XCamReturn AgammaInit(AgammaHandle_t** pGammaCtx, CamCalibDbV2Context_t* pCalib)
     memcpy(&handle->agammaAttrV10.stAuto, calibv2_agamma_calib, sizeof(CalibDbV2_gamma_v10_t));
     handle->agammaAttrV10.mode              = RK_AIQ_GAMMA_MODE_AUTO;
     handle->ifReCalcStAuto                  = true;
+    handle->ifReCalcStManual                = false;
 
     *pGammaCtx = handle;
     LOG1_AGAMMA("EXIT: %s \n", __func__);

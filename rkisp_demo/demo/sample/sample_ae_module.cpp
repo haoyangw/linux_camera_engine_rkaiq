@@ -21,7 +21,7 @@ static void sample_ae_usage()
 {
     printf("Usage : \n");
     printf("\t 0) AE:         set ae speed.\n");
-    printf("\t 1) AE:         set ae delay.\n\n");
+    printf("\t 1) AE:         set ae delay.\n");
     printf("\t 2) AE:         set exp manual.\n");
     printf("\t 3) AE:         set exp auto.\n");
     printf("\t 4) AE:         set manual time & auto gain.\n");
@@ -46,15 +46,17 @@ static void sample_ae_usage()
     printf("\t n) AE:         set linear route.\n");
     printf("\t o) AE:         set hdr mframe params.\n");
     printf("\t p) AE:         get fps.\n");
+    printf("\t r) AE:         set aec stats cfg params.\n");
+    printf("\t s) AE:         get aec stats cfg params.\n");
 
     printf("\t W) AE:         test default mode.\n");
     printf("\t X) AE:         test sync mode.\n");
     printf("\t Y) AE:         test async mode.\n");
-    printf("\t Z) AE:         test async mode, twice set.\n\n");
+    printf("\t Z) AE:         test async mode, twice set.\n");
 
-    printf("\t C) AE:         enter hall dc-iris calib.\n");
+    printf("\t C) AE:         enter hall dc-iris calib.\n\n");
 
-    printf("\t q/Q) AE:         return to main sample screen.\n");
+    printf("\t q/Q) AE:       return to main sample screen.\n");
     printf("\n");
     printf("\t please press the key: \n\n");
 
@@ -639,6 +641,7 @@ XCamReturn sample_ae_module (const void *arg)
     }
 
     Uapi_ExpWin_t ExpWin;
+    Uapi_AecStatsCfg_t AecStatsCfg;
     Uapi_ExpSwAttrV2_t expSwAttr;
     float fps = 0.0f;
 
@@ -761,6 +764,22 @@ XCamReturn sample_ae_module (const void *arg)
             sample_get_fps(ctx, &fps, RK_AIQ_UAPI_MODE_DEFAULT);
             printf("cur fps = %f\n\n", fps);
             break;
+        case 'r':
+            AecStatsCfg.updateStats = true;
+            AecStatsCfg.YChannelEn = false;
+            AecStatsCfg.RChannelEn = true;
+            AecStatsCfg.GChannelEn = true;
+            AecStatsCfg.BChannelEn = true;
+            AecStatsCfg.sync.sync_mode = RK_AIQ_UAPI_MODE_DEFAULT;
+            rk_aiq_user_api2_ae_setAecStatsCfg(ctx, AecStatsCfg);
+            printf("set aec stats cfg, update/select all channel\n\n");
+            break;
+        case 's':
+            rk_aiq_user_api2_ae_getAecStatsCfg(ctx, &AecStatsCfg);
+            printf("get aec stats cfg, rawStatsChnSel=Y(%d)-R(%d)-G(%d)-B(%d), updateStats=%d\n\n", AecStatsCfg.YChannelEn,
+                   AecStatsCfg.RChannelEn, AecStatsCfg.GChannelEn, AecStatsCfg.BChannelEn, AecStatsCfg.updateStats);
+            break;
+
         // TEST SYNC MODE
         case 'W':
             sample_set_exp_manual(ctx, RK_AIQ_UAPI_MODE_DEFAULT);

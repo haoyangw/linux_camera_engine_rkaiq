@@ -726,6 +726,45 @@ bool AmergeByPassProcessing(AmergeContext_t* pAmergeCtx) {
     LOG1_AMERGE("%s:exit!\n", __FUNCTION__);
     return bypass;
 }
+/******************************************************************************
+ * AmergeSetDefaultManuAttrParmasV12()
+ *****************************************************************************/
+void AmergeSetDefaultManuAttrParmasV12(AmergeContext_t* pAmergeCtx) {
+    LOG1_AMERGE("%s:enter!\n", __FUNCTION__);
+
+    pAmergeCtx->mergeAttrV12.stManual.BaseFrm =
+        pAmergeCtx->mergeAttrV12.stAuto.MergeTuningPara.BaseFrm;
+    pAmergeCtx->mergeAttrV12.stManual.LongFrmModeData.EnableEachChn =
+        pAmergeCtx->mergeAttrV12.stAuto.MergeTuningPara.LongFrmModeData.EnableEachChn;
+    pAmergeCtx->mergeAttrV12.stManual.LongFrmModeData.OECurve.Smooth =
+        pAmergeCtx->mergeAttrV12.stAuto.MergeTuningPara.LongFrmModeData.OECurve.Smooth[0];
+    pAmergeCtx->mergeAttrV12.stManual.LongFrmModeData.OECurve.Offset =
+        pAmergeCtx->mergeAttrV12.stAuto.MergeTuningPara.LongFrmModeData.OECurve.Offset[0];
+    pAmergeCtx->mergeAttrV12.stManual.LongFrmModeData.MDCurve.LM_smooth =
+        pAmergeCtx->mergeAttrV12.stAuto.MergeTuningPara.LongFrmModeData.MDCurve.LM_smooth[0];
+    pAmergeCtx->mergeAttrV12.stManual.LongFrmModeData.MDCurve.LM_offset =
+        pAmergeCtx->mergeAttrV12.stAuto.MergeTuningPara.LongFrmModeData.MDCurve.LM_offset[0];
+    pAmergeCtx->mergeAttrV12.stManual.LongFrmModeData.MDCurve.MS_smooth =
+        pAmergeCtx->mergeAttrV12.stAuto.MergeTuningPara.LongFrmModeData.MDCurve.MS_smooth[0];
+    pAmergeCtx->mergeAttrV12.stManual.LongFrmModeData.MDCurve.MS_offset =
+        pAmergeCtx->mergeAttrV12.stAuto.MergeTuningPara.LongFrmModeData.MDCurve.MS_offset[0];
+    pAmergeCtx->mergeAttrV12.stManual.LongFrmModeData.EachChnCurve.Smooth =
+        pAmergeCtx->mergeAttrV12.stAuto.MergeTuningPara.LongFrmModeData.EachChnCurve.Smooth[0];
+    pAmergeCtx->mergeAttrV12.stManual.LongFrmModeData.EachChnCurve.Offset =
+        pAmergeCtx->mergeAttrV12.stAuto.MergeTuningPara.LongFrmModeData.EachChnCurve.Offset[0];
+    pAmergeCtx->mergeAttrV12.stManual.ShortFrmModeData.OECurve.Smooth =
+        pAmergeCtx->mergeAttrV12.stAuto.MergeTuningPara.ShortFrmModeData.OECurve.Smooth[0];
+    pAmergeCtx->mergeAttrV12.stManual.ShortFrmModeData.OECurve.Offset =
+        pAmergeCtx->mergeAttrV12.stAuto.MergeTuningPara.ShortFrmModeData.OECurve.Offset[0];
+    pAmergeCtx->mergeAttrV12.stManual.ShortFrmModeData.MDCurve.Coef =
+        pAmergeCtx->mergeAttrV12.stAuto.MergeTuningPara.ShortFrmModeData.MDCurve.Coef[0];
+    pAmergeCtx->mergeAttrV12.stManual.ShortFrmModeData.MDCurve.ms_thd0 =
+        pAmergeCtx->mergeAttrV12.stAuto.MergeTuningPara.ShortFrmModeData.MDCurve.ms_thd0[0];
+    pAmergeCtx->mergeAttrV12.stManual.ShortFrmModeData.MDCurve.lm_thd0 =
+        pAmergeCtx->mergeAttrV12.stAuto.MergeTuningPara.ShortFrmModeData.MDCurve.lm_thd0[0];
+
+    LOG1_AMERGE("%s:exit!\n", __FUNCTION__);
+}
 
 /******************************************************************************
  * AmergeInit()
@@ -748,6 +787,7 @@ XCamReturn AmergeInit(AmergeContext_t** ppAmergeCtx, CamCalibDbV2Context_t* pCal
         (CalibDbV2_merge_v12_t*)(CALIBDBV2_GET_MODULE_PTR(pCalibV2, amerge_calib));
     memcpy(&pAmergeCtx->mergeAttrV12.stAuto, calibv2_amerge_calib, sizeof(CalibDbV2_merge_v12_t));
     pAmergeCtx->mergeAttrV12.opMode = MERGE_OPMODE_AUTO;
+    AmergeSetDefaultManuAttrParmasV12(pAmergeCtx);
     pAmergeCtx->ifReCalcStAuto      = true;
     pAmergeCtx->ifReCalcStManual    = false;
     pAmergeCtx->isCapture           = false;

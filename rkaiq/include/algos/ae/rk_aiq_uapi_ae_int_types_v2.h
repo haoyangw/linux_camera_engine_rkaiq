@@ -257,5 +257,18 @@ typedef struct Uapi_ExpQueryInfo_s {
 
 } Uapi_ExpQueryInfo_t;
 
+/*****************************************************************************/
+/**
+ * @brief   ISP2.0/2.1 AEC API StatsChnCfg Params
+ */
+/*****************************************************************************/
+typedef struct Uapi_AecStatsCfg_s {
+    rk_aiq_uapi_sync_t      sync;
+    bool                    updateStats;
+    bool                    YChannelEn;
+    bool                    RChannelEn;
+    bool                    GChannelEn;
+    bool                    BChannelEn;
+} Uapi_AecStatsCfg_t;
 
 #endif

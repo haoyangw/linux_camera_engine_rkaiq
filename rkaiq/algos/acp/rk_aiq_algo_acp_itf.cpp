@@ -74,6 +74,9 @@ prepare(RkAiqAlgoCom* params)
     RkAiqAlgoConfigAcp* pCfgParam = (RkAiqAlgoConfigAcp*)params;
 
 	if(!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB )){
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR)
+            return XCAM_RETURN_NO_ERROR;
 #if RKAIQ_HAVE_ACP_V10
         if (pCfgParam->com.u.prepare.calib) {
             CalibDb_cProc_t *cproc =

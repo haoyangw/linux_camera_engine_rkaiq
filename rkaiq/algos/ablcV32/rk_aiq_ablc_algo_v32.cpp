@@ -325,15 +325,29 @@ AblcResult_V32_t AblcV32ParamsUpdate(AblcContext_V32_t* pAblcCtx, CalibDbV2_Blc_
 
     // blc0
     AblcJsonParamInit_V32(&pAblcCtx->stBlc0Params, &pCalibDb->Blc0TuningPara);
+    // init manual params
+    pAblcCtx->stBlc0Manual.enable = pAblcCtx->stBlc0Params.enable;
+    pAblcCtx->stBlc0Manual.blc_r = pAblcCtx->stBlc0Params.blc_r[0];
+    pAblcCtx->stBlc0Manual.blc_gb = pAblcCtx->stBlc0Params.blc_gb[0];
+    pAblcCtx->stBlc0Manual.blc_gr = pAblcCtx->stBlc0Params.blc_gr[0];
+    pAblcCtx->stBlc0Manual.blc_b = pAblcCtx->stBlc0Params.blc_b[0];
 
     // bls1
     if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
         AblcJsonParamInit_V32(&pAblcCtx->stBlc1Params, &pCalibDb->Blc1TuningPara);
+        pAblcCtx->stBlc1Manual.enable = pAblcCtx->stBlc1Params.enable;
+        pAblcCtx->stBlc1Manual.blc_r = pAblcCtx->stBlc1Params.blc_r[0];
+        pAblcCtx->stBlc1Manual.blc_gb = pAblcCtx->stBlc1Params.blc_gb[0];
+        pAblcCtx->stBlc1Manual.blc_gr = pAblcCtx->stBlc1Params.blc_gr[0];
+        pAblcCtx->stBlc1Manual.blc_b = pAblcCtx->stBlc1Params.blc_b[0];
     }
 
     // blc_ob
     if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
         AblcOBJsonParamInit_V32(&pAblcCtx->stBlcOBParams, &pCalibDb->BlcObPara);
+        pAblcCtx->stBlcOBManual.enable = pAblcCtx->stBlcOBParams.enable;
+        pAblcCtx->stBlcOBManual.ob_offset = pAblcCtx->stBlcOBParams.ob_offset[0];
+        pAblcCtx->stBlcOBManual.ob_predgain = pAblcCtx->stBlcOBParams.ob_predgain[0];
     }
     // blc_ref
     if (CHECK_ISP_HW_V32() ||  CHECK_ISP_HW_V32_LITE()) {

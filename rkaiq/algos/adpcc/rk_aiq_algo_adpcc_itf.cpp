@@ -77,6 +77,9 @@ prepare(RkAiqAlgoCom* params)
     pAdpccCtx->prepare_type = params->u.prepare.conf_type;
 
     if(!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB )) {
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR)
+            return XCAM_RETURN_NO_ERROR;
         AdpccResult_t ret = AdpccReloadPara(pAdpccCtx, pCfgParam->com.u.prepare.calibv2);
         if(ret != ADPCC_RET_SUCCESS) {
             result = XCAM_RETURN_ERROR_FAILED;

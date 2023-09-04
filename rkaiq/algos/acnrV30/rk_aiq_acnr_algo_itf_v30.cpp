@@ -85,6 +85,9 @@ prepare(RkAiqAlgoCom* params)
     pAcnrCtx->prepare_type = params->u.prepare.conf_type;
 
     if(!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB )) {
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR)
+            return XCAM_RETURN_NO_ERROR;
 #if ACNR_USE_JSON_FILE_V30
         void *pCalibDbV2 = (void*)(pCfgParam->com.u.prepare.calibv2);
         CalibDbV2_CNRV30_t *cnr_v30 =
@@ -95,6 +98,7 @@ prepare(RkAiqAlgoCom* params)
         pAcnrCtx->isReCalculate |= 1;
 
     }
+
     AcnrV30_result_t ret = Acnr_Prepare_V30(pAcnrCtx, &pCfgParam->stAcnrConfig);
     if(ret != ACNRV30_RET_SUCCESS) {
         result = XCAM_RETURN_ERROR_FAILED;

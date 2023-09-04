@@ -96,10 +96,11 @@ public:
     XCamReturn setHdrAeRouteAttr(Uapi_HdrAeRouteAttr_t HdrAeRouteAttr);
     XCamReturn getHdrAeRouteAttr(Uapi_HdrAeRouteAttr_t* pHdrAeRouteAttr);
 
-
     XCamReturn setSyncTestAttr(Uapi_AecSyncTest_t SyncTestAttr);
-    XCamReturn getSyncTestAttr (Uapi_AecSyncTest_t* pSyncTestAttr);
+    XCamReturn getSyncTestAttr(Uapi_AecSyncTest_t* pSyncTestAttr);
     XCamReturn queryExpInfo(Uapi_ExpQueryInfo_t* pExpQueryInfo);
+    XCamReturn setAecStatsCfg(Uapi_AecStatsCfg_t AecStatsCfg);
+    XCamReturn getAecStatsCfg(Uapi_AecStatsCfg_t* pAecStatsCfg);
 
 protected:
 
@@ -119,6 +120,8 @@ private:
     Uapi_HdrAeRouteAttr_t mNewHdrAeRouteAttr;
     Uapi_AecSyncTest_t    mCurAecSyncTestAttr;
     Uapi_AecSyncTest_t    mNewAecSyncTestAttr;
+    Uapi_AecStatsCfg_t    mCurAecStatsCfg;
+    Uapi_AecStatsCfg_t    mNewAecStatsCfg;
 
     mutable std::atomic<bool> updateExpSwAttrV2;
     mutable std::atomic<bool> updateLinExpAttrV2;
@@ -127,6 +130,7 @@ private:
     mutable std::atomic<bool> updateLinAeRouteAttr;
     mutable std::atomic<bool> updateHdrAeRouteAttr;
     mutable std::atomic<bool> updateSyncTestAttr;
+    mutable std::atomic<bool> updateAecStatsCfg;
 };
 
 // awb
@@ -477,8 +481,8 @@ public:
     XCamReturn getAttribV12Lite(drcAttrV12Lite_t* att);
 #endif
 
- protected:
- private:
+protected:
+private:
 // TODO
 #if RKAIQ_HAVE_DRC_V10
     drcAttrV10_t mCurAttV10;

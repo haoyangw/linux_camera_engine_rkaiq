@@ -1079,6 +1079,233 @@ bool AdrcByPassTuningProcessing(AdrcContext_t* pAdrcCtx) {
     LOG1_ATMO("%s:exit!\n", __FUNCTION__);
     return bypass;
 }
+
+/******************************************************************************
+ * AdrcSetDefaultManuAttrParmasV12()
+ *****************************************************************************/
+void AdrcSetDefaultManuAttrParmasV12(AdrcContext_t* pAdrcCtx) {
+    LOG1_ATMO("%s:enter!\n", __FUNCTION__);
+
+#if RKAIQ_HAVE_DRC_V12
+    pAdrcCtx->drcAttrV12.stManual.Enable = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Enable;
+    pAdrcCtx->drcAttrV12.stManual.DrcGain.Alpha =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.DrcGain.Alpha[0];
+    pAdrcCtx->drcAttrV12.stManual.DrcGain.DrcGain =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.DrcGain.DrcGain[0];
+    pAdrcCtx->drcAttrV12.stManual.DrcGain.Clip =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.DrcGain.Clip[0];
+    pAdrcCtx->drcAttrV12.stManual.HiLight.HiLightData.Strength =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.HiLight.HiLightData.Strength[0];
+    pAdrcCtx->drcAttrV12.stManual.HiLight.HiLightData.gas_t =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.HiLight.HiLightData.gas_t[0];
+    pAdrcCtx->drcAttrV12.stManual.HiLight.gas_l0 =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.HiLight.gas_l0;
+    pAdrcCtx->drcAttrV12.stManual.HiLight.gas_l1 =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.HiLight.gas_l1;
+    pAdrcCtx->drcAttrV12.stManual.HiLight.gas_l2 =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.HiLight.gas_l2;
+    pAdrcCtx->drcAttrV12.stManual.HiLight.gas_l3 =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.HiLight.gas_l3;
+    pAdrcCtx->drcAttrV12.stManual.LocalSetting.LocalData.LocalWeit =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.LocalSetting.LocalData.LocalWeit[0];
+    pAdrcCtx->drcAttrV12.stManual.LocalSetting.LocalData.LocalAutoEnable =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.LocalSetting.LocalData.LocalAutoEnable[0];
+    pAdrcCtx->drcAttrV12.stManual.LocalSetting.LocalData.LocalAutoWeit =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.LocalSetting.LocalData.LocalAutoWeit[0];
+    pAdrcCtx->drcAttrV12.stManual.LocalSetting.LocalData.GlobalContrast =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.LocalSetting.LocalData.GlobalContrast[0];
+    pAdrcCtx->drcAttrV12.stManual.LocalSetting.LocalData.LoLitContrast =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.LocalSetting.LocalData.LoLitContrast[0];
+    pAdrcCtx->drcAttrV12.stManual.LocalSetting.MotionData.MotionStr =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.LocalSetting.MotionData.MotionStr[0];
+    pAdrcCtx->drcAttrV12.stManual.LocalSetting.curPixWeit =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.LocalSetting.curPixWeit;
+    pAdrcCtx->drcAttrV12.stManual.LocalSetting.preFrameWeit =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.LocalSetting.preFrameWeit;
+    pAdrcCtx->drcAttrV12.stManual.LocalSetting.Range_force_sgm =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.LocalSetting.Range_force_sgm;
+    pAdrcCtx->drcAttrV12.stManual.LocalSetting.Range_sgm_cur =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.LocalSetting.Range_sgm_cur;
+    pAdrcCtx->drcAttrV12.stManual.LocalSetting.Range_sgm_pre =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.LocalSetting.Range_sgm_pre;
+    pAdrcCtx->drcAttrV12.stManual.LocalSetting.Space_sgm_cur =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.LocalSetting.Space_sgm_cur;
+    pAdrcCtx->drcAttrV12.stManual.LocalSetting.Space_sgm_pre =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.LocalSetting.Space_sgm_pre;
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Mode =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Mode;
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[0] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[0];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[1] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[1];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[2] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[2];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[3] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[3];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[4] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[4];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[5] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[5];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[6] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[6];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[7] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[7];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[8] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[8];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[9] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[9];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[10] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[10];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[11] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[11];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[12] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[12];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[13] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[13];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[14] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[14];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[15] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[15];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[16] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[16];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[0] = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[0];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[1] = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[1];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[2] = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[2];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[3] = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[3];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[4] = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[4];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[5] = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[5];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[6] = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[6];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[7] = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[7];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[8] = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[8];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[9] = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[9];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[10] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[10];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[11] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[11];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[12] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[12];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[13] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[13];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[14] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[14];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[15] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[15];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[16] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[16];
+    pAdrcCtx->drcAttrV12.stManual.Edge_Weit = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Edge_Weit;
+    pAdrcCtx->drcAttrV12.stManual.OutPutLongFrame =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.OutPutLongFrame;
+    pAdrcCtx->drcAttrV12.stManual.IIR_frame = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.IIR_frame;
+#endif
+#if RKAIQ_HAVE_DRC_V12_LITE
+    pAdrcCtx->drcAttrV12.stManual.Enable = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Enable;
+    pAdrcCtx->drcAttrV12.stManual.DrcGain.Alpha =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.DrcGain.Alpha[0];
+    pAdrcCtx->drcAttrV12.stManual.DrcGain.DrcGain =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.DrcGain.DrcGain[0];
+    pAdrcCtx->drcAttrV12.stManual.DrcGain.Clip =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.DrcGain.Clip[0];
+    pAdrcCtx->drcAttrV12.stManual.HiLight.HiLightData.Strength =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.HiLight.HiLightData.Strength[0];
+    pAdrcCtx->drcAttrV12.stManual.HiLight.HiLightData.gas_t =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.HiLight.HiLightData.gas_t[0];
+    pAdrcCtx->drcAttrV12.stManual.HiLight.gas_l0 =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.HiLight.gas_l0;
+    pAdrcCtx->drcAttrV12.stManual.HiLight.gas_l1 =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.HiLight.gas_l1;
+    pAdrcCtx->drcAttrV12.stManual.HiLight.gas_l2 =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.HiLight.gas_l2;
+    pAdrcCtx->drcAttrV12.stManual.HiLight.gas_l3 =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.HiLight.gas_l3;
+    pAdrcCtx->drcAttrV12.stManual.LocalSetting.LocalData.LocalWeit =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.LocalSetting.LocalData.LocalWeit[0];
+    pAdrcCtx->drcAttrV12.stManual.LocalSetting.LocalData.LocalAutoEnable =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.LocalSetting.LocalData.LocalAutoEnable[0];
+    pAdrcCtx->drcAttrV12.stManual.LocalSetting.LocalData.LocalAutoWeit =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.LocalSetting.LocalData.LocalAutoWeit[0];
+    pAdrcCtx->drcAttrV12.stManual.LocalSetting.LocalData.GlobalContrast =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.LocalSetting.LocalData.GlobalContrast[0];
+    pAdrcCtx->drcAttrV12.stManual.LocalSetting.LocalData.LoLitContrast =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.LocalSetting.LocalData.LoLitContrast[0];
+    pAdrcCtx->drcAttrV12.stManual.LocalSetting.MotionData.MotionStr =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.LocalSetting.MotionData.MotionStr[0];
+    pAdrcCtx->drcAttrV12.stManual.LocalSetting.curPixWeit =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.LocalSetting.curPixWeit;
+    pAdrcCtx->drcAttrV12.stManual.LocalSetting.Range_force_sgm =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.LocalSetting.Range_force_sgm;
+    pAdrcCtx->drcAttrV12.stManual.LocalSetting.Range_sgm_cur =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.LocalSetting.Range_sgm_cur;
+    pAdrcCtx->drcAttrV12.stManual.LocalSetting.Space_sgm_cur =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.LocalSetting.Space_sgm_cur;
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Mode =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Mode;
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[0] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[0];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[1] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[1];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[2] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[2];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[3] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[3];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[4] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[4];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[5] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[5];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[6] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[6];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[7] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[7];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[8] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[8];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[9] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[9];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[10] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[10];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[11] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[11];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[12] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[12];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[13] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[13];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[14] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[14];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[15] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[15];
+    pAdrcCtx->drcAttrV12.stManual.CompressSetting.Manual_curve[16] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.CompressSetting.Manual_curve[16];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[0] = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[0];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[1] = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[1];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[2] = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[2];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[3] = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[3];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[4] = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[4];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[5] = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[5];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[6] = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[6];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[7] = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[7];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[8] = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[8];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[9] = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[9];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[10] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[10];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[11] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[11];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[12] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[12];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[13] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[13];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[14] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[14];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[15] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[15];
+    pAdrcCtx->drcAttrV12.stManual.Scale_y[16] =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Scale_y[16];
+    pAdrcCtx->drcAttrV12.stManual.Edge_Weit = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.Edge_Weit;
+    pAdrcCtx->drcAttrV12.stManual.OutPutLongFrame =
+        pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.OutPutLongFrame;
+    pAdrcCtx->drcAttrV12.stManual.IIR_frame = pAdrcCtx->drcAttrV12.stAuto.DrcTuningPara.IIR_frame;
+#endif
+
+    LOG1_ATMO("%s:exit!\n", __FUNCTION__);
+}
+
 /******************************************************************************
  * AdrcInit()
  *****************************************************************************/
@@ -1108,6 +1335,7 @@ XCamReturn AdrcInit(AdrcContext_t** ppAdrcCtx, CamCalibDbV2Context_t* pCalibDb) 
     memcpy(&pAdrcCtx->drcAttrV12.stAuto, calibv2_adrc_calib, sizeof(CalibDbV2_drc_v12_lite_t));
     pAdrcCtx->drcAttrV12.opMode = DRC_OPMODE_AUTO;
 #endif
+    AdrcSetDefaultManuAttrParmasV12(pAdrcCtx);
     pAdrcCtx->ifReCalcStAuto   = true;
     pAdrcCtx->ifReCalcStManual = false;
     pAdrcCtx->isCapture        = false;

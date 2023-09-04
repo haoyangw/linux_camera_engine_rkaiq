@@ -37,6 +37,8 @@ rk_aiq_user_api2_af_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_af_attrib_
         algoHandle<RkAiqAfHandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_AF);
 
     if (algo_handle) {
+        LOGD_AF("%s: AfMode %d, Win: %d, %d, %d, %d",
+            __func__, attr->AfMode, attr->h_offs, attr->v_offs, attr->h_size, attr->v_size);
         return algo_handle->setAttrib(attr);
     }
 
@@ -375,6 +377,17 @@ rk_aiq_user_api2_af_setAngleZ(const rk_aiq_sys_ctx_t* sys_ctx, float angleZ)
     return ret;
 }
 
+XCamReturn
+rk_aiq_user_api2_af_GetFocusPos(const rk_aiq_sys_ctx_t* sys_ctx, int* pos)
+{
+    RKAIQ_API_SMART_LOCK(sys_ctx);
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    ret = sys_ctx->_camHw->getFocusPosition(*pos);
+
+    return ret;
+}
+
 #else
 
 XCamReturn
@@ -487,6 +500,12 @@ rk_aiq_user_api2_af_ZoomCorrection(const rk_aiq_sys_ctx_t* sys_ctx)
 
 XCamReturn
 rk_aiq_user_api2_af_setAngleZ(const rk_aiq_sys_ctx_t* sys_ctx, float angleZ)
+{
+    return XCAM_RETURN_ERROR_UNKNOWN;
+}
+
+XCamReturn
+rk_aiq_user_api2_af_GetFocusPos(const rk_aiq_sys_ctx_t* sys_ctx, int* pos)
 {
     return XCAM_RETURN_ERROR_UNKNOWN;
 }

@@ -208,6 +208,10 @@ prepare(RkAiqAlgoCom* params)
 
     bool config_calib = !!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB);
     if (config_calib) {
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
+            return XCAM_RETURN_NO_ERROR;
+        }
         updateCalibConfig(params);
         return XCAM_RETURN_NO_ERROR;
     }

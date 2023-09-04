@@ -118,12 +118,12 @@ XCamReturn sample_amerge_module(const void *arg)
                 attr_v10.sync.sync_mode             = RK_AIQ_UAPI_MODE_DEFAULT;
                 attr_v10.sync.done                  = false;
                 attr_v10.opMode                     = MERGE_OPMODE_MANUAL;
-                attr_v10.stManual.OECurve.Smooth    = 0.4;
-                attr_v10.stManual.OECurve.Offset    = 210;
-                attr_v10.stManual.MDCurve.LM_smooth = 0.4;
-                attr_v10.stManual.MDCurve.LM_offset = 0.38;
-                attr_v10.stManual.MDCurve.MS_smooth = 0.4;
-                attr_v10.stManual.MDCurve.MS_offset = 0.38;
+                attr_v10.stManual.OECurve.Smooth    = 0.4f;
+                attr_v10.stManual.OECurve.Offset    = 210.0f;
+                attr_v10.stManual.MDCurve.LM_smooth = 0.4f;
+                attr_v10.stManual.MDCurve.LM_offset = 0.38f;
+                attr_v10.stManual.MDCurve.MS_smooth = 0.4f;
+                attr_v10.stManual.MDCurve.MS_offset = 0.38f;
                 rk_aiq_user_api2_amerge_v10_SetAttrib(ctx, &attr_v10);
                 break;
             }
@@ -134,12 +134,12 @@ XCamReturn sample_amerge_module(const void *arg)
                 attr_v10.sync.sync_mode             = RK_AIQ_UAPI_MODE_ASYNC;
                 attr_v10.sync.done                  = false;
                 attr_v10.opMode                     = MERGE_OPMODE_MANUAL;
-                attr_v10.stManual.OECurve.Smooth    = 0.4;
-                attr_v10.stManual.OECurve.Offset    = 210;
-                attr_v10.stManual.MDCurve.LM_smooth = 0.4;
-                attr_v10.stManual.MDCurve.LM_offset = 0.38;
-                attr_v10.stManual.MDCurve.MS_smooth = 0.4;
-                attr_v10.stManual.MDCurve.MS_offset = 0.38;
+                attr_v10.stManual.OECurve.Smooth    = 0.4f;
+                attr_v10.stManual.OECurve.Offset    = 210.0f;
+                attr_v10.stManual.MDCurve.LM_smooth = 0.4f;
+                attr_v10.stManual.MDCurve.LM_offset = 0.38f;
+                attr_v10.stManual.MDCurve.MS_smooth = 0.4f;
+                attr_v10.stManual.MDCurve.MS_offset = 0.38f;
                 rk_aiq_user_api2_amerge_v10_SetAttrib(ctx, &attr_v10);
                 break;
             }
@@ -166,11 +166,11 @@ XCamReturn sample_amerge_module(const void *arg)
                 attr_v11.sync.done                                 = false;
                 attr_v11.opMode                                    = MERGE_OPMODE_MANUAL;
                 attr_v11.stManual.BaseFrm                          = BASEFRAME_SHORT;
-                attr_v11.stManual.ShortFrmModeData.OECurve.Smooth  = 0.4;
-                attr_v11.stManual.ShortFrmModeData.OECurve.Offset  = 210;
-                attr_v11.stManual.ShortFrmModeData.MDCurve.Coef    = 0.05;
-                attr_v11.stManual.ShortFrmModeData.MDCurve.ms_thd0 = 0.00;
-                attr_v11.stManual.ShortFrmModeData.MDCurve.lm_thd0 = 0.00;
+                attr_v11.stManual.ShortFrmModeData.OECurve.Smooth  = 0.4f;
+                attr_v11.stManual.ShortFrmModeData.OECurve.Offset  = 210.0f;
+                attr_v11.stManual.ShortFrmModeData.MDCurve.Coef    = 0.05f;
+                attr_v11.stManual.ShortFrmModeData.MDCurve.ms_thd0 = 0.00f;
+                attr_v11.stManual.ShortFrmModeData.MDCurve.lm_thd0 = 0.00f;
                 rk_aiq_user_api2_amerge_v11_SetAttrib(ctx, &attr_v11);
                 break;
             }
@@ -182,11 +182,11 @@ XCamReturn sample_amerge_module(const void *arg)
                 attr_v11.sync.done                                 = false;
                 attr_v11.opMode                                    = MERGE_OPMODE_MANUAL;
                 attr_v11.stManual.BaseFrm                          = BASEFRAME_SHORT;
-                attr_v11.stManual.ShortFrmModeData.OECurve.Smooth  = 0.5;
-                attr_v11.stManual.ShortFrmModeData.OECurve.Offset  = 230;
-                attr_v11.stManual.ShortFrmModeData.MDCurve.Coef    = 0.07;
-                attr_v11.stManual.ShortFrmModeData.MDCurve.ms_thd0 = 0.00;
-                attr_v11.stManual.ShortFrmModeData.MDCurve.lm_thd0 = 0.00;
+                attr_v11.stManual.ShortFrmModeData.OECurve.Smooth  = 0.5f;
+                attr_v11.stManual.ShortFrmModeData.OECurve.Offset  = 230.0f;
+                attr_v11.stManual.ShortFrmModeData.MDCurve.Coef    = 0.07f;
+                attr_v11.stManual.ShortFrmModeData.MDCurve.ms_thd0 = 0.00f;
+                attr_v11.stManual.ShortFrmModeData.MDCurve.lm_thd0 = 0.00f;
                 rk_aiq_user_api2_amerge_v11_SetAttrib(ctx, &attr_v11);
                 break;
             }
@@ -198,12 +198,12 @@ XCamReturn sample_amerge_module(const void *arg)
                 attr_v11.sync.done                                  = false;
                 attr_v11.opMode                                     = MERGE_OPMODE_MANUAL;
                 attr_v11.stManual.BaseFrm                           = BASEFRAME_LONG;
-                attr_v11.stManual.LongFrmModeData.OECurve.Smooth    = 0.6;
-                attr_v11.stManual.LongFrmModeData.OECurve.Offset    = 240;
-                attr_v11.stManual.LongFrmModeData.MDCurve.LM_smooth = 0.8;
-                attr_v11.stManual.LongFrmModeData.MDCurve.LM_offset = 38;
-                attr_v11.stManual.LongFrmModeData.MDCurve.MS_smooth = 0.8;
-                attr_v11.stManual.LongFrmModeData.MDCurve.MS_offset = 38;
+                attr_v11.stManual.LongFrmModeData.OECurve.Smooth    = 0.6f;
+                attr_v11.stManual.LongFrmModeData.OECurve.Offset    = 240.0f;
+                attr_v11.stManual.LongFrmModeData.MDCurve.LM_smooth = 0.8f;
+                attr_v11.stManual.LongFrmModeData.MDCurve.LM_offset = 0.38f;
+                attr_v11.stManual.LongFrmModeData.MDCurve.MS_smooth = 0.8f;
+                attr_v11.stManual.LongFrmModeData.MDCurve.MS_offset = 0.38f;
                 rk_aiq_user_api2_amerge_v11_SetAttrib(ctx, &attr_v11);
                 break;
             }
@@ -215,12 +215,12 @@ XCamReturn sample_amerge_module(const void *arg)
                 attr_v11.sync.done                                  = false;
                 attr_v11.opMode                                     = MERGE_OPMODE_MANUAL;
                 attr_v11.stManual.BaseFrm                           = BASEFRAME_LONG;
-                attr_v11.stManual.LongFrmModeData.OECurve.Smooth    = 0.7;
-                attr_v11.stManual.LongFrmModeData.OECurve.Offset    = 280;
-                attr_v11.stManual.LongFrmModeData.MDCurve.LM_smooth = 0.8;
-                attr_v11.stManual.LongFrmModeData.MDCurve.LM_offset = 38;
-                attr_v11.stManual.LongFrmModeData.MDCurve.MS_smooth = 0.8;
-                attr_v11.stManual.LongFrmModeData.MDCurve.MS_offset = 38;
+                attr_v11.stManual.LongFrmModeData.OECurve.Smooth    = 0.7f;
+                attr_v11.stManual.LongFrmModeData.OECurve.Offset    = 280.0f;
+                attr_v11.stManual.LongFrmModeData.MDCurve.LM_smooth = 0.8f;
+                attr_v11.stManual.LongFrmModeData.MDCurve.LM_offset = 0.38f;
+                attr_v11.stManual.LongFrmModeData.MDCurve.MS_smooth = 0.8f;
+                attr_v11.stManual.LongFrmModeData.MDCurve.MS_offset = 0.38f;
                 rk_aiq_user_api2_amerge_v11_SetAttrib(ctx, &attr_v11);
                 break;
             }
@@ -258,11 +258,11 @@ XCamReturn sample_amerge_module(const void *arg)
                 attr_v12.sync.done                                 = false;
                 attr_v12.opMode                                    = MERGE_OPMODE_MANUAL;
                 attr_v12.stManual.BaseFrm                          = BASEFRAME_SHORT;
-                attr_v12.stManual.ShortFrmModeData.OECurve.Smooth  = 0.4;
-                attr_v12.stManual.ShortFrmModeData.OECurve.Offset  = 210;
-                attr_v12.stManual.ShortFrmModeData.MDCurve.Coef    = 0.05;
-                attr_v12.stManual.ShortFrmModeData.MDCurve.ms_thd0 = 0.00;
-                attr_v12.stManual.ShortFrmModeData.MDCurve.lm_thd0 = 0.00;
+                attr_v12.stManual.ShortFrmModeData.OECurve.Smooth  = 0.4f;
+                attr_v12.stManual.ShortFrmModeData.OECurve.Offset  = 210.0f;
+                attr_v12.stManual.ShortFrmModeData.MDCurve.Coef    = 0.05f;
+                attr_v12.stManual.ShortFrmModeData.MDCurve.ms_thd0 = 0.00f;
+                attr_v12.stManual.ShortFrmModeData.MDCurve.lm_thd0 = 0.00f;
                 rk_aiq_user_api2_amerge_v12_SetAttrib(ctx, &attr_v12);
                 break;
             }
@@ -274,11 +274,11 @@ XCamReturn sample_amerge_module(const void *arg)
                 attr_v12.sync.done                                 = false;
                 attr_v12.opMode                                    = MERGE_OPMODE_MANUAL;
                 attr_v12.stManual.BaseFrm                          = BASEFRAME_SHORT;
-                attr_v12.stManual.ShortFrmModeData.OECurve.Smooth  = 0.5;
-                attr_v12.stManual.ShortFrmModeData.OECurve.Offset  = 230;
-                attr_v12.stManual.ShortFrmModeData.MDCurve.Coef    = 0.07;
-                attr_v12.stManual.ShortFrmModeData.MDCurve.ms_thd0 = 0.00;
-                attr_v12.stManual.ShortFrmModeData.MDCurve.lm_thd0 = 0.00;
+                attr_v12.stManual.ShortFrmModeData.OECurve.Smooth  = 0.5f;
+                attr_v12.stManual.ShortFrmModeData.OECurve.Offset  = 230.0f;
+                attr_v12.stManual.ShortFrmModeData.MDCurve.Coef    = 0.07f;
+                attr_v12.stManual.ShortFrmModeData.MDCurve.ms_thd0 = 0.00f;
+                attr_v12.stManual.ShortFrmModeData.MDCurve.lm_thd0 = 0.00f;
                 rk_aiq_user_api2_amerge_v12_SetAttrib(ctx, &attr_v12);
                 break;
             }
@@ -292,12 +292,12 @@ XCamReturn sample_amerge_module(const void *arg)
                 attr_v12.opMode                                     = MERGE_OPMODE_MANUAL;
                 attr_v12.stManual.BaseFrm                           = BASEFRAME_LONG;
                 attr_v12.stManual.LongFrmModeData.EnableEachChn     = false;
-                attr_v12.stManual.LongFrmModeData.OECurve.Smooth    = 0.6;
-                attr_v12.stManual.LongFrmModeData.OECurve.Offset    = 240;
-                attr_v12.stManual.LongFrmModeData.MDCurve.LM_smooth = 0.8;
-                attr_v12.stManual.LongFrmModeData.MDCurve.LM_offset = 38;
-                attr_v12.stManual.LongFrmModeData.MDCurve.MS_smooth = 0.8;
-                attr_v12.stManual.LongFrmModeData.MDCurve.MS_offset = 38;
+                attr_v12.stManual.LongFrmModeData.OECurve.Smooth    = 0.6f;
+                attr_v12.stManual.LongFrmModeData.OECurve.Offset    = 240.0f;
+                attr_v12.stManual.LongFrmModeData.MDCurve.LM_smooth = 0.8f;
+                attr_v12.stManual.LongFrmModeData.MDCurve.LM_offset = 0.38f;
+                attr_v12.stManual.LongFrmModeData.MDCurve.MS_smooth = 0.8f;
+                attr_v12.stManual.LongFrmModeData.MDCurve.MS_offset = 0.38f;
                 rk_aiq_user_api2_amerge_v12_SetAttrib(ctx, &attr_v12);
                 break;
             }
@@ -311,12 +311,12 @@ XCamReturn sample_amerge_module(const void *arg)
                 attr_v12.opMode                                     = MERGE_OPMODE_MANUAL;
                 attr_v12.stManual.BaseFrm                           = BASEFRAME_LONG;
                 attr_v12.stManual.LongFrmModeData.EnableEachChn     = false;
-                attr_v12.stManual.LongFrmModeData.OECurve.Smooth    = 0.7;
-                attr_v12.stManual.LongFrmModeData.OECurve.Offset    = 280;
-                attr_v12.stManual.LongFrmModeData.MDCurve.LM_smooth = 0.8;
-                attr_v12.stManual.LongFrmModeData.MDCurve.LM_offset = 38;
-                attr_v12.stManual.LongFrmModeData.MDCurve.MS_smooth = 0.8;
-                attr_v12.stManual.LongFrmModeData.MDCurve.MS_offset = 38;
+                attr_v12.stManual.LongFrmModeData.OECurve.Smooth    = 0.7f;
+                attr_v12.stManual.LongFrmModeData.OECurve.Offset    = 280.0f;
+                attr_v12.stManual.LongFrmModeData.MDCurve.LM_smooth = 0.8f;
+                attr_v12.stManual.LongFrmModeData.MDCurve.LM_offset = 0.38f;
+                attr_v12.stManual.LongFrmModeData.MDCurve.MS_smooth = 0.8f;
+                attr_v12.stManual.LongFrmModeData.MDCurve.MS_offset = 0.38f;
                 rk_aiq_user_api2_amerge_v12_SetAttrib(ctx, &attr_v12);
                 break;
             }
@@ -330,14 +330,14 @@ XCamReturn sample_amerge_module(const void *arg)
                 attr_v12.opMode                                       = MERGE_OPMODE_MANUAL;
                 attr_v12.stManual.BaseFrm                             = BASEFRAME_LONG;
                 attr_v12.stManual.LongFrmModeData.EnableEachChn       = true;
-                attr_v12.stManual.LongFrmModeData.OECurve.Smooth      = 0.6;
-                attr_v12.stManual.LongFrmModeData.OECurve.Offset      = 240;
-                attr_v12.stManual.LongFrmModeData.MDCurve.LM_smooth   = 0.8;
-                attr_v12.stManual.LongFrmModeData.MDCurve.LM_offset   = 38;
-                attr_v12.stManual.LongFrmModeData.MDCurve.MS_smooth   = 0.8;
-                attr_v12.stManual.LongFrmModeData.MDCurve.MS_offset   = 38;
-                attr_v12.stManual.LongFrmModeData.EachChnCurve.Smooth = 0.5;
-                attr_v12.stManual.LongFrmModeData.EachChnCurve.Offset = 0.5;
+                attr_v12.stManual.LongFrmModeData.OECurve.Smooth      = 0.6f;
+                attr_v12.stManual.LongFrmModeData.OECurve.Offset      = 240.0f;
+                attr_v12.stManual.LongFrmModeData.MDCurve.LM_smooth   = 0.8f;
+                attr_v12.stManual.LongFrmModeData.MDCurve.LM_offset   = 0.38f;
+                attr_v12.stManual.LongFrmModeData.MDCurve.MS_smooth   = 0.8f;
+                attr_v12.stManual.LongFrmModeData.MDCurve.MS_offset   = 0.38f;
+                attr_v12.stManual.LongFrmModeData.EachChnCurve.Smooth = 0.5f;
+                attr_v12.stManual.LongFrmModeData.EachChnCurve.Offset = 0.5f;
                 rk_aiq_user_api2_amerge_v12_SetAttrib(ctx, &attr_v12);
                 break;
             }
@@ -351,14 +351,14 @@ XCamReturn sample_amerge_module(const void *arg)
                 attr_v12.opMode                                       = MERGE_OPMODE_MANUAL;
                 attr_v12.stManual.BaseFrm                             = BASEFRAME_LONG;
                 attr_v12.stManual.LongFrmModeData.EnableEachChn       = true;
-                attr_v12.stManual.LongFrmModeData.OECurve.Smooth      = 0.7;
-                attr_v12.stManual.LongFrmModeData.OECurve.Offset      = 280;
-                attr_v12.stManual.LongFrmModeData.MDCurve.LM_smooth   = 0.8;
-                attr_v12.stManual.LongFrmModeData.MDCurve.LM_offset   = 38;
-                attr_v12.stManual.LongFrmModeData.MDCurve.MS_smooth   = 0.8;
-                attr_v12.stManual.LongFrmModeData.MDCurve.MS_offset   = 38;
-                attr_v12.stManual.LongFrmModeData.EachChnCurve.Smooth = 0.4;
-                attr_v12.stManual.LongFrmModeData.EachChnCurve.Offset = 0.38;
+                attr_v12.stManual.LongFrmModeData.OECurve.Smooth      = 0.7f;
+                attr_v12.stManual.LongFrmModeData.OECurve.Offset      = 280.0f;
+                attr_v12.stManual.LongFrmModeData.MDCurve.LM_smooth   = 0.8f;
+                attr_v12.stManual.LongFrmModeData.MDCurve.LM_offset   = 0.38f;
+                attr_v12.stManual.LongFrmModeData.MDCurve.MS_smooth   = 0.8f;
+                attr_v12.stManual.LongFrmModeData.MDCurve.MS_offset   = 0.38f;
+                attr_v12.stManual.LongFrmModeData.EachChnCurve.Smooth = 0.4f;
+                attr_v12.stManual.LongFrmModeData.EachChnCurve.Offset = 0.38f;
                 rk_aiq_user_api2_amerge_v12_SetAttrib(ctx, &attr_v12);
                 break;
             }
@@ -401,11 +401,11 @@ XCamReturn sample_amerge_module(const void *arg)
                 attr_v2.sync.done                                        = false;
                 attr_v2.attrV30.opMode                                   = MERGE_OPMODE_MANU;
                 attr_v2.attrV30.stManual.BaseFrm                         = BASEFRAME_SHORT;
-                attr_v2.attrV30.stManual.ShortFrmModeData.OECurve.Smooth = 0.4;
-                attr_v2.attrV30.stManual.ShortFrmModeData.OECurve.Offset = 210;
-                attr_v2.attrV30.stManual.ShortFrmModeData.MDCurve.Coef   = 0.05;
-                attr_v2.attrV30.stManual.ShortFrmModeData.MDCurve.ms_thd0 = 0.00;
-                attr_v2.attrV30.stManual.ShortFrmModeData.MDCurve.lm_thd0 = 0.00;
+                attr_v2.attrV30.stManual.ShortFrmModeData.OECurve.Smooth  = 0.4f;
+                attr_v2.attrV30.stManual.ShortFrmModeData.OECurve.Offset  = 210.0f;
+                attr_v2.attrV30.stManual.ShortFrmModeData.MDCurve.Coef    = 0.05f;
+                attr_v2.attrV30.stManual.ShortFrmModeData.MDCurve.ms_thd0 = 0.00f;
+                attr_v2.attrV30.stManual.ShortFrmModeData.MDCurve.lm_thd0 = 0.00f;
                 rk_aiq_user_api2_amerge_SetAttrib(ctx, attr_v2);
                 break;
             }
@@ -417,11 +417,11 @@ XCamReturn sample_amerge_module(const void *arg)
                 attr_v2.sync.done                                         = false;
                 attr_v2.attrV30.opMode                                    = MERGE_OPMODE_MANU;
                 attr_v2.attrV30.stManual.BaseFrm                          = BASEFRAME_SHORT;
-                attr_v2.attrV30.stManual.ShortFrmModeData.OECurve.Smooth  = 0.5;
-                attr_v2.attrV30.stManual.ShortFrmModeData.OECurve.Offset  = 230;
-                attr_v2.attrV30.stManual.ShortFrmModeData.MDCurve.Coef    = 0.07;
-                attr_v2.attrV30.stManual.ShortFrmModeData.MDCurve.ms_thd0 = 0.00;
-                attr_v2.attrV30.stManual.ShortFrmModeData.MDCurve.lm_thd0 = 0.00;
+                attr_v2.attrV30.stManual.ShortFrmModeData.OECurve.Smooth  = 0.5f;
+                attr_v2.attrV30.stManual.ShortFrmModeData.OECurve.Offset  = 230.0f;
+                attr_v2.attrV30.stManual.ShortFrmModeData.MDCurve.Coef    = 0.07f;
+                attr_v2.attrV30.stManual.ShortFrmModeData.MDCurve.ms_thd0 = 0.00f;
+                attr_v2.attrV30.stManual.ShortFrmModeData.MDCurve.lm_thd0 = 0.00f;
                 rk_aiq_user_api2_amerge_SetAttrib(ctx, attr_v2);
                 break;
             }
@@ -433,12 +433,12 @@ XCamReturn sample_amerge_module(const void *arg)
                 attr_v2.sync.done                                       = false;
                 attr_v2.attrV30.opMode                                  = MERGE_OPMODE_MANU;
                 attr_v2.attrV30.stManual.BaseFrm                        = BASEFRAME_LONG;
-                attr_v2.attrV30.stManual.LongFrmModeData.OECurve.Smooth = 0.6;
-                attr_v2.attrV30.stManual.LongFrmModeData.OECurve.Offset = 240;
-                attr_v2.attrV30.stManual.LongFrmModeData.MDCurve.LM_smooth = 0.8;
-                attr_v2.attrV30.stManual.LongFrmModeData.MDCurve.LM_offset = 38;
-                attr_v2.attrV30.stManual.LongFrmModeData.MDCurve.MS_smooth = 0.8;
-                attr_v2.attrV30.stManual.LongFrmModeData.MDCurve.MS_offset = 38;
+                attr_v2.attrV30.stManual.LongFrmModeData.OECurve.Smooth = 0.6f;
+                attr_v2.attrV30.stManual.LongFrmModeData.OECurve.Offset = 240.0f;
+                attr_v2.attrV30.stManual.LongFrmModeData.MDCurve.LM_smooth = 0.8f;
+                attr_v2.attrV30.stManual.LongFrmModeData.MDCurve.LM_offset = 0.38f;
+                attr_v2.attrV30.stManual.LongFrmModeData.MDCurve.MS_smooth = 0.8f;
+                attr_v2.attrV30.stManual.LongFrmModeData.MDCurve.MS_offset = 0.38f;
                 rk_aiq_user_api2_amerge_SetAttrib(ctx, attr_v2);
                 break;
             }
@@ -450,12 +450,12 @@ XCamReturn sample_amerge_module(const void *arg)
                 attr_v2.sync.done                                          = false;
                 attr_v2.attrV30.opMode                                     = MERGE_OPMODE_MANU;
                 attr_v2.attrV30.stManual.BaseFrm                           = BASEFRAME_LONG;
-                attr_v2.attrV30.stManual.LongFrmModeData.OECurve.Smooth    = 0.7;
-                attr_v2.attrV30.stManual.LongFrmModeData.OECurve.Offset    = 280;
-                attr_v2.attrV30.stManual.LongFrmModeData.MDCurve.LM_smooth = 0.8;
-                attr_v2.attrV30.stManual.LongFrmModeData.MDCurve.LM_offset = 38;
-                attr_v2.attrV30.stManual.LongFrmModeData.MDCurve.MS_smooth = 0.8;
-                attr_v2.attrV30.stManual.LongFrmModeData.MDCurve.MS_offset = 38;
+                attr_v2.attrV30.stManual.LongFrmModeData.OECurve.Smooth    = 0.7f;
+                attr_v2.attrV30.stManual.LongFrmModeData.OECurve.Offset    = 280.0f;
+                attr_v2.attrV30.stManual.LongFrmModeData.MDCurve.LM_smooth = 0.8f;
+                attr_v2.attrV30.stManual.LongFrmModeData.MDCurve.LM_offset = 0.38f;
+                attr_v2.attrV30.stManual.LongFrmModeData.MDCurve.MS_smooth = 0.8f;
+                attr_v2.attrV30.stManual.LongFrmModeData.MDCurve.MS_offset = 0.38f;
                 rk_aiq_user_api2_amerge_SetAttrib(ctx, attr_v2);
                 break;
             }

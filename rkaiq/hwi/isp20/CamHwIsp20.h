@@ -130,6 +130,7 @@ public:
     XCamReturn FocusCorrection() override;
     XCamReturn ZoomCorrection() override;
     XCamReturn setAngleZ(float angleZ) override;
+    XCamReturn getFocusPosition(int& position) override;
     virtual void getShareMemOps(isp_drv_share_mem_ops_t** mem_ops) override;
     uint64_t getIspModuleEnState()  override;
 

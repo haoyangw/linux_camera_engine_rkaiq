@@ -101,6 +101,8 @@ public:
     virtual XCamReturn getAfdResForAE(AfdPeakRes_t AfdRes);
     virtual XCamReturn setExpWinAttr(Uapi_ExpWin_t ExpWinAttr);
     virtual XCamReturn getExpWinAttr(Uapi_ExpWin_t* pExpWinAttr);
+    virtual XCamReturn setAecStatsCfg(Uapi_AecStatsCfg_t AecStatsCfg);
+    virtual XCamReturn getAecStatsCfg(Uapi_AecStatsCfg_t* pAecStatsCfg);
     virtual XCamReturn genIspResult(RkAiqFullParams* params, RkAiqFullParams* cur_params);
 
 protected:
@@ -138,6 +140,8 @@ private:
     Uapi_AecSyncTest_t mNewAecSyncTestAttr;
     Uapi_ExpWin_t mCurExpWinAttr;
     Uapi_ExpWin_t mNewExpWinAttr;
+    Uapi_AecStatsCfg_t mCurAecStatsCfg;
+    Uapi_AecStatsCfg_t mNewAecStatsCfg;
 
     bool updateExpSwAttr  = false;
     bool updateLinExpAttr = false;
@@ -152,6 +156,7 @@ private:
     mutable std::atomic<bool> updateIrisAttr;
     mutable std::atomic<bool> updateSyncTestAttr;
     mutable std::atomic<bool> updateExpWinAttr;
+    mutable std::atomic<bool> updateAecStatsCfg;
 
     uint16_t updateAttr = 0;
 #endif

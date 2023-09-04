@@ -58,16 +58,19 @@ XCamReturn sample_agamma_module(const void *arg)
     rk_aiq_gamma_v11_attr_t attr_v11;
     rk_aiq_gamma_attrib_V2_t attr_v2;
     float X_v10[CALIBDB_AGAMMA_KNOTS_NUM_V10] = {
-        0,   1,   2,   3,   4,   5,   6,    7,    8,    10,   12,   14,   16,   20,   24,
-        28,  32,  40,  48,  56,  64,  80,   96,   112,  128,  160,  192,  224,  256,  320,
-        384, 448, 512, 640, 768, 896, 1024, 1280, 1536, 1792, 2048, 2560, 3072, 3584, 4095};
-    float Y_v10                               = 0.0;
+        0.0f,    1.0f,    2.0f,    3.0f,    4.0f,    5.0f,    6.0f,    7.0f,    8.0f,
+        10.0f,   12.0f,   14.0f,   16.0f,   20.0f,   24.0f,   28.0f,   32.0f,   40.0f,
+        48.0f,   56.0f,   64.0f,   80.0f,   96.0f,   112.0f,  128.0f,  160.0f,  192.0f,
+        224.0f,  256.0f,  320.0f,  384.0f,  448.0f,  512.0f,  640.0f,  768.0f,  896.0f,
+        1024.0f, 1280.0f, 1536.0f, 1792.0f, 2048.0f, 2560.0f, 3072.0f, 3584.0f, 4095.0f};
+    float Y_v10                               = 0.0f;
     float X_v11[CALIBDB_AGAMMA_KNOTS_NUM_V11] = {
-        0,    1,    2,    3,    4,    5,    6,    7,    8,    10,  12,   14,   16,
-        20,   24,   28,   32,   40,   48,   56,   64,   80,   96,  112,  128,  160,
-        192,  224,  256,  320,  384,  448,  512,  640,  768,  896, 1024, 1280, 1536,
-        1792, 2048, 2304, 2560, 2816, 3072, 3328, 3584, 3840, 4095};
-    float Y_v11 = 0.0;
+        0.0f,    1.0f,    2.0f,    3.0f,    4.0f,    5.0f,    6.0f,    7.0f,    8.0f,    10.0f,
+        12.0f,   14.0f,   16.0f,   20.0f,   24.0f,   28.0f,   32.0f,   40.0f,   48.0f,   56.0f,
+        64.0f,   80.0f,   96.0f,   112.0f,  128.0f,  160.0f,  192.0f,  224.0f,  256.0f,  320.0f,
+        384.0f,  448.0f,  512.0f,  640.0f,  768.0f,  896.0f,  1024.0f, 1280.0f, 1536.0f, 1792.0f,
+        2048.0f, 2304.0f, 2560.0f, 2816.0f, 3072.0f, 3328.0f, 3584.0f, 3840.0f, 4095.0f};
+    float Y_v11 = 0.0f;
 
     const demo_context_t *demo_ctx = (demo_context_t *)arg;
     const rk_aiq_sys_ctx_t* ctx ;
@@ -97,9 +100,9 @@ XCamReturn sample_agamma_module(const void *arg)
             attr_v10.stManual.Gamma_out_segnum = GAMMATYPE_LOG;
             attr_v10.stManual.Gamma_out_offset = 0;
             for (int i = 0; i < CALIBDB_AGAMMA_KNOTS_NUM_V10; i++) {
-                Y_v10                            = 4095 * pow(X_v10[i] / 4095, 1 / 1 + 0.0);
-                Y_v10                            = LIMIT_VALUE(Y_v10, 4095, 0);
-                attr_v10.stManual.Gamma_curve[i] = (int)(Y_v10 + 0.5);
+                Y_v10 = 4095.0f * pow(X_v10[i] / 4095.0f, 1.0f / 1.0f + 0.0f);
+                Y_v10 = LIMIT_VALUE(Y_v10, 4095.0f, 0.0f);
+                attr_v10.stManual.Gamma_curve[i] = (int)(Y_v10 + 0.5f);
             }
             rk_aiq_user_api2_agamma_v10_SetAttrib(ctx, &attr_v10);
             break;
@@ -114,9 +117,9 @@ XCamReturn sample_agamma_module(const void *arg)
             attr_v10.stManual.Gamma_out_offset = 1024;
 
             for (int i = 0; i < CALIBDB_AGAMMA_KNOTS_NUM_V10; i++) {
-                Y_v10                            = 4095 * pow(X_v10[i] / 4095, 1 / 2.2 + 0.0);
-                Y_v10                            = LIMIT_VALUE(Y_v10, 4095, 0);
-                attr_v10.stManual.Gamma_curve[i] = (int)(Y_v10 + 0.5);
+                Y_v10 = 4095.0f * pow(X_v10[i] / 4095.0f, 1.0f / 2.0f + 0.0f);
+                Y_v10 = LIMIT_VALUE(Y_v10, 4095.0f, 0.0f);
+                attr_v10.stManual.Gamma_curve[i] = (int)(Y_v10 + 0.5f);
             }
             rk_aiq_user_api2_agamma_v10_SetAttrib(ctx, &attr_v10);
             break;
@@ -135,7 +138,7 @@ XCamReturn sample_agamma_module(const void *arg)
         }
         case '3': {
             printf("\t AGAMMA test rk_aiq_uapi2_setGammaCoef\n\n");
-            rk_aiq_uapi2_setGammaCoef(ctx, 5, 0);
+            rk_aiq_uapi2_setGammaCoef(ctx, 5.0f, 0.0f);
             break;
         }
         case '4': {
@@ -146,9 +149,9 @@ XCamReturn sample_agamma_module(const void *arg)
             attr_v11.stManual.Gamma_en         = true;
             attr_v11.stManual.Gamma_out_offset = 0;
             for (int i = 0; i < CALIBDB_AGAMMA_KNOTS_NUM_V11; i++) {
-                Y_v11                            = 4095 * pow(X_v11[i] / 4095, 1 / 1 + 0.0);
-                Y_v11                            = LIMIT_VALUE(Y_v11, 4095, 0);
-                attr_v11.stManual.Gamma_curve[i] = (int)(Y_v11 + 0.5);
+                Y_v11 = 4095.0f * pow(X_v11[i] / 4095.0f, 1.0f / 1.0f + 0.0f);
+                Y_v11 = LIMIT_VALUE(Y_v11, 4095.0f, 0.0f);
+                attr_v11.stManual.Gamma_curve[i] = (int)(Y_v11 + 0.5f);
             }
             rk_aiq_user_api2_agamma_v11_SetAttrib(ctx, &attr_v11);
             break;
@@ -161,9 +164,9 @@ XCamReturn sample_agamma_module(const void *arg)
             attr_v11.stManual.Gamma_en         = true;
             attr_v11.stManual.Gamma_out_offset = 1024;
             for (int i = 0; i < CALIBDB_AGAMMA_KNOTS_NUM_V11; i++) {
-                Y_v11                            = 4095 * pow(X_v11[i] / 4095, 1 / 2.2 + 0.0);
-                Y_v11                            = LIMIT_VALUE(Y_v11, 4095, 0);
-                attr_v11.stManual.Gamma_curve[i] = (int)(Y_v11 + 0.5);
+                Y_v11 = 4095.0f * pow(X_v11[i] / 4095.0f, 1.0f / 2.2f + 0.0f);
+                Y_v11 = LIMIT_VALUE(Y_v11, 4095.0f, 0.0f);
+                attr_v11.stManual.Gamma_curve[i] = (int)(Y_v11 + 0.5f);
             }
             rk_aiq_user_api2_agamma_v11_SetAttrib(ctx, &attr_v11);
             break;
@@ -188,9 +191,9 @@ XCamReturn sample_agamma_module(const void *arg)
             attr_v2.atrrV30.stManual.Gamma_en         = true;
             attr_v2.atrrV30.stManual.Gamma_out_offset = 0;
             for (int i = 0; i < CALIBDB_AGAMMA_KNOTS_NUM_V11; i++) {
-                Y_v11                                   = 4095 * pow(X_v11[i] / 4095, 1 / 1 + 0.0);
-                Y_v11                                   = LIMIT_VALUE(Y_v11, 4095, 0);
-                attr_v2.atrrV30.stManual.Gamma_curve[i] = (int)(Y_v11 + 0.5);
+                Y_v11 = 4095.0f * pow(X_v11[i] / 4095.0f, 1.0f / 1.0f + 0.0f);
+                Y_v11 = LIMIT_VALUE(Y_v11, 4095.0f, 0.0f);
+                attr_v2.atrrV30.stManual.Gamma_curve[i] = (int)(Y_v11 + 0.5f);
             }
             rk_aiq_user_api2_agamma_SetAttrib(ctx, attr_v2);
             break;
@@ -203,9 +206,9 @@ XCamReturn sample_agamma_module(const void *arg)
             attr_v2.atrrV30.stManual.Gamma_en         = true;
             attr_v2.atrrV30.stManual.Gamma_out_offset = 1024;
             for (int i = 0; i < CALIBDB_AGAMMA_KNOTS_NUM_V11; i++) {
-                Y_v11 = 4095 * pow(X_v11[i] / 4095, 1 / 2.2 + 0.0);
-                Y_v11 = LIMIT_VALUE(Y_v11, 4095, 0);
-                attr_v2.atrrV30.stManual.Gamma_curve[i] = (int)(Y_v11 + 0.5);
+                Y_v11 = 4095.0f * pow(X_v11[i] / 4095.0f, 1.0f / 2.2f + 0.0f);
+                Y_v11 = LIMIT_VALUE(Y_v11, 4095.0f, 0.0f);
+                attr_v2.atrrV30.stManual.Gamma_curve[i] = (int)(Y_v11 + 0.5f);
             }
             rk_aiq_user_api2_agamma_SetAttrib(ctx, attr_v2);
             break;
@@ -215,8 +218,8 @@ XCamReturn sample_agamma_module(const void *arg)
             attr_v2.sync.sync_mode             = RK_AIQ_UAPI_MODE_DEFAULT;
             attr_v2.sync.done                  = false;
             attr_v2.atrrV30.mode               = GAMMA_MODE_FAST;
-            attr_v2.atrrV30.stFast.GammaCoef   = 1.0;
-            attr_v2.atrrV30.stFast.SlopeAtZero = 0;
+            attr_v2.atrrV30.stFast.GammaCoef   = 1.0f;
+            attr_v2.atrrV30.stFast.SlopeAtZero = 0.0f;
             rk_aiq_user_api2_agamma_SetAttrib(ctx, attr_v2);
             break;
         }
@@ -225,8 +228,8 @@ XCamReturn sample_agamma_module(const void *arg)
             attr_v2.sync.sync_mode             = RK_AIQ_UAPI_MODE_ASYNC;
             attr_v2.sync.done                  = false;
             attr_v2.atrrV30.mode               = GAMMA_MODE_FAST;
-            attr_v2.atrrV30.stFast.GammaCoef   = 2.2;
-            attr_v2.atrrV30.stFast.SlopeAtZero = 0;
+            attr_v2.atrrV30.stFast.GammaCoef   = 2.2f;
+            attr_v2.atrrV30.stFast.SlopeAtZero = 0.0f;
             rk_aiq_user_api2_agamma_SetAttrib(ctx, attr_v2);
             break;
         }

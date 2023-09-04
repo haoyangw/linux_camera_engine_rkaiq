@@ -85,6 +85,8 @@ Aynr_result_V22_t Aynr_Init_V22(Aynr_Context_V22_t **ppAynrCtx, void *pCalibDb)
     pAynrCtx->stExpInfo.snr_mode = 1;
     pAynrCtx->eParamMode = AYNRV22_PARAM_MODE_NORMAL;
     Aynr_ConfigSettingParam_V22(pAynrCtx, pAynrCtx->eParamMode, pAynrCtx->stExpInfo.snr_mode);
+    // init manual params
+    pAynrCtx->stManual.stSelect = pAynrCtx->stAuto.stParams.arYnrParamsISO[0];
 #endif
 
     LOGD_ANR("%s(%d):", __FUNCTION__, __LINE__);

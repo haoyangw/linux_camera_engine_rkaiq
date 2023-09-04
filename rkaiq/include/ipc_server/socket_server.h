@@ -85,7 +85,7 @@ private:
   int Recvieve(int sync);
   int poll_event(int timeout_msec, int fds[]);
 #ifdef __ANDROID__
-  int getAndroidLocalSocket();
+  int getAndroidLocalSocket(int camid);
 #endif
 
 private:

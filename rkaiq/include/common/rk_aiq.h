@@ -33,6 +33,7 @@ typedef enum rk_aiq_status_e {
     RK_AIQ_STATUS_VICAP_READY = 1,
     RK_AIQ_STATUS_VICAP_RESET,
     RK_AIQ_STATUS_VICAP_WITH_MULTI_CAM_RESET,
+    RK_AIQ_STATUS_PREAIQ_DONE,
 } rk_aiq_status_t;
 
 typedef struct rk_aiq_metas_s {

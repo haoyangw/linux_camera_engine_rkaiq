@@ -87,8 +87,16 @@ void GicV2SelectParam(rkaiq_gic_v2_param_selected_t* selected, int ratio, int in
 void GicV2SelectParam(AgicConfigV21_t* selected, int ratio, int index,
                       const rkaiq_gic_v2_param_selected_t* auto_params, int iso_cnt) {
     float ratioF                            = ratio / 16.0f;
-    const rkaiq_gic_v2_param_selected_t* lo = &auto_params[index];
-    const rkaiq_gic_v2_param_selected_t* hi = &auto_params[index + 1];
+    const rkaiq_gic_v2_param_selected_t* lo;
+    const rkaiq_gic_v2_param_selected_t* hi;
+    if (iso_cnt ==1) {
+        lo = &auto_params[index];
+        hi = &auto_params[index];
+    } else {
+        lo = &auto_params[index];
+        hi = &auto_params[index + 1];
+    }
+
 
     selected->gr_ratio       = lo->gr_ratio;
     selected->regminbusythre = INTERPOLATION(ratio, hi->min_busy_thre, lo->min_busy_thre);
@@ -185,6 +193,8 @@ XCamReturn AgicInit(AgicContext_t* pAgicCtx, CamCalibDbV2Context_t* calib) {
     CalibDbV2_Gic_V21_t* calibv2_agic_calib_V21 =
         (CalibDbV2_Gic_V21_t*)(CALIBDBV2_GET_MODULE_PTR(calib, agic_calib_v21));
     GicV2CalibToAttr(calibv2_agic_calib_V21, &pAgicCtx->attr.v2);
+    //init manula params
+    pAgicCtx->attr.v2.manual_param = pAgicCtx->attr.v2.auto_params[0];
     pAgicCtx->attr.v2.op_mode = RKAIQ_GIC_API_OPMODE_AUTO;
     pAgicCtx->calib_changed   = true;
     pAgicCtx->state           = AGIC_STATE_RUNNING;
@@ -315,6 +325,8 @@ void AgicProcessV21(AgicContext_t* pAgicCtx, int ISO) {
         ratio = (1 << 4);
     } else {
         int i = 0;
+        iso_hi = ISO;
+        iso_lo = 50;
         for (i = 0; i < (int)(pAgicCtx->attr.v2.iso_cnt - 2); i++) {
             iso_lo = (int)(pAgicCtx->attr.v2.auto_params[i].iso);
             iso_hi = (int)(pAgicCtx->attr.v2.auto_params[i + 1].iso);
@@ -323,7 +335,11 @@ void AgicProcessV21(AgicContext_t* pAgicCtx, int ISO) {
                 break;
             }
         }
-        ratio = ((ISO - iso_lo) * (1 << 4)) / (iso_hi - iso_lo);
+        if (iso_hi == iso_lo){
+            ratio = 0;
+        } else {
+            ratio = ((ISO - iso_lo) * (1 << 4)) / (iso_hi - iso_lo);
+        }
         index = i;
     }
 

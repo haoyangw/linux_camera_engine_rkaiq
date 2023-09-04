@@ -95,6 +95,10 @@ prepare(RkAiqAlgoCom* params)
 #endif
         pAbayertnrCtx->bayertnr_v23 = *bayertnr_v23;
 #endif
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR)
+            return XCAM_RETURN_NO_ERROR;
+
         pAbayertnrCtx->isIQParaUpdate = true;
         pAbayertnrCtx->isReCalculate |= 1;
     }

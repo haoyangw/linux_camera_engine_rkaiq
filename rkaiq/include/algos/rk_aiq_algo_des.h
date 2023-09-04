@@ -127,13 +127,13 @@ typedef struct _RkAiqAlgoDesComm {
 // for all algos
 
 typedef enum RkAiqAlgoConfType_e {
-    RK_AIQ_ALGO_CONFTYPE_INIT = 0,
-    RK_AIQ_ALGO_CONFTYPE_UPDATECALIB = 0x01,
-    RK_AIQ_ALGO_CONFTYPE_CHANGEMODE  = 0x02,
-    RK_AIQ_ALGO_CONFTYPE_NEEDRESET   = 0x04,
-    RK_AIQ_ALGO_CONFTYPE_CHANGERES   = 0x08,
-    RK_AIQ_ALGO_CONFTYPE_KEEPSTATUS  = 0x10,
-    RK_AIQ_ALGO_CONFTYPE_CHANGECAMS  = 0x20,
+    RK_AIQ_ALGO_CONFTYPE_INIT = 0,           // just used for the firt time, no much meaning now, equal to UPDATECALIB | NEEDRESET
+    RK_AIQ_ALGO_CONFTYPE_UPDATECALIB = 0x01, // update iq parameters
+    RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR = 0x02, // only update callib pointer, contents related to algo not changed
+    RK_AIQ_ALGO_CONFTYPE_NEEDRESET   = 0x04, // not used now, reset to the initial status
+    RK_AIQ_ALGO_CONFTYPE_CHANGERES   = 0x08, // for resolution changed, should map exposure, etc.
+    RK_AIQ_ALGO_CONFTYPE_KEEPSTATUS  = 0x10, // algo shoud keep the last iteration status
+    RK_AIQ_ALGO_CONFTYPE_CHANGECAMS  = 0x20, // not used now
     RK_AIQ_ALGO_CONFTYPE_MAX
 } RkAiqAlgoConfType_t;
 

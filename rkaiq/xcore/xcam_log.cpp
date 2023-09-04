@@ -160,8 +160,11 @@ bool xcam_get_enviroment_value(const char* variable, unsigned long long* value)
 }
 
 void xcam_get_runtime_log_level() {
+#ifdef ANDROID_OS
+    const char* file_name = "/data/.rkaiq_log";
+#else
     const char* file_name = "/tmp/.rkaiq_log";
-
+#endif
     if (!access(file_name, F_OK)) {
         FILE *fp = fopen(file_name, "r");
         char level[64] = {'\0'};
@@ -192,10 +195,11 @@ void xcam_get_runtime_log_level() {
 int xcam_get_log_level() {
 #ifdef ANDROID_OS
     char property_value[PROPERTY_VALUE_MAX] = {0};
-
-    property_get("persist.vendor.rkisp.log", property_value, "0");
+    char property_value_default[PROPERTY_VALUE_MAX] = {0};
+    sprintf(property_value_default, "%llx", g_cam_engine_log_level);
+    property_get("persist.vendor.rkisp.log", property_value, property_value_default);
     g_cam_engine_log_level = strtoull(property_value, nullptr, 16);
-
+    ALOGI("rkaiq log level %llx\n", g_cam_engine_log_level);
 #else
     xcam_get_enviroment_value("persist_camera_engine_log",
                               &g_cam_engine_log_level);

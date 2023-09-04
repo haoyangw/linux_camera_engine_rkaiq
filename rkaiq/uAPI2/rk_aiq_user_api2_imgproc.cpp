@@ -3308,12 +3308,21 @@ XCamReturn rk_aiq_uapi2_setFocusPosition(const rk_aiq_sys_ctx_t* ctx, short code
 
 XCamReturn rk_aiq_uapi2_getFocusPosition(const rk_aiq_sys_ctx_t* ctx, short * code)
 {
+    bool zoom_support = ctx->_analyzer->mAlogsComSharedParams.snsDes.lens_des.zoom_support;
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
     rk_aiq_af_attrib_t attr;
     IMGPROC_FUNC_ENTER
-    ret = rk_aiq_user_api2_af_GetAttrib(ctx, &attr);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "getFixedModeCode failed!");
-    *code = attr.fixedModeDefCode;
+    if (zoom_support) {
+        ret = rk_aiq_user_api2_af_GetAttrib(ctx, &attr);
+        RKAIQ_IMGPROC_CHECK_RET(ret, "getFixedModeCode failed!");
+        *code = attr.fixedModeDefCode;
+    } else {
+        int pos;
+        ret = rk_aiq_user_api2_af_GetFocusPos(ctx, &pos);
+        RKAIQ_IMGPROC_CHECK_RET(ret, "getFixedModeCode failed!");
+        *code = pos;
+    }
+    // LOGD_AF("%s: focus position %d", __func__, *code);
     IMGPROC_FUNC_EXIT
     return ret;
 }

@@ -27,19 +27,48 @@
 
 RKAIQ_BEGIN_DECLARE
 
-XCamReturn illuminant_index_estimation_ccm(int light_num, const CalibDbV2_Ccm_Accm_Cof_Para_t illAll[], float awbGain[2], int* illuminant_index);
+XCamReturn illuminant_index_estimation_ccm(int light_num, const rk_aiq_ccm_illucfg_t illAll[], float awbGain[2], int* illuminant_index);
 XCamReturn Damping(const float damp, float *pMatrixUndamped, float *pMatrixDamped, float *pOffsetUndamped, float *pOffsetDamped, bool *converge_flag);
 void Saturationadjust(float fScale, float flevel1, float *pccMatrixA);
-XCamReturn CamCalibDbGetCcmProfileByName(const CalibDbV2_Ccm_Tuning_Para_t *calibCcm, char* name, const CalibDbV2_Ccm_Matrix_Para_t **pCcmMatrixProfile);
-XCamReturn interpCCMbywbgain(const CalibDbV2_Ccm_Tuning_Para_t* pCcm, accm_handle_t hAccm,
-                             float fSaturation);
-XCamReturn selectCCM(const CalibDbV2_Ccm_Tuning_Para_t* pCcm, accm_handle_t hAccm,
-                     float fSaturation);
+
+XCamReturn CamCalibDbGetCcmProfileByName(const rk_aiq_ccm_matrixcfg_t* matrixAll,
+                                         int matrixAll_len,
+                                         char* name,
+                                         const rk_aiq_ccm_matrixcfg_t **pCcmMatrixProfile);
+
+XCamReturn interpCCMbywbgain(const CalibDbV2_Ccm_illu_est_Para_t* illu_estim,
+                             const rk_aiq_ccm_illucfg_t           aCcmCof[],
+                             int                                  aCcmCof_len,
+                             accm_handle_t                        hAccm,
+                             float                                fSaturation);
+
+XCamReturn selectCCM(const rk_aiq_ccm_illucfg_t aCcmCof[],
+                     int                        aCcmCof_len,
+                     accm_handle_t              hAccm,
+                     float                      fSaturation,
+                     bool*                      updUndampMat);
+
 bool JudgeCcmRes3aConverge(ccm_3ares_info_t *res3a_info, accm_sw_info_t *accmSwInfo, float gain_th, float wbgain_th);
-XCamReturn Swinfo_wbgain_init(float awbGain[2], const CalibDbV2_Ccm_Tuning_Para_t *pCalib, const char* illuName);
-XCamReturn pCcmMatrixAll_init(accm_context_t* accm_context, const CalibDbV2_Ccm_Tuning_Para_t *pCalib );
-#if RKAIQ_ACCM_ILLU_VOTE
-XCamReturn ReloadCCMCalibV2(accm_handle_t hAccm, const CalibDbV2_Ccm_Tuning_Para_t* TuningPara);
+
+XCamReturn Swinfo_wbgain_init(float                      awbGain[2],
+                              const rk_aiq_ccm_illucfg_t aCcmCof[],
+                              int                        aCcmCof_len,
+                              const char*                illuName);
+
+XCamReturn pCcmMatrixAll_init(const rk_aiq_ccm_illucfg_t*   aCcmCof,
+                              int                           aCcmCof_len,
+                              const rk_aiq_ccm_matrixcfg_t* matrixAll,
+                              int                           matrixAll_len,
+                              const rk_aiq_ccm_matrixcfg_t* pCcmMatrixAll[][CCM_PROFILES_NUM_MAX]);
+
+#if RKAIQ_HAVE_CCM_V1
+XCamReturn ReloadCCMCalibV2(const CalibDbV2_Ccm_Para_V2_t* newCalib,
+                            rk_aiq_ccm_iqparam_attrib_t*   stCalib,
+                            CalibDbV2_Ccm_illu_est_Para_t* stIlluestCfg);
+#elif RKAIQ_HAVE_CCM_V2
+XCamReturn ReloadCCMCalibV2(const CalibDbV2_Ccm_Para_V32_t* newCalib,
+                            rk_aiq_ccm_v2_iqparam_attrib_t* stCalib,
+                            CalibDbV2_Ccm_illu_est_Para_t*  stIlluestCfg);
 #endif
 
 

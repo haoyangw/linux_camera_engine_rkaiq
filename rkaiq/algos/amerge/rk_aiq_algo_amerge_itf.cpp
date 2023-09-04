@@ -93,6 +93,10 @@ static XCamReturn AmergePrepare(RkAiqAlgoCom* params)
 
     if (pAmergeCtx->FrameNumber == HDR_2X_NUM || pAmergeCtx->FrameNumber == HDR_3X_NUM) {
         if (!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB)) {
+            // just update calib ptr
+            if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
+                return XCAM_RETURN_NO_ERROR;
+            }
             LOGI_AMERGE("%s: Amerge Reload Para!\n", __FUNCTION__);
 #if RKAIQ_HAVE_MERGE_V10
             CalibDbV2_merge_v10_t* calibv2_amerge_calib =

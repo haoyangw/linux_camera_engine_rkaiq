@@ -454,7 +454,9 @@ public:
     }
 
     void syncVicapScaleMode();
-
+    IRkAiqResourceTranslator* getTranslator() {
+        return mTranslator.ptr();
+    }
 protected:
     // in analyzer thread
     XCamReturn analyze(const SmartPtr<VideoBuffer> &buffer);
@@ -683,7 +685,7 @@ protected:
 #ifdef RKAIQ_ENABLE_CAMGROUP
     RkAiqCamGroupManager* mCamGroupCoreManager;
 #endif
-    std::bitset<RK_AIQ_ALGO_TYPE_MAX> mAllReqAlgoResMask{0};
+    std::bitset<RK_AIQ_ALGO_TYPE_MAX> mAllReqAlgoResMask {0};
 
 private:
 #if defined(RKAIQ_HAVE_THUMBNAILS)
@@ -707,8 +709,8 @@ private:
     int64_t mSofTime = 0LL;
     int64_t mAfStatsTime[2] {0};
     int64_t mPdafStatsTime[2] {0};
-    uint32_t mAfStatsFrmId[2] {(uint32_t)-1, (uint32_t)-1};
-    uint32_t mPdafStatsFrmId[2] {(uint32_t)-1, (uint32_t)-1};
+    uint32_t mAfStatsFrmId[2] {(uint32_t) -1, (uint32_t) -1};
+    uint32_t mPdafStatsFrmId[2] {(uint32_t) -1, (uint32_t) -1};
     SmartPtr<RkAiqAfStatsProxy> mAfStats[2];
     SmartPtr<RkAiqPdafStatsProxy> mPdafStats[2];
     CamProfiles mProfiles;
@@ -727,6 +729,8 @@ private:
     uint32_t mLatestParamsDoneId {0};
     uint32_t mLatestEvtsId {0};
     uint32_t mLatestStatsId {0};
+    std::list<RkAiqAlgoType_t> mUpdateCalibAlgosList;
+    void mapModStrListToEnum(ModuleNameList& change_name_list);
 };
 
 }

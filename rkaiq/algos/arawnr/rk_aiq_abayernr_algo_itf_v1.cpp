@@ -88,6 +88,10 @@ prepare(RkAiqAlgoCom* params)
 	pAbayernrCtx->prepare_type = params->u.prepare.conf_type;
 
 	if(!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB )){
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
+            return XCAM_RETURN_NO_ERROR;
+        }
 		#if ABAYERNR_USE_JSON_FILE_V1
 		void *pCalibDbV2 = (void*)(pCfgParam->com.u.prepare.calibv2);
 		CalibDbV2_BayerNrV1_t *bayernr_v1 = (CalibDbV2_BayerNrV1_t*)(CALIBDBV2_GET_MODULE_PTR((void*)pCalibDbV2, bayernr_v1));

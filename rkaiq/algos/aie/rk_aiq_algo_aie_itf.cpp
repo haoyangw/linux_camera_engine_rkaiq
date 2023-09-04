@@ -121,7 +121,11 @@ prepare(RkAiqAlgoCom* params)
         RkAiqAlgoContext *ctx = params->ctx;
         ctx->calib = confPara->com.u.prepare.calib;
         ctx->calibv2 = confPara->com.u.prepare.calibv2;
-
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
+            LOGK_AIE("only update calib ptr, skip reconfig \n");
+            return XCAM_RETURN_NO_ERROR;
+        }
 #if RKAIQ_HAVE_AIE_V10
         if (ctx->calib) {
             CalibDb_IE_t *calib_ie =

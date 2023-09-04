@@ -108,6 +108,8 @@ Asharp_result_V33_t Asharp_Init_V33(Asharp_Context_V33_t** ppAsharpCtx, void* pC
     pAsharpCtx->eParamMode         = ASHARP_V33_PARAM_MODE_NORMAL;
     Asharp_ConfigSettingParam_V33(pAsharpCtx, pAsharpCtx->eParamMode,
                                   pAsharpCtx->stExpInfo.snr_mode);
+    // init manual params
+    pAsharpCtx->stManual.stSelect = pAsharpCtx->stAuto.stParams.sharpParamsISO[0];
 #endif
 
     LOGD_ASHARP("%s(%d):", __FUNCTION__, __LINE__);

@@ -66,6 +66,8 @@ XCamReturn
 rk_aiq_user_api2_af_setAngleZ(const rk_aiq_sys_ctx_t* sys_ctx, float angleZ);
 XCamReturn
 rk_aiq_user_api2_af_setCustomAfRes(const rk_aiq_sys_ctx_t* sys_ctx, rk_tool_customAf_res_t *attr);
+XCamReturn
+rk_aiq_user_api2_af_GetFocusPos(const rk_aiq_sys_ctx_t* sys_ctx, int* pos);
 
 RKAIQ_END_DECLARE
 

@@ -77,7 +77,11 @@ static XCamReturn prepare(RkAiqAlgoCom* params) {
         CalibDbV2_Bayer2dnrV23_t *bayernr_v23 = (CalibDbV2_Bayer2dnrV23_t*)(CALIBDBV2_GET_MODULE_PTR((void*)pCalibDbV2, bayer2dnr_v23));
         pAblcCtx->stBayer2dnrCalib = bayernr_v23->CalibPara;
 #endif
-        LOGE_ABLC("%s: Ablc Reload Para!\n", __FUNCTION__);
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR)
+            return XCAM_RETURN_NO_ERROR;
+
+        LOGI_ABLC("%s: Ablc Reload Para!\n", __FUNCTION__);
         pAblcCtx->stBlcCalib = *calibv2_ablc_calib;
         pAblcCtx->isUpdateParam = true;
         pAblcCtx->isReCalculate |= 1;

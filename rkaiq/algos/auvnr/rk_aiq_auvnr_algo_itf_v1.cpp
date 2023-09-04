@@ -95,6 +95,10 @@ prepare(RkAiqAlgoCom* params)
             (CalibDbV2_MFNR_t*)(CALIBDBV2_GET_MODULE_PTR(pCalibDbV2, mfnr_v1));
 		pAuvnrCtx->mfnr_mode_3to1 = pCalibv2_mfnr_v1->TuningPara.mode_3to1;
 		pAuvnrCtx->mfnr_local_gain_en = pCalibv2_mfnr_v1->TuningPara.local_gain_en;
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
+            return XCAM_RETURN_NO_ERROR;
+        }
 		#else
 	  	void *pCalibDb = (void*)(pCfgParam->com.u.prepare.calib);
         pAuvnrCtx->stUvnrCalib=
@@ -103,6 +107,10 @@ prepare(RkAiqAlgoCom* params)
         (CalibDb_MFNR_2_t*)(CALIBDB_GET_MODULE_PTR((void*)pCalibDb, mfnr));
 		pAuvnrCtx->mfnr_mode_3to1 = pMfnrCalib->mode_3to1;
 		pAuvnrCtx->mfnr_local_gain_en = pMfnrCalib->local_gain_en;
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
+            return XCAM_RETURN_NO_ERROR;
+        }
 		#endif
 		pAuvnrCtx->isIQParaUpdate = true;
 	}

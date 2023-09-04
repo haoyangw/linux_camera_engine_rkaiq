@@ -722,10 +722,17 @@
  * 
  *   Change-Id: Iae10911ee0f199210c7913d3e99dd85ec4642f81
  * 
+ * v5.0x1.3-rc2
+ * - optimize ae stats usage
+ * - ccm/lsc/dehaze: fix interpolation bugs 
+ * - support 2 cam's online tuning for Android
+ * - add default manual settings for algo's API getAtrrib
+ * - fix tool online tuning bug that params in page sysctl may be overwitten by
+ *   main page.
  */
 
-#define RK_AIQ_VERSION_REAL_V "v5.0x1.3-rc1"
-#define RK_AIQ_RELEASE_DATE "2023-08-9"
+#define RK_AIQ_VERSION_REAL_V "v5.0x1.3-rc2"
+#define RK_AIQ_RELEASE_DATE "2023-09-1"
 
 /******* DO NOT EDIT THE FOLLOWINGS ***********/
 

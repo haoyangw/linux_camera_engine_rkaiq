@@ -78,6 +78,7 @@ private:
     rk_aiq_bayertnr_strength_v23_t mNewStrength;
     mutable std::atomic<bool> updateStrength;
 #endif
+    bool mLatestEn{true};
 private:
     DECLARE_HANDLE_REGISTER_TYPE(RkAiqAbayertnrV23HandleInt);
 };

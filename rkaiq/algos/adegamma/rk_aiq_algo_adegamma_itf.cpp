@@ -70,6 +70,9 @@ prepare(RkAiqAlgoCom* params)
         CalibDbV2_Adegmma_t* adegamma_calib =
             (CalibDbV2_Adegmma_t*)(CALIBDBV2_GET_MODULE_PTR(pCfgParam->com.u.prepare.calibv2, adegamma_calib));
         AdegammaHandle->pCalibDb = adegamma_calib;//reload iq
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR)
+            return XCAM_RETURN_NO_ERROR;
         LOGD_ADEGAMMA("%s: Adegamma Reload Para!!!\n", __FUNCTION__);
     }
 

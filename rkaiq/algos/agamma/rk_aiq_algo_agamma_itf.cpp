@@ -71,6 +71,9 @@ prepare(RkAiqAlgoCom* params)
     RkAiqAlgoConfigAgamma* pCfgParam = (RkAiqAlgoConfigAgamma*)params;
 
     if (!!(pCfgParam->com.u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB)) {
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR)
+            return XCAM_RETURN_NO_ERROR;
         LOGI_AGAMMA("%s: Agamma Reload Para!!!\n", __FUNCTION__);
 #if RKAIQ_HAVE_GAMMA_V10
         CalibDbV2_gamma_v10_t* calibv2_agamma_calib =

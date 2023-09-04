@@ -3986,6 +3986,25 @@ CamHwIsp20::setAngleZ(float angleZ)
 }
 
 XCamReturn
+CamHwIsp20::getFocusPosition(int& position)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    ENTER_CAMHW_FUNCTION();
+    SmartPtr<LensHw> mLensSubdev = mLensDev.dynamic_cast_ptr<LensHw>();
+
+    if (mLensSubdev.ptr()) {
+        if (mLensSubdev->getFocusParams(&position) < 0) {
+            LOGE_CAMHW_SUBM(ISP20HW_SUBM, "get focus position failed to device");
+            return XCAM_RETURN_ERROR_IOCTL;
+        }
+        LOGD_CAMHW_SUBM(ISP20HW_SUBM, "|||get focus position: %d", position);
+    }
+
+    EXIT_CAMHW_FUNCTION();
+    return ret;
+}
+
+XCamReturn
 CamHwIsp20::setCpslParams(SmartPtr<RkAiqCpslParamsProxy>& cpsl_params)
 {
     ENTER_CAMHW_FUNCTION();
@@ -4872,12 +4891,14 @@ XCamReturn CamHwIsp20::setSensorCrop(rk_aiq_rect_t& rect)
         V4l2Device* mipi_tx = mRawCapUnit->get_tx_device(i).get_cast_ptr<V4l2Device>();
         memset(&crop, 0, sizeof(crop));
         crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-        ret = mipi_tx->get_crop(crop);
-        crop.c.left = rect.left;
-        crop.c.top = rect.top;
-        crop.c.width = rect.width;
-        crop.c.height = rect.height;
-        ret = mipi_tx->set_crop(crop);
+        if (mipi_tx) {
+            ret = mipi_tx->get_crop(crop);
+            crop.c.left = rect.left;
+            crop.c.top = rect.top;
+            crop.c.width = rect.width;
+            crop.c.height = rect.height;
+            ret = mipi_tx->set_crop(crop);
+        }
     }
     _crop_rect = rect;
 #endif

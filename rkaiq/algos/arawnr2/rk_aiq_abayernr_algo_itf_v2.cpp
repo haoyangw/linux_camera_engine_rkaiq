@@ -88,6 +88,10 @@ prepare(RkAiqAlgoCom* params)
 
     if(!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB )) {
 #if ABAYERNR_USE_JSON_FILE_V2
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
+            return XCAM_RETURN_NO_ERROR;
+        }
         void *pCalibDbV2 = (void*)(pCfgParam->com.u.prepare.calibv2);
         CalibDbV2_BayerNrV2_t *bayernr_v2 = (CalibDbV2_BayerNrV2_t*)(CALIBDBV2_GET_MODULE_PTR((void*)pCalibDbV2, bayernr_v2));
         pAbayernrCtx->bayernr_v2 = *bayernr_v2;
@@ -95,6 +99,10 @@ prepare(RkAiqAlgoCom* params)
         void *pCalibDb = (void*)(pCfgParam->com.u.prepare.calib);
         pAbayernrCtx->list_bayernr_v2 =
             (struct list_head*)(CALIBDB_GET_MODULE_PTR((void*)pCalibDb, list_bayernr_v2));
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
+            return XCAM_RETURN_NO_ERROR;
+        }
 #endif
         pAbayernrCtx->isIQParaUpdate = true;
         pAbayernrCtx->isReCalculate |= 1;

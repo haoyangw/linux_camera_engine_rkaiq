@@ -433,6 +433,46 @@ AdpccResult_t dpcc_fast_mode_basic_params_init(CalibDb_Dpcc_Fast_Mode_t *pFast, 
 
 }
 
+AdpccResult_t dpcc_manual_fast_mode_init(Adpcc_onfly_cfg_t *pFast, CalibDbV2_Dpcc_t *pCalib)
+{
+    AdpccResult_t ret = ADPCC_RET_SUCCESS;
+    LOG1_ADPCC("%s(%d): enter!", __FUNCTION__, __LINE__);
+
+    if(pFast == NULL) {
+        ret = ADPCC_RET_NULL_POINTER;
+        LOGE_ADPCC("%s(%d): invalid input params", __FUNCTION__, __LINE__);
+        return ret;
+    }
+
+    if(pCalib == NULL) {
+        ret = ADPCC_RET_NULL_POINTER;
+        LOGE_ADPCC("%s(%d): invalid input params", __FUNCTION__, __LINE__);
+        return ret;
+    }
+
+    pFast->mode = ADPCC_ONFLY_MODE_FAST;
+    pFast->fast_mode.fast_mode_en = 1;
+    if (pCalib->DpccTuningPara.Fast_Mode.Fast_mode_en) {
+        pFast->fast_mode.fast_mode_single_en = pCalib->DpccTuningPara.Fast_Mode.Single_enable;
+        pFast->fast_mode.fast_mode_double_en = pCalib->DpccTuningPara.Fast_Mode.Double_enable;
+        pFast->fast_mode.fast_mode_triple_en = pCalib->DpccTuningPara.Fast_Mode.Triple_enable;
+        pFast->fast_mode.fast_mode_single_level = pCalib->DpccTuningPara.Fast_Mode.Fast_Data.Single_level[0];
+        pFast->fast_mode.fast_mode_double_level = pCalib->DpccTuningPara.Fast_Mode.Fast_Data.Double_level[0];
+        pFast->fast_mode.fast_mode_triple_level = pCalib->DpccTuningPara.Fast_Mode.Fast_Data.Triple_level[0];
+    } else {
+        pFast->fast_mode.fast_mode_single_en = 1;
+        pFast->fast_mode.fast_mode_double_en = 1;
+        pFast->fast_mode.fast_mode_triple_en = 0;
+        pFast->fast_mode.fast_mode_single_level = 1;
+        pFast->fast_mode.fast_mode_double_level = 1;
+        pFast->fast_mode.fast_mode_triple_level = 1;
+    }
+
+    LOG1_ADPCC("%s(%d): exit!", __FUNCTION__, __LINE__);
+    return ret;
+
+}
+
 AdpccResult_t dpcc_expert_mode_basic_params_init(Adpcc_basic_params_t *pBasic, CalibDbV2_Dpcc_t *pCalib)
 {
     AdpccResult_t ret = ADPCC_RET_SUCCESS;
@@ -2757,6 +2797,7 @@ AdpccResult_t AdpccInit(AdpccContext_t **ppAdpccCtx, CamCalibDbV2Context_t *pCal
     dpcc_fast_mode_basic_params_init(&pAdpccCtx->stAuto.stFastMode, &pAdpccCtx->stDpccCalib);
     dpcc_pdaf_params_init(&pAdpccCtx->stAuto.stPdafParams, &pAdpccCtx->stDpccCalib.DpccTuningPara.Dpcc_pdaf);
     dpcc_sensor_params_init(&pAdpccCtx->stAuto.stSensorDpcc, &pAdpccCtx->stDpccCalib);
+    dpcc_manual_fast_mode_init(&pAdpccCtx->stManual.stOnfly, &pAdpccCtx->stDpccCalib);
 #else
     //static init
     html_params_init(&pAdpccCtx->stParams);

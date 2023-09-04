@@ -90,6 +90,8 @@ AcnrV30_result_t Acnr_Init_V30(Acnr_Context_V30_t **ppAcnrCtx, void *pCalibDb)
     pAcnrCtx->stExpInfo.snr_mode = 1;
     pAcnrCtx->eParamMode = ACNRV30_PARAM_MODE_NORMAL;
     Acnr_ConfigSettingParam_V30(pAcnrCtx, pAcnrCtx->eParamMode, pAcnrCtx->stExpInfo.snr_mode);
+    // init manual params
+    pAcnrCtx->stManual.stSelect = pAcnrCtx->stAuto.stParams.CnrParamsISO[0];
 #endif
 
     LOGD_ANR("%s(%d):", __FUNCTION__, __LINE__);

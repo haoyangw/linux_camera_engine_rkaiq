@@ -86,6 +86,9 @@ prepare(RkAiqAlgoCom* params)
     pAgainCtx->prepare_type = params->u.prepare.conf_type;
 
     if(!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB )) {
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR)
+            return XCAM_RETURN_NO_ERROR;
 #if AGAIN_USE_JSON_FILE_V2
 #if 1
         void *pCalibDbV2 = (void*)(pCfgParam->com.u.prepare.calibv2);

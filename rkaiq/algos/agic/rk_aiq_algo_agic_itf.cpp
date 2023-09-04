@@ -55,6 +55,9 @@ static XCamReturn prepare(RkAiqAlgoCom* params) {
     CamCalibDbV2Context_t* calibv2 = pCfgParam->com.u.prepare.calibv2;
 
     if (!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB)) {
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR)
+            return XCAM_RETURN_NO_ERROR;
         LOGD_AGIC("%s: Agic Reload Para!\n", __FUNCTION__);
 
 #if RKAIQ_HAVE_GIC_V1

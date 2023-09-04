@@ -440,7 +440,9 @@ struct ConvertAeHelper {
                     std::is_same<U, struct isp21_isp_params_cfg>::value),
                    bool >::type = true >
     void copyYuvAeCfg(U& cfg, const rk_aiq_isp_aec_meas_t& aec_meas) {
+#if ISP_HW_V20
         memcpy(&cfg.meas.yuvae, &aec_meas.yuvae, sizeof(aec_meas.yuvae));
+#endif
     }
 
     template < typename U                          = T,
@@ -454,7 +456,9 @@ struct ConvertAeHelper {
                                           std::is_same<U, struct isp21_isp_params_cfg>::value),
                                          bool >::type = true >
     void copyAeHistCfg(U& cfg, const rk_aiq_isp_hist_meas_t& hist_meas) {
+#if ISP_HW_V20
         memcpy(&cfg.meas.sihst, &hist_meas.sihist, sizeof(hist_meas.sihist));
+#endif
     }
 
     template < typename U                          = T,
@@ -532,10 +536,25 @@ void Isp20Params::convertAiqAeToIsp20Params(T& isp_cfg, const rk_aiq_isp_aec_mea
         return;
     }
 
-    memcpy(&isp_cfg.meas.rawae3, &aec_meas.rawae3, sizeof(aec_meas.rawae3));
+#if ISP_HW_V20 || ISP_HW_V30
+    memcpy(&isp_cfg.meas.rawae0, &aec_meas.rawae0, sizeof(aec_meas.rawae0));
     memcpy(&isp_cfg.meas.rawae1, &aec_meas.rawae1, sizeof(aec_meas.rawae1));
     memcpy(&isp_cfg.meas.rawae2, &aec_meas.rawae2, sizeof(aec_meas.rawae2));
+    memcpy(&isp_cfg.meas.rawae3, &aec_meas.rawae3, sizeof(aec_meas.rawae3));
+#endif
+#if ISP_HW_V21 || ISP_HW_V32
     memcpy(&isp_cfg.meas.rawae0, &aec_meas.rawae0, sizeof(aec_meas.rawae0));
+    memcpy(&isp_cfg.meas.rawae1, &aec_meas.rawae1, sizeof(aec_meas.rawae1));
+    memcpy(&isp_cfg.meas.rawae2, &aec_meas.rawae1, sizeof(aec_meas.rawae1));
+    memcpy(&isp_cfg.meas.rawae3, &aec_meas.rawae3, sizeof(aec_meas.rawae3));
+#endif
+#if ISP_HW_V32_LITE
+    memcpy(&isp_cfg.meas.rawae0, &aec_meas.rawae0, sizeof(aec_meas.rawae0));
+    memcpy(&isp_cfg.meas.rawae1, &aec_meas.rawae3, sizeof(aec_meas.rawae3));
+    memcpy(&isp_cfg.meas.rawae2, &aec_meas.rawae3, sizeof(aec_meas.rawae3));
+    memcpy(&isp_cfg.meas.rawae3, &aec_meas.rawae3, sizeof(aec_meas.rawae3));
+#endif
+
 #if defined(ISP_HW_V20) || defined(ISP_HW_V21)
     ConvertAeHelper<T> helper;
     helper.copyYuvAeCfg(isp_cfg, aec_meas);
@@ -571,10 +590,6 @@ void Isp20Params::convertAiqAeToIsp20Params(T& isp_cfg, const rk_aiq_isp_aec_mea
      *            isp_cfg.meas.rawae3.win.h_size,
      *            isp_cfg.meas.rawae3.win.v_size);
      */
-    memcpy(&isp_cfg.meas.rawae3, &aec_meas.rawae3, sizeof(aec_meas.rawae3));
-    memcpy(&isp_cfg.meas.rawae1, &aec_meas.rawae1, sizeof(aec_meas.rawae1));
-    memcpy(&isp_cfg.meas.rawae2, &aec_meas.rawae2, sizeof(aec_meas.rawae2));
-    memcpy(&isp_cfg.meas.rawae0, &aec_meas.rawae0, sizeof(aec_meas.rawae0));
 #if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
     mLatestMeasCfg.rawae3 = isp_cfg.meas.rawae3;
     mLatestMeasCfg.rawae1 = isp_cfg.meas.rawae1;
@@ -658,10 +673,25 @@ Isp20Params::convertAiqHistToIsp20Params
         return;
     }
 
-    memcpy(&isp_cfg.meas.rawhist3, &hist_meas.rawhist3, sizeof(hist_meas.rawhist3));
+#if ISP_HW_V20 || ISP_HW_V30
+    memcpy(&isp_cfg.meas.rawhist0, &hist_meas.rawhist0, sizeof(hist_meas.rawhist0));
     memcpy(&isp_cfg.meas.rawhist1, &hist_meas.rawhist1, sizeof(hist_meas.rawhist1));
     memcpy(&isp_cfg.meas.rawhist2, &hist_meas.rawhist2, sizeof(hist_meas.rawhist2));
+    memcpy(&isp_cfg.meas.rawhist3, &hist_meas.rawhist3, sizeof(hist_meas.rawhist3));
+#endif
+#if ISP_HW_V21 || ISP_HW_V32
     memcpy(&isp_cfg.meas.rawhist0, &hist_meas.rawhist0, sizeof(hist_meas.rawhist0));
+    memcpy(&isp_cfg.meas.rawhist1, &hist_meas.rawhist1, sizeof(hist_meas.rawhist1));
+    memcpy(&isp_cfg.meas.rawhist2, &hist_meas.rawhist3, sizeof(hist_meas.rawhist3));
+    memcpy(&isp_cfg.meas.rawhist3, &hist_meas.rawhist3, sizeof(hist_meas.rawhist3));
+#endif
+#if ISP_HW_V32_LITE
+    memcpy(&isp_cfg.meas.rawhist0, &hist_meas.rawhist0, sizeof(hist_meas.rawhist0));
+    memcpy(&isp_cfg.meas.rawhist1, &hist_meas.rawhist3, sizeof(hist_meas.rawhist3));
+    memcpy(&isp_cfg.meas.rawhist2, &hist_meas.rawhist3, sizeof(hist_meas.rawhist3));
+    memcpy(&isp_cfg.meas.rawhist3, &hist_meas.rawhist3, sizeof(hist_meas.rawhist3));
+#endif
+
 #if defined(ISP_HW_V20) || defined(ISP_HW_V21)
     ConvertAeHelper<T> helper;
     helper.copyAeHistCfg(isp_cfg, hist_meas);
@@ -1898,8 +1928,19 @@ Isp20Params::convertAiqLscToIsp20Params(T& isp_cfg,
     memcpy(cfg->gr_data_tbl, lsc.gr_data_tbl, sizeof(lsc.gr_data_tbl));
     memcpy(cfg->gb_data_tbl, lsc.gb_data_tbl, sizeof(lsc.gb_data_tbl));
     memcpy(cfg->b_data_tbl, lsc.b_data_tbl, sizeof(lsc.b_data_tbl));
+#ifndef MAX_LSC_VALUE
+#define MAX_LSC_VALUE 8191
+#endif
+if(lsc.lsc_en) {
+    for(int i = 0; i < ISP3X_LSC_DATA_TBL_SIZE; i++) {
+        cfg->b_data_tbl[i] = MIN(cfg->b_data_tbl[i], MAX_LSC_VALUE);
+        cfg->gb_data_tbl[i] = MIN(cfg->gb_data_tbl[i], MAX_LSC_VALUE);
+        cfg->r_data_tbl[i] = MIN(cfg->r_data_tbl[i], MAX_LSC_VALUE);
+        cfg->gr_data_tbl[i] = MIN(cfg->gr_data_tbl[i], MAX_LSC_VALUE);
+    }
+}
 #if 0//def ISP_HW_V30 // will be done Isp21Params::convertAiqExpIspDgainToIspParams
-    #define MAX_LSC_VALUE 8191
+#define MAX_LSC_VALUE 8191
     struct isp21_bls_cfg &bls_cfg = isp_cfg.others.bls_cfg;
     if(bls_cfg.bls1_en && bls_cfg.bls1_val.b > 0 && bls_cfg.bls1_val.r > 0
             && bls_cfg.bls1_val.gb > 0 && bls_cfg.bls1_val.gr > 0 ) {

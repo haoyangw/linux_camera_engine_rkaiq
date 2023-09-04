@@ -86,6 +86,10 @@ prepare(RkAiqAlgoCom* params)
 
         LOGD_ABLC("%s: Ablc Reload Para!\n", __FUNCTION__);
         memcpy(&pAblcCtx->stBlcCalib, calibv2_ablc_calib, sizeof(pAblcCtx->stBlcCalib));
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR)
+            return XCAM_RETURN_NO_ERROR;
+
         pAblcCtx->isUpdateParam = true;
         pAblcCtx->isReCalculate |= 1;
     }

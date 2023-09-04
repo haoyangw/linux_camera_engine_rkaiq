@@ -401,8 +401,9 @@ void SocketServer::Accepted() {
 }
 
 #ifdef __ANDROID__
-int SocketServer::getAndroidLocalSocket() {
-  static const char socketName[] = "camera_tool";
+int SocketServer::getAndroidLocalSocket(int camid) {
+  char socketName[16] = {0};
+  sprintf(socketName, "camera_tool%d", camid);
   int sock = android_get_control_socket(socketName);
 
   LOGK_IPC("cid[%d] %s path:%s, sockfd:%d", camId_, __func__, socketName, sockfd);
@@ -422,7 +423,7 @@ int SocketServer::Process(rk_aiq_sys_ctx_t *ctx, int camid) {
   aiq_ctx = ctx;
   camId_ = camid;
 #ifdef __ANDROID__
-  sockfd = getAndroidLocalSocket();
+  sockfd = getAndroidLocalSocket(camid);
   if (sockfd < 0) {
     LOGE_IPC("cid[%d] Error get socket %s\n", camid, strerror(errno));
     return -1;

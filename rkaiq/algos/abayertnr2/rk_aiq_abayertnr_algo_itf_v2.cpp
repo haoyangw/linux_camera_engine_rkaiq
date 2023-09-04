@@ -89,6 +89,10 @@ prepare(RkAiqAlgoCom* params)
         CalibDbV2_BayerTnrV2_t *bayertnr_v2 = (CalibDbV2_BayerTnrV2_t*)(CALIBDBV2_GET_MODULE_PTR((void*)pCalibDbV2, bayertnr_v2));
         pAbayertnrCtx->bayertnr_v2 = *bayertnr_v2;
 #endif
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR)
+            return XCAM_RETURN_NO_ERROR;
+
         pAbayertnrCtx->isIQParaUpdate = true;
         pAbayertnrCtx->isReCalculate |= 1;
     }

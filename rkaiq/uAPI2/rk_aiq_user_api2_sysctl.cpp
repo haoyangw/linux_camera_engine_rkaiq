@@ -192,7 +192,7 @@ rk_aiq_uapi2_sysctl_getCrop(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_rect_t *rect
     return rk_aiq_uapi_sysctl_getCrop(sys_ctx, rect);
 }
 
-#if 0
+#if 1
 XCamReturn
 rk_aiq_uapi2_sysctl_setCrop(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_rect_t rect)
 {

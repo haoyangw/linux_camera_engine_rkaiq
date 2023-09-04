@@ -38,7 +38,8 @@ XCamReturn rk_aiq_user_api_ae_getHdrAeRouteAttr(const rk_aiq_sys_ctx_t* ctx, Uap
 XCamReturn rk_aiq_user_api_ae_queryExpResInfo(const rk_aiq_sys_ctx_t* ctx, Uapi_ExpQueryInfo_t* pExpResInfo);
 XCamReturn rk_aiq_user_api_ae_setExpWinAttr(const rk_aiq_sys_ctx_t* ctx, const Uapi_ExpWin_t ExpWinAttr);
 XCamReturn rk_aiq_user_api_ae_getExpWinAttr(const rk_aiq_sys_ctx_t* ctx, Uapi_ExpWin_t* pExpWinAttr);
-
+XCamReturn rk_aiq_user_api_ae_setAecStatsCfg(const rk_aiq_sys_ctx_t* ctx, const Uapi_AecStatsCfg_t AecStatsCfg);
+XCamReturn rk_aiq_user_api_ae_getAecStatsCfg(const rk_aiq_sys_ctx_t* ctx, Uapi_AecStatsCfg_t* pAecStatsCfg);
 
 RKAIQ_END_DECLARE
 

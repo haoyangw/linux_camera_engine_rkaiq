@@ -89,10 +89,22 @@ static XCamReturn AtmoPrepare(RkAiqAlgoCom* params)
     else
         pAtmoCtx->FrameNumber = HDR_3X_NUM;
 
+    //get aec delay frame
+    CalibDb_Aec_ParaV2_t* aec =
+        (CalibDb_Aec_ParaV2_t*)CALIBDBV2_GET_MODULE_PTR((void*)pCalibDbv2, ae_calib);
+    pAtmoCtx->CurrAeResult.AecDelayframe = MAX(aec->CommCtrl.AecDelayFrmNum.BlackDelay,
+                                           aec->CommCtrl.AecDelayFrmNum.WhiteDelay);
+
+    LOG1_ATMO("%s:AecDelayframe:%d\n", __FUNCTION__, pAtmoCtx->CurrAeResult.AecDelayframe);
+
     CalibDbV2_tmo_t* calibv2_atmo_calib =
         (CalibDbV2_tmo_t*)(CALIBDBV2_GET_MODULE_PTR((void*)pCalibDbv2, atmo_calib));
 
     if(!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB )) {
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
+            return XCAM_RETURN_NO_ERROR;
+        }
         LOGI_ATMO("%s: Ahdr Reload Para!\n", __FUNCTION__);
         memcpy(&pAtmoCtx->pCalibDB, calibv2_atmo_calib, sizeof(CalibDbV2_tmo_t));//load iq paras
     }
@@ -105,14 +117,6 @@ static XCamReturn AtmoPrepare(RkAiqAlgoCom* params)
             return(XCAM_RETURN_ERROR_FAILED);
         }
     }
-
-    //get aec delay frame
-    CalibDb_Aec_ParaV2_t* aec =
-        (CalibDb_Aec_ParaV2_t*)CALIBDBV2_GET_MODULE_PTR((void*)pCalibDbv2, ae_calib);
-    pAtmoCtx->CurrAeResult.AecDelayframe = MAX(aec->CommCtrl.AecDelayFrmNum.BlackDelay,
-                                           aec->CommCtrl.AecDelayFrmNum.WhiteDelay);
-
-    LOG1_ATMO("%s:AecDelayframe:%d\n", __FUNCTION__, pAtmoCtx->CurrAeResult.AecDelayframe);
 
     LOG1_ATMO("%s:Exit!\n", __FUNCTION__);
     return(XCAM_RETURN_NO_ERROR);

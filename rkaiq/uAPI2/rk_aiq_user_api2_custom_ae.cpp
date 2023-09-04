@@ -517,53 +517,49 @@ static XCamReturn initAecHwConfig(rk_aiq_rkAe_config_t* pConfig)
     if(pConfig->IsHdr) {
         pConfig->aeHwConfig.ae_meas.rawae0.rawae_sel = 1;
         pConfig->aeHwConfig.ae_meas.rawae1.rawae_sel = 1;
-        pConfig->aeHwConfig.ae_meas.rawae2.rawae_sel = 1; //rawae2 no effective
+        //pConfig->aeHwConfig.ae_meas.rawae2.rawae_sel = 1; //rawae2 no effective
         pConfig->aeHwConfig.ae_meas.rawae3.rawae_sel = 1; //raw.chn[0] = BIG, make all channel = BIG
     } else {
         pConfig->aeHwConfig.ae_meas.rawae0.rawae_sel = 1;
         pConfig->aeHwConfig.ae_meas.rawae1.rawae_sel = 1;
-        pConfig->aeHwConfig.ae_meas.rawae2.rawae_sel = 1; //rawae2 no effective
+        //pConfig->aeHwConfig.ae_meas.rawae2.rawae_sel = 1; //rawae2 no effective
         pConfig->aeHwConfig.ae_meas.rawae3.rawae_sel = 3;
     }
 #endif
 
 #if defined(ISP_HW_V32)
     if(pConfig->IsHdr) {
-
         pConfig->aeHwConfig.ae_meas.rawae0.rawae_sel = 0;
         pConfig->aeHwConfig.ae_meas.rawae1.rawae_sel = 0;
-        pConfig->aeHwConfig.ae_meas.rawae2.rawae_sel = 0; //rawae2 no effective
+        //pConfig->aeHwConfig.ae_meas.rawae2.rawae_sel = 0; //rawae2 no effective
         pConfig->aeHwConfig.ae_meas.rawae3.rawae_sel = 0; //raw.chn[0] = BIG, make all channel = BIG
 
     } else {
         pConfig->aeHwConfig.ae_meas.rawae0.rawae_sel = 1;
         pConfig->aeHwConfig.ae_meas.rawae1.rawae_sel = 1;
-        pConfig->aeHwConfig.ae_meas.rawae2.rawae_sel = 1; //rawae2 no effective
+        //pConfig->aeHwConfig.ae_meas.rawae2.rawae_sel = 1; //rawae2 no effective
         pConfig->aeHwConfig.ae_meas.rawae3.rawae_sel = 3; //raw.chn[0] = BIG, make all channel = BIG
     }
 
 #endif
 
 #if defined(ISP_HW_V32_LITE)
-
     if(pConfig->IsHdr) {
-
         pConfig->aeHwConfig.ae_meas.rawae0.rawae_sel = 0;
-        pConfig->aeHwConfig.ae_meas.rawae1.rawae_sel = 0;
-        pConfig->aeHwConfig.ae_meas.rawae2.rawae_sel = 0; //rawae2 no effective
+        //pConfig->aeHwConfig.ae_meas.rawae1.rawae_sel = 0;
+        //pConfig->aeHwConfig.ae_meas.rawae2.rawae_sel = 0; //rawae2 no effective
         pConfig->aeHwConfig.ae_meas.rawae3.rawae_sel = 1; //raw.chn[0] = BIG, make all channel = BIG
 
     } else {
         pConfig->aeHwConfig.ae_meas.rawae0.rawae_sel = 0;
-        pConfig->aeHwConfig.ae_meas.rawae1.rawae_sel = 0;
-        pConfig->aeHwConfig.ae_meas.rawae2.rawae_sel = 0; //rawae2 no effective
+        //pConfig->aeHwConfig.ae_meas.rawae1.rawae_sel = 0;
+        //pConfig->aeHwConfig.ae_meas.rawae2.rawae_sel = 0; //rawae2 no effective
         pConfig->aeHwConfig.ae_meas.rawae3.rawae_sel = 0; //raw.chn[0] = BIG, make all channel = BIG
     }
-
 #endif
 
 
-    pConfig->aeHwConfig.hist_meas.ae_swap = pConfig->aeHwConfig.ae_meas.rawae1.rawae_sel;
+    pConfig->aeHwConfig.hist_meas.ae_swap = pConfig->aeHwConfig.ae_meas.rawae0.rawae_sel;
     pConfig->aeHwConfig.hist_meas.ae_sel = pConfig->aeHwConfig.ae_meas.rawae3.rawae_sel;
 
     /*****rawae0, LITE mode****/
@@ -573,6 +569,7 @@ static XCamReturn initAecHwConfig(rk_aiq_rkAe_config_t* pConfig)
     pConfig->aeHwConfig.ae_meas.rawae0.win.h_size = pConfig->RawWidth;
     pConfig->aeHwConfig.ae_meas.rawae0.win.v_size = pConfig->RawHeight;
 
+#if ISP_HW_V20 || ISP_HW_V21 || ISP_HW_V30 || ISP_HW_V32
     /*****rawae1-3, BIG mode****/
     pConfig->aeHwConfig.ae_meas.rawae1.wnd_num = 2;
     pConfig->aeHwConfig.ae_meas.rawae1.win.h_offs = 0;
@@ -599,7 +596,9 @@ static XCamReturn initAecHwConfig(rk_aiq_rkAe_config_t* pConfig)
     pConfig->aeHwConfig.ae_meas.rawae1.subwin_en[1] = 1;
     pConfig->aeHwConfig.ae_meas.rawae1.subwin_en[2] = 1;
     pConfig->aeHwConfig.ae_meas.rawae1.subwin_en[3] = 1;
+#endif
 
+#if ISP_HW_V20 || ISP_HW_V30
     pConfig->aeHwConfig.ae_meas.rawae2.wnd_num = 2;
     pConfig->aeHwConfig.ae_meas.rawae2.win.h_offs = 0;
     pConfig->aeHwConfig.ae_meas.rawae2.win.v_offs = 0;
@@ -625,6 +624,7 @@ static XCamReturn initAecHwConfig(rk_aiq_rkAe_config_t* pConfig)
     pConfig->aeHwConfig.ae_meas.rawae2.subwin_en[1] = 1;
     pConfig->aeHwConfig.ae_meas.rawae2.subwin_en[2] = 1;
     pConfig->aeHwConfig.ae_meas.rawae2.subwin_en[3] = 1;
+#endif
 
     pConfig->aeHwConfig.ae_meas.rawae3.wnd_num = 2;
     pConfig->aeHwConfig.ae_meas.rawae3.win.h_offs = 0;
@@ -667,6 +667,7 @@ static XCamReturn initAecHwConfig(rk_aiq_rkAe_config_t* pConfig)
     pConfig->aeHwConfig.hist_meas.rawhist0.bcc = 0x1d;
     pConfig->aeHwConfig.hist_meas.rawhist0.off = 0x00;
 
+#if ISP_HW_V20 || ISP_HW_V21 || ISP_HW_V30 || ISP_HW_V32
     /****rawhist1-3, BIG mode****/
     pConfig->aeHwConfig.hist_meas.rawhist1.data_sel = 0;
     pConfig->aeHwConfig.hist_meas.rawhist1.waterline = 0;
@@ -682,7 +683,9 @@ static XCamReturn initAecHwConfig(rk_aiq_rkAe_config_t* pConfig)
     pConfig->aeHwConfig.hist_meas.rawhist1.gcc = 0x4b;
     pConfig->aeHwConfig.hist_meas.rawhist1.bcc = 0x1d;
     pConfig->aeHwConfig.hist_meas.rawhist1.off = 0x00;
+#endif
 
+#if ISP_HW_V20 || ISP_HW_V30
     pConfig->aeHwConfig.hist_meas.rawhist2.data_sel = 0;
     pConfig->aeHwConfig.hist_meas.rawhist2.waterline = 0;
     pConfig->aeHwConfig.hist_meas.rawhist2.mode = 5;
@@ -697,6 +700,7 @@ static XCamReturn initAecHwConfig(rk_aiq_rkAe_config_t* pConfig)
     pConfig->aeHwConfig.hist_meas.rawhist2.gcc = 0x4b;
     pConfig->aeHwConfig.hist_meas.rawhist2.bcc = 0x1d;
     pConfig->aeHwConfig.hist_meas.rawhist2.off = 0x00;
+#endif
 
     pConfig->aeHwConfig.hist_meas.rawhist3.data_sel = 0;
     pConfig->aeHwConfig.hist_meas.rawhist3.waterline = 0;
@@ -801,9 +805,8 @@ static void initCustomAeRes(rk_aiq_customeAe_results_t* customAe, rk_aiq_rkAe_co
     customAe->is_longfrm_mode = false;
 
     //1.) hw params
-    customAe->meas_win = pConfig->aeHwConfig.ae_meas.rawae0.win;
-    memcpy(&customAe->meas_weight,
-           &pConfig->aeHwConfig.hist_meas.rawhist0.weight, sizeof(customAe->meas_weight));
+    customAe->meas_win = pConfig->aeHwConfig.ae_meas.rawae3.win;
+    memcpy(&customAe->meas_weight, &pConfig->aeHwConfig.hist_meas.rawhist3.weight, sizeof(customAe->meas_weight));
 
 }
 
@@ -903,7 +906,6 @@ void _rkAeStats2CustomAeStats(rk_aiq_rkAe_config_t * pConfig,
     customAe->extra.rawhist_big = rkAe->ae_data.extra.rawhist_big;
 
     // 2.0) ae exposure stats
-
     if(pConfig->IsHdr) {
         customAe->hdr_exp[0] = rkAe->ae_exp.HdrExp[0];
         customAe->hdr_exp[1] = rkAe->ae_exp.HdrExp[1];
@@ -1044,21 +1046,34 @@ void _customAeRes2rkAeRes(rk_aiq_rkAe_config_t* pConfig, RkAiqAlgoProcResAe* rkA
     AeCISFeature(pConfig, &rkAeProcRes->ae_proc_res_rk->exp_set_tbl[0]);
 
     //AE new HW config
-    if (customAeProcRes->meas_win.h_size > 0 &&
-            customAeProcRes->meas_win.v_size > 0) {
+    if (customAeProcRes->meas_win.h_size > 0 && customAeProcRes->meas_win.v_size > 0) {
         rkAeProcRes->ae_meas->rawae0.win = customAeProcRes->meas_win;
-        rkAeProcRes->ae_meas->rawae1.win = customAeProcRes->meas_win;
-        rkAeProcRes->ae_meas->rawae2.win = customAeProcRes->meas_win;
-        rkAeProcRes->ae_meas->rawae3.win = customAeProcRes->meas_win;
         rkAeProcRes->hist_meas->rawhist0.win = customAeProcRes->meas_win;
+
+#if ISP_HW_V20 || ISP_HW_V21 || ISP_HW_V30 || ISP_HW_V32
+        rkAeProcRes->ae_meas->rawae1.win = customAeProcRes->meas_win;
         rkAeProcRes->hist_meas->rawhist1.win = customAeProcRes->meas_win;
+#endif
+
+#if ISP_HW_V20 || ISP_HW_V30
+        rkAeProcRes->ae_meas->rawae2.win = customAeProcRes->meas_win;
         rkAeProcRes->hist_meas->rawhist2.win = customAeProcRes->meas_win;
+#endif
+
+        rkAeProcRes->ae_meas->rawae3.win = customAeProcRes->meas_win;
         rkAeProcRes->hist_meas->rawhist3.win = customAeProcRes->meas_win;
     }
 
     AeGridWeight15x15to5x5(customAeProcRes->meas_weight, rkAeProcRes->hist_meas->rawhist0.weight);
+
+#if ISP_HW_V20 || ISP_HW_V21 || ISP_HW_V30 || ISP_HW_V32
     memcpy(rkAeProcRes->hist_meas->rawhist1.weight, customAeProcRes->meas_weight, 15 * 15 * sizeof(unsigned char));
+#endif
+
+#if ISP_HW_V20 || ISP_HW_V30
     memcpy(rkAeProcRes->hist_meas->rawhist2.weight, customAeProcRes->meas_weight, 15 * 15 * sizeof(unsigned char));
+#endif
+
     memcpy(rkAeProcRes->hist_meas->rawhist3.weight, customAeProcRes->meas_weight, 15 * 15 * sizeof(unsigned char));
 
 }
@@ -1131,18 +1146,29 @@ void _customGrpAeSingleResSet(rk_aiq_rkAe_config_t* pConfig, rk_aiq_singlecam_3a
     if (customAeRes.meas_win.h_size > 0 &&
             customAeRes.meas_win.v_size > 0) {
         rk_aiq_singlecam_3a_result->aec._aeMeasParams->rawae0.win = customAeRes.meas_win;
-        rk_aiq_singlecam_3a_result->aec._aeMeasParams->rawae1.win = customAeRes.meas_win;
-        rk_aiq_singlecam_3a_result->aec._aeMeasParams->rawae2.win = customAeRes.meas_win;
-        rk_aiq_singlecam_3a_result->aec._aeMeasParams->rawae3.win = customAeRes.meas_win;
         rk_aiq_singlecam_3a_result->aec._aeHistMeasParams->rawhist0.win = customAeRes.meas_win;
+#if ISP_HW_V20 || ISP_HW_V21 || ISP_HW_V30 || ISP_HW_V32
         rk_aiq_singlecam_3a_result->aec._aeHistMeasParams->rawhist1.win = customAeRes.meas_win;
+        rk_aiq_singlecam_3a_result->aec._aeMeasParams->rawae1.win = customAeRes.meas_win;
+#endif
+#if ISP_HW_V20 || ISP_HW_V30
         rk_aiq_singlecam_3a_result->aec._aeHistMeasParams->rawhist2.win = customAeRes.meas_win;
+        rk_aiq_singlecam_3a_result->aec._aeMeasParams->rawae2.win = customAeRes.meas_win;
+#endif
+        rk_aiq_singlecam_3a_result->aec._aeMeasParams->rawae3.win = customAeRes.meas_win;
         rk_aiq_singlecam_3a_result->aec._aeHistMeasParams->rawhist3.win = customAeRes.meas_win;
     }
 
     AeGridWeight15x15to5x5(customAeRes.meas_weight, rk_aiq_singlecam_3a_result->aec._aeHistMeasParams->rawhist0.weight);
+
+#if ISP_HW_V20 || ISP_HW_V21 || ISP_HW_V30 || ISP_HW_V32
     memcpy(rk_aiq_singlecam_3a_result->aec._aeHistMeasParams->rawhist1.weight, customAeRes.meas_weight, 15 * 15 * sizeof(unsigned char));
+#endif
+
+#if ISP_HW_V20 || ISP_HW_V30
     memcpy(rk_aiq_singlecam_3a_result->aec._aeHistMeasParams->rawhist2.weight, customAeRes.meas_weight, 15 * 15 * sizeof(unsigned char));
+#endif
+
     memcpy(rk_aiq_singlecam_3a_result->aec._aeHistMeasParams->rawhist3.weight, customAeRes.meas_weight, 15 * 15 * sizeof(unsigned char));
 
 }
@@ -1293,12 +1319,24 @@ static XCamReturn AeDemoProcessing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom
                                     );
     }
 
+    if(!inparams->u.proc.init) {
+        // enable all ae stats channel (channelr_xy, channelg_xy, channelb_xy, channely_xy)
+        AeProcResParams->stats_cfg_to_trans.isUpdate = true;
+        AeProcResParams->stats_cfg_to_trans.UpdateStats = true;
+        AeProcResParams->stats_cfg_to_trans.RawStatsChnSel = RAWSTATS_CHN_ALL_EN;
+        AeProcResParams->stats_cfg_to_trans.YRangeMode = (int8_t)CAM_YRANGEV2_MODE_FULL;
+        AeProcResParams->stats_cfg_to_trans.BigWeight = AeProcResParams->hist_meas->rawhist3.weight;
+        AeProcResParams->stats_cfg_to_trans.LiteWeight = AeProcResParams->hist_meas->rawhist0.weight;
+
+    } else {
+        AeProcResParams->stats_cfg_to_trans.isUpdate = false;
+    }
+
     // gen patrt of hw results from initAecHwConfig
     updateAecHwConfig(AeProcResParams, &algo_ctx->rkCfg);
 
     // copy custom result to rk result
     _customAeRes2rkAeRes(&algo_ctx->rkCfg, AeProcResParams, &algo_ctx->customRes);
-
 
     if (algo_ctx->updateCalib) {
         algo_ctx->updateCalib = false;
@@ -1345,6 +1383,25 @@ static XCamReturn AeDemoGroupProcessing(const RkAiqAlgoCom* inparams, RkAiqAlgoR
                                      NULL,
                                      &algo_ctx->customRes
                                     );
+    }
+
+    if(!inparams->u.proc.init) {
+        for(int i = 0; i < AeProcResParams->arraySize; i++) {
+            // enable all ae stats channel (channelr_xy, channelg_xy, channelb_xy, channely_xy)
+            AeProcResParams->camgroupParmasArray[i]->aec.stats_cfg_to_trans.isUpdate = true;
+            AeProcResParams->camgroupParmasArray[i]->aec.stats_cfg_to_trans.UpdateStats = true;
+            AeProcResParams->camgroupParmasArray[i]->aec.stats_cfg_to_trans.RawStatsChnSel = (RAWSTATS_CHN_RGB_EN | RAWSTATS_CHN_Y_EN);
+            AeProcResParams->camgroupParmasArray[i]->aec.stats_cfg_to_trans.YRangeMode = (int8_t)CAM_YRANGEV2_MODE_FULL;
+            AeProcResParams->camgroupParmasArray[i]->aec.stats_cfg_to_trans.BigWeight =
+                AeProcResParams->camgroupParmasArray[i]->aec._aeHistMeasParams->rawhist3.weight;
+            AeProcResParams->camgroupParmasArray[i]->aec.stats_cfg_to_trans.LiteWeight =
+                AeProcResParams->camgroupParmasArray[i]->aec._aeHistMeasParams->rawhist0.weight;
+        }
+
+    } else {
+        for (int i = 0; i < AeProcResParams->arraySize; i++) {
+            AeProcResParams->camgroupParmasArray[i]->aec.stats_cfg_to_trans.isUpdate = false;
+        }
     }
 
     // gen patrt of hw results from initAecHwConfig

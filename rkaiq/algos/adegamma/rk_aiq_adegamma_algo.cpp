@@ -38,6 +38,7 @@ XCamReturn AdegammaInit(AdegammaHandle_t** para, CamCalibDbV2Context_t* calib)
     }
 
     memcpy(&handle->adegammaAttr.stTool, calibv2_adegamma_calib, sizeof(CalibDbV2_Adegmma_t));
+    memcpy(&handle->adegammaAttr.stManual, calibv2_adegamma_calib, sizeof(CalibDbV2_Adegmma_t));
     handle->pCalibDb = calibv2_adegamma_calib; //get adegmma paras from iq
     *para = handle;
     LOG1_ADEGAMMA("EXIT: %s \n", __func__);

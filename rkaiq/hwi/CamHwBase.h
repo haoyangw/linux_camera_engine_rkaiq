@@ -127,6 +127,9 @@ public:
     virtual XCamReturn setAngleZ(float angleZ) {
         return  XCAM_RETURN_ERROR_FAILED;
     }
+    virtual XCamReturn getFocusPosition(int& position) {
+        return  XCAM_RETURN_ERROR_FAILED;
+    }
     virtual void getShareMemOps(isp_drv_share_mem_ops_t** mem_ops) {};
     virtual XCamReturn getEffectiveIspParams(rkisp_effect_params_v20& ispParams, uint32_t frame_id) {
         return  XCAM_RETURN_ERROR_FAILED;

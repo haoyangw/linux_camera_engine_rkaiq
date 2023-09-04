@@ -24,6 +24,23 @@
 
 RKAIQ_BEGIN_DECLARE
 
+/******************************************************************************
+ * AgammaSetDefaultManuAttrParmasV11()
+ *****************************************************************************/
+void AgammaSetDefaultManuAttrParmasV11(AgammaHandle_t* handle) {
+    LOG1_AGAMMA("%s:enter!\n", __FUNCTION__);
+
+    handle->agammaAttrV11.stManual.Gamma_en = handle->agammaAttrV11.stAuto.GammaTuningPara.Gamma_en;
+    handle->agammaAttrV11.stManual.Gamma_out_offset =
+        handle->agammaAttrV11.stAuto.GammaTuningPara.Gamma_out_offset;
+    for (int i = 0; i < CALIBDB_AGAMMA_KNOTS_NUM_V11; i++) {
+        handle->agammaAttrV11.stManual.Gamma_curve[i] =
+            handle->agammaAttrV11.stAuto.GammaTuningPara.Gamma_curve[i];
+    }
+
+    LOG1_AGAMMA("%s:exit!\n", __FUNCTION__);
+}
+
 XCamReturn AgammaInit(AgammaHandle_t** pGammaCtx, CamCalibDbV2Context_t* pCalib) {
     LOG1_AGAMMA("ENTER: %s \n", __func__);
     XCamReturn ret         = XCAM_RETURN_NO_ERROR;
@@ -40,6 +57,8 @@ XCamReturn AgammaInit(AgammaHandle_t** pGammaCtx, CamCalibDbV2Context_t* pCalib)
     memcpy(&handle->agammaAttrV11.stAuto, calibv2_agamma_calib, sizeof(CalibDbV2_gamma_v11_t));
     handle->agammaAttrV11.mode              = RK_AIQ_GAMMA_MODE_AUTO;
     handle->ifReCalcStAuto                  = true;
+    handle->ifReCalcStManual                = false;
+    AgammaSetDefaultManuAttrParmasV11(handle);
 
     *pGammaCtx = handle;
     LOG1_AGAMMA("EXIT: %s \n", __func__);

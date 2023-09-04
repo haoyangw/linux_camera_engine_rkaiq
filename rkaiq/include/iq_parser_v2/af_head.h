@@ -354,6 +354,7 @@ typedef struct CalibDbV2_Af_Pdaf_s {
     // M4_STRUCT_LIST_DESC("pdIsoPara", M4_SIZE(1,16), "normal_ui_style")
     CalibDbV2_Af_PdafIsoPara_t* pdIsoPara;
     int pdIsoPara_len;
+    // M4_STRUCT_LIST_DESC("pdResoInf", M4_SIZE(1,16), "normal_ui_style")
     CalibDbV2_Af_PdafResolution_t* pdResoInf;
     int pdResoInf_len;
 } CalibDbV2_Af_Pdaf_t;

@@ -110,6 +110,15 @@ typedef struct _RkAiqAlgoProcAe {
     RKAiqAecStats_t* aecStatsBuf;
 } RkAiqAlgoProcAe;
 
+typedef struct _RkAiqSetStatsCfg  {
+    bool isUpdate;              /* stats config update flag */
+    bool UpdateStats;           /* update stats every frame */
+    int8_t RawStatsChnSel;      /* RawStatsChnEn_t */
+    int8_t YRangeMode;          /* CalibDb_CamYRangeModeV2_t */
+    unsigned char* BigWeight;
+    unsigned char* LiteWeight;
+} RkAiqSetStatsCfg;
+
 typedef struct _RkAiqAlgoProcResAe {
     RkAiqAlgoResCom res_com;
     rk_aiq_exposure_params_t* new_ae_exp;
@@ -117,6 +126,8 @@ typedef struct _RkAiqAlgoProcResAe {
     rk_aiq_isp_hist_meas_t* hist_meas;
     RKAiqExpI2cParam_t* exp_i2c_params;
     AecProcResult_t*   ae_proc_res_rk;
+    RkAiqSetStatsCfg stats_cfg_to_trans;
+    bool aec_run_flag;
 } RkAiqAlgoProcResAe;
 
 typedef struct _RkAiqAlgoPostAe {

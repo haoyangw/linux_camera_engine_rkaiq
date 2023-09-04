@@ -491,6 +491,7 @@ RkAiqManager::updateCalibDb(const CamCalibDbV2Context_t* newCalibDb)
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
     auto update_list = std::make_shared<std::list<std::string>>();
     update_list->push_back("colorAsGrey");
+    update_list->push_back("ALL");
 
     *mCalibDbV2 = *(CamCalibDbV2Context_t*)newCalibDb;
     mCamHw->setCalib(newCalibDb);
@@ -578,6 +579,16 @@ RkAiqManager::hwResCb(SmartPtr<VideoBuffer>& hwres)
         msg.err_code = XCAM_RETURN_BYPASS;
         if (mTbInfo.is_pre_aiq && mErrCb)
             (*mErrCb)(&msg);
+        if (mHwEvtCb) {
+            rk_aiq_hwevt_t hwevt;
+
+            memset(&hwevt, 0, sizeof(hwevt));
+            hwevt.cam_id = mCamHw->getCamPhyId();
+            hwevt.aiq_status = RK_AIQ_STATUS_PREAIQ_DONE;
+            hwevt.ctx = mHwEvtCbCtx;
+
+            (*mHwEvtCb)(&hwevt);
+        }
     } else if (hwres->_buf_type == ISPP_POLL_NR_STATS) {
         ret = mRkAiqAnalyzer->pushStats(hwres);
     } else if (hwres->_buf_type == ISP_POLL_SOF) {

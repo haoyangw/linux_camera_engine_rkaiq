@@ -95,6 +95,10 @@ prepare(RkAiqAlgoCom* params)
         pAbayernrCtx->list_bayernr_v2 =
             (struct list_head*)(CALIBDB_GET_MODULE_PTR((void*)pCalibDb, list_bayernr_v2));
 #endif
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR)
+            return XCAM_RETURN_NO_ERROR;
+
         pAbayernrCtx->isIQParaUpdate = true;
         pAbayernrCtx->isReCalculate |= 1;
     }

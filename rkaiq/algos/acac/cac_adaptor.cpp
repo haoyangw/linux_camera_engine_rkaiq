@@ -238,9 +238,12 @@ XCamReturn CacAlgoAdaptor::Config(const AlgoCtxInstanceCfg* config,
     XCAM_ASSERT(attr_->iso_cnt <= RKAIQ_CAC_MAX_ISO_CNT);
     memcpy(attr_->auto_params, calib_->TuningPara.SettingByIso,
            sizeof(calib_->TuningPara.SettingByIso[0]) * attr_->iso_cnt);
+    memcpy(&attr_->manual_param, calib_->TuningPara.SettingByIso,
+           sizeof(calib_->TuningPara.SettingByIso[0]));
 #if !RKAIQ_HAVE_CAC_V03
     memcpy(&attr_->persist_params, &calib->SettingPara, sizeof(calib->SettingPara));
     attr_->enable = attr_->persist_params.enable;
+
 #else
     attr_->enable = enable_;
 #endif

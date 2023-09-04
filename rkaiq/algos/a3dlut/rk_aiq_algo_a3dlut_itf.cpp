@@ -69,6 +69,11 @@ prepare(RkAiqAlgoCom* params)
                 (CalibDbV2_Lut3D_Para_V2_t*)(CALIBDBV2_GET_MODULE_PTR((void*)(para->com.u.prepare.calibv2), lut3d_calib));
 #endif
     }
+
+    // just update calib ptr
+    if ((params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR))
+        return XCAM_RETURN_NO_ERROR;
+
     Alut3dPrepare((alut3d_handle_t)(params->ctx->a3dlut_para));
 
     LOG1_A3DLUT( "%s: (exit)\n", __FUNCTION__);
