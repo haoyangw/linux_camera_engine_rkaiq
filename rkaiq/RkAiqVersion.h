@@ -729,10 +729,12 @@
  * - add default manual settings for algo's API getAtrrib
  * - fix tool online tuning bug that params in page sysctl may be overwitten by
  *   main page.
+ * v5.0x3.0
+ * - update kernel headers to match the ISP version v2.3.0
  */
 
-#define RK_AIQ_VERSION_REAL_V "v5.0x1.3-rc2"
-#define RK_AIQ_RELEASE_DATE "2023-09-1"
+#define RK_AIQ_VERSION_REAL_V "v5.0x3.0"
+#define RK_AIQ_RELEASE_DATE "2023-09-7"
 
 /******* DO NOT EDIT THE FOLLOWINGS ***********/
 

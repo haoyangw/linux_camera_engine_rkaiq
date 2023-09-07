@@ -134,7 +134,8 @@ static void* switch_ir_thread(void* args)
     rk_aiq_isp_stats_t *stats_ref = NULL;
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
-    rk_smart_ir_autoled_t auto_irled = { 0 };
+    rk_smart_ir_autoled_t auto_irled;
+    memset(&auto_irled, 0, sizeof(auto_irled));
     int irled_cur_value = 100;
     if (RK_SMART_IR_AUTO_IRLED) {
         // TODO: set init irled pwm duty

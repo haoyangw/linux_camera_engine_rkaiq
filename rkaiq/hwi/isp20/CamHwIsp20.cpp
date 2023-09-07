@@ -3632,6 +3632,7 @@ CamHwIsp20::showOtpPdafData(struct rkmodule_pdaf_inf *otp_pdaf)
             }
             LOGI_CAMHW_SUBM(ISP20HW_SUBM, "%s", print_buf);
         }
+        LOGI_CAMHW_SUBM(ISP20HW_SUBM, "pd_offset=0x%x;", otp_pdaf->pd_offset);
     }
 
     return XCAM_RETURN_NO_ERROR;
