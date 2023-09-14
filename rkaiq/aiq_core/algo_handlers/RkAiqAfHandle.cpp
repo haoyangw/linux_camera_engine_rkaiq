@@ -136,7 +136,11 @@ XCamReturn RkAiqAfHandleInt::lock() {
     XCamReturn ret                              = XCAM_RETURN_NO_ERROR;
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
-    if (sharedCom->snsDes.lens_des.focus_support) rk_aiq_uapi_af_Lock(mAlgoCtx);
+    if (sharedCom->snsDes.lens_des.focus_support) {
+        mCfgMutex.lock();
+        rk_aiq_uapi_af_Lock(mAlgoCtx);
+        mCfgMutex.unlock();
+    }
 
     EXIT_ANALYZER_FUNCTION();
     return ret;
@@ -148,7 +152,11 @@ XCamReturn RkAiqAfHandleInt::unlock() {
     XCamReturn ret                              = XCAM_RETURN_NO_ERROR;
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
-    if (sharedCom->snsDes.lens_des.focus_support) rk_aiq_uapi_af_Unlock(mAlgoCtx);
+    if (sharedCom->snsDes.lens_des.focus_support) {
+        mCfgMutex.lock();
+        rk_aiq_uapi_af_Unlock(mAlgoCtx);
+        mCfgMutex.unlock();
+    }
 
     EXIT_ANALYZER_FUNCTION();
     return ret;
@@ -160,7 +168,11 @@ XCamReturn RkAiqAfHandleInt::Oneshot() {
     XCamReturn ret                              = XCAM_RETURN_NO_ERROR;
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
-    if (sharedCom->snsDes.lens_des.focus_support) rk_aiq_uapi_af_Oneshot(mAlgoCtx);
+    if (sharedCom->snsDes.lens_des.focus_support) {
+        mCfgMutex.lock();
+        rk_aiq_uapi_af_Oneshot(mAlgoCtx);
+        mCfgMutex.unlock();
+    }
 
     EXIT_ANALYZER_FUNCTION();
     return ret;
@@ -172,7 +184,11 @@ XCamReturn RkAiqAfHandleInt::ManualTriger() {
     XCamReturn ret                              = XCAM_RETURN_NO_ERROR;
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
-    if (sharedCom->snsDes.lens_des.focus_support) rk_aiq_uapi_af_ManualTriger(mAlgoCtx);
+    if (sharedCom->snsDes.lens_des.focus_support) {
+        mCfgMutex.lock();
+        rk_aiq_uapi_af_ManualTriger(mAlgoCtx);
+        mCfgMutex.unlock();
+    }
 
     EXIT_ANALYZER_FUNCTION();
     return ret;
@@ -184,7 +200,11 @@ XCamReturn RkAiqAfHandleInt::Tracking() {
     XCamReturn ret                              = XCAM_RETURN_NO_ERROR;
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
-    if (sharedCom->snsDes.lens_des.focus_support) rk_aiq_uapi_af_Tracking(mAlgoCtx);
+    if (sharedCom->snsDes.lens_des.focus_support) {
+        mCfgMutex.lock();
+        rk_aiq_uapi_af_Tracking(mAlgoCtx);
+        mCfgMutex.unlock();
+    }
 
     EXIT_ANALYZER_FUNCTION();
     return ret;

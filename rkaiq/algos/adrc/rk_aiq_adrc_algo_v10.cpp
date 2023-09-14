@@ -121,21 +121,31 @@ void AdrcV10ClipStAutoParams(AdrcContext_t* pAdrcCtx) {
     pAdrcCtx->drcAttrV10.stAuto.DrcTuningPara.LocalTMOSetting.curPixWeit =
         LIMIT_VALUE(pAdrcCtx->drcAttrV10.stAuto.DrcTuningPara.LocalTMOSetting.curPixWeit,
                     NORMALIZE_MAX, NORMALIZE_MIN);
+    pAdrcCtx->drcAttrV10.stAuto.DrcTuningPara.LocalTMOSetting.preFrameWeit =
+        LIMIT_VALUE(pAdrcCtx->drcAttrV10.stAuto.DrcTuningPara.LocalTMOSetting.preFrameWeit,
+                    NORMALIZE_MAX, NORMALIZE_MIN);
     pAdrcCtx->drcAttrV10.stAuto.DrcTuningPara.LocalTMOSetting.Range_force_sgm =
         LIMIT_VALUE(pAdrcCtx->drcAttrV10.stAuto.DrcTuningPara.LocalTMOSetting.Range_force_sgm,
                     NORMALIZE_MAX, NORMALIZE_MIN);
     pAdrcCtx->drcAttrV10.stAuto.DrcTuningPara.LocalTMOSetting.Range_sgm_cur =
         LIMIT_VALUE(pAdrcCtx->drcAttrV10.stAuto.DrcTuningPara.LocalTMOSetting.Range_sgm_cur,
                     NORMALIZE_MAX, NORMALIZE_MIN);
+    pAdrcCtx->drcAttrV10.stAuto.DrcTuningPara.LocalTMOSetting.Range_sgm_pre =
+        LIMIT_VALUE(pAdrcCtx->drcAttrV10.stAuto.DrcTuningPara.LocalTMOSetting.Range_sgm_pre,
+                    NORMALIZE_MAX, NORMALIZE_MIN);
     pAdrcCtx->drcAttrV10.stAuto.DrcTuningPara.LocalTMOSetting.Space_sgm_cur =
         LIMIT_VALUE(pAdrcCtx->drcAttrV10.stAuto.DrcTuningPara.LocalTMOSetting.Space_sgm_cur,
+                    SPACESGMMAX, SPACESGMMIN);
+    pAdrcCtx->drcAttrV10.stAuto.DrcTuningPara.LocalTMOSetting.Space_sgm_pre =
+        LIMIT_VALUE(pAdrcCtx->drcAttrV10.stAuto.DrcTuningPara.LocalTMOSetting.Space_sgm_pre,
                     SPACESGMMAX, SPACESGMMIN);
     for (int i = 0; i < ADRC_Y_NUM; i++) {
         pAdrcCtx->drcAttrV10.stAuto.DrcTuningPara.Scale_y[i] =
             LIMIT_VALUE(pAdrcCtx->drcAttrV10.stAuto.DrcTuningPara.Scale_y[i], SCALEYMAX, SCALEYMIN);
         pAdrcCtx->drcAttrV10.stAuto.DrcTuningPara.CompressSetting.Manual_curve[i] =
-            LIMIT_VALUE(pAdrcCtx->drcAttrV10.stAuto.DrcTuningPara.CompressSetting.Manual_curve[i],
-                        MANUALCURVEMAX, MANUALCURVEMIN);
+            LIMIT_VALUE_UNSIGNED(
+                pAdrcCtx->drcAttrV10.stAuto.DrcTuningPara.CompressSetting.Manual_curve[i],
+                MANUALCURVEMAX);
     }
     pAdrcCtx->drcAttrV10.stAuto.DrcTuningPara.ByPassThr = LIMIT_VALUE(
         pAdrcCtx->drcAttrV10.stAuto.DrcTuningPara.ByPassThr, NORMALIZE_MAX, NORMALIZE_MIN);
