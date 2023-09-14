@@ -154,6 +154,9 @@ static XCamReturn processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
             }
             stExpInfo.arTime[0] = curExp->LinearExp.exp_real_params.integration_time;
             stExpInfo.arIso[0]  = stExpInfo.arAGain[0] * stExpInfo.arDGain[0] * 50 * stExpInfo.isp_dgain[0];
+            LOGD_ABLC("%s:%d index:%d again:%f dgain:%f isp_dgain:%f time:%f iso:%d hdr_mode:%d\n",
+                          __FUNCTION__, __LINE__, 0, stExpInfo.arAGain[0], stExpInfo.arDGain[0], stExpInfo.isp_dgain[0],
+                          stExpInfo.arTime[0], stExpInfo.arIso[0], stExpInfo.hdr_mode);
         } else {
             for (int i = 0; i < 3; i++) {
                 if (curExp->HdrExp[i].exp_real_params.analog_gain < 1.0) {
@@ -187,10 +190,9 @@ static XCamReturn processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
     }
 
     delta_iso = abs(stExpInfo.arIso[stExpInfo.hdr_mode] -
-                    pAblcCtx->stExpInfo.arIso[pAblcCtx->stExpInfo.hdr_mode]);
-    if (delta_iso > ABLC_V32_RECALCULATE_DELTE_ISO) {
-        pAblcCtx->isReCalculate |= 1;
-    }
+		pAblcCtx->stExpInfo.arIso[pAblcCtx->stExpInfo.hdr_mode]);
+    if(delta_iso > 0)
+	    pAblcCtx->isReCalculate |= 1;
 
     if (pAblcCtx->isReCalculate) {
         AblcResult_V32_t ret = AblcV32Process(pAblcCtx, &stExpInfo);
