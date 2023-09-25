@@ -2533,19 +2533,15 @@ XCamReturn RkAiqResourceTranslatorV32::translateAecStats(const SmartPtr<VideoBuf
 
     for (int i = 0; i < ISP32_HIST_BIN_N_MAX; i++) {
         if (AeSelMode <= AEC_RAWSEL_MODE_CHN_1) {
-            if (AeSelMode == index0) {
+            if (AeSelMode == AEC_RAWSEL_MODE_CHN_0) {
                 SumHistPix[index0] += stats->params.rawhist3.hist_bin[i];
                 SumHistBin[index0] += (float)(stats->params.rawhist3.hist_bin[i] * (i + 1));
 
-                SumHistPix[index1] = 1;
-                SumHistBin[index1] = 0;
-
-            } else if (AeSelMode == index1) {
+            } else if (AeSelMode == AEC_RAWSEL_MODE_CHN_1) {
                 if (i < ISP32L_HIST_LITE_BIN_N_MAX) {
                     SumHistPix[index0] += stats->params.rawhist0.hist_bin[i];
                     SumHistBin[index0] += (float)(stats->params.rawhist0.hist_bin[i] * (i + 1) * oneBinWidth);
                 }
-
                 SumHistPix[index1] += stats->params.rawhist3.hist_bin[i];
                 SumHistBin[index1] += (float)(stats->params.rawhist3.hist_bin[i] * (i + 1));
             }
@@ -2555,8 +2551,6 @@ XCamReturn RkAiqResourceTranslatorV32::translateAecStats(const SmartPtr<VideoBuf
                 SumHistPix[index0] += stats->params.rawhist0.hist_bin[i];
                 SumHistBin[index0] += (float)(stats->params.rawhist0.hist_bin[i] * (i + 1) * oneBinWidth);
             }
-            SumHistPix[index1] = 1;
-            SumHistBin[index1] = 0;
         }
     }
     statsInt->aec_stats.ae_data.hist_mean[0] = (uint8_t)(SumHistBin[0] / (float)MAX(SumHistPix[0], 1));
