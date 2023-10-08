@@ -584,19 +584,12 @@ set(ALGO_COMMON_SRC
     algos/interpolation.cpp
     )
 
-if(GENMESH_ONLINE)
-    set(COMMON_SRC
-        common/mediactl/mediactl.c
-        common/gen_mesh/genMesh.cpp
-        common/code_to_pixel_format.cpp
-        common/media_buffer/media_buffer.c
-        common/media_buffer/media_buffer_pool.c
-        )
-else()
-    set(COMMON_SRC
-        common/mediactl/mediactl.c
-        )
-endif()
+set(COMMON_SRC
+    common/mediactl/mediactl.c
+    common/code_to_pixel_format.cpp
+    common/media_buffer/media_buffer.c
+    common/media_buffer/media_buffer_pool.c
+    )
 
 if(RKAIQ_ENABLE_SIMULATOR)
     set(HWI_SRC
@@ -728,6 +721,10 @@ set (INI_READER_SRC
     common/rkaiq_ini.c
     )
 
+if(GENMESH_ONLINE AND (RKAIQ_HAVE_LDCH_V10 OR RKAIQ_HAVE_LDCH_V21 OR RKAIQ_HAVE_FEC_V10))
+    list(APPEND COMMON_SRC common/gen_mesh/genMesh.cpp)
+endif()
+
 set (RK_AIQ_SRC
     ${ALGO_COMMON_SRC}
     ${COMMON_SRC}
@@ -760,13 +757,18 @@ set(STATIC_LIB_SUFFIX >)
 
 if(GENMESH_ONLINE AND (RKAIQ_HAVE_LDCH_V10 OR RKAIQ_HAVE_LDCH_V21 OR RKAIQ_HAVE_FEC_V10))
     set(GENMESH_LIBS genMeshLib)
+    if (${CMAKE_SYSTEM_NAME} EQUAL "")
+        set(OS "linux")
+    else()
+        string(TOLOWER ${CMAKE_SYSTEM_NAME} OS)
+    endif()
     if(ARCH STREQUAL "aarch64")
         set(GENMESH_LIBS_DIR
-            ${PROJECT_SOURCE_DIR}/common/gen_mesh/linux/genMesh_static_64bit/
+            ${PROJECT_SOURCE_DIR}/common/gen_mesh/${OS}/genMesh_static_64bit/
             )
     else()
         set(GENMESH_LIBS_DIR
-            ${PROJECT_SOURCE_DIR}/common/gen_mesh/linux/genMesh_static_32bit/
+            ${PROJECT_SOURCE_DIR}/common/gen_mesh/${OS}/genMesh_static_32bit/
             )
     endif()
     list(APPEND RK_AIQ_STATIC_LIB_ARS ${GENMESH_LIBS_DIR}/libgenMeshLib.a)
@@ -827,6 +829,10 @@ if (RKAIQ_BUILD_BINARY_IQ)
     add_dependencies(rkaiq_tmp j2s4b)
 endif()
 
+if (RKAIQ_J2S4B_DEV)
+    add_dependencies(rkaiq_tmp j2s4b_dev)
+endif()
+
 add_library(rkaiq SHARED ${RK_AIQ_SRC})
 set_target_properties(rkaiq PROPERTIES FOLDER "rk_aiq")
 set_target_properties(rkaiq PROPERTIES CLEAN_DIRECT_OUTPUT 1)
@@ -842,7 +848,7 @@ target_link_libraries(rkaiq
     ${OPENCV_3RDPARTY_LIBS}
     ${GENMESH_LIBS}
     ${MOTION_DETECT_LIBS}
-    pthread)
+    )
 
 list(APPEND RK_AIQ_STATIC_LIB_ARS
     ${STATIC_LIB_PREFIX}rkaiq_tmp${STATIC_LIB_SUFFIX}
@@ -1283,6 +1289,19 @@ if (libdrm_FOUND)
         PRIVATE
         libdrm::libdrm
         )
+endif()
+
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Android")
+    target_link_libraries(rkaiq
+        PRIVATE
+        cutils
+        utils
+        log
+        )
+else ()
+    target_link_libraries(rkaiq
+        PRIVATE
+        pthread)
 endif()
 
 #build static librkaiq.a

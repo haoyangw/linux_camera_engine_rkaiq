@@ -27,20 +27,13 @@
 #include "Stream.h"
 #include "RawStreamProcUnit.h"
 #include "rk_aiq_offline_raw.h"
-#include "rk_vi_user_api2_stream_cfg.h"
+#include "rkrawstream_user_api.h"
 #include "MediaInfo.h"
 
 using namespace XCam;
 
 namespace RkRawStream {
 
-#ifndef ANDROID_OS
-typedef int (*on_frame_capture_callback)(uint8_t *data, uint32_t len);
-#else
-typedef std::function<int(uint8_t *data, uint32_t len)> on_frame_capture_callback;
-#endif
-
-//typedef int (*on_frame_capture_callback)(struct v4l2_buffer *vbuf[3], struct v4l2_format *vfmt[3], int vfd[3], int state);
 struct _live_rkraw_buf
 {
     struct _block_header _header;
@@ -60,6 +53,8 @@ struct _live_rkraw_data
     unsigned short end;
 }__attribute__ ((packed));
 
+void fill_rkraw2_plane_info(rkraw2_plane *p, SmartPtr<V4l2BufferProxy> &buf);
+
 class RawStreamCapUnit : public PollCallback
 {
 public:
@@ -70,9 +65,9 @@ public:
     virtual XCamReturn stop ();
     virtual XCamReturn stop_device ();
     virtual XCamReturn release_buffer ();
-	XCamReturn prepare(int idx, uint8_t buf_memory_type, uint8_t buf_cnt);
+	XCamReturn prepare(uint8_t buf_memory_type, uint8_t buf_cnt);
     void set_tx_format(uint32_t width, uint32_t heigh, uint32_t pix_fmt, int mode);
-    void set_sensor_format(uint32_t width, uint32_t height, uint32_t fps);
+    void set_sensor_format(uint32_t width, uint32_t height, uint32_t pix_fmt);
     void set_sensor_mode(uint32_t mode);
 	void set_devices(RawStreamProcUnit *proc);
 	void set_working_mode(int mode);
@@ -86,7 +81,8 @@ public:
     virtual XCamReturn poll_event_ready (uint32_t sequence, int type) { return XCAM_RETURN_ERROR_FAILED; }
     virtual XCamReturn poll_event_failed (int64_t timestamp, const char *msg) { return XCAM_RETURN_ERROR_FAILED; }
 
-	on_frame_capture_callback user_on_frame_capture_cb;
+	rkrawstream_vicap_cb_t user_on_frame_capture_cb;
+    void *user_priv_data;
     enum {
         ISP_MIPI_HDR_S = 0,
         ISP_MIPI_HDR_M,
@@ -119,10 +115,11 @@ protected:
 	SafeList<V4l2BufferProxy> buf_list[3];
 	SafeList<V4l2BufferProxy> user_used_buf_list[3];
 	RawStreamProcUnit *_proc_stream;
-    struct _live_rkraw_data _rkraw_data[STREAM_VIPCAP_BUF_NUM];
+    //struct _live_rkraw_data _rkraw_data[STREAM_VIPCAP_BUF_NUM];
     char _sns_name[32];
     bool is_multi_isp_mode;
     enum v4l2_memory    _memory_type;
+    int _buffer_count;
 };
 
 }

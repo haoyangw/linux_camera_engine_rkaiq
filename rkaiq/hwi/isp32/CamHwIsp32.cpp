@@ -124,6 +124,20 @@ CamHwIsp32::updateEffParams(void* params, void* ori_params)
                 lates_isp_params_ptr = &latestIspParams.isp_params_v32[1];
             new_isp_params = (struct isp32_isp_params_cfg*)ori_params;
             UPDATE_EFF_PARAMS();
+
+#if defined(ISP_HW_V32_LITE)
+            dst_isp_params = &_effecting_ispparam_map[effFrmId]->data()->result.isp_params_v32[2];
+            if (is_got_latest_params)
+                lates_isp_params_ptr = &latestIspParams.isp_params_v32[2];
+            new_isp_params = (struct isp32_isp_params_cfg*)ori_params;
+            UPDATE_EFF_PARAMS();
+
+            dst_isp_params = &_effecting_ispparam_map[effFrmId]->data()->result.isp_params_v32[3];
+            if (is_got_latest_params)
+                lates_isp_params_ptr = &latestIspParams.isp_params_v32[3];
+            new_isp_params = (struct isp32_isp_params_cfg*)ori_params;
+            UPDATE_EFF_PARAMS();
+#endif
         }
 #endif
 
@@ -136,7 +150,7 @@ CamHwIsp32::processTb(void* params)
 {
 #if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
     struct isp32_isp_params_cfg* isp_params = (struct isp32_isp_params_cfg*)params;
-    if (mTbInfo.is_pre_aiq) {
+    if (mTbInfo.is_pre_aiq || mTbInfo.is_start_once) {
         if (isp_params->frame_id == 0 && _not_skip_first) {
             _not_skip_first = false;
             _first_awb_cfg = isp_params->meas.rawawb;
@@ -147,11 +161,20 @@ CamHwIsp32::processTb(void* params)
             _first_awb_cfg.pre_wbgain_inv_g = isp_params->meas.rawawb.pre_wbgain_inv_g;
             _first_awb_cfg.pre_wbgain_inv_b = isp_params->meas.rawawb.pre_wbgain_inv_b;
             isp_params->meas.rawawb = _first_awb_cfg;
+            if (mTbInfo.is_start_once) {
+                _not_skip_first = true;
+                LOGK_CAMHW("<TB> Config id(%u)'s isp params, ens 0x%llx ens_up 0x%llx, cfg_up 0x%llx", isp_params->frame_id,
+                            isp_params->module_ens,
+                            isp_params->module_en_update,
+                            isp_params->module_cfg_update);
+            }
         }
-        LOGK_CAMHW("<TB> Config id(%u)'s isp params, ens 0x%llx ens_up 0x%llx, cfg_up 0x%llx", isp_params->frame_id,
-                      isp_params->module_ens,
-                      isp_params->module_en_update,
-                      isp_params->module_cfg_update);
+
+        if (mTbInfo.is_pre_aiq || !_not_skip_first)
+            LOGK_CAMHW("<TB> Config id(%u)'s isp params, ens 0x%llx ens_up 0x%llx, cfg_up 0x%llx", isp_params->frame_id,
+                            isp_params->module_ens,
+                            isp_params->module_en_update,
+                            isp_params->module_cfg_update);
         return false;
     } else if (isp_params->frame_id == 0) {
         return true;

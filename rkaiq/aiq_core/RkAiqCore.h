@@ -457,6 +457,10 @@ public:
     IRkAiqResourceTranslator* getTranslator() {
         return mTranslator.ptr();
     }
+
+    void awakenClean(uint32_t sequeence);
+    XCamReturn setUserOtpInfo(rk_aiq_user_otp_info_t otp_info);
+
 protected:
     // in analyzer thread
     XCamReturn analyze(const SmartPtr<VideoBuffer> &buffer);
@@ -731,6 +735,7 @@ private:
     uint32_t mLatestStatsId {0};
     std::list<RkAiqAlgoType_t> mUpdateCalibAlgosList;
     void mapModStrListToEnum(ModuleNameList& change_name_list);
+    rk_aiq_user_otp_info_t mUserOtpInfo;
 };
 
 }

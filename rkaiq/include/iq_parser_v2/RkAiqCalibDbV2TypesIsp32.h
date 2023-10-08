@@ -49,6 +49,7 @@
 #include "sharp_head_v33.h"
 #include "thumbnails_head.h"
 #include "ynr_head_v22.h"
+#include "rkpostisp_head_v1.h"
 
 RKAIQ_BEGIN_DECLARE
 
@@ -146,6 +147,8 @@ typedef struct CamCalibDbV2ContextIsp32_s {
     // M4_STRUCT_DESC("sharp_v33_lite", "normal_ui_style")
     CalibDbV2_SharpV33Lite_t sharp_v33;
 #endif
+    // M4_STRUCT_DESC("ainr_v1", "normal_ui_style")
+    CalibDbV2_PostIspV1_t ainr_v1;
 #if defined(ISP_HW_V32)
     // M4_STRUCT_DESC("cac_v11", "normal_ui_style")
     CalibDbV2_Cac_V11_t cac_v11;

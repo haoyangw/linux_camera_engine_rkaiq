@@ -48,10 +48,16 @@ public:
     RkAiqResourceTranslatorV3x& SetPicInfo(RkAiqResourceTranslatorV3x::Rectangle&& pic_rect);
     RkAiqResourceTranslatorV3x& SetLeftIspRect(RkAiqResourceTranslatorV3x::Rectangle&& left_isp_rect);
     RkAiqResourceTranslatorV3x& SetRightIspRect(RkAiqResourceTranslatorV3x::Rectangle&& right_isp_rect);
+    RkAiqResourceTranslatorV3x& SetBottomLeftIspRect(RkAiqResourceTranslatorV3x::Rectangle&& left_isp_rect);
+    RkAiqResourceTranslatorV3x& SetBottomRightIspRect(RkAiqResourceTranslatorV3x::Rectangle&& right_isp_rect);
+    RkAiqResourceTranslatorV3x& SetBottomLeftIspRect(RkAiqResourceTranslatorV3x::Rectangle& left_isp_rect);
+    RkAiqResourceTranslatorV3x& SetBottomRightIspRect(RkAiqResourceTranslatorV3x::Rectangle& right_isp_rect);
     bool IsMultiIspMode() const;
     RkAiqResourceTranslatorV3x::Rectangle GetPicInfo();
     RkAiqResourceTranslatorV3x::Rectangle GetLeftIspRect();
     RkAiqResourceTranslatorV3x::Rectangle GetRightIspRect();
+    RkAiqResourceTranslatorV3x::Rectangle GetBottomLeftIspRect();
+    RkAiqResourceTranslatorV3x::Rectangle GetBottomRightIspRect();
 
     virtual XCamReturn translateAecStats (const SmartPtr<VideoBuffer> &from,
                                           SmartPtr<RkAiqAecStatsProxy> &to);
@@ -86,6 +92,8 @@ private:
     Rectangle pic_rect_;
     Rectangle left_isp_rect_;
     Rectangle right_isp_rect_;
+    Rectangle bottom_left_isp_rect_;
+    Rectangle bottom_right_isp_rect_;
 };
 
 }

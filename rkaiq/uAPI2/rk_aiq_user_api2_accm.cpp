@@ -402,6 +402,7 @@ XCamReturn rk_aiq_user_api2_accm_v2_GetIqParam(const rk_aiq_sys_ctx_t* sys_ctx,
 {
     return XCAM_RETURN_ERROR_UNKNOWN;
 }
+
 #endif
 
 #if RKAIQ_HAVE_CCM_V1 || RKAIQ_HAVE_CCM_V2

@@ -50,6 +50,9 @@ static void _j2s_struct_to_cache(j2s_ctx* ctx, int struct_index, int fd,
 
 static int _j2s_struct_free(j2s_ctx* ctx, int struct_index, void* ptr);
 
+static int _j2s_struct_to_bin(j2s_ctx *ctx, int struct_index, void *ptr,
+                              void *dst_ptr_);
+
 static inline int j2s_find_struct_index(j2s_ctx* ctx, const char* name)
 {
     if (!name)
@@ -69,6 +72,14 @@ int j2s_struct_free(j2s_ctx* ctx, const char* name, void* ptr)
     int struct_index = name ? j2s_find_struct_index(ctx, name) : ctx->root_index;
 
     return _j2s_struct_free(ctx, struct_index, ptr);
+}
+
+int j2s_struct_to_bin(j2s_ctx *ctx, int struct_index, void *ptr,
+                      void *dst_ptr) {
+
+    _j2s_struct_to_bin(ctx, struct_index, ptr, dst_ptr);
+
+    return 0;
 }
 
 cJSON* j2s_struct_to_json(j2s_ctx* ctx, const char* name, void* ptr)
@@ -725,6 +736,173 @@ static int _j2s_struct_free(j2s_ctx* ctx, int struct_index, void* ptr)
     return ret;
 }
 
+static int _j2s_obj_to_bin(j2s_ctx *ctx, int obj_index, void *ptr_,
+                           void *dst_ptr_) {
+    j2s_obj *obj;
+    char *ptr = (char *)ptr_;
+    char *dst_ptr = (char *)dst_ptr_;
+
+    if (obj_index < 0)
+        return -1;
+
+    obj = &ctx->objs[obj_index];
+
+    DBG("------->obj info[%s][%d] ptr %p %d\n", obj->name, obj_index, dst_ptr, obj->offset);
+
+    /* Handle simple string */
+    if (J2S_IS_SIMPLE_STRING(obj)) {
+        ptr += obj->offset;
+        dst_ptr += obj->offset;
+
+        if (obj->flags & J2S_FLAG_ARRAY) {
+            char *str = ptr;
+            strncpy(dst_ptr, str ? str : "", obj->num_elem);
+            return 0;
+        }
+
+        if (obj->flags & J2S_FLAG_POINTER) {
+            ptr = *(char **)ptr;
+        }
+
+        if (ptr) {
+            char *str = ptr;
+            char **buf = (char **)dst_ptr;
+            if (*buf) {
+                free(*buf);
+            }
+            int str_len = str ? strlen(str) : strlen("");
+            size_t real_size = 0;
+            *buf = (char *)j2s_alloc_data2(ctx, str_len + 1, &real_size);
+            j2s_alloc_map_record(ctx, buf, *buf, real_size);
+            if (*buf) {
+                memcpy(*buf, str, strlen(str));
+                (*buf)[str_len] = '\0';
+                DBG("----->self ptr offset[%zu]-[%zu]-[%s]\n",
+                    ((uint8_t *)buf - ((j2s_pool_t *)ctx->priv)->data),
+                    (uint8_t *)*buf - ((j2s_pool_t *)ctx->priv)->data, *buf);
+            }
+        }
+        return 0;
+    }
+
+    /* Handle array member */
+    if (J2S_IS_ARRAY(obj)) {
+        j2s_obj tmp_obj;
+        tmp_obj = *obj;
+
+        /* Walk into array */
+        j2s_extract_array(obj);
+
+        for (int i = 0; i < tmp_obj.num_elem; i++) {
+            DBG("handling array: %s %d/%d\n", obj->name, i, tmp_obj.num_elem);
+            _j2s_obj_to_bin(ctx, obj_index, ptr, dst_ptr);
+            obj->offset += tmp_obj.elem_size;
+        }
+
+        *obj = tmp_obj;
+        return 0;
+    }
+
+    /* Handle dynamic array */
+    if (J2S_IS_POINTER(obj)) {
+        j2s_obj tmp_obj;
+        j2s_obj dst_obj;
+        void *root_ptr = *(void **)ptr;
+        int len, old_len;
+
+        if (obj->len_index < 0) {
+        DBG("dynamic array %s missing len\n", obj->name);
+        return -1;
+        }
+
+        len = j2s_obj_get_value(ctx, obj->len_index, ptr);
+        old_len = j2s_obj_get_value(ctx, obj->len_index, dst_ptr);
+
+        if (len <= 0) {
+        DBG("array size error: %s %d\n", obj->name, len);
+        return -1;
+        }
+
+        if (len != old_len) {
+            /* Dynamic array size changed, realloc it */
+            void **buf = (void **)(dst_ptr + obj->offset);
+
+            if (old_len && *buf) {
+                free(*buf);
+            }
+
+            size_t real_size = 0;
+            *buf = j2s_alloc_data2(ctx, len * obj->elem_size, &real_size);
+            j2s_alloc_map_record(ctx, buf, *buf, real_size);
+            DBG("----->self ptr offset[%zu]-[%zu]\n",
+                ((uint8_t *)buf - ((j2s_pool_t *)ctx->priv)->data),
+                (uint8_t *)*buf - ((j2s_pool_t *)ctx->priv)->data);
+
+            j2s_obj_set_value(ctx, obj->len_index, len, dst_ptr);
+
+            DBG("re-alloc %s from %d*%d to %d*%d = %p\n", obj->name, old_len,
+                obj->elem_size, len, obj->elem_size, *buf);
+        }
+
+        if (!len)
+            return 0;
+
+        tmp_obj = *obj;
+        dst_obj = tmp_obj;
+
+        /* Walk into dynamic array */
+        ptr = (char *)j2s_extract_dynamic_array(obj, len, ptr);
+        dst_ptr = (char *)j2s_extract_dynamic_array(&dst_obj, len, dst_ptr);
+
+        DBG("handling dynamic array: %s %d*%d from %p\n", obj->name, obj->elem_size,
+            obj->num_elem, dst_ptr);
+
+        _j2s_obj_to_bin(ctx, obj_index, ptr, dst_ptr);
+
+        *obj = tmp_obj;
+        return 0;
+    }
+
+    /* Handle struct member */
+    if (obj->type == J2S_TYPE_STRUCT) {
+        return _j2s_struct_to_bin(ctx, obj->struct_index, ptr + obj->offset,
+                                  dst_ptr + obj->offset);
+    }
+
+    double value = j2s_obj_get_value(ctx, obj_index, ptr);
+
+    j2s_obj_set_value(ctx, obj_index, value, dst_ptr);
+
+    return 0;
+}
+
+static int _j2s_struct_to_bin(j2s_ctx *ctx, int struct_index, void *ptr,
+                              void *dst_ptr_) {
+    j2s_struct *struct_obj = NULL;
+    j2s_obj *child = NULL;
+    int child_index, ret = 0;
+
+    if (struct_index < 0)
+        return -1;
+
+    struct_obj = &ctx->structs[struct_index];
+    if (struct_obj->child_index < 0)
+        return -1;
+
+    ret = -1;
+
+    /* Walk child list */
+    for (child_index = struct_obj->child_index; child_index >= 0;
+         child_index = child->next_index) {
+        child = &ctx->objs[child_index];
+        DBG("start child: %s (%s) from %p\n", child->name, struct_obj->name, ptr);
+        ret = _j2s_obj_to_bin(ctx, child_index, ptr, dst_ptr_);
+        DBG("finish child: %s (%s)\n", child->name, struct_obj->name);
+    }
+
+    return ret;
+}
+
 static int j2s_json_to_array_with_index(j2s_ctx* ctx, cJSON* json,
     cJSON* index_json, cJSON* parent,
     j2s_obj* obj, void* ptr, bool query)
@@ -1291,4 +1469,50 @@ static void _j2s_struct_to_cache(j2s_ctx* ctx, int struct_index, int fd,
         child = &ctx->objs[child_index];
         _j2s_obj_to_cache(ctx, child_index, fd, ptr);
     }
+}
+
+int j2s_calib_to_bin(j2s_ctx *ctx, const char *name, void *ptr,
+                     void* bin_buf) {
+    size_t real_size = 0;
+    size_t struct_size = 0;
+    j2s_pool_t *j2s_pool = NULL;
+    void *struct_ptr = NULL;
+    void **dst_ptr = &struct_ptr;
+    int struct_index = 0;
+
+    struct_index = name ? j2s_find_struct_index(ctx, name) : ctx->root_index;
+
+    j2s_pool = (j2s_pool_t *)malloc(sizeof(j2s_pool_t));
+    memset(j2s_pool, 0, sizeof(j2s_pool_t));
+    j2s_pool->data = (uint8_t*)bin_buf;
+    struct_size = j2s_struct_size(ctx, struct_index);
+    ctx->priv = (void*)j2s_pool;
+    *dst_ptr = j2s_alloc_data2(ctx, struct_size, &real_size);
+    j2s_struct_to_bin(ctx, struct_index, ptr, *dst_ptr);
+    ctx->priv = NULL;
+
+    uint8_t *current_index = (uint8_t*) bin_buf;
+
+    size_t map_start = j2s_pool->used;
+    current_index += j2s_pool->used;
+    memcpy(current_index, j2s_pool->maps_list, sizeof(map_index_t) * j2s_pool->map_len);
+    current_index += sizeof(map_index_t) * j2s_pool->map_len;
+    memcpy(current_index, &map_start, sizeof(size_t));
+    current_index += sizeof(size_t);
+    memcpy(current_index, &j2s_pool->map_len, sizeof(size_t));
+    current_index += sizeof(size_t);
+
+    size_t bin_size = j2s_pool->used + sizeof(map_index_t) * j2s_pool->map_len + sizeof(size_t) * 2;
+
+    if (j2s_pool) {
+        if (j2s_pool->maps_list) {
+            free(j2s_pool->maps_list);
+            j2s_pool->maps_list = NULL;
+        }
+        free(j2s_pool);
+        j2s_pool = NULL;
+    }
+
+    return  bin_size;
+
 }

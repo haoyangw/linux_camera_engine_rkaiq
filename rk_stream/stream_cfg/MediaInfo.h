@@ -38,9 +38,6 @@ namespace RkRawStream {
 
 //#define MAX_ISP_LINKED_VICAP_CNT      4
 
-#define STREAM_ISP_BUF_NUM 5
-#define STREAM_VIPCAP_BUF_NUM 5
-
 /*
 typedef struct {
     int  model_idx;
@@ -202,7 +199,8 @@ public:
     XCamReturn clearStaticCamHwInfo();
     void getCamHwEntNames(char buf[12][32]);
     rk_sensor_full_info_t* getSensorFullInfo(char* sns_ent_name, uint16_t index);
-    void offline(const char* isp_driver, const char* offline_sns_ent_name);
+    const char* offline(int isp_index, const char* offline_sns_ent_name);
+    XCamReturn setupOffLineLink(int isp_index, bool enable);
 };
 
 }

@@ -124,7 +124,8 @@ RkAiqCamGroupManager::getGroupCamResult(uint32_t frameId, bool query_ready)
         if (mCamGroupResMap.size() > 3) {
             LOGE_CAMGROUP("camgroup result map overflow:%d, first_id: %u",
                           mCamGroupResMap.size(), mCamGroupResMap.begin()->first);
-            clearGroupCamResult_Locked(frameId - 2);
+            if (frameId >= 2)
+                clearGroupCamResult_Locked(frameId - 2);
         }
         if (frameId < mClearedResultId) {
             LOGW_CAMGROUP("disorder frameId(%d) < mClearedResultId(%d)", frameId, mClearedResultId);
@@ -1186,6 +1187,23 @@ RkAiqCamGroupManager::reProcess(rk_aiq_groupcam_result_t* gc_res)
                     RET_FAILED();
                 scam_3a_res->again._again_procRes_v2 = &aiqParams->mGainV3xParams->data()->result;
             }
+
+            // copy otp info
+            RkAiqManager* aiqManager = mBindAiqsMap[i];
+            if (aiqManager) {
+                if (aiqManager->mRkAiqAnalyzer.ptr()) {
+                    RkAiqCore::RkAiqAlgosComShared_t& sharedCom = aiqManager->mRkAiqAnalyzer->mAlogsComSharedParams;
+                    memcpy(&scam_3a_res->_otp_awb, &sharedCom.snsDes.otp_awb, sizeof(sharedCom.snsDes.otp_awb));
+
+                    LOGD_CAMGROUP("camId:%d, user awb otp: flag: %d, r:%d,b:%d,gr:%d,gb:%d, golden r:%d,b:%d,gr:%d,gb:%d\n",
+                            i, scam_3a_res->_otp_awb.flag,
+                            scam_3a_res->_otp_awb.r_value, scam_3a_res->_otp_awb.b_value,
+                            scam_3a_res->_otp_awb.gr_value, scam_3a_res->_otp_awb.gb_value,
+                            scam_3a_res->_otp_awb.golden_r_value, scam_3a_res->_otp_awb.golden_b_value,
+                            scam_3a_res->_otp_awb.golden_gr_value, scam_3a_res->_otp_awb.golden_gb_value);
+                }
+            }
+
             camgroupParmasArray[vaild_cam_ind++] = scam_3a_res;
         }
     }

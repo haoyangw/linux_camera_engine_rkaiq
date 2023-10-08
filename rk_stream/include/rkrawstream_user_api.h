@@ -29,14 +29,36 @@
 extern "C" {
 #endif
 
-#define RKVI_MAX_SENSORS  12
+#define RKRAWSTREAM_DEF_BUFCNT 5
 
+/* same with defines in rkcif-config.h */
+typedef enum {
+	RKRAWSTREAM_MEM_COMPACT = 0,
+	RKRAWSTREAM_MEM_WORD_LOW_ALIGN = 1,
+	RKRAWSTREAM_MEM_WORD_HIGH_ALIGN = 2,
+} rkrawstream_memory_type_t;
+
+/* same with defines in rkaiq_common.h */
+typedef enum {
+    RKRAWSTREAM_HDR_MODE_NORMAL      = 0,
+    RKRAWSTREAM_HDR_MODE_ISP_HDR2    = 0x10,
+    RKRAWSTREAM_HDR_MODE_ISP_HDR3    = 0x20,
+} rkrawstream_hdr_mode_t;
+
+/* same with defines in linux/videodev2.h */
+typedef enum {
+    RKRAWSTREAM_BUFTYPE_MMAP             = 1,
+    RKRAWSTREAM_BUFTYPE_USERPTR          = 2,
+    RKRAWSTREAM_BUFTYPE_OVERLAY          = 3,
+    RKRAWSTREAM_BUFTYPE_DMABUF           = 4,
+} rkrawstream_buf_type_t;
 
 typedef struct {
     char* sns_ent_name;
     char* dev0_name;
     char* dev1_name;
     char* dev2_name;
+    void* user_data;
     uint8_t use_offline;
 } rkraw_vi_init_params_t;
 
@@ -49,20 +71,6 @@ typedef struct {
     uint8_t buf_memory_type;
     uint8_t buf_cnt;
 } rkraw_vi_prepare_params_t;
-
-typedef struct {
-    char ent_names[RKVI_MAX_SENSORS][32];
-} rkraw_vi_sensor_info_t;
-
-struct _st_addrinfo_stream
-{
-    unsigned int idx;
-    unsigned int fd;
-    unsigned int haddr;
-    unsigned int laddr;
-    unsigned int size;
-    uint64_t     timestamp;
-}__attribute__ ((packed));
 
 struct rkraw2_plane
 {
@@ -80,16 +88,34 @@ typedef struct {
     rk_aiq_frame_info_t _finfo;
 } rkrawstream_rkraw2_t;
 
+typedef struct {
+    void *user_data;
+    rkrawstream_rkraw2_t rkraw2;
+} rkrawstream_vicap_cb_param_t;
+
+typedef struct {
+    uint32_t seq;
+    uint32_t fd;
+    uint32_t size;
+    void* addr;
+    uint64_t timestamp;
+    void *user_data;
+} rkrawstream_isp_cb_param_t;
+
+typedef struct {
+    void *user_data;
+    int dev_index;
+} rkrawstream_readback_cb_param_t;
+
 typedef struct rkraw_vi_ctx_s rkraw_vi_ctx_t;
 
-typedef void (*isp_trigger_readback_callback)(void *tg);
-
 #ifdef __ANDROID__
-typedef std::function<void(int dev_index)> rkraw_vi_on_isp_process_done_callback;
-typedef std::function<int(uint8_t *rkraw_data, uint32_t rkraw_len)> rkraw_vi_on_frame_capture_callback;
+typedef std::function<void(rkrawstream_readback_cb_param_t *param)> rkrawstream_readback_cb_t;
+typedef std::function<int(rkrawstream_vicap_cb_param_t *param)> rkrawstream_vicap_cb_t;
 #else
-typedef void (*rkraw_vi_on_isp_process_done_callback)(int dev_index);
-typedef int (*rkraw_vi_on_frame_capture_callback)(uint8_t *rkraw_data, uint32_t rkraw_len);
+typedef void (*rkrawstream_readback_cb_t)(rkrawstream_readback_cb_param_t *param);
+typedef int (*rkrawstream_vicap_cb_t)(rkrawstream_vicap_cb_param_t *param);
+typedef int (*rkrawstream_isp_cb_t)(rkrawstream_isp_cb_param_t *param);
 #endif
 
 /*!
@@ -105,16 +131,6 @@ typedef int (*rkraw_vi_on_frame_capture_callback)(uint8_t *rkraw_data, uint32_t 
  * \return return rkrawstream context if success, or NULL if failure.
  */
 rkraw_vi_ctx_t *rkrawstream_uapi_init();
-
-/*!
- * \brief initialze rkrawstream user api
- * Should call before any other APIs
- *
- * \param[in] isp dirver name  used for offline frames.
- * \param[in] sensor name     used for offline frames.
- * \return return rkrawstream context if success, or NULL if failure.
- */
-rkraw_vi_ctx_t *rkrawstream_uapi_init_offline(const char *isp_vir, const char *real_sns);
 
 /*!
  * \brief deinitialze rkrawstream context
@@ -161,7 +177,7 @@ int rkrawstream_vicap_prepare(rkraw_vi_ctx_t* ctx, rkraw_vi_prepare_params_t *p)
  *                           by default, frame return to driver after this function returned,\n
  *                           see rkrawstream_vicap_buf_take for details.\n
  */
-int rkrawstream_vicap_start(rkraw_vi_ctx_t* ctx, rkraw_vi_on_frame_capture_callback cb);
+int rkrawstream_vicap_start(rkraw_vi_ctx_t* ctx, rkrawstream_vicap_cb_t cb);
 
 /*!
  * \brief stop vicap stream
@@ -236,7 +252,7 @@ int rkrawstream_readback_prepare(rkraw_vi_ctx_t* ctx, rkraw_vi_prepare_params_t 
  * \param[in] cb             a user defined callback function, called when a frame processed\n
  *                           done by isp.
  */
-int rkrawstream_readback_start(rkraw_vi_ctx_t* ctx, rkraw_vi_on_isp_process_done_callback cb);
+int rkrawstream_readback_start(rkraw_vi_ctx_t* ctx, rkrawstream_readback_cb_t cb);
 
 /*!
  * \brief stop readback stream
@@ -261,7 +277,14 @@ int rkrawstream_readback_set_buffer(rkraw_vi_ctx_t* ctx, uint8_t *rkraw_data);
  */
 int rkrawstream_readback_set_rkraw2(rkraw_vi_ctx_t* ctx, rkrawstream_rkraw2_t *rkraw2);
 
-int rkrawstream_setup_pipline_fmt(rkraw_vi_ctx_t* ctx, int width, int height);
+void rkrawstream_uapi_fakesns_mode(rkraw_vi_ctx_t *ctx, int isp_index, const char *real_lens);
+
+int rkrawstream_setup_pipline_fmt(rkraw_vi_ctx_t* ctx, int width, int height, uint32_t pixfmt);
+
+int rkrawstream_isp_init(rkraw_vi_ctx_t* ctx, rkraw_vi_init_params_t *p);
+int rkrawstream_isp_prepare(rkraw_vi_ctx_t* ctx, rkraw_vi_prepare_params_t *p);
+int rkrawstream_isp_start(rkraw_vi_ctx_t* ctx, rkrawstream_isp_cb_t cb);
+int rkrawstream_isp_stop(rkraw_vi_ctx_t* ctx);
 
 #ifdef __cplusplus
 }

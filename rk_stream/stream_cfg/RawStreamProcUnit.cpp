@@ -208,62 +208,14 @@ int _parse_rk_rawdata(void *rawdata, rkrawstream_rkraw2_t *rkraw2)
     return 0;
 }
 
-// RawStreamProcUnit::RawStreamProcUnit (char *ispdev, char *dev0, char *dev1, char *dev2, bool linked_to_isp)
-    // : _first_trigger(true)
-    // , _is_multi_cam_conc(false)
-    // , user_isp_process_done_cb(NULL)
-    // , _memory_type(V4L2_MEMORY_DMABUF)
-// {
-    // _raw_proc_thread = new RawProcThread(this);
-    // _PollCallback = NULL;
-    // //_rawCap = NULL;
-    // //short frame
-    // if (dev0) {
-        // _dev[0] = new V4l2Device (dev0);//rkisp_rawrd2_s
-        // _dev[0]->open();
-        // _dev[0]->set_mem_type(_memory_type);
-    // }
-    // //mid frame
-    // if (dev1) {
-        // _dev[1] = new V4l2Device (dev1);//rkisp_rawrd0_m
-        // _dev[1]->open();
-        // _dev[1]->set_mem_type(_memory_type);
-    // }
-    // //long frame
-    // if (dev2) {
-        // _dev[2] = new V4l2Device (dev2);//rkisp_rawrd1_l
-        // _dev[2]->open();
-        // _dev[2]->set_mem_type(_memory_type);
-    // }
-    // for (int i = 0; i < 3; i++) {
-        // if (linked_to_isp) {
-            // if (_dev[i].ptr())
-                // _dev[i]->set_buffer_count(STREAM_ISP_BUF_NUM);
-        // } else {
-            // if (_dev[i].ptr())
-                // _dev[i]->set_buffer_count(STREAM_VIPCAP_BUF_NUM);
-        // }
-        // if (_dev[i].ptr())
-            // _dev[i]->set_buf_sync (true);
-
-        // _dev_index[i] = i;
-        // _stream[i] =  new RKRawStream(_dev[i], i, ISP_POLL_RX);
-        // _stream[i]->setPollCallback(this);
-
-    // }
-
-    // _isp_core_dev = new V4l2SubDevice(ispdev);
-    // _isp_core_dev->open();
-
-    // dummy_dev = new V4l2Device(NULL);
-// }
-
 RawStreamProcUnit::RawStreamProcUnit (const rk_sensor_full_info_t *s_info, uint8_t is_offline)
     : _first_trigger(true)
     , _mipi_dev_max(0)
     , _is_multi_cam_conc(false)
     , user_isp_process_done_cb(NULL)
+    , user_priv_data(NULL)
     , _memory_type(V4L2_MEMORY_DMABUF)
+    , _buffer_count(RKRAWSTREAM_DEF_BUFCNT)
 {
     _raw_proc_thread = new RawProcThread(this);
     _PollCallback = NULL;
@@ -292,25 +244,18 @@ RawStreamProcUnit::RawStreamProcUnit (const rk_sensor_full_info_t *s_info, uint8
         _dev[2]->set_mem_type(_memory_type);
     }
     for (int i = 0; i < 3; i++) {
-        if (linked_to_isp) {
-            if (_dev[i].ptr())
-                _dev[i]->set_buffer_count(STREAM_ISP_BUF_NUM);
-        } else {
-            if (_dev[i].ptr())
-                _dev[i]->set_buffer_count(STREAM_VIPCAP_BUF_NUM);
-        }
         if (_dev[i].ptr())
-            _dev[i]->set_buf_sync (true);
+            _dev[i]->set_buffer_count(_buffer_count);
+        if (_dev[i].ptr())
+            _dev[i]->set_buf_sync (false);
         _dev_index[i] = i;
-        _stream[i] =  new RKRawStream(_dev[i], i, ISP_POLL_RX);
+        _stream[i] =  new RKRawStream(_dev[i], i, RKRAWSTREAM_POLL_READBACK);
         _stream[i]->setPollCallback(this);
 
     }
 
     _isp_core_dev = new V4l2SubDevice(s_info->isp_info->isp_dev_path);
     _isp_core_dev->open();
-
-    dummy_dev = new V4l2Device(NULL);
 
     _offline_index = 0;
     _offline_seq = 0;
@@ -325,17 +270,23 @@ RawStreamProcUnit::RawStreamProcUnit (const rk_sensor_full_info_t *s_info, uint8
 RawStreamProcUnit::~RawStreamProcUnit ()
 {
     LOGD_RKSTREAM("enter ~RawStreamProcUnit\n");
-    _dev[0] -> close();
-    _dev[1] -> close();
-    _dev[2] -> close();
+    if (_dev[0].ptr())
+        _dev[0] -> close();
+    if (_dev[1].ptr())
+        _dev[1] -> close();
+    if (_dev[2].ptr())
+        _dev[2] -> close();
     LOGD_RKSTREAM("exit ~RawStreamProcUnit\n");
 }
 
 XCamReturn RawStreamProcUnit::start()
 {
-    //_rawCap = new CaptureRawData(mCamPhyId);
+    XCamReturn ret;
     for (int i = 0; i < _mipi_dev_max; i++) {
-        _stream[i]->start();
+        ret = _stream[i]->start();
+        if (ret != XCAM_RETURN_NO_ERROR){
+            LOGE_RKSTREAM("RawStreamProcUnit rxdev[%d] start error!\n", i);
+        }
     }
     _msg_queue.resume_pop();
     _msg_queue.clear();
@@ -371,13 +322,16 @@ XCamReturn RawStreamProcUnit::stop ()
     //    delete _rawCap;
     //    _rawCap = NULL;
    // }
+    /*
     if(_is_offline_mode) {
         for (int i = 0; i < _mipi_dev_max; i++) {
             if(_rawbuffer[i]){
                 free(_rawbuffer[i]);
+                _rawbuffer[i] = NULL;
             }
         }
     }
+    */
     for (int i = 0; i < _mipi_dev_max; i++) {
         _stream[i]->stopDeviceOnly();
     }
@@ -385,30 +339,31 @@ XCamReturn RawStreamProcUnit::stop ()
 }
 
 XCamReturn
-RawStreamProcUnit::prepare(int idx, uint8_t buf_memory_type, uint8_t buf_cnt)
+RawStreamProcUnit::prepare(uint8_t buf_memory_type, uint8_t buf_cnt)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-    _memory_type = (enum v4l2_memory)buf_memory_type;
-    LOGE_RKSTREAM("RawStreamProcUnit::prepare idx:%d buf_memory_type: %d\n",idx, buf_memory_type);
+    LOGD_RKSTREAM("RawStreamProcUnit %s bufype: %d bufcnt %d\n",__func__, buf_memory_type, buf_cnt);
     // mipi rx/tx format should match to sensor.
-    for (int i = 0; i < 3; i++) {
-        if (!(idx & (1 << i)))
-            continue;
-
-        if(buf_memory_type)
+    for (int i = 0; i < _mipi_dev_max; i++) {
+        if(buf_memory_type) {
+            _memory_type = (enum v4l2_memory)buf_memory_type;
             _dev[i]->set_mem_type(_memory_type);
-
-        if(buf_cnt)
+        }
+        if(buf_cnt) {
+            _buffer_count = buf_cnt;
             _dev[i]->set_buffer_count(buf_cnt);
-
+        }
         ret = _dev[i]->prepare();
         if (ret < 0)
             LOGE_RKSTREAM("mipi tx:%d prepare err: %d\n", i, ret);
 
         _stream[i]->set_device_prepared(true);
+        /*
          if(_is_offline_mode) {
+            printf("malloc _rawbuff, %dx%d\n", _width, _height);
             _rawbuffer[i] = (uint8_t *)malloc(_width * _height * 2);
          }
+        */
     }
     return ret;
 }
@@ -419,12 +374,10 @@ RawStreamProcUnit::set_working_mode(int mode)
     _working_mode = mode;
 
     switch (_working_mode) {
-    case RK_AIQ_ISP_HDR_MODE_3_FRAME_HDR:
-    case RK_AIQ_ISP_HDR_MODE_3_LINE_HDR:
+    case RKRAWSTREAM_HDR_MODE_ISP_HDR3:
         _mipi_dev_max = 3;
         break;
-    case RK_AIQ_ISP_HDR_MODE_2_FRAME_HDR:
-    case RK_AIQ_ISP_HDR_MODE_2_LINE_HDR:
+    case RKRAWSTREAM_HDR_MODE_ISP_HDR2:
         _mipi_dev_max = 2;
         break;
     default:
@@ -437,32 +390,33 @@ void
 RawStreamProcUnit::set_rx_format(uint32_t width, uint32_t height, uint32_t pix_fmt, int mode)
 {
     struct v4l2_format format;
+    uint32_t w,h,pf;
     memset(&format, 0, sizeof(format));
 
-    for (int i = 0; i < 3; i++) {
-        if (_dev[i].ptr()){
-            _dev[i]->get_format (format);
+    LOGD_RKSTREAM("RawStreamProcUnit %s:%dx%d, 0x%x mode %d\n", __func__, width, height, pix_fmt, mode);
 
-            int bpp = pixFmt2Bpp(format.fmt.pix.pixelformat);
-            int mem_mode = mode;
-            int ret1 = _dev[i]->io_control (RKISP_CMD_SET_CSI_MEMORY_MODE, &mem_mode);
-            if (ret1)
-                LOGE_RKSTREAM("set CSI_MEM_WORD_LITTLE_ALIGN failed !\n");
+    for (int i = 0; i < _mipi_dev_max; i++) {
+        _dev[i]->get_format (format);
+        w = width? width: format.fmt.pix.width;
+        h = height? height: format.fmt.pix.height;
+        pf = pix_fmt? pix_fmt: format.fmt.pix.pixelformat;
+
+        int bpp = pixFmt2Bpp(format.fmt.pix.pixelformat);
+        int mem_mode = mode;
+        if (((w / 2 - RKMOUDLE_UNITE_EXTEND_PIXEL) * bpp / 8) & 0xf)
+            mem_mode = CSI_MEM_WORD_BIG_ALIGN;
+        int ret1 = _dev[i]->io_control (RKISP_CMD_SET_CSI_MEMORY_MODE, &mem_mode);
+        if (ret1)
+            LOGE_RKSTREAM("set CSI_MEM_WORD_LITTLE_ALIGN failed !\n");
 
 
-            LOGI_RKSTREAM("set_rx_format: setup fmt %dx%d, 0x%x mem_mode %d\n",width, height, format.fmt.pix.pixelformat, mem_mode);
-            if (_dev[i].ptr())
-                _dev[i]->set_format(width,
-                                    height,
-                                    format.fmt.pix.pixelformat,
-                                    V4L2_FIELD_NONE,
-                                    0);
-        }
+        LOGI_RKSTREAM("RawStreamProcUnit %s:use format %dx%d, 0x%x\n", __func__, w, h, pf);
+        _dev[i]->set_format(w, h, pf, V4L2_FIELD_NONE, 0);
     }
 }
 
 void
-RawStreamProcUnit::setup_pipeline_fmt(uint32_t width, uint32_t height)
+RawStreamProcUnit::setup_pipeline_fmt(uint32_t width, uint32_t height, uint32_t pixfmt)
 {
     int ret;
     // set isp sink fmt, same as sensor bounds - crop
@@ -478,7 +432,7 @@ RawStreamProcUnit::setup_pipeline_fmt(uint32_t width, uint32_t height)
     }
     isp_sink_fmt.format.width = width;
     isp_sink_fmt.format.height = height;
-    //isp_sink_fmt.format.code = sns_sd_fmt.format.code;
+    isp_sink_fmt.format.code = pixfmt;
 
     ret = _isp_core_dev->setFormat(isp_sink_fmt);
     if (ret) {
@@ -545,6 +499,7 @@ RawStreamProcUnit::setup_pipeline_fmt(uint32_t width, uint32_t height)
     LOGD_RKSTREAM("isp src fmt info: fmt 0x%x, %dx%d !",
                     isp_src_fmt.format.code, isp_src_fmt.format.width, isp_src_fmt.format.height);
 }
+
 /*
 SmartPtr<V4l2Device>
 RawStreamProcUnit::get_rx_device(int index)
@@ -595,6 +550,9 @@ XCamReturn
 RawStreamProcUnit::poll_buffer_ready (SmartPtr<V4l2BufferProxy> &buf, int dev_index)
 {
     SmartLock locker (_buf_mutex);
+    rkrawstream_readback_cb_param_t param;
+    param.user_data = user_priv_data;
+    param.dev_index = dev_index;
     // if (!buf_list[dev_index].is_empty()) {
         // SmartPtr<V4l2BufferProxy> rx_buf = buf_list[dev_index].pop(-1);
         // LOGD_RKSTREAM("%s dev_index:%d index:%d fd:%d\n",
@@ -605,7 +563,7 @@ RawStreamProcUnit::poll_buffer_ready (SmartPtr<V4l2BufferProxy> &buf, int dev_in
     }
 
     if(user_isp_process_done_cb)
-        user_isp_process_done_cb(dev_index);
+        user_isp_process_done_cb(&param);
 
     return XCAM_RETURN_NO_ERROR;
 }
@@ -719,8 +677,11 @@ bool
 RawStreamProcUnit::raw_buffer_proc ()
 {
     LOGD_RKSTREAM("%s enter", __FUNCTION__);
-    if (_msg_queue.pop(-1).ptr())
+    if (_msg_queue.pop(-1).ptr()) {
         trigger_isp_readback();
+    } else {
+        return false;
+    }
     LOGD_RKSTREAM("%s exit", __FUNCTION__);
     return true;
 }
@@ -752,16 +713,21 @@ RawStreamProcUnit::_send_sync_buf(rkrawstream_rkraw2_t *rkraw2)
         sbuf_s->_seq = rkraw2->_rawfmt.frame_id;
         sbuf_s->_ts = rkraw2->plane[0].timestamp;
     } else {
-        memcpy(_rawbuffer[0], (uint8_t *)rkraw2->plane[0].addr, rkraw2->plane[0].size);
-        sbuf_s->_userptr = _rawbuffer[0];
+        //memcpy(_rawbuffer[0], (uint8_t *)rkraw2->plane[0].addr, rkraw2->plane[0].size);
+        //sbuf_s->_userptr = _rawbuffer[0];
+        sbuf_s->_userptr = (uint8_t *)rkraw2->plane[0].addr;
+        sbuf_s->_size = (uint32_t)rkraw2->plane[0].size;
         sbuf_s->_index = _offline_index;
         sbuf_s->_seq = _offline_seq;
+        if (rkraw2->_rawfmt.frame_id != 0) {
+            sbuf_s->_seq = rkraw2->_rawfmt.frame_id;
+        }
     }
 
     _offline_index ++;
     _offline_seq ++;
 
-    if(_offline_index == 4)
+    if(_offline_index == _buffer_count)
         _offline_index = 0;
 
     _buf_mutex.lock();
@@ -867,50 +833,35 @@ RawStreamProcUnit::trigger_isp_readback()
                 ret = _dev[i]->get_buffer(v4l2buf[i],
                         cache_list2[i].front()->_index);
                 if (ret != XCAM_RETURN_NO_ERROR) {
-                    LOGE_RKSTREAM( "Rx[%d] can not get buffer\n", i);
+                    LOGE_RKSTREAM("RawStreamProcUnit: Rx[%d] can not get buffer", i);
                     goto out;
                 } else {
                     simple_buf = cache_list2[i].pop(-1);
 
-                    if (_memory_type == V4L2_MEMORY_USERPTR){
-                        LOGD_RKSTREAM("use V4L2_MEMORY_USERPTR\n");
+                    if (_memory_type == V4L2_MEMORY_USERPTR) {
+                        LOGD_RKSTREAM("RawStreamProcUnit: Rx[%d] set userptrbuf, ptr 0x%lx", i, (uintptr_t)simple_buf->_userptr);
                         v4l2buf[i]->set_expbuf_usrptr((uint64_t)simple_buf->_userptr);
                     }
-                    else if (_memory_type == V4L2_MEMORY_DMABUF){
+                    else if (_memory_type == V4L2_MEMORY_DMABUF) {
+                        LOGD_RKSTREAM("RawStreamProcUnit: Rx[%d] set dmabuf, fd %d seq %d", i, simple_buf->_fd, simple_buf->_seq);
                         v4l2buf[i]->set_expbuf_fd(simple_buf->_fd);
                     }
-
-                    // if (_rawCap) {
-                       // _rawCap->dynamic_capture_raw(i, sequence, buf_proxy, v4l2buf[i],_mipi_dev_max,_working_mode,_dev[0]);
-
-                        // if (_rawCap->is_need_save_metadata_and_register()) {
-                            // rkisp_effect_params_v20 ispParams;
-                            // _camHw->getEffectiveIspParams(ispParams, sequence);
-
-                            // SmartPtr<BaseSensorHw> mSensorSubdev = _camHw->mSensorDev.dynamic_cast_ptr<BaseSensorHw>();
-                            // SmartPtr<RkAiqExpParamsProxy> ExpParams = nullptr;
-                            // mSensorSubdev->getEffectiveExpParams(ExpParams, sequence);
-
-                            // SmartPtr<LensHw> mLensSubdev = _camHw->mLensDev.dynamic_cast_ptr<LensHw>();
-                            // SmartPtr<RkAiqAfInfoProxy> afParams = nullptr;
-                            // if (mLensSubdev.ptr())
-                                // mLensSubdev->getAfInfoParams(afParams, sequence);
-                            // _rawCap->save_metadata_and_register(sequence, ispParams, ExpParams, afParams, _working_mode);
-                        // }
-                    // }
-                   //CaptureRawData::getInstance().dynamic_capture_raw(i, sequence, buf_proxy, v4l2buf[i],_mipi_dev_max,_working_mode,_dev[0]);
+                    else if (_memory_type == V4L2_MEMORY_MMAP) {
+                        LOGD_RKSTREAM("RawStreamProcUnit: Rx[%d] copy mmapbuf, size %d\n", i, simple_buf->_size);
+                        memcpy((void*)v4l2buf[i]->get_expbuf_usrptr(),(void*)simple_buf->_userptr,simple_buf->_size);
+                        v4l2buf[i]->set_reserved((uintptr_t)simple_buf->_userptr);
+                        sequence = simple_buf->_seq;
+                    }
                 }
             }
 
             for (int i = 0; i < _mipi_dev_max; i++) {
                 ret = _dev[i]->queue_buffer(v4l2buf[i]);
                 if (ret != XCAM_RETURN_NO_ERROR) {
-                    LOGE_RKSTREAM( "Rx[%d] queue buffer failed\n", i);
+                    LOGE_RKSTREAM( "RawStreamProcUnit: Rx[%d] queue buffer failed", i);
                     break;
                 }
             }
-
-
 
             tg.frame_id = sequence;
             if (_first_trigger)
@@ -927,7 +878,7 @@ RawStreamProcUnit::trigger_isp_readback()
             tg.sof_timestamp = tg.frame_timestamp;
             // tg.times = 1;//fixed to three times readback
             LOGI_RKSTREAM(
-                            "camId:%d frame[%d]: sof_ts %" PRId64 "ms, frame_ts %" PRId64 "ms, globalTmo(%d), readback(%d) fd %d\n",
+                            "RawStreamProcUnit: trigger_readback camId:%d frame[%d]: sof_ts %" PRId64 "ms, frame_ts %" PRId64 "ms, globalTmo(%d), readback(%d) fd %d",
                             mCamPhyId,
                             sequence,
                             tg.sof_timestamp / 1000 / 1000,
@@ -939,8 +890,8 @@ RawStreamProcUnit::trigger_isp_readback()
             if (ret == XCAM_RETURN_NO_ERROR)
                 _isp_core_dev->io_control(RKISP_CMD_TRIGGER_READ_BACK, &tg);
             else
-                LOGE_RKSTREAM( "%s frame[%d] queue  failed, don't read back!\n",
-                                __func__, sequence);
+                LOGE_RKSTREAM("RawStreamProcUnit: trigger_readback frame[%d] queue failed!",
+                                sequence);
             //if (_rawCap)
             //    _rawCap->update_capture_raw_status(_first_trigger);
             //CaptureRawData::getInstance().update_capture_raw_status(_first_trigger);

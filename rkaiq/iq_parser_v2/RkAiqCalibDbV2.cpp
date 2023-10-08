@@ -279,6 +279,92 @@ CamCalibDbProj_t *RkAiqCalibDbV2::json2calibproj(const char *jstr, size_t len) {
     return calibproj;
 }
 
+void RkAiqCalibDbV2::bin2calib(void *bin_buff, void *struct_ptr) {
+#if defined(ISP_HW_V32)
+    uint8_t *buf_start = (uint8_t *)bin_buff;
+    calib2bin_header_t *header;
+    calib2bin_block_t *block_list;
+    CalibDb_Sensor_ParaV2_t *sns_ptr = NULL;
+    CalibDb_Aec_ParaV2_t* ae_ptr = NULL;
+    CalibDbV2_Bayer2dnrV23_t* bayer2dnr_v23_ptr = NULL;
+    CalibDbV2_BayerTnrV23_t* bayertnr_v23_ptr = NULL;
+    CalibDbV2_Wb_Para_V32_t* wb_v32 = NULL;
+    CalibDbV2_Blc_V32_t* ablcV32_calib = NULL;
+
+    header = (calib2bin_header_t *)bin_buff;
+    block_list = (calib2bin_block_t *)(buf_start + header->block_offset);
+    buf_start += header->bin_offset;
+    for (int i = 0; i < header->block_len; i++) {
+        LOGD("header info: %s offset %d size %d\n", block_list[i].name, block_list[i].offset, block_list[i].size);
+        if (strcmp("CalibDb_Sensor_ParaV2_t", block_list[i].name) == 0)
+            sns_ptr = (CalibDb_Sensor_ParaV2_t *)bin2calibproj(buf_start + block_list[i].offset, block_list[i].size);
+        else if (strcmp("CalibDb_Aec_ParaV2_t", block_list[i].name) == 0)
+            ae_ptr = (CalibDb_Aec_ParaV2_t *)bin2calibproj(buf_start + block_list[i].offset, block_list[i].size);
+        else if (strcmp("CalibDbV2_Bayer2dnrV23_t", block_list[i].name) == 0)
+            bayer2dnr_v23_ptr = (CalibDbV2_Bayer2dnrV23_t *)bin2calibproj(buf_start + block_list[i].offset, block_list[i].size);
+        else if (strcmp("CalibDbV2_BayerTnrV23_t", block_list[i].name) == 0)
+            bayertnr_v23_ptr = (CalibDbV2_BayerTnrV23_t *)bin2calibproj(buf_start + block_list[i].offset, block_list[i].size);
+        else if (strcmp("CalibDbV2_Wb_Para_V32_t", block_list[i].name) == 0)
+            wb_v32 = (CalibDbV2_Wb_Para_V32_t *)bin2calibproj(buf_start + block_list[i].offset, block_list[i].size);
+        else if (strcmp("CalibDbV2_Blc_V32_t", block_list[i].name) == 0)
+            ablcV32_calib = (CalibDbV2_Blc_V32_t *)bin2calibproj(buf_start + block_list[i].offset, block_list[i].size);
+    }
+
+
+    // printf("sensor calib: %d %d %d\n", sns_ptr->CISDcgSet.Linear.dcg_mode.Coeff[0],
+    //                                       sns_ptr->CISDcgSet.Linear.dcg_mode.Coeff[1],
+    //                                       sns_ptr->CISDcgSet.Linear.dcg_mode.Coeff[2]);
+
+
+    // printf("ae calib: rout: IspDGainDot: ");
+    // for (int i = 0; i < ae_ptr->LinearAeCtrl.Route.IspDGainDot_len; i++) {
+    //     printf("%f ", ae_ptr->LinearAeCtrl.Route.IspDGainDot[i]);
+    // }
+    // printf("\n");
+
+    // printf("ae calib: rout: PIrisDot: ");
+    // for (int i = 0; i < ae_ptr->LinearAeCtrl.Route.PIrisDot_len; i++) {
+    //     printf("%d ", ae_ptr->LinearAeCtrl.Route.PIrisDot[i]);
+    // }
+    // printf("\n");
+
+    // printf("ae calib: rout: TimeDot: ");
+    // for (int i = 0; i < ae_ptr->LinearAeCtrl.Route.TimeDot_len; i++) {
+    //     printf("%f ", ae_ptr->LinearAeCtrl.Route.TimeDot[i]);
+    // }
+    // printf("\n");
+
+    // printf("ae calib: rout: GainDot: ");
+    // for (int i = 0; i < ae_ptr->LinearAeCtrl.Route.GainDot_len; i++) {
+    //     printf("%f ", ae_ptr->LinearAeCtrl.Route.GainDot[i]);
+    // }
+    // printf("\n");
+
+    // printf("2dnr: %d %d %s\n", bayer2dnr_v23_ptr->TuningPara.hdrdgain_ctrl_en,
+    //                               bayer2dnr_v23_ptr->TuningPara.Setting_len,
+    //                               bayer2dnr_v23_ptr->TuningPara.Setting[0].SNR_Mode);
+
+    // printf("tnr: %d %d %d %d %s\n", bayertnr_v23_ptr->TuningPara.thumbds_w,
+    //                               bayertnr_v23_ptr->TuningPara.thumbds_h,
+    //                               bayertnr_v23_ptr->TuningPara.trans_en,
+    //                               bayertnr_v23_ptr->TuningPara.Setting_len,
+    //                               bayertnr_v23_ptr->TuningPara.Setting[0].SNR_Mode);
+
+    // printf("awb: %d %d %d %f %f %f %f\n", wb_v32->control.byPass,
+    //                                       wb_v32->control.mode,
+    //                                       wb_v32->manualPara.mode,
+    //                                       wb_v32->manualPara.cfg.mwbGain[0],
+    //                                       wb_v32->manualPara.cfg.mwbGain[1],
+    //                                       wb_v32->manualPara.cfg.mwbGain[2],
+    //                                       wb_v32->manualPara.cfg.mwbGain[3]);
+
+    // printf("blc %f %f %f %f\n", ablcV32_calib->Blc0TuningPara.BLC_Data.R_Channel[0],
+    //                          ablcV32_calib->Blc0TuningPara.BLC_Data.B_Channel[0],
+    //                          ablcV32_calib->Blc0TuningPara.BLC_Data.Gb_Channel[0],
+    //                          ablcV32_calib->Blc0TuningPara.BLC_Data.Gr_Channel[0]);
+#endif
+}
+
 CamCalibDbProj_t *RkAiqCalibDbV2::bin2calibproj(const char *binfile) {
     CamCalibDbProj_t *calibproj = NULL;
     char* bin_buff = NULL;
@@ -376,6 +462,56 @@ int RkAiqCalibDbV2::calibproj2json(const char *jsfile,
 
     free(json_buff);
 
+    return 0;
+}
+
+int RkAiqCalibDbV2::calib2bin(void *bin_buf,
+                              CamCalibDbV2Context_t *CalibDbV2) {
+#ifdef ISP_HW_V32
+    j2s_ctx ctx;
+    uint8_t *bin_start;
+    calib2bin_header_t *header;
+    calib2bin_block_t *block_list;
+    CamCalibDbV2ContextIsp32_t *sub_scene;
+
+    header               = (calib2bin_header_t *)bin_buf;
+    sub_scene            = (CamCalibDbV2ContextIsp32_t *)CalibDbV2->calib_scene;
+    header->bin_size     = sizeof(calib2bin_header_t);
+    header->block_offset = header->bin_size;
+    header->mask         |= 1;
+    ctx.format_json      = true;
+    ctx.manage_data      = false;
+
+    struct block_s {
+        const char* name;
+        void* offset;
+    } calib_array[] = {
+        { "CalibDb_Sensor_ParaV2_t",  (void *)CalibDbV2->sensor_info   },
+        { "CalibDb_Aec_ParaV2_t",     (void *)&sub_scene->ae_calib     },
+        { "CalibDbV2_Bayer2dnrV23_t", (void *)&sub_scene->bayer2dnr_v23},
+        { "CalibDbV2_BayerTnrV23_t",  (void *)&sub_scene->bayertnr_v23 },
+        { "CalibDbV2_Wb_Para_V32_t",  (void *)&sub_scene->wb_v32       },
+        { "CalibDbV2_Blc_V32_t",      (void *)&sub_scene->ablcV32_calib},
+        {NULL, NULL},
+    };
+
+    block_list         = (calib2bin_block_t *)((uint8_t *)bin_buf + sizeof(calib2bin_header_t));
+    header->block_len  = sizeof(calib_array) / sizeof(calib_array[0]) - 1;
+    header->bin_size   += header->block_len * sizeof(calib2bin_block_t);
+    header->bin_offset = header->bin_size;
+    bin_start          = (uint8_t *)bin_buf + header->bin_size;
+
+    j2s_init(&ctx);
+    for (int i = 0; calib_array[i].offset != NULL; i++) {
+        block_list[i].offset = header->bin_size - header->bin_offset;
+        block_list[i].size   = j2s_calib_to_bin(&ctx, calib_array[i].name, calib_array[i].offset, bin_start);
+        header->bin_size     += block_list[i].size;
+        bin_start            += block_list[i].size;
+        snprintf(block_list[i].name, 32, "%s", calib_array[i].name);
+        LOGD("header info: %s offset %d size %d\n", block_list[i].name, block_list[i].offset, block_list[i].size);
+    }
+    j2s_deinit(&ctx);
+#endif
     return 0;
 }
 
@@ -2869,7 +3005,6 @@ int RkAiqCalibDbV2::parseBinStructMap(uint8_t *data, size_t len)
     map_index_t *map_addr = NULL;
 
     map_addr = (map_index_t *)(data + map_offset);
-
     for (map_index = 0; map_index < map_len; map_index++) {
         map_index_t tmap = (map_addr[map_index]);
         void** dst_obj_addr = (void**)(data + (size_t)tmap.dst_offset);

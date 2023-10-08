@@ -70,6 +70,7 @@ LOCAL_CFLAGS += -Wno-error -Wno-return-type
 #LOCAL_CPPFLAGS += $(PRJ_CPPFLAGS)
 LOCAL_CFLAGS += -DANDROID_OS
 LOCAL_CFLAGS += -DISPDEMO_ENABLE_RGA=1
+LOCAL_CFLAGS += -DSAMPLE_SMART_IR
 LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)/demo/ \
 	$(LOCAL_PATH)/demo/include \
@@ -83,6 +84,7 @@ LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)/../../include/algos \
 	$(LOCAL_PATH)/../../include/common \
 	$(LOCAL_PATH)/../../include/iq_parser \
+	$(LOCAL_PATH)/../../smart_ir/include \
 	$(LOCAL_PATH)/deps \
 	$(LOCAL_PATH)/deps/include \
 	$(LOCAL_PATH)/deps/include/rga \
@@ -117,6 +119,7 @@ LOCAL_C_INCLUDES += \
 LOCAL_STATIC_LIBRARIES += android.hardware.camera.common@1.0-helper
 LOCAL_CFLAGS += -DANDROID_VERSION_ABOVE_8_X
 LOCAL_SHARED_LIBRARIES += librkaiq \
+						  libsmartIr \
 						  libdrm \
 					      librga
 LOCAL_CPPFLAGS += \

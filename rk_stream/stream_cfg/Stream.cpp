@@ -24,22 +24,11 @@ namespace RkRawStream {
 const int RkPollThread::default_poll_timeout = 300; // ms
 
 const char*
-RKStream::poll_type_to_str[ISP_POLL_POST_MAX] =
+RKStream::poll_type_to_str[RKRAWSTREAM_POLL_TYPE_MAX] =
 {
-    "luma_poll",
-    "isp_3a_stats_poll",
-    "isp_param_poll",
-    "ispp_fec_param_poll",
-    "ispp_tnr_param_poll",
-    "ispp_nr_param_poll",
-    "ispp_tnr_stats_poll",
-    "ispp_nr_stats_poll",
-    "isp_sof_poll",
-    "isp_tx_poll",
-    "isp_rx_poll",
-    "isp_sp_poll",
-    "isp_pdaf_poll",
-    "isp_stream_sync_poll",
+    "rkrawstream_poll_vicap",
+    "rkrawstream_poll_readback",
+    "rkrawstream_poll_isp",
 };
 
 RkPollThread::RkPollThread (const char* thName, int type, SmartPtr<V4l2Device> dev, RKStream *stream)
@@ -53,7 +42,7 @@ RkPollThread::RkPollThread (const char* thName, int type, SmartPtr<V4l2Device> d
     _poll_stop_fd[0] =  -1;
     _poll_stop_fd[1] =  -1;
 
-    LOGD_RKSTREAM ("RkPollThread constructed");
+    LOGD_RKSTREAM ("RkPollThread [%s] constructed", get_name());
 }
 
 RkPollThread::RkPollThread (const char* thName, int type, SmartPtr<V4l2SubDevice> dev, RKStream *stream)
@@ -68,13 +57,13 @@ RkPollThread::RkPollThread (const char* thName, int type, SmartPtr<V4l2SubDevice
     _poll_stop_fd[0] =  -1;
     _poll_stop_fd[1] =  -1;
 
-    LOGD_RKSTREAM ("RkPollThread constructed");
+    LOGD_RKSTREAM ("RkPollThread [%s] constructed", get_name());
 }
 
 RkPollThread::~RkPollThread ()
 {
     stop();
-    LOGD_RKSTREAM ("~RkPollThread destructed");
+    LOGD_RKSTREAM ("~RkPollThread [%s] destructed", get_name());
 }
 
 void RkPollThread::destroy_stop_fds () {
@@ -131,8 +120,6 @@ XCamReturn RkPollThread::start ()
 
 XCamReturn RkPollThread::stop ()
 {
-    LOGD_RKSTREAM ("RkPollThread %s:%s stop", get_name(),
-                   _dev.ptr() ? _dev->get_device_name() : _subdev->get_device_name());
     if (_poll_stop_fd[1] != -1) {
         char buf = 0xf;  // random value to write to flush fd.
         unsigned int size = write(_poll_stop_fd[1], &buf, sizeof(char));
@@ -141,7 +128,7 @@ XCamReturn RkPollThread::stop ()
     }
     Thread::stop();
     destroy_stop_fds ();
-    LOGD_RKSTREAM ("stop done");
+    LOGD_RKSTREAM ("RkPollThread stop done");
     return XCAM_RETURN_NO_ERROR;
 }
 
@@ -171,35 +158,32 @@ RkPollThread::poll_buffer_loop ()
     }
 
     if (poll_ret < 0 && (errno == EAGAIN || errno == EINTR)) {
-        LOGD_RKSTREAM("poll buffer event got interrupt(0x%x), continue\n",
+        LOGW_RKSTREAM("poll buffer event got interrupt(0x%x), continue\n",
                        poll_ret);
         return XCAM_RETURN_ERROR_TIMEOUT;
     } else if (poll_ret < 0) {
-        LOGD_RKSTREAM("poll buffer event got error(0x%x) exit\n", poll_ret);
+        LOGW_RKSTREAM("%s poll buffer event got error(0x%x) exit\n",
+                       XCAM_STR(_dev->get_device_name()), poll_ret);
         return XCAM_RETURN_ERROR_UNKNOWN;
     } else if (poll_ret == 0) {
-        LOGD_RKSTREAM("poll buffer event timeout(0x%x), continue\n",
-                       poll_ret);
+        LOGW_RKSTREAM("%s poll buffer event timeout(0x%x), continue\n",
+                       XCAM_STR(_dev->get_device_name()), poll_ret);
         return XCAM_RETURN_ERROR_TIMEOUT;
     }
 
     ret = _dev->dequeue_buffer (buf);
     if (ret != XCAM_RETURN_NO_ERROR) {
-        LOGW_RKSTREAM ("dequeue buffer failed");
+        LOGW_RKSTREAM ("%s: dequeue buffer failed",XCAM_STR(_dev->get_device_name()));
         return ret;
     }
     if (_dev_type == ISP_POLL_TX){
-         LOGI_RKSTREAM ("dequeue buffer ok, seq %d", buf->get_buf().sequence);
+         LOGD_RKSTREAM ("%s: dequeue buffer ok, seq %d", XCAM_STR(_dev->get_device_name()), buf->get_buf().sequence);
     }
     XCAM_ASSERT (buf.ptr());
 
-    if (_dev_type == ISP_POLL_TX || _dev_type == ISP_POLL_RX) {
-        SmartPtr<V4l2BufferProxy> buf_proxy = _stream->new_v4l2proxy_buffer(buf, _dev);
-        if (_poll_callback && buf_proxy.ptr())
-            _poll_callback->poll_buffer_ready (buf_proxy, ((RKRawStream*)_stream)->_dev_index);
-    } else {
-		LOGW_RKSTREAM ("type not support failed");
-    }
+    SmartPtr<V4l2BufferProxy> buf_proxy = _stream->new_v4l2proxy_buffer(buf, _dev);
+    if (_poll_callback && buf_proxy.ptr())
+        _poll_callback->poll_buffer_ready (buf_proxy, ((RKRawStream*)_stream)->_dev_index);
 
     return ret;
 }
@@ -207,19 +191,19 @@ RkPollThread::poll_buffer_loop ()
 RkEventPollThread::RkEventPollThread (const char* thName, int type, SmartPtr<V4l2Device> dev, RKStream *stream)
     :RkPollThread(thName, type, dev, stream)
 {
-    LOGD_RKSTREAM ("RkEventPollThread constructed");
+    LOGD_RKSTREAM ("RkEventPollThread  [%s] constructed", get_name());
 }
 
 RkEventPollThread::RkEventPollThread (const char* thName, int type, SmartPtr<V4l2SubDevice> subdev, RKStream *stream)
     :RkPollThread(thName, type, subdev, stream)
 {
-    LOGD_RKSTREAM ("RkEventPollThread constructed");
+    LOGD_RKSTREAM ("RkEventPollThread  [%s] constructed", get_name());
 }
 
 RkEventPollThread::~RkEventPollThread ()
 {
     stop();
-    LOGD_RKSTREAM ("~RkEventPollThread destructed");
+    LOGD_RKSTREAM ("~RkEventPollThread [%s] destructed", get_name());
 }
 
 XCamReturn
@@ -272,7 +256,6 @@ RKStream::RKStream (SmartPtr<V4l2Device> dev, int type)
     ,_dev_prepared(false)
 {
     _poll_thread = new RkPollThread(RKStream::poll_type_to_str[type], type, dev, this);
-    LOGD_RKSTREAM ("RKStream constructed");
 }
 
 RKStream::RKStream (SmartPtr<V4l2SubDevice> dev, int type)
@@ -281,7 +264,6 @@ RKStream::RKStream (SmartPtr<V4l2SubDevice> dev, int type)
     ,_dev_prepared(false)
 {
     _poll_thread = new RkEventPollThread(RKStream::poll_type_to_str[type], type, dev, this);
-    LOGD_RKSTREAM ("RKStream constructed");
 }
 
 RKStream::RKStream (const char *path, int type)
@@ -290,20 +272,20 @@ RKStream::RKStream (const char *path, int type)
 {
     _dev = new V4l2Device(path);
     _poll_thread = new RkPollThread(RKStream::poll_type_to_str[type], type, _dev, this);
-    LOGD_RKSTREAM ("RKStream constructed");
 }
 
 RKStream::~RKStream()
 {
-    LOGD_RKSTREAM ("~RKStream destructed");
 }
 
-void
+XCamReturn
 RKStream::start()
 {
+    XCamReturn ret;
     if (!_dev->is_activated())
-        _dev->start(_dev_prepared);
+        ret = _dev->start(_dev_prepared);
     _poll_thread->start();
+    return ret;
 }
 
 void
@@ -400,12 +382,10 @@ RKRawStream::RKRawStream (SmartPtr<V4l2Device> dev, int index, int type)
     :RKStream(dev, type)
     ,_dev_index(index)
 {
-    LOGD_RKSTREAM ("RKRawStream constructed");
 }
 
 RKRawStream::~RKRawStream()
 {
-    LOGD_RKSTREAM ("~RKRawStream destructed");
 }
 
 SmartPtr<V4l2BufferProxy>

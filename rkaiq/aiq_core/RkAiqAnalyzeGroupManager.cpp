@@ -30,6 +30,7 @@ RkAiqAnalyzerGroup::RkAiqAnalyzerGroup(RkAiqCore* aiqCore, enum rk_aiq_core_anal
                                        const bool singleThrd)
     : mAiqCore(aiqCore), mGroupType(type), mDepsFlag(flag) {
     mUserSetDelayCnts = INT8_MAX;
+    mAwakenId         = (uint32_t)-1;
     if (grpConds)
         mGrpConds = *grpConds;
     if (!singleThrd) {
@@ -117,6 +118,12 @@ void RkAiqAnalyzerGroup::setVicapScaleFlag(bool mode) {
     mVicapScaleStart = mode;
 }
 
+void RkAiqAnalyzerGroup::awakenClean(uint32_t sequence) {
+    stop();
+    mAwakenId = sequence;
+    start();
+}
+
 bool RkAiqAnalyzerGroup::msgHandle(RkAiqCoreVdBufMsg* msg) {
     if (!((1ULL << msg->msg_id) & mDepsFlag)) {
         return true;
@@ -124,8 +131,9 @@ bool RkAiqAnalyzerGroup::msgHandle(RkAiqCoreVdBufMsg* msg) {
 
     XCamMessageType  msg_id = msg->msg_id;
     uint32_t delayCnt = getMsgDelayCnt(msg_id);
-    if (msg->frame_id == 0 && getAiqCore()->getTbInfo()->is_pre_aiq) {
-        delayCnt = 0;
+    if (getAiqCore()->getTbInfo()->prd_type != RK_AIQ_PRD_TYPE_NORMAL) {
+        if (msg->frame_id == mAwakenId)
+            delayCnt = 0;
     }
     uint32_t userId = msg->frame_id + delayCnt;
     GroupMessage& msgWrapper = mGroupMsgMap[userId];

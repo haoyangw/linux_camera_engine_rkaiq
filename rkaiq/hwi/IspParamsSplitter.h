@@ -43,15 +43,22 @@ public:
     IspParamsSplitter& SetPicInfo(IspParamsSplitter::Rectangle&& pic_rect);
     IspParamsSplitter& SetLeftIspRect(IspParamsSplitter::Rectangle&& left_isp_rect);
     IspParamsSplitter& SetRightIspRect(IspParamsSplitter::Rectangle&& right_isp_rect);
+    IspParamsSplitter& SetBottomLeftIspRect(IspParamsSplitter::Rectangle&& bottom_left_isp_rect);
+    IspParamsSplitter& SetBottomRightIspRect(IspParamsSplitter::Rectangle&& bottom_right_isp_rect);
     IspParamsSplitter& SetPicInfo(IspParamsSplitter::Rectangle& pic_rect);
     IspParamsSplitter& SetLeftIspRect(IspParamsSplitter::Rectangle& left_isp_rect);
     IspParamsSplitter& SetRightIspRect(IspParamsSplitter::Rectangle& right_isp_rect);
+    IspParamsSplitter& SetBottomLeftIspRect(IspParamsSplitter::Rectangle& bottom_left_isp_rect);
+    IspParamsSplitter& SetBottomRightIspRect(IspParamsSplitter::Rectangle& bottom_right_isp_rect);
     const IspParamsSplitter::Rectangle& GetPicInfo() const;
     const IspParamsSplitter::Rectangle& GetLeftIspRect() const;
     const IspParamsSplitter::Rectangle& GetRightIspRect() const;
 
     template <typename U>
     XCamReturn SplitIspParams(U* orig_isp_params, U* isp_params);
+
+    template <typename U>
+    XCamReturn SplitIspParamsVertical(U* orig_isp_params, U* isp_params);
 
 private:
     //ae
@@ -66,24 +73,47 @@ private:
     template <typename U>
     XCamReturn SplitRawAeBigParams(U* ori, U* left, U* right);
 
+    template <typename U>
+    XCamReturn SplitAecParamsVertical(U* ori, U* left, U* right);
+    template <typename U>
+    XCamReturn SplitRawHistLiteParamsVertical(U* ori, U* left, U* right);
+    template <typename U>
+    XCamReturn SplitRawHistBigParamsVertical(U* ori, U* left, U* right);
+    template <typename U>
+    XCamReturn SplitRawAeLiteParamsVertical(U* ori, U* left, U* right);
+    template <typename U>
+    XCamReturn SplitRawAeBigParamsVertical(U* ori, U* left, U* right);
+
     //awb
     template <typename U>
+    XCamReturn SplitAwbParamsVertical(U* ori, U* left, U* right);
+
+    template <typename U>
     XCamReturn SplitAwbParams(U* ori, U* left, U* right);
+
     template <typename U>
     XCamReturn SplitAfParams(U* ori, U* left, U* right);
     // LSC
     template <typename U>
     XCamReturn SplitAlscParams(U* ori, U* left, U* right);
+    template <typename U>
+    XCamReturn SplitAlscParamsVertical(U* ori, U* left, U* right);
     // ynr
     template <typename U>
     XCamReturn SplitAynrParams(U* ori, U* left, U* right);
+    template <typename U>
+    XCamReturn SplitAynrParamsVertical(U* ori, U* left, U* right);
     // sharp
     template <typename U>
     XCamReturn SplitAsharpParams(U* ori, U* left, U* right);
+    template <typename U>
+    XCamReturn SplitAsharpParamsVertical(U* ori, U* left, U* right);
 
     Rectangle pic_rect_;
     Rectangle left_isp_rect_;
     Rectangle right_isp_rect_;
+    Rectangle bottom_left_isp_rect_;
+    Rectangle bottom_right_isp_rect_;
 };
 
 }  // namespace RkCam

@@ -54,6 +54,7 @@ public:
             SmartPtr<RkAiqAdehazeStatsProxy>& to);
 #endif
 #if RKAIQ_HAVE_PDAF
+    bool getFileValue(const char* path, int* pos);
     virtual XCamReturn translatePdafStats(const SmartPtr<VideoBuffer>& from,
                                           SmartPtr<RkAiqPdafStatsProxy>& to, bool sns_mirror);
 #endif
@@ -83,6 +84,11 @@ protected:
         unsigned char LiteWeight[RAWHISTLITE_WIN_NUM];
     } aeAlgoStatsCfg_t;
     aeAlgoStatsCfg_t _aeAlgoStatsCfg;
+
+#if RKAIQ_HAVE_PDAF
+    int mPdafDumpCnt;
+    bool mEnPdDump;
+#endif
 private:
     XCAM_DEAD_COPY (RkAiqResourceTranslator);
 };

@@ -137,6 +137,10 @@ typedef struct rk_aiq_singlecam_3a_result_s {
             RK_GAIN_Fix_V2_t*  _again_procRes_v2;
         };
     } again;
+
+    //otp info
+    struct rkmodule_awb_inf _otp_awb;
+    struct rkmodule_lsc_inf *_otp_lsc;
 } rk_aiq_singlecam_3a_result_t;
 
 // for create_contex

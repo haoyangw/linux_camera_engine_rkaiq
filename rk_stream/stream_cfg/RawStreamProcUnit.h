@@ -21,20 +21,12 @@
 #include "xcam_mutex.h"
 #include "Stream.h"
 #include "rk_aiq_offline_raw.h"
-#include "rk_vi_user_api2_stream_cfg.h"
+#include "rkrawstream_user_api.h"
 #include <map>
 
 using namespace XCam;
 
 namespace RkRawStream {
-
-typedef void (*isp_trigger_readback_callback)(void *tg);
-
-#ifndef ANDROID_OS
-typedef void (*user_isp_process_done_callback)(int dev_index);
-#else
-typedef std::function<void(int dev_index)> user_isp_process_done_callback;
-#endif
 
 int _parse_rk_rawdata(void *rawdata, rkrawstream_rkraw2_t *rkraw2);
 
@@ -45,11 +37,12 @@ class RawProcThread;
 class SimpleFdBuf
 {
     public:
-    int _fd{-1};
-    int _index{-1};
-    int _seq{-1};
-    uint64_t _ts{0};
-    uint8_t *_userptr{NULL};
+    int _fd;
+    int _index;
+    int _seq;
+    uint64_t _ts;
+    uint32_t _size;
+    uint8_t *_userptr;
 	    SimpleFdBuf(int fd, int index) {_fd = fd; _index = index;}
         SimpleFdBuf() {_fd = 0; _userptr = NULL;}
 	//    ~EmptyClass() {}
@@ -63,10 +56,10 @@ public:
     virtual ~RawStreamProcUnit ();
     virtual XCamReturn start        ();
     virtual XCamReturn stop         ();
-	XCamReturn prepare(int idx, uint8_t buf_memory_type, uint8_t buf_cnt);
+	XCamReturn prepare(uint8_t buf_memory_type, uint8_t buf_cnt);
 	void set_working_mode           (int mode);
     void set_rx_format(uint32_t width, uint32_t height, uint32_t pix_fmt, int mode);
-    void setup_pipeline_fmt(uint32_t width, uint32_t height);
+    void setup_pipeline_fmt(uint32_t width, uint32_t height, uint32_t pixfmt);
     void set_rx_devices();
     SmartPtr<V4l2Device> _mipi_rx_devs[3];
 	/*
@@ -106,7 +99,8 @@ public:
     void setCamPhyId(int phyId) {
         mCamPhyId = phyId;
     }
-	user_isp_process_done_callback user_isp_process_done_cb;
+	rkrawstream_readback_cb_t user_isp_process_done_cb;
+    void *user_priv_data;
 	/*
     XCamReturn capture_raw_ctl(capture_raw_t type, int count = 0, const char* capture_dir = nullptr, char* output_dir = nullptr) {
         if (!_rawCap)
@@ -121,11 +115,6 @@ public:
     }
 	*/
 
-	//isp_trigger_readback_callback isp_trigger_readback_cb;
-    //void set_isp_trigger_readback_callback(isp_trigger_readback_callback cb) {
-	//	isp_trigger_readback_cb = cb;
-    //}
-	//SmartPtr<V4l2Device> _return_dev[3];
 protected:
     XCAM_DEAD_COPY (RawStreamProcUnit);
 
@@ -163,14 +152,15 @@ protected:
     SafeList<EmptyClass> _msg_queue;
     PollCallback* _PollCallback;
     enum v4l2_memory _memory_type;
+    int _buffer_count;
 
     int _offline_index;
     int _offline_seq;
     //CaptureRawData* _rawCap;
     bool is_multi_isp_mode;
     uint8_t _is_offline_mode;
-    int _width;
-    int _height;
+    int _raw_width;
+    int _raw_height;
     uint8_t *_rawbuffer[3];
 
 };

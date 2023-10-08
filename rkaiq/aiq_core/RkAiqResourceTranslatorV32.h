@@ -53,6 +53,13 @@ class RkAiqResourceTranslatorV32 : public RkAiqResourceTranslatorV3x {
                                              SmartPtr<RkAiqAdehazeStatsProxy>& to);
 #endif
 
+#if defined(RKAIQ_HAVE_MULTIISP) && defined(ISP_HW_V32_LITE)
+    XCamReturn translateMultiAecStatsV32Lite(const SmartPtr<VideoBuffer>& from,
+                                             SmartPtr<RkAiqAecStatsProxy>& to);
+    XCamReturn translateMultiAwbStatsV32Lite(const SmartPtr<VideoBuffer>& from,
+        SmartPtr<RkAiqAwbStatsProxy>& to);
+#endif
+
  private:
     XCAM_DEAD_COPY(RkAiqResourceTranslatorV32);
 

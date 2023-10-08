@@ -409,8 +409,133 @@ void rk_aiq_uapi2_sysctl_setIspParamsDelayCnts(const rk_aiq_sys_ctx_t* sys_ctx, 
     sys_ctx->_analyzer->setDelayCnts(delay_cnts);
 }
 
-void rk_aiq_uapi2_sysctl_setUserSensorFormat(rk_aiq_sys_ctx_t* sys_ctx, uint16_t width, uint16_t height,
-                                                 uint16_t code)
+XCamReturn
+rk_aiq_uapi2_sysctl_preInit_rkrawstream_info(const char* sns_ent_name,
+                           const rk_aiq_rkrawstream_info_t* info)
 {
-    sys_ctx->_camHw->setUserSensorFormat(width, height, code);
+    return rk_aiq_uapi_sysctl_preInit_rkrawtream_info(sns_ent_name, info);
+}
+
+void rk_aiq_uapi2_sysctl_pause(rk_aiq_sys_ctx_t* sys_ctx)
+{
+    sys_ctx->_rkAiqManager->setVicapStreamMode(0);
+}
+
+void rk_aiq_uapi2_sysctl_resume(rk_aiq_sys_ctx_t* sys_ctx)
+{
+    sys_ctx->_rkAiqManager->setVicapStreamMode(1);
+}
+
+XCamReturn
+rk_aiq_uapi2_sysctl_getAinrParams(const rk_aiq_sys_ctx_t* sys_ctx, rk_ainr_param* para)
+{
+
+    if (!sys_ctx) {
+        LOGE("%s: sys_ctx is invalied\n", __func__);
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+
+    Uapi_ExpQueryInfo_t pExpResInfo;
+    rk_aiq_working_mode_t mode;
+    float dynamicAiBypass = 0;
+
+    rk_aiq_user_api2_ae_queryExpResInfo(sys_ctx, &pExpResInfo);
+    rk_aiq_uapi2_sysctl_getWorkingMode(sys_ctx, &mode);
+
+    if (mode == RK_AIQ_WORKING_MODE_NORMAL) {
+        para->gain = pExpResInfo.LinAeInfo.LinearExp.analog_gain *
+                     pExpResInfo.LinAeInfo.LinearExp.isp_dgain;
+        para->RawMeanluma = pExpResInfo.LinAeInfo.MeanLuma;
+    } else if (mode == RK_AIQ_WORKING_MODE_ISP_HDR2) {
+        para->gain = pExpResInfo.HdrAeInfo.HdrExp[0].analog_gain *
+                     pExpResInfo.HdrAeInfo.HdrExp[0].isp_dgain;
+        para->RawMeanluma = pExpResInfo.HdrAeInfo.Frm0Luma;
+    } else {
+        para->gain = pExpResInfo.HdrAeInfo.HdrExp[1].analog_gain *
+                     pExpResInfo.HdrAeInfo.HdrExp[1].isp_dgain;
+        para->RawMeanluma = pExpResInfo.HdrAeInfo.Frm1Luma;
+    }
+
+    CamCalibDbV2Context_t* aiqCalib;
+    aiqCalib = sys_ctx->_rkAiqManager->getCurrentCalibDBV2();
+    CalibDbV2_PostIspV1_t *ainr = (CalibDbV2_PostIspV1_t*)(CALIBDBV2_GET_MODULE_PTR((void*)aiqCalib, ainr_v1));
+
+    if (!ainr) {
+        LOGE("%s: could not get ainr calib \n", __func__);
+        return XCAM_RETURN_ERROR_FAILED;
+    }
+
+    para->gain_tab_len = ainr->TuningPara.gain_tab_len;
+    para->gain_max = ainr->TuningPara.gain_max;
+    para->tuning_visual_flag = ainr->TuningPara.tuning_visual_flag;
+
+    for (int i = 0; i < RK_AINR_LUMA_LEN; i++) {
+        para->luma_curve_tab[i] = ainr->TuningPara.luma_point[i];
+    }
+
+    for (int i = 0; i < ainr->TuningPara.Tuning_ISO_len; i++) {
+        para->gain_tab[i] = ainr->TuningPara.Tuning_ISO[i].gain;
+        para->sigma_tab[i] = ainr->TuningPara.Tuning_ISO[i].sigma;
+        para->shade_tab[i] = ainr->TuningPara.Tuning_ISO[i].shade;
+        para->sharp_tab[i] = ainr->TuningPara.Tuning_ISO[i].sharp;
+        para->min_luma_tab[i] = ainr->TuningPara.Tuning_ISO[i].min_luma;
+        para->sat_scale_tab[i] = ainr->TuningPara.Tuning_ISO[i].sat_scale;
+        para->dark_contrast_tab[i] = ainr->TuningPara.Tuning_ISO[i].dark_contrast;
+        para->ai_ratio_tab[i] = ainr->TuningPara.Tuning_ISO[i].ai_ratio;
+        para->mot_thresh_tab[i] = ainr->TuningPara.Tuning_ISO[i].mot_thresh;
+        para->static_thresh_tab[i] = ainr->TuningPara.Tuning_ISO[i].static_thresh;
+        para->mot_nr_stren_tab [i] = ainr->TuningPara.Tuning_ISO[i].mot_nr_stren;
+        for (int j = 0; j < RK_AINR_LUMA_LEN; j++) {
+            para->sigma_curve_tab[j][i] = ainr->TuningPara.Tuning_ISO[i].luma_sigma[j];
+        }
+    }
+
+    LOGD("getAinrParams test for ainr params set: en=%d tuning_visual_flag: %d"
+             "gain_tab_len:%d, gain_max:%d cur_gain:%f raw mean:%f, yuv mean:%f \n",
+              para->enable, para->tuning_visual_flag, para->gain_tab_len,
+              para->gain_max, para->gain, para->RawMeanluma, para->YuvMeanluma);
+
+    for (int i =0; i < ainr->TuningPara.Tuning_ISO_len; i++) {
+        LOGD("gain_tab[%d]: %f, sigam[%d]: %f, shade[%d]: %f, sharp[%d]: %f, min_luma[%d]:%f, sat_scale[%d]:%f"
+             ", dark_contrast[%d]:%f, ai_ratio[%d]:%f, mot_thresh[%d]: %f, static_thresh[%d]: %f, mot_nr_stren[%d]: %f \n",
+                i, para->gain_tab[i], i, para->sigma_tab[i], i, para->shade_tab[i], i, para->sharp_tab[i], i, para->min_luma_tab[i],
+                i, para->sat_scale_tab[i], i, para->dark_contrast_tab[i], i, para->ai_ratio_tab[i], i, para->mot_thresh_tab[i],
+                i, para->static_thresh_tab[i], i, para->mot_nr_stren_tab [i]);
+    }
+
+    if (para->gain > ainr->TuningPara.dynamicSw[1])
+        dynamicAiBypass =  ainr->TuningPara.dynamicSw[0];
+    else if (para->gain <  ainr->TuningPara.dynamicSw[0])
+        dynamicAiBypass =  ainr->TuningPara.dynamicSw[1];
+    else if (sys_ctx->_rkAiqManager->ainr_status)
+        dynamicAiBypass =  ainr->TuningPara.dynamicSw[0];
+    else
+        dynamicAiBypass =  ainr->TuningPara.dynamicSw[1];
+
+    LOGD("ainr bypass switch %f", dynamicAiBypass);
+
+    if (para->gain > dynamicAiBypass){
+        para->enable = true;
+        LOGD("AINR on\n");
+    } else if (para->gain < dynamicAiBypass){
+        para->enable = false;
+        LOGD("AINR off\n");
+    }
+
+    para->enable &= ainr->TuningPara.enable;
+    sys_ctx->_rkAiqManager->ainr_status = para->enable;
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn rk_aiq_uapi2_sysctl_setUserOtpInfo(rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_user_otp_info_t otp_info)
+{
+    if (!sys_ctx)
+        return XCAM_RETURN_ERROR_PARAM;
+
+    if (sys_ctx->cam_type != RK_AIQ_CAM_TYPE_SINGLE) {
+        LOGE("cam_type: %d, only supported in single camera mode", sys_ctx->cam_type);
+    }
+
+    return sys_ctx->_analyzer->setUserOtpInfo(otp_info);
 }

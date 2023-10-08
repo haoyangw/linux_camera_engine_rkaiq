@@ -101,7 +101,7 @@ typedef struct rkisp_effect_params_s {
 #elif defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
 typedef struct rkisp_effect_params_s {
 #if defined(RKAIQ_HAVE_MULTIISP)
-    struct isp32_isp_params_cfg isp_params_v32[2];
+    struct isp32_isp_params_cfg isp_params_v32[4];
 #endif
     struct isp32_isp_meas_cfg meas;
     struct isp32_bls_cfg bls_cfg;

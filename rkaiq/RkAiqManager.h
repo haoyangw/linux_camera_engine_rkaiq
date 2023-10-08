@@ -199,6 +199,7 @@ public:
     CamCalibDbV2Context_t* getCurrentCalibDBV2(void);
     XCamReturn calibTuning(CamCalibDbV2Context_t* aiqCalib,
                            ModuleNameList& change_list);
+    void setVicapStreamMode(int on);
 #ifdef RKAIQ_ENABLE_CAMGROUP
     void setCamGroupManager(RkAiqCamGroupManager* cam_group_manager, bool isMain) {
         mCamGroupCoreManager = cam_group_manager;
@@ -210,6 +211,8 @@ public:
     }
     uint32_t sensor_output_width;
     uint32_t sensor_output_height;
+    // post aiisp status
+    bool ainr_status;
 protected:
     XCamReturn applyAnalyzerResult(SmartPtr<RkAiqFullParamsProxy>& results, bool ignoreIsUpdate = false);
     XCamReturn swWorkingModeDyn(rk_aiq_working_mode_t mode);
@@ -257,6 +260,7 @@ private:
 #endif
     bool mIsMain;
     int mTBStatsCnt {0};
+    uint32_t mLastAweekId{(uint32_t)-1};
 };
 
 } //namespace RkCam

@@ -22,13 +22,14 @@ mkdir -p $OUTPUT
 pushd $OUTPUT
 
 cmake -G "Ninja" \
-    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo\
     -DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_FILE \
     -DCMAKE_SKIP_RPATH=TRUE \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=YES \
     -DAIQ_DIR=${aiq_dir} \
     -DRKAIQ_TARGET_SOC=${RKAIQ_TARGET_SOC} \
     -DARCH=${AIQ_BUILD_ARCH} \
+    -DRKRAWSTREAM_DEMO=ON \
     $SOURCE_PATH \
 && ninja -j$(nproc)
 

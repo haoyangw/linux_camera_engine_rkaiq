@@ -731,10 +731,20 @@
  *   main page.
  * v5.0x3.0
  * - update kernel headers to match the ISP version v2.3.0
+ * v5.0x4.0
+ * - update kernel headers to match the ISP version v2.4.0
+ * - support single frame mode 
+ * - optimize TB procedure
+ * - support j2s4b on device
+ * - support AI nr
+ * - support 8k for rk3562
+ * - fix bugs:
+ *   - fix ae is not running for 3562 
+ *   - fix drc longframeMode error
  */
 
-#define RK_AIQ_VERSION_REAL_V "v5.0x3.0"
-#define RK_AIQ_RELEASE_DATE "2023-09-7"
+#define RK_AIQ_VERSION_REAL_V "v5.0x4.0"
+#define RK_AIQ_RELEASE_DATE "2023-10-07"
 
 /******* DO NOT EDIT THE FOLLOWINGS ***********/
 

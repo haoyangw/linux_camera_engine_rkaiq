@@ -393,13 +393,13 @@ typedef struct Aec_uapi_advanced_attr_s {
 typedef enum AecHwVersion_e
 {
     /*
-    | AEC HW   | RawAE big1 | RawAE lite | RawAE big2 | RawAE big3 | YUVAE | HDR FRAME  | E.G.            |
-    |----------|------------|------------|------------|------------|-------|------------|-----------------|
-    | V20      | Y          | Y          | Y          | Y          | Y     | 3          | RV1126/RV1109   |
-    | V21      | Y          | Y          | Y          | N          | N     | 2          | RK356X          |
-    | V30      | Y          | Y          | Y          | Y          | N     | 3          | RK3588          |
-    | V32      | Y          | Y          | Y          | N          | N     | 2          | RV1106/RV1103   |
-    | V32_LITE | Y          | Y          | N          | N          | N     | 2          | RK3562          |
+    | AEC HW   | RawAE0 | RawAE1 | RawAE2 | RawAE3 | YUVAE | HDR FRAME | Share with AF               | E.G.          |
+    |----------|--------|--------|--------|--------|-------|-----------|-----------------------------|---------------|
+    | V20      | lite   | big    | big    | big    | Y     | 3         | -                           | RV1126/RV1109 |
+    | V21      | lite   | big    | -      | big    | -     | 2         | -                           | RK356X        |
+    | V30      | lite   | big    | big    | big    | -     | 3         | RawAE3                      | RK3588        |
+    | V32      | lite   | big    | -      | big    | -     | 2         | RawAE3                      | RV1106/RV1103 |
+    | V32_LITE | lite   | -      | -      | big    | -     | 2         | RawAE0/3, 3A specify RawAE0 | RK3562        |
     */
     AEC_HARDWARE_V20   = 0,
     AEC_HARDWARE_V21   = 1,

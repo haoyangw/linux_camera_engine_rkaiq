@@ -23,11 +23,12 @@
 #include "isp20/rkispp-config.h"
 #include "RkAiqResourceTranslator.h"
 #include "PdafStreamProcUnit.h"
-#ifdef PDAF_RAW_DUMP
 #include <fcntl.h>
 #include <unistd.h>
-#include <arpa/inet.h>
+#ifdef ANDROID_OS
+#include <cutils/properties.h>
 #endif
+
 #ifdef __ARM_NEON
 #define NEON_OPT
 #endif
@@ -750,6 +751,32 @@ RkAiqResourceTranslator::translateAfStats (const SmartPtr<VideoBuffer> &from, Sm
 }
 
 #if RKAIQ_HAVE_PDAF
+bool RkAiqResourceTranslator::getFileValue(const char* path, int* pos) {
+    const char* delim = " ";
+    char buffer[16]   = {0};
+    int fp;
+
+    fp = open(path, O_RDONLY | O_SYNC);
+    if (fp != -1) {
+        if (read(fp, buffer, sizeof(buffer)) <= 0) {
+            LOGE_AF("%s read %s failed!", __func__, path);
+            goto OUT;
+        } else {
+            char* p = nullptr;
+
+            p = strtok(buffer, delim);
+            if (p != nullptr) {
+                *pos = atoi(p);
+            }
+        }
+        close(fp);
+        return true;
+    }
+
+OUT:
+    return false;
+}
+
 XCamReturn
 RkAiqResourceTranslator::translatePdafStats (const SmartPtr<VideoBuffer> &from, SmartPtr<RkAiqPdafStatsProxy> &to, bool sns_mirror)
 {
@@ -769,6 +796,8 @@ RkAiqResourceTranslator::translatePdafStats (const SmartPtr<VideoBuffer> &from, 
     uint32_t i, j, pixelperline;
     unsigned short pdWidth;
     unsigned short pdHeight;
+    bool dumppdraw = false;
+    uint32_t frame_id;
 
     pdLData = statsInt->pdaf_stats.pdLData;
     pdRData = statsInt->pdaf_stats.pdRData;
@@ -781,16 +810,20 @@ RkAiqResourceTranslator::translatePdafStats (const SmartPtr<VideoBuffer> &from, 
     {
         FILE* fp;
         char name[64];
-        uint32_t frame_id = buf->get_sequence() % 10;
+        frame_id = buf->get_sequence() % 10;
 
         ALOGD("@%s: pdWidthxpdHeight: %dx%d !\n", __FUNCTION__, pdaf->pdWidth, pdaf->pdHeight);
         memset(name, 0, sizeof(name));
         if (frame_id < 3) {
             sprintf(name, DEFAULT_PD_RAW_PATH, frame_id);
             fp = fopen(name, "wb");
-            fwrite(pdData, pdaf->pdWidth * pdaf->pdHeight, 2, fp);
-            fflush(fp);
-            fclose(fp);
+            if (fp) {
+                fwrite(pdData, pdaf->pdWidth * pdaf->pdHeight, 2, fp);
+                fflush(fp);
+                fclose(fp);
+            } else {
+                LOGE_AF("%s: can not write to %s file", __func__, name);
+            }
         }
     }
 #endif
@@ -846,28 +879,74 @@ RkAiqResourceTranslator::translatePdafStats (const SmartPtr<VideoBuffer> &from, 
     }
 
 #ifdef PDAF_RAW_DUMP
-    {
+    frame_id = buf->get_sequence() % 10;
+
+    if (frame_id < 3) {
+        dumppdraw = true;
+    }
+#endif
+
+    mEnPdDump = false;
+#ifndef ANDROID_OS
+    char* valueStr = getenv("rkaiq_pddump");
+    if (valueStr) {
+        mEnPdDump = atoi(valueStr) > 0 ? true : false;
+    }
+#else
+    char property_value[PROPERTY_VALUE_MAX] = {'\0'};
+
+    property_get("persist.vendor.rkaiq_pddump", property_value, "-1");
+    int val = atoi(property_value);
+    if (val != -1)
+        mEnPdDump = atoi(property_value) > 0 ? true : false;
+#endif
+
+    if (mEnPdDump) {
+        int dump_cnt = 0;
+        if (getFileValue("/data/.dump_pd", &dump_cnt) == true) {
+            if (dump_cnt > 0) {
+                mPdafDumpCnt = dump_cnt;
+                system("echo 0 > /data/.dump_pd");
+            }
+        } else {
+            mPdafDumpCnt = 0;
+        }
+
+        if (mPdafDumpCnt > 0) {
+            frame_id = buf->get_sequence();
+
+            LOGI_AF("%s: dump pd raw, mPdafDumpCnt %d, frame_id %d", __func__, mPdafDumpCnt, frame_id);
+            mPdafDumpCnt--;
+            dumppdraw = true;
+        }
+    }
+
+    if (dumppdraw) {
         FILE* fp;
         char name[64];
-        int frame_id = buf->get_sequence() % 10;
 
-        if (frame_id < 3) {
-            memset(name, 0, sizeof(name));
-            sprintf(name, DEFAULT_PD_LRAW_PATH, frame_id);
-            fp = fopen(name, "wb");
+        memset(name, 0, sizeof(name));
+        sprintf(name, DEFAULT_PD_LRAW_PATH, frame_id);
+        fp = fopen(name, "wb");
+        if (fp) {
             fwrite(statsInt->pdaf_stats.pdLData, pdWidth * pdHeight, 2, fp);
             fflush(fp);
             fclose(fp);
+        } else {
+            LOGE_AF("%s: can not write to %s file", __func__, name);
+        }
 
-            memset(name, 0, sizeof(name));
-            sprintf(name, DEFAULT_PD_RRAW_PATH, frame_id);
-            fp = fopen(name, "wb");
+        memset(name, 0, sizeof(name));
+        sprintf(name, DEFAULT_PD_RRAW_PATH, frame_id);
+        fp = fopen(name, "wb");
+        if (fp) {
             fwrite(statsInt->pdaf_stats.pdRData, pdWidth * pdHeight, 2, fp);
             fflush(fp);
             fclose(fp);
+        } else {
+            LOGE_AF("%s: can not write to %s file", __func__, name);
         }
     }
-#endif
 
     statsInt->pdaf_stats_valid = true;
     statsInt->frame_id = buf->get_sequence();

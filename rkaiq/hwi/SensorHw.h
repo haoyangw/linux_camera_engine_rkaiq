@@ -132,7 +132,8 @@ public:
     virtual XCamReturn stop();
     virtual XCamReturn set_sync_mode(uint32_t mode);
 
-    virtual XCamReturn set_offline_effecting_exp_map(uint32_t sequence, rk_aiq_frame_info_t *offline_finfo);
+    virtual XCamReturn set_effecting_exp_map(uint32_t sequence, void *exp_ptr, int mode);
+    virtual XCamReturn set_pause_flag(bool mode);
     XCAM_DEAD_COPY (SensorHw);
 protected:
     Mutex _mutex;
@@ -204,6 +205,7 @@ protected:
     int get_nr_switch(rk_aiq_sensor_nr_switch_t* nr_switch);
     XCamReturn _set_mirror_flip();
 
+    bool mPauseFlag{false};
 };
 
 } //namespace RkCam

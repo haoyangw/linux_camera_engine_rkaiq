@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 #include "sample_comm.h"
 
 #ifdef SAMPLE_SMART_IR
@@ -26,11 +25,7 @@
 #include <unistd.h>
 
 #include "rk_smart_ir_api.h"
-#include "uAPI2/rk_aiq_user_api2_ae.h"
-#include "uAPI2/rk_aiq_user_api2_awb.h"
-#include "uAPI2/rk_aiq_user_api2_sysctl.h"
-
-#define RK_SMART_IR_AUTO_IRLED true
+#define RK_SMART_IR_AUTO_IRLED false
 
 static void sample_smartIr_usage()
 {
@@ -63,6 +58,7 @@ typedef struct sample_smartIr_s {
     const char* ir_v4ldev;
     rk_smart_ir_ctx_t* ir_ctx;
     rk_smart_ir_params_t ir_configs;
+    bool camGroup;
 } sample_smartIr_t;
 
 static sample_smartIr_t g_sample_smartIr_ctx;
@@ -133,7 +129,7 @@ static void* switch_ir_thread(void* args)
     rk_smart_ir_result_t ir_res;
     rk_aiq_isp_stats_t *stats_ref = NULL;
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-
+    // auto irled
     rk_smart_ir_autoled_t auto_irled;
     memset(&auto_irled, 0, sizeof(auto_irled));
     int irled_cur_value = 100;
@@ -144,38 +140,62 @@ static void* switch_ir_thread(void* args)
         auto_irled.auto_irled_min = 10;
         auto_irled.auto_irled_max = 100;
     }
+    // cam group
+    rk_aiq_camgroup_ctx_t* camgroup_ctx = NULL;
+    rk_aiq_camgroup_camInfos_t camInfos;
+    rk_aiq_sys_ctx_t* group_ctxs[RK_AIQ_CAM_GROUP_MAX_CAMS];
+    rk_aiq_isp_stats_t* group_stats[RK_AIQ_CAM_GROUP_MAX_CAMS];
 
     while (!smartIr_ctx->tquit) {
-        ret = rk_aiq_uapi2_sysctl_get3AStatsBlk(smartIr_ctx->aiq_ctx, &stats_ref, -1);
-        if (ret == XCAM_RETURN_NO_ERROR && stats_ref != NULL) {
-            rk_smart_ir_runOnce(smartIr_ctx->ir_ctx, stats_ref, &ir_res);
 
-            rk_aiq_uapi2_sysctl_release3AStatsRef(smartIr_ctx->aiq_ctx, stats_ref);
-
-            if (RK_SMART_IR_AUTO_IRLED) {
-                rk_smart_ir_auto_irled(smartIr_ctx->ir_ctx, &auto_irled);
-                if (irled_cur_value != auto_irled.auto_irled_val) {
-                    irled_cur_value = auto_irled.auto_irled_val;
-                    // TODO: update irled pwm duty
+        if (smartIr_ctx->camGroup) {
+            camgroup_ctx = (rk_aiq_camgroup_ctx_t *)smartIr_ctx->aiq_ctx;
+            ret = rk_aiq_uapi2_camgroup_getCamInfos(camgroup_ctx, &camInfos);
+            if (ret != XCAM_RETURN_NO_ERROR) {
+                printf("ret=%d, getCamInfos fail!\n", ret);
+                break;
+            }
+            for (int i = 0; i < camInfos.valid_sns_num; i++) {
+                group_ctxs[i] = rk_aiq_uapi2_camgroup_getAiqCtxBySnsNm(camgroup_ctx, camInfos.sns_ent_nm[i]);
+                if (group_ctxs[i] == NULL) {
+                    printf("getAiqCtxBySnsNm fail!\n");
+                    break;
+                }
+                ret = rk_aiq_uapi2_sysctl_get3AStatsBlk(group_ctxs[i], &group_stats[i], -1);
+                if (ret != XCAM_RETURN_NO_ERROR || group_stats[i] == NULL) {
+                    printf("ret=%d, get3AStatsBlk fail!\n", ret);
+                    break;
                 }
             }
-
-            if (ir_res.status == RK_SMART_IR_STATUS_DAY) {
-                switch_to_day();
-            } else if (ir_res.status == RK_SMART_IR_STATUS_NIGHT) {
-                switch_to_night();
-            } else {
+            rk_smart_ir_groupRunOnce(smartIr_ctx->ir_ctx, group_stats, camInfos.valid_sns_num, &ir_res);
+            for (int i = 0; i < camInfos.valid_sns_num; i++) {
+                rk_aiq_uapi2_sysctl_release3AStatsRef(group_ctxs[i], group_stats[i]);
             }
-            printf("SAMPLE_SMART_IR: switch to %s\n", ir_res.status == RK_SMART_IR_STATUS_DAY ? "DAY" : "Night");
+
         } else {
-            if (ret == XCAM_RETURN_NO_ERROR) {
-                printf("aiq has stopped !\n");
-            } else if (ret == XCAM_RETURN_ERROR_TIMEOUT) {
-                printf("aiq timeout!\n");
-            } else if (ret == XCAM_RETURN_ERROR_FAILED) {
-                printf("aiq failed!\n");
+            ret = rk_aiq_uapi2_sysctl_get3AStatsBlk(smartIr_ctx->aiq_ctx, &stats_ref, -1);
+            if (ret != XCAM_RETURN_NO_ERROR || stats_ref == NULL) {
+                printf("ret=%d, get3AStatsBlk fail!\n", ret);
+                break;
+            }
+            rk_smart_ir_runOnce(smartIr_ctx->ir_ctx, stats_ref, &ir_res);
+            rk_aiq_uapi2_sysctl_release3AStatsRef(smartIr_ctx->aiq_ctx, stats_ref);
+        }
+
+        if (RK_SMART_IR_AUTO_IRLED) {
+            rk_smart_ir_auto_irled(smartIr_ctx->ir_ctx, &auto_irled);
+            if (irled_cur_value != auto_irled.auto_irled_val) {
+                irled_cur_value = auto_irled.auto_irled_val;
+                // TODO: update irled pwm duty
             }
         }
+        if (ir_res.status == RK_SMART_IR_STATUS_DAY) {
+            switch_to_day();
+        } else {
+            switch_to_night();
+        }
+        printf("SAMPLE_SMART_IR: switch to %s\n", ir_res.status == RK_SMART_IR_STATUS_DAY ? "DAY" : "Night");
+
     }
 
     return NULL;
@@ -217,39 +237,50 @@ static void sample_smartIr_calib(const void* arg)
     // 2. ircutter off, ir on
     switch_to_night();
     // 3. query wb info
-    rk_aiq_wb_querry_info_t wb_info;
     float RGgain = 0.0f, BGgain = 0.0f;
     int counts = 0;
     rk_aiq_isp_stats_t *stats_ref = NULL;
-    printf("SmartIr Calib start ...... \n");
+    rk_aiq_awb_stat_blk_res_v201_t* blockResult;
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    printf("SmartIr Calib start ...... \n");
     while (counts++ < 100) {
-        ret = rk_aiq_uapi2_sysctl_get3AStatsBlk(ctx, &stats_ref, -1);
-        if (ret == XCAM_RETURN_NO_ERROR && stats_ref != NULL) {
-            printf("stats frame id %d \n", stats_ref->frame_id);
-            if (stats_ref->awb_hw_ver == 4) { // isp32
-                float Rvalue = 0, Gvalue = 0, Bvalue = 0, RGgain = 0, BGgain = 0;
-                for (int i = 0; i < RK_AIQ_AWB_GRID_NUM_TOTAL; i++) {
-                    Rvalue = (float)stats_ref->awb_stats_v32.blockResult[i].Rvalue;
-                    Gvalue = (float)stats_ref->awb_stats_v32.blockResult[i].Gvalue;
-                    Bvalue = (float)stats_ref->awb_stats_v32.blockResult[i].Bvalue;
-                    RGgain = RGgain + Rvalue / Gvalue;
-                    BGgain = BGgain + Bvalue / Gvalue;
-                }
-                RGgain /= RK_AIQ_AWB_GRID_NUM_TOTAL;
-                BGgain /= RK_AIQ_AWB_GRID_NUM_TOTAL;
-                printf("origin rggain_base:%0.3f, bggain_base:%0.3f\n", RGgain, BGgain);
-            }
-            rk_aiq_uapi2_sysctl_release3AStatsRef(ctx, stats_ref);
-        } else {
-            if (ret == XCAM_RETURN_NO_ERROR) {
-                printf("aiq has stopped !\n");
-            } else if (ret == XCAM_RETURN_ERROR_TIMEOUT) {
-                printf("aiq timeout!\n");
-            } else if (ret == XCAM_RETURN_ERROR_FAILED) {
-                printf("aiq failed!\n");
-            }
+        if (g_sample_smartIr_ctx.camGroup) {
+            printf("get3AStatsBlk only support single ctx!\n");
+            break;
         }
+        ret = rk_aiq_uapi2_sysctl_get3AStatsBlk(ctx, &stats_ref, -1);
+        if (ret != XCAM_RETURN_NO_ERROR || stats_ref == NULL) {
+            printf("ret=%d, get3AStatsBlk fail!\n", ret);
+            break;
+        }
+
+        printf("stats frame id %d, awb_hw_ver %d\n", stats_ref->frame_id, stats_ref->awb_hw_ver);
+        if (stats_ref->awb_hw_ver == 4)
+            blockResult = stats_ref->awb_stats_v32.blockResult;
+        else if (stats_ref->awb_hw_ver == 3)
+            blockResult = stats_ref->awb_stats_v3x.blockResult;
+        else if (stats_ref->awb_hw_ver == 1)
+            blockResult = stats_ref->awb_stats_v21.blockResult;
+        else {
+            printf("smartIr is not supported on this platform\n");
+            rk_aiq_uapi2_sysctl_release3AStatsRef(ctx, stats_ref);
+            break;
+        }
+
+        float Rvalue = 0, Gvalue = 0, Bvalue = 0, RGgain = 0, BGgain = 0;
+        for (int i = 0; i < RK_AIQ_AWB_GRID_NUM_TOTAL; i++) {
+            Rvalue = (float)blockResult[i].Rvalue;
+            Gvalue = (float)blockResult[i].Gvalue;
+            Bvalue = (float)blockResult[i].Bvalue;
+            RGgain = RGgain + Rvalue / Gvalue;
+            BGgain = BGgain + Bvalue / Gvalue;
+        }
+        RGgain /= RK_AIQ_AWB_GRID_NUM_TOTAL;
+        BGgain /= RK_AIQ_AWB_GRID_NUM_TOTAL;
+        printf("origin rggain_base:%0.3f, bggain_base:%0.3f\n", RGgain, BGgain);
+        rk_aiq_uapi2_sysctl_release3AStatsRef(ctx, stats_ref);
+
     }
     printf("SmartIr Calib Done ...... \n");
 }
@@ -278,6 +309,7 @@ XCamReturn sample_smartIr_module(const void* arg)
     g_sample_smartIr_ctx.started = false;
     g_sample_smartIr_ctx.aiq_ctx = ctx;
     g_sample_smartIr_ctx.ir_ctx = NULL;
+    g_sample_smartIr_ctx.camGroup = demo_ctx->camGroup;
 
     do {
         key = getchar();

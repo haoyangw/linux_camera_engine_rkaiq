@@ -53,6 +53,8 @@
 #define ISP32_MODULE_CGC		ISP3X_MODULE_CGC
 #define ISP32_MODULE_VSM		BIT_ULL(45)
 
+#define ISP32_MODULE_RTT_FST		BIT_ULL(62)
+
 #define ISP32_MODULE_FORCE		ISP3X_MODULE_FORCE
 
 /* Measurement types */
@@ -70,6 +72,8 @@
 #define ISP32_STAT_DHAZ			ISP3X_STAT_DHAZ
 #define ISP32_STAT_VSM			BIT(18)
 #define ISP32_STAT_INFO2DDR		BIT(19)
+
+#define ISP32_STAT_RTT_FST		BIT(31)
 
 #define ISP32_MESH_BUF_NUM		ISP3X_MESH_BUF_NUM
 
@@ -1467,7 +1471,7 @@ struct rkisp32_isp_stat_buffer {
 struct rkisp32_thunderboot_resmem_head {
 	struct rkisp_thunderboot_resmem_head head;
 	struct isp32_isp_params_cfg cfg;
-};
+} __attribute__ ((packed));
 
 /****************isp32 lite********************/
 

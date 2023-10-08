@@ -1319,29 +1319,50 @@ static void j2s_store_obj(j2s_obj *obj, int fd, void *ptr_) {
 
 int j2s_json_to_bin(j2s_ctx *ctx, cJSON *json, const char *name, void **ptr,
                     size_t struct_size, const char *ofname) {
+
   size_t real_size = 0;
   size_t bin_size = 0;
   j2s_pool_t *j2s_pool = NULL;
-  *ptr = j2s_alloc_data(ctx, struct_size, &real_size);
-  j2s_json_to_struct(ctx, json, name, *ptr);
 
+  j2s_pool = (j2s_pool_t *)malloc(sizeof(j2s_pool_t));
+  memset(j2s_pool, 0, sizeof(j2s_pool_t));
   void* bin_buffer = malloc(MAX_IQBIN_SIZE);
   if (!bin_buffer) {
     printf("%s %d [J2S4B] oom!\n", __func__, __LINE__);
     return -1;
   }
+  memset(bin_buffer, 0, MAX_IQBIN_SIZE);
+  j2s_pool->data = (uint8_t*)bin_buffer;
+  ctx->priv = j2s_pool;
+
+  *ptr = j2s_alloc_data(ctx, struct_size, &real_size);
+  j2s_json_to_struct(ctx, json, name, *ptr);
+  ctx->priv = NULL;
 
   uint8_t *current_index = (uint8_t*) bin_buffer;
 
-  j2s_pool = (j2s_pool_t *)ctx->priv;
-
   size_t map_start = j2s_pool->used;
-  memcpy(current_index, j2s_pool->data, j2s_pool->used);
+  bin_size = j2s_pool->used;
   current_index += j2s_pool->used;
+  bin_size += sizeof(map_index_t) * j2s_pool->map_len;
+  if (bin_size > MAX_IQBIN_SIZE) {
+    printf("[BIN] %s %d:iq binary too large!\n", __func__, __LINE__);
+    goto error;
+  }
   memcpy(current_index, j2s_pool->maps_list, sizeof(map_index_t) * j2s_pool->map_len);
   current_index += sizeof(map_index_t) * j2s_pool->map_len;
+  bin_size += sizeof(size_t);
+  if (bin_size > MAX_IQBIN_SIZE) {
+    printf("[BIN] %s %d:iq binary too large!\n", __func__, __LINE__);
+    goto error;
+  }
   memcpy(current_index, &map_start, sizeof(size_t));
   current_index += sizeof(size_t);
+  bin_size += sizeof(size_t);
+  if (bin_size > MAX_IQBIN_SIZE) {
+    printf("[BIN] %s %d:iq binary too large!\n", __func__, __LINE__);
+    goto error;
+  }
   memcpy(current_index, &j2s_pool->map_len, sizeof(size_t));
   current_index += sizeof(size_t);
 
@@ -1350,6 +1371,16 @@ int j2s_json_to_bin(j2s_ctx *ctx, cJSON *json, const char *name, void **ptr,
   BinMapLoader::suqeezBinMap(ofname, (uint8_t*)bin_buffer, bin_size);
 
   free(bin_buffer);
+
+error:
+  if (j2s_pool) {
+    if (j2s_pool->maps_list) {
+      free(j2s_pool->maps_list);
+      j2s_pool->maps_list = NULL;
+    }
+    free(j2s_pool);
+    j2s_pool = NULL;
+  }
 
   DBG("maps [%zu][%zu][%zu]\n", sizeof(map_index_t), j2s_pool->map_len, map_start);
 

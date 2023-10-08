@@ -558,55 +558,48 @@ static int sample_ccm_getIqParam_V2(const rk_aiq_sys_ctx_t* ctx)
     RKAIQ_SAMPLE_CHECK_RET(ret, "GetIqParam failed!");
     printf("GetIqParam:\n\n");
     printf("\t sync = %d, done = %d\n", attr.sync.sync_mode, attr.sync.done);
-    printf("\t aCcmCof_len = %d\n", attr.iqparam.aCcmCof_len);
-    printf("\t aCcmCof[0].awbgain = [%f %f]\n", attr.iqparam.aCcmCof[0].awbGain[0],
-                                                attr.iqparam.aCcmCof[0].awbGain[1]);
+    printf("\t effect aCcmCof_len = %d\n", attr.iqparam.aCcmCof_len);
+    for (int i = 0; i < attr.iqparam.aCcmCof_len; i++) {
+        printf("\t aCcmCof[%d] = {\n ", i);
+        printf("\t     .name       = %s,\n ", attr.iqparam.aCcmCof[i].name);
+        printf("\t     .awbgain    = [%f, %f],\n ",
+                    attr.iqparam.aCcmCof[i].awbGain[0],
+                    attr.iqparam.aCcmCof[i].awbGain[1]);
+        printf("\t     .matrixUsed_len = %d,\n ", attr.iqparam.aCcmCof[i].matrixUsed_len);
+        printf("\t     .matrixUsed = [");
+        for (int j = 0; j < attr.iqparam.aCcmCof[i].matrixUsed_len-1; j++) {
+            printf("%s, ", attr.iqparam.aCcmCof[i].matrixUsed[j]);
+        }
+        printf("%s] \n", attr.iqparam.aCcmCof[i].matrixUsed[attr.iqparam.aCcmCof[i].matrixUsed_len-1]);
+        printf("\t     .gainSatCurve = {\n");
+        printf("\t         .gains = [");
+        for (int j = 0; j < 3; j++) {
+            printf("%f, ", attr.iqparam.aCcmCof[i].gain_sat_curve.gains[j]);
+        }
+        printf("%f], \n", attr.iqparam.aCcmCof[i].gain_sat_curve.gains[3]);
+        printf("\t         .sat   = [");
+        for (int j = 0; j < 3; j++) {
+            printf("%f, ", attr.iqparam.aCcmCof[i].gain_sat_curve.sat[j]);
+        }
+        printf("%f] \n", attr.iqparam.aCcmCof[i].gain_sat_curve.sat[3]);
+        printf("\t     }\n");
+        printf("\t }\n");
+    }
 
-    printf("\t aCcmCof[0].matrixUsed = [");
-    for (int i = 0; i < attr.iqparam.aCcmCof[0].matrixUsed_len; i++) {
-        printf("%s ", attr.iqparam.aCcmCof[0].matrixUsed[i]);
-    }
-    printf("]\n");
-    printf("\t aCcmCof[1].name = %s\n ", attr.iqparam.aCcmCof[1].name);
-
-    printf("\t aCcmCof[1].awbgain = [%f %f]\n", attr.iqparam.aCcmCof[1].awbGain[0],
-                                                attr.iqparam.aCcmCof[1].awbGain[1]);
-    printf("\t aCcmCof[1].matrixUsed = [");
-    for (int i = 0; i < attr.iqparam.aCcmCof[1].matrixUsed_len; i++) {
-        printf("%s ", attr.iqparam.aCcmCof[1].matrixUsed[i]);
-    }
-    printf("]\n");
-    printf("\t aCcmCof[1].gainSatCurve = {");
-    for (int i = 0; i < 4; i++) {
-        printf("%f - %f ", attr.iqparam.aCcmCof[1].gain_sat_curve.gains[i],
-                attr.iqparam.aCcmCof[1].gain_sat_curve.sat[i]);
-    }
-    printf("}\n");
-    printf("\t matrixAll_len = %d\n", attr.iqparam.matrixAll_len);
-    if (attr.iqparam.matrixAll_len > 0) {
-        printf("\t matrixAll[0].name = %s\n ", attr.iqparam.matrixAll[0].name);
-        printf("\t matrixAll[0].illuname = %s\n ", attr.iqparam.matrixAll[0].illumination);
-        printf("\t matrixAll[0].ccMatrix = [%f, %f, %f, %f, %f, %f, %f, %f, %f]\n",
-                                            attr.iqparam.matrixAll[0].ccMatrix[0],
-                                            attr.iqparam.matrixAll[0].ccMatrix[1],
-                                            attr.iqparam.matrixAll[0].ccMatrix[2],
-                                            attr.iqparam.matrixAll[0].ccMatrix[3],
-                                            attr.iqparam.matrixAll[0].ccMatrix[4],
-                                            attr.iqparam.matrixAll[0].ccMatrix[5],
-                                            attr.iqparam.matrixAll[0].ccMatrix[6],
-                                            attr.iqparam.matrixAll[0].ccMatrix[7],
-                                            attr.iqparam.matrixAll[0].ccMatrix[8]);
-        printf("\t matrixAll[%d].ccMatrix = [%f, %f, %f, %f, %f, %f, %f, %f, %f]\n",
-                                            attr.iqparam.matrixAll_len-1,
-                                            attr.iqparam.matrixAll[attr.iqparam.matrixAll_len-1].ccMatrix[0],
-                                            attr.iqparam.matrixAll[attr.iqparam.matrixAll_len-1].ccMatrix[1],
-                                            attr.iqparam.matrixAll[attr.iqparam.matrixAll_len-1].ccMatrix[2],
-                                            attr.iqparam.matrixAll[attr.iqparam.matrixAll_len-1].ccMatrix[3],
-                                            attr.iqparam.matrixAll[attr.iqparam.matrixAll_len-1].ccMatrix[4],
-                                            attr.iqparam.matrixAll[attr.iqparam.matrixAll_len-1].ccMatrix[5],
-                                            attr.iqparam.matrixAll[attr.iqparam.matrixAll_len-1].ccMatrix[6],
-                                            attr.iqparam.matrixAll[attr.iqparam.matrixAll_len-1].ccMatrix[7],
-                                            attr.iqparam.matrixAll[attr.iqparam.matrixAll_len-1].ccMatrix[8]);
+    printf("\t effect matrixAll_len = %d\n", attr.iqparam.matrixAll_len);
+    for (int i = 0; i < attr.iqparam.matrixAll_len; i++) {
+        printf("\t matrixAll[%d] = {\n ", i);
+        printf("\t     .name       = %s,\n ", attr.iqparam.matrixAll[i].name);
+        printf("\t     .illuname   = %s,\n ", attr.iqparam.matrixAll[i].illumination);
+        printf("\t     .saturation = %f,\n ", attr.iqparam.matrixAll[i].saturation);
+        printf("\t     .ccMatrix   = [%f, ..., %f],\n",
+                        attr.iqparam.matrixAll[i].ccMatrix[0],
+                        attr.iqparam.matrixAll[i].ccMatrix[8]);
+        printf("\t     .ccOffsets  = [%f, %f, %f]\n",
+                        attr.iqparam.matrixAll[i].ccOffsets[0],
+                        attr.iqparam.matrixAll[i].ccOffsets[1],
+                        attr.iqparam.matrixAll[i].ccOffsets[2]);
+        printf("\t }\n ");
     }
 
     return 0;
@@ -659,10 +652,11 @@ static int sample_ccm_setIqParam_V2_T1(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_
     for (int i = 1; i < attr.iqparam.aCcmCof_len; i++) {
         attr.iqparam.aCcmCof[i].gain_sat_curve = attr.iqparam.aCcmCof[0].gain_sat_curve;
     }
-    sprintf(attr.iqparam.aCcmCof[0].name, "%s", "A");
-    attr.iqparam.aCcmCof[0].matrixUsed_len = 2;
-    sprintf(attr.iqparam.aCcmCof[0].matrixUsed[0], "%s", "A_100");
-    sprintf(attr.iqparam.aCcmCof[0].matrixUsed[1], "%s", "A_70");
+    sprintf(attr.iqparam.aCcmCof[0].name, "%s", "TL84");
+    attr.iqparam.aCcmCof[0].matrixUsed_len = 3;
+    sprintf(attr.iqparam.aCcmCof[0].matrixUsed[0], "%s", "TL84_100");
+    sprintf(attr.iqparam.aCcmCof[0].matrixUsed[1], "%s", "TL84_70");
+    sprintf(attr.iqparam.aCcmCof[0].matrixUsed[2], "%s", "TL84_0");
     attr.iqparam.aCcmCof[0].awbGain[0] = 1.3959;
     attr.iqparam.aCcmCof[0].awbGain[1] = 3.179;
     sprintf(attr.iqparam.aCcmCof[1].name, "%s", "D65");
@@ -672,19 +666,18 @@ static int sample_ccm_setIqParam_V2_T1(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_
     attr.iqparam.aCcmCof[1].awbGain[0] = 2.4965;
     attr.iqparam.aCcmCof[1].awbGain[1] = 1.5597;
 
-    attr.iqparam.matrixAll_len = 4;
+    attr.iqparam.matrixAll_len = 5;
     int k = 0;
     for (int j = 0; j < attr.iqparam.aCcmCof_len; j++) {
         if (k > (attr.iqparam.matrixAll_len-1)) break;
-        attr.iqparam.matrixAll[k].saturation = 100;
-        attr.iqparam.matrixAll[k+1].saturation = 70;
+        strcpy(attr.iqparam.matrixAll[k].illumination, attr.iqparam.aCcmCof[j].name);
         for (int i = 0; i < attr.iqparam.aCcmCof[j].matrixUsed_len; i++) {
-            strcpy(attr.iqparam.matrixAll[k].illumination, attr.iqparam.aCcmCof[j].name);
             if (k > (attr.iqparam.matrixAll_len-1)) break;
             strcpy(attr.iqparam.matrixAll[k].name, attr.iqparam.aCcmCof[j].matrixUsed[i]);
             k++;
         }
     }
+    attr.iqparam.matrixAll[0].saturation = 100;
     attr.iqparam.matrixAll[0].ccMatrix[0] = 1.7416;
     attr.iqparam.matrixAll[0].ccMatrix[1] = -0.518;
     attr.iqparam.matrixAll[0].ccMatrix[2] = -0.2236;
@@ -695,6 +688,7 @@ static int sample_ccm_setIqParam_V2_T1(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_
     attr.iqparam.matrixAll[0].ccMatrix[7] = -1.6919;
     attr.iqparam.matrixAll[0].ccMatrix[8] = 2.7199;
 
+    attr.iqparam.matrixAll[1].saturation = 70;
     attr.iqparam.matrixAll[1].ccMatrix[0] = 1.2241;
     attr.iqparam.matrixAll[1].ccMatrix[1] = -0.2362;
     attr.iqparam.matrixAll[1].ccMatrix[2] = 0.0121;
@@ -705,25 +699,38 @@ static int sample_ccm_setIqParam_V2_T1(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_
     attr.iqparam.matrixAll[1].ccMatrix[7] = -1.3682;
     attr.iqparam.matrixAll[1].ccMatrix[8] = 2.3277;
 
-    attr.iqparam.matrixAll[2].ccMatrix[0] = 1.5676;
-    attr.iqparam.matrixAll[2].ccMatrix[1] = -0.6055;
-    attr.iqparam.matrixAll[2].ccMatrix[2] = 0.0378;
-    attr.iqparam.matrixAll[2].ccMatrix[3] = -0.2491;
-    attr.iqparam.matrixAll[2].ccMatrix[4] = 1.5287;
-    attr.iqparam.matrixAll[2].ccMatrix[5] = -0.2796;
-    attr.iqparam.matrixAll[2].ccMatrix[6] = 0.0423;
-    attr.iqparam.matrixAll[2].ccMatrix[7] = -0.7914;
-    attr.iqparam.matrixAll[2].ccMatrix[8] = 1.7491;
+    attr.iqparam.matrixAll[2].saturation = 0;
+    attr.iqparam.matrixAll[2].ccMatrix[0] = 0;
+    attr.iqparam.matrixAll[2].ccMatrix[1] = 0;
+    attr.iqparam.matrixAll[2].ccMatrix[2] = 0;
+    attr.iqparam.matrixAll[2].ccMatrix[3] = 0;
+    attr.iqparam.matrixAll[2].ccMatrix[4] = 0;
+    attr.iqparam.matrixAll[2].ccMatrix[5] = 0;
+    attr.iqparam.matrixAll[2].ccMatrix[6] = 0;
+    attr.iqparam.matrixAll[2].ccMatrix[7] = 0;
+    attr.iqparam.matrixAll[2].ccMatrix[8] = 0;
 
-    attr.iqparam.matrixAll[3].ccMatrix[0] = 1.3244;
-    attr.iqparam.matrixAll[3].ccMatrix[1] = -0.3646;
-    attr.iqparam.matrixAll[3].ccMatrix[2] = 0.0402;
-    attr.iqparam.matrixAll[3].ccMatrix[3] = -0.1083;
-    attr.iqparam.matrixAll[3].ccMatrix[4] = 1.3275;
-    attr.iqparam.matrixAll[3].ccMatrix[5] = -0.2193;
-    attr.iqparam.matrixAll[3].ccMatrix[6] = 0.1245;
-    attr.iqparam.matrixAll[3].ccMatrix[7] = -0.4216;
-    attr.iqparam.matrixAll[3].ccMatrix[8] = 1.2972;
+    attr.iqparam.matrixAll[3].saturation = 100;
+    attr.iqparam.matrixAll[3].ccMatrix[0] = 1.5676;
+    attr.iqparam.matrixAll[3].ccMatrix[1] = -0.6055;
+    attr.iqparam.matrixAll[3].ccMatrix[2] = 0.0378;
+    attr.iqparam.matrixAll[3].ccMatrix[3] = -0.2491;
+    attr.iqparam.matrixAll[3].ccMatrix[4] = 1.5287;
+    attr.iqparam.matrixAll[3].ccMatrix[5] = -0.2796;
+    attr.iqparam.matrixAll[3].ccMatrix[6] = 0.0423;
+    attr.iqparam.matrixAll[3].ccMatrix[7] = -0.7914;
+    attr.iqparam.matrixAll[3].ccMatrix[8] = 1.7491;
+
+    attr.iqparam.matrixAll[4].saturation = 70;
+    attr.iqparam.matrixAll[4].ccMatrix[0] = 1.3244;
+    attr.iqparam.matrixAll[4].ccMatrix[1] = -0.3646;
+    attr.iqparam.matrixAll[4].ccMatrix[2] = 0.0402;
+    attr.iqparam.matrixAll[4].ccMatrix[3] = -0.1083;
+    attr.iqparam.matrixAll[4].ccMatrix[4] = 1.3275;
+    attr.iqparam.matrixAll[4].ccMatrix[5] = -0.2193;
+    attr.iqparam.matrixAll[4].ccMatrix[6] = 0.1245;
+    attr.iqparam.matrixAll[4].ccMatrix[7] = -0.4216;
+    attr.iqparam.matrixAll[4].ccMatrix[8] = 1.2972;
     //set
     ret = rk_aiq_user_api2_accm_v2_SetIqParam(ctx, &attr);
     RKAIQ_SAMPLE_CHECK_RET(ret, "IqParam failed!");

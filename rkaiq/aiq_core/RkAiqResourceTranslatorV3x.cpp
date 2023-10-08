@@ -76,6 +76,28 @@ RkAiqResourceTranslatorV3x& RkAiqResourceTranslatorV3x::SetRightIspRect(
     return *this;
 }
 
+RkAiqResourceTranslatorV3x& RkAiqResourceTranslatorV3x::SetBottomLeftIspRect(RkAiqResourceTranslatorV3x::Rectangle& bottom_left_isp_rect) {
+    bottom_left_isp_rect_ = bottom_left_isp_rect;
+    return *this;
+}
+
+RkAiqResourceTranslatorV3x& RkAiqResourceTranslatorV3x::SetBottomRightIspRect(
+    RkAiqResourceTranslatorV3x::Rectangle& bottom_right_isp_rect) {
+    bottom_right_isp_rect_ = bottom_right_isp_rect;
+    return *this;
+}
+
+RkAiqResourceTranslatorV3x& RkAiqResourceTranslatorV3x::SetBottomLeftIspRect(RkAiqResourceTranslatorV3x::Rectangle&& bottom_left_isp_rect) {
+    bottom_left_isp_rect_ = std::move(bottom_left_isp_rect);
+    return *this;
+}
+
+RkAiqResourceTranslatorV3x& RkAiqResourceTranslatorV3x::SetBottomRightIspRect(
+    RkAiqResourceTranslatorV3x::Rectangle&& bottom_right_isp_rect) {
+    bottom_right_isp_rect_ = std::move(bottom_right_isp_rect);
+    return *this;
+}
+
 bool RkAiqResourceTranslatorV3x::IsMultiIspMode() const {
     return mIsMultiIsp;
 }
@@ -90,6 +112,14 @@ RkAiqResourceTranslatorV3x::Rectangle RkAiqResourceTranslatorV3x::GetLeftIspRect
 
 RkAiqResourceTranslatorV3x::Rectangle RkAiqResourceTranslatorV3x::GetRightIspRect() {
     return right_isp_rect_;
+}
+
+RkAiqResourceTranslatorV3x::Rectangle RkAiqResourceTranslatorV3x::GetBottomLeftIspRect() {
+    return bottom_left_isp_rect_;
+}
+
+RkAiqResourceTranslatorV3x::Rectangle RkAiqResourceTranslatorV3x::GetBottomRightIspRect() {
+    return bottom_right_isp_rect_;
 }
 
 

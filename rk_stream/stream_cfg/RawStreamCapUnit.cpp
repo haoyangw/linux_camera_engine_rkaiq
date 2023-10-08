@@ -9,7 +9,9 @@ RawStreamCapUnit::RawStreamCapUnit (char *dev0, char *dev1, char *dev2)
     ,_mipi_dev_max(0)
     ,_state(RAW_CAP_STATE_INVALID)
     ,_memory_type(V4L2_MEMORY_MMAP)
+    ,_buffer_count(RKRAWSTREAM_DEF_BUFCNT)
     ,user_on_frame_capture_cb(NULL)
+    ,user_priv_data(NULL)
 {
     if(dev0){
         LOGD_RKSTREAM( "%s open device %s", __FUNCTION__, dev0);
@@ -35,14 +37,14 @@ RawStreamCapUnit::RawStreamCapUnit (char *dev0, char *dev1, char *dev2)
 
     for (int i = 0; i < _mipi_dev_max; i++) {
         if (_dev[i].ptr())
-            _dev[i]->set_buffer_count(STREAM_VIPCAP_BUF_NUM);
+            _dev[i]->set_buffer_count(_buffer_count);
 
         if (_dev[i].ptr())
             _dev[i]->set_buf_sync (true);
 
         _dev_bakup[i] = _dev[i];
         _dev_index[i] = i;
-        _stream[i] =  new RKRawStream(_dev[i], i, ISP_POLL_TX);
+        _stream[i] =  new RKRawStream(_dev[i], i, RKRAWSTREAM_POLL_VICAP);
         _stream[i]->setPollCallback(this);
     }
     _sensor_dev = NULL;
@@ -54,7 +56,9 @@ RawStreamCapUnit::RawStreamCapUnit (const rk_sensor_full_info_t *s_info)
     ,_mipi_dev_max(0)
     ,_state(RAW_CAP_STATE_INVALID)
     ,_memory_type(V4L2_MEMORY_MMAP)
+    ,_buffer_count(RKRAWSTREAM_DEF_BUFCNT)
     ,user_on_frame_capture_cb(NULL)
+    ,user_priv_data(NULL)
 {
     bool linked_to_isp = s_info->linked_to_isp;
 
@@ -116,19 +120,15 @@ RawStreamCapUnit::RawStreamCapUnit (const rk_sensor_full_info_t *s_info)
         }
     }
     for (int i = 0; i < 3; i++) {
-        if (linked_to_isp) {
-            if (_dev[i].ptr())
-                _dev[i]->set_buffer_count(STREAM_ISP_BUF_NUM);
-        } else {
-            if (_dev[i].ptr())
-                _dev[i]->set_buffer_count(STREAM_VIPCAP_BUF_NUM);
-        }
+        if (_dev[i].ptr())
+            _dev[i]->set_buffer_count(_buffer_count);
+
         if (_dev[i].ptr())
             _dev[i]->set_buf_sync (true);
 
         _dev_bakup[i] = _dev[i];
         _dev_index[i] = i;
-        _stream[i] =  new RKRawStream(_dev[i], i, ISP_POLL_TX);
+        _stream[i] =  new RKRawStream(_dev[i], i, RKRAWSTREAM_POLL_VICAP);
         _stream[i]->setPollCallback(this);
     }
 
@@ -219,21 +219,20 @@ XCamReturn RawStreamCapUnit::release_buffer ()
 
 
 XCamReturn
-RawStreamCapUnit::prepare(int idx, uint8_t buf_memory_type, uint8_t buf_cnt)
+RawStreamCapUnit::prepare(uint8_t buf_memory_type, uint8_t buf_cnt)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-    _memory_type = (enum v4l2_memory)buf_memory_type;
-    LOGE_RKSTREAM("RawStreamCapUnit::prepare idx:%d buf_memory_type: %d\n",idx, buf_memory_type);
-    // mipi rx/tx format should match to sensor.
-    for (int i = 0; i < 3; i++) {
-        if (!(idx & (1 << i)))
-            continue;
-
-        if(buf_memory_type)
+    LOGD_RKSTREAM("RawStreamCapUnit %s:buf_type: %d buf_cnt %d\n",__func__, buf_memory_type, buf_cnt);
+    for (int i = 0; i < _mipi_dev_max; i++) {
+        if(buf_memory_type) {
+            _memory_type = (enum v4l2_memory)buf_memory_type;
             _dev[i]->set_mem_type(_memory_type);
+        }
 
-        if(buf_cnt)
+        if(buf_cnt) {
+            _buffer_count = buf_cnt;
             _dev[i]->set_buffer_count(buf_cnt);
+        }
 
         ret = _dev[i]->prepare();
         if (ret < 0)
@@ -249,16 +248,14 @@ RawStreamCapUnit::prepare(int idx, uint8_t buf_memory_type, uint8_t buf_cnt)
 void
 RawStreamCapUnit::set_working_mode(int mode)
 {
-    LOGD_RKSTREAM( "%s enter,mode=0x%x", __FUNCTION__, mode);
+    LOGD_RKSTREAM("RawStreamCapUnit %s enter,mode=0x%x", __FUNCTION__, mode);
     _working_mode = mode;
 
     switch (_working_mode) {
-    case RK_AIQ_ISP_HDR_MODE_3_FRAME_HDR:
-    case RK_AIQ_ISP_HDR_MODE_3_LINE_HDR:
+    case RKRAWSTREAM_HDR_MODE_ISP_HDR3:
         _mipi_dev_max = 3;
         break;
-    case RK_AIQ_ISP_HDR_MODE_2_FRAME_HDR:
-    case RK_AIQ_ISP_HDR_MODE_2_LINE_HDR:
+    case RKRAWSTREAM_HDR_MODE_ISP_HDR2:
         _mipi_dev_max = 2;
         break;
     default:
@@ -271,58 +268,68 @@ void
 RawStreamCapUnit::set_tx_format(uint32_t width, uint32_t height, uint32_t pix_fmt, int mode)
 {
     struct v4l2_format format;
+    uint32_t w,h,pf;
     memset(&format, 0, sizeof(format));
 
-    for (int i = 0; i < 3; i++) {
-        if (_dev[i].ptr()){
-            _dev[i]->get_format (format);
+    LOGD_RKSTREAM("RawStreamCapUnit %s:%dx%d, 0x%x mode %d\n", __func__, width, height, pix_fmt, mode);
+    for (int i = 0; i < _mipi_dev_max; i++) {
+        _dev[i]->get_format (format);
+        w = width? width: format.fmt.pix.width;
+        h = height? height: format.fmt.pix.height;
+        pf = pix_fmt? pix_fmt: format.fmt.pix.pixelformat;
 
-            int bpp = pixFmt2Bpp(format.fmt.pix.pixelformat);
-            int mem_mode = mode;
-            int ret1 = _dev[i]->io_control (RKCIF_CMD_SET_CSI_MEMORY_MODE, &mem_mode);
-            if (ret1)
-                LOGE_RKSTREAM("set RKCIF_CMD_SET_CSI_MEMORY_MODE failed !\n");
+        int bpp = pixFmt2Bpp(pf);
+        int mem_mode = mode;
+        if (((w / 2 - RKMOUDLE_UNITE_EXTEND_PIXEL) * bpp / 8) & 0xf)
+            mem_mode = CSI_LVDS_MEM_WORD_HIGH_ALIGN;
+        int ret1 = _dev[i]->io_control (RKCIF_CMD_SET_CSI_MEMORY_MODE, &mem_mode);
+        if (ret1)
+            LOGE_RKSTREAM("set RKCIF_CMD_SET_CSI_MEMORY_MODE failed !\n");
 
-            LOGI_RKSTREAM("set_tx_format: setup fmt %dx%d, 0x%x mem_mode %d\n",width, height, format.fmt.pix.pixelformat, mem_mode);
-            _dev[i]->set_format(width,
-                                height,
-                                format.fmt.pix.pixelformat,
-                                V4L2_FIELD_NONE,
-                                0);
-        }
+        LOGI_RKSTREAM("RawStreamCapUnit %s:use format %dx%d, 0x%x\n", __func__, w, h, pf);
+        _dev[i]->set_format(w, h, pf, V4L2_FIELD_NONE, 0);
     }
+    LOGD_RKSTREAM( "%s exit", __FUNCTION__);
 }
 
 void
-RawStreamCapUnit::set_sensor_format(uint32_t width, uint32_t height, uint32_t fps)
+RawStreamCapUnit::set_sensor_format(uint32_t width, uint32_t height, uint32_t pixfmt)
 {
+
+    LOGD_RKSTREAM("RawStreamCapUnit %s: %dx%d 0x%x", __func__, width, height, pixfmt);
+    if(!width && !height && !pixfmt) {
+        LOGI_RKSTREAM("%s: skip set sensor format.", __func__);
+        return;
+    }
     if(_sensor_dev.ptr()){
         struct v4l2_subdev_format format;
         memset(&format, 0, sizeof(format));
         _sensor_dev->getFormat(format);
 
-
         format.pad = 0;
         format.which = V4L2_SUBDEV_FORMAT_ACTIVE;
         format.format.width = width;
         format.format.height = height;
+
+        if(pixfmt)
+            format.format.code = pixfmt;
         _sensor_dev->setFormat(format);
     }
+    LOGD_RKSTREAM( "%s exit", __FUNCTION__);
 }
 
 void
 RawStreamCapUnit::set_sensor_mode(uint32_t mode)
 {
+    LOGD_RKSTREAM("RawStreamCapUnit %s: %d", __func__, mode);
     rkmodule_hdr_cfg hdr_cfg;
     __u32 hdr_mode = NO_HDR;
     if(_sensor_dev.ptr()){
         switch (mode) {
-        case RK_AIQ_ISP_HDR_MODE_3_FRAME_HDR:
-        case RK_AIQ_ISP_HDR_MODE_3_LINE_HDR:
+        case RKRAWSTREAM_HDR_MODE_ISP_HDR3:
             hdr_mode = HDR_X3;
             break;
-        case RK_AIQ_ISP_HDR_MODE_2_FRAME_HDR:
-        case RK_AIQ_ISP_HDR_MODE_2_LINE_HDR:
+        case RKRAWSTREAM_HDR_MODE_ISP_HDR2:
             hdr_mode = HDR_X2;
             break;
         default:
@@ -332,9 +339,9 @@ RawStreamCapUnit::set_sensor_mode(uint32_t mode)
         hdr_cfg.hdr_mode = hdr_mode;
         if (_sensor_dev->io_control(RKMODULE_SET_HDR_CFG, &hdr_cfg) < 0) {
             LOGE_RKSTREAM("set_sensor_mode failed to set hdr mode %d\n", hdr_mode);
-            //return XCAM_RETURN_ERROR_IOCTL;
         }
     }
+    LOGD_RKSTREAM( "%s exit", __FUNCTION__);
 }
 
 /*
@@ -429,14 +436,12 @@ RawStreamCapUnit::poll_buffer_ready (SmartPtr<V4l2BufferProxy> &buf, int dev_ind
             LOGI_RKSTREAM("BUFDEBUG vicapdq [%s] index %d  seq %d tx_time %d", _sns_name, buf_s->get_v4l2_buf_index(), buf_s->get_sequence(),tx_timems);
             if(user_takes_buf){
                 switch (_working_mode) {
-                case RK_AIQ_ISP_HDR_MODE_3_FRAME_HDR:
-                case RK_AIQ_ISP_HDR_MODE_3_LINE_HDR:
+                case RKRAWSTREAM_HDR_MODE_ISP_HDR3:
                     user_used_buf_list[0].push(buf_s);
                     user_used_buf_list[1].push(buf_m);
                     user_used_buf_list[2].push(buf_l);
                     break;
-                case RK_AIQ_ISP_HDR_MODE_2_FRAME_HDR:
-                case RK_AIQ_ISP_HDR_MODE_2_LINE_HDR:
+                case RKRAWSTREAM_HDR_MODE_ISP_HDR2:
                     user_used_buf_list[0].push(buf_s);
                     user_used_buf_list[1].push(buf_m);
                     break;
@@ -491,8 +496,7 @@ RawStreamCapUnit::sync_raw_buf
 
     if (buf_s.ptr()) {
         sequence_s = buf_s->get_sequence();
-        if ((_working_mode == RK_AIQ_ISP_HDR_MODE_3_FRAME_HDR ||
-                _working_mode == RK_AIQ_ISP_HDR_MODE_3_LINE_HDR) &&
+        if (_working_mode == RKRAWSTREAM_HDR_MODE_ISP_HDR3 &&
                 buf_m.ptr() && buf_l.ptr() && buf_s.ptr() &&
                 sequence_l == sequence_s && sequence_m == sequence_s) {
 
@@ -503,8 +507,7 @@ RawStreamCapUnit::sync_raw_buf
             //    LOGW_RKSTREAM( "skip frame %d", sequence_s);
             //    goto end;
             //}
-        } else if ((_working_mode == RK_AIQ_ISP_HDR_MODE_2_FRAME_HDR ||
-                    _working_mode == RK_AIQ_ISP_HDR_MODE_2_LINE_HDR) &&
+        } else if (_working_mode == RKRAWSTREAM_HDR_MODE_ISP_HDR3 &&
                    buf_m.ptr() && buf_s.ptr() && sequence_m == sequence_s) {
             buf_list[ISP_MIPI_HDR_S].erase(buf_s);
             buf_list[ISP_MIPI_HDR_M].erase(buf_m);
@@ -512,7 +515,7 @@ RawStreamCapUnit::sync_raw_buf
             //    LOGE_RKSTREAM( "skip frame %d", sequence_s);
             //    goto end;
             //}
-        } else if (_working_mode == RK_AIQ_WORKING_MODE_NORMAL) {
+        } else if (_working_mode == RKRAWSTREAM_HDR_MODE_NORMAL ) {
             buf_list[ISP_MIPI_HDR_S].erase(buf_s);
             //if (check_skip_frame(sequence_s)) {
             //    LOGW_RKSTREAM( "skip frame %d", sequence_s);
@@ -543,6 +546,17 @@ void rkraw_append_buf(uint8_t *p, uint16_t tag, SmartPtr<V4l2BufferProxy> &buf)
     b->_addr.laddr = uptr & 0xFFFFFFFF;
 }
 
+void fill_rkraw2_plane_info(rkraw2_plane *p, SmartPtr<V4l2BufferProxy> &buf)
+{
+    uint64_t uptr = buf->get_v4l2_userptr();
+    p->mode = 0;
+    p->idx = buf->get_v4l2_buf_index();
+    p->fd = buf->get_expbuf_fd();
+    p->size = buf->get_v4l2_buf_planar_length(0);
+    p->addr = uptr;
+    p->timestamp = buf->get_timestamp();
+}
+
 XCamReturn
 RawStreamCapUnit::do_capture_callback
 (
@@ -551,16 +565,10 @@ RawStreamCapUnit::do_capture_callback
     SmartPtr<V4l2BufferProxy> &buf_l
 )
 {
-    struct v4l2_buffer *vbuf[3];
-    struct v4l2_format *vfmt[3];
-    // int vfd[3];
-    // int state = -1;
+    rkrawstream_vicap_cb_param_t cb_param;
+    cb_param.user_data = user_priv_data;
 
-    int index = buf_s->get_v4l2_buf_index();
-    if(index > STREAM_VIPCAP_BUF_NUM-1){
-        LOGW_RKSTREAM("do_capture_callback: bad index %d!",index);
-    }
-
+/*
     uint8_t *p = (uint8_t *)&_rkraw_data[index];
     uint16_t *tag = (uint16_t *)p;
     p = p + 2;
@@ -580,81 +588,22 @@ RawStreamCapUnit::do_capture_callback
     //TODO: use correct fmt
     f->bit_width = 0;
     f->bayer_fmt = 0;
-
-    if ((_working_mode == RK_AIQ_ISP_HDR_MODE_3_FRAME_HDR ||
-            _working_mode == RK_AIQ_ISP_HDR_MODE_3_LINE_HDR)) {
-        f->hdr_mode = 3;
-
-        rkraw_append_buf(p, HDR_S_RAW_TAG, buf_s);
-        p = p + sizeof(struct _live_rkraw_buf);
-
-        rkraw_append_buf(p, HDR_M_RAW_TAG, buf_m);
-        p = p + sizeof(struct _live_rkraw_buf);
-
-        rkraw_append_buf(p, HDR_L_RAW_TAG, buf_l);
-        p = p + sizeof(struct _live_rkraw_buf);
-
-
-        // vbuf[0] = (v4l2_buffer*) &buf_s->get_v4l2_buf();
-        // vbuf[1] = (v4l2_buffer*) &buf_m->get_v4l2_buf();
-        // vbuf[2] = (v4l2_buffer*) &buf_l->get_v4l2_buf();
-        // vfmt[0] = (v4l2_format*) &buf_s->get_v4l2_format();
-        // vfmt[1] = (v4l2_format*) &buf_m->get_v4l2_format();
-        // vfmt[2] = (v4l2_format*) &buf_l->get_v4l2_format();
-        // vfd[0] = buf_s->get_expbuf_fd();
-        // vfd[1] = buf_m->get_expbuf_fd();
-        // vfd[2] = buf_l->get_expbuf_fd();
-
-        // state = 3;
-
-    } else if ((_working_mode == RK_AIQ_ISP_HDR_MODE_2_FRAME_HDR ||
-                _working_mode == RK_AIQ_ISP_HDR_MODE_2_LINE_HDR)) {
-        f->hdr_mode = 2;
-
-        rkraw_append_buf(p, HDR_S_RAW_TAG, buf_s);
-        p = p + sizeof(struct _live_rkraw_buf);
-
-        rkraw_append_buf(p, HDR_M_RAW_TAG, buf_m);
-        p = p + sizeof(struct _live_rkraw_buf);
-
-        // vbuf[0] = (v4l2_buffer*) &buf_s->get_v4l2_buf();
-        // vbuf[1] = (v4l2_buffer*) &buf_m->get_v4l2_buf();
-        // vbuf[2] = NULL;
-        // vfmt[0] = (v4l2_format*) &buf_s->get_v4l2_format();
-        // vfmt[1] = (v4l2_format*) &buf_m->get_v4l2_format();
-        // vfmt[2] = NULL;
-        // vfd[0] = buf_s->get_expbuf_fd();
-        // vfd[1] = buf_m->get_expbuf_fd();
-
-        // state = 2;
-
-    } else if (_working_mode == RK_AIQ_WORKING_MODE_NORMAL) {
-        f->hdr_mode = 1;
-
-        rkraw_append_buf(p, NORMAL_RAW_TAG, buf_s);
-        p = p + sizeof(struct _live_rkraw_buf);
-
-
-        // vbuf[0] = (v4l2_buffer*) &buf_s->get_v4l2_buf();
-        // vbuf[1] = NULL;
-        // vbuf[2] = NULL;
-        // vfmt[0] = (v4l2_format*) &buf_s->get_v4l2_format();
-        // vfmt[1] = NULL;
-        // vfmt[2] = NULL;
-        // vfd[0] = buf_s->get_expbuf_fd();
-
-        // state = 1;
-
+*/
+    struct _raw_format *f = &cb_param.rkraw2._rawfmt;
+    f->frame_id = buf_s->get_sequence();
+    if (_working_mode == RKRAWSTREAM_HDR_MODE_ISP_HDR3) {
+        fill_rkraw2_plane_info(&cb_param.rkraw2.plane[0], buf_s);
+        fill_rkraw2_plane_info(&cb_param.rkraw2.plane[1], buf_m);
+        fill_rkraw2_plane_info(&cb_param.rkraw2.plane[2], buf_l);
+    } else if (_working_mode == RKRAWSTREAM_HDR_MODE_ISP_HDR2) {
+        fill_rkraw2_plane_info(&cb_param.rkraw2.plane[0], buf_s);
+        fill_rkraw2_plane_info(&cb_param.rkraw2.plane[1], buf_m);
+    } else {
+        fill_rkraw2_plane_info(&cb_param.rkraw2.plane[0], buf_s);
     }
 
-    tag = (uint16_t *)p;
-    p = p + 2;
-    *tag = END_TAG;
-
-    uint32_t rkraw_len = p - (uint8_t *)&_rkraw_data[index];
     if(user_on_frame_capture_cb){
-        user_on_frame_capture_cb((uint8_t *)&_rkraw_data[index], rkraw_len);
-        //user_on_frame_capture_cb(vbuf, vfmt, vfd, state);
+        user_on_frame_capture_cb(&cb_param);
     }
 
     return XCAM_RETURN_NO_ERROR;

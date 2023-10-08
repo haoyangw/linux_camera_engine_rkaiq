@@ -21,6 +21,7 @@
 #include "rk_aiq.h"
 #include "rk_aiq_algo_des.h"
 #include "rk_aiq_offline_raw.h"
+#include "anr/rkpostisp.h"
 // #include "rk_aiq_user_api_sysctl.h"
 
 RKAIQ_BEGIN_DECLARE
@@ -525,7 +526,7 @@ rk_aiq_uapi2_sysctl_rawReproc_preInit(const char* isp_driver,
                                       const char* offline_sns_name,
                                       rk_aiq_frame_info_t two_frm_exp_info[2]);
 /**
- * @brief set user delay counts of params related to stats 
+ * @brief set user delay counts of params related to stats
  *
  * \param[in] sys_ctx             the context returned by \ref rk_aiq_uapi2_sysctl_init
  * \param[in] delay_cnts          params calculated from stats n will be applyed to frame n+delay_cnts.
@@ -534,19 +535,31 @@ rk_aiq_uapi2_sysctl_rawReproc_preInit(const char* isp_driver,
 
 void rk_aiq_uapi2_sysctl_setIspParamsDelayCnts(const rk_aiq_sys_ctx_t* sys_ctx, int8_t delay_cnts);
 
-/**
- * @brief set different format form sensor output.
- *
- * \param[in] sys_ctx             the context returned by \ref rk_aiq_uapi2_sysctl_init
- * \param[in] width               input raw width.
- * \param[in] height              input raw height.
- * \param[in] code                input raw v4l2 format code.
- */
-void rk_aiq_uapi2_sysctl_setUserSensorFormat(rk_aiq_sys_ctx_t* sys_ctx, uint16_t width, uint16_t height,
-                                                 uint16_t code);
+XCamReturn
+rk_aiq_uapi2_sysctl_preInit_rkrawstream_info(const char* sns_ent_name,
+                           const rk_aiq_rkrawstream_info_t* info);
 
 XCamReturn
 rk_aiq_uapi2_sysctl_setCrop(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_rect_t rect);
+
+/**
+ * @brief pause vicap stream
+ *
+ * \param[in] sys_ctx             the context returned by \ref rk_aiq_uapi2_sysctl_init
+ */
+void rk_aiq_uapi2_sysctl_pause(rk_aiq_sys_ctx_t* sys_ctx);
+
+/**
+ * @brief resume vicap stream
+ *
+ * \param[in] sys_ctx             the context returned by \ref rk_aiq_uapi2_sysctl_init
+ */
+void rk_aiq_uapi2_sysctl_resume(rk_aiq_sys_ctx_t* sys_ctx);
+
+XCamReturn
+rk_aiq_uapi2_sysctl_getAinrParams(const rk_aiq_sys_ctx_t* sys_ctx, rk_ainr_param* para);
+XCamReturn
+rk_aiq_uapi2_sysctl_setUserOtpInfo(rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_user_otp_info_t otp_info);
 
 RKAIQ_END_DECLARE
 

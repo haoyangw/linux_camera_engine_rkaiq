@@ -59,6 +59,7 @@ public:
     }
     XCamReturn reset_hardware();
     XCamReturn set_csi_mem_word_big_align(uint32_t width, uint32_t height, uint32_t sns_v4l_pix_fmt, int8_t sns_bpp);
+    int setVicapStreamMode(int mode);
 
     enum {
         ISP_MIPI_HDR_S = 0,

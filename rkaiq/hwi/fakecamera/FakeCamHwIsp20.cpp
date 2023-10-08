@@ -38,7 +38,8 @@ FakeCamHwIsp20::FakeCamHwIsp20() : isp_index(0)
 FakeCamHwIsp20::~FakeCamHwIsp20()
 {
     ENTER_CAMHW_FUNCTION();
-    setupOffLineLink(isp_index, false);
+    if (!use_rkrawstream)
+        setupOffLineLink(isp_index, false);
     EXIT_CAMHW_FUNCTION();
 }
 
@@ -71,6 +72,7 @@ FakeCamHwIsp20::prepare(uint32_t width, uint32_t height, int mode, int t_delay, 
     ENTER_CAMHW_FUNCTION();
 
     SmartPtr<FakeSensorHw> fakeSensorHw = mSensorDev.dynamic_cast_ptr<FakeSensorHw>();
+    fakeSensorHw->use_rkrawstream = use_rkrawstream;
 
     std::unordered_map<std::string, SmartPtr<rk_sensor_full_info_t>>::iterator it;
     if ((it = mSensorHwInfos.find(sns_name)) == mSensorHwInfos.end()) {
@@ -80,17 +82,17 @@ FakeCamHwIsp20::prepare(uint32_t width, uint32_t height, int mode, int t_delay, 
 
     rk_sensor_full_info_t *s_info = it->second.ptr();
     isp_index = s_info->isp_info->logic_id;
-#ifndef USE_RAWSTREAM_LIB
-    setupOffLineLink(isp_index, true);
-#endif
-    init_mipi_devices(s_info);
-    fakeSensorHw->set_mipi_tx_devs(_mipi_tx_devs);
 
-#ifndef USE_RAWSTREAM_LIB
-    mRawCapUnit->set_tx_devices(_mipi_tx_devs);
-    mRawProcUnit->set_rx_devices(_mipi_rx_devs);
-    mRawProcUnit->setPollCallback(this);
-#endif
+    if (!use_rkrawstream) {
+        setupOffLineLink(isp_index, true);
+        init_mipi_devices(s_info);
+        fakeSensorHw->set_mipi_tx_devs(_mipi_tx_devs);
+
+        mRawCapUnit->set_tx_devices(_mipi_tx_devs);
+        mRawProcUnit->set_rx_devices(_mipi_rx_devs);
+        mRawProcUnit->setPollCallback(this);
+    }
+
     ret = CamHwIsp20::prepare(width, height, mode, t_delay, g_delay);
     if (ret)
         return ret;

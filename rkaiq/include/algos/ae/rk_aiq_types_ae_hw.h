@@ -40,6 +40,10 @@ typedef enum WinSplitMode_s {
     LEFT_AND_RIGHT_MODE = 0,
     LEFT_MODE,
     RIGHT_MODE,
+
+    TOP_AND_BOTTOM_MODE = 0,
+    TOP_MODE,
+    BOTTOM_MODE,
 } WinSplitMode;
 
 /*****************************************************************************/

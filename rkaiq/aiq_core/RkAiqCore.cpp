@@ -187,6 +187,7 @@ RkAiqCore::RkAiqCore(int isp_hw_ver)
     mIsSingleThread = true;
 #endif
     mFullParamsPendingMap.clear();
+    xcam_mem_clear(mUserOtpInfo);
     EXIT_ANALYZER_FUNCTION();
 }
 
@@ -488,6 +489,9 @@ RkAiqCore::prepare(const rk_aiq_exposure_sensor_descriptor* sensor_des,
     }
 
     mAlogsComSharedParams.snsDes = *sensor_des;
+    if (mUserOtpInfo.otp_awb.flag) {
+        memcpy(&mAlogsComSharedParams.snsDes.otp_awb, &mUserOtpInfo.otp_awb, sizeof(mUserOtpInfo.otp_awb));
+    }
     mAlogsComSharedParams.working_mode = mode;
     mAlogsComSharedParams.spWidth = mSpWidth;
     mAlogsComSharedParams.spHeight = mSpHeight;
@@ -530,6 +534,22 @@ RkAiqCore::prepare(const rk_aiq_exposure_sensor_descriptor* sensor_des,
         //(sensor_des->isp_acq_height % 16 == 0));
         uint32_t extended_pixel = mHwInfo.multi_isp_extended_pixel;
         RkAiqResourceTranslatorV3x* translator = static_cast<RkAiqResourceTranslatorV3x*>(mTranslator.ptr());
+#if defined(ISP_HW_V32_LITE)
+        translator->SetMultiIspMode(true)
+        .SetPicInfo({0, 0, sensor_des->isp_acq_width, sensor_des->isp_acq_height})
+        .SetLeftIspRect(
+        {0, 0, sensor_des->isp_acq_width / 2 + extended_pixel, sensor_des->isp_acq_height / 2 + extended_pixel})
+        .SetRightIspRect({sensor_des->isp_acq_width / 2 - extended_pixel, 0,
+                          sensor_des->isp_acq_width / 2 + extended_pixel,
+                          sensor_des->isp_acq_height / 2 + extended_pixel})
+        .SetBottomLeftIspRect({0, sensor_des->isp_acq_height / 2 - extended_pixel,
+                               sensor_des->isp_acq_width / 2 + extended_pixel,
+                               sensor_des->isp_acq_height / 2 + extended_pixel})
+        .SetBottomRightIspRect({sensor_des->isp_acq_width / 2 - extended_pixel,
+                                sensor_des->isp_acq_height / 2 - extended_pixel,
+                                sensor_des->isp_acq_width / 2 + extended_pixel,
+                                sensor_des->isp_acq_height / 2 + extended_pixel});
+#else
         translator->SetMultiIspMode(true)
         .SetPicInfo({0, 0, sensor_des->isp_acq_width, sensor_des->isp_acq_height})
         .SetLeftIspRect(
@@ -537,6 +557,7 @@ RkAiqCore::prepare(const rk_aiq_exposure_sensor_descriptor* sensor_des,
         .SetRightIspRect({sensor_des->isp_acq_width / 2 - extended_pixel, 0,
                           sensor_des->isp_acq_width / 2 + extended_pixel,
                           sensor_des->isp_acq_height});
+#endif
         RkAiqResourceTranslatorV3x::Rectangle f = translator->GetPicInfo();
         RkAiqResourceTranslatorV3x::Rectangle l = translator->GetLeftIspRect();
         RkAiqResourceTranslatorV3x::Rectangle r = translator->GetRightIspRect();
@@ -698,6 +719,12 @@ RkAiqCore::analyzeInternal(enum rk_aiq_core_analyze_type_e grp_type)
 
                     if (!got_full_buf) {
                         SmartLock locker (_mFullParam_mutex);
+                        if ((shared->frameId < mLatestParamsDoneId || shared->frameId == mLatestParamsDoneId) &&
+                            mLatestParamsDoneId != 0) {
+                            LOGW_ANALYZER("[%u] <= [%u], skip grp_type 0x%x process !",
+                                        shared->frameId, mLatestParamsDoneId, grp_type);
+                            return NULL;
+                        }
                         if (mFullParamsPendingMap.count(frame_id)) {
                             aiqParamProxy = mFullParamsPendingMap[frame_id].proxy;
                             LOGD_ANALYZER("[%d] pending params, algo_type: 0x%x, grp_type: 0x%x, params_ptr: %p",
@@ -734,11 +761,6 @@ RkAiqCore::analyzeInternal(enum rk_aiq_core_analyze_type_e grp_type)
                     }
                     shared->fullParams = aiqParams;
                     got_buffer = true;
-                    if (shared->frameId < mLatestParamsDoneId) {
-                        LOGW_ANALYZER("[%u] < [%u], skip grp_type 0x%x process !",
-                                      shared->frameId, mLatestParamsDoneId, grp_type);
-                        return NULL;
-                    }
                 }
                 if (mAlogsComSharedParams.init || !isGroupAlgo(type)) {
                     ret = curHdl->updateConfig(true);
@@ -1815,7 +1837,7 @@ RkAiqCore::analyze(const SmartPtr<VideoBuffer> &buffer)
         mSafeEnableAlgo = false;
     }
 
-    if (!firstStatsReceived) {
+    if (!firstStatsReceived && mState != RK_AIQ_CORE_STATE_STOPED) {
         firstStatsReceived = true;
         mState = RK_AIQ_CORE_STATE_RUNNING;
     }
@@ -2588,15 +2610,15 @@ XCamReturn RkAiqCore::groupAnalyze(uint64_t grpId, const RkAiqAlgosGroupShared_t
             if (counts > FULLPARMAS_MAX_PENDING_SIZE) {
                 auto item = mFullParamsPendingMap.begin();
                 fullParam = item->second.proxy;
-                LOGW_ANALYZER("force [%d->%d]:%p fullParams done !", item->first, shared->frameId, fullParam->data().ptr());
+                LOGW_ANALYZER("force [%d]:%p fullParams done ! new param id %d", item->first, fullParam->data().ptr(), shared->frameId);
+                fullParam->data()->mFrmId = item->first;
                 mFullParamsPendingMap.erase(item);
-                fullParam->data()->mFrmId = shared->frameId;
                 mLatestParamsDoneId = fullParam->data()->mFrmId;
             }
         }
     }
     if (fullParam.ptr()) {
-        LOG1_ANALYZER("cb [%d] fullParams done !", shared->frameId);
+        LOG1_ANALYZER("cb [%d] fullParams done !", mLatestParamsDoneId);
 #ifdef RKAIQ_ENABLE_CAMGROUP
         if (mCamGroupCoreManager) {
             if (!mTbInfo.is_pre_aiq || shared->frameId != 0) {
@@ -3536,6 +3558,46 @@ void RkAiqCore::setVicapScaleFlag(bool mode) {
             LOGD_ANALYZER("afd algo dep flag %llx\n", flag);
         }
     }
+}
+
+void RkAiqCore::awakenClean(uint32_t sequence)
+{
+    auto its = mRkAiqCoreGroupManager->getGroups();
+    for (auto& it : its) {
+        it.second->awakenClean(sequence);
+    }
+    {
+        SmartLock locker (_mFullParam_mutex);
+        if (!mFullParamsPendingMap.empty())
+            mFullParamsPendingMap.clear();
+        if (mLastAnalyzedId)
+            mLastAnalyzedId = 0;
+        if (mLatestEvtsId) {
+            mLatestEvtsId = sequence - 1;
+        }
+        if (mLatestParamsDoneId)
+            mLatestParamsDoneId = 0;
+    }
+}
+
+XCamReturn RkAiqCore::setUserOtpInfo(rk_aiq_user_otp_info_t otp_info)
+{
+    if (mState == RK_AIQ_CORE_STATE_PREPARED || mState == RK_AIQ_CORE_STATE_STARTED || \
+        mState == RK_AIQ_CORE_STATE_RUNNING) {
+        LOGE_ANALYZER("wrong state %d, set otp before prepare\n", mState);
+        return XCAM_RETURN_ERROR_ANALYZER;
+    }
+
+    LOGD_ANALYZER("user awb otp: flag: %d, r:%d,b:%d,gr:%d,gb:%d, golden r:%d,b:%d,gr:%d,gb:%d\n",
+                  otp_info.otp_awb.flag,
+                  otp_info.otp_awb.r_value, otp_info.otp_awb.b_value,
+                  otp_info.otp_awb.gr_value, otp_info.otp_awb.gb_value,
+                  otp_info.otp_awb.golden_r_value, otp_info.otp_awb.golden_b_value,
+                  otp_info.otp_awb.golden_gr_value, otp_info.otp_awb.golden_gb_value);
+
+    memcpy(&mUserOtpInfo, &otp_info, sizeof(otp_info));
+
+    return XCAM_RETURN_NO_ERROR;
 }
 
 } //namespace RkCam

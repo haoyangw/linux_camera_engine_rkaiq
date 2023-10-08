@@ -26,6 +26,19 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+include(BuildOptions)
+include(CompileOptions)
+
+if (${CMAKE_SYSTEM_NAME} EQUAL "")
+    set(OS "linux")
+else()
+    string(TOLOWER ${CMAKE_SYSTEM_NAME} OS)
+endif()
+
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Android")
+    add_compile_options(-DANDROID_OS)
+endif()
+
 # include(BuildOptions)
 # include(CompileOptions)
 # include(GNUInstallDirs)
@@ -53,7 +66,7 @@ if(RKAIQ_INCLUDE_DIR AND RKAIQ_LIBRARY_DIR)
 set(RK_AIQ_INSTALLED_DIR ${RKAIQ_INCLUDE_DIR})
 set(RK_AIQ_LIB_DIR ${RKAIQ_LIBRARY_DIR})
 else()
-set(RK_AIQ_INSTALLED_DIR "${RK_AIQ_SOURCE_DIR}/build/linux/output/${ARCH}/installed" CACHE STRING "AIQ library installed dir")
+set(RK_AIQ_INSTALLED_DIR "${RK_AIQ_SOURCE_DIR}/build/${OS}/output/${ARCH}/installed" CACHE STRING "AIQ library installed dir")
 set(RK_AIQ_LIB_DIR ${RK_AIQ_INSTALLED_DIR}/lib)
 endif()
 message("rkaiq lib path" ${RK_AIQ_LIB_DIR})
@@ -106,6 +119,15 @@ add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 link_directories("${RK_AIQ_LIB_DIR}")
 add_library(smartIr SHARED ${SMARTIR_SRC})
 target_link_libraries(smartIr PUBLIC ${RK_AIQ_LIB})
+
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Android")
+    target_link_libraries(smartIr
+        PRIVATE
+        cutils
+        utils
+        log
+        )
+endif()
 
 add_library(smartIr_static STATIC ${SMARTIR_SRC})
 

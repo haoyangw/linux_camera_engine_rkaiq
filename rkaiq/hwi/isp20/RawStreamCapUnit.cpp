@@ -560,4 +560,19 @@ RawStreamCapUnit::set_csi_mem_word_big_align(uint32_t width, uint32_t height,
     return ret;
 }
 
+int
+RawStreamCapUnit::setVicapStreamMode(int mode)
+{
+    int ret = 0;
+    for (int i = 0; i < 3; i++) {
+        if (!_dev[i].ptr()) {
+            break;
+        }
+        if (_dev[i]->io_control(RKCIF_CMD_SET_QUICK_STREAM, &mode) < 0) {
+            LOGE_CAMHW("dev(%s) ioctl faile, set vicap %s faile", _dev[i]->get_device_name(), mode ? "pause" : "resume");
+        }
+    }
+    return ret;
+}
+
 }

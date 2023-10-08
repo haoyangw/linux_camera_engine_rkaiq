@@ -62,8 +62,6 @@ int8_t pixFmt2Bpp(uint32_t pixFmt)
 
 MediaInfo::MediaInfo (){
     LOGD_RKSTREAM ("MediaInfo constructed.");
-    mIsMultiIspMode = false;
-    mMultiIspExtendedPixel = 0;
 }
 
 MediaInfo::~MediaInfo(){
@@ -113,6 +111,7 @@ out:
 static XCamReturn get_sensor_caps(rk_sensor_full_info_t *sensor_info) {
     struct v4l2_subdev_frame_size_enum fsize_enum;
     struct v4l2_subdev_mbus_code_enum  code_enum;
+    std::vector<uint32_t> formats;
     rk_frame_fmt_t frameSize;
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
@@ -1099,8 +1098,8 @@ media_unref:
                 rk_aiq_isp_t* isp_info = &mIspHwInfos.isp_info[i];
 
                 for (int vicap_idx = 0; vicap_idx < MAX_ISP_LINKED_VICAP_CNT; vicap_idx++) {
-                    LOGI_RKSTREAM("vicap %s, linked_vicap %s",
-                                    s_full_info->cif_info->model_str, isp_info->linked_vicap[vicap_idx]);
+                    //LOGI_RKSTREAM("vicap %s, linked_vicap %s",
+                    //                s_full_info->cif_info->model_str, isp_info->linked_vicap[vicap_idx]);
                     if (strcmp(s_full_info->cif_info->model_str, isp_info->linked_vicap[vicap_idx]) == 0) {
                         s_full_info->isp_info = &mIspHwInfos.isp_info[i];
                         mCamHwInfos[s_full_info->sensor_name]->is_multi_isp_mode =
@@ -1195,47 +1194,17 @@ void MediaInfo::getCamHwEntNames(char buf[12][32])
     }
 }
 
-void
-MediaInfo::offline(const char* isp_driver, const char* offline_sns_ent_name)
+const char *
+MediaInfo::offline(int isp_index, const char* offline_sns_ent_name)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-    int isp_driver_index = -1;
-    if (!isp_driver) {
-        return;
-    } else {
-        // if driver = 3588
-        if(strlen(isp_driver) > 8) {
-            char* isp_driver_name = const_cast<char*>(isp_driver);
-            char *rkisp = strstr(isp_driver_name, "rkisp");
-            if (rkisp) {
-                int isp_mode = atoi(rkisp + strlen("rkisp"));
-                char* vir = strstr(isp_driver_name, "vir");
-                if (vir) {
-                    int vir_idx = atoi(vir + strlen("vir"));
-                    isp_driver_index = isp_mode * 4 + vir_idx;
-                }
-            }
-        } else {
-            if (strcmp(isp_driver, "rkisp0") == 0 ||
-                    strcmp(isp_driver, "rkisp") == 0)
-                isp_driver_index = 0;
-            else if (strcmp(isp_driver, "rkisp1") == 0)
-                isp_driver_index = 1;
-            else if (strcmp(isp_driver, "rkisp2") == 0)
-                isp_driver_index = 2;
-            else if (strcmp(isp_driver, "rkisp3") == 0)
-                isp_driver_index = 3;
-            else
-                isp_driver_index = -1;
-        }
-    }
     std::map<std::string, SmartPtr<rk_sensor_full_info_t> >::iterator iter;
     std::map<std::string, SmartPtr<rk_aiq_static_info_t> >::iterator iter_info;
     for (iter = mSensorHwInfos.begin(); \
             iter != mSensorHwInfos.end(); iter++) {
         rk_sensor_full_info_t *s_full_info_f = iter->second.ptr();
         if (s_full_info_f->isp_info) {
-            if (s_full_info_f->isp_info->model_idx != isp_driver_index) {
+            if (s_full_info_f->isp_info->model_idx != isp_index) {
                 continue;
             }
             rk_sensor_full_info_t *s_full_info = new rk_sensor_full_info_t;
@@ -1248,6 +1217,7 @@ MediaInfo::offline(const char* isp_driver, const char* offline_sns_ent_name)
             rk_aiq_static_info_t *cam_hw_info = new rk_aiq_static_info_t;
             *cam_hw_info = *cam_hw_info_f;
             char sensor_name_real[64];
+            std::string sns_fake_name;
             if (!strstr(const_cast<char*>(s_full_info->sensor_name.c_str()), offline_sns_ent_name)) {
                 int module_index = 0;
                 std::map<std::string, SmartPtr<rk_sensor_full_info_t> >::iterator sns_it;
@@ -1268,9 +1238,9 @@ MediaInfo::offline(const char* isp_driver, const char* offline_sns_ent_name)
                 sprintf(sensor_name_real, "%s%d%s%s%s", "m0", module_index, "_s_",
                                                     s_full_info->module_real_sensor_name.c_str(),
                                                     " 1-111a");
-                std::string sns_fake_name = sensor_name_real;
+                sns_fake_name = sensor_name_real;
                 s_full_info->sensor_name = sns_fake_name;
-                printf("sns_fake_name:%s %s\n", s_full_info->sensor_name.c_str(), s_full_info_f->sensor_name.c_str());
+                LOGD_RKSTREAM("sns_fake_name:%s origin:%s\n", s_full_info->sensor_name.c_str(), s_full_info_f->sensor_name.c_str());
                 mSensorHwInfos[s_full_info->sensor_name] = s_full_info;
                 mCamHwInfos[s_full_info->sensor_name] = cam_hw_info;
                 mSensorHwInfos.erase(tmp_sensor_name);
@@ -1283,19 +1253,92 @@ MediaInfo::offline(const char* isp_driver, const char* offline_sns_ent_name)
                 sprintf(sensor_name_real, "%s%s%s%s", s_full_info->module_index_str.c_str(), "_s_",
                                                     s_full_info->module_real_sensor_name.c_str(),
                                                     " 1-111a");
-                std::string sns_fake_name = sensor_name_real;
+                sns_fake_name = sensor_name_real;
                 s_full_info->sensor_name = sns_fake_name;
-                printf("sns_fake_name:%s %s\n", s_full_info->sensor_name.c_str(), s_full_info_f->sensor_name.c_str());
+                LOGD_RKSTREAM("sns_fake_name:%s %s\n", s_full_info->sensor_name.c_str(), s_full_info_f->sensor_name.c_str());
                 mSensorHwInfos[s_full_info->sensor_name] = s_full_info;
                 mCamHwInfos[s_full_info->sensor_name] = cam_hw_info;
                 mSensorHwInfos.erase(tmp_sensor_name);
                 mCamHwInfos.erase(tmp_sensor_name);
                 iter_info++;
             }
-            return;
+            return mSensorHwInfos[s_full_info->sensor_name]->sensor_name.c_str();
         }
     }
-    printf("offline preInit faile\n");
+    printf("offline preInit failed\n");
+    return NULL;
+}
+
+XCamReturn
+MediaInfo::setupOffLineLink(int isp_index, bool enable)
+{
+    media_device* device  = NULL;
+    media_entity* entity  = NULL;
+    media_pad* src_pad    = NULL;
+    media_pad* sink_pad   = NULL;
+    int lvds_max_entities = 6;
+    int lvds_entity       = 0;
+
+    device = media_device_new(mIspHwInfos.isp_info[isp_index].media_dev_path);
+    if (!device) return XCAM_RETURN_ERROR_FAILED;
+
+    /* Enumerate entities, pads and links. */
+    media_device_enumerate(device);
+    entity = media_get_entity_by_name(device, "rkisp-isp-subdev", strlen("rkisp-isp-subdev"));
+    if (!entity) {
+        goto FAIL;
+    }
+
+    sink_pad = (media_pad*)media_entity_get_pad(entity, 0);
+    if (!sink_pad) {
+        LOGE_RKSTREAM("get rkisp-isp-subdev sink pad failed!\n");
+        goto FAIL;
+    }
+
+    for (lvds_entity = 0; lvds_entity < lvds_max_entities; lvds_entity++) {
+        char entity_name[128] = {0};
+        src_pad               = NULL;
+        if (!lvds_entity) {
+          snprintf(entity_name, 128, "rkcif-mipi-lvds");
+        } else {
+          snprintf(entity_name, 128, "rkcif-mipi-lvds%d", lvds_entity);
+        }
+        entity = media_get_entity_by_name(device, entity_name, strlen(entity_name));
+        if (entity) {
+            src_pad = (media_pad*)media_entity_get_pad(entity, 0);
+            if (!src_pad) {
+                LOGE_RKSTREAM("get rkcif-mipi-lvds%d source pad s failed!\n",
+                                lvds_entity);
+                goto FAIL;
+            }
+        }
+
+        if (src_pad && sink_pad) {
+            if (enable) {
+                media_setup_link(device, src_pad, sink_pad, 0);
+            } else {
+                media_setup_link(device, src_pad, sink_pad, MEDIA_LNK_FL_ENABLED);
+            }
+        }
+    }
+
+    entity = media_get_entity_by_name(device, "rkisp_rawrd2_s", strlen("rkisp_rawrd2_s"));
+    if (entity) {
+        src_pad = (media_pad*)media_entity_get_pad(entity, 0);
+        if (src_pad) {
+            if (enable) {
+                media_setup_link(device, src_pad, sink_pad, MEDIA_LNK_FL_ENABLED);
+            } else {
+                media_setup_link(device, src_pad, sink_pad, 0);
+            }
+        }
+    }
+
+    media_device_unref(device);
+    return XCAM_RETURN_NO_ERROR;
+FAIL:
+    media_device_unref(device);
+    return XCAM_RETURN_ERROR_FAILED;
 }
 
 }

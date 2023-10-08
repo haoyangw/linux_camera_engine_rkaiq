@@ -13,7 +13,7 @@
  */
 
 #include "j2s.h"
-#ifdef __ANDROID__
+#if defined(__ANDROID__) && !CMAKE_BUILD_ANDROID
 #if defined(ISP_HW_V20)
 #include "j2s_generated_v20.h"
 #elif defined(ISP_HW_V21)
@@ -41,6 +41,12 @@
 
 using namespace RkCam;
 
+#define J2S_POOL_SIZE (256 * 1024)
+
+static int aligned_size(int ori_size, int alig) {
+    return (ori_size + (alig - 1)) & ~(alig - 1);
+}
+
 typedef struct {
     void* ptr;
     bool freeable;
@@ -61,6 +67,75 @@ void* j2s_alloc_data(j2s_ctx* ctx, size_t size)
         free(ptr);
         return NULL;
     }
+
+    return ptr;
+}
+
+int j2s_alloc_map_record(j2s_ctx *ctx, void *dst, void *ptr, size_t len) {
+    if (!ctx || !ctx->priv) {
+        return -1;
+    }
+
+    j2s_pool_t *j2s_pool = (j2s_pool_t *)ctx->priv;
+
+    if (!j2s_pool->maps_list) {
+        j2s_pool->maps_list = (map_index_t *)calloc(1, sizeof(map_index_t));
+        j2s_pool->map_len = 1;
+    } else {
+        j2s_pool->map_len++;
+        j2s_pool->maps_list = (map_index_t *)realloc(
+            j2s_pool->maps_list, j2s_pool->map_len * sizeof(map_index_t));
+    }
+
+    j2s_pool->maps_list[j2s_pool->map_len - 1].dst_offset =
+        (void *)((uint8_t *)dst - j2s_pool->data);
+
+    j2s_pool->maps_list[j2s_pool->map_len - 1].ptr_offset =
+        (void *)((uint8_t *)ptr - j2s_pool->data);
+
+    j2s_pool->maps_list[j2s_pool->map_len - 1].len = len;
+
+    return 0;
+}
+
+void *j2s_alloc_data2(j2s_ctx *ctx, size_t size, size_t* real_size) {
+    void *ptr = NULL;
+    j2s_pool_t *j2s_pool = (j2s_pool_t *)ctx->priv;
+
+
+    if (!j2s_pool) {
+        ctx->priv = malloc(sizeof(j2s_pool_t));
+        memset(ctx->priv, 0, sizeof(j2s_pool_t));
+        j2s_pool = (j2s_pool_t *)ctx->priv;
+    }
+
+    if (!j2s_pool) {
+        ERR("Create j2s Pool failed!\n");
+        return NULL;
+    }
+
+    if (j2s_pool->used + size >= J2S_POOL_SIZE) {
+        ERR("Error: j2s poll over flow!!\n");
+        return NULL;
+    }
+    if (!j2s_pool->data) {
+        j2s_pool->data = (uint8_t *)malloc(J2S_POOL_SIZE);
+        memset(j2s_pool->data, 0, J2S_POOL_SIZE);
+        ptr = j2s_pool->data;
+    } else {
+        ptr = ((uint8_t *)j2s_pool->data + j2s_pool->used);
+    }
+
+    DBG("%palloc [%zu]/[%zu]@[%p]-offset[%zu]\n", ctx, size, j2s_pool->used, ptr,
+        (uint8_t *)ptr - j2s_pool->data);
+
+    // 32bit 16 64bit 32
+    size_t offset = aligned_size(size, sizeof(void *) * 4);
+    j2s_pool->used += offset;
+    *real_size = offset;
+
+    if (!ptr)
+        return NULL;
 
     return ptr;
 }

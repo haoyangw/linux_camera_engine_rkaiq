@@ -163,7 +163,9 @@ public:
     virtual XCamReturn rawReProc_prepare (uint32_t sequence, rk_aiq_frame_info_t *offline_finfo) {
         return XCAM_RETURN_ERROR_FAILED;
     }
-    virtual void setUserSensorFormat(uint16_t width, uint16_t height, uint16_t code) { }
+    virtual void setRawStreamInfo(rk_aiq_rkrawstream_info_t *info) {
+        mRawStreamInfo = *info;
+    }
     HwResListener* mHwResLintener;
 
 protected:
@@ -189,6 +191,7 @@ protected:
     bool mIsMain;
     rk_aiq_tb_info_t mTbInfo;
     std::map<std::string, int> mDevBufCntMap;
+    rk_aiq_rkrawstream_info_t mRawStreamInfo;
 
  private:
     XCAM_DEAD_COPY (CamHwBase);

@@ -64,6 +64,7 @@
 // #define TEST_MEMS_SENSOR_INTF
 // #define CUSTOM_AF_DEMO_TEST
 // #define CUSTOM_GROUP_AWB_DEMO_TEST
+// #define OTP_API_TEST
 #ifdef ISPFEC_API
 #include "IspFec/rk_ispfec_api.h"
 #include <xf86drm.h>
@@ -2500,6 +2501,29 @@ static void rkisp_routine(demo_context_t *ctx)
 #if 0
             test_tuning_api(ctx);
 #endif
+
+#ifdef OTP_API_TEST
+            rk_aiq_user_otp_info_t otp_info = {};
+            otp_info.otp_awb.flag = true;
+            otp_info.otp_awb.r_value = 548;
+            otp_info.otp_awb.b_value = 521;
+            otp_info.otp_awb.gr_value = 1021;
+            otp_info.otp_awb.gb_value = -1;
+            otp_info.otp_awb.golden_r_value = 532;
+            otp_info.otp_awb.golden_b_value = 529;
+            otp_info.otp_awb.golden_gr_value = 1020;
+            otp_info.otp_awb.golden_gb_value = -1;
+
+            if (rk_aiq_uapi2_sysctl_setUserOtpInfo(ctx->aiq_ctx, otp_info) != 0) {
+                ERR("Failed to set User Otp\n");
+            } else {
+                ERR("whm set User Otp: flag = %d, value = [%d, %d, %d, %d], golden = [%d, %d, %d, %d]\n",
+                    otp_info.otp_awb.flag, otp_info.otp_awb.r_value, otp_info.otp_awb.b_value,
+                    otp_info.otp_awb.gr_value, otp_info.otp_awb.gb_value,
+                    otp_info.otp_awb.golden_r_value, otp_info.otp_awb.golden_b_value,
+                    otp_info.otp_awb.golden_gr_value, otp_info.otp_awb.golden_gb_value);
+            }
+#endif
             XCamReturn ret = rk_aiq_uapi2_sysctl_prepare(ctx->aiq_ctx, ctx->width, ctx->height, work_mode);
 
             if (ret != XCAM_RETURN_NO_ERROR)
@@ -2571,6 +2595,45 @@ restart:
         } else if (ctx->camgroup_ctx) {
             // only do once for cam group
             if (ctx->dev_using == 1) {
+                rk_aiq_camgroup_camInfos_t camInfos;
+                memset(&camInfos, 0, sizeof(camInfos));
+                if (rk_aiq_uapi2_camgroup_getCamInfos((rk_aiq_camgroup_ctx_t *)ctx->camgroup_ctx, &camInfos) == XCAM_RETURN_NO_ERROR) {
+                    for (int i = 0; i < camInfos.valid_sns_num; i++) {
+                        rk_aiq_sys_ctx_t* aiq_ctx = NULL;
+                        aiq_ctx = rk_aiq_uapi2_camgroup_getAiqCtxBySnsNm((rk_aiq_camgroup_ctx_t *)ctx->camgroup_ctx, camInfos.sns_ent_nm[i]);
+                        if (!aiq_ctx)
+                            continue;
+
+                        printf("aiq_ctx sns name: %s, camPhyId %d\n",
+                                camInfos.sns_ent_nm[i], camInfos.sns_camPhyId[i]);
+                        rk_aiq_user_otp_info_t otp_info = {};
+                        otp_info.otp_awb.flag = true;
+                        if (i == 0) {
+                            otp_info.otp_awb.r_value = 548;
+                            otp_info.otp_awb.b_value = 521;
+                            otp_info.otp_awb.gr_value = 1021;
+                            otp_info.otp_awb.gb_value = -1;
+                            otp_info.otp_awb.golden_r_value = 532;
+                            otp_info.otp_awb.golden_b_value = 529;
+                            otp_info.otp_awb.golden_gr_value = 1020;
+                            otp_info.otp_awb.golden_gb_value = -1;
+                        } else {
+                            otp_info.otp_awb.r_value = 1;
+                            otp_info.otp_awb.b_value = 1;
+                            otp_info.otp_awb.gr_value = 1;
+                            otp_info.otp_awb.gb_value = -1;
+                            otp_info.otp_awb.golden_r_value = 1;
+                            otp_info.otp_awb.golden_b_value = 1;
+                            otp_info.otp_awb.golden_gr_value = 1;
+                            otp_info.otp_awb.golden_gb_value = -1;
+                        }
+
+                        if (rk_aiq_uapi2_sysctl_setUserOtpInfo(aiq_ctx, otp_info) != 0) {
+                            printf("Failed to set User Otp\n");
+                        }
+                    }
+                }
+
                 XCamReturn ret = rk_aiq_uapi2_camgroup_prepare(ctx->camgroup_ctx, work_mode);
 
                 if (ret != XCAM_RETURN_NO_ERROR)

@@ -1266,7 +1266,7 @@ typedef struct CalibDb_RKDM_s {
     unsigned char debayer_shift_num;
 } CalibDb_RKDM_t;
 
-#define CCM_ILLUMINATION_MAX               7
+#define CCM_ILLUMINATION_MAX         9
 #define CCM_PROFILE_NAME            ( 25U )
 typedef char                        CalibDb_Ccm_ProfileName_t[CCM_PROFILE_NAME];
 #define CCM_ILLUMINATION_NAME       ( 20U )

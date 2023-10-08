@@ -249,23 +249,10 @@ int BinMapLoader::suqeezBinMap(const char *fpath, uint8_t *buffer,
     return -1;
   }
 
-  inp_buff = (uint8_t *)malloc(MAX_IQBIN_SIZE);
-  if (!inp_buff) {
-    printf("[BIN]%s %d:oom!\n", __func__, __LINE__);
-    return -1;
-    goto error;
-  }
+  inp_buff = buffer;
+  out_buff = buffer;
 
-  out_buff = (uint8_t *)malloc(MAX_IQBIN_SIZE);
-  if (!out_buff) {
-    printf("[BIN] %s %d:oom!\n", __func__, __LINE__);
-    goto error;
-  }
-
-  memset(inp_buff, 0, MAX_IQBIN_SIZE);
-  memcpy(inp_buff, buffer, buffer_len);
   inp_size = buffer_len;
-
   do {
     BinMapLoader *loader = new BinMapLoader(inp_buff, inp_size);
     loader->parseBinStructMap(inp_buff, inp_size);
@@ -273,23 +260,16 @@ int BinMapLoader::suqeezBinMap(const char *fpath, uint8_t *buffer,
     ret = loader->suqeezBinMapOne();
     memset(out_buff, 0, MAX_IQBIN_SIZE);
     final_size = loader->genBinary(out_buff, MAX_IQBIN_SIZE);
-    memset(inp_buff, 0, MAX_IQBIN_SIZE);
-    memcpy(inp_buff, out_buff, MAX_IQBIN_SIZE);
     inp_size = final_size;
 
     if (ret != 0) {
       loader->saveFile(fpath, out_buff, final_size);
     }
+    delete loader;
+    loader = NULL;
   } while (ret == 0);
 
 error:
-  if (inp_buff) {
-    free(inp_buff);
-  }
-
-  if (out_buff) {
-    free(out_buff);
-  }
 
   return 0;
 }

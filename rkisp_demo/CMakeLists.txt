@@ -54,11 +54,17 @@ option(ENABLE_IIO_API "Enable IIO API for EIS algorithm" OFF)
 set(RK_AIQ_SOURCE_DIR ${PROJECT_SOURCE_DIR}/../rk_aiq)
 message("rkaiq src path" ${RK_AIQ_SOURCE_DIR})
 
+if (${CMAKE_SYSTEM_NAME} EQUAL "")
+    set(OS "linux")
+else()
+    string(TOLOWER ${CMAKE_SYSTEM_NAME} OS)
+endif()
+
 if(ADD_RK_AIQ)
     add_compile_options(-Os)
     add_compile_options(-DADD_RK_AIQ)
     add_compile_options(-fstack-protector-strong -D_FORTIFY_SOURCE=2)
-    set(RK_AIQ_INSTALLED_DIR "${RK_AIQ_SOURCE_DIR}/build/linux/output/${ARCH}/installed" CACHE STRING "AIQ library installed dir")
+    set(RK_AIQ_INSTALLED_DIR "${RK_AIQ_SOURCE_DIR}/build/${OS}/output/${ARCH}/installed" CACHE STRING "AIQ library installed dir")
     set(RK_AIQ_LIB_DIR ${RK_AIQ_INSTALLED_DIR}/lib)
     message("rkaiq lib path" ${RK_AIQ_LIB_DIR})
     set(RK_AIQ_INCLUDE_DIR
@@ -88,14 +94,14 @@ endif()
 if (ENABLE_SMARTIR_API)
 	set(SMARTIR_DIR ${PROJECT_SOURCE_DIR}/../smart_ir)
 	set(SMARTIR_INCLUDE_DIR ${SMARTIR_DIR}/include)
-	set(SMARTIR_INSTALLED_LIB_DIR ${SMARTIR_DIR}/build/linux/output/${ARCH}/installed/lib)
+	set(SMARTIR_INSTALLED_LIB_DIR ${SMARTIR_DIR}/build/${OS}/output/${ARCH}/installed/lib)
 	set(SMARTIR_LIB smartIr)
     add_compile_options(-DSAMPLE_SMART_IR)
 endif()
 
 # set(ENABLE_ISPFEC_API true)
 if (ENABLE_ISPFEC_API)
-	set(ISPFEC_INSTALLED_DIR ${PROJECT_SOURCE_DIR}/../IspFec/build/linux/output/${ARCH}/installed/)
+	set(ISPFEC_INSTALLED_DIR ${PROJECT_SOURCE_DIR}/../IspFec/build/${OS}/output/${ARCH}/installed/)
 	set(ISPFEC_INCLUDE_DIR ${ISPFEC_INSTALLED_DIR}/include/)
 	set(ISPFEC_LIB_DIR ${ISPFEC_INSTALLED_DIR}/lib/)
 	set(ISPFEC_LIB IspFec)
@@ -178,9 +184,9 @@ endif()
 add_executable(rkisp_demo ${DIR_SRCS})
 if (libdrm_FOUND)
     target_link_libraries(rkisp_demo rga drm ${RK_AIQ_LIB} ${IIO_LIBS}
-        ${SMARTIR_LIB} ${ISPFEC_LIB} pthread)
+        ${SMARTIR_LIB} ${ISPFEC_LIB})
 else()
-    target_link_libraries(rkisp_demo ${RK_AIQ_LIB} ${IIO_LIBS} ${SMARTIR_LIB} ${LOCAL_DRM_LIB} ${ISPFEC_LIB} pthread)
+    target_link_libraries(rkisp_demo ${RK_AIQ_LIB} ${IIO_LIBS} ${SMARTIR_LIB} ${LOCAL_DRM_LIB} ${ISPFEC_LIB})
 endif()
 
 if (libdrm_FOUND)
@@ -193,4 +199,15 @@ if (librga_FOUND)
     target_link_libraries(rkisp_demo
         librga::librga
         )
+endif()
+
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Android")
+    target_link_libraries(rkisp_demo
+        log
+        utils
+        cutils
+        )
+else ()
+    target_link_libraries(rkisp_demo
+        pthread)
 endif()

@@ -159,13 +159,22 @@ int main(int argc, char *argv[]) {
   }
 
   RkAiqsceneManager::mergeMultiSceneIQ(base_json);
+
+#ifndef RKAIQ_J2S4B_DEV
   full_json = RkCam::cJSON_Parse(RkCam::cJSON_Print(base_json));
+#else
+  if (file_data)
+    free(file_data);
+  file_data = NULL;
+  full_json = base_json;
+#endif
 
   j2s_json_to_bin_root(&j2s4b_ctx, full_json,
                        &struct_ptr, root_size, argv[2]);
 
   j2s_deinit(&j2s4b_ctx);
 
+#ifndef RKAIQ_J2S4B_DEV
   bin_file_size = read_file_all(&bin_file_data, argv[2]);
 
   j2s_scan_map((uint8_t *)bin_file_data, bin_file_size);
@@ -183,12 +192,21 @@ int main(int argc, char *argv[]) {
 
   j2s_deinit(&j2s4b_ctx);
 
-  if (base_json) {
-    RkCam::cJSON_Delete(base_json);
+  if (file_data) {
+    free(file_data);
+    file_data = NULL;
   }
-
+  if (bin_file_data) {
+    free(bin_file_data);
+    bin_file_data = NULL;
+  }
   if (full_json) {
     RkCam::cJSON_Delete(full_json);
+  }
+#endif
+
+  if (base_json) {
+    RkCam::cJSON_Delete(base_json);
   }
 
   return 0;

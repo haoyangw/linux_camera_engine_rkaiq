@@ -60,6 +60,7 @@ public:
     XCamReturn register_rawdata_callback(void (*callback)(void *));
     virtual bool is_virtual_sensor() { return true; }
 
+    bool use_rkrawstream;
 private:
     XCAM_DEAD_COPY (FakeSensorHw);
     int get_sensor_fps(float& fps);

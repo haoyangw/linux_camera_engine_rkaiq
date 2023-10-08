@@ -75,6 +75,7 @@ class RkAiqAnalyzerGroup {
     RkAiqCore* getAiqCore() { return mAiqCore; }
     void setDelayCnts(int8_t delayCnts);
     void setVicapScaleFlag(bool mode);
+    void awakenClean(uint32_t sequence);
  private:
     void msgReduction(std::map<uint32_t, GroupMessage>& msgMap);
     int8_t getMsgDelayCnt(XCamMessageType &msg_id);
@@ -89,6 +90,7 @@ class RkAiqAnalyzerGroup {
     MessageHandleWrapper mHandler;
     int8_t mUserSetDelayCnts;
     bool mVicapScaleStart{false};
+    uint32_t mAwakenId;
 };
 
 class RkAiqAnalyzeGroupMsgHdlThread : public Thread {

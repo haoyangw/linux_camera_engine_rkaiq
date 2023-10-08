@@ -151,6 +151,106 @@ rk_aiq_uapi_accm_QueryCcmInfo(const RkAiqAlgoContext *ctx,
     return XCAM_RETURN_NO_ERROR;
 }
 
+static XCamReturn
+rk_aiq_uapi_accm_SetACcmCof(const rk_aiq_ccm_illucfg_t* attr,
+                            const int new_aCcmCof_len,
+                            const ccm_calib_initlen_info_t* calib_initlen_info,
+                            int* aCcmCof_len,
+                            CalibDbV2_Ccm_Accm_Cof_Para_t* aCcmCof)
+{
+    if (!attr || !aCcmCof) {
+        LOGE_ACCM("%s: null input\n", __FUNCTION__);
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+    // memset 0
+    for (int i = 0; i < new_aCcmCof_len; i++) {
+        if (i > calib_initlen_info->accmCof_initlen - 1) {
+            LOGE_ACCM("Failed to set aCcmCof[%d] %s and so on, aCcmCof_len exceeds %d \n",
+                      i, attr[i].name, calib_initlen_info->accmCof_initlen);
+            return XCAM_RETURN_ERROR_PARAM;
+        }
+        const accmCof_initlen_info_t* initlen_info = &calib_initlen_info->accmCof_initlen_info[i];
+        if (strlen(attr[i].name) > initlen_info->name_len) {
+            LOGE_ACCM("Failed to set aCcmCof[%d].name %s, name length exceeds %d \n",
+                      i, attr[i].name, initlen_info->name_len);
+            return XCAM_RETURN_ERROR_PARAM;
+        }
+        memset(aCcmCof[i].name, 0, initlen_info->name_len * sizeof(char));
+        for (int j = 0; j < attr[i].matrixUsed_len; j++) {
+            if (j > initlen_info->matused_len) {
+                LOGE_ACCM("Failed to set aCcmCof[%d].matrixUsed[%d] %s and so on, matrixUsed_len exceeds %d \n",
+                          i, j, aCcmCof[i].matrixUsed[j], initlen_info->matused_len);
+                return XCAM_RETURN_ERROR_PARAM;
+            }
+            if (strlen(attr[i].matrixUsed[j]) > initlen_info->matused_str_len[j]) {
+                LOGE_ACCM("Failed to set aCcmCof[%d].matrixUsed[%d] %s, matrixUsed[%d] length exceeds %d \n",
+                        i, j, attr[i].matrixUsed[j], j, initlen_info->matused_str_len[j]);
+                return XCAM_RETURN_ERROR_PARAM;
+            }
+            memset(aCcmCof[i].matrixUsed[j], 0, initlen_info->matused_str_len[j] * sizeof(char));
+        }
+        aCcmCof[i].matrixUsed_len = attr[i].matrixUsed_len;
+    }
+    *aCcmCof_len = new_aCcmCof_len;
+    // copy
+    for (int i = 0; i < new_aCcmCof_len; i++) {
+        strcpy(aCcmCof[i].name, attr[i].name);
+        memcpy(aCcmCof[i].awbGain, attr[i].awbGain, sizeof(attr[i].awbGain));
+        aCcmCof[i].minDist = attr[i].minDist;
+        for (int j = 0; j < attr[i].matrixUsed_len; j++) {
+            strcpy(aCcmCof[i].matrixUsed[j], attr[i].matrixUsed[j]);
+        }
+        memcpy(&aCcmCof[i].gain_sat_curve, &attr[i].gain_sat_curve,
+               sizeof(attr[i].gain_sat_curve));
+    }
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
+static XCamReturn
+rk_aiq_uapi_accm_SetMatrixAll(const rk_aiq_ccm_matrixcfg_t* attr,
+                            const int new_matrixAll_len,
+                            const ccm_calib_initlen_info_t* calib_initlen_info,
+                            int* matrixAll_len,
+                            CalibDbV2_Ccm_Matrix_Para_t* matrixAll)
+{
+    if (!attr || !matrixAll) {
+        LOGE_ACCM("%s: null input\n", __FUNCTION__);
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+    for (int i = 0; i < new_matrixAll_len; i++) {
+        if (i > calib_initlen_info->matrixall_initlen - 1) {
+            LOGE_ACCM("Failed to set matrixAll[%d] %s and so on, matrixAll_len exceeds %d \n",
+                      i, attr[i].name, calib_initlen_info->matrixall_initlen);
+            return XCAM_RETURN_ERROR_PARAM;
+        }
+        const matrixall_initlen_info_t* initlen_info = &calib_initlen_info->matrixall_initlen_info[i];
+        if (strlen(attr[i].name) > initlen_info->name_len) {
+            LOGE_ACCM("Failed to set matrixAll[%d].name %s, name length exceeds %d \n",
+                      i, attr[i].name, initlen_info->name_len);
+            return XCAM_RETURN_ERROR_PARAM;
+        }
+        memset(matrixAll[i].name, 0, initlen_info->name_len * sizeof(char));
+        if (strlen(attr[i].illumination) > initlen_info->illu_len) {
+            LOGE_ACCM("Failed to set matrixAll[%d].illumination %s, illumination length exceeds %d \n",
+                      i, attr[i].illumination, initlen_info->illu_len);
+            return XCAM_RETURN_ERROR_PARAM;
+        }
+        memset(matrixAll[i].illumination, 0, initlen_info->illu_len * sizeof(char));
+    }
+    *matrixAll_len = new_matrixAll_len;
+    // copy
+    for (int i = 0; i < new_matrixAll_len; i++) {
+        strcpy(matrixAll[i].name, attr[i].name);
+        strcpy(matrixAll[i].illumination, attr[i].illumination);
+        matrixAll[i].saturation = attr[i].saturation;
+        memcpy(matrixAll[i].ccMatrix, attr[i].ccMatrix, sizeof(attr[i].ccMatrix));
+        memcpy(matrixAll[i].ccOffsets, attr[i].ccOffsets, sizeof(attr[i].ccOffsets));
+    }
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
 #if RKAIQ_HAVE_CCM_V1
 XCamReturn
 rk_aiq_uapi_accm_SetIqParam(RkAiqAlgoContext *ctx,
@@ -164,19 +264,37 @@ rk_aiq_uapi_accm_SetIqParam(RkAiqAlgoContext *ctx,
 #endif
     accm_context_t* ccm_contex = (accm_context_t*)ctx->accm_para;
 
+#if RKAIQ_ACCM_ILLU_VOTE
+    if (ccm_contex->accmRest.illuNum != attr->aCcmCof_len)
+        clear_list(&hAccm->accmRest.dominateIlluList);
+#endif
 #if RKAIQ_HAVE_CCM_V1
-#if RKAIQ_ACCM_ILLU_VOTE
-    if (ccm_contex->stCalib_v1.aCcmCof_len != attr->aCcmCof_len)
-        clear_list(&hAccm->accmRest.dominateIlluList);
-#endif
-    ccm_contex->stCalib_v1 = attr->iqparam;
+    CalibDbV2_Ccm_Para_V2_t* pCalib = ccm_contex->ccm_v1;
 #elif RKAIQ_HAVE_CCM_V2
-#if RKAIQ_ACCM_ILLU_VOTE
-    if (ccm_contex->stCalib_v2.aCcmCof_len != attr->aCcmCof_len)
-        clear_list(&hAccm->accmRest.dominateIlluList);
+    CalibDbV2_Ccm_Para_V32_t* pCalib = ccm_contex->ccm_v2;
+    memcpy(&pCalib->enhCCM, &attr->iqparam.enhCCM, sizeof(attr->iqparam.enhCCM));
 #endif
-    ccm_contex->stCalib_v2 = attr->iqparam;
+    if (!pCalib) {
+        LOGE_ACCM("%s: Failed to set params to ccm_Calib, nullptr \n", __FUNCTION__);
+    } else {
+        memcpy(&pCalib->control, &attr->iqparam.control, sizeof(attr->iqparam.control));
+        memcpy(&pCalib->lumaCCM, &attr->iqparam.lumaCCM, sizeof(attr->iqparam.lumaCCM));
+#if RKAIQ_HAVE_CCM_V2
+        memcpy(&pCalib->enhCCM, &attr->iqparam.enhCCM, sizeof(attr->iqparam.enhCCM));
 #endif
+        pCalib->TuningPara.damp_enable = attr->iqparam.damp_enable;
+        rk_aiq_uapi_accm_SetACcmCof(attr->iqparam.aCcmCof,
+                                    attr->iqparam.aCcmCof_len,
+                                    &ccm_contex->accmRest.ccm_calib_initlen_info,
+                                    &pCalib->TuningPara.aCcmCof_len,
+                                    pCalib->TuningPara.aCcmCof);
+        rk_aiq_uapi_accm_SetMatrixAll(attr->iqparam.matrixAll,
+                                    attr->iqparam.matrixAll_len,
+                                    &ccm_contex->accmRest.ccm_calib_initlen_info,
+                                    &pCalib->TuningPara.matrixAll_len,
+                                    pCalib->TuningPara.matrixAll);
+    }
+
     ConfigbyCalib(ccm_contex);
 
     return XCAM_RETURN_NO_ERROR;
@@ -194,10 +312,69 @@ rk_aiq_uapi_accm_GetIqParam(const RkAiqAlgoContext *ctx,
 
     accm_context_t* ccm_contex = (accm_context_t*)ctx->accm_para;
 #if RKAIQ_HAVE_CCM_V1
-    attr->iqparam = ccm_contex->stCalib_v1;
+    CalibDbV2_Ccm_Para_V2_t* pCalib = ccm_contex->ccm_v1;
 #elif RKAIQ_HAVE_CCM_V2
-    attr->iqparam = ccm_contex->stCalib_v2;
+    CalibDbV2_Ccm_Para_V32_t* pCalib = ccm_contex->ccm_v2;
 #endif
+    if (!pCalib) {
+        LOGE_ACCM("%s: Failed to get ccm_Calib, nullptr\n", __FUNCTION__);
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+    memcpy(&attr->iqparam.control, &pCalib->control, sizeof(pCalib->control));
+    memcpy(&attr->iqparam.lumaCCM, &pCalib->lumaCCM, sizeof(pCalib->lumaCCM));
+#if RKAIQ_HAVE_CCM_V2
+    memcpy(&attr->iqparam.enhCCM, &pCalib->enhCCM, sizeof(pCalib->enhCCM));
+#endif
+    attr->iqparam.damp_enable = pCalib->TuningPara.damp_enable;
+    if (pCalib->TuningPara.aCcmCof) {
+        for(int i = 0; i < pCalib->TuningPara.aCcmCof_len; i++) {
+            strcpy(attr->iqparam.aCcmCof[i].name,
+                   pCalib->TuningPara.aCcmCof[i].name);
+            memcpy(attr->iqparam.aCcmCof[i].awbGain,
+                   pCalib->TuningPara.aCcmCof[i].awbGain,
+                   sizeof(pCalib->TuningPara.aCcmCof[i].awbGain));
+            attr->iqparam.aCcmCof[i].minDist = pCalib->TuningPara.aCcmCof[i].minDist;
+            if(pCalib->TuningPara.aCcmCof[i].matrixUsed) {
+                for(int j = 0; j < pCalib->TuningPara.aCcmCof[i].matrixUsed_len; j++) {
+                    strcpy(attr->iqparam.aCcmCof[i].matrixUsed[j],
+                        pCalib->TuningPara.aCcmCof[i].matrixUsed[j]);
+                }
+            } else {
+                LOGE_ACCM("%s: Failed to get aCcmCof[%d].matrixUsed, nullptr\n", __FUNCTION__, i);
+                return XCAM_RETURN_ERROR_PARAM;
+            }
+            attr->iqparam.aCcmCof[i].matrixUsed_len = pCalib->TuningPara.aCcmCof[i].matrixUsed_len;
+            memcpy(&attr->iqparam.aCcmCof[i].gain_sat_curve,
+                   &pCalib->TuningPara.aCcmCof[i].gain_sat_curve,
+                   sizeof(pCalib->TuningPara.aCcmCof[i].gain_sat_curve));
+        }
+        attr->iqparam.aCcmCof_len = pCalib->TuningPara.aCcmCof_len;
+    } else {
+        LOGE_ACCM("%s: Failed to get aCcmCof, nullptr\n", __FUNCTION__);
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+
+    if (pCalib->TuningPara.matrixAll) {
+        for(int i = 0; i < pCalib->TuningPara.matrixAll_len; i++) {
+            strcpy(attr->iqparam.matrixAll[i].name,
+                   pCalib->TuningPara.matrixAll[i].name);
+            strcpy(attr->iqparam.matrixAll[i].illumination,
+                   pCalib->TuningPara.matrixAll[i].illumination);
+            attr->iqparam.matrixAll[i].saturation = pCalib->TuningPara.matrixAll[i].saturation;
+            memcpy(attr->iqparam.matrixAll[i].ccMatrix,
+                   pCalib->TuningPara.matrixAll[i].ccMatrix,
+                   sizeof(pCalib->TuningPara.matrixAll[i].ccMatrix));
+            memcpy(attr->iqparam.matrixAll[i].ccOffsets,
+                   pCalib->TuningPara.matrixAll[i].ccOffsets,
+                   sizeof(pCalib->TuningPara.matrixAll[i].ccOffsets));
+        }
+        attr->iqparam.matrixAll_len = pCalib->TuningPara.matrixAll_len;
+    } else {
+        LOGE_ACCM("%s: Failed to get matrixAll, nullptr\n", __FUNCTION__);
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+
+
     return XCAM_RETURN_NO_ERROR;
 }
 

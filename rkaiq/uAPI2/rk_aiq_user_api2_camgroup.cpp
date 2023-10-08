@@ -462,12 +462,6 @@ rk_aiq_uapi2_camgroup_stop(rk_aiq_camgroup_ctx_t* camgroup_ctx)
 
     RKAIQ_API_SMART_LOCK(camgroup_ctx);
 
-    ret = camgroup_ctx->cam_group_manager->stop();
-    if (ret) {
-        LOGE("%s: stop failed !", __func__);
-        return ret;
-    }
-
     for (int i = 0; i < RK_AIQ_CAM_GROUP_MAX_CAMS; i++) {
         rk_aiq_sys_ctx_t* aiq_ctx = camgroup_ctx->cam_ctxs_array[i];
         if (aiq_ctx) {
@@ -477,6 +471,12 @@ rk_aiq_uapi2_camgroup_stop(rk_aiq_camgroup_ctx_t* camgroup_ctx)
                 continue;
             }
         }
+    }
+
+    ret = camgroup_ctx->cam_group_manager->stop();
+    if (ret) {
+        LOGE("%s: stop failed !", __func__);
+        return ret;
     }
 
     LOGD("%s: stop camgroup success !", __func__);

@@ -1072,7 +1072,6 @@ SensorHw::handle_sof(int64_t time, uint32_t frameid)
         _update_mirror_flip = false;
     }
 
-    _mutex.unlock();
     LOGD_CAMHW_SUBM(SENSOR_SUBM, "%s: cam%d working_mode=%d,frameid=%u, status: set_time=%d,set_gain=%d\n",
                     __FUNCTION__, mCamPhyId, _working_mode, frameid, set_time, set_gain);
 
@@ -1101,6 +1100,11 @@ SensorHw::handle_sof(int64_t time, uint32_t frameid)
             }
         }
 
+        if (mPauseFlag) {
+            _mutex.unlock();
+            return XCAM_RETURN_NO_ERROR;
+        }
+
         if(_working_mode == RK_AIQ_WORKING_MODE_NORMAL) {
             ret = setLinearSensorExposure(ptr_new_exp);
         } else {
@@ -1109,7 +1113,7 @@ SensorHw::handle_sof(int64_t time, uint32_t frameid)
 
         setSensorDpcc(&exp_time->data()->SensorDpccInfo);
     }
-
+    _mutex.unlock();
     if (ret != XCAM_RETURN_NO_ERROR) {
         LOGE_CAMHW_SUBM(SENSOR_SUBM, "%s: sof_id[%u]: set exposure failed!!!\n",
                         __FUNCTION__,
@@ -1520,53 +1524,79 @@ SensorHw::composeExpParam
 }
 
 XCamReturn
-SensorHw::set_offline_effecting_exp_map(uint32_t sequence, rk_aiq_frame_info_t *offline_finfo)
+SensorHw::set_effecting_exp_map(uint32_t sequence, void *exp_ptr, int mode)
 {
-    while (_effecting_exp_map.size() > 4)
-        _effecting_exp_map.erase(_effecting_exp_map.begin());
+    _mutex.lock();
+    if (mode) {
+        while (_effecting_exp_map.size() > 4)
+            _effecting_exp_map.erase(_effecting_exp_map.begin());
 
-    SmartPtr<RkAiqSensorExpParamsProxy> exp_param_prx = _expParamsPool->get_item();
-    rk_aiq_frame_info_t off_finfo;
-    memcpy(&off_finfo, offline_finfo, sizeof(off_finfo));
-    exp_param_prx->data()->aecExpInfo.LinearExp.exp_sensor_params.analog_gain_code_global = (uint32_t)off_finfo.normal_gain_reg;
-    exp_param_prx->data()->aecExpInfo.LinearExp.exp_sensor_params.coarse_integration_time = (uint32_t)off_finfo.normal_exp_reg;
-    exp_param_prx->data()->aecExpInfo.LinearExp.exp_real_params.analog_gain               = (float)off_finfo.normal_gain;
-    exp_param_prx->data()->aecExpInfo.LinearExp.exp_real_params.integration_time          = (float)off_finfo.normal_exp;
-    exp_param_prx->data()->aecExpInfo.LinearExp.exp_sensor_params.digital_gain_global = 1;
-    exp_param_prx->data()->aecExpInfo.LinearExp.exp_sensor_params.isp_digital_gain = 1;
-    exp_param_prx->data()->aecExpInfo.LinearExp.exp_real_params.digital_gain = 1.0f;
-    exp_param_prx->data()->aecExpInfo.LinearExp.exp_real_params.isp_dgain = 1.0f;
+        SmartPtr<RkAiqSensorExpParamsProxy> exp_param_prx = _expParamsPool->get_item();
+        rk_aiq_frame_info_t off_finfo;
+        memcpy(&off_finfo, exp_ptr, sizeof(off_finfo));
+        exp_param_prx->data()->aecExpInfo.LinearExp.exp_sensor_params.analog_gain_code_global = (uint32_t)off_finfo.normal_gain_reg;
+        exp_param_prx->data()->aecExpInfo.LinearExp.exp_sensor_params.coarse_integration_time = (uint32_t)off_finfo.normal_exp_reg;
+        exp_param_prx->data()->aecExpInfo.LinearExp.exp_real_params.analog_gain               = (float)off_finfo.normal_gain;
+        exp_param_prx->data()->aecExpInfo.LinearExp.exp_real_params.integration_time          = (float)off_finfo.normal_exp;
+        exp_param_prx->data()->aecExpInfo.LinearExp.exp_sensor_params.digital_gain_global = 1;
+        exp_param_prx->data()->aecExpInfo.LinearExp.exp_sensor_params.isp_digital_gain = 1;
+        exp_param_prx->data()->aecExpInfo.LinearExp.exp_real_params.digital_gain = 1.0f;
+        exp_param_prx->data()->aecExpInfo.LinearExp.exp_real_params.isp_dgain = 1.0f;
 
-    exp_param_prx->data()->aecExpInfo.HdrExp[2].exp_sensor_params.analog_gain_code_global = (uint32_t)off_finfo.hdr_gain_l;
-    exp_param_prx->data()->aecExpInfo.HdrExp[2].exp_sensor_params.coarse_integration_time = (uint32_t)off_finfo.hdr_exp_l;
-    exp_param_prx->data()->aecExpInfo.HdrExp[2].exp_real_params.analog_gain               = (float)off_finfo.hdr_gain_l_reg;
-    exp_param_prx->data()->aecExpInfo.HdrExp[2].exp_real_params.integration_time          = (float)off_finfo.hdr_exp_l_reg;
-    exp_param_prx->data()->aecExpInfo.HdrExp[2].exp_sensor_params.digital_gain_global = 1;
-    exp_param_prx->data()->aecExpInfo.HdrExp[2].exp_sensor_params.isp_digital_gain = 1;
-    exp_param_prx->data()->aecExpInfo.HdrExp[2].exp_real_params.digital_gain = 1.0f;
-    exp_param_prx->data()->aecExpInfo.HdrExp[2].exp_real_params.isp_dgain = 1.0f;
+        exp_param_prx->data()->aecExpInfo.HdrExp[2].exp_sensor_params.analog_gain_code_global = (uint32_t)off_finfo.hdr_gain_l;
+        exp_param_prx->data()->aecExpInfo.HdrExp[2].exp_sensor_params.coarse_integration_time = (uint32_t)off_finfo.hdr_exp_l;
+        exp_param_prx->data()->aecExpInfo.HdrExp[2].exp_real_params.analog_gain               = (float)off_finfo.hdr_gain_l_reg;
+        exp_param_prx->data()->aecExpInfo.HdrExp[2].exp_real_params.integration_time          = (float)off_finfo.hdr_exp_l_reg;
+        exp_param_prx->data()->aecExpInfo.HdrExp[2].exp_sensor_params.digital_gain_global = 1;
+        exp_param_prx->data()->aecExpInfo.HdrExp[2].exp_sensor_params.isp_digital_gain = 1;
+        exp_param_prx->data()->aecExpInfo.HdrExp[2].exp_real_params.digital_gain = 1.0f;
+        exp_param_prx->data()->aecExpInfo.HdrExp[2].exp_real_params.isp_dgain = 1.0f;
 
-    exp_param_prx->data()->aecExpInfo.HdrExp[1].exp_sensor_params.analog_gain_code_global = (uint32_t)off_finfo.hdr_gain_m;
-    exp_param_prx->data()->aecExpInfo.HdrExp[1].exp_sensor_params.coarse_integration_time = (uint32_t)off_finfo.hdr_exp_m;
-    exp_param_prx->data()->aecExpInfo.HdrExp[1].exp_real_params.analog_gain               = (float)off_finfo.hdr_gain_m_reg;
-    exp_param_prx->data()->aecExpInfo.HdrExp[1].exp_real_params.integration_time          = (float)off_finfo.hdr_exp_m_reg;
-    exp_param_prx->data()->aecExpInfo.HdrExp[1].exp_sensor_params.digital_gain_global = 1;
-    exp_param_prx->data()->aecExpInfo.HdrExp[1].exp_sensor_params.isp_digital_gain = 1;
-    exp_param_prx->data()->aecExpInfo.HdrExp[1].exp_real_params.digital_gain = 1.0f;
-    exp_param_prx->data()->aecExpInfo.HdrExp[1].exp_real_params.isp_dgain = 1.0f;
+        exp_param_prx->data()->aecExpInfo.HdrExp[1].exp_sensor_params.analog_gain_code_global = (uint32_t)off_finfo.hdr_gain_m;
+        exp_param_prx->data()->aecExpInfo.HdrExp[1].exp_sensor_params.coarse_integration_time = (uint32_t)off_finfo.hdr_exp_m;
+        exp_param_prx->data()->aecExpInfo.HdrExp[1].exp_real_params.analog_gain               = (float)off_finfo.hdr_gain_m_reg;
+        exp_param_prx->data()->aecExpInfo.HdrExp[1].exp_real_params.integration_time          = (float)off_finfo.hdr_exp_m_reg;
+        exp_param_prx->data()->aecExpInfo.HdrExp[1].exp_sensor_params.digital_gain_global = 1;
+        exp_param_prx->data()->aecExpInfo.HdrExp[1].exp_sensor_params.isp_digital_gain = 1;
+        exp_param_prx->data()->aecExpInfo.HdrExp[1].exp_real_params.digital_gain = 1.0f;
+        exp_param_prx->data()->aecExpInfo.HdrExp[1].exp_real_params.isp_dgain = 1.0f;
 
 
-    exp_param_prx->data()->aecExpInfo.HdrExp[0].exp_sensor_params.analog_gain_code_global = (uint32_t)off_finfo.hdr_gain_s;
-    exp_param_prx->data()->aecExpInfo.HdrExp[0].exp_sensor_params.coarse_integration_time = (uint32_t)off_finfo.hdr_exp_s;
-    exp_param_prx->data()->aecExpInfo.HdrExp[0].exp_real_params.analog_gain               = (float)off_finfo.hdr_gain_s_reg;
-    exp_param_prx->data()->aecExpInfo.HdrExp[0].exp_real_params.integration_time          = (float)off_finfo.hdr_exp_s_reg;
-    exp_param_prx->data()->aecExpInfo.HdrExp[0].exp_sensor_params.digital_gain_global = 1;
-    exp_param_prx->data()->aecExpInfo.HdrExp[0].exp_sensor_params.isp_digital_gain = 1;
-    exp_param_prx->data()->aecExpInfo.HdrExp[0].exp_real_params.digital_gain = 1.0f;
-    exp_param_prx->data()->aecExpInfo.HdrExp[0].exp_real_params.isp_dgain = 1.0f;
+        exp_param_prx->data()->aecExpInfo.HdrExp[0].exp_sensor_params.analog_gain_code_global = (uint32_t)off_finfo.hdr_gain_s;
+        exp_param_prx->data()->aecExpInfo.HdrExp[0].exp_sensor_params.coarse_integration_time = (uint32_t)off_finfo.hdr_exp_s;
+        exp_param_prx->data()->aecExpInfo.HdrExp[0].exp_real_params.analog_gain               = (float)off_finfo.hdr_gain_s_reg;
+        exp_param_prx->data()->aecExpInfo.HdrExp[0].exp_real_params.integration_time          = (float)off_finfo.hdr_exp_s_reg;
+        exp_param_prx->data()->aecExpInfo.HdrExp[0].exp_sensor_params.digital_gain_global = 1;
+        exp_param_prx->data()->aecExpInfo.HdrExp[0].exp_sensor_params.isp_digital_gain = 1;
+        exp_param_prx->data()->aecExpInfo.HdrExp[0].exp_real_params.digital_gain = 1.0f;
+        exp_param_prx->data()->aecExpInfo.HdrExp[0].exp_real_params.isp_dgain = 1.0f;
 
-    _effecting_exp_map[sequence] = exp_param_prx;
+        _effecting_exp_map[sequence] = exp_param_prx;
+    } else {
+        if (!_effecting_exp_map.empty())
+            _effecting_exp_map.clear();
+        if (!_exp_list.empty())
+            _exp_list.clear();
+        if (!_pending_spilt_map.empty())
+            _pending_spilt_map.clear();
+        rk_aiq_exposure_params_t *senosrExp = (rk_aiq_exposure_params_t *)exp_ptr;
+        SmartPtr<RkAiqSensorExpParamsProxy> exp_param_prx = _expParamsPool->get_item();
+        memcpy(&exp_param_prx->data()->aecExpInfo, senosrExp, sizeof(rk_aiq_exposure_params_t));
+        _effecting_exp_map[sequence] = exp_param_prx;
 
+    }
+
+    _mutex.unlock();
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn
+SensorHw::set_pause_flag(bool mode)
+{
+    _mutex.lock();
+    mPauseFlag = mode;
+    _mutex.unlock();
     return XCAM_RETURN_NO_ERROR;
 }
 

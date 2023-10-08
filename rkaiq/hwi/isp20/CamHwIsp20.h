@@ -192,14 +192,11 @@ public:
     // FIXME: Set struct to static.
     static sensor_info_share_t rk1608_share_inf;
 
-    virtual void setUserSensorFormat(uint16_t width, uint16_t height, uint16_t code) override {
-        userSensorWidth = width;
-        userSensorHeight = height;
-        userSensorFmtCode = code;
-    }
-
     // cif scale flag
     XCamReturn setCifSclStartFlag(int ratio, bool mode);
+    XCamReturn setFastAeExp(uint32_t frameId);
+
+    XCamReturn setVicapStreamMode(int mode);
 
 private:
     using V4l2Device::start;
@@ -407,12 +404,11 @@ protected:
     XCamReturn pixFmt2Bpp(uint32_t pixFmt, int8_t& bpp);
     uint32_t _curIspParamsSeq;
 
-    uint16_t userSensorWidth;
-    uint16_t userSensorHeight;
-    uint16_t userSensorFmtCode;
+    bool use_rkrawstream;
 
     bool _not_skip_first{true};
     struct isp32_rawawb_meas_cfg _first_awb_cfg{};
+    uint32_t mAweekId{0};
 };
 
 }

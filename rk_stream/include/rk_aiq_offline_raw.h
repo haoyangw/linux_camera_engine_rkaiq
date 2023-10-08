@@ -23,12 +23,14 @@ struct _block_header {
     unsigned int block_length;
 }__attribute__ ((packed));
 
-struct _st_addrinfo
+struct _st_addrinfo_stream
 {
+    unsigned int idx;
     unsigned int fd;
     unsigned int haddr;
     unsigned int laddr;
     unsigned int size;
+    uint64_t     timestamp;
 }__attribute__ ((packed));
 
 struct _raw_format

@@ -50,6 +50,7 @@
 #include "sample_cac_module.h"
 #include "sample_again_module.h"
 #include "sample_smartIr.h"
+#include "sample_ainr_module.h"
 
 struct module_sample_info {
     const char * const name;
@@ -130,6 +131,7 @@ static void sample_usage()
     printf("\t s) ALDCHV32:  module test sample.\n");
     printf("\t t) SMARTIR:    module test sample.\n");
     printf("\t u) DPCC:       module test sample.\n");
+    printf("\t v) AINR:       module test sample.\n");
     printf("\n");
     printf("\t please press the key: ");
 
@@ -338,6 +340,11 @@ XCamReturn sample_main (const void *arg)
     case 'u': {
         printf("enter DPCC module test\n");
         sample_adpcc_module(arg);
+        break;
+    }
+    case 'v': {
+        printf("enter AINR module test\n");
+        sample_ainr_module(arg);
         break;
     }
     default:

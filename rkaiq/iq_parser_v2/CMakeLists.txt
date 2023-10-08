@@ -153,6 +153,42 @@ add_custom_target(
 	DEPENDS j2s_parser
     )
 
+#build dev j2s4b-dev
+if (RKAIQ_J2S4B_DEV)
+	# if user has not define CMAKE_INSTALL_PREFIX, do not install dev_bin to
+	# avoid of compile error for buildroot
+	if (${CMAKE_INSTALL_PREFIX} STREQUAL "/usr")
+		set(make_is_install make -C dev_bin)
+	else ()
+		set(make_is_install make -C dev_bin install)
+	endif()
+add_custom_target(
+    j2s4b_dev
+    COMMAND ${CMAKE_COMMAND}
+    -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+    -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+    -DCMAKE_PROGRAM_PATH=${CMAKE_PROGRAM_PATH}
+    -DCMAKE_SYSROOT=${CMAKE_SYSROOT}
+    -DCMAKE_SYSTEM_PROCESSOR=${CMAKE_SYSTEM_PROCESSOR}
+    -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
+    -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
+    -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+    -DCMAKE_EXE_LINKER_FLAGS=${CMAKE_EXE_LINKER_FLAGS}
+    -DRKAIQ_J2S4B_DEV=TRUE
+    -DROOT_PROJ_BIN_DIR:STRING=${rk_aiq_BINARY_DIR}
+    -DRKAIQ_IQFILES_DIR:STRING="${IQFILES_DIR_INTERNAL}"
+    -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE:PATH="${rk_aiq_BINARY_DIR}/bin"
+    -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+    -DRKAIQ_TARGET_ARCH=${ARCH}
+    -DANDROID_ABI=${ANDROID_ABI}
+    -B"dev_bin"
+    -H"${rk_aiq_SOURCE_DIR}/tools/j2s4b"
+    COMMAND ${CMAKE_COMMAND} --build dev_bin
+    COMMAND ${make_is_install}
+	DEPENDS j2s_parser
+    )
+endif()
+
 SET(IQ_PARSERV2_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/j2s/cJSON.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/j2s/cJSON_Utils.cpp

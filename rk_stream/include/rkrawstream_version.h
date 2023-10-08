@@ -35,8 +35,12 @@
  * ==================== TODO LIST ==============================
  *
  *  2023/2/15
- *  - 完善 rkvi_demo 用参数传递 sensor name
- *  - 完全离线帧支持
+ *  - 完善 rkvi_demo 用参数传递 sensor name --done
+ *  - 完全离线帧支持	--done
+ *
+ *  2023/3/13
+ *  - API参数检查,判断返回值
+ *  - 文档添加流程图
  */
 
 /*!
@@ -50,5 +54,11 @@
  *  - 添加 API rkrawstream_readback_set_rkraw2
  *  - buf_mem_type 在prepare阶段配置
  *  - buffer 数量 可以在prepare阶段配置
+ *  - 添加isp32分支编译脚本
+ *
+ * v0.1.1
+ *  - 重构rkrawstream_demo,支持更多参数传递,支持编译命令开关aiq
+ *  - 改变vicap和readback回调函数参数为 rkrawstream_xxxx_cb_param_t
+ *  - 添加HDR, buftype, memtype的枚举类型
  *  - 添加isp32分支编译脚本
  */

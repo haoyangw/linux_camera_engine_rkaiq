@@ -150,12 +150,15 @@ typedef struct rk_aiq_sys_preinit_cfg_s {
         iq_buffer.len = 0;
         tb_info.magic = sizeof(rk_aiq_tb_info_t) - 2;
         tb_info.is_pre_aiq = false;
+        tb_info.is_start_once = false;
         tb_info.prd_type = RK_AIQ_PRD_TYPE_NORMAL;
+        rawstream_info.mode = RK_ISP_RKRAWSTREAM_MODE_INVALID;
     };
     rk_aiq_iq_buffer_info_t iq_buffer;
     rk_aiq_tb_info_t tb_info;
     std::map<std::string, int> dev_buf_cnt_map;
     rk_aiq_frame_info_t frame_exp_info[2];
+    rk_aiq_rkrawstream_info_t rawstream_info;
 } rk_aiq_sys_preinit_cfg_t;
 
 static std::map<std::string, rk_aiq_sys_preinit_cfg_t> g_rk_aiq_sys_preinit_cfg_map;
@@ -218,9 +221,10 @@ rk_aiq_uapi_sysctl_preInit_tb_info(const char* sns_ent_name,
         g_rk_aiq_init_lib = true;
     }
     std::string sns_ent_name_str(sns_ent_name);
-    ret = _get_fast_aewb_from_drv(sns_ent_name_str, fastAeAwbInfo);
-    LOGK("%s: magic %x, is_pre_aiq : %d, prd_type : %d, kernel status %d",
-         __func__, info->magic, info->is_pre_aiq, info->prd_type, ret);
+    if (info->prd_type != RK_AIQ_PRD_TYPE_SINGLE_FRAME)
+        ret = _get_fast_aewb_from_drv(sns_ent_name_str, fastAeAwbInfo);
+    LOGK("%s: magic %x, is_pre_aiq : %d, is_start_once : %d, prd_type : %d, kernel status %d",
+         __func__, info->magic, info->is_pre_aiq, info->is_start_once, info->prd_type, ret);
 
     if (ret == XCAM_RETURN_NO_ERROR) {
         if (g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.magic != info->magic) {
@@ -228,8 +232,12 @@ rk_aiq_uapi_sysctl_preInit_tb_info(const char* sns_ent_name,
                  info->magic);
             return XCAM_RETURN_ERROR_PARAM;
         }
-        g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.is_pre_aiq = info->is_pre_aiq;
+        if (info->is_start_once && info->is_pre_aiq)
+            g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.is_pre_aiq = false;
+        else
+            g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.is_pre_aiq = info->is_pre_aiq;
         g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.prd_type = info->prd_type;
+        g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.is_start_once = info->is_start_once;
 
     } else {
         g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.prd_type = RK_AIQ_PRD_TYPE_NORMAL;
@@ -339,6 +347,7 @@ static int rk_aiq_offline_init(rk_aiq_sys_ctx_t* ctx)
 
 static void
 rk_aiq_uapi_sysctl_deinit_locked(rk_aiq_sys_ctx_t* ctx);
+static int rk_aiq_rkrawstream_init(rk_aiq_sys_ctx_t* ctx);
 
 rk_aiq_sys_ctx_t*
 rk_aiq_uapi_sysctl_init(const char* sns_ent_name,
@@ -399,6 +408,7 @@ rk_aiq_uapi_sysctl_init(const char* sns_ent_name,
     ctx->_camHw = new CamHwSimulator();
 #else
     rk_aiq_offline_init(ctx);
+    rk_aiq_rkrawstream_init(ctx);
     if (strstr(sns_ent_name, "FakeCamera") || ctx->_use_fakecam || strstr(sns_ent_name, "_s_")) {
         //ctx->_camHw = new FakeCamHwIsp20();
 #ifdef RKAIQ_ENABLE_FAKECAM
@@ -470,6 +480,10 @@ rk_aiq_uapi_sysctl_init(const char* sns_ent_name,
         }
     }
 
+    if (ctx->_use_rkrawstream) {
+        ctx->_camHw->setRawStreamInfo(ctx->_rawstream_info);
+    }
+
     // use user defined iq file
     {
         std::map<std::string, rk_aiq_sys_preinit_cfg_t>::iterator it =
@@ -483,7 +497,8 @@ rk_aiq_uapi_sysctl_init(const char* sns_ent_name,
             if (!it->second.dev_buf_cnt_map.empty())
                 ctx->_camHw->setDevBufCnt(it->second.dev_buf_cnt_map);
             ctx->_analyzer->setTbInfo(it->second.tb_info);
-            if (it->second.iq_buffer.addr && it->second.iq_buffer.len > 0) {
+            if (it->second.iq_buffer.addr && it->second.iq_buffer.len > 0 &&
+                it->second.tb_info.prd_type != RK_AIQ_PRD_TYPE_SINGLE_FRAME) {
                 iq_buffer.addr = it->second.iq_buffer.addr;
                 iq_buffer.len = it->second.iq_buffer.len;
                 user_spec_iq = true;
@@ -505,7 +520,7 @@ rk_aiq_uapi_sysctl_init(const char* sns_ent_name,
             if (!it->second.sub_scene.empty())
                 sub_scene = it->second.sub_scene;
         } else {
-            rk_aiq_tb_info_t info{0, false, RK_AIQ_PRD_TYPE_NORMAL};
+            rk_aiq_tb_info_t info{0, false, false, RK_AIQ_PRD_TYPE_NORMAL};
             ctx->_rkAiqManager->setTbInfo(info);
             ctx->_camHw->setTbInfo(info);
             ctx->_analyzer->setTbInfo(info);
@@ -612,6 +627,20 @@ rk_aiq_uapi_sysctl_init(const char* sns_ent_name,
         calibdbv2_ctx = RkAiqCalibDbV2::toDefaultCalibDb(ctx->_calibDbProj);
     }
     ctx->_rkAiqManager->setAiqCalibDb(&calibdbv2_ctx);
+    {
+        std::map<std::string, rk_aiq_sys_preinit_cfg_t>::iterator it =
+                g_rk_aiq_sys_preinit_cfg_map.find(std::string(ctx->_sensor_entity_name));
+        if (it != g_rk_aiq_sys_preinit_cfg_map.end()) {
+            rk_aiq_tb_info_t &tb_info = it->second.tb_info;
+            rk_aiq_iq_buffer_info_t &iq_buff_info = it->second.iq_buffer;
+            if (tb_info.prd_type == RK_AIQ_PRD_TYPE_SINGLE_FRAME &&
+                iq_buff_info.addr) {
+                memset(iq_buff_info.addr, 0, iq_buff_info.len);
+                RkAiqCalibDbV2::calib2bin(iq_buff_info.addr, &calibdbv2_ctx);
+                LOGK("tb info %d, iq addr %p len %d\n", tb_info.prd_type, iq_buff_info.addr, iq_buff_info.len);
+            }
+        }
+    }
 
 #ifndef __ANDROID__
     snprintf(lock_path, 255,  "/tmp/aiq%d.lock", ctx->_camPhyId);
@@ -1726,6 +1755,18 @@ rk_aiq_uapi_sysctl_updateIq(rk_aiq_sys_ctx_t* sys_ctx, char* iqfile)
         return ret;
     }
 
+    std::map<std::string, rk_aiq_sys_preinit_cfg_t>::iterator it =
+            g_rk_aiq_sys_preinit_cfg_map.find(std::string(sys_ctx->_sensor_entity_name));
+    if (it != g_rk_aiq_sys_preinit_cfg_map.end()) {
+        rk_aiq_tb_info_t &tb_info = it->second.tb_info;
+        rk_aiq_iq_buffer_info_t &iq_buff_info = it->second.iq_buffer;
+        if (tb_info.prd_type == RK_AIQ_PRD_TYPE_SINGLE_FRAME &&
+            iq_buff_info.addr) {
+            memset(iq_buff_info.addr, 0, iq_buff_info.len);
+            RkAiqCalibDbV2::calib2bin(iq_buff_info.addr, &calibdbv2_ctx);
+        }
+    }
+
     sys_ctx->_calibDbProj = calibDbProj;
 
     LOGK("cid[%d] %s: success. new iq:%s ", sys_ctx->_camPhyId, __func__, iqfile);
@@ -1807,6 +1848,19 @@ rk_aiq_uapi_sysctl_tuning(const rk_aiq_sys_ctx_t* sys_ctx, char* param)
 #else
     ret = sys_ctx->_rkAiqManager->calibTuning(tuning_calib.calib,
             tuning_calib.ModuleNames);
+
+    // tunning update rtt calib
+    std::map<std::string, rk_aiq_sys_preinit_cfg_t>::iterator it =
+                g_rk_aiq_sys_preinit_cfg_map.find(std::string(sys_ctx->_sensor_entity_name));
+    if (it != g_rk_aiq_sys_preinit_cfg_map.end()) {
+        rk_aiq_tb_info_t &tb_info = it->second.tb_info;
+        rk_aiq_iq_buffer_info_t &iq_buff_info = it->second.iq_buffer;
+        if (tb_info.prd_type == RK_AIQ_PRD_TYPE_SINGLE_FRAME &&
+            iq_buff_info.addr) {
+            memset(iq_buff_info.addr, 0, iq_buff_info.len);
+            RkAiqCalibDbV2::calib2bin(iq_buff_info.addr, tuning_calib.calib);
+        }
+    }
 #endif
 
     return ret;
@@ -1941,19 +1995,31 @@ int rk_aiq_uapi_sysctl_switch_scene(const rk_aiq_sys_ctx_t* sys_ctx,
     }
 #endif
     if (sys_ctx->cam_type != RK_AIQ_CAM_TYPE_GROUP) {
-      auto new_calib = RkAiqSceneManager::refToScene(sys_ctx->_calibDbProj,
-                                                     main_scene, sub_scene);
+        auto new_calib = RkAiqSceneManager::refToScene(sys_ctx->_calibDbProj,
+                                                        main_scene, sub_scene);
 
-      if (!new_calib.calib_scene) {
-        LOGE("failed to find scene calib\n");
-        return -1;
-      }
+        if (!new_calib.calib_scene) {
+            LOGE("failed to find scene calib\n");
+            return -1;
+        }
 
-      ret = sys_ctx->_rkAiqManager->updateCalibDb(&new_calib);
-      if (ret) {
-        LOGE("failed to switch scene\n");
-        return ret;
-      }
+        ret = sys_ctx->_rkAiqManager->updateCalibDb(&new_calib);
+        if (ret) {
+            LOGE("failed to switch scene\n");
+            return ret;
+        }
+
+        std::map<std::string, rk_aiq_sys_preinit_cfg_t>::iterator it =
+                g_rk_aiq_sys_preinit_cfg_map.find(std::string(sys_ctx->_sensor_entity_name));
+        if (it != g_rk_aiq_sys_preinit_cfg_map.end()) {
+            rk_aiq_tb_info_t &tb_info = it->second.tb_info;
+            rk_aiq_iq_buffer_info_t &iq_buff_info = it->second.iq_buffer;
+            if (tb_info.prd_type == RK_AIQ_PRD_TYPE_SINGLE_FRAME &&
+                iq_buff_info.addr) {
+                memset(iq_buff_info.addr, 0, iq_buff_info.len);
+                RkAiqCalibDbV2::calib2bin(iq_buff_info.addr, &new_calib);
+            }
+        }
     }
 
     LOGK("cid[%d] %s: success. main:%s, sub:%s", sys_ctx->_camPhyId, __func__, main_scene, sub_scene);
@@ -2127,4 +2193,39 @@ int rk_aiq_uapi_sysctl_tuning_enable(rk_aiq_sys_ctx_t* sys_ctx, bool enable)
     LOGD("%s: change socket server status to %d!\n", __func__, enable);
 
     return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn
+rk_aiq_uapi_sysctl_preInit_rkrawtream_info(const char* sns_ent_name,
+                                   const rk_aiq_rkrawstream_info_t* info)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    if (!sns_ent_name || !info) {
+        LOGE("Invalid input parameter");
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+
+    if (!g_rk_aiq_init_lib) {
+        rk_aiq_init_lib();
+        g_rk_aiq_init_lib = true;
+    }
+    std::string sns_ent_name_str(sns_ent_name);
+    g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].rawstream_info = *info;
+
+    return (ret);
+}
+
+static int rk_aiq_rkrawstream_init(rk_aiq_sys_ctx_t* ctx)
+{
+    std::map<std::string, rk_aiq_sys_preinit_cfg_t>::iterator it =
+            g_rk_aiq_sys_preinit_cfg_map.find(std::string(ctx->_sensor_entity_name));
+    if (it != g_rk_aiq_sys_preinit_cfg_map.end()) {
+        rk_aiq_rkrawstream_info_t *info = &it->second.rawstream_info;
+        if (info->mode != RK_ISP_RKRAWSTREAM_MODE_INVALID) {
+            ctx->_use_rkrawstream = true;
+            ctx->_rawstream_info = info;
+        }
+    }
+    return 0;
 }
