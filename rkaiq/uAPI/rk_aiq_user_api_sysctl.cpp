@@ -2100,11 +2100,12 @@ static void _set_fast_aewb_as_init(const rk_aiq_sys_ctx_t* ctx, rk_aiq_working_m
             LinExpAttr.sync.done = false;
             LinExpAttr.Params.InitExp.InitTimeValue = (float)fastAeAwbInfo.head.exp_time[0] / (1 << 16);
             LinExpAttr.Params.InitExp.InitGainValue = (float)fastAeAwbInfo.head.exp_gain[0] / (1 << 16);
+            LinExpAttr.Params.InitExp.InitIspDGainValue = (float)fastAeAwbInfo.head.exp_isp_dgain[0] / (1 << 16);
 
             ret = rk_aiq_user_api2_ae_setLinExpAttr(ctx, LinExpAttr);
 
-            LOGK("cid[%d] %s: ffexp:%f,%f", ctx->_camPhyId, __func__,
-                 LinExpAttr.Params.InitExp.InitTimeValue, LinExpAttr.Params.InitExp.InitGainValue);
+            LOGK("cid[%d] %s: ffexp:%f,%f,%f", ctx->_camPhyId, __func__,
+                 LinExpAttr.Params.InitExp.InitTimeValue, LinExpAttr.Params.InitExp.InitGainValue,LinExpAttr.Params.InitExp.InitIspDGainValue);
         } else {
             Uapi_HdrExpAttrV2_t HdrExpAttr;
             ret = rk_aiq_user_api2_ae_getHdrExpAttr(ctx, &HdrExpAttr);
@@ -2113,17 +2114,20 @@ static void _set_fast_aewb_as_init(const rk_aiq_sys_ctx_t* ctx, rk_aiq_working_m
             HdrExpAttr.sync.done = false;
             HdrExpAttr.Params.InitExp.InitTimeValue[0] = (float)fastAeAwbInfo.head.exp_time[0] / (1 << 16);
             HdrExpAttr.Params.InitExp.InitGainValue[0] = (float)fastAeAwbInfo.head.exp_gain[0] / (1 << 16);
+            HdrExpAttr.Params.InitExp.InitIspDGainValue[0] = (float)fastAeAwbInfo.head.exp_isp_dgain[0] / (1 << 16);
             HdrExpAttr.Params.InitExp.InitTimeValue[1] = (float)fastAeAwbInfo.head.exp_time[1] / (1 << 16);
             HdrExpAttr.Params.InitExp.InitGainValue[1] = (float)fastAeAwbInfo.head.exp_gain[1] / (1 << 16);
+            HdrExpAttr.Params.InitExp.InitIspDGainValue[1] = (float)fastAeAwbInfo.head.exp_isp_dgain[1] / (1 << 16);
             HdrExpAttr.Params.InitExp.InitTimeValue[2] = (float)fastAeAwbInfo.head.exp_time[2] / (1 << 16);
             HdrExpAttr.Params.InitExp.InitGainValue[2] = (float)fastAeAwbInfo.head.exp_gain[2] / (1 << 16);
+            HdrExpAttr.Params.InitExp.InitIspDGainValue[2] = (float)fastAeAwbInfo.head.exp_isp_dgain[2] / (1 << 16);
 
             ret = rk_aiq_user_api2_ae_setHdrExpAttr(ctx, HdrExpAttr);
 
-            LOGK("cid[%d] %s: hdr ffexp:%f,%f,%f,%f", ctx->_camPhyId, __func__,
-                 HdrExpAttr.Params.InitExp.InitTimeValue[0], HdrExpAttr.Params.InitExp.InitGainValue[0],
-                 HdrExpAttr.Params.InitExp.InitTimeValue[1], HdrExpAttr.Params.InitExp.InitGainValue[1],
-                 HdrExpAttr.Params.InitExp.InitTimeValue[2], HdrExpAttr.Params.InitExp.InitGainValue[2]);
+            LOGK("cid[%d] %s: hdr ffexp:%f,%f,%f,%f,%f,%f,%f,%f,%f", ctx->_camPhyId, __func__,
+                 HdrExpAttr.Params.InitExp.InitTimeValue[0], HdrExpAttr.Params.InitExp.InitGainValue[0],HdrExpAttr.Params.InitExp.InitIspDGainValue[0],
+                 HdrExpAttr.Params.InitExp.InitTimeValue[1], HdrExpAttr.Params.InitExp.InitGainValue[1],HdrExpAttr.Params.InitExp.InitIspDGainValue[1],
+                 HdrExpAttr.Params.InitExp.InitTimeValue[2], HdrExpAttr.Params.InitExp.InitGainValue[2],HdrExpAttr.Params.InitExp.InitIspDGainValue[2]);
         }
     }
 }

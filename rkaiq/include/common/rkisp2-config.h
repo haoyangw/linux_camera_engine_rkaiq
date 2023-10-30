@@ -2005,6 +2005,7 @@ struct rkisp_thunderboot_resmem_head {
 	u32 exp_gain[3];
 	u32 exp_time_reg[3];
 	u32 exp_gain_reg[3];
+	u32 exp_isp_dgain[3];
 } __attribute__ ((packed));
 
 /**
