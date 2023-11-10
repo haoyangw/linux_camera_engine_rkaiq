@@ -104,6 +104,7 @@ public:
     virtual XCamReturn setAecStatsCfg(Uapi_AecStatsCfg_t AecStatsCfg);
     virtual XCamReturn getAecStatsCfg(Uapi_AecStatsCfg_t* pAecStatsCfg);
     virtual XCamReturn genIspResult(RkAiqFullParams* params, RkAiqFullParams* cur_params);
+    virtual XCamReturn setAOVForAE(bool en);
 
 protected:
     virtual void init();

@@ -720,9 +720,9 @@ RkAiqCore::analyzeInternal(enum rk_aiq_core_analyze_type_e grp_type)
                     if (!got_full_buf) {
                         SmartLock locker (_mFullParam_mutex);
                         if ((shared->frameId < mLatestParamsDoneId || shared->frameId == mLatestParamsDoneId) &&
-                            mLatestParamsDoneId != 0) {
+                                mLatestParamsDoneId != 0) {
                             LOGW_ANALYZER("[%u] <= [%u], skip grp_type 0x%x process !",
-                                        shared->frameId, mLatestParamsDoneId, grp_type);
+                                          shared->frameId, mLatestParamsDoneId, grp_type);
                             return NULL;
                         }
                         if (mFullParamsPendingMap.count(frame_id)) {
@@ -3586,7 +3586,7 @@ void RkAiqCore::awakenClean(uint32_t sequence)
 XCamReturn RkAiqCore::setUserOtpInfo(rk_aiq_user_otp_info_t otp_info)
 {
     if (mState == RK_AIQ_CORE_STATE_PREPARED || mState == RK_AIQ_CORE_STATE_STARTED || \
-        mState == RK_AIQ_CORE_STATE_RUNNING) {
+            mState == RK_AIQ_CORE_STATE_RUNNING) {
         LOGE_ANALYZER("wrong state %d, set otp before prepare\n", mState);
         return XCAM_RETURN_ERROR_ANALYZER;
     }
@@ -3602,5 +3602,16 @@ XCamReturn RkAiqCore::setUserOtpInfo(rk_aiq_user_otp_info_t otp_info)
 
     return XCAM_RETURN_NO_ERROR;
 }
+XCamReturn RkAiqCore::setAOVForAE(bool en) {
+
+    RkAiqAeHandleInt* algo_handle = (RkAiqAeHandleInt*)getAiqAlgoHandle(RK_AIQ_ALGO_TYPE_AE);
+    if (algo_handle) {
+        algo_handle->setAOVForAE(en);
+    }
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
+
 
 } //namespace RkCam

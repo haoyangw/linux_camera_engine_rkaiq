@@ -308,6 +308,7 @@ public:
     XCamReturn set_pdaf_support(bool support);
     bool get_pdaf_support();
 #endif
+    XCamReturn setAOVForAE(bool en);
 
 public:
     // following vars shared by all algo handlers

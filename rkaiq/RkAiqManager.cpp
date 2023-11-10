@@ -563,7 +563,7 @@ RkAiqManager::hwResCb(SmartPtr<VideoBuffer>& hwres)
                 mCamHwIsp20->setFastAeExp(seq);
                 mLastAweekId = seq;
                 if (mTbInfo.prd_type != RK_AIQ_PRD_TYPE_SINGLE_FRAME &&
-                    (mTbInfo.is_start_once || mTBStatsCnt == 0)) {
+                        (mTbInfo.is_start_once || mTBStatsCnt == 0)) {
                     LOGK("<TB> tb hwResCb stats %d\n", seq);
                     struct timespec tp;
                     clock_gettime(CLOCK_MONOTONIC_RAW, &tp);
@@ -571,10 +571,13 @@ RkAiqManager::hwResCb(SmartPtr<VideoBuffer>& hwres)
                     SmartPtr<CamHwIsp20> mCamHwIsp20 =
                         mCamHw.dynamic_cast_ptr<CamHwIsp20>();
                     SmartPtr<ispHwEvt_t> hw_evt = mCamHwIsp20->make_ispHwEvt(
-                                                    0, V4L2_EVENT_FRAME_SYNC,
-                                                    tp.tv_sec * 1000 * 1000 * 1000 + tp.tv_nsec);
+                                                      0, V4L2_EVENT_FRAME_SYNC,
+                                                      tp.tv_sec * 1000 * 1000 * 1000 + tp.tv_nsec);
                     LOGK("<TB> push sof %d\n", seq);
                     mRkAiqAnalyzer->pushEvts(hw_evt);
+                } else {
+                    //special setting for AOV AE
+                    mRkAiqAnalyzer->setAOVForAE(true);
                 }
                 LOGD("stats meas is special, buf frame id %d", seq);
             } else if ((mTbInfo.prd_type != RK_AIQ_PRD_TYPE_SINGLE_FRAME && mTbInfo.is_pre_aiq) ||
@@ -1160,7 +1163,7 @@ void RkAiqManager::setDefMirrorFlip()
         (CalibDb_Sensor_ParaV2_t*)(CALIBDBV2_GET_MODULE_PTR(mCalibDbV2, sensor_calib));
 
     if (mTbInfo.prd_type == RK_AIQ_PRD_TYPE_TB_DOORLOCK ||
-        mTbInfo.prd_type == RK_AIQ_PRD_TYPE_TB_BATIPC) {
+            mTbInfo.prd_type == RK_AIQ_PRD_TYPE_TB_BATIPC) {
         XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
         ret = mCamHw->getSensorFlip(mCurMirror, mCurFlip);

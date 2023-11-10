@@ -939,6 +939,18 @@ XCamReturn RkAiqAeHandleInt::getAfdResForAE(AfdPeakRes_t AfdRes) {
     return ret;
 }
 
+XCamReturn RkAiqAeHandleInt::setAOVForAE(bool en) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    mCfgMutex.lock();
+    rk_aiq_uapi_ae_setAOV(mAlgoCtx, en);
+    mCfgMutex.unlock();
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
 XCamReturn RkAiqAeHandleInt::prepare() {
     ENTER_ANALYZER_FUNCTION();
 

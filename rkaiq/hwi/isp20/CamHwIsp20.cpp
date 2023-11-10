@@ -2021,6 +2021,7 @@ CamHwIsp20::setupPipelineFmt()
         ret = XCAM_RETURN_NO_ERROR;
     }
 
+
     if (!_linked_to_isp && _crop_rect.width && _crop_rect.height) {
         struct v4l2_format mipi_tx_fmt;
         memset(&mipi_tx_fmt, 0, sizeof(mipi_tx_fmt));
@@ -2692,7 +2693,7 @@ CamHwIsp20::prepare(uint32_t width, uint32_t height, int mode, int t_delay, int 
         mNoReadBack = false;
 
     if (mTbInfo.prd_type == RK_AIQ_PRD_TYPE_TB_DOORLOCK ||
-        mTbInfo.prd_type == RK_AIQ_PRD_TYPE_TB_BATIPC) {
+            mTbInfo.prd_type == RK_AIQ_PRD_TYPE_TB_BATIPC) {
         mNoReadBack = true;
     }
 
@@ -2704,7 +2705,7 @@ CamHwIsp20::prepare(uint32_t width, uint32_t height, int mode, int t_delay, int 
             mIspSofStream = new RKSofEventStream(_cif_csi2_sd, ISP_POLL_SOF);
         } else if (mNoReadBack) {
             if (mTbInfo.prd_type == RK_AIQ_PRD_TYPE_TB_DOORLOCK ||
-                mTbInfo.prd_type == RK_AIQ_PRD_TYPE_TB_BATIPC) {
+                    mTbInfo.prd_type == RK_AIQ_PRD_TYPE_TB_BATIPC) {
                 mIspSofStream = new RKSofEventStream(_cif_csi2_sd, ISP_POLL_SOF);
             } else {
                 mIspSofStream = new RKSofEventStream(mIspCoreDev, ISP_POLL_SOF);
@@ -2960,7 +2961,7 @@ CamHwIsp20::start()
         setIspConfig();
 #endif
     LOGK_CAMHW("cid[%d] %s success. isGroup:%d, isOnline:%d, isMultiIsp:%d, init_ens:0x%llx",
-              mCamPhyId, __func__, mIsGroupMode, mNoReadBack, mIsMultiIspMode, _isp_module_ens);
+               mCamPhyId, __func__, mIsGroupMode, mNoReadBack, mIsMultiIspMode, _isp_module_ens);
     EXIT_CAMHW_FUNCTION();
     return ret;
 }
@@ -3229,11 +3230,11 @@ XCamReturn CamHwIsp20::pause()
     sensorHw = mSensorDev.get_cast_ptr<BaseSensorHw>();
     sensorHw->stop();
 #ifndef DISABLE_PARAMS_POLL_THREAD
-        if (mIspParamStream.ptr())
-            mIspParamStream->stop();
+    if (mIspParamStream.ptr())
+        mIspParamStream->stop();
 #else
-        if (mIspParamsDev.ptr())
-            mIspParamsDev->stop();
+    if (mIspParamsDev.ptr())
+        mIspParamsDev->stop();
 #endif
 #if defined(ISP_HW_V20)
     if (mTnrStreamProcUnit.ptr())
@@ -5786,16 +5787,16 @@ CamHwIsp20::setIspConfig(cam3aResultList* result_list)
     if (v4l2buf.ptr()) {
 #if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
         struct isp32_isp_params_cfg* isp_params =
-                (struct isp32_isp_params_cfg*)v4l2buf->get_buf().m.userptr;
+            (struct isp32_isp_params_cfg*)v4l2buf->get_buf().m.userptr;
 #elif defined(ISP_HW_V30)
         struct isp3x_isp_params_cfg* isp_params =
-                (struct isp3x_isp_params_cfg*)v4l2buf->get_buf().m.userptr;
+            (struct isp3x_isp_params_cfg*)v4l2buf->get_buf().m.userptr;
 #elif defined(ISP_HW_V21)
         struct isp21_isp_params_cfg* isp_params =
-                (struct isp21_isp_params_cfg*)v4l2buf->get_buf().m.userptr;
+            (struct isp21_isp_params_cfg*)v4l2buf->get_buf().m.userptr;
 #else
         struct isp20_isp_params_cfg* isp_params =
-                (struct isp20_isp_params_cfg*)v4l2buf->get_buf().m.userptr;
+            (struct isp20_isp_params_cfg*)v4l2buf->get_buf().m.userptr;
 #endif
         int buf_index      = v4l2buf->get_buf().index;
         bool isMultiIsp    = mIsMultiIspMode;
@@ -5808,7 +5809,7 @@ CamHwIsp20::setIspConfig(cam3aResultList* result_list)
             LOGE_CAMHW_SUBM(ISP20HW_SUBM, "ISP parameter translation error\n");
 
         if (isp_params->module_cfg_update == 0 &&
-            isp_params->module_en_update == 0) {
+                isp_params->module_en_update == 0) {
             mIspParamsDev->return_buffer_to_pool(v4l2buf);
             LOGE_CAMHW_SUBM(ISP20HW_SUBM, "no new ISP parameters to drv");
             return ret;
@@ -5866,11 +5867,11 @@ CamHwIsp20::setIspConfig(cam3aResultList* result_list)
         else
             updateEffParams(isp_params, NULL);
 #else
-            updateEffParams(isp_params, NULL);
+        updateEffParams(isp_params, NULL);
 #endif
         bool is_wait_params_done = false;
         if (mTbInfo.prd_type != RK_AIQ_PRD_TYPE_NORMAL &&
-            mTbInfo.prd_type != RK_AIQ_PRD_TYPE_SINGLE_FRAME) {
+                mTbInfo.prd_type != RK_AIQ_PRD_TYPE_SINGLE_FRAME) {
             // skip the params
             if (processTb(isp_params)) {
                 mIspParamsDev->return_buffer_to_pool(v4l2buf);
@@ -5900,9 +5901,9 @@ CamHwIsp20::setIspConfig(cam3aResultList* result_list)
                 LOGW_CAMHW_SUBM(ISP20HW_SUBM, "poll params error, queue cnts: %d !",
                                 mIspParamsDev->get_queued_bufcnt());
                 if (mIspParamsDev->get_queued_bufcnt() == buf_counts && try_time > 0) {
-                   timeout = 30;
-                   try_time--;
-                   continue;
+                    timeout = 30;
+                    try_time--;
+                    continue;
                 } else
                     break;
             }
@@ -6375,23 +6376,31 @@ CamHwIsp20::setFastAeExp(uint32_t frameId)
             fastae.LinearExp.exp_real_params.integration_time = (float)fastAeAwbInfo.head.exp_time[0] / (1 << 16);
             fastae.LinearExp.exp_real_params.digital_gain     = 1.0f;
             fastae.LinearExp.exp_real_params.isp_dgain        = (float)fastAeAwbInfo.head.exp_isp_dgain[0] / (1 << 16);
+            fastae.LinearExp.exp_sensor_params.analog_gain_code_global = fastAeAwbInfo.head.exp_gain_reg[0];
+            fastae.LinearExp.exp_sensor_params.coarse_integration_time = fastAeAwbInfo.head.exp_time_reg[0];
         } else {
             fastae.HdrExp[0].exp_real_params.analog_gain      = (float)fastAeAwbInfo.head.exp_gain[0] / (1 << 16);
             fastae.HdrExp[0].exp_real_params.integration_time = (float)fastAeAwbInfo.head.exp_time[0] / (1 << 16);
             fastae.HdrExp[0].exp_real_params.digital_gain     = 1.0f;
             fastae.HdrExp[0].exp_real_params.isp_dgain        = (float)fastAeAwbInfo.head.exp_isp_dgain[0] / (1 << 16);
+            fastae.HdrExp[0].exp_sensor_params.analog_gain_code_global = fastAeAwbInfo.head.exp_gain_reg[0];
+            fastae.HdrExp[0].exp_sensor_params.coarse_integration_time = fastAeAwbInfo.head.exp_time_reg[0];
             fastae.HdrExp[1].exp_real_params.analog_gain      = (float)fastAeAwbInfo.head.exp_gain[1] / (1 << 16);
             fastae.HdrExp[1].exp_real_params.integration_time = (float)fastAeAwbInfo.head.exp_time[1] / (1 << 16);
             fastae.HdrExp[1].exp_real_params.digital_gain     = 1.0f;
             fastae.HdrExp[1].exp_real_params.isp_dgain        = (float)fastAeAwbInfo.head.exp_isp_dgain[1] / (1 << 16);
+            fastae.HdrExp[1].exp_sensor_params.analog_gain_code_global = fastAeAwbInfo.head.exp_gain_reg[1];
+            fastae.HdrExp[1].exp_sensor_params.coarse_integration_time = fastAeAwbInfo.head.exp_time_reg[1];
             fastae.HdrExp[2].exp_real_params.analog_gain      = (float)fastAeAwbInfo.head.exp_gain[2] / (1 << 16);
             fastae.HdrExp[2].exp_real_params.integration_time = (float)fastAeAwbInfo.head.exp_time[2] / (1 << 16);
             fastae.HdrExp[2].exp_real_params.digital_gain     = 1.0f;
             fastae.HdrExp[2].exp_real_params.isp_dgain        = (float)fastAeAwbInfo.head.exp_isp_dgain[2] / (1 << 16);
+            fastae.HdrExp[2].exp_sensor_params.analog_gain_code_global = fastAeAwbInfo.head.exp_gain_reg[2];
+            fastae.HdrExp[2].exp_sensor_params.coarse_integration_time = fastAeAwbInfo.head.exp_time_reg[2];
         }
         mSensor->set_effecting_exp_map(frameId, &fastae, 0);
         LOGD_CAMHW("fast ae set frame %u effect exp %f %f %f", frameId, fastae.LinearExp.exp_real_params.analog_gain, fastae.LinearExp.exp_real_params.integration_time,
-		fastae.HdrExp[2].exp_real_params.isp_dgain);
+                   fastae.LinearExp.exp_real_params.isp_dgain);
     }
 
     mAweekId = frameId;
