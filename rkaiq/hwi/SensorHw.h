@@ -26,6 +26,7 @@
 #include "common/rk-camera-module.h"
 #include "v4l2_buffer_proxy.h"
 #include "rk_aiq_offline_raw.h"
+#include "rk_aiq.h"
 
 /************ BELOW FROM kernel/include/uapi/linux/rk-preisp.h ************/
 
@@ -97,14 +98,14 @@ public:
     virtual XCamReturn on_dqueue(int dev_idx, SmartPtr<V4l2BufferProxy> buf_proxy) { return XCAM_RETURN_NO_ERROR; }
     virtual bool is_virtual_sensor() { return false; }
     virtual XCamReturn set_sync_mode(uint32_t mode) {return XCAM_RETURN_NO_ERROR;}
-    void setTbInfo(bool is_pre_aiq) {
-        mTbIsPreAiq = is_pre_aiq;
+    void setTbInfo(rk_aiq_tb_info_t info) {
+        mTbInfo = info;
     }
 protected:
     XCAM_DEAD_COPY (BaseSensorHw);
     uint32_t get_v4l2_pixelformat(uint32_t pixelcode);
     int mCamPhyId{-1};
-    bool mTbIsPreAiq;
+    rk_aiq_tb_info_t mTbInfo;
 };
 
 class SensorHw : public BaseSensorHw {

@@ -3575,6 +3575,9 @@ void RkAiqCore::awakenClean(uint32_t sequence)
         if (mLatestEvtsId) {
             mLatestEvtsId = sequence - 1;
         }
+        if (mLatestStatsId) {
+            mLatestStatsId = sequence - 1;
+        }
         if (mLatestParamsDoneId)
             mLatestParamsDoneId = 0;
     }

@@ -88,11 +88,18 @@ typedef enum rk_aiq_prd_type_e {
     RK_AIQ_PRD_TYPE_SINGLE_FRAME,
 } rk_aiq_prd_type_t;
 
+typedef enum rk_aiq_iq_bin_mode_s {
+    RK_AIQ_META_FULL_IQ_BIN = 0,
+    RK_AIQ_META_NOT_FULL_IQ_BIN,
+} rk_aiq_iq_bin_mode_t;
+
 typedef struct rk_aiq_tb_info_s {
     uint16_t magic;
     bool is_pre_aiq;
-    bool is_start_once;
     uint8_t prd_type;
+    bool is_start_once;
+    uint8_t iq_bin_mode;
+    void *rtt_share_addr;
 } rk_aiq_tb_info_t;
 
 XCAM_END_DECLARE

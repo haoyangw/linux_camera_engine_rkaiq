@@ -3014,4 +3014,21 @@ int RkAiqCalibDbV2::parseBinStructMap(uint8_t *data, size_t len)
     return 0;
 }
 
+int RkAiqCalibDbV2::restoreBinStructMap(uint8_t *data, size_t len, uint8_t *restore_ptr)
+{
+    size_t map_len = *(size_t *)(data + (len - sizeof(size_t)));
+    size_t map_offset = *(size_t *)(data + (len - sizeof(size_t) * 2));
+    size_t map_index = 0;
+    map_index_t *map_addr = NULL;
+
+    map_addr = (map_index_t *)(data + map_offset);
+    for (map_index = 0; map_index < map_len; map_index++) {
+        map_index_t tmap = (map_addr[map_index]);
+        void** dst_obj_addr = (void**)(data + (size_t)tmap.dst_offset);
+        *dst_obj_addr = restore_ptr + (uintptr_t)tmap.ptr_offset;
+    }
+
+    return 0;
+}
+
 } // namespace RkCam

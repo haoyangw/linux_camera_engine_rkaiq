@@ -232,13 +232,25 @@ rk_aiq_uapi_sysctl_preInit_tb_info(const char* sns_ent_name,
                  info->magic);
             return XCAM_RETURN_ERROR_PARAM;
         }
+        g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.prd_type = info->prd_type;
+        g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.is_pre_aiq = info->is_pre_aiq;
+        g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.is_start_once = info->is_start_once;
+        g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.iq_bin_mode = info->iq_bin_mode;
+        g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.rtt_share_addr = info->rtt_share_addr;
+        if (info->prd_type != RK_AIQ_PRD_TYPE_TB_BATIPC && info->prd_type != RK_AIQ_PRD_TYPE_TB_DOORLOCK) {
+            g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.is_pre_aiq = false;
+            g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.is_start_once = false;
+        } else {
+            g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.iq_bin_mode = RK_AIQ_META_FULL_IQ_BIN;
+        }
         if (info->is_start_once && info->is_pre_aiq)
             g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.is_pre_aiq = false;
-        else
-            g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.is_pre_aiq = info->is_pre_aiq;
-        g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.prd_type = info->prd_type;
-        g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.is_start_once = info->is_start_once;
-
+        LOGK("tbinfo: prd_type: %d is_pre_aiq %d is_start_once: %d iq_bin_mode: %d rtt_share_addr: %p",
+                g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.prd_type,
+                g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.is_pre_aiq,
+                g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.is_start_once,
+                g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.iq_bin_mode,
+                g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.rtt_share_addr);
     } else {
         g_rk_aiq_sys_preinit_cfg_map[sns_ent_name_str].tb_info.prd_type = RK_AIQ_PRD_TYPE_NORMAL;
         if (info->prd_type != RK_AIQ_PRD_TYPE_NORMAL)
@@ -358,7 +370,7 @@ rk_aiq_uapi_sysctl_init(const char* sns_ent_name,
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
     ENTER_XCORE_FUNCTION();
-    char config_file[256];
+    char config_file[256]{0};
     std::string main_scene;
     std::string sub_scene;
     rk_aiq_iq_buffer_info_t iq_buffer{NULL, 0};
@@ -366,6 +378,7 @@ rk_aiq_uapi_sysctl_init(const char* sns_ent_name,
     int  lock_res = 0;
     std::map<std::string, rk_aiq_sys_preinit_cfg_t>::iterator it;
     void* calib_proj = NULL;
+    rk_aiq_rtt_share_info_t *rtt_share = NULL;
 
     XCAM_ASSERT(sns_ent_name);
 
@@ -498,7 +511,7 @@ rk_aiq_uapi_sysctl_init(const char* sns_ent_name,
                 ctx->_camHw->setDevBufCnt(it->second.dev_buf_cnt_map);
             ctx->_analyzer->setTbInfo(it->second.tb_info);
             if (it->second.iq_buffer.addr && it->second.iq_buffer.len > 0 &&
-                it->second.tb_info.prd_type != RK_AIQ_PRD_TYPE_SINGLE_FRAME) {
+                it->second.tb_info.iq_bin_mode != RK_AIQ_META_NOT_FULL_IQ_BIN) {
                 iq_buffer.addr = it->second.iq_buffer.addr;
                 iq_buffer.len = it->second.iq_buffer.len;
                 user_spec_iq = true;
@@ -519,8 +532,15 @@ rk_aiq_uapi_sysctl_init(const char* sns_ent_name,
                 main_scene = it->second.main_scene;
             if (!it->second.sub_scene.empty())
                 sub_scene = it->second.sub_scene;
+
+            if (it->second.tb_info.rtt_share_addr) {
+                rtt_share = (rk_aiq_rtt_share_info_t*)it->second.tb_info.rtt_share_addr;
+                rtt_share->type = it->second.tb_info.prd_type;
+                rtt_share->aiq_iq_addr = (uintptr_t)it->second.iq_buffer.addr;
+                rtt_share->iq_bin_mode = it->second.tb_info.iq_bin_mode;
+            }
         } else {
-            rk_aiq_tb_info_t info{0, false, false, RK_AIQ_PRD_TYPE_NORMAL};
+            rk_aiq_tb_info_t info{0, false, RK_AIQ_PRD_TYPE_NORMAL, false, RK_AIQ_META_FULL_IQ_BIN, NULL};
             ctx->_rkAiqManager->setTbInfo(info);
             ctx->_camHw->setTbInfo(info);
             ctx->_analyzer->setTbInfo(info);
@@ -633,7 +653,7 @@ rk_aiq_uapi_sysctl_init(const char* sns_ent_name,
         if (it != g_rk_aiq_sys_preinit_cfg_map.end()) {
             rk_aiq_tb_info_t &tb_info = it->second.tb_info;
             rk_aiq_iq_buffer_info_t &iq_buff_info = it->second.iq_buffer;
-            if (tb_info.prd_type == RK_AIQ_PRD_TYPE_SINGLE_FRAME &&
+            if (tb_info.iq_bin_mode == RK_AIQ_META_NOT_FULL_IQ_BIN &&
                 iq_buff_info.addr) {
                 memset(iq_buff_info.addr, 0, iq_buff_info.len);
                 RkAiqCalibDbV2::calib2bin(iq_buff_info.addr, &calibdbv2_ctx);
@@ -1760,7 +1780,7 @@ rk_aiq_uapi_sysctl_updateIq(rk_aiq_sys_ctx_t* sys_ctx, char* iqfile)
     if (it != g_rk_aiq_sys_preinit_cfg_map.end()) {
         rk_aiq_tb_info_t &tb_info = it->second.tb_info;
         rk_aiq_iq_buffer_info_t &iq_buff_info = it->second.iq_buffer;
-        if (tb_info.prd_type == RK_AIQ_PRD_TYPE_SINGLE_FRAME &&
+        if (tb_info.iq_bin_mode == RK_AIQ_META_NOT_FULL_IQ_BIN &&
             iq_buff_info.addr) {
             memset(iq_buff_info.addr, 0, iq_buff_info.len);
             RkAiqCalibDbV2::calib2bin(iq_buff_info.addr, &calibdbv2_ctx);
@@ -1855,7 +1875,7 @@ rk_aiq_uapi_sysctl_tuning(const rk_aiq_sys_ctx_t* sys_ctx, char* param)
     if (it != g_rk_aiq_sys_preinit_cfg_map.end()) {
         rk_aiq_tb_info_t &tb_info = it->second.tb_info;
         rk_aiq_iq_buffer_info_t &iq_buff_info = it->second.iq_buffer;
-        if (tb_info.prd_type == RK_AIQ_PRD_TYPE_SINGLE_FRAME &&
+        if (tb_info.iq_bin_mode == RK_AIQ_META_NOT_FULL_IQ_BIN &&
             iq_buff_info.addr) {
             memset(iq_buff_info.addr, 0, iq_buff_info.len);
             RkAiqCalibDbV2::calib2bin(iq_buff_info.addr, tuning_calib.calib);
@@ -2014,7 +2034,7 @@ int rk_aiq_uapi_sysctl_switch_scene(const rk_aiq_sys_ctx_t* sys_ctx,
         if (it != g_rk_aiq_sys_preinit_cfg_map.end()) {
             rk_aiq_tb_info_t &tb_info = it->second.tb_info;
             rk_aiq_iq_buffer_info_t &iq_buff_info = it->second.iq_buffer;
-            if (tb_info.prd_type == RK_AIQ_PRD_TYPE_SINGLE_FRAME &&
+            if (tb_info.iq_bin_mode == RK_AIQ_META_NOT_FULL_IQ_BIN &&
                 iq_buff_info.addr) {
                 memset(iq_buff_info.addr, 0, iq_buff_info.len);
                 RkAiqCalibDbV2::calib2bin(iq_buff_info.addr, &new_calib);

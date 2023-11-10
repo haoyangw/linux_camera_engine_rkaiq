@@ -1487,9 +1487,7 @@ CamHwIsp20::init(const char* sns_ent_name)
     sensorHw->setCamPhyId(mCamPhyId);
     mSensorDev = sensorHw;
     mSensorDev->open();
-    if (mTbInfo.prd_type == RK_AIQ_PRD_TYPE_TB_BATIPC ||
-        mTbInfo.prd_type == RK_AIQ_PRD_TYPE_TB_DOORLOCK)
-        sensorHw->setTbInfo (mTbInfo.is_pre_aiq);
+    sensorHw->setTbInfo (mTbInfo);
 
     Isp20Params::setCamPhyId(mCamPhyId);
 

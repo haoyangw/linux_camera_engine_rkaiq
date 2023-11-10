@@ -51,6 +51,15 @@ typedef struct calib2bin_header_s {
     uint32_t   bin_offset;
 }__attribute__ ((aligned(4))) calib2bin_header_t;
 
+typedef struct rk_aiq_rtt_share_info_s {
+    uint8_t type;
+    uint8_t iq_bin_mode;
+    bool flip;
+    bool mirror;
+    uint32_t vts;
+    uintptr_t aiq_iq_addr;
+}__attribute__ ((aligned(4))) rk_aiq_rtt_share_info_t;
+
 namespace RkCam {
 
 typedef std::shared_ptr<std::list<std::string>> ModuleNameList;
@@ -128,6 +137,7 @@ public:
 
     static void *loadWholeFile(const char *fpath, size_t *fsize);
     static int parseBinStructMap(uint8_t *data, size_t len);
+    static int restoreBinStructMap(uint8_t *data, size_t len, uint8_t *restore_ptr);
 
 private:
     static std::map<std::string, CamCalibDbProj_t *> mCalibDbsMap;

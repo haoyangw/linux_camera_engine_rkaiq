@@ -47,7 +47,7 @@ SensorHw::SensorHw(const char* name)
     _update_mirror_flip = false;
     _is_i2c_exp = false;
     _dcg_gain_mode_with_time = false;
-    mTbIsPreAiq = false;
+
     EXIT_CAMHW_FUNCTION();
 }
 
@@ -198,6 +198,11 @@ SensorHw::setLinearSensorExposure(RKAiqAecExpInfo_t* expPar)
     if (io_control(VIDIOC_S_CTRL, &ctrl) < 0) {
         LOGE_CAMHW_SUBM(SENSOR_SUBM, "cam%d failed to set vblank result(val: %d)", mCamPhyId, ctrl.value);
         return XCAM_RETURN_ERROR_IOCTL;
+    }
+
+    if (mTbInfo.rtt_share_addr) {
+        rk_aiq_rtt_share_info_t *share = (rk_aiq_rtt_share_info_t*)mTbInfo.rtt_share_addr;
+        share->vts = frame_line_length;
     }
 
     int dcg_mode = expPar->LinearExp.exp_real_params.dcg_mode;
@@ -365,6 +370,11 @@ SensorHw::setHdrSensorExposure(pending_split_exps_t* expPar)
     if (io_control(VIDIOC_S_CTRL, &ctrl) < 0) {
         LOGE_CAMHW_SUBM(SENSOR_SUBM, "cam%d failed to set vblank result(val: %d)", mCamPhyId, ctrl.value);
         return XCAM_RETURN_ERROR_IOCTL;
+    }
+
+    if (mTbInfo.rtt_share_addr) {
+        rk_aiq_rtt_share_info_t *share = (rk_aiq_rtt_share_info_t*)mTbInfo.rtt_share_addr;
+        share->vts = frame_line_length;
     }
 
     memset(&hdrExp, 0, sizeof(hdrExp));
@@ -616,7 +626,7 @@ SensorHw::setExposureParams(SmartPtr<RkAiqExpParamsProxy>& expPar)
         }
         if (!exp->exp_i2c_params.bValid) {
             _is_i2c_exp = false;
-            if (!mTbIsPreAiq) {
+            if (!(mTbInfo.is_pre_aiq || mTbInfo.is_start_once)) {
                 if (_working_mode == RK_AIQ_WORKING_MODE_NORMAL)
                     setLinearSensorExposure(&exp->new_ae_exp);
                 else
@@ -656,7 +666,7 @@ SensorHw::setExposureParams(SmartPtr<RkAiqExpParamsProxy>& expPar)
         exp->ae_proc_res_rk.exp_set_cnt = 0;
         LOGD_CAMHW_SUBM(SENSOR_SUBM, "exp-sync: first set exp, add id[0] to the effected exp map\n");
     } else {
-        if (mTbIsPreAiq)
+        if (mTbInfo.is_pre_aiq)
             return XCAM_RETURN_NO_ERROR;
         if (exp->algo_id == 0) {
             if (exp->ae_proc_res_rk.exp_set_cnt > 0) {
@@ -1352,6 +1362,12 @@ SensorHw::_set_mirror_flip() {
     ctrl.value = _flip ? 1 : 0;
     if (io_control(VIDIOC_S_CTRL, &ctrl) < 0) {
         LOGE_CAMHW_SUBM(SENSOR_SUBM, "failed to set vflip (val: %d)", ctrl.value);
+    }
+
+    if (mTbInfo.rtt_share_addr) {
+        rk_aiq_rtt_share_info_t *share = (rk_aiq_rtt_share_info_t*)mTbInfo.rtt_share_addr;
+        share->mirror = _mirror;
+        share->flip   = _flip;
     }
 
     LOGD_CAMHW_SUBM(SENSOR_SUBM, "set mirror %d, flip %d", _mirror, _flip);

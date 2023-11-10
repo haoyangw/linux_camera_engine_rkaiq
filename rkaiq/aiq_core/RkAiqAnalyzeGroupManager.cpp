@@ -144,8 +144,8 @@ bool RkAiqAnalyzerGroup::msgHandle(RkAiqCoreVdBufMsg* msg) {
     if (msg_cnts >= MAX_MESSAGES) {
         LOGE_ANALYZER_SUBM(ANALYZER_SUBM,
             "camId: %d, group(%s): id[%d] push msg(%s), msg_cnts: %d overflow",
-             AnalyzerGroupType2Str[mGroupType], msg->frame_id,
-             MessageType2Str[msg->msg_id]);
+             mAiqCore->mAlogsComSharedParams.mCamPhyId, AnalyzerGroupType2Str[mGroupType], msg->frame_id,
+             MessageType2Str[msg->msg_id], msg_cnts);
         for (int i = 0; i < msg_cnts; i++) {
             LOGE_ANALYZER_SUBM(ANALYZER_SUBM, "%d: fid:%d, msg:%s",
                                i, msgWrapper.msgList[i].frame_id, MessageType2Str[msgWrapper.msgList[i].msg_id]);
