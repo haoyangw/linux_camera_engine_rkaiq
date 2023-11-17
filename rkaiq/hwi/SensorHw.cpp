@@ -200,7 +200,7 @@ SensorHw::setLinearSensorExposure(RKAiqAecExpInfo_t* expPar)
         return XCAM_RETURN_ERROR_IOCTL;
     }
 
-    if (mTbInfo.rtt_share_addr) {
+    if (mTbInfo.prd_type != RK_AIQ_PRD_TYPE_NORMAL && mTbInfo.rtt_share_addr) {
         rk_aiq_rtt_share_info_t *share = (rk_aiq_rtt_share_info_t*)mTbInfo.rtt_share_addr;
         share->vts = frame_line_length;
     }
@@ -372,7 +372,7 @@ SensorHw::setHdrSensorExposure(pending_split_exps_t* expPar)
         return XCAM_RETURN_ERROR_IOCTL;
     }
 
-    if (mTbInfo.rtt_share_addr) {
+    if (mTbInfo.prd_type != RK_AIQ_PRD_TYPE_NORMAL && mTbInfo.rtt_share_addr) {
         rk_aiq_rtt_share_info_t *share = (rk_aiq_rtt_share_info_t*)mTbInfo.rtt_share_addr;
         share->vts = frame_line_length;
     }
@@ -1364,7 +1364,7 @@ SensorHw::_set_mirror_flip() {
         LOGE_CAMHW_SUBM(SENSOR_SUBM, "failed to set vflip (val: %d)", ctrl.value);
     }
 
-    if (mTbInfo.rtt_share_addr) {
+    if (mTbInfo.prd_type != RK_AIQ_PRD_TYPE_NORMAL && mTbInfo.rtt_share_addr) {
         rk_aiq_rtt_share_info_t *share = (rk_aiq_rtt_share_info_t*)mTbInfo.rtt_share_addr;
         share->mirror = _mirror;
         share->flip   = _flip;

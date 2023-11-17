@@ -152,6 +152,8 @@ typedef struct rk_aiq_sys_preinit_cfg_s {
         tb_info.is_pre_aiq = false;
         tb_info.is_start_once = false;
         tb_info.prd_type = RK_AIQ_PRD_TYPE_NORMAL;
+        tb_info.iq_bin_mode = RK_AIQ_META_FULL_IQ_BIN;
+        tb_info.rtt_share_addr = NULL;
         rawstream_info.mode = RK_ISP_RKRAWSTREAM_MODE_INVALID;
     };
     rk_aiq_iq_buffer_info_t iq_buffer;
@@ -533,7 +535,8 @@ rk_aiq_uapi_sysctl_init(const char* sns_ent_name,
             if (!it->second.sub_scene.empty())
                 sub_scene = it->second.sub_scene;
 
-            if (it->second.tb_info.rtt_share_addr) {
+            if (it->second.tb_info.prd_type != RK_AIQ_PRD_TYPE_NORMAL &&
+                it->second.tb_info.rtt_share_addr) {
                 rtt_share = (rk_aiq_rtt_share_info_t*)it->second.tb_info.rtt_share_addr;
                 rtt_share->type = it->second.tb_info.prd_type;
                 rtt_share->aiq_iq_addr = (uintptr_t)it->second.iq_buffer.addr;
