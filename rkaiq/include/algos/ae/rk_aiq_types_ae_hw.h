@@ -249,7 +249,6 @@ typedef struct RkAiqAecHwStatsRes_s {
     sihist_stat_t sihist;
 #endif
     uint16_t raw_mean[4];  //not HW! The last 8bits are decimal places, raw_mean[3] = extra-chn-mean
-    uint8_t hist_mean[3];  //not HW!
 
 } RkAiqAecHwStatsRes_t;
 

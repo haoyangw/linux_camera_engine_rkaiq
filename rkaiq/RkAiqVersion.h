@@ -739,12 +739,22 @@
  * - support AI nr
  * - support 8k for rk3562
  * - fix bugs:
- *   - fix ae is not running for 3562 
+ *   - fix ae is not running for 3562
  *   - fix drc longframeMode error
+ * v5.0x4.1
+ * - update kernel headers: rkisp_thunderboot_resmem_head
+ * - awb:
+ *   - support user awb OTP
+ *   - support awb gain mapped from main sensor
+ * - support fastboot aiq started one or two times
+ * - fix bugs:
+ *   - fix some bugs of rk3562 8k
+ *   - fix ae may be not running on all platform introduced in v5.0x3.0
+ *   - fix aiq_core state error when aiq stop
  */
 
-#define RK_AIQ_VERSION_REAL_V "v5.0x4.0"
-#define RK_AIQ_RELEASE_DATE "2023-10-07"
+#define RK_AIQ_VERSION_REAL_V "v5.0x4.1"
+#define RK_AIQ_RELEASE_DATE "2023-10-23"
 
 /******* DO NOT EDIT THE FOLLOWINGS ***********/
 

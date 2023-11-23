@@ -101,6 +101,7 @@ typedef struct rk_aiq_awb_stat_cfg_v32_s {
     int  groupIllIndxCurrent;//for time share
     int  IllIndxSetCurrent[RK_AIQ_AWB_MAX_WHITEREGIONS_NUM_V32];//for time share
     char timeSign[64];
+    float preWbgainSw[4];//rggb
 } rk_aiq_awb_stat_cfg_v32_t;
 
 typedef struct rk_aiq_awb_stat_cfg_effect_v32_s {
@@ -109,6 +110,8 @@ typedef struct rk_aiq_awb_stat_cfg_effect_v32_s {
     int  groupIllIndxCurrent;//for time share
     int  IllIndxSetCurrent[RK_AIQ_AWB_MAX_WHITEREGIONS_NUM_V32];//for time share
     char timeSign[64];
+    float preWbgainSw[4];//rggb
+
 } rk_aiq_awb_stat_cfg_effect_v32_t;
 
 typedef struct rk_aiq_awb_stat_res_v32_s {

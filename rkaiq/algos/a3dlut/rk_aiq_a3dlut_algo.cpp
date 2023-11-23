@@ -270,10 +270,10 @@ XCamReturn Alut3dAutoConfig
                             (dominateProfileIdx != hAlut3d->restinfo.dominateIdx) ||
                             (alpha != uint32_t(hAlut3d->restinfo.alpha * 128.0f));
 
-        LOGD_A3DLUT("sensorGain: %f, lutidx_alp_update: %d, Alpha: %f->%f, LutIdx: %d->%d \n",
-                    hAlut3d->update, sensorGain,
-                    hAlut3d->restinfo.alpha, alp_tmp,
-                    hAlut3d->restinfo.dominateIdx, dominateProfileIdx);
+        LOGD_A3DLUT("update:%d, sensorGain: %f, Alpha: %f->%f, LutIdx: %d->%d \n",
+                            hAlut3d->update, sensorGain,
+                            hAlut3d->restinfo.alpha, alp_tmp,
+                            hAlut3d->restinfo.dominateIdx, dominateProfileIdx);
         if (hAlut3d->update) {
             if (alpha == 0)
                 hAlut3d->restinfo.alpha = 0;

@@ -34,6 +34,9 @@ XCamReturn rk_aiq_user_api2_alsc_GetAttrib(const rk_aiq_sys_ctx_t *sys_ctx,
 XCamReturn
 rk_aiq_user_api2_alsc_QueryLscInfo(const rk_aiq_sys_ctx_t *sys_ctx,
                                    rk_aiq_lsc_querry_info_t *lsc_querry_info);
+XCamReturn
+rk_aiq_user_api2_alsc_SetAcolorSwInfo(const rk_aiq_sys_ctx_t* sys_ctx,
+                                              rk_aiq_color_info_t aColor_sw_info);
 
 RKAIQ_END_DECLARE
 

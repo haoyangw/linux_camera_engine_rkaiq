@@ -35,6 +35,8 @@ typedef enum rk_aiq_status_e {
 
 typedef struct rk_aiq_metas_s {
     uint32_t frame_id;
+    int cam_id;
+    const char* sensor_name;
 } rk_aiq_metas_t;
 
 typedef struct rk_aiq_multi_cam_s {

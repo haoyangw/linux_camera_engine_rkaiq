@@ -156,7 +156,26 @@ rk_aiq_user_api2_againV2_GetInfo(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_gain_in
     return ret;
 }
 
-#else
+XCamReturn
+rk_aiq_user_api2_againV2_WriteInput(const rk_aiq_sys_ctx_t* sys_ctx, const rk_aiq_uapiV2_again_wrtIn_attr_t *attr,
+                                 bool need_sync)
+{
+
+    CHECK_USER_API_ENABLE2(sys_ctx);
+    CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_AGAIN);
+    RKAIQ_API_SMART_LOCK(sys_ctx);
+
+    RkAiqAgainV2HandleInt* algo_handle =
+        algoHandle<RkAiqAgainV2HandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_AGAIN);
+    LOGD_ANR("%s:%d !!!!!!!!!!!!!single!!!!!!!!\n", __FUNCTION__, __LINE__);
+    if (algo_handle) {
+            return algo_handle->writeAginIn(*attr);
+    }
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
+#else //RKAIQ_HAVE_GAIN_V2
 XCamReturn
 rk_aiq_user_api2_againV2_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, const rk_aiq_gain_attrib_v2_t* attr)
 {
@@ -171,6 +190,12 @@ rk_aiq_user_api2_againV2_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,  rk_aiq_gain
 
 XCamReturn
 rk_aiq_user_api2_againV2_GetInfo(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_gain_info_v2_t* pInfo)
+{
+    return XCAM_RETURN_ERROR_UNKNOWN;
+}
+
+XCamReturn
+rk_aiq_user_api2_againV2_WriteInput(const rk_aiq_sys_ctx_t* sys_ctx, const rk_aiq_uapiV2_again_wrtIn_attr_t &attr, bool need_sync)
 {
     return XCAM_RETURN_ERROR_UNKNOWN;
 }

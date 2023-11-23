@@ -43,6 +43,8 @@ void rkrawstream_uapi_fakesns_mode(rkraw_vi_ctx_t *ctx, int isp_index, const cha
 
 void rkrawstream_uapi_deinit(rkraw_vi_ctx_t *ctx)
 {
+    if (!ctx)
+        return;
     {
         SmartLock locker (ctx->_api_mutex);
         if(ctx->_mRawCapUnit)
@@ -51,11 +53,14 @@ void rkrawstream_uapi_deinit(rkraw_vi_ctx_t *ctx)
             ctx->_mIspCapUnit->stop();
         if(ctx->_mRawProcUnit)
             ctx->_mRawProcUnit->stop();
-        delete ctx->_mRawCapUnit;
-        delete ctx->_mIspCapUnit;
-        delete ctx->_mRawCapUnit;
-        delete ctx->_mRawProcUnit;
-        delete ctx->_mMediaInfo;
+        if(ctx->_mIspCapUnit)
+            delete ctx->_mIspCapUnit;
+        if(ctx->_mRawCapUnit)
+            delete ctx->_mRawCapUnit;
+        if(ctx->_mRawProcUnit)
+            delete ctx->_mRawProcUnit;
+        if(ctx->_mMediaInfo)
+            delete ctx->_mMediaInfo;
     }
     delete ctx;
 }

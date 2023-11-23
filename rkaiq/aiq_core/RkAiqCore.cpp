@@ -133,12 +133,13 @@ RkAiqCore::RkAiqCore(int isp_hw_ver)
     , mAiqParamsPool(new RkAiqFullParamsPool("RkAiqFullParams", RkAiqCore::DEFAULT_POOL_SIZE))
     , mAiqCpslParamsPool(new RkAiqCpslParamsPool("RkAiqCpslParamsPool", RkAiqCore::DEFAULT_POOL_SIZE))
     , mAiqStatsPool(nullptr)
-    , mAiqSofInfoWrapperPool(new RkAiqSofInfoWrapperPool("RkAiqSofPoolWrapper", RkAiqCore::DEFAULT_POOL_SIZE))
+    , mAiqSofInfoWrapperPool(new RkAiqSofInfoWrapperPool("RkAiqSofPoolWrapper", RkAiqCore::DEFAULT_POOL_SIZE + 1))
     , mAiqIspStatsIntPool(new RkAiqIspStatsIntPool("RkAiqIspStatsIntPool", RkAiqCore::DEFAULT_POOL_SIZE))
     , mAiqAecStatsPool(nullptr)
     , mAiqAwbStatsPool(nullptr)
     , mAiqAtmoStatsPool(nullptr)
     , mAiqAdehazeStatsPool(nullptr)
+    , mAiqAgainStatsPool(nullptr)
     , mAiqAfStatsPool(nullptr)
     , mAiqOrbStatsIntPool(nullptr)
 #if RKAIQ_HAVE_PDAF
@@ -1848,6 +1849,7 @@ RkAiqCore::analyze(const SmartPtr<VideoBuffer> &buffer)
         SmartPtr<RkAiqAfStatsProxy> afStat = NULL;
         SmartPtr<RkAiqAtmoStatsProxy> tmoStat = NULL;
         SmartPtr<RkAiqAdehazeStatsProxy> dehazeStat = NULL;
+        SmartPtr<RkAiqAgainStatsProxy> againStat = NULL;
         LOGD_ANALYZER("new stats: camId:%d, sequence(%d)",
                       mAlogsComSharedParams.mCamPhyId, buffer->get_sequence());
         if (mTranslator->getParams(buffer))
@@ -1859,6 +1861,9 @@ RkAiqCore::analyze(const SmartPtr<VideoBuffer> &buffer)
         handleAtmoStats(buffer, tmoStat);
 #endif
         handleAdehazeStats(buffer, dehazeStat);
+#if RK_GAIN_V2_ENABLE_GAIN2DDR && defined(ISP_HW_V32)
+        handleAgainStats(buffer, againStat);
+#endif
 #if defined(ISP_HW_V20)
         handleIspStats(buffer, aecStat, awbStat, afStat, tmoStat, dehazeStat);
 #endif
@@ -2809,6 +2814,10 @@ void RkAiqCore::newAiqParamsPool()
                 mAiqIspCgcParamsPool        = new RkAiqIspCgcParamsPool("RkAiqIspCgcParams", RkAiqCore::DEFAULT_POOL_SIZE);
                 break;
             case RK_AIQ_ALGO_TYPE_AGAIN:
+#if RK_GAIN_V2_ENABLE_GAIN2DDR && defined(ISP_HW_V32)
+                if (!mAiqAgainStatsPool.ptr())
+                    mAiqAgainStatsPool = new RkAiqAgainStatsPool("RkAiqAgainStatsPoll", RkAiqCore::DEFAULT_POOL_SIZE);
+#endif
 #if defined(ISP_HW_V30) || defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
                 mAiqIspGainV3xParamsPool     = new RkAiqIspGainParamsPoolV3x("RkAiqIspGainV3xParams", RkAiqCore::DEFAULT_POOL_SIZE);
 #else
@@ -3315,6 +3324,37 @@ out:
 
     return ret;
 }
+
+#if RK_GAIN_V2_ENABLE_GAIN2DDR
+XCamReturn
+RkAiqCore::handleAgainStats(const SmartPtr<VideoBuffer> &buffer,
+        SmartPtr<RkAiqAgainStatsProxy>& gainStat)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    if (!mAiqAgainStatsPool.ptr()) {
+        LOGE_ANALYZER("no mAiqAgainStatsPool.prt!!");
+        return XCAM_RETURN_BYPASS;
+    } else if (mAiqAgainStatsPool->has_free_items()) {
+        gainStat = mAiqAgainStatsPool->get_item();
+        LOGD_ANALYZER("gainStat get items");
+    } else {
+        LOGE_ANALYZER("no free againStats buffer!");
+        return XCAM_RETURN_BYPASS;
+    }
+    ret = mTranslator->translateAgainStats(buffer, gainStat);
+    if (ret < 0) {
+        LOGE_ANALYZER("translate gain stats failed!");
+        return XCAM_RETURN_BYPASS;
+    }
+
+    uint32_t id = buffer->get_sequence();
+    RkAiqCoreVdBufMsg msg(XCAM_MESSAGE_AGAIN_STATS_OK,
+                          id, gainStat);
+    post_message(msg);
+    LOGD_ANALYZER("translate gain stats id:%d!", id);
+    return ret;
+}
+#endif // RK_GAIN_V2_ENABLE_GAIN2DDR
 
 XCamReturn
 RkAiqCore::handleOrbStats(const SmartPtr<VideoBuffer> &buffer)

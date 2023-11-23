@@ -65,6 +65,10 @@ public:
             SmartPtr<RkAiqAdehazeStatsProxy>& to) {
         return XCAM_RETURN_BYPASS;
     }
+    virtual XCamReturn translateAgainStats(const SmartPtr<VideoBuffer>& from,
+            SmartPtr<RkAiqAgainStatsProxy>& to){
+        return XCAM_RETURN_BYPASS;
+    }
 #if RKAIQ_HAVE_PDAF
     virtual XCamReturn translatePdafStats (const SmartPtr<VideoBuffer> &from,
                                            SmartPtr<RkAiqPdafStatsProxy> &to, bool sns_mirror) {

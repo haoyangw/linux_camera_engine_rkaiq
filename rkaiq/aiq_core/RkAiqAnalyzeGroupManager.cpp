@@ -483,6 +483,13 @@ XCamReturn RkAiqAnalyzeGroupManager::groupMessageHandler(std::array<RkAiqCoreVdB
                         shared->adehazeStatsBuf = dehazeStats->data().ptr();
                 }
                 break;
+            case XCAM_MESSAGE_AGAIN_STATS_OK:
+                {
+                    RkAiqAgainStatsProxy* againStats = vdBufMsg->msg.get_cast_ptr<RkAiqAgainStatsProxy>();
+                    if (againStats)
+                        shared->againStatsBuf = againStats->data().ptr();
+                }
+                break;
             case XCAM_MESSAGE_VICAP_POLL_SCL_OK:
             {
                 RkAiqVicapRawBufInfo_t *buf_info = (RkAiqVicapRawBufInfo_t *)vdBufMsg->msg->map();
@@ -578,6 +585,9 @@ XCamReturn RkAiqAnalyzeGroupManager::groupMessageHandler(std::array<RkAiqCoreVdB
     if (shared->scaleRawInfo.raw_s) {
         shared->scaleRawInfo.raw_s->unref(shared->scaleRawInfo.raw_s);
         shared->scaleRawInfo.raw_s = nullptr;
+    }
+    if (shared->againStatsBuf) {
+        shared->againStatsBuf = nullptr;
     }
 
     return XCAM_RETURN_NO_ERROR;

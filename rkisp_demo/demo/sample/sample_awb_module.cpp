@@ -1393,6 +1393,27 @@ XCamReturn sample_awb32_module(const void *arg)
             case 'e':
                 sample_get_awb_gain_adjust(ctx);
                 break;
+              case 'f':{
+                float attr[4]={ 0.97,1,1, 0.94};
+                rk_aiq_user_api2_awb_setAwbPreWbgain(ctx,attr);
+                printf("setAwbPreWbgain\n\n");
+                break;}
+            case 'g':{
+                rk_aiq_uapiV2_awb_Slave2Main_Cfg_t slave2Main;
+                slave2Main.enable = true;
+                slave2Main.camM.wbgain.rgain = 1.6480  ;
+                slave2Main.camM.wbgain.grgain = 1 ;
+                slave2Main.camM.wbgain.gbgain= 1 ;
+                slave2Main.camM.wbgain.bgain = 1.84 ;
+                slave2Main.camM.fLV = 1280;
+                slave2Main.camM.fLV_valid = true;
+                char filename[]="/etc/iqfiles/wbgain_convert2.bin";
+                rk_aiq_user_api2_awb_loadConvertLut(&slave2Main.cct_lut_cfg,filename);
+                rk_aiq_user_api2_awb_IqMap2Main(ctx,slave2Main);
+                rk_aiq_user_api2_awb_freeConvertLut(&slave2Main.cct_lut_cfg);
+
+                printf("IqMap2Main\n\n");
+                break;}
             case 'A':
                 sample_awb_awbv32_setAllAttr(ctx, RK_AIQ_UAPI_MODE_DEFAULT);
                 sample_awb_awbv32_getAllAttr(ctx);

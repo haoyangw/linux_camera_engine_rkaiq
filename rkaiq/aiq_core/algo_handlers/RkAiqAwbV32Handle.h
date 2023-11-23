@@ -58,7 +58,8 @@ class RkAiqAwbV32HandleInt : public RkAiqAwbHandleInt {
     XCamReturn getWbV32IQAutoExtPara(rk_aiq_uapiV2_Wb_Awb_IqAtExtPa_V32_t* att);
     XCamReturn setWbV32IQAutoPara(const rk_aiq_uapiV2_Wb_Awb_IqAtPa_V32_t* att);
     XCamReturn getWbV32IQAutoPara(rk_aiq_uapiV2_Wb_Awb_IqAtPa_V32_t* att);
-
+    XCamReturn awbIqMap2Main( rk_aiq_uapiV2_awb_Slave2Main_Cfg_t att);
+    XCamReturn setAwbPreWbgain( const float att[4]);
  protected:
  private:
     // TODO

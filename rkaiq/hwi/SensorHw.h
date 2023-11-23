@@ -134,13 +134,16 @@ public:
     virtual XCamReturn set_sync_mode(uint32_t mode);
 
     virtual XCamReturn set_effecting_exp_map(uint32_t sequence, void *exp_ptr, int mode);
-    virtual XCamReturn set_pause_flag(bool mode);
+    virtual XCamReturn set_pause_flag(bool mode, uint32_t frameId, bool isSingleMode);
+    bool get_is_single_mode() {
+        return mIsSingleMode;
+    }
     XCAM_DEAD_COPY (SensorHw);
 protected:
     Mutex _mutex;
     int _working_mode;
     std::list<std::pair<SmartPtr<RkAiqSensorExpParamsProxy>, bool>> _exp_list;
-    std::map<int, SmartPtr<RkAiqSensorExpParamsProxy>> _effecting_exp_map;
+    std::map<uint32_t, SmartPtr<RkAiqSensorExpParamsProxy>> _effecting_exp_map;
     bool _first;
     uint32_t _frame_sequence;
     rk_aiq_exposure_sensor_descriptor _sensor_desc;
@@ -207,6 +210,8 @@ protected:
     XCamReturn _set_mirror_flip();
 
     bool mPauseFlag{false};
+    uint32_t mPauseId{uint32_t(-1)};
+    bool mIsSingleMode{false};
 };
 
 } //namespace RkCam

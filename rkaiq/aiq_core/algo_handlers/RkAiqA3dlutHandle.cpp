@@ -252,6 +252,10 @@ XCamReturn RkAiqA3dlutHandleInt::processing() {
         }
     }
 #endif
+    if(colorConstFlag==true){
+        memcpy(a3dlut_proc_int->awbGain,colorSwInfo.awbGain,sizeof(colorSwInfo.awbGain));
+        a3dlut_proc_int->sensorGain = colorSwInfo.sensorGain;
+    }
 
 #ifdef DISABLE_HANDLE_ATTRIB
     mCfgMutex.lock();
@@ -350,6 +354,20 @@ XCamReturn RkAiqA3dlutHandleInt::genIspResult(RkAiqFullParams* params,
 
     EXIT_ANALYZER_FUNCTION();
 
+    return ret;
+}
+XCamReturn RkAiqA3dlutHandleInt::setAcolorSwInfo(rk_aiq_color_info_t aColor_sw_info) {
+    ENTER_ANALYZER_FUNCTION();
+
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    LOGV_A3DLUT("%s sensor gain = %f, wbgain=[%f,%f] ",__FUNCTION__,aColor_sw_info.sensorGain,
+      aColor_sw_info.awbGain[0],aColor_sw_info.awbGain[1]);
+    colorSwInfo = aColor_sw_info;
+    colorConstFlag=true;
+
+
+    EXIT_ANALYZER_FUNCTION();
     return ret;
 }
 

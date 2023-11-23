@@ -234,7 +234,6 @@ XCamReturn RkAiqAlscHandleInt::processing() {
     RkAiqCore::RkAiqAlgosGroupShared_t* shared =
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
-
     if (!shared->fullParams || !shared->fullParams->mLscParams.ptr()) {
         LOGE_ALSC("[%d]: no lsc buf !", shared->frameId);
         return XCAM_RETURN_BYPASS;
@@ -302,6 +301,21 @@ XCamReturn RkAiqAlscHandleInt::processing() {
     } else {
         LOGW("fail to get sensor gain form AE module,use default value ");
     }
+
+#if RKAIQ_HAVE_BLC_V32
+        if (shared->res_comb.ablcV32_proc_res->blc_ob_enable) {
+            if (shared->res_comb.ablcV32_proc_res->isp_ob_predgain >= 1.0f) {
+                alsc_proc_int->alsc_sw_info.sensorGain *=  shared->res_comb.ablcV32_proc_res->isp_ob_predgain;
+            }
+        }
+#endif
+
+    if(colorConstFlag==true){
+        memcpy(alsc_proc_int->alsc_sw_info.awbGain,colorSwInfo.awbGain,sizeof(colorSwInfo.awbGain));
+        alsc_proc_int->alsc_sw_info.sensorGain = colorSwInfo.sensorGain;
+    }
+
+
 
 #ifdef DISABLE_HANDLE_ATTRIB
     mCfgMutex.lock();
@@ -432,6 +446,19 @@ XCamReturn RkAiqAlscHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPa
 
     EXIT_ANALYZER_FUNCTION();
 
+    return ret;
+}
+XCamReturn RkAiqAlscHandleInt::setAcolorSwInfo(rk_aiq_color_info_t aColor_sw_info) {
+    ENTER_ANALYZER_FUNCTION();
+
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    LOGV_ALSC("%s sensor gain = %f, wbgain=[%f,%f] ",__FUNCTION__,aColor_sw_info.sensorGain,
+      aColor_sw_info.awbGain[0],aColor_sw_info.awbGain[1]);
+    colorSwInfo = aColor_sw_info;
+    colorConstFlag=true;
+    EXIT_ANALYZER_FUNCTION();
     return ret;
 }
 

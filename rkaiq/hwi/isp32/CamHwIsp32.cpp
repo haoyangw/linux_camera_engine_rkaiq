@@ -153,33 +153,65 @@ CamHwIsp32::processTb(void* params)
     if (mTbInfo.is_pre_aiq || mTbInfo.is_start_once) {
         if (isp_params->frame_id == 0 && _not_skip_first) {
             _not_skip_first = false;
-            _first_awb_cfg = isp_params->meas.rawawb;
+            if (!_skipped_params) {
+                _skipped_params = malloc(sizeof(struct isp32_isp_params_cfg));
+                *((struct isp32_isp_params_cfg*)_skipped_params) = *isp_params;
+                LOGK_CAMHW("cid[%d], fid[%d], skip_en_up: 0x%llx, cfg_up:0x%llx",
+                        mCamPhyId, isp_params->frame_id,
+                        isp_params->module_en_update,
+                        isp_params->module_cfg_update);
+            }
             LOGK_CAMHW("<TB> Skip config id(%d)'s isp params", isp_params->frame_id);
             return true;
         } else if (!_not_skip_first) {
-            _first_awb_cfg.pre_wbgain_inv_r = isp_params->meas.rawawb.pre_wbgain_inv_r;
-            _first_awb_cfg.pre_wbgain_inv_g = isp_params->meas.rawawb.pre_wbgain_inv_g;
-            _first_awb_cfg.pre_wbgain_inv_b = isp_params->meas.rawawb.pre_wbgain_inv_b;
-            isp_params->meas.rawawb = _first_awb_cfg;
-            if (mTbInfo.is_start_once) {
-                _not_skip_first = true;
-                LOGK_CAMHW("<TB> Config id(%u)'s isp params, ens 0x%llx ens_up 0x%llx, cfg_up 0x%llx", isp_params->frame_id,
-                            isp_params->module_ens,
-                            isp_params->module_en_update,
-                            isp_params->module_cfg_update);
+            if (!_skipped_params) {
+                return false;
             }
+
+            struct isp32_isp_params_cfg* skip_param = (struct isp32_isp_params_cfg*)_skipped_params;
+            struct isp32_isp_params_cfg* new_param = (struct isp32_isp_params_cfg*)params;
+
+            uint64_t skip_cfg_up = skip_param->module_cfg_update & (new_param->module_cfg_update ^ skip_param->module_cfg_update);
+            uint64_t skip_en_up = skip_param->module_en_update & (new_param->module_en_update ^ skip_param->module_en_update);
+
+            if (skip_cfg_up) {
+                LOGK_CAMHW("cid[%d], fid[%d], skip_cfg_up: 0x%llx",
+                        mCamPhyId, isp_params->frame_id, skip_cfg_up);
+                if (skip_cfg_up & ISP32_MODULE_RAWAF) {
+                    new_param->module_cfg_update |= ISP32_MODULE_RAWAF;
+                    new_param->meas.rawaf = skip_param->meas.rawaf;
+                }
+            }
+
+            if (skip_en_up) {
+                LOGK_CAMHW("cid[%d], fid[%d], skip_en_up: 0x%llx",
+                        mCamPhyId, isp_params->frame_id, skip_cfg_up);
+                if (skip_cfg_up & ISP32_MODULE_RAWAF) {
+                    new_param->module_en_update |= ISP32_MODULE_RAWAF;
+                    new_param->module_ens &= ~ISP32_MODULE_RAWAF;
+                    new_param->module_ens |= skip_param->module_ens & ISP32_MODULE_RAWAF;
+                }
+            }
+
+            skip_param->meas.rawawb.pre_wbgain_inv_r = isp_params->meas.rawawb.pre_wbgain_inv_r;
+            skip_param->meas.rawawb.pre_wbgain_inv_g = isp_params->meas.rawawb.pre_wbgain_inv_g;
+            skip_param->meas.rawawb.pre_wbgain_inv_b = isp_params->meas.rawawb.pre_wbgain_inv_b;
+            isp_params->meas.rawawb = skip_param->meas.rawawb;
+
+            free(_skipped_params);
+            _skipped_params = NULL;
         }
 
-        if (mTbInfo.is_pre_aiq || !_not_skip_first)
-            LOGK_CAMHW("<TB> Config id(%u)'s isp params, ens 0x%llx ens_up 0x%llx, cfg_up 0x%llx", isp_params->frame_id,
-                            isp_params->module_ens,
-                            isp_params->module_en_update,
-                            isp_params->module_cfg_update);
+        LOGK_CAMHW("<TB> Config id(%u)'s isp params, ens 0x%llx ens_up 0x%llx, cfg_up 0x%llx", isp_params->frame_id,
+                        isp_params->module_ens,
+                        isp_params->module_en_update,
+                        isp_params->module_cfg_update);
         return false;
-    } else if (isp_params->frame_id == 0) {
+    } else if (isp_params->frame_id == 0 && _not_skip_first) {
+        _not_skip_first = false;
         return true;
     } else {
-        return false;
+       return false;
     }
 #else
     return false;

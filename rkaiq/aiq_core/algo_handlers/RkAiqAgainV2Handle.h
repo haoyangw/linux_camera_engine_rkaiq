@@ -29,7 +29,17 @@ class RkAiqAgainV2HandleInt:
     virtual public RkAiqHandle {
 public:
     explicit RkAiqAgainV2HandleInt(RkAiqAlgoDesComm* des, RkAiqCore* aiqCore)
-        : RkAiqHandle(des, aiqCore) {}
+        : RkAiqHandle(des, aiqCore) {
+#ifndef DISABLE_HANDLE_ATTRIB
+    updataWriteAgainInputAttr = false;
+    memset(&mCurAtt, 0x00, sizeof(mCurAtt));
+    memset(&mNewAtt, 0x00, sizeof(mNewAtt));
+    memset(&mCurInfo, 0x00, sizeof(mCurInfo));
+    memset(&mNewInfo, 0x00, sizeof(mNewInfo));
+    memset(&mNewWriteInputAttr, 0x00, sizeof(mNewWriteInputAttr));
+    memset(&mCurWriteInputAttr, 0x00, sizeof(mCurWriteInputAttr));
+#endif // DISABLE_HANDLE_ATTRIB
+        }
     virtual ~RkAiqAgainV2HandleInt() {
         RkAiqHandle::deInit();
     };
@@ -42,6 +52,7 @@ public:
     XCamReturn setAttrib(const rk_aiq_gain_attrib_v2_t *att);
     XCamReturn getAttrib(rk_aiq_gain_attrib_v2_t *att);
     XCamReturn getInfo(rk_aiq_gain_info_v2_t *pInfo);
+    XCamReturn writeAginIn(rk_aiq_uapiV2_again_wrtIn_attr_t att);
 protected:
     virtual void init();
     virtual void deInit() {
@@ -53,7 +64,11 @@ private:
     rk_aiq_gain_attrib_v2_t mNewAtt;
     rk_aiq_gain_info_v2_t mCurInfo;
     rk_aiq_gain_info_v2_t mNewInfo;
+    rk_aiq_uapiV2_again_wrtIn_attr_t mCurWriteInputAttr;
+    rk_aiq_uapiV2_again_wrtIn_attr_t mNewWriteInputAttr;
+    mutable std::atomic<bool> updataWriteAgainInputAttr;
 #endif
+
     DECLARE_HANDLE_REGISTER_TYPE(RkAiqAgainV2HandleInt);
 };
 #endif

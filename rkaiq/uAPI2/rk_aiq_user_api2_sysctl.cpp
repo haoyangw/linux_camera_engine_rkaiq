@@ -416,14 +416,14 @@ rk_aiq_uapi2_sysctl_preInit_rkrawstream_info(const char* sns_ent_name,
     return rk_aiq_uapi_sysctl_preInit_rkrawtream_info(sns_ent_name, info);
 }
 
-void rk_aiq_uapi2_sysctl_pause(rk_aiq_sys_ctx_t* sys_ctx)
+void rk_aiq_uapi2_sysctl_pause(rk_aiq_sys_ctx_t* sys_ctx, bool isSingleMode)
 {
-    sys_ctx->_rkAiqManager->setVicapStreamMode(0);
+    sys_ctx->_rkAiqManager->setVicapStreamMode(0, isSingleMode);
 }
 
 void rk_aiq_uapi2_sysctl_resume(rk_aiq_sys_ctx_t* sys_ctx)
 {
-    sys_ctx->_rkAiqManager->setVicapStreamMode(1);
+    sys_ctx->_rkAiqManager->setVicapStreamMode(1, false);
 }
 
 XCamReturn

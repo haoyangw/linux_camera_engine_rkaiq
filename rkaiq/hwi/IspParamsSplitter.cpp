@@ -1679,6 +1679,9 @@ XCamReturn IspParamsSplitter::SplitAwbParams<struct isp32_isp_params_cfg>(
     } else {
         awb_ds = 3;
     }
+    if (ori->meas.rawawb.ds16x8_mode_en) {
+        awb_ds = 4;
+    }
     u16 min_hsize = wnd_num << awb_ds;
 
     SplitAwbWin(&ori_win, &left_win, &right_win, awb_ds, wnd_num, left_isp_rect_, right_isp_rect_, &mode);
@@ -2097,6 +2100,7 @@ XCamReturn IspParamsSplitter::SplitAfParams<struct isp32_isp_params_cfg>(
     struct isp32_rawaf_meas_cfg org_af = left->meas.rawaf;
     struct isp32_rawaf_meas_cfg* l_af = &left->meas.rawaf;
     struct isp32_rawaf_meas_cfg* r_af = &right->meas.rawaf;
+#if defined(ISP_HW_V32)
     struct isp2x_rawaebig_meas_cfg org_ae3 = left->meas.rawae3;
     struct isp2x_rawaebig_meas_cfg* l_ae3 = &left->meas.rawae3;
     struct isp2x_rawaebig_meas_cfg* r_ae3 = &right->meas.rawae3;
@@ -2235,7 +2239,149 @@ XCamReturn IspParamsSplitter::SplitAfParams<struct isp32_isp_params_cfg>(
         r_ae3->win.h_size = r_af->win[0].h_size;
         r_ae3->win.v_size = r_af->win[0].v_size;
     }
+#elif defined(ISP_HW_V32_LITE)
+    struct isp2x_rawaelite_meas_cfg org_ae0 = left->meas.rawae0;
+    struct isp2x_rawaelite_meas_cfg* l_ae0 = &left->meas.rawae0;
+    struct isp2x_rawaelite_meas_cfg* r_ae0 = &right->meas.rawae0;
+    int32_t l_isp_st, l_isp_ed, r_isp_st, r_isp_ed;
+    int32_t l_win_st, l_win_ed, r_win_st, r_win_ed;
+    int32_t x_st, x_ed, l_blknum, r_blknum, ov_w, blk_w, r_skip_blknum;
+    uint8_t wnd_num;
 
+    wnd_num = sqrt(ISP32L_RAWAF_WND_DATA);
+
+    ov_w = left_isp_rect_.w + left_isp_rect_.x - right_isp_rect_.x;
+    x_st = org_af.win[0].h_offs;
+    x_ed = x_st + org_af.win[0].h_size;
+    l_isp_st = left_isp_rect_.x;
+    l_isp_ed = left_isp_rect_.x + left_isp_rect_.w;
+    r_isp_st = right_isp_rect_.x;
+    r_isp_ed = right_isp_rect_.x + right_isp_rect_.w;
+    LOGD_AF("wina.x_st %d, wina.x_ed %d, l_isp_st %d, l_isp_ed %d, r_isp_st %d, r_isp_ed %d",
+            x_st, x_ed, l_isp_st, l_isp_ed, r_isp_st, r_isp_ed);
+
+    //// winA ////
+    // af win in both side
+    if ((x_st < r_isp_st) && (x_ed > l_isp_ed)) {
+        // af win < one isp width
+        if (org_af.win[0].h_size < left_isp_rect_.w) {
+            blk_w = org_af.win[0].h_size / wnd_num;
+            l_blknum = (l_isp_ed - x_st + blk_w - 1) / blk_w;
+            r_blknum = wnd_num - l_blknum;
+            l_win_ed = l_isp_ed - 2;
+            l_win_st = l_win_ed - blk_w * wnd_num;
+            if (blk_w < ov_w) {
+                r_skip_blknum = ov_w / blk_w;
+                r_win_st = ov_w - r_skip_blknum * blk_w;
+                r_win_ed = ov_w + (wnd_num - r_skip_blknum) * blk_w;
+            }
+            else {
+                r_skip_blknum = 0;
+                r_win_st = 2;
+                r_win_ed = r_win_st + wnd_num * blk_w;
+            }
+        }
+        // af win < one isp width * 1.5
+        else if (org_af.win[0].h_size < left_isp_rect_.w * 3 / 2) {
+            l_win_st = x_st;
+            l_win_ed = l_isp_ed - 2;
+            blk_w = (l_win_ed - l_win_st) / (wnd_num + 1);
+            l_win_st = l_win_ed - blk_w * wnd_num;
+            l_blknum = ((l_win_ed - l_win_st) * wnd_num + org_af.win[0].h_size - 1) / org_af.win[0].h_size;
+            r_blknum = wnd_num - l_blknum;
+            if (blk_w < ov_w) {
+                r_skip_blknum = ov_w / blk_w;
+                r_win_st = ov_w - r_skip_blknum * blk_w;
+                r_win_ed = ov_w + (wnd_num - r_skip_blknum) * blk_w;
+            }
+            else {
+                r_skip_blknum = 0;
+                r_win_st = 2;
+                r_win_ed = r_win_st + wnd_num * blk_w;
+            }
+        } else {
+            l_win_st = x_st;
+            l_win_ed = l_isp_ed - 2;
+            blk_w = (l_win_ed - l_win_st) / wnd_num;
+            l_win_st = l_win_ed - blk_w * wnd_num;
+            r_win_st = 2;
+            r_win_ed = r_win_st + blk_w * wnd_num;
+            l_blknum = wnd_num;
+            r_blknum = wnd_num;
+            r_skip_blknum = 0;
+        }
+        LOGD_AF("wina: blk_w %d, ov_w %d, l_blknum %d, r_blknum %d, r_skip_blknum %d",
+                blk_w, ov_w, l_blknum, r_blknum, r_skip_blknum);
+    }
+    // af win in right side
+    else if ((x_st >= r_isp_st) && (x_ed > l_isp_ed)) {
+        l_blknum = 0;
+        r_blknum = wnd_num;
+        r_win_st = x_st - right_isp_rect_.x;
+        r_win_ed = x_ed - right_isp_rect_.x;
+        l_win_st = r_win_st;
+        l_win_ed = r_win_ed;
+    }
+    // af win in left side
+    else {
+        l_blknum = wnd_num;
+        r_blknum = 0;
+        l_win_st = x_st;
+        l_win_ed = x_ed;
+        r_win_st = l_win_st;
+        r_win_ed = l_win_ed;
+    }
+
+    l_af->win[0].h_offs = l_win_st;
+    l_af->win[0].h_size = l_win_ed - l_win_st;
+    r_af->win[0].h_offs = r_win_st;
+    r_af->win[0].h_size = r_win_ed - r_win_st;
+
+    //// winB ////
+    x_st = org_af.win[1].h_offs;
+    x_ed = x_st + org_af.win[1].h_size;
+    LOGD_AF("winb.x_st %d, winb.x_ed %d, l_isp_st %d, l_isp_ed %d, r_isp_st %d, r_isp_ed %d",
+            x_st, x_ed, l_isp_st, l_isp_ed, r_isp_st, r_isp_ed);
+
+    // af win in both side
+    if ((x_st < r_isp_st) && (x_ed > l_isp_ed)) {
+        l_win_st = x_st;
+        l_win_ed = l_isp_ed - 2;
+        r_win_st = ov_w - 2;
+        r_win_ed = x_ed - right_isp_rect_.x;
+    }
+    // af win in right side
+    else if ((x_st >= r_isp_st) && (x_ed > l_isp_ed)) {
+        r_win_st = x_st - right_isp_rect_.x;
+        r_win_ed = x_ed - right_isp_rect_.x;
+        l_win_st = r_win_st;
+        l_win_ed = r_win_ed;
+    }
+    // af win in left side
+    else {
+        l_win_st = x_st;
+        l_win_ed = x_ed;
+        r_win_st = l_win_st;
+        r_win_ed = l_win_ed;
+    }
+
+    l_af->win[1].h_offs = l_win_st;
+    l_af->win[1].h_size = l_win_ed - l_win_st;
+    r_af->win[1].h_offs = r_win_st;
+    r_af->win[1].h_size = r_win_ed - r_win_st;
+
+    // rawae3 is used by af now!!!
+    if (org_af.ae_mode) {
+        l_ae0->win.h_offs = l_af->win[0].h_offs;
+        l_ae0->win.v_offs = l_af->win[0].v_offs;
+        l_ae0->win.h_size = l_af->win[0].h_size;
+        l_ae0->win.v_size = l_af->win[0].v_size;
+        r_ae0->win.h_offs = r_af->win[0].h_offs;
+        r_ae0->win.v_offs = r_af->win[0].v_offs;
+        r_ae0->win.h_size = r_af->win[0].h_size;
+        r_ae0->win.v_size = r_af->win[0].v_size;
+    }
+#endif
     LOGD_AF("AfWinA left=%d-%d-%d-%d, right=%d-%d-%d-%d",
             l_af->win[0].h_offs, l_af->win[0].v_offs,
             l_af->win[0].h_size, l_af->win[0].v_size,
@@ -3125,6 +3271,171 @@ XCamReturn IspParamsSplitter::SplitAwbParamsVertical<struct isp32_isp_params_cfg
 }
 
 template <>
+XCamReturn IspParamsSplitter::SplitAfParamsVertical<struct isp32_isp_params_cfg>(
+    struct isp32_isp_params_cfg* ori,
+    struct isp32_isp_params_cfg* left,
+    struct isp32_isp_params_cfg* right) {
+    struct isp32_rawaf_meas_cfg org_af = left->meas.rawaf;
+    struct isp32_rawaf_meas_cfg* l_af = &left->meas.rawaf;
+    struct isp32_rawaf_meas_cfg* r_af = &right->meas.rawaf;
+    struct isp2x_rawaelite_meas_cfg org_ae0 = left->meas.rawae0;
+    struct isp2x_rawaelite_meas_cfg* l_ae0 = &left->meas.rawae0;
+    struct isp2x_rawaelite_meas_cfg* r_ae0 = &right->meas.rawae0;
+    int32_t l_isp_st, l_isp_ed, r_isp_st, r_isp_ed;
+    int32_t l_win_st, l_win_ed, r_win_st, r_win_ed;
+    int32_t y_st, y_ed, l_blknum, r_blknum, ov_h, blk_h, r_skip_blknum;
+    uint8_t wnd_num;
+
+    wnd_num = sqrt(ISP32L_RAWAF_WND_DATA);
+
+    ov_h = left_isp_rect_.h + left_isp_rect_.y - bottom_left_isp_rect_.y;
+    y_st = org_af.win[0].v_offs;
+    y_ed = y_st + org_af.win[0].v_size;
+    l_isp_st = left_isp_rect_.y;
+    l_isp_ed = left_isp_rect_.y + left_isp_rect_.h;
+    r_isp_st = bottom_left_isp_rect_.y;
+    r_isp_ed = bottom_left_isp_rect_.y + bottom_left_isp_rect_.h;
+    LOGD_AF("wina.x_st %d, wina.x_ed %d, l_isp_st %d, l_isp_ed %d, r_isp_st %d, r_isp_ed %d",
+            y_st, y_ed, l_isp_st, l_isp_ed, r_isp_st, r_isp_ed);
+
+    //// winA ////
+    // af win in both side
+    if ((y_st < r_isp_st) && (y_ed > l_isp_ed)) {
+        // af win < one isp width
+        if (org_af.win[0].v_size < left_isp_rect_.h) {
+            blk_h = org_af.win[0].v_size / wnd_num;
+            l_blknum = (l_isp_ed - y_st + blk_h - 1) / blk_h;
+            r_blknum = wnd_num - l_blknum;
+            l_win_ed = l_isp_ed - 4;
+            l_win_st = l_win_ed - blk_h * wnd_num;
+            if (blk_h < ov_h) {
+                r_skip_blknum = ov_h / blk_h;
+                r_win_st = ov_h - r_skip_blknum * blk_h;
+                r_win_ed = ov_h + (wnd_num - r_skip_blknum) * blk_h;
+            }
+            else {
+                r_skip_blknum = 0;
+                r_win_st = 2;
+                r_win_ed = r_win_st + wnd_num * blk_h;
+            }
+        }
+        // af win < one isp width * 1.5
+        else if (org_af.win[0].v_size < left_isp_rect_.h * 3 / 2) {
+            l_win_st = y_st;
+            l_win_ed = l_isp_ed - 4;
+            blk_h = (l_win_ed - l_win_st) / (wnd_num + 1);
+            l_win_st = l_win_ed - blk_h * wnd_num;
+            l_blknum = ((l_win_ed - l_win_st) * wnd_num + org_af.win[0].v_size - 1) / org_af.win[0].v_size;
+            r_blknum = wnd_num - l_blknum;
+            if (blk_h < ov_h) {
+                r_skip_blknum = ov_h / blk_h;
+                r_win_st = ov_h - r_skip_blknum * blk_h;
+                r_win_ed = ov_h + (wnd_num - r_skip_blknum) * blk_h;
+            }
+            else {
+                r_skip_blknum = 0;
+                r_win_st = 2;
+                r_win_ed = r_win_st + wnd_num * blk_h;
+            }
+        } else {
+            l_win_st = y_st;
+            l_win_ed = l_isp_ed - 4;
+            blk_h = (l_win_ed - l_win_st) / wnd_num;
+            l_win_st = l_win_ed - blk_h * wnd_num;
+            r_win_st = 2;
+            r_win_ed = r_win_st + blk_h * wnd_num;
+            l_blknum = wnd_num;
+            r_blknum = wnd_num;
+            r_skip_blknum = 0;
+        }
+        LOGD_AF("wina: blk_w %d, ov_w %d, t_blknum %d, b_blknum %d, b_skip_blknum %d",
+                blk_h, ov_h, l_blknum, r_blknum, r_skip_blknum);
+    }
+    // af win in right side
+    else if ((y_st >= r_isp_st) && (y_ed > l_isp_ed)) {
+        l_blknum = 0;
+        r_blknum = wnd_num;
+        r_win_st = y_st - bottom_left_isp_rect_.y;
+        r_win_ed = y_ed - bottom_left_isp_rect_.y;
+        l_win_st = r_win_st;
+        l_win_ed = r_win_ed;
+    }
+    // af win in left side
+    else {
+        l_blknum = wnd_num;
+        r_blknum = 0;
+        l_win_st = y_st;
+        l_win_ed = y_ed;
+        r_win_st = l_win_st;
+        r_win_ed = l_win_ed;
+    }
+
+    l_af->win[0].v_offs = l_win_st;
+    l_af->win[0].v_size = l_win_ed - l_win_st;
+    r_af->win[0].v_offs = r_win_st;
+    r_af->win[0].v_size = r_win_ed - r_win_st;
+
+    //// winB ////
+    y_st = org_af.win[1].v_offs;
+    y_ed = y_st + org_af.win[1].v_size;
+    LOGD_AF("winb.x_st %d, winb.x_ed %d, l_isp_st %d, l_isp_ed %d, r_isp_st %d, r_isp_ed %d",
+            y_st, y_ed, l_isp_st, l_isp_ed, r_isp_st, r_isp_ed);
+
+    // af win in both side
+    if ((y_st < r_isp_st) && (y_ed > l_isp_ed)) {
+        l_win_st = y_st;
+        l_win_ed = l_isp_ed - 4;
+        r_win_st = ov_h - 2;
+        r_win_ed = y_ed - bottom_left_isp_rect_.y;
+    }
+    // af win in right side
+    else if ((y_st >= r_isp_st) && (y_ed > l_isp_ed)) {
+        r_win_st = y_st - bottom_left_isp_rect_.y;
+        r_win_ed = y_ed - bottom_left_isp_rect_.y;
+        l_win_st = r_win_st;
+        l_win_ed = r_win_ed;
+    }
+    // af win in left side
+    else {
+        l_win_st = y_st;
+        l_win_ed = y_ed;
+        r_win_st = l_win_st;
+        r_win_ed = l_win_ed;
+    }
+
+    l_af->win[1].v_offs = l_win_st;
+    l_af->win[1].v_size = l_win_ed - l_win_st;
+    r_af->win[1].v_offs = r_win_st;
+    r_af->win[1].v_size = r_win_ed - r_win_st;
+
+    // rawae0 is used by af now!!!
+    if (org_af.ae_mode) {
+        l_ae0->win.h_offs = l_af->win[0].h_offs;
+        l_ae0->win.v_offs = l_af->win[0].v_offs;
+        l_ae0->win.h_size = l_af->win[0].h_size;
+        l_ae0->win.v_size = l_af->win[0].v_size;
+        r_ae0->win.h_offs = r_af->win[0].h_offs;
+        r_ae0->win.v_offs = r_af->win[0].v_offs;
+        r_ae0->win.h_size = r_af->win[0].h_size;
+        r_ae0->win.v_size = r_af->win[0].v_size;
+    }
+
+    LOGD_AF("AfWinA top=%d-%d-%d-%d, bottom=%d-%d-%d-%d",
+            l_af->win[0].h_offs, l_af->win[0].v_offs,
+            l_af->win[0].h_size, l_af->win[0].v_size,
+            r_af->win[0].h_offs, r_af->win[0].v_offs,
+            r_af->win[0].h_size, r_af->win[0].v_size);
+
+    LOGD_AF("AfWinB top=%d-%d-%d-%d, bottom=%d-%d-%d-%d",
+            l_af->win[1].h_offs, l_af->win[1].v_offs,
+            l_af->win[1].h_size, l_af->win[1].v_size,
+            r_af->win[1].h_offs, r_af->win[1].v_offs,
+            r_af->win[1].h_size, r_af->win[1].v_size);
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
+template <>
 XCamReturn IspParamsSplitter::SplitAynrParamsVertical<struct isp32_isp_params_cfg>(
     struct isp32_isp_params_cfg* ori, struct isp32_isp_params_cfg* left,
     struct isp32_isp_params_cfg* right) {
@@ -3305,6 +3616,8 @@ XCamReturn IspParamsSplitter::SplitIspParamsVertical<struct isp32_isp_params_cfg
     ret = SplitAecParamsVertical(&tmp_isp_param, top_left_isp_params, bottom_left_isp_params);
     if (orig_isp_params->module_cfg_update & ISP32_MODULE_RAWAWB)
         ret = SplitAwbParamsVertical(&tmp_isp_param, top_left_isp_params, bottom_left_isp_params);
+    if (orig_isp_params->module_cfg_update & ISP32_MODULE_RAWAF)
+        ret = SplitAfParamsVertical(&tmp_isp_param, top_left_isp_params, bottom_left_isp_params);
     if (orig_isp_params->module_cfg_update & ISP32_MODULE_SHARP)
         ret = SplitAsharpParamsVertical(&tmp_isp_param, top_left_isp_params, bottom_left_isp_params);
     if (orig_isp_params->module_cfg_update & ISP32_MODULE_YNR)
@@ -3321,6 +3634,8 @@ XCamReturn IspParamsSplitter::SplitIspParamsVertical<struct isp32_isp_params_cfg
     ret = SplitAecParamsVertical(&tmp_isp_param, top_right_isp_params, bottom_right_isp_params);
     if (orig_isp_params->module_cfg_update & ISP32_MODULE_RAWAWB)
         ret = SplitAwbParamsVertical(&tmp_isp_param, top_right_isp_params, bottom_right_isp_params);
+    if (orig_isp_params->module_cfg_update & ISP32_MODULE_RAWAF)
+        ret = SplitAfParamsVertical(&tmp_isp_param, top_right_isp_params, bottom_right_isp_params);
     if (orig_isp_params->module_cfg_update & ISP32_MODULE_SHARP)
         ret = SplitAsharpParamsVertical(&tmp_isp_param, top_right_isp_params, bottom_right_isp_params);
     if (orig_isp_params->module_cfg_update & ISP32_MODULE_YNR)

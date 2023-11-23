@@ -149,6 +149,27 @@ rk_aiq_user_api2_alsc_QueryLscInfo(const rk_aiq_sys_ctx_t *sys_ctx,
   return XCAM_RETURN_NO_ERROR;
 }
 
+XCamReturn rk_aiq_user_api2_alsc_SetAcolorSwInfo(const rk_aiq_sys_ctx_t* sys_ctx,
+                                              rk_aiq_color_info_t aColor_sw_info)
+{
+    RKAIQ_API_SMART_LOCK(sys_ctx);
+
+    if (sys_ctx->cam_type == RK_AIQ_CAM_TYPE_GROUP) {
+
+    } else {
+        RkAiqAlscHandleInt* algo_handle =
+            algoHandle<RkAiqAlscHandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_ALSC);
+
+        if (algo_handle) {
+            return algo_handle->setAcolorSwInfo(aColor_sw_info);
+        }
+    }
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
+
+
 #else
 
 XCamReturn rk_aiq_user_api2_alsc_SetAttrib(const rk_aiq_sys_ctx_t *sys_ctx,

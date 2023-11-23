@@ -32,6 +32,9 @@ class RkAiqAlscHandleInt : virtual public RkAiqHandle {
         memset(&mCurAtt, 0, sizeof(rk_aiq_lsc_attrib_t));
         memset(&mNewAtt, 0, sizeof(rk_aiq_lsc_attrib_t));
 #endif
+        colorConstFlag = false;
+        memset(&colorSwInfo,0,sizeof(colorSwInfo));
+
     };
     virtual ~RkAiqAlscHandleInt() { RkAiqHandle::deInit(); };
     virtual XCamReturn updateConfig(bool needSync);
@@ -45,6 +48,7 @@ class RkAiqAlscHandleInt : virtual public RkAiqHandle {
     XCamReturn getAttrib(rk_aiq_lsc_attrib_t* att);
     XCamReturn queryLscInfo(rk_aiq_lsc_querry_info_t* lsc_querry_info);
     RkAiqBayerPattern_t getBayerPattern(uint32_t pixelformat);
+    XCamReturn setAcolorSwInfo(rk_aiq_color_info_t aColor_sw_info) ;
 
  protected:
     virtual void init();
@@ -52,6 +56,9 @@ class RkAiqAlscHandleInt : virtual public RkAiqHandle {
 
  private:
     // TODO
+    bool colorConstFlag;
+    rk_aiq_color_info_t colorSwInfo;
+
 #ifndef DISABLE_HANDLE_ATTRIB
     rk_aiq_lsc_attrib_t mCurAtt;
     rk_aiq_lsc_attrib_t mNewAtt;

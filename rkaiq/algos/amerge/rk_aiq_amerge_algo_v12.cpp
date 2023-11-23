@@ -89,6 +89,18 @@ float MergeGetInterpRatioV12(float* pX, int& lo, int& hi, float CtrlValue, int l
     return ratio;
 }
 
+int mergeClipValueV12(float posx, int BitInt, int BitFloat, bool ifBitMax) {
+    int yOutInt = 0, yOutIntMin = 0, yOutIntMax = 0;
+
+    if (ifBitMax)
+        yOutIntMax = (int)(pow(2, (BitFloat + BitInt)));
+    else
+        yOutIntMax = (int)(pow(2, (BitFloat + BitInt)) - 1);
+    yOutInt = LIMIT_VALUE((int)(posx * pow(2, BitFloat)), yOutIntMax, yOutIntMin);
+
+    return yOutInt;
+}
+
 /******************************************************************************
  * CalibrateOECurve()
  *****************************************************************************/
@@ -525,13 +537,9 @@ void AmergeExpoProcessing(AmergeContext_t* pAmergeCtx, MergeExpoData_t* pExpoDat
     LOG1_AMERGE("%s:enter!\n", __FUNCTION__);
 
     // get sw_hdrmge_gain0
-    pAmergeProcRes->Merge_v12.gain0 = (unsigned short)(64.0f * pExpoData->RatioLS);
-    if (pExpoData->RatioLS == 1.0f)
-        pAmergeProcRes->Merge_v12.gain0_inv =
-            (unsigned short)(4096.0f * (1.0f / pExpoData->RatioLS) - 1.0f);
-    else
-        pAmergeProcRes->Merge_v12.gain0_inv =
-            (unsigned short)(4096.0f * (1.0f / pExpoData->RatioLS));
+    pAmergeProcRes->Merge_v12.gain0 = mergeClipValueV12(pExpoData->RatioLS, 8, 6, false);
+    pAmergeProcRes->Merge_v12.gain0_inv =
+        mergeClipValueV12(RATIO_DEFAULT / pExpoData->RatioLS, 0, 12, false);
 
     // get sw_hdrmge_gain1
     pAmergeProcRes->Merge_v12.gain1     = SW_HDRMGE_GAIN_FIX;
@@ -553,19 +561,23 @@ void AmergeExpoProcessing(AmergeContext_t* pAmergeCtx, MergeExpoData_t* pExpoDat
         float sw_hdrmge_lm_scl = (sw_hdrmge_lm_thd1 == sw_hdrmge_lm_thd0)
                                      ? 0.0f
                                      : (1.0f / (sw_hdrmge_lm_thd1 - sw_hdrmge_lm_thd0));
-        pAmergeProcRes->Merge_v12.ms_thd0 = (unsigned short)(1024.0f * sw_hdrmge_ms_thd0);
-        pAmergeProcRes->Merge_v12.ms_thd1 = (unsigned short)(1024.0f * sw_hdrmge_ms_thd1);
+        pAmergeProcRes->Merge_v12.ms_thd0 = mergeClipValueV12(sw_hdrmge_ms_thd0, 0, 10, false);
+        pAmergeProcRes->Merge_v12.ms_thd1 = mergeClipValueV12(sw_hdrmge_ms_thd1, 0, 10, false);
         pAmergeProcRes->Merge_v12.ms_scl  = (unsigned short)(64.0f * sw_hdrmge_ms_scl);
-        pAmergeProcRes->Merge_v12.lm_thd0 = (unsigned short)(1024.0f * sw_hdrmge_lm_thd0);
-        pAmergeProcRes->Merge_v12.lm_thd1 = (unsigned short)(1024.0f * sw_hdrmge_lm_thd1);
+        pAmergeProcRes->Merge_v12.ms_scl =
+            LIMIT_VALUE_UNSIGNED(pAmergeProcRes->Merge_v12.ms_scl, 0x7ff);
+        pAmergeProcRes->Merge_v12.lm_thd0 = mergeClipValueV12(sw_hdrmge_lm_thd0, 0, 10, false);
+        pAmergeProcRes->Merge_v12.lm_thd1 = mergeClipValueV12(sw_hdrmge_lm_thd1, 0, 10, false);
         pAmergeProcRes->Merge_v12.lm_scl  = (unsigned short)(64.0f * sw_hdrmge_lm_scl);
+        pAmergeProcRes->Merge_v12.lm_scl =
+            LIMIT_VALUE_UNSIGNED(pAmergeProcRes->Merge_v12.lm_scl, 0x7ff);
     }
 
     // merge v12 add
     if (pAmergeCtx->NextData.HandleData.Merge_v12.BaseFrm == BASEFRAME_LONG &&
         pAmergeProcRes->Merge_v12.each_raw_en) {
         pAmergeProcRes->Merge_v12.each_raw_gain0 =
-            (unsigned short)(64.0f * pExpoData->RatioLS);  // ratio between middle and short
+            mergeClipValueV12(pExpoData->RatioLS, 8, 6, false);  // ratio between middle and short
         pAmergeProcRes->Merge_v12.each_raw_gain1 =
             SW_HDRMGE_GAIN_FIX;  // ratio between middle and long
     }
@@ -674,7 +686,7 @@ bool AmergeByPassProcessing(AmergeContext_t* pAmergeCtx) {
     bool bypass = false;
     float diff  = 0.0f;
 
-    if (pAmergeCtx->FrameID <= 2)
+    if (pAmergeCtx->FrameID <= INIT_CALC_PARAMS_NUM)
         bypass = false;
     else if (pAmergeCtx->mergeAttrV12.opMode != pAmergeCtx->CurrData.CtrlData.ApiMode)
         bypass = false;

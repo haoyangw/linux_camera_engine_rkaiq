@@ -196,7 +196,7 @@ public:
     XCamReturn setCifSclStartFlag(int ratio, bool mode);
     XCamReturn setFastAeExp(uint32_t frameId);
 
-    XCamReturn setVicapStreamMode(int mode);
+    XCamReturn setVicapStreamMode(int mode, bool is_single_mode);
 
 private:
     using V4l2Device::start;
@@ -407,8 +407,8 @@ protected:
     bool use_rkrawstream;
 
     bool _not_skip_first{true};
-    struct isp32_rawawb_meas_cfg _first_awb_cfg{};
     uint32_t mAweekId{0};
+    void* _skipped_params{NULL};
 };
 
 }

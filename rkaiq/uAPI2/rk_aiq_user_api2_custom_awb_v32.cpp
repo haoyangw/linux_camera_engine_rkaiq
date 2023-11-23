@@ -270,7 +270,6 @@ static XCamReturn  ConfigBlc2(const AblcProc_V32_t *ablc,  const rk_aiq_wb_gain_
     }
     awb_hw32_para->blc.enable = true;
     float offset[AWB_CHANNEL_MAX]={0,0,0,0};
-    short ob2=0;
     // 1 interpolation
 
     // 2 blc2 recalc base on ablc
@@ -300,11 +299,6 @@ static XCamReturn  ConfigBlc2(const AblcProc_V32_t *ablc,  const rk_aiq_wb_gain_
     }else */if(awb_hw32_para->frameChoose == CUSTOM_AWB_INPUT_BAYERNR) {
         //update by dgain* wbgain0*offset +blc1
         // wbgain0 only used for hdr mode
-        if(ablc->blc1_enable){
-            ob2 = 0;
-        }else{
-            ob2 = ob;
-        }
         if(wbgainApplyPosition == IN_AWBGAIN0){
             float stat3aAwbGainOut2[AWB_CHANNEL_MAX];
             stat3aAwbGainOut2[AWB_CHANNEL_R] = awb_gain_algo.rgain;
@@ -312,25 +306,20 @@ static XCamReturn  ConfigBlc2(const AblcProc_V32_t *ablc,  const rk_aiq_wb_gain_
             stat3aAwbGainOut2[AWB_CHANNEL_GB] = awb_gain_algo.gbgain;
             stat3aAwbGainOut2[AWB_CHANNEL_B] = awb_gain_algo.bgain;
             for(int i=0; i<AWB_CHANNEL_MAX; i++){
-                awb_hw32_para->blc.blc[i] = (offset[i] + blc1[i]) * dgain2 * stat3aAwbGainOut2[i] + ob2 +0.5;
+                awb_hw32_para->blc.blc[i] = (offset[i] + blc1[i]) * dgain2 * stat3aAwbGainOut2[i] + 0.5;
             }
         }else{
             for(int i=0; i<AWB_CHANNEL_MAX; i++){
-                awb_hw32_para->blc.blc[i] = (offset[i] + blc1[i]) * dgain2 + ob2 +0.5;
+                awb_hw32_para->blc.blc[i] = (offset[i] + blc1[i]) * dgain2 + 0.5;
             }
         }
     }else {//select raw
         //update by offset +blc1
-        if(ablc->blc1_enable){
-            ob2 = 0;
-        }else{
-            ob2 = ob;
-        }
         for(int i=0; i<AWB_CHANNEL_MAX; i++){
-            awb_hw32_para->blc.blc[i] = offset[i] + blc1[i] + ob2 +0.5;
+            awb_hw32_para->blc.blc[i] = offset[i] + blc1[i] + 0.5;
         }
     }
-    LOGV_AWB("offset =(%f,%f,%f,%f),  ob2= %d,blc2=(%d,%d,%d,%d)", offset[0], offset[1],offset[2], offset[3],ob2,
+    LOGV_AWB("offset =(%f,%f,%f,%f),  blc2=(%d,%d,%d,%d)", offset[0], offset[1],offset[2], offset[3],
         awb_hw32_para->blc.blc[0],awb_hw32_para->blc.blc[1],awb_hw32_para->blc.blc[2],awb_hw32_para->blc.blc[3]);
 
     return(ret);
@@ -425,34 +414,41 @@ void ConfigWbgainBaseOnBlc(const AblcProc_V32_t *blc,rk_aiq_wb_gapin_aplly_pos_e
     stat3aAwbGainOut2[AWB_CHANNEL_B] = awb_gain_algo->bgain;
 
     short int mainPieplineBLC[AWB_CHANNEL_MAX];
-    memset(mainPieplineBLC,0,sizeof(mainPieplineBLC[0])*AWB_CHANNEL_MAX);
-    if(blc && blc->enable){
-        mainPieplineBLC[AWB_CHANNEL_R] += blc->blc_r - blc->isp_ob_offset;
-        mainPieplineBLC[AWB_CHANNEL_GR] += blc->blc_gr - blc->isp_ob_offset;
-        mainPieplineBLC[AWB_CHANNEL_B] += blc->blc_b - blc->isp_ob_offset;
-        mainPieplineBLC[AWB_CHANNEL_GB] += blc->blc_gb - blc->isp_ob_offset;
+    if(blc==nullptr){
+        return;
     }
-    if(wbgainApplyPosition == IN_AWBGAIN1 && blc && blc->blc1_enable){
-        mainPieplineBLC[AWB_CHANNEL_R] += blc->blc1_r + blc->isp_ob_offset;
-        mainPieplineBLC[AWB_CHANNEL_GR] += blc->blc1_gr + blc->isp_ob_offset;
-        mainPieplineBLC[AWB_CHANNEL_B] += blc->blc1_b + blc->isp_ob_offset;
-        mainPieplineBLC[AWB_CHANNEL_GB] += blc->blc1_gb + blc->isp_ob_offset;
+    memset(mainPieplineBLC, 0, sizeof(mainPieplineBLC[0])*AWB_CHANNEL_MAX);
+    if(blc->enable) {
+        mainPieplineBLC[AWB_CHANNEL_R] += blc->blc_r;
+        mainPieplineBLC[AWB_CHANNEL_GR] += blc->blc_gr;
+        mainPieplineBLC[AWB_CHANNEL_B] += blc->blc_b;
+        mainPieplineBLC[AWB_CHANNEL_GB] += blc->blc_gb;
     }
-    float maxg1=0;
-    for(int i=0;i<AWB_CHANNEL_MAX;i++){
-        if(mainPieplineBLC[i]>0){
-            stat3aAwbGainOut2[i]*=4095.0/(4095-mainPieplineBLC[i]);//max_value=4095
+    if(wbgainApplyPosition == IN_AWBGAIN1 && blc->blc1_enable) {
+        mainPieplineBLC[AWB_CHANNEL_R] += blc->blc1_r;
+        mainPieplineBLC[AWB_CHANNEL_GR] += blc->blc1_gr;
+        mainPieplineBLC[AWB_CHANNEL_B] += blc->blc1_b;
+        mainPieplineBLC[AWB_CHANNEL_GB] += blc->blc1_gb;
+    }
+    float maxg1 = 0;
+    for(int i = 0; i < AWB_CHANNEL_MAX; i++) {
+        if(mainPieplineBLC[i]>4094){
+               mainPieplineBLC[i] = 4094;
+               LOGE_AWB("mainPieplineBLC[%d] = %d is too large!!!!",i,mainPieplineBLC[i]);
+           }
+        if(mainPieplineBLC[i] > 0) {
+            stat3aAwbGainOut2[i] *= 4095.0 / (4095 - mainPieplineBLC[i]); //max_value=4095
         }
-        if(maxg1<stat3aAwbGainOut2[i]){
+        if(maxg1 < stat3aAwbGainOut2[i]) {
             maxg1 = stat3aAwbGainOut2[i];
         }
     }
-    if(maxg1>8){//max_wbgain=8.0
-        float scale = 8/maxg1;
-        for(int i=0;i<4;i++){
+    if(maxg1 > 8) { //max_wbgain=8.0
+        float scale = 8 / maxg1;
+        for(int i = 0; i < 4; i++) {
             stat3aAwbGainOut2[i] *= scale;
         }
-        LOGW_AWB("max wbgain is %f, maybe error case",maxg1);
+        LOGW_AWB("max wbgain is %f, maybe error case", maxg1);
     }
     awb_gain_algo->rgain = stat3aAwbGainOut2[AWB_CHANNEL_R];
     awb_gain_algo->grgain = stat3aAwbGainOut2[AWB_CHANNEL_GR];
@@ -552,7 +548,7 @@ static void WriteMeasureResult(rk_aiq_awb_stat_res_v32_t &awb_measure_result, in
         }
     }
     fclose(fid);
-#endif  
+#endif
 }
 
 

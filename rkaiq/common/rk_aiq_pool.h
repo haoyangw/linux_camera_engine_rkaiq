@@ -243,6 +243,9 @@ typedef SharedItemProxy<RkAiqAtmoStats> RkAiqAtmoStatsProxy;
 typedef SharedItemPool<RkAiqAdehazeStats> RkAiqAdehazeStatsPool;
 typedef SharedItemProxy<RkAiqAdehazeStats> RkAiqAdehazeStatsProxy;
 
+typedef SharedItemPool<RkAiqAgainStats> RkAiqAgainStatsPool;
+typedef SharedItemProxy<RkAiqAgainStats> RkAiqAgainStatsProxy;
+
 typedef SharedItemPool<RkAiqAfStats> RkAiqAfStatsPool;
 typedef SharedItemProxy<RkAiqAfStats> RkAiqAfStatsProxy;
 

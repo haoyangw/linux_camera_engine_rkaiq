@@ -199,7 +199,7 @@ public:
     CamCalibDbV2Context_t* getCurrentCalibDBV2(void);
     XCamReturn calibTuning(CamCalibDbV2Context_t* aiqCalib,
                            ModuleNameList& change_list);
-    void setVicapStreamMode(int on);
+    XCamReturn setVicapStreamMode(int on, bool isSingleMode);
 #ifdef RKAIQ_ENABLE_CAMGROUP
     void setCamGroupManager(RkAiqCamGroupManager* cam_group_manager, bool isMain) {
         mCamGroupCoreManager = cam_group_manager;

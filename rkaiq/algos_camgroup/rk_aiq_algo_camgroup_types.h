@@ -43,7 +43,6 @@ typedef struct rk_aiq_singlecam_3a_result_s {
         RKAiqAecExpInfo_t _effAecExpInfo;
         bool _bEffAecExpValid;
         RkAiqSetStatsCfg stats_cfg_to_trans;
-        bool aec_run_flag;
     } aec;
     // awb params
     struct {

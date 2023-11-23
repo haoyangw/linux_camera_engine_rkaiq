@@ -26,9 +26,17 @@
 #include "xcam_common.h"
 #include "RkAiqCalibDbTypesV2.h"
 #include "RkAiqCalibDbV2Helper.h"
+#include "rk_aiq_types_priv.h"
 
-//RKAIQ_BEGIN_DECLARE
+RKAIQ_BEGIN_DECLARE
 
+typedef enum rk_aiq_gain2ddr_mode_e {
+    RK_AIQ_AGAIN_DS_INVALIED = -1,
+    RK_AIQ_AGAIN_DS_4X8 = 0,
+    RK_AIQ_AGAIN_DS_2X8 = 1,
+    RK_AIQ_AGAIN_DS_1X8 = 2,
+    RK_AIQ_AGAIN_DS_MAX
+} rk_aiq_gain2ddr_mode_t;
 
 typedef struct Again_GainState_V2_s {
     int gain_stat_full_last;
@@ -40,6 +48,19 @@ typedef struct Again_GainState_V2_s {
     float ratio;
 } Again_GainState_V2_t;
 
+
+typedef struct wrt2ddr_s {
+    void *mem_ctx;
+    isp_drv_share_mem_ops_t *mem_ops;
+    rk_aiq_dbg_share_mem_info_t *mem_info;
+    void* store_addr[RKISP_INFO2DDR_BUF_MAX];
+    int store_fd[RKISP_INFO2DDR_BUF_MAX];
+    int size[RKISP_INFO2DDR_BUF_MAX];
+    int buf_cnt;
+    int again2ddr_mode;
+    bool need2wrt;
+    char path_name[100];
+} wrt2ddr_t;
 
 //anr context
 typedef struct Again_Context_V2_s {
@@ -65,6 +86,9 @@ typedef struct Again_Context_V2_s {
 
     CalibDbV2_GainV2_t gain_v2;
 
+    // dbg for write local to ddr
+    wrt2ddr_t wrt2ddr;
+
 } Again_Context_V2_t;
 
 
@@ -72,7 +96,7 @@ typedef struct Again_Context_V2_s {
 
 
 
-//RKAIQ_END_DECLARE
+RKAIQ_END_DECLARE
 
 #endif
 

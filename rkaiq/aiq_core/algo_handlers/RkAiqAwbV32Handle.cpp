@@ -310,5 +310,36 @@ XCamReturn RkAiqAwbV32HandleInt::getWbV32IQAutoPara(rk_aiq_uapiV2_Wb_Awb_IqAtPa_
     EXIT_ANALYZER_FUNCTION();
     return ret;
 }
+XCamReturn RkAiqAwbV32HandleInt::awbIqMap2Main( rk_aiq_uapiV2_awb_Slave2Main_Cfg_t att) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    mCfgMutex.lock();
+
+#ifdef DISABLE_HANDLE_ATTRIB
+    ret = rk_aiq_uapiV2_awb_IqMap2Main(mAlgoCtx, att, false);
+#endif
+
+    mCfgMutex.unlock();
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn RkAiqAwbV32HandleInt::setAwbPreWbgain( const float att[4]) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    mCfgMutex.lock();
+
+#ifdef DISABLE_HANDLE_ATTRIB
+    ret = rk_aiq_uapiV2_awb_SetPreWbgain(mAlgoCtx, att, false);
+#endif
+
+    mCfgMutex.unlock();
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
 
 }  // namespace RkCam

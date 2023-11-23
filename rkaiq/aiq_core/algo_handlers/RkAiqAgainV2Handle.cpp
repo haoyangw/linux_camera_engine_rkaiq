@@ -47,6 +47,13 @@ XCamReturn RkAiqAgainV2HandleInt::updateConfig(bool needSync) {
         updateAtt = false;
     }
 
+    if (updataWriteAgainInputAttr) {
+        mCurWriteInputAttr = mNewWriteInputAttr;
+        rk_aiq_uapiV2_againV2_WriteInput(mAlgoCtx, mCurWriteInputAttr, false);
+        updataWriteAgainInputAttr = false;
+        sendSignal(mCurWriteInputAttr.sync.sync_mode);
+    }
+
     if (needSync) mCfgMutex.unlock();
 #endif
 
@@ -138,7 +145,43 @@ XCamReturn RkAiqAgainV2HandleInt::getInfo(rk_aiq_gain_info_v2_t* pInfo) {
     return ret;
 }
 
+XCamReturn RkAiqAgainV2HandleInt::writeAginIn(rk_aiq_uapiV2_again_wrtIn_attr_t att) {
+    ENTER_ANALYZER_FUNCTION();
 
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+#if defined(ISP_HW_V32)
+    mCfgMutex.lock();
+#ifdef DISABLE_HANDLE_ATTRIB
+    ret = rk_aiq_uapiV2_againV2_WriteInput(mAlgoCtx, att, false);
+#else
+    // check if there is different between att & mCurWriteInputAttr(sync)/mNewWriteInputAttr(async)
+    // if something changed, set att to mNewWriteInputAttr, and
+    // the new params will be effective later when updateConfig
+    // called by RkAiqCore
+    bool isChanged = false;
+    if (att.sync.sync_mode == RK_AIQ_UAPI_MODE_ASYNC && \
+        memcmp(&mNewWriteInputAttr, &att, sizeof(att)))
+        isChanged = true;
+    else if (att.sync.sync_mode != RK_AIQ_UAPI_MODE_ASYNC && \
+             memcmp(&mCurWriteInputAttr, &att, sizeof(att)))
+        isChanged = true;
+
+    // if something changed
+    if (isChanged) {
+        mNewWriteInputAttr = att;
+        updataWriteAgainInputAttr = true;
+        waitSignal(att.sync.sync_mode);
+    }
+#endif //DISABLE_HANDLE_ATTRIB
+    mCfgMutex.unlock();
+
+#endif //defined(ISP_HW_V32)
+
+    EXIT_ANALYZER_FUNCTION();
+
+    return ret;
+}
 
 
 XCamReturn RkAiqAgainV2HandleInt::prepare() {
@@ -148,6 +191,9 @@ XCamReturn RkAiqAgainV2HandleInt::prepare() {
 
     ret = RkAiqHandle::prepare();
     RKAIQCORE_CHECK_RET(ret, "again handle prepare failed");
+
+    RkAiqAlgoConfigAgainV2* again_config_int = (RkAiqAlgoConfigAgainV2*)mConfig;
+    again_config_int->mem_ops_ptr = mAiqCore->mShareMemOps;
 
     RkAiqAlgoDescription* des = (RkAiqAlgoDescription*)mDes;
     ret                       = des->prepare(mConfig);
@@ -197,6 +243,29 @@ XCamReturn RkAiqAgainV2HandleInt::processing() {
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     again_proc_res_int->stAgainProcResult.stFix = &shared->fullParams->mGainV3xParams->data()->result;
+#if RK_GAIN_V2_ENABLE_GAIN2DDR
+    RkAiqAgainStats* xAgainStats = nullptr;
+    if (shared->againStatsBuf) {
+        xAgainStats = shared->againStatsBuf;
+        if (!xAgainStats) {
+            LOGE_ANR("again stats is null");
+        }
+    } else {
+        LOGE_ANR("the xcamvideobuffer of gain stats is null");
+    }
+
+    if (!xAgainStats) {
+        LOGW_ANR("no again stats, ignore!");
+        again_proc_int->stats.stats_true = false;
+    } else {
+        again_proc_int->stats.stats_true = true;
+        again_proc_int->stats.dbginfo_fd = xAgainStats->again_stats.dbginfo_fd;
+        LOGW_ANR("again stats dbginfo_fd=%d!", again_proc_int->stats.dbginfo_fd);
+    }
+    static int auvnr_proc_framecnt = 0;
+    auvnr_proc_framecnt++;
+
+#endif
 
     ret = RkAiqHandle::processing();
     if (ret) {

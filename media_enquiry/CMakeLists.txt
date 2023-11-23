@@ -181,4 +181,3 @@ message(${LIBRARY_OUTPUT_PATH})
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
 add_executable(media_enquiry ${DIR_SRCS} ${XCORE_SRC})
-target_link_libraries(media_enquiry pthread)

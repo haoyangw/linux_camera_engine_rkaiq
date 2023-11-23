@@ -12,6 +12,8 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     endif ()
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+    add_compile_options(-Wno-unused
+                        -Wno-c99-designator)
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /stdlib=libc++")
 else ()

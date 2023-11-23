@@ -63,6 +63,18 @@ XCamReturn AmergeStop(AmergeContext_t* pAmergeCtx) {
     return (XCAM_RETURN_NO_ERROR);
 }
 
+int mergeClipValueV10(float posx, int BitInt, int BitFloat, bool ifBitMax) {
+    int yOutInt = 0, yOutIntMin = 0, yOutIntMax = 0;
+
+    if (ifBitMax)
+        yOutIntMax = (int)(pow(2, (BitFloat + BitInt)));
+    else
+        yOutIntMax = (int)(pow(2, (BitFloat + BitInt)) - 1);
+    yOutInt = LIMIT_VALUE((int)(posx * pow(2, BitFloat)), yOutIntMax, yOutIntMin);
+
+    return yOutInt;
+}
+
 float MergeGetInterpRatioV10(float* pX, int& lo, int& hi, float CtrlValue, int length_max) {
     float ratio = 0.0f;
 
@@ -324,13 +336,9 @@ void AmergeExpoProcessing(AmergeContext_t* pAmergeCtx, MergeExpoData_t* pExpoDat
     LOG1_AMERGE("%s:enter!\n", __FUNCTION__);
 
     // get sw_hdrmge_gain0
-    pAmergeProcRes->Merge_v10.sw_hdrmge_gain0 = (unsigned short)(64.0f * pExpoData->RatioLS);
-    if (pExpoData->RatioLS == 1.0f)
-        pAmergeProcRes->Merge_v10.sw_hdrmge_gain0_inv =
-            (unsigned short)(4096.0f * (1.0f / pExpoData->RatioLS) - 1.0f);
-    else
-        pAmergeProcRes->Merge_v10.sw_hdrmge_gain0_inv =
-            (unsigned short)(4096.0f * (1.0f / pExpoData->RatioLS));
+    pAmergeProcRes->Merge_v10.sw_hdrmge_gain0 = mergeClipValueV10(pExpoData->RatioLS, 8, 6, false);
+    pAmergeProcRes->Merge_v10.sw_hdrmge_gain0_inv =
+        mergeClipValueV10(RATIO_DEFAULT / pExpoData->RatioLS, 0, 12, false);
 
     // get sw_hdrmge_gain1
     pAmergeProcRes->Merge_v10.sw_hdrmge_gain1     = SW_HDRMGE_GAIN_FIX;
@@ -407,7 +415,7 @@ bool AmergeByPassProcessing(AmergeContext_t* pAmergeCtx) {
     bool bypass = false;
     float diff  = 0.0f;
 
-    if (pAmergeCtx->FrameID <= 2)
+    if (pAmergeCtx->FrameID <= INIT_CALC_PARAMS_NUM)
         bypass = false;
     else if (pAmergeCtx->mergeAttrV10.opMode != pAmergeCtx->CurrData.CtrlData.ApiMode)
         bypass = false;

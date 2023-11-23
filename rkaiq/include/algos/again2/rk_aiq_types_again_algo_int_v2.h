@@ -29,6 +29,9 @@
 #include "gain_head_v2.h"
 #include "gain_uapi_head_v2.h"
 
+// enable write local gain write to ddr
+#define RK_GAIN_V2_ENABLE_GAIN2DDR      0
+
 //RKAIQ_BEGIN_DECLARE
 #define RK_GAIN_V2_MAX_ISO_NUM  CALIBDB_MAX_ISO_LEVEL
 
@@ -139,6 +142,13 @@ typedef struct rk_aiq_gain_attrib_v2_s {
     Again_Manual_Attr_V2_t stManual;
 } rk_aiq_gain_attrib_v2_t;
 
+typedef struct rk_aiq_uapiV2_again_wrtIn_attr_s {
+    rk_aiq_uapi_sync_t sync;
+    bool enable;
+    int mode;
+    char path[100];
+    int call_cnt;
+} rk_aiq_uapiV2_again_wrtIn_attr_t;
 
 //RKAIQ_END_DECLARE
 

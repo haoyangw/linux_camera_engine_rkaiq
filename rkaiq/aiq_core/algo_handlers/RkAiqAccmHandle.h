@@ -42,6 +42,8 @@ class RkAiqAccmHandleInt : virtual public RkAiqHandle {
         memset(&mNewCalibAttV2, 0, sizeof(rk_aiq_ccm_v2_calib_attrib_t));
 #endif
 #endif
+        colorConstFlag = false;
+        memset(&colorSwInfo,0,sizeof(colorSwInfo));
     };
     virtual ~RkAiqAccmHandleInt() { RkAiqHandle::deInit(); };
     virtual XCamReturn updateConfig(bool needSync);
@@ -64,12 +66,17 @@ class RkAiqAccmHandleInt : virtual public RkAiqHandle {
     XCamReturn getIqParamV2(rk_aiq_ccm_v2_calib_attrib_t* att);
 #endif
     XCamReturn queryCcmInfo(rk_aiq_ccm_querry_info_t* ccm_querry_info);
+    XCamReturn getAcolorSwInfo(rk_aiq_color_info_t* aColor_sw_info);
+    XCamReturn setAcolorSwInfo(rk_aiq_color_info_t aColor_sw_info);
+
 
  protected:
     virtual void init();
     virtual void deInit() { RkAiqHandle::deInit(); };
-
  private:
+     bool colorConstFlag;
+     rk_aiq_color_info_t colorSwInfo;
+
 #ifndef DISABLE_HANDLE_ATTRIB
     // TODO
 #if RKAIQ_HAVE_CCM_V1
@@ -86,6 +93,7 @@ class RkAiqAccmHandleInt : virtual public RkAiqHandle {
 #endif
     mutable std::atomic<bool>    updateCalibAttr;
 #endif
+
  private:
     DECLARE_HANDLE_REGISTER_TYPE(RkAiqAccmHandleInt);
 };

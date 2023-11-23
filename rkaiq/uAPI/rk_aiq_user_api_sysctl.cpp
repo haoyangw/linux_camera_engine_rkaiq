@@ -1440,11 +1440,9 @@ static void _print_versions()
          "************************** VERSION INFOS **************************\n"
          "version release date: %s\n"
          "         AIQ:       %s\n"
-         "   IQ PARSER:       %s\n"
          "************************ VERSION INFOS END ************************\n"
          , RK_AIQ_RELEASE_DATE
          , RK_AIQ_VERSION
-         , RK_AIQ_CALIB_VERSION
         );
 }
 

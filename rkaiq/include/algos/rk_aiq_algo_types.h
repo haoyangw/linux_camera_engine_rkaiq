@@ -111,8 +111,8 @@ typedef struct _RkAiqAlgoProcAe {
 } RkAiqAlgoProcAe;
 
 typedef struct _RkAiqSetStatsCfg  {
-    bool isUpdate;              /* stats config update flag */
-    bool UpdateStats;           /* update stats every frame */
+    bool isUpdate;              /* config update flag */
+    bool UpdateStats;           /* stats update flag */
     int8_t RawStatsChnSel;      /* RawStatsChnEn_t */
     int8_t YRangeMode;          /* CalibDb_CamYRangeModeV2_t */
     unsigned char* BigWeight;
@@ -127,7 +127,6 @@ typedef struct _RkAiqAlgoProcResAe {
     RKAiqExpI2cParam_t* exp_i2c_params;
     AecProcResult_t*   ae_proc_res_rk;
     RkAiqSetStatsCfg stats_cfg_to_trans;
-    bool aec_run_flag;
 } RkAiqAlgoProcResAe;
 
 typedef struct _RkAiqAlgoPostAe {
@@ -1375,10 +1374,12 @@ typedef struct _RkAiqAlgoPostResAgain {
 typedef struct _RkAiqAlgoConfigAgainV2 {
     RkAiqAlgoCom com;
     Again_Config_V2_t stAgainConfig;
+    isp_drv_share_mem_ops_t *mem_ops_ptr;
 } RkAiqAlgoConfigAgainV2;
 
 typedef struct _RkAiqAlgoProcAgainV2 {
     RkAiqAlgoCom com;
+    rk_aiq_again_stat_t stats;
     int iso;
     int hdr_mode;
 } RkAiqAlgoProcAgainV2;

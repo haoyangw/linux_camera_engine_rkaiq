@@ -93,6 +93,9 @@ private:
 
     template <typename U>
     XCamReturn SplitAfParams(U* ori, U* left, U* right);
+    template <typename U>
+    XCamReturn SplitAfParamsVertical(U* ori, U* left, U* right);
+
     // LSC
     template <typename U>
     XCamReturn SplitAlscParams(U* ori, U* left, U* right);

@@ -1152,4 +1152,90 @@ rk_aiq_user_api2_awbV32_GetIQAutoPara(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_ua
 #endif
 }
 
+XCamReturn
+rk_aiq_user_api2_awb_IqMap2Main(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_uapiV2_awb_Slave2Main_Cfg_t att)
+{
+#if RKAIQ_HAVE_AWB_V32
+    //rk_aiq_uapiV2_awb_freeConvertLut(cct_lut_cfg);
+
+    CHECK_USER_API_ENABLE2(sys_ctx);
+    CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_AWB);
+    RKAIQ_API_SMART_LOCK(sys_ctx);
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    if (sys_ctx->cam_type == RK_AIQ_CAM_TYPE_GROUP) {
+#ifdef RKAIQ_ENABLE_CAMGROUP
+       //TODO
+#else
+        return XCAM_RETURN_ERROR_FAILED;
+#endif
+    } else {
+        RkAiqAwbV32HandleInt* algo_handle =
+            algoHandle<RkAiqAwbV32HandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_AWB);
+
+        if (algo_handle) {
+            return algo_handle->awbIqMap2Main(att);
+        }
+    }
+    return ret;
+#else
+    return XCAM_RETURN_ERROR_UNKNOWN;
+#endif
+}
+
+XCamReturn
+rk_aiq_user_api2_awb_setAwbPreWbgain(const rk_aiq_sys_ctx_t* sys_ctx,  const float att[4])
+{
+#if RKAIQ_HAVE_AWB_V32
+
+    CHECK_USER_API_ENABLE2(sys_ctx);
+    CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_AWB);
+    RKAIQ_API_SMART_LOCK(sys_ctx);
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    if (sys_ctx->cam_type == RK_AIQ_CAM_TYPE_GROUP) {
+#ifdef RKAIQ_ENABLE_CAMGROUP
+       //TODO
+#else
+        return XCAM_RETURN_ERROR_FAILED;
+#endif
+    } else {
+        RkAiqAwbV32HandleInt* algo_handle =
+            algoHandle<RkAiqAwbV32HandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_AWB);
+
+        if (algo_handle) {
+            return algo_handle->setAwbPreWbgain(att);
+        }
+    }
+    return ret;
+#else
+    return XCAM_RETURN_ERROR_UNKNOWN;
+#endif
+}
+
+XCamReturn
+rk_aiq_user_api2_awb_freeConvertLut(rk_aiq_uapiV2_awb_Gain_Lut_Cfg_t *cct_lut_cfg)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    ret = rk_aiq_uapiV2_awb_freeConvertLut(cct_lut_cfg);
+    return ret;
+
+}
+XCamReturn
+rk_aiq_user_api2_awb_loadConvertLut(rk_aiq_uapiV2_awb_Gain_Lut_Cfg_t *cct_lut_cfg,char *fullfile)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    ret = rk_aiq_uapiV2_awb_loadConvertLut(cct_lut_cfg,fullfile);
+    return ret;
+
+}
+XCamReturn
+rk_aiq_user_api2_awb_wbgainConvert2(rk_aiq_wb_gain_t  wbGainIn, rk_aiq_uapiV2_awb_Gain_Lut_Cfg_t *cct_lut_cfg, rk_aiq_wb_gain_t  *wbGainOut)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    ret = rk_aiq_uapiV2_awb_wbgainConvert2(wbGainIn, cct_lut_cfg, wbGainOut);
+    return ret;
+
+}
+
 RKAIQ_END_DECLARE

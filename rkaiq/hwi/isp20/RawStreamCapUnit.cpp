@@ -560,18 +560,29 @@ RawStreamCapUnit::set_csi_mem_word_big_align(uint32_t width, uint32_t height,
     return ret;
 }
 
-int
-RawStreamCapUnit::setVicapStreamMode(int mode)
+XCamReturn
+RawStreamCapUnit::setVicapStreamMode(int mode, uint32_t *frameId, bool isSingleMode)
 {
-    int ret = 0;
-    for (int i = 0; i < 3; i++) {
-        if (!_dev[i].ptr()) {
-            break;
-        }
-        if (_dev[i]->io_control(RKCIF_CMD_SET_QUICK_STREAM, &mode) < 0) {
-            LOGE_CAMHW("dev(%s) ioctl faile, set vicap %s faile", _dev[i]->get_device_name(), mode ? "pause" : "resume");
-        }
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    struct rkcif_quick_stream_param info;
+
+    if (!_dev[0].ptr()) {
+        LOGE_CAMHW("dev[0] is null pointer");
+        return XCAM_RETURN_ERROR_FAILED;
     }
+
+    info.on = mode;
+    if (isSingleMode)
+        info.resume_mode = RKISP_RTT_MODE_ONE_FRAME;
+    else
+        info.resume_mode = RKISP_RTT_MODE_MULTI_FRAME;
+
+    if (_dev[0]->io_control(RKCIF_CMD_SET_QUICK_STREAM, &info) < 0) {
+        LOGE_CAMHW("dev(%s) ioctl faile, set vicap %s faile", _dev[0]->get_device_name(), mode ? "pause" : "resume");
+        ret = XCAM_RETURN_ERROR_IOCTL;
+    }
+    if (frameId)
+        *frameId = info.frame_num;
     return ret;
 }
 

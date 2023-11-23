@@ -91,6 +91,9 @@ Again_result_V2_t Again_Init_V2(Again_Context_V2_t **ppAgainCtx, CamCalibDbV2Con
     pAgainCtx->stManual.stSelect = pAgainCtx->stAuto.stParams.iso_params[0];
 #endif
 
+    pAgainCtx->wrt2ddr.need2wrt = false;
+    pAgainCtx->wrt2ddr.buf_cnt = 1;
+    pAgainCtx->wrt2ddr.again2ddr_mode = 0;
 
     LOGI_ANR("%s(%d): exit!\n", __FUNCTION__, __LINE__);
     return AGAINV2_RET_SUCCESS;

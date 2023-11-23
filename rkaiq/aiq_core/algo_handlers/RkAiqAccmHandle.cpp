@@ -373,6 +373,33 @@ XCamReturn RkAiqAccmHandleInt::queryCcmInfo(rk_aiq_ccm_querry_info_t* ccm_querry
     EXIT_ANALYZER_FUNCTION();
     return ret;
 }
+XCamReturn RkAiqAccmHandleInt::getAcolorSwInfo(rk_aiq_color_info_t* aColor_sw_info) {
+    ENTER_ANALYZER_FUNCTION();
+    LOGV_ACCM("%s enter",__FUNCTION__);
+    XCAM_ASSERT(aColor_sw_info != nullptr);
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    RkAiqAlgoProcAccm* accm_proc_int        = (RkAiqAlgoProcAccm*)mProcInParam;
+    memcpy(aColor_sw_info->awbGain,accm_proc_int->accm_sw_info.awbGain,sizeof(aColor_sw_info->awbGain));
+    aColor_sw_info->sensorGain = accm_proc_int->accm_sw_info.sensorGain;
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn RkAiqAccmHandleInt::setAcolorSwInfo(rk_aiq_color_info_t aColor_sw_info) {
+    ENTER_ANALYZER_FUNCTION();
+
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    LOGV_ACCM("%s sensor gain = %f, wbgain=[%f,%f] ",__FUNCTION__,aColor_sw_info.sensorGain,
+      aColor_sw_info.awbGain[0],aColor_sw_info.awbGain[1]);
+    colorSwInfo = aColor_sw_info;
+    colorConstFlag=true;
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
 
 XCamReturn RkAiqAccmHandleInt::prepare() {
     ENTER_ANALYZER_FUNCTION();
@@ -508,6 +535,10 @@ XCamReturn RkAiqAccmHandleInt::processing() {
         }
     }
 #endif
+    if(colorConstFlag==true){
+        memcpy(accm_proc_int->accm_sw_info.awbGain,colorSwInfo.awbGain,sizeof(colorSwInfo.awbGain));
+        accm_proc_int->accm_sw_info.sensorGain = colorSwInfo.sensorGain;
+    }
 
 #ifdef DISABLE_HANDLE_ATTRIB
     mCfgMutex.lock();

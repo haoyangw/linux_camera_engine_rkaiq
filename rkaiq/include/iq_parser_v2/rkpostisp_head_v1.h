@@ -36,7 +36,7 @@ typedef struct CalibDbV2_PostIspV1_T_ISO_s {
     float shade;
     // M4_NUMBER_DESC("sharp", "f32", M4_RANGE(0.0, 4.0), "1.0", M4_DIGIT(2))
     float sharp;
-    // M4_NUMBER_DESC("min_luma", "f32", M4_RANGE(0.0, 128.0), "0.0", M4_DIGIT(2))
+    // M4_NUMBER_DESC("min_luma", "f32", M4_RANGE(0.0, 256.0), "0.0", M4_DIGIT(2))
     float min_luma;
     // M4_NUMBER_DESC("sat_scale", "f32", M4_RANGE(1.0, 3.0), "1", M4_DIGIT(2))
     float sat_scale;

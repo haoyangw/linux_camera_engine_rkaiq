@@ -274,10 +274,6 @@ RkAiqResourceTranslator::translateAecStats (const SmartPtr<VideoBuffer> &from, S
 #endif
     SmartPtr<RkAiqAecStats> statsInt = to->data();
 
-    if (getWorkingMode() == RK_AIQ_WORKING_MODE_ISP_HDR2) {
-        // Do something;
-    }
-
 #if defined(ISP_HW_V21)
     stats = (struct rkisp_isp21_stat_buffer *)(buf->get_v4l2_userptr());
 #else
@@ -353,9 +349,10 @@ RkAiqResourceTranslator::translateAecStats (const SmartPtr<VideoBuffer> &from, S
     if (!statsInt->aec_stats_valid)
         return XCAM_RETURN_BYPASS;
 
-    // calc ae run flag
+    // calc ae stats run flag
     uint64_t SumHistPix[3] = { 0, 0, 0 };
-    float SumHistBin[3] = { 0.0f, 0.0f, 0.0f };
+    uint64_t SumHistBin[3] = { 0, 0, 0 };
+    uint8_t HistMean[3] = { 0, 0, 0 };
     u32* hist_bin[3];
 
     hist_bin[index0] = stats->params.rawhist0.hist_bin;
@@ -367,33 +364,35 @@ RkAiqResourceTranslator::translateAecStats (const SmartPtr<VideoBuffer> &from, S
 
     for (int i = 0; i < ISP2X_HIST_BIN_N_MAX; i++) {
         SumHistPix[index0] += hist_bin[index0][i];
-        SumHistBin[index0] += (float)(hist_bin[index0][i] * (i + 1));
+        SumHistBin[index0] += (hist_bin[index0][i] * (i + 1));
 
         SumHistPix[index1] += hist_bin[index1][i];
-        SumHistBin[index1] += (float)(hist_bin[index1][i] * (i + 1));
+        SumHistBin[index1] += (hist_bin[index1][i] * (i + 1));
 
         SumHistPix[index2] += hist_bin[index2][i];
-        SumHistBin[index2] += (float)(hist_bin[index2][i] * (i + 1));
+        SumHistBin[index2] += (hist_bin[index2][i] * (i + 1));
     }
-    statsInt->aec_stats.ae_data.hist_mean[0] = (uint8_t)(SumHistBin[0] / (float)MAX(SumHistPix[0], 1));
-    statsInt->aec_stats.ae_data.hist_mean[1] = (uint8_t)(SumHistBin[1] / (float)MAX(SumHistPix[1], 1));
-    statsInt->aec_stats.ae_data.hist_mean[2] = (uint8_t)(SumHistBin[2] / (float)MAX(SumHistPix[2], 1));
 
-    if (_aeRunFlag || _aeAlgoStatsCfg.UpdateStats) {
+    HistMean[0] = (uint8_t)(SumHistBin[0] / MAX(SumHistPix[0], 1));
+    HistMean[1] = (uint8_t)(SumHistBin[1] / MAX(SumHistPix[1], 1));
+    HistMean[2] = (uint8_t)(SumHistBin[2] / MAX(SumHistPix[2], 1));
+    bool run_flag = getAeStatsRunFlag(HistMean);
+    run_flag |= _aeAlgoStatsCfg.UpdateStats;
 
+    if (run_flag) {
         calcAecLiteWinStats(&stats->params.rawae0,
                             &statsInt->aec_stats.ae_data.chn[index0].rawae_lite,
-                            &statsInt->aec_stats.ae_data.raw_mean[index0],
+                            &_aeRawMean[index0],
                             _aeAlgoStatsCfg.LiteWeight, _aeAlgoStatsCfg.RawStatsChnSel, _aeAlgoStatsCfg.YRangeMode);
 
         calcAecBigWinStats(&stats->params.rawae1,
                            &statsInt->aec_stats.ae_data.chn[index1].rawae_big,
-                           &statsInt->aec_stats.ae_data.raw_mean[index1],
+                           &_aeRawMean[index1],
                            _aeAlgoStatsCfg.BigWeight, _aeAlgoStatsCfg.RawStatsChnSel, _aeAlgoStatsCfg.YRangeMode);
 
         calcAecBigWinStats(&stats->params.rawae2,
                            &statsInt->aec_stats.ae_data.chn[index2].rawae_big,
-                           &statsInt->aec_stats.ae_data.raw_mean[index2],
+                           &_aeRawMean[index2],
                            _aeAlgoStatsCfg.BigWeight, _aeAlgoStatsCfg.RawStatsChnSel, _aeAlgoStatsCfg.YRangeMode);
 
         memcpy(statsInt->aec_stats.ae_data.chn[index0].rawhist_lite.bins, stats->params.rawhist0.hist_bin, ISP2X_HIST_BIN_N_MAX * sizeof(u32));
@@ -407,7 +406,7 @@ RkAiqResourceTranslator::translateAecStats (const SmartPtr<VideoBuffer> &from, S
 
             calcAecBigWinStats(&stats->params.rawae3,
                                &statsInt->aec_stats.ae_data.chn[AeSelMode].rawae_big,
-                               &statsInt->aec_stats.ae_data.raw_mean[AeSelMode],
+                               &_aeRawMean[AeSelMode],
                                _aeAlgoStatsCfg.BigWeight, _aeAlgoStatsCfg.RawStatsChnSel, _aeAlgoStatsCfg.YRangeMode);
 
             memcpy(statsInt->aec_stats.ae_data.chn[AeSelMode].rawhist_big.bins, stats->params.rawhist3.hist_bin, ISP2X_HIST_BIN_N_MAX * sizeof(u32));
@@ -417,7 +416,7 @@ RkAiqResourceTranslator::translateAecStats (const SmartPtr<VideoBuffer> &from, S
 
             calcAecBigWinStats(&stats->params.rawae3,
                                &statsInt->aec_stats.ae_data.extra.rawae_big,
-                               &statsInt->aec_stats.ae_data.raw_mean[AeSelMode],
+                               &_aeRawMean[AeSelMode],
                                _aeAlgoStatsCfg.BigWeight, _aeAlgoStatsCfg.RawStatsChnSel, _aeAlgoStatsCfg.YRangeMode);
 
             memcpy(statsInt->aec_stats.ae_data.extra.rawhist_big.bins, stats->params.rawhist3.hist_bin, ISP2X_HIST_BIN_N_MAX * sizeof(u32));
@@ -437,6 +436,8 @@ RkAiqResourceTranslator::translateAecStats (const SmartPtr<VideoBuffer> &from, S
         memcpy(statsInt->aec_stats.ae_data.sihist.bins, stats->params.sihst.win_stat[0].hist_bins, ISP2X_SIHIST_WIN_NUM * sizeof(u32));
 
     }
+
+    memcpy(statsInt->aec_stats.ae_data.raw_mean, _aeRawMean, sizeof(_aeRawMean));
 
     if (expParams.ptr()) {
 
@@ -1019,6 +1020,31 @@ void
 RkAiqResourceTranslator::releaseParams()
 {
     _expParams.release();
+}
+
+bool RkAiqResourceTranslator::getAeStatsRunFlag(uint8_t* HistMean)
+{
+    bool run_flag = false;
+    int FrameNum = 0;
+    int cur_working_mode = getWorkingMode();
+
+    if (cur_working_mode == RK_AIQ_WORKING_MODE_NORMAL)
+        FrameNum = 1;
+    else if(cur_working_mode == RK_AIQ_WORKING_MODE_ISP_HDR2)
+        FrameNum = 2;
+    else if(cur_working_mode == RK_AIQ_WORKING_MODE_ISP_HDR3)
+        FrameNum = 3;
+    else
+        LOGE("wrong working mode=%d\n", cur_working_mode);
+
+    for(int i = 0; i < FrameNum; i++) {
+        if(_aeHistMean[i] != HistMean[i]) {
+            run_flag = true;
+            _aeHistMean[i] = HistMean[i];
+        }
+    }
+
+    return run_flag;
 }
 
 } //namespace RkCam

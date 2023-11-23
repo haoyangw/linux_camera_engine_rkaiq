@@ -37,3 +37,6 @@ if (RKAIQ_ENABLE_ASAN)
     set(CMAKE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_LINKER_FLAGS_RELWITHDEBINFO} -fno-omit-frame-pointer -fsanitize=address")
 endif()
 
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Android")
+    add_compile_options(-DANDROID_OS)
+endif()

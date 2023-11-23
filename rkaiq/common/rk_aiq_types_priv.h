@@ -564,6 +564,21 @@ private:
     XCAM_DEAD_COPY (RkAiqAdehazeStats);
 };
 
+class RkAiqAgainStats : public XCam::BufferData {
+public :
+    explicit RkAiqAgainStats() {
+        xcam_mem_clear(again_stats);
+        again_stats_valid = false;
+        frame_id = -1;
+    };
+
+    rk_aiq_again_stat_t again_stats;
+    bool again_stats_valid;
+    uint32_t frame_id;
+private:
+    XCAM_DEAD_COPY (RkAiqAgainStats);
+};
+
 class RkAiqAfStats : public XCam::BufferData {
 public:
     explicit RkAiqAfStats() {

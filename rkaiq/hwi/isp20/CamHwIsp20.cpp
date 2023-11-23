@@ -1713,6 +1713,12 @@ CamHwIsp20::deInit()
     if (strstr(sns_name, "_s_")) {
         rawReproc_deInit(sns_name);
     }
+
+    if (_skipped_params) {
+        free(_skipped_params);
+        _skipped_params = NULL;
+    }
+
     return XCAM_RETURN_NO_ERROR;
 }
 
@@ -6378,6 +6384,10 @@ CamHwIsp20::setFastAeExp(uint32_t frameId)
             fastae.LinearExp.exp_real_params.isp_dgain        = (float)fastAeAwbInfo.head.exp_isp_dgain[0] / (1 << 16);
             fastae.LinearExp.exp_sensor_params.analog_gain_code_global = fastAeAwbInfo.head.exp_gain_reg[0];
             fastae.LinearExp.exp_sensor_params.coarse_integration_time = fastAeAwbInfo.head.exp_time_reg[0];
+            LOGD_CAMHW("fast LinearExp ae set frame %u effect exp %f %f %f", frameId,
+                                                                             fastae.LinearExp.exp_real_params.analog_gain,
+                                                                             fastae.LinearExp.exp_real_params.integration_time,
+                                                                             fastae.LinearExp.exp_real_params.isp_dgain);
         } else {
             fastae.HdrExp[0].exp_real_params.analog_gain      = (float)fastAeAwbInfo.head.exp_gain[0] / (1 << 16);
             fastae.HdrExp[0].exp_real_params.integration_time = (float)fastAeAwbInfo.head.exp_time[0] / (1 << 16);
@@ -6385,48 +6395,54 @@ CamHwIsp20::setFastAeExp(uint32_t frameId)
             fastae.HdrExp[0].exp_real_params.isp_dgain        = (float)fastAeAwbInfo.head.exp_isp_dgain[0] / (1 << 16);
             fastae.HdrExp[0].exp_sensor_params.analog_gain_code_global = fastAeAwbInfo.head.exp_gain_reg[0];
             fastae.HdrExp[0].exp_sensor_params.coarse_integration_time = fastAeAwbInfo.head.exp_time_reg[0];
+
             fastae.HdrExp[1].exp_real_params.analog_gain      = (float)fastAeAwbInfo.head.exp_gain[1] / (1 << 16);
             fastae.HdrExp[1].exp_real_params.integration_time = (float)fastAeAwbInfo.head.exp_time[1] / (1 << 16);
             fastae.HdrExp[1].exp_real_params.digital_gain     = 1.0f;
             fastae.HdrExp[1].exp_real_params.isp_dgain        = (float)fastAeAwbInfo.head.exp_isp_dgain[1] / (1 << 16);
             fastae.HdrExp[1].exp_sensor_params.analog_gain_code_global = fastAeAwbInfo.head.exp_gain_reg[1];
             fastae.HdrExp[1].exp_sensor_params.coarse_integration_time = fastAeAwbInfo.head.exp_time_reg[1];
+
             fastae.HdrExp[2].exp_real_params.analog_gain      = (float)fastAeAwbInfo.head.exp_gain[2] / (1 << 16);
             fastae.HdrExp[2].exp_real_params.integration_time = (float)fastAeAwbInfo.head.exp_time[2] / (1 << 16);
             fastae.HdrExp[2].exp_real_params.digital_gain     = 1.0f;
             fastae.HdrExp[2].exp_real_params.isp_dgain        = (float)fastAeAwbInfo.head.exp_isp_dgain[2] / (1 << 16);
             fastae.HdrExp[2].exp_sensor_params.analog_gain_code_global = fastAeAwbInfo.head.exp_gain_reg[2];
             fastae.HdrExp[2].exp_sensor_params.coarse_integration_time = fastAeAwbInfo.head.exp_time_reg[2];
+            LOGD_CAMHW("fast HdrExp[0] ae set frame %u effect exp %f %f %f", frameId,
+                                                                             fastae.HdrExp[0].exp_real_params.analog_gain,
+                                                                             fastae.HdrExp[0].exp_real_params.integration_time,
+                                                                             fastae.HdrExp[0].exp_real_params.isp_dgain);
         }
         mSensor->set_effecting_exp_map(frameId, &fastae, 0);
-        LOGD_CAMHW("fast ae set frame %u effect exp %f %f %f", frameId, fastae.LinearExp.exp_real_params.analog_gain, fastae.LinearExp.exp_real_params.integration_time,
-                   fastae.LinearExp.exp_real_params.isp_dgain);
     }
 
     mAweekId = frameId;
-
-    struct v4l2_event event;
-    event.u.frame_sync.frame_sequence = frameId;
-    SmartPtr<VideoBuffer> buf =
-        mIspSofStream->new_video_buffer(event, NULL);
-
-    CamHwBase::poll_buffer_ready(buf);
 
     return ret;
 
 }
 
 XCamReturn
-CamHwIsp20::setVicapStreamMode(int mode)
+CamHwIsp20::setVicapStreamMode(int mode, bool is_single_mode)
 {
-    // mode: 0: pause, 1: resume
     SensorHw* mSensor = mSensorDev.get_cast_ptr<SensorHw>();
+    uint32_t frameId = 0;
+    bool isSglMd = false;
+    // mode: 0: pause, 1: resume
     if (mode) {
-        mSensor->set_pause_flag(false);
-    } else
-        mSensor->set_pause_flag(true);
+        isSglMd = mSensor->get_is_single_mode();
+        if (!isSglMd)
+            return XCAM_RETURN_NO_ERROR;
 
-    mRawCapUnit->setVicapStreamMode(mode);
+        mSensor->set_pause_flag(false, 0, isSglMd);
+        mRawCapUnit->setVicapStreamMode(mode, &frameId, isSglMd);
+        LOGD_CAMHW("raw stream is resume");
+    } else {
+        mRawCapUnit->setVicapStreamMode(mode, &frameId, is_single_mode);
+        mSensor->set_pause_flag(true, frameId, is_single_mode);
+        LOGD_CAMHW("raw stream is stop, id %u, switch to %s frame mode", frameId, is_single_mode ? "single" : "multi");
+    }
 
     return XCAM_RETURN_NO_ERROR;
 }

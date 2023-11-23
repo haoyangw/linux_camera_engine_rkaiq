@@ -547,7 +547,7 @@ rk_aiq_uapi2_sysctl_setCrop(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_rect_t rect)
  *
  * \param[in] sys_ctx             the context returned by \ref rk_aiq_uapi2_sysctl_init
  */
-void rk_aiq_uapi2_sysctl_pause(rk_aiq_sys_ctx_t* sys_ctx);
+void rk_aiq_uapi2_sysctl_pause(rk_aiq_sys_ctx_t* sys_ctx, bool isSingleMode);
 
 /**
  * @brief resume vicap stream

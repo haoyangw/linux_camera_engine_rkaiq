@@ -1,7 +1,7 @@
 /*
- *rk_aiq_types_alsc_algo.h
+ *rk_aiq_types_alsc_algo_int.h
  *
- *  Copyright (c) 2019 Rockchip Corporation
+ *  Copyright (c) 2023 Rockchip Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,19 +17,8 @@
  *
  */
 
-#ifndef _RK_AIQ_TYPE_AGAIN_ALGO_V2_H_
-#define _RK_AIQ_TYPE_AGAIN_ALGO_V2_H_
-#include "again2/rk_aiq_types_again_hw_v2.h"
-#include "again2/rk_aiq_types_again_stat.h"
 
-RKAIQ_BEGIN_DECLARE
-
-#define AGAIN_USE_XML_FILE_V2 (1)
-
-#define AGAIN_USE_JSON_FILE_V2 (1)
-
-#define AGAIN_FIX_PRINTF_V2 (1)
-RKAIQ_END_DECLARE
-
-#endif
-
+typedef struct rk_aiq_again_stat_s {
+    int dbginfo_fd;
+    bool stats_true;
+}rk_aiq_again_stat_t;

@@ -385,6 +385,7 @@ public:
         RkAiqAwbStats* awbStatsBuf;
         RkAiqAfStats* afStatsBuf;
         RkAiqAdehazeStats* adehazeStatsBuf;
+        RkAiqAgainStats* againStatsBuf;
         XCamVideoBuffer* sp;
         XCamVideoBuffer* ispGain;
         XCamVideoBuffer* kgGain;
@@ -419,6 +420,7 @@ public:
             nrImg       = nullptr;
             pdafStatsBuf = nullptr;
             fullParams = nullptr;
+            againStatsBuf = nullptr;
         }
     } RkAiqAlgosGroupShared_t;
     RkAiqAlgosComShared_t mAlogsComSharedParams;
@@ -628,6 +630,7 @@ protected:
     SmartPtr<RkAiqAwbStatsPool>                 mAiqAwbStatsPool;
     SmartPtr<RkAiqAtmoStatsPool>                mAiqAtmoStatsPool;
     SmartPtr<RkAiqAdehazeStatsPool>             mAiqAdehazeStatsPool;
+    SmartPtr<RkAiqAgainStatsPool>               mAiqAgainStatsPool;
     SmartPtr<RkAiqAfStatsPool>                  mAiqAfStatsPool;
     SmartPtr<RkAiqOrbStatsPool>                 mAiqOrbStatsIntPool;
 #if RKAIQ_HAVE_PDAF
@@ -672,6 +675,9 @@ protected:
     XCamReturn handleAfStats(const SmartPtr<VideoBuffer> &buffer, SmartPtr<RkAiqAfStatsProxy>& afStat);
     XCamReturn handleAtmoStats(const SmartPtr<VideoBuffer> &buffer, SmartPtr<RkAiqAtmoStatsProxy>& tmoStat);
     XCamReturn handleAdehazeStats(const SmartPtr<VideoBuffer> &buffer, SmartPtr<RkAiqAdehazeStatsProxy>& dehazeStat);
+#if RK_GAIN_V2_ENABLE_GAIN2DDR
+    XCamReturn handleAgainStats(const SmartPtr<VideoBuffer> &buffer, SmartPtr<RkAiqAgainStatsProxy>& gainStat);
+#endif
     XCamReturn handleOrbStats(const SmartPtr<VideoBuffer> &buffer);
     XCamReturn handlePdafStats(const SmartPtr<VideoBuffer> &buffer);
     inline uint64_t grpId2GrpMask(uint32_t grpId) {

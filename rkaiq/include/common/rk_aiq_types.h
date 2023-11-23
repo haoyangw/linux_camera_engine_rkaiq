@@ -86,6 +86,11 @@
     ((uint32_t)(a) | ((uint32_t)(b) << 8) | ((uint32_t)(c) << 16) | ((uint32_t)(d) << 24))
 #define rk_fmt_fourcc_be(a, b, c, d)    (rk_fmt_fourcc(a, b, c, d) | (1 << 31))
 
+typedef struct rk_aiq_color_info_s{
+    float sensorGain;
+    float awbGain[2];
+}rk_aiq_color_info_t;
+
 typedef struct rk_aiq_range_s {
     float min;
     float max;

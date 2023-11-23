@@ -73,6 +73,7 @@ namespace RkCam {
  * and the new parameters take effect on frame n+1
  */
 #define ISP_PARAMS_EFFECT_DELAY_CNT 2
+#define ISP_PARAMS_EFFECT_DELAY_CNT3 3
 
 static RkAiqGrpCondition_t aeGrpCondV3x[] = {
     [0] = {XCAM_MESSAGE_AEC_STATS_OK, ISP_PARAMS_EFFECT_DELAY_CNT},
@@ -106,6 +107,9 @@ static RkAiqGrpCondition_t grp0Cond[] = {
     [1] = {XCAM_MESSAGE_AE_PRE_RES_OK, 0},
     [2] = {XCAM_MESSAGE_BLC_V32_PROC_RES_OK, 0},
     [3] = {XCAM_MESSAGE_AWB_PROC_RES_OK, 0},
+#if RK_GAIN_V2_ENABLE_GAIN2DDR
+    [4] = {XCAM_MESSAGE_AGAIN_STATS_OK, ISP_PARAMS_EFFECT_DELAY_CNT3},
+#endif
 };
 static RkAiqGrpConditions_t grp0Conds = {grp_conds_array_info(grp0Cond)};
 

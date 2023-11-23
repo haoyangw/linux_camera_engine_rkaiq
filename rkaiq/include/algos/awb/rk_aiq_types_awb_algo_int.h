@@ -313,6 +313,28 @@ typedef struct rk_aiq_uapiV2_awb_ExtR_Wei_V32_s {
 } rk_aiq_uapiV2_awb_ExtR_Wei_V32_t;
 
 
+
+typedef struct rk_aiq_uapiV2_awb_Gain_Lut_Cfg_s {
+    int ct_grid_num;
+    int cri_grid_num;
+    float *rgct_in_ds;
+    float *bgcri_in_ds;
+    float *rgct_lut_out;
+    float *bgcri_lut_out;
+} rk_aiq_uapiV2_awb_Gain_Lut_Cfg_t;
+
+typedef struct rk_aiq_uapiV2_awb_CamMain_info_s {
+    rk_aiq_wb_gain_t wbgain;
+    float fLV;
+    bool fLV_valid;
+} rk_aiq_uapiV2_awb_CamMain_info_t;
+
+typedef struct rk_aiq_uapiV2_awb_Slave2Main_Cfg_s {
+    bool enable;
+    rk_aiq_uapiV2_awb_Gain_Lut_Cfg_t cct_lut_cfg;
+    rk_aiq_uapiV2_awb_CamMain_info_t camM;
+} rk_aiq_uapiV2_awb_Slave2Main_Cfg_t;
+
 typedef struct rk_aiq_uapiV2_ExtRange_V32_s {
     CalibDbV2_Awb_Ext_Range_Dom_t domain;
     CalibDbV2_Awb_Ext_Range_Mode_t mode;

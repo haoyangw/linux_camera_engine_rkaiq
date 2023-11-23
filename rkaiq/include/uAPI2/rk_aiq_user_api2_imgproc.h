@@ -727,6 +727,22 @@ XCamReturn rk_aiq_uapi2_resetZoom(const rk_aiq_sys_ctx_t* ctx);
 */
 XCamReturn rk_aiq_uapi2_setAngleZ(const rk_aiq_sys_ctx_t* ctx, float angleZ);
 
+
+/*
+*****************************
+*
+* Desc: set colorSwInfo
+* Argument:
+*
+*
+*****************************
+*/
+
+XCamReturn rk_aiq_uapi2_setAcolorSwInfo(const rk_aiq_sys_ctx_t* ctx,
+                                              rk_aiq_color_info_t aColor_sw_info);
+
+
+
 /*
 **********************************************************
 * Color Correction

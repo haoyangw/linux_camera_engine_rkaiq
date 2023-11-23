@@ -1231,7 +1231,6 @@ XCamReturn RkAiqAeHandleInt::processing() {
     }
 
     RkAiqResourceTranslator* translator = dynamic_cast<RkAiqResourceTranslator*>(mAiqCore->getTranslator());
-    translator->setAeAlgoRunFlag(ae_proc_res_int->aec_run_flag);
     if (ae_proc_res_int->stats_cfg_to_trans.isUpdate) {
         translator->setAeAlgoStatsCfg(&ae_proc_res_int->stats_cfg_to_trans);
     }

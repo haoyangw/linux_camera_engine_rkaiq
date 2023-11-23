@@ -34,7 +34,7 @@ typedef struct rk_ainr_param_t
     float sigma_tab[RK_AINR_TAB_LEN];   //  0.0~32.0
     float shade_tab[RK_AINR_TAB_LEN];   //  -4.0~4.0
     float sharp_tab[RK_AINR_TAB_LEN];   //  0.0~4.0
-    float min_luma_tab[RK_AINR_TAB_LEN];    //  0.0~128.0
+    float min_luma_tab[RK_AINR_TAB_LEN];    //  0.0~256.0
     float sat_scale_tab[RK_AINR_TAB_LEN];   //  1.0~3.0
     float dark_contrast_tab[RK_AINR_TAB_LEN];   //  0.0~32.0
     float ai_ratio_tab[RK_AINR_TAB_LEN];    //  0.0~1.0

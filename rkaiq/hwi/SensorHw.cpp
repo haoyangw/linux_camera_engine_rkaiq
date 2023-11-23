@@ -740,8 +740,8 @@ SensorHw::getEffectiveExpParams(SmartPtr<RkAiqSensorExpParamsProxy>& expParams, 
     ENTER_CAMHW_FUNCTION();
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-    std::map<int, SmartPtr<RkAiqSensorExpParamsProxy>>::iterator it;
-    int search_id = frame_id == (uint32_t)(-1) ? 0 : frame_id;
+    std::map<uint32_t, SmartPtr<RkAiqSensorExpParamsProxy>>::iterator it;
+    uint32_t search_id = frame_id == (uint32_t)(-1) ? 0 : frame_id;
 //#ifdef ADD_LOCK
     SmartLock locker (_mutex);
 //#endif
@@ -750,7 +750,7 @@ SensorHw::getEffectiveExpParams(SmartPtr<RkAiqSensorExpParamsProxy>& expParams, 
     // havn't found
     if (it == _effecting_exp_map.end()) {
         /* use the latest */
-        std::map<int, SmartPtr<RkAiqSensorExpParamsProxy>>::reverse_iterator rit;
+        std::map<uint32_t, SmartPtr<RkAiqSensorExpParamsProxy>>::reverse_iterator rit;
 
         for (rit = _effecting_exp_map.rbegin(); rit != _effecting_exp_map.rend(); rit++) {
             if (rit->first <= search_id)
@@ -1076,6 +1076,7 @@ SensorHw::handle_sof(int64_t time, uint32_t frameid)
     } else {
         dcg_gain_mode = _last_dcg_gain_mode;
     }
+    _mutex.unlock();
     // update flip, skip _frame_sequence
     if (_update_mirror_flip) {
         _set_mirror_flip();
@@ -1110,11 +1111,6 @@ SensorHw::handle_sof(int64_t time, uint32_t frameid)
             }
         }
 
-        if (mPauseFlag) {
-            _mutex.unlock();
-            return XCAM_RETURN_NO_ERROR;
-        }
-
         if(_working_mode == RK_AIQ_WORKING_MODE_NORMAL) {
             ret = setLinearSensorExposure(ptr_new_exp);
         } else {
@@ -1123,7 +1119,6 @@ SensorHw::handle_sof(int64_t time, uint32_t frameid)
 
         setSensorDpcc(&exp_time->data()->SensorDpccInfo);
     }
-    _mutex.unlock();
     if (ret != XCAM_RETURN_NO_ERROR) {
         LOGE_CAMHW_SUBM(SENSOR_SUBM, "%s: sof_id[%u]: set exposure failed!!!\n",
                         __FUNCTION__,
@@ -1141,6 +1136,10 @@ SensorHw::handle_sof(int64_t time, uint32_t frameid)
             _delayed_dcg_gain_mode_list.push_back(exp_time);
         }
         effecting_frame_id = frameid + _time_delay;
+        if (mPauseFlag && (mIsSingleMode || (frameid == mPauseId)) &&
+            _time_delay > 1) {
+            effecting_frame_id = frameid + 1;
+        }
         _effecting_exp_map[effecting_frame_id] = exp_time;
 
         if (_working_mode == RK_AIQ_WORKING_MODE_NORMAL) {
@@ -1608,10 +1607,42 @@ SensorHw::set_effecting_exp_map(uint32_t sequence, void *exp_ptr, int mode)
 }
 
 XCamReturn
-SensorHw::set_pause_flag(bool mode)
+SensorHw::set_pause_flag(bool mode, uint32_t frameId, bool isSingleMode)
 {
     _mutex.lock();
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    uint32_t new_exp_id, last_exp_id;
+    RKAiqAecExpInfo_t *ptr_new_exp = NULL;
     mPauseFlag = mode;
+    if (mPauseFlag && _time_delay > 1) {
+        new_exp_id = frameId + _time_delay;
+        mPauseId = frameId; // tmp
+        if (_effecting_exp_map.find(new_exp_id) != _effecting_exp_map.end()) {
+            _effecting_exp_map.erase(new_exp_id);
+            auto it = _effecting_exp_map.rbegin();
+            ptr_new_exp = &it->second->data()->aecExpInfo;
+            if(_working_mode == RK_AIQ_WORKING_MODE_NORMAL) {
+                ret = setLinearSensorExposure(ptr_new_exp);
+            } else {
+                ret = setHdrSensorExposure(ptr_new_exp);
+            }
+            LOGD_CAMHW("erase effect exp id %u, set new exp id is %u", new_exp_id, it->first);
+        }
+        mIsSingleMode = isSingleMode;
+        LOGD_CAMHW_SUBM(SENSOR_SUBM, "switch to %s mode, pauseId %u, handle sof id %u, _time_delay %d",
+                                        mIsSingleMode ? "single" : "multi",
+                                        mPauseId, _frame_sequence, _time_delay);
+    } else if (mIsSingleMode && _time_delay > 1 && _frame_sequence > 0) {
+        last_exp_id = _frame_sequence + 1;
+        auto it = _effecting_exp_map.rbegin();
+        if (it != _effecting_exp_map.rend() && it->first == last_exp_id) {
+            it++;
+            new_exp_id = _frame_sequence + 2;
+            _effecting_exp_map[new_exp_id] = _effecting_exp_map[last_exp_id];
+            if (it != _effecting_exp_map.rend())
+                _effecting_exp_map[last_exp_id] = _effecting_exp_map[it->first];
+        }
+    }
     _mutex.unlock();
     return XCAM_RETURN_NO_ERROR;
 }
