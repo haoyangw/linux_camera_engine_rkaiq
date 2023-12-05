@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <algorithm>
 #include <linux/types.h>
 #include <linux/v4l2-controls.h>
 
@@ -17,7 +18,6 @@
 #ifdef ENABLE_RSTP_SERVER
     #include "rtsp_server.h"
 #endif
-#include "tcp_server.h"
 
 typedef enum
 {
@@ -41,6 +41,7 @@ typedef enum
     DEVICE_TO_PC
 } cmdType;
 
+#define MAXPACKETSIZE 2048
 #define RKAIQ_TOOL_VERSION "v0.0.1"
 
 #define STOP_RKLUNCH_CMD "sh /oem/RkLunch-stop.sh"
@@ -57,8 +58,7 @@ extern std::shared_ptr<RKAiqToolManager> rkaiq_manager;
 #define RKID_GET_AWB_PARA_FILE "GetAWBp"
 
 #pragma pack(1)
-typedef struct CommandData_s
-{
+typedef struct CommandData_s {
     uint8_t RKID[8];
     uint16_t cmdType;
     uint16_t cmdID;
@@ -161,8 +161,7 @@ enum cif_csi_lvds_memory
  * The sequence of pattern00~03 is the same as the output of sensor bayer
  */
 
-struct bayer_blc
-{
+struct bayer_blc {
     uint8_t pattern00;
     uint8_t pattern01;
     uint8_t pattern02;

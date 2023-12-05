@@ -58,22 +58,18 @@ struct media_pad* media_entity_remote_source(struct media_pad* pad)
 {
     unsigned int i;
 
-    if (!(pad->flags & MEDIA_PAD_FL_SINK))
-    {
+    if (!(pad->flags & MEDIA_PAD_FL_SINK)) {
         return NULL;
     }
 
-    for (i = 0; i < pad->entity->num_links; ++i)
-    {
+    for (i = 0; i < pad->entity->num_links; ++i) {
         struct media_link* link = &pad->entity->links[i];
 
-        if (!(link->flags & MEDIA_LNK_FL_ENABLED))
-        {
+        if (!(link->flags & MEDIA_LNK_FL_ENABLED)) {
             continue;
         }
 
-        if (link->sink == pad)
-        {
+        if (link->sink == pad) {
             return link->source;
         }
     }
@@ -85,12 +81,10 @@ struct media_entity* media_get_entity_by_name(struct media_device* media, const 
 {
     unsigned int i;
 
-    for (i = 0; i < media->entities_count; ++i)
-    {
+    for (i = 0; i < media->entities_count; ++i) {
         struct media_entity* entity = &media->entities[i];
 
-        if (strcmp(entity->info.name, name) == 0)
-        {
+        if (strcmp(entity->info.name, name) == 0) {
             return entity;
         }
     }
@@ -105,12 +99,10 @@ struct media_entity* media_get_entity_by_id(struct media_device* media, __u32 id
 
     id &= ~MEDIA_ENT_ID_FLAG_NEXT;
 
-    for (i = 0; i < media->entities_count; ++i)
-    {
+    for (i = 0; i < media->entities_count; ++i) {
         struct media_entity* entity = &media->entities[i];
 
-        if ((entity->info.id == id && !next) || (entity->info.id > id && next))
-        {
+        if ((entity->info.id == id && !next) || (entity->info.id > id && next)) {
             return entity;
         }
     }
@@ -125,8 +117,7 @@ unsigned int media_get_entities_count(struct media_device* media)
 
 struct media_entity* media_get_entity(struct media_device* media, unsigned int index)
 {
-    if (index >= media->entities_count)
-    {
+    if (index >= media->entities_count) {
         return NULL;
     }
 
@@ -135,8 +126,7 @@ struct media_entity* media_get_entity(struct media_device* media, unsigned int i
 
 const struct media_pad* media_entity_get_pad(struct media_entity* entity, unsigned int index)
 {
-    if (index >= entity->info.pads)
-    {
+    if (index >= entity->info.pads) {
         return NULL;
     }
 
@@ -150,8 +140,7 @@ unsigned int media_entity_get_links_count(struct media_entity* entity)
 
 const struct media_link* media_entity_get_link(struct media_entity* entity, unsigned int index)
 {
-    if (index >= entity->num_links)
-    {
+    if (index >= entity->num_links) {
         return NULL;
     }
 
@@ -165,8 +154,7 @@ const char* media_entity_get_devname(struct media_entity* entity)
 
 struct media_entity* media_get_default_entity(struct media_device* media, unsigned int type)
 {
-    switch (type)
-    {
+    switch (type) {
         case MEDIA_ENT_T_DEVNODE_V4L:
             return media->def.v4l;
         case MEDIA_ENT_T_DEVNODE_FB:
@@ -203,16 +191,14 @@ static int media_device_open(struct media_device* media)
 {
     int ret;
 
-    if (media->fd != -1)
-    {
+    if (media->fd != -1) {
         return 0;
     }
 
     media_dbg(media, "Opening media device %s\n", media->devnode);
 
     media->fd = open(media->devnode, O_RDWR);
-    if (media->fd < 0)
-    {
+    if (media->fd < 0) {
         ret = -errno;
         media_dbg(media, "%s: Can't open media device %s\n", __func__, media->devnode);
         return ret;
@@ -223,8 +209,7 @@ static int media_device_open(struct media_device* media)
 
 static void media_device_close(struct media_device* media)
 {
-    if (media->fd != -1)
-    {
+    if (media->fd != -1) {
         close(media->fd);
         media->fd = -1;
     }
@@ -242,24 +227,22 @@ int media_setup_link(struct media_device* media, struct media_pad* source, struc
     int ret;
 
     ret = media_device_open(media);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         goto done;
     }
 
-    for (i = 0; i < source->entity->num_links; i++)
-    {
+    for (i = 0; i < source->entity->num_links; i++) {
         link = &source->entity->links[i];
 
-        if (link->source->entity == source->entity && link->source->index == source->index && link->sink->entity == sink->entity && link->sink->index == sink->index)
-        {
-            media_dbg(media, "#### %s:%d -> %s:%d", link->source->entity->info.name, link->source->index, link->sink->entity->info.name, link->sink->index);
+        if (link->source->entity == source->entity && link->source->index == source->index &&
+            link->sink->entity == sink->entity && link->sink->index == sink->index) {
+            media_dbg(media, "#### %s:%d -> %s:%d", link->source->entity->info.name, link->source->index,
+                      link->sink->entity->info.name, link->sink->index);
             break;
         }
     }
 
-    if (i == source->entity->num_links)
-    {
+    if (i == source->entity->num_links) {
         media_dbg(media, "%s: Link not found\n", __func__);
         ret = -ENOENT;
         goto done;
@@ -278,8 +261,7 @@ int media_setup_link(struct media_device* media, struct media_pad* source, struc
     ulink.flags = flags | (link->flags & MEDIA_LNK_FL_IMMUTABLE);
 
     ret = ioctl(media->fd, MEDIA_IOC_SETUP_LINK, &ulink);
-    if (ret == -1)
-    {
+    if (ret == -1) {
         ret = -errno;
         media_dbg(media, "%s: Unable to setup link (%s)\n", __func__, strerror(errno));
         goto done;
@@ -300,22 +282,18 @@ int media_reset_links(struct media_device* media)
     unsigned int i, j;
     int ret;
 
-    for (i = 0; i < media->entities_count; ++i)
-    {
+    for (i = 0; i < media->entities_count; ++i) {
         struct media_entity* entity = &media->entities[i];
 
-        for (j = 0; j < entity->num_links; j++)
-        {
+        for (j = 0; j < entity->num_links; j++) {
             struct media_link* link = &entity->links[j];
 
-            if (link->flags & MEDIA_LNK_FL_IMMUTABLE || link->source->entity != entity)
-            {
+            if (link->flags & MEDIA_LNK_FL_IMMUTABLE || link->source->entity != entity) {
                 continue;
             }
 
             ret = media_setup_link(media, link->source, link->sink, link->flags & ~MEDIA_LNK_FL_ENABLED);
-            if (ret < 0)
-            {
+            if (ret < 0) {
                 return ret;
             }
         }
@@ -330,20 +308,17 @@ int media_reset_links(struct media_device* media)
 
 static struct media_link* media_entity_add_link(struct media_entity* entity)
 {
-    if (entity->num_links >= entity->max_links)
-    {
+    if (entity->num_links >= entity->max_links) {
         struct media_link* links = entity->links;
         unsigned int max_links = entity->max_links * 2;
         unsigned int i;
 
         links = realloc(links, max_links * sizeof *links);
-        if (links == NULL)
-        {
+        if (links == NULL) {
             return NULL;
         }
 
-        for (i = 0; i < entity->num_links; ++i)
-        {
+        for (i = 0; i < entity->num_links; ++i) {
             links[i].twin->twin = &links[i];
         }
 
@@ -359,8 +334,7 @@ static int media_enum_links(struct media_device* media)
     __u32 id;
     int ret = 0;
 
-    for (id = 1; id <= media->entities_count; id++)
-    {
+    for (id = 1; id <= media->entities_count; id++) {
         struct media_entity* entity = &media->entities[id - 1];
         struct media_links_enum links = {0};
         unsigned int i;
@@ -369,8 +343,7 @@ static int media_enum_links(struct media_device* media)
         links.pads = calloc(entity->info.pads, sizeof(struct media_pad_desc));
         links.links = calloc(entity->info.links, sizeof(struct media_link_desc));
 
-        if (ioctl(media->fd, MEDIA_IOC_ENUM_LINKS, &links) < 0)
-        {
+        if (ioctl(media->fd, MEDIA_IOC_ENUM_LINKS, &links) < 0) {
             ret = -errno;
             media_dbg(media, "%s: Unable to enumerate pads and links (%s).\n", __func__, strerror(errno));
             free(links.pads);
@@ -378,15 +351,13 @@ static int media_enum_links(struct media_device* media)
             return ret;
         }
 
-        for (i = 0; i < entity->info.pads; ++i)
-        {
+        for (i = 0; i < entity->info.pads; ++i) {
             entity->pads[i].entity = entity;
             entity->pads[i].index = links.pads[i].index;
             entity->pads[i].flags = links.pads[i].flags;
         }
 
-        for (i = 0; i < entity->info.links; ++i)
-        {
+        for (i = 0; i < entity->info.links; ++i) {
             struct media_link_desc* link = &links.links[i];
             struct media_link* fwdlink;
             struct media_link* backlink;
@@ -396,13 +367,11 @@ static int media_enum_links(struct media_device* media)
             source = media_get_entity_by_id(media, link->source.entity);
             sink = media_get_entity_by_id(media, link->sink.entity);
 
-            if (source == NULL || sink == NULL)
-            {
-                media_dbg(media, "WARNING entity %u link %u from %u/%u to %u/%u is invalid!\n", id, i, link->source.entity, link->source.index, link->sink.entity, link->sink.index);
+            if (source == NULL || sink == NULL) {
+                media_dbg(media, "WARNING entity %u link %u from %u/%u to %u/%u is invalid!\n", id, i,
+                          link->source.entity, link->source.index, link->sink.entity, link->sink.index);
                 ret = -EINVAL;
-            }
-            else
-            {
+            } else {
                 fwdlink = media_entity_add_link(source);
                 fwdlink->source = &source->pads[link->source.index];
                 fwdlink->sink = &sink->pads[link->sink.index];
@@ -432,8 +401,7 @@ static int media_enum_links(struct media_device* media)
 static inline int media_udev_open(struct udev** udev)
 {
     *udev = udev_new();
-    if (*udev == NULL)
-    {
+    if (*udev == NULL) {
         return -ENOMEM;
     }
     return 0;
@@ -441,8 +409,7 @@ static inline int media_udev_open(struct udev** udev)
 
 static inline void media_udev_close(struct udev* udev)
 {
-    if (udev != NULL)
-    {
+    if (udev != NULL) {
         udev_unref(udev);
     }
 }
@@ -454,19 +421,16 @@ static int media_get_devname_udev(struct udev* udev, struct media_entity* entity
     const char* p;
     int ret = -ENODEV;
 
-    if (udev == NULL)
-    {
+    if (udev == NULL) {
         return -EINVAL;
     }
 
     devnum = makedev(entity->info.v4l.major, entity->info.v4l.minor);
     media_dbg(entity->media, "looking up device: %u:%u\n", major(devnum), minor(devnum));
     device = udev_device_new_from_devnum(udev, 'c', devnum);
-    if (device)
-    {
+    if (device) {
         p = udev_device_get_devnode(device);
-        if (p)
-        {
+        if (p) {
             strncpy(entity->devname, p, sizeof(entity->devname));
             entity->devname[sizeof(entity->devname) - 1] = '\0';
         }
@@ -509,43 +473,35 @@ static int media_get_devname_sysfs(struct media_entity* entity)
 
     sprintf(sysname, "/sys/dev/char/%u:%u", entity->info.v4l.major, entity->info.v4l.minor);
     ret = readlink(sysname, target, sizeof(target) - 1);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return -errno;
     }
 
     target[ret] = '\0';
     p = strrchr(target, '/');
-    if (p == NULL)
-    {
+    if (p == NULL) {
         return -EINVAL;
     }
 
     sprintf(devname, "/dev/%s", p + 1);
-    if (strstr(p + 1, "dvb"))
-    {
+    if (strstr(p + 1, "dvb")) {
         char* s = p + 1;
 
-        if (strncmp(s, "dvb", 3))
-        {
+        if (strncmp(s, "dvb", 3)) {
             return -EINVAL;
         }
         s += 3;
         p = strchr(s, '.');
-        if (!p)
-        {
+        if (!p) {
             return -EINVAL;
         }
         *p = '/';
         sprintf(devname, "/dev/dvb/adapter%s", s);
-    }
-    else
-    {
+    } else {
         sprintf(devname, "/dev/%s", p + 1);
     }
     ret = stat(devname, &devstat);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return -errno;
     }
 
@@ -553,8 +509,7 @@ static int media_get_devname_sysfs(struct media_entity* entity)
      * Make sure the major/minor match. We should really use
      * libudev.
      */
-    if (major(devstat.st_rdev) == entity->info.v4l.major && minor(devstat.st_rdev) == entity->info.v4l.minor)
-    {
+    if (major(devstat.st_rdev) == entity->info.v4l.major && minor(devstat.st_rdev) == entity->info.v4l.minor) {
         strcpy(entity->devname, devname);
     }
 
@@ -570,13 +525,11 @@ static int media_enum_entities(struct media_device* media)
     int ret;
 
     ret = media_udev_open(&udev);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         media_dbg(media, "Can't get udev context\n");
     }
 
-    for (id = 0, ret = 0;; id = entity->info.id)
-    {
+    for (id = 0, ret = 0;; id = entity->info.id) {
         size = (media->entities_count + 1) * sizeof(*media->entities);
         media->entities = realloc(media->entities, size);
 
@@ -587,8 +540,7 @@ static int media_enum_entities(struct media_device* media)
         entity->media = media;
 
         ret = ioctl(media->fd, MEDIA_IOC_ENUM_ENTITIES, &entity->info);
-        if (ret < 0)
-        {
+        if (ret < 0) {
             ret = errno != EINVAL ? -errno : 0;
             break;
         }
@@ -601,18 +553,15 @@ static int media_enum_entities(struct media_device* media)
 
         entity->pads = malloc(entity->info.pads * sizeof(*entity->pads));
         entity->links = malloc(entity->max_links * sizeof(*entity->links));
-        if (entity->pads == NULL || entity->links == NULL)
-        {
+        if (entity->pads == NULL || entity->links == NULL) {
             ret = -ENOMEM;
             break;
         }
 
         media->entities_count++;
 
-        if (entity->info.flags & MEDIA_ENT_FL_DEFAULT)
-        {
-            switch (entity->info.type)
-            {
+        if (entity->info.flags & MEDIA_ENT_FL_DEFAULT) {
+            switch (entity->info.type) {
                 case MEDIA_ENT_T_DEVNODE_V4L:
                     media->def.v4l = entity;
                     break;
@@ -629,20 +578,17 @@ static int media_enum_entities(struct media_device* media)
         }
 
         /* Find the corresponding device name. */
-        if (media_entity_type(entity) != MEDIA_ENT_T_DEVNODE && media_entity_type(entity) != MEDIA_ENT_T_V4L2_SUBDEV)
-        {
+        if (media_entity_type(entity) != MEDIA_ENT_T_DEVNODE && media_entity_type(entity) != MEDIA_ENT_T_V4L2_SUBDEV) {
             continue;
         }
 
         /* Don't try to parse empty major,minor */
-        if (!entity->info.dev.major && !entity->info.dev.minor)
-        {
+        if (!entity->info.dev.major && !entity->info.dev.minor) {
             continue;
         }
 
         /* Try to get the device name via udev */
-        if (!media_get_devname_udev(udev, entity))
-        {
+        if (!media_get_devname_udev(udev, entity)) {
             continue;
         }
 
@@ -658,22 +604,19 @@ int media_device_enumerate(struct media_device* media)
 {
     int ret;
 
-    if (media->entities)
-    {
+    if (media->entities) {
         return 0;
     }
 
     ret = media_device_open(media);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return ret;
     }
 
     memset(&media->info, 0, sizeof(media->info));
 
     ret = ioctl(media->fd, MEDIA_IOC_DEVICE_INFO, &media->info);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         ret = -errno;
         media_dbg(media,
                   "%s: Unable to retrieve media device "
@@ -685,9 +628,9 @@ int media_device_enumerate(struct media_device* media)
     media_dbg(media, "Enumerating entities\n");
 
     ret = media_enum_entities(media);
-    if (ret < 0)
-    {
-        media_dbg(media, "%s: Unable to enumerate entities for device %s (%s)\n", __func__, media->devnode, strerror(-ret));
+    if (ret < 0) {
+        media_dbg(media, "%s: Unable to enumerate entities for device %s (%s)\n", __func__, media->devnode,
+                  strerror(-ret));
         goto done;
     }
 
@@ -695,8 +638,7 @@ int media_device_enumerate(struct media_device* media)
     media_dbg(media, "Enumerating pads and links\n");
 
     ret = media_enum_links(media);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         media_dbg(media, "%s: Unable to enumerate pads and linksfor device %s\n", __func__, media->devnode);
         goto done;
     }
@@ -718,13 +660,10 @@ static void media_debug_default(void* ptr, ...)
 
 void media_debug_set_handler(struct media_device* media, void (*debug_handler)(void*, ...), void* debug_priv)
 {
-    if (debug_handler)
-    {
+    if (debug_handler) {
         media->debug_handler = debug_handler;
         media->debug_priv = debug_priv;
-    }
-    else
-    {
+    } else {
         media->debug_handler = media_debug_default;
         media->debug_priv = NULL;
     }
@@ -735,8 +674,7 @@ static struct media_device* __media_device_new(void)
     struct media_device* media;
 
     media = calloc(1, sizeof(*media));
-    if (media == NULL)
-    {
+    if (media == NULL) {
         return NULL;
     }
 
@@ -753,14 +691,12 @@ struct media_device* media_device_new(const char* devnode)
     struct media_device* media;
 
     media = __media_device_new();
-    if (media == NULL)
-    {
+    if (media == NULL) {
         return NULL;
     }
 
     media->devnode = strdup(devnode);
-    if (media->devnode == NULL)
-    {
+    if (media->devnode == NULL) {
         media_device_unref(media);
         return NULL;
     }
@@ -773,8 +709,7 @@ struct media_device* media_device_new_emulated(struct media_device_info* info)
     struct media_device* media;
 
     media = __media_device_new();
-    if (media == NULL)
-    {
+    if (media == NULL) {
         return NULL;
     }
 
@@ -794,19 +729,16 @@ void media_device_unref(struct media_device* media)
     unsigned int i;
 
     media->refcount--;
-    if (media->refcount > 0)
-    {
+    if (media->refcount > 0) {
         return;
     }
 
-    for (i = 0; i < media->entities_count; ++i)
-    {
+    for (i = 0; i < media->entities_count; ++i) {
         struct media_entity* entity = &media->entities[i];
 
         free(entity->pads);
         free(entity->links);
-        if (entity->fd != -1)
-        {
+        if (entity->fd != -1) {
             close(entity->fd);
         }
     }
@@ -824,8 +756,7 @@ int media_device_add_entity(struct media_device* media, const struct media_entit
 
     size = (media->entities_count + 1) * sizeof(*media->entities);
     entity = realloc(media->entities, size);
-    if (entity == NULL)
-    {
+    if (entity == NULL) {
         return -ENOMEM;
     }
 
@@ -845,8 +776,7 @@ int media_device_add_entity(struct media_device* media, const struct media_entit
     entity->info.flags = 0;
     memcpy(entity->info.name, desc->name, sizeof entity->info.name);
 
-    switch (entity->info.type)
-    {
+    switch (entity->info.type) {
         case MEDIA_ENT_T_DEVNODE_V4L:
             defent = &media->def.v4l;
             entity->info.v4l = desc->v4l;
@@ -865,11 +795,9 @@ int media_device_add_entity(struct media_device* media, const struct media_entit
             break;
     }
 
-    if (desc->flags & MEDIA_ENT_FL_DEFAULT)
-    {
+    if (desc->flags & MEDIA_ENT_FL_DEFAULT) {
         entity->info.flags |= MEDIA_ENT_FL_DEFAULT;
-        if (defent)
-        {
+        if (defent) {
             *defent = entity;
         }
     }
@@ -886,49 +814,41 @@ struct media_entity* media_parse_entity(struct media_device* media, const char* 
     /* endp can be NULL. To avoid spreading NULL checks across the function,
      * set endp to &end in that case.
      */
-    if (endp == NULL)
-    {
+    if (endp == NULL) {
         endp = &end;
     }
 
     for (; isspace(*p); ++p)
         ;
 
-    if (*p == '"' || *p == '\'')
-    {
+    if (*p == '"' || *p == '\'') {
         char* name;
 
         for (end = (char*)p + 1; *end && *end != '"' && *end != '\''; ++end)
             ;
-        if (*end != '"' && *end != '\'')
-        {
+        if (*end != '"' && *end != '\'') {
             media_dbg(media, "missing matching '\"'\n");
             *endp = end;
             return NULL;
         }
 
         name = strndup(p + 1, end - p - 1);
-        if (!name)
-        {
+        if (!name) {
             return NULL;
         }
         entity = media_get_entity_by_name(media, name);
         free(name);
-        if (entity == NULL)
-        {
+        if (entity == NULL) {
             media_dbg(media, "no such entity \"%.*s\"\n", end - p - 1, p + 1);
             *endp = (char*)p + 1;
             return NULL;
         }
 
         ++end;
-    }
-    else
-    {
+    } else {
         entity_id = strtoul(p, &end, 10);
         entity = media_get_entity_by_id(media, entity_id);
-        if (entity == NULL)
-        {
+        if (entity == NULL) {
             media_dbg(media, "no such entity %d\n", entity_id);
             *endp = (char*)p;
             return NULL;
@@ -948,20 +868,17 @@ struct media_pad* media_parse_pad(struct media_device* media, const char* p, cha
     struct media_entity* entity;
     char* end;
 
-    if (endp == NULL)
-    {
+    if (endp == NULL) {
         endp = &end;
     }
 
     entity = media_parse_entity(media, p, &end);
-    if (!entity)
-    {
+    if (!entity) {
         *endp = end;
         return NULL;
     }
 
-    if (*end != ':')
-    {
+    if (*end != ':') {
         media_dbg(media, "Expected ':'\n", *end);
         *endp = end;
         return NULL;
@@ -972,9 +889,9 @@ struct media_pad* media_parse_pad(struct media_device* media, const char* p, cha
 
     pad = strtoul(p, &end, 10);
 
-    if (pad >= entity->info.pads)
-    {
-        media_dbg(media, "No pad '%d' on entity \"%s\". Maximum pad number is %d\n", pad, entity->info.name, entity->info.pads - 1);
+    if (pad >= entity->info.pads) {
+        media_dbg(media, "No pad '%d' on entity \"%s\". Maximum pad number is %d\n", pad, entity->info.name,
+                  entity->info.pads - 1);
         *endp = (char*)p;
         return NULL;
     }
@@ -995,14 +912,12 @@ struct media_link* media_parse_link(struct media_device* media, const char* p, c
     char* end;
 
     source = media_parse_pad(media, p, &end);
-    if (source == NULL)
-    {
+    if (source == NULL) {
         *endp = end;
         return NULL;
     }
 
-    if (end[0] != '-' || end[1] != '>')
-    {
+    if (end[0] != '-' || end[1] != '>') {
         *endp = end;
         media_dbg(media, "Expected '->'\n");
         return NULL;
@@ -1011,25 +926,23 @@ struct media_link* media_parse_link(struct media_device* media, const char* p, c
     p = end + 2;
 
     sink = media_parse_pad(media, p, &end);
-    if (sink == NULL)
-    {
+    if (sink == NULL) {
         *endp = end;
         return NULL;
     }
 
     *endp = end;
 
-    for (i = 0; i < source->entity->num_links; i++)
-    {
+    for (i = 0; i < source->entity->num_links; i++) {
         link = &source->entity->links[i];
 
-        if (link->source == source && link->sink == sink)
-        {
+        if (link->source == source && link->sink == sink) {
             return link;
         }
     }
 
-    media_dbg(media, "No link between \"%s\":%d and \"%s\":%d\n", source->entity->info.name, source->index, sink->entity->info.name, sink->index);
+    media_dbg(media, "No link between \"%s\":%d and \"%s\":%d\n", source->entity->info.name, source->index,
+              sink->entity->info.name, sink->index);
     return NULL;
 }
 
@@ -1040,16 +953,14 @@ int media_parse_setup_link(struct media_device* media, const char* p, char** end
     char* end;
 
     link = media_parse_link(media, p, &end);
-    if (link == NULL)
-    {
+    if (link == NULL) {
         media_dbg(media, "%s: Unable to parse link\n", __func__);
         *endp = end;
         return -EINVAL;
     }
 
     p = end;
-    if (*p++ != '[')
-    {
+    if (*p++ != '[') {
         media_dbg(media, "Unable to parse link flags: expected '['.\n");
         *endp = (char*)p - 1;
         return -EINVAL;
@@ -1058,8 +969,7 @@ int media_parse_setup_link(struct media_device* media, const char* p, char** end
     flags = strtoul(p, &end, 10);
     for (p = end; isspace(*p); p++)
         ;
-    if (*p++ != ']')
-    {
+    if (*p++ != ']') {
         media_dbg(media, "Unable to parse link flags: expected ']'.\n");
         *endp = (char*)p - 1;
         return -EINVAL;
@@ -1069,7 +979,8 @@ int media_parse_setup_link(struct media_device* media, const char* p, char** end
         ;
     *endp = (char*)p;
 
-    media_dbg(media, "Setting up link %u:%u -> %u:%u [%u]\n", link->source->entity->info.id, link->source->index, link->sink->entity->info.id, link->sink->index, flags);
+    media_dbg(media, "Setting up link %u:%u -> %u:%u [%u]\n", link->source->entity->info.id, link->source->index,
+              link->sink->entity->info.id, link->sink->index, flags);
 
     return media_setup_link(media, link->source, link->sink, flags);
 }
@@ -1080,12 +991,10 @@ void media_print_streampos(struct media_device* media, const char* p, const char
 
     pos = end - p + 1;
 
-    if (pos < 0)
-    {
+    if (pos < 0) {
         pos = 0;
     }
-    if (pos > strlen(p))
-    {
+    if (pos > strlen(p)) {
         pos = strlen(p);
     }
 
@@ -1099,11 +1008,9 @@ int media_parse_setup_links(struct media_device* media, const char* p)
     char* end;
     int ret;
 
-    do
-    {
+    do {
         ret = media_parse_setup_link(media, p, &end);
-        if (ret < 0)
-        {
+        if (ret < 0) {
             media_print_streampos(media, p, end);
             return ret;
         }

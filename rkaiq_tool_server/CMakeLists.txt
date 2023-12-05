@@ -43,8 +43,9 @@ if(BUILD_SANITIZER_STATIC)
         add_definitions(-g -ggdb -gdwarf -funwind-tables -rdynamic -O0 )
 endif()
 
-SET(RKAIQ_PROJECT_DIR "../rkaiq")
-#SET(RKAIQ_PROJECT_DIR "/home/lili/hdd/projects/3588-linux-ipc-dev/media/isp/camera_engine_rkaiq/rkaiq")
+#SET(RKAIQ_PROJECT_DIR "../rkaiq")
+# SET(RKAIQ_PROJECT_DIR "/home/lili/hdd/projects/RKAIQ/rk1109_isp_simulator-3588/rk_aiq")
+SET(RKAIQ_PROJECT_DIR "/home/lili/hdd/projects/RKAIQ/rk1109_isp_simulator/rk_aiq")
 include_directories(${RKAIQ_PROJECT_DIR}/include/iq_parser_v2/j2s)
 include_directories(${RKAIQ_PROJECT_DIR}/xcore)
 include_directories(${RKAIQ_PROJECT_DIR}/xcore/base)
@@ -144,7 +145,7 @@ include_directories(${PROJECT_SOURCE_DIR}/rkaiq/rkaiq_api)
 # link_libraries(rkaiq)
 # add_definitions(-DENABLE_RKAIQ_UAPI)
 
-file(GLOB_RECURSE ALL_SOURCE_FILES *.cpp *.cc *.h)
+file(GLOB_RECURSE ALL_SOURCE_FILES *.cpp *.cc *.h *.hpp)
 
 set(RKAIQ_TOOL_SERVER_SOURCE
 	${LOGGER_SOURCE}

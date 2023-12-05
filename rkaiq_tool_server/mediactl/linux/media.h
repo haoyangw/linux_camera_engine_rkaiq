@@ -24,8 +24,7 @@
 #include <linux/types.h>
 #include <stdint.h>
 
-struct media_device_info
-{
+struct media_device_info {
     char driver[16];
     char model[32];
     char serial[40];
@@ -147,8 +146,7 @@ struct media_device_info
 /* OR with the entity id value to find the next entity */
 #define MEDIA_ENT_ID_FLAG_NEXT (1U << 31)
 
-struct media_entity_desc
-{
+struct media_entity_desc {
     __u32 id;
     char name[32];
     __u32 type;
@@ -162,8 +160,7 @@ struct media_entity_desc
 
     union {
         /* Node specifications */
-        struct
-        {
+        struct {
             __u32 major;
             __u32 minor;
         } dev;
@@ -179,8 +176,7 @@ struct media_entity_desc
          * can only refer to a single device, and not to multiple (e.g.
          * pcm and mixer devices).
          */
-        struct
-        {
+        struct {
             __u32 card;
             __u32 device;
             __u32 subdevice;
@@ -191,13 +187,11 @@ struct media_entity_desc
          * avoid breaking compilation. Use media_entity_desc.dev
          * instead.
          */
-        struct
-        {
+        struct {
             __u32 major;
             __u32 minor;
         } v4l;
-        struct
-        {
+        struct {
             __u32 major;
             __u32 minor;
         } fb;
@@ -213,8 +207,7 @@ struct media_entity_desc
 #define MEDIA_PAD_FL_SOURCE (1 << 1)
 #define MEDIA_PAD_FL_MUST_CONNECT (1 << 2)
 
-struct media_pad_desc
-{
+struct media_pad_desc {
     __u32 entity; /* entity ID */
     __u16 index;  /* pad index */
     __u32 flags;  /* pad flags */
@@ -229,16 +222,14 @@ struct media_pad_desc
 #define MEDIA_LNK_FL_DATA_LINK (0 << 28)
 #define MEDIA_LNK_FL_INTERFACE_LINK (1 << 28)
 
-struct media_link_desc
-{
+struct media_link_desc {
     struct media_pad_desc source;
     struct media_pad_desc sink;
     __u32 flags;
     __u32 reserved[2];
 };
 
-struct media_links_enum
-{
+struct media_links_enum {
     __u32 entity;
     /* Should have enough room for pads elements */
     struct media_pad_desc* pads;
@@ -284,8 +275,7 @@ struct media_links_enum
  */
 #define MEDIA_V2_ENTITY_HAS_FLAGS(media_version) ((media_version) >= ((4 << 16) | (19 << 8) | 0))
 
-struct media_v2_entity
-{
+struct media_v2_entity {
     __u32 id;
     char name[64];
     __u32 function; /* Main function of the entity */
@@ -294,14 +284,12 @@ struct media_v2_entity
 } __attribute__((packed));
 
 /* Should match the specific fields at media_intf_devnode */
-struct media_v2_intf_devnode
-{
+struct media_v2_intf_devnode {
     __u32 major;
     __u32 minor;
 } __attribute__((packed));
 
-struct media_v2_interface
-{
+struct media_v2_interface {
     __u32 id;
     __u32 intf_type;
     __u32 flags;
@@ -321,8 +309,7 @@ struct media_v2_interface
  */
 #define MEDIA_V2_PAD_HAS_INDEX(media_version) ((media_version) >= ((4 << 16) | (19 << 8) | 0))
 
-struct media_v2_pad
-{
+struct media_v2_pad {
     __u32 id;
     __u32 entity_id;
     __u32 flags;
@@ -330,8 +317,7 @@ struct media_v2_pad
     __u32 reserved[4];
 } __attribute__((packed));
 
-struct media_v2_link
-{
+struct media_v2_link {
     __u32 id;
     __u32 source_id;
     __u32 sink_id;
@@ -339,8 +325,7 @@ struct media_v2_link
     __u32 reserved[6];
 } __attribute__((packed));
 
-struct media_v2_topology
-{
+struct media_v2_topology {
     __u64 topology_version;
 
     __u32 num_entities;

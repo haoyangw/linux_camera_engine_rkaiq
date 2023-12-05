@@ -5,14 +5,11 @@ void print_flags(const struct flag_name* flag_names, unsigned int num_entries, _
     bool first = true;
     unsigned int i;
 
-    for (i = 0; i < num_entries; i++)
-    {
-        if (!(flags & flag_names[i].flag))
-        {
+    for (i = 0; i < num_entries; i++) {
+        if (!(flags & flag_names[i].flag)) {
             continue;
         }
-        if (!first)
-        {
+        if (!first) {
             printf(",");
         }
         printf("%s", flag_names[i].name);
@@ -20,10 +17,8 @@ void print_flags(const struct flag_name* flag_names, unsigned int num_entries, _
         first = false;
     }
 
-    if (flags)
-    {
-        if (!first)
-        {
+    if (flags) {
+        if (!first) {
             printf(",");
         }
         printf("0x%x", flags);
@@ -38,35 +33,29 @@ void v4l2_subdev_print_format(struct media_entity* entity, unsigned int pad, enu
     int ret;
 
     ret = v4l2_subdev_get_format(entity, &format, pad, which);
-    if (ret != 0)
-    {
+    if (ret != 0) {
         return;
     }
 
     ret = v4l2_subdev_get_frame_interval(entity, &interval, pad);
-    if (ret != 0 && ret != -ENOTTY && ret != -EINVAL)
-    {
+    if (ret != 0 && ret != -ENOTTY && ret != -EINVAL) {
         return;
     }
 
     printf("\t\t[fmt:%s/%ux%u", v4l2_subdev_pixelcode_to_string(format.code), format.width, format.height);
 
-    if (interval.numerator || interval.denominator)
-    {
+    if (interval.numerator || interval.denominator) {
         printf("@%u/%u", interval.numerator, interval.denominator);
     }
 
-    if (format.field)
-    {
+    if (format.field) {
         printf(" field:%s", v4l2_subdev_field_to_string(format.field));
     }
 
-    if (format.colorspace)
-    {
+    if (format.colorspace) {
         printf(" colorspace:%s", v4l2_subdev_colorspace_to_string(format.colorspace));
 
-        if (format.xfer_func)
-        {
+        if (format.xfer_func) {
             printf(" xfer:%s", v4l2_subdev_xfer_func_to_string(format.xfer_func));
         }
 
@@ -98,8 +87,7 @@ void v4l2_subdev_print_format(struct media_entity* entity, unsigned int pad, enu
 
 const char* v4l2_dv_type_to_string(unsigned int type)
 {
-    static const struct
-    {
+    static const struct {
         __u32 type;
         const char* name;
     } types[] = {
@@ -109,10 +97,8 @@ const char* v4l2_dv_type_to_string(unsigned int type)
     static char unknown[20];
     unsigned int i;
 
-    for (i = 0; i < ARRAY_SIZE(types); i++)
-    {
-        if (types[i].type == type)
-        {
+    for (i = 0; i < ARRAY_SIZE(types); i++) {
+        if (types[i].type == type) {
             return types[i].name;
         }
     }
@@ -122,7 +108,8 @@ const char* v4l2_dv_type_to_string(unsigned int type)
 }
 
 static const struct flag_name bt_standards[] = {
-    {V4L2_DV_BT_STD_CEA861, "CEA-861"}, {V4L2_DV_BT_STD_DMT, "DMT"}, {V4L2_DV_BT_STD_CVT, "CVT"}, {V4L2_DV_BT_STD_GTF, "GTF"}, {V4L2_DV_BT_STD_SDI, "SDI"},
+    {V4L2_DV_BT_STD_CEA861, "CEA-861"}, {V4L2_DV_BT_STD_DMT, "DMT"}, {V4L2_DV_BT_STD_CVT, "CVT"},
+    {V4L2_DV_BT_STD_GTF, "GTF"},        {V4L2_DV_BT_STD_SDI, "SDI"},
 };
 
 static const struct flag_name bt_capabilities[] = {
@@ -149,8 +136,7 @@ void v4l2_subdev_print_dv_timings(const struct v4l2_dv_timings* timings, const c
 {
     printf("\t\t[dv.%s:%s", name, v4l2_dv_type_to_string(timings->type));
 
-    switch (timings->type)
-    {
+    switch (timings->type) {
         case V4L2_DV_BT_656_1120: {
             const struct v4l2_bt_timings* bt = &timings->bt;
             unsigned int htotal, vtotal;
@@ -158,7 +144,8 @@ void v4l2_subdev_print_dv_timings(const struct v4l2_dv_timings* timings, const c
             htotal = V4L2_DV_BT_FRAME_WIDTH(bt);
             vtotal = V4L2_DV_BT_FRAME_HEIGHT(bt);
 
-            printf(" %ux%u%s%llu (%ux%u)", bt->width, bt->height, bt->interlaced ? "i" : "p", (htotal * vtotal) > 0 ? (bt->pixelclock / (htotal * vtotal)) : 0, htotal, vtotal);
+            printf(" %ux%u%s%llu (%ux%u)", bt->width, bt->height, bt->interlaced ? "i" : "p",
+                   (htotal * vtotal) > 0 ? (bt->pixelclock / (htotal * vtotal)) : 0, htotal, vtotal);
 
             printf(" stds:");
             print_flags(bt_standards, ARRAY_SIZE(bt_standards), bt->standards);
@@ -179,17 +166,16 @@ void v4l2_subdev_print_pad_dv(struct media_entity* entity, unsigned int pad, enu
 
     caps.pad = pad;
     ret = v4l2_subdev_get_dv_timings_caps(entity, &caps);
-    if (ret != 0)
-    {
+    if (ret != 0) {
         return;
     }
 
     printf("\t\t[dv.caps:%s", v4l2_dv_type_to_string(caps.type));
 
-    switch (caps.type)
-    {
+    switch (caps.type) {
         case V4L2_DV_BT_656_1120:
-            printf(" min:%ux%u@%llu max:%ux%u@%llu", caps.bt.min_width, caps.bt.min_height, caps.bt.min_pixelclock, caps.bt.max_width, caps.bt.max_height, caps.bt.max_pixelclock);
+            printf(" min:%ux%u@%llu max:%ux%u@%llu", caps.bt.min_width, caps.bt.min_height, caps.bt.min_pixelclock,
+                   caps.bt.max_width, caps.bt.max_height, caps.bt.max_pixelclock);
 
             printf(" stds:");
             print_flags(bt_standards, ARRAY_SIZE(bt_standards), caps.bt.standards);
@@ -208,8 +194,7 @@ void v4l2_subdev_print_subdev_dv(struct media_entity* entity)
     int ret;
 
     ret = v4l2_subdev_query_dv_timings(entity, &timings);
-    switch (ret)
-    {
+    switch (ret) {
         case -ENOLINK:
             printf("\t\t[dv.query:no-link]\n");
             break;
@@ -227,16 +212,14 @@ void v4l2_subdev_print_subdev_dv(struct media_entity* entity)
     }
 
     ret = v4l2_subdev_get_dv_timings(entity, &timings);
-    if (ret == 0)
-    {
+    if (ret == 0) {
         v4l2_subdev_print_dv_timings(&timings, "current");
     }
 }
 
 const char* media_entity_type_to_string(unsigned type)
 {
-    static const struct
-    {
+    static const struct {
         __u32 type;
         const char* name;
     } types[] = {
@@ -248,10 +231,8 @@ const char* media_entity_type_to_string(unsigned type)
 
     type &= MEDIA_ENT_TYPE_MASK;
 
-    for (i = 0; i < ARRAY_SIZE(types); i++)
-    {
-        if (types[i].type == type)
-        {
+    for (i = 0; i < ARRAY_SIZE(types); i++) {
+        if (types[i].type == type) {
             return types[i].name;
         }
     }
@@ -270,18 +251,15 @@ const char* media_entity_subtype_to_string(unsigned type)
 
     unsigned int subtype = type & MEDIA_ENT_SUBTYPE_MASK;
 
-    switch (type & MEDIA_ENT_TYPE_MASK)
-    {
+    switch (type & MEDIA_ENT_TYPE_MASK) {
         case MEDIA_ENT_T_DEVNODE:
-            if (subtype >= ARRAY_SIZE(node_types))
-            {
+            if (subtype >= ARRAY_SIZE(node_types)) {
                 subtype = 0;
             }
             return node_types[subtype];
 
         case MEDIA_ENT_T_V4L2_SUBDEV:
-            if (subtype >= ARRAY_SIZE(subdev_types))
-            {
+            if (subtype >= ARRAY_SIZE(subdev_types)) {
                 subtype = 0;
             }
             return subdev_types[subtype];
@@ -292,8 +270,7 @@ const char* media_entity_subtype_to_string(unsigned type)
 
 const char* media_pad_type_to_string(unsigned flag)
 {
-    static const struct
-    {
+    static const struct {
         __u32 flag;
         const char* name;
     } flags[] = {
@@ -303,10 +280,8 @@ const char* media_pad_type_to_string(unsigned flag)
 
     unsigned int i;
 
-    for (i = 0; i < ARRAY_SIZE(flags); i++)
-    {
-        if (flags[i].flag & flag)
-        {
+    for (i = 0; i < ARRAY_SIZE(flags); i++) {
+        if (flags[i].flag & flag) {
             return flags[i].name;
         }
     }
@@ -316,16 +291,14 @@ const char* media_pad_type_to_string(unsigned flag)
 
 void media_print_pad_text(struct media_entity* entity, const struct media_pad* pad)
 {
-    if (media_entity_type(entity) != MEDIA_ENT_T_V4L2_SUBDEV)
-    {
+    if (media_entity_type(entity) != MEDIA_ENT_T_V4L2_SUBDEV) {
         return;
     }
 
     v4l2_subdev_print_format(entity, pad->index, V4L2_SUBDEV_FORMAT_ACTIVE);
     v4l2_subdev_print_pad_dv(entity, pad->index, V4L2_SUBDEV_FORMAT_ACTIVE);
 
-    if (pad->flags & MEDIA_PAD_FL_SOURCE)
-    {
+    if (pad->flags & MEDIA_PAD_FL_SOURCE) {
         v4l2_subdev_print_subdev_dv(entity);
     }
 }

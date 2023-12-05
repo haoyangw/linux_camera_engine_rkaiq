@@ -22,8 +22,7 @@
 #define VICAP_COMPACT_TEST_ON "echo 1 > /sys/devices/platform/rkcif_mipi_lvds/compact_test"
 #define VICAP2_COMPACT_TEST_ON "echo 1 > /sys/devices/platform/rkcif_lite_mipi_lvds/compact_test"
 
-typedef struct
-{
+typedef struct {
     int model_idx;
     int linked_sensor;
     std::string sensor_name;
@@ -49,8 +48,7 @@ typedef struct
     std::string mipi_dphy_rx_path;
 } isp_info_t;
 
-typedef struct
-{
+typedef struct {
     int model_idx;
     std::string media_dev_path;
     std::string pp_input_image_path;
@@ -63,8 +61,7 @@ typedef struct
     std::string pp_dev_path;
 } ispp_info_t;
 
-typedef struct
-{
+typedef struct {
     int model_idx;
     int linked_sensor;
     std::string sensor_name;
@@ -83,8 +80,7 @@ typedef struct
     std::string mipi_luma_path;
 } cif_info_t;
 
-typedef struct
-{
+typedef struct {
     int model_idx;
     int linked_sensor;
     std::string sensor_name;
@@ -96,8 +92,7 @@ typedef struct
     std::string dvp_id3;
 } dvp_info_t;
 
-typedef struct
-{
+typedef struct {
     int model_idx;
     std::string sensor_name;
     std::string sensor_subdev_path;
@@ -112,8 +107,7 @@ typedef struct
     bool fl_ir_strth_adj_sup;
 } lens_info_t;
 
-typedef struct
-{
+typedef struct {
     isp_info_t isp;
     ispp_info_t ispp;
     cif_info_t cif;
@@ -143,16 +137,11 @@ class RKAiqMedia
   public:
     std::string GetSensorName(int id)
     {
-        if (media_info[id].isp.linked_sensor)
-        {
+        if (media_info[id].isp.linked_sensor) {
             return media_info[id].isp.sensor_name;
-        }
-        else if (media_info[id].cif.linked_sensor)
-        {
+        } else if (media_info[id].cif.linked_sensor) {
             return media_info[id].cif.sensor_name;
-        }
-        else if (media_info[id].dvp.linked_sensor)
-        {
+        } else if (media_info[id].dvp.linked_sensor) {
             return media_info[id].dvp.sensor_name;
         }
         return "";

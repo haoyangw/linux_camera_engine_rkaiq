@@ -12,6 +12,8 @@
 #include "rkaiq_media.h"
 #include "rkaiq_online_protocol.h"
 #include "rkaiq_raw_protocol.h"
+#include <memory>
+#include <thread>
 
 int StopProcess(const char* process, const char* str);
 int WaitProcessExit(const char* process, int sec);

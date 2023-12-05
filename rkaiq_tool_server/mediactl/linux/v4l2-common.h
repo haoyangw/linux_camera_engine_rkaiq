@@ -85,8 +85,7 @@
 #define V4L2_SEL_FLAG_LE (1 << 1)
 #define V4L2_SEL_FLAG_KEEP_CONFIG (1 << 2)
 
-struct v4l2_edid
-{
+struct v4l2_edid {
     __u32 pad;
     __u32 start_block;
     __u32 blocks;

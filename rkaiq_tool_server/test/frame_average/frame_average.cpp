@@ -26,8 +26,7 @@ void sig_exit(int s)
 void Read(int fd, uint16_t* buffer, int size)
 {
 #if DUMMY_DATA
-    for (int i = 0; i < (size >> 1); i++)
-    {
+    for (int i = 0; i < (size >> 1); i++) {
         buffer[i] = 0xFFF0;
     }
 #else
@@ -40,28 +39,27 @@ void Read(int fd, uint16_t* buffer, int size)
 #endif
 }
 
-void ProcessMultiFrame(int fd_in, int width, int height, int frame_count, int frame_size, int index, uint32_t* pOut0, uint16_t* pOut1, uint16_t* pIn)
+void ProcessMultiFrame(int fd_in, int width, int height, int frame_count, int frame_size, int index, uint32_t* pOut0,
+                       uint16_t* pOut1, uint16_t* pIn)
 {
-    fprintf(stderr, "index      %d\n", index);
+    // fprintf(stderr, "index      %d\n", index);
 
     Read(fd_in, pIn, frame_size);
     MultiFrameAddition(pOut0, pIn, width, height);
-    fprintf(stderr, "MultiFrameAddition\n");
-    DumpRawData(pIn, frame_size, 2);
-    DumpRawData32(pOut0, frame_size, 2);
-    if (index == (frame_count - 1))
-    {
+    // fprintf(stderr, "MultiFrameAddition\n");
+    // DumpRawData(pIn, frame_size, 2);
+    // DumpRawData32(pOut0, frame_size, 2);
+    if (index == (frame_count - 1)) {
         MultiFrameAverage(pOut0, pOut1, width, height, frame_count);
-        fprintf(stderr, "MultiFrameAverage\n");
-        DumpRawData(pOut1, frame_size, 2);
-        DumpRawData32(pOut0, frame_size, 2);
+        // fprintf(stderr, "MultiFrameAverage\n");
+        // DumpRawData(pOut1, frame_size, 2);
+        // DumpRawData32(pOut0, frame_size, 2);
     }
 }
 
 int main(int argc, char* argv[])
 {
-    if (argc != 6)
-    {
+    if (argc != 6) {
         fprintf(stderr, "Usage: ./%s input_file frame_count output_file w h\n", argv[0]);
         return 0;
     }
@@ -103,19 +101,19 @@ int main(int argc, char* argv[])
     memset(averge_frame1, 0, one_frame_size);
 
     one_frame_size = width * height * sizeof(uint16_t);
-    for (int i = 0; i < frame_count; i++)
-    {
-        ProcessMultiFrame(fd_in, width, height, frame_count, one_frame_size, i, averge_frame0, averge_frame1, one_frame);
+    for (int i = 0; i < frame_count; i++) {
+        ProcessMultiFrame(fd_in, width, height, frame_count, one_frame_size, i, averge_frame0, averge_frame1,
+                          one_frame);
     }
 #if DUMMY_DATA
     DumpFrameU16(one_frame, width, height);
 #endif
     write(fd_out_s, one_frame, one_frame_size);
-    DumpRawData(one_frame, one_frame_size, 2);
+    // DumpRawData(one_frame, one_frame_size, 2);
 
     ConverToLE(averge_frame1, one_frame_size >> 1);
     write(fd_out_m, averge_frame1, one_frame_size);
-    DumpRawData(averge_frame1, one_frame_size, 2);
+    // DumpRawData(averge_frame1, one_frame_size, 2);
 
     free(one_frame);
     free(averge_frame0);

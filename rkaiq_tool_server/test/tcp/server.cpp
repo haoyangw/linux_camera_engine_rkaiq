@@ -14,8 +14,7 @@ void sigterm_handler(int sig)
 
 int main(int argc, char** argv)
 {
-    if (argc < 2)
-    {
+    if (argc < 2) {
         fprintf(stderr, "Usage: ./server port\n");
         return 0;
     }
@@ -30,8 +29,7 @@ int main(int argc, char** argv)
     TCPServer tcpServer;
     tcpServer.Process(atoi(argv[1]));
 
-    while (!quit)
-    {
+    while (!quit) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 

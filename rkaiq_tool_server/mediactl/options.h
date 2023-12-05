@@ -22,8 +22,7 @@
 #ifndef __OPTIONS_H
 #define __OPTIONS_H
 
-struct media_options
-{
+struct media_options {
     const char* devname;
     unsigned int interactive : 1, print : 1, print_dot : 1, reset : 1, verbose : 1;
     const char* entity;

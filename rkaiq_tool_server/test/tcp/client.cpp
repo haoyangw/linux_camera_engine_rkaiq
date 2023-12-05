@@ -9,8 +9,7 @@ void sig_exit(int s)
 
 int main(int argc, char* argv[])
 {
-    if (argc != 4)
-    {
+    if (argc != 4) {
         fprintf(stderr, "Usage: ./client ip port message");
         return 0;
     }
@@ -18,8 +17,7 @@ int main(int argc, char* argv[])
 
     TCPClient tcpClient;
     tcpClient.Setup(argv[1], atoi(argv[2]));
-    while (1)
-    {
+    while (1) {
         tcpClient.Send(argv[3]);
         sleep(1);
     }

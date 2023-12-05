@@ -44,14 +44,12 @@
 
 int v4l2_subdev_open(struct media_entity* entity)
 {
-    if (entity->fd != -1)
-    {
+    if (entity->fd != -1) {
         return 0;
     }
 
     entity->fd = open(entity->devname, O_RDWR);
-    if (entity->fd == -1)
-    {
+    if (entity->fd == -1) {
         int ret = -errno;
         media_dbg(entity->media, "%s: Failed to open subdev device node %s\n", __func__, entity->devname);
         return ret;
@@ -66,14 +64,14 @@ void v4l2_subdev_close(struct media_entity* entity)
     entity->fd = -1;
 }
 
-int v4l2_subdev_get_format(struct media_entity* entity, struct v4l2_mbus_framefmt* format, unsigned int pad, enum v4l2_subdev_format_whence which)
+int v4l2_subdev_get_format(struct media_entity* entity, struct v4l2_mbus_framefmt* format, unsigned int pad,
+                           enum v4l2_subdev_format_whence which)
 {
     struct v4l2_subdev_format fmt;
     int ret;
 
     ret = v4l2_subdev_open(entity);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return ret;
     }
 
@@ -82,8 +80,7 @@ int v4l2_subdev_get_format(struct media_entity* entity, struct v4l2_mbus_framefm
     fmt.which = which;
 
     ret = ioctl(entity->fd, VIDIOC_SUBDEV_G_FMT, &fmt);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return -errno;
     }
 
@@ -91,14 +88,14 @@ int v4l2_subdev_get_format(struct media_entity* entity, struct v4l2_mbus_framefm
     return 0;
 }
 
-int v4l2_subdev_set_format(struct media_entity* entity, struct v4l2_mbus_framefmt* format, unsigned int pad, enum v4l2_subdev_format_whence which)
+int v4l2_subdev_set_format(struct media_entity* entity, struct v4l2_mbus_framefmt* format, unsigned int pad,
+                           enum v4l2_subdev_format_whence which)
 {
     struct v4l2_subdev_format fmt;
     int ret;
 
     ret = v4l2_subdev_open(entity);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return ret;
     }
 
@@ -108,8 +105,7 @@ int v4l2_subdev_set_format(struct media_entity* entity, struct v4l2_mbus_framefm
     fmt.format = *format;
 
     ret = ioctl(entity->fd, VIDIOC_SUBDEV_S_FMT, &fmt);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return -errno;
     }
 
@@ -117,7 +113,8 @@ int v4l2_subdev_set_format(struct media_entity* entity, struct v4l2_mbus_framefm
     return 0;
 }
 
-int v4l2_subdev_get_selection(struct media_entity* entity, struct v4l2_rect* rect, unsigned int pad, unsigned int target, enum v4l2_subdev_format_whence which)
+int v4l2_subdev_get_selection(struct media_entity* entity, struct v4l2_rect* rect, unsigned int pad,
+                              unsigned int target, enum v4l2_subdev_format_whence which)
 {
     union {
         struct v4l2_subdev_selection sel;
@@ -126,8 +123,7 @@ int v4l2_subdev_get_selection(struct media_entity* entity, struct v4l2_rect* rec
     int ret;
 
     ret = v4l2_subdev_open(entity);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return ret;
     }
 
@@ -137,13 +133,11 @@ int v4l2_subdev_get_selection(struct media_entity* entity, struct v4l2_rect* rec
     u.sel.which = which;
 
     ret = ioctl(entity->fd, VIDIOC_SUBDEV_G_SELECTION, &u.sel);
-    if (ret >= 0)
-    {
+    if (ret >= 0) {
         *rect = u.sel.r;
         return 0;
     }
-    if (errno != ENOTTY || target != V4L2_SEL_TGT_CROP)
-    {
+    if (errno != ENOTTY || target != V4L2_SEL_TGT_CROP) {
         return -errno;
     }
 
@@ -152,8 +146,7 @@ int v4l2_subdev_get_selection(struct media_entity* entity, struct v4l2_rect* rec
     u.crop.which = which;
 
     ret = ioctl(entity->fd, VIDIOC_SUBDEV_G_CROP, &u.crop);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return -errno;
     }
 
@@ -161,7 +154,8 @@ int v4l2_subdev_get_selection(struct media_entity* entity, struct v4l2_rect* rec
     return 0;
 }
 
-int v4l2_subdev_set_selection(struct media_entity* entity, struct v4l2_rect* rect, unsigned int pad, unsigned int target, enum v4l2_subdev_format_whence which)
+int v4l2_subdev_set_selection(struct media_entity* entity, struct v4l2_rect* rect, unsigned int pad,
+                              unsigned int target, enum v4l2_subdev_format_whence which)
 {
     union {
         struct v4l2_subdev_selection sel;
@@ -170,8 +164,7 @@ int v4l2_subdev_set_selection(struct media_entity* entity, struct v4l2_rect* rec
     int ret;
 
     ret = v4l2_subdev_open(entity);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return ret;
     }
 
@@ -182,13 +175,11 @@ int v4l2_subdev_set_selection(struct media_entity* entity, struct v4l2_rect* rec
     u.sel.r = *rect;
 
     ret = ioctl(entity->fd, VIDIOC_SUBDEV_S_SELECTION, &u.sel);
-    if (ret >= 0)
-    {
+    if (ret >= 0) {
         *rect = u.sel.r;
         return 0;
     }
-    if (errno != ENOTTY || target != V4L2_SEL_TGT_CROP)
-    {
+    if (errno != ENOTTY || target != V4L2_SEL_TGT_CROP) {
         return -errno;
     }
 
@@ -198,8 +189,7 @@ int v4l2_subdev_set_selection(struct media_entity* entity, struct v4l2_rect* rec
     u.crop.rect = *rect;
 
     ret = ioctl(entity->fd, VIDIOC_SUBDEV_S_CROP, &u.crop);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return -errno;
     }
 
@@ -213,8 +203,7 @@ int v4l2_subdev_get_dv_timings_caps(struct media_entity* entity, struct v4l2_dv_
     int ret;
 
     ret = v4l2_subdev_open(entity);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return ret;
     }
 
@@ -222,8 +211,7 @@ int v4l2_subdev_get_dv_timings_caps(struct media_entity* entity, struct v4l2_dv_
     caps->pad = pad;
 
     ret = ioctl(entity->fd, VIDIOC_SUBDEV_DV_TIMINGS_CAP, caps);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return -errno;
     }
 
@@ -235,16 +223,14 @@ int v4l2_subdev_query_dv_timings(struct media_entity* entity, struct v4l2_dv_tim
     int ret;
 
     ret = v4l2_subdev_open(entity);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return ret;
     }
 
     memset(timings, 0, sizeof(*timings));
 
     ret = ioctl(entity->fd, VIDIOC_SUBDEV_QUERY_DV_TIMINGS, timings);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return -errno;
     }
 
@@ -256,16 +242,14 @@ int v4l2_subdev_get_dv_timings(struct media_entity* entity, struct v4l2_dv_timin
     int ret;
 
     ret = v4l2_subdev_open(entity);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return ret;
     }
 
     memset(timings, 0, sizeof(*timings));
 
     ret = ioctl(entity->fd, VIDIOC_SUBDEV_G_DV_TIMINGS, timings);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return -errno;
     }
 
@@ -277,14 +261,12 @@ int v4l2_subdev_set_dv_timings(struct media_entity* entity, struct v4l2_dv_timin
     int ret;
 
     ret = v4l2_subdev_open(entity);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return ret;
     }
 
     ret = ioctl(entity->fd, VIDIOC_SUBDEV_S_DV_TIMINGS, timings);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return -errno;
     }
 
@@ -297,8 +279,7 @@ int v4l2_subdev_get_frame_interval(struct media_entity* entity, struct v4l2_frac
     int ret;
 
     ret = v4l2_subdev_open(entity);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return ret;
     }
 
@@ -306,8 +287,7 @@ int v4l2_subdev_get_frame_interval(struct media_entity* entity, struct v4l2_frac
     ival.pad = pad;
 
     ret = ioctl(entity->fd, VIDIOC_SUBDEV_G_FRAME_INTERVAL, &ival);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return -errno;
     }
 
@@ -321,8 +301,7 @@ int v4l2_subdev_set_frame_interval(struct media_entity* entity, struct v4l2_frac
     int ret;
 
     ret = v4l2_subdev_open(entity);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return ret;
     }
 
@@ -331,8 +310,7 @@ int v4l2_subdev_set_frame_interval(struct media_entity* entity, struct v4l2_frac
     ival.interval = *interval;
 
     ret = ioctl(entity->fd, VIDIOC_SUBDEV_S_FRAME_INTERVAL, &ival);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return -errno;
     }
 
@@ -340,7 +318,8 @@ int v4l2_subdev_set_frame_interval(struct media_entity* entity, struct v4l2_frac
     return 0;
 }
 
-static int v4l2_subdev_parse_format(struct media_device* media, struct v4l2_mbus_framefmt* format, const char* p, char** endp)
+static int v4l2_subdev_parse_format(struct media_device* media, struct v4l2_mbus_framefmt* format, const char* p,
+                                    char** endp)
 {
     enum v4l2_mbus_pixelcode code;
     unsigned int width, height;
@@ -357,23 +336,20 @@ static int v4l2_subdev_parse_format(struct media_device* media, struct v4l2_mbus
         ;
 
     fmt = strndup(p, end - p);
-    if (!fmt)
-    {
+    if (!fmt) {
         return -ENOMEM;
     }
 
     code = v4l2_subdev_string_to_pixelcode(fmt);
     free(fmt);
-    if (code == (enum v4l2_mbus_pixelcode) - 1)
-    {
+    if (code == (enum v4l2_mbus_pixelcode) - 1) {
         media_dbg(media, "Invalid pixel code '%.*s'\n", end - p, p);
         return -EINVAL;
     }
 
     p = end + 1;
     width = strtoul(p, &end, 10);
-    if (*end != 'x')
-    {
+    if (*end != 'x') {
         media_dbg(media, "Expected 'x'\n");
         return -EINVAL;
     }
@@ -394,16 +370,14 @@ static int v4l2_subdev_parse_rectangle(struct media_device* media, struct v4l2_r
 {
     char* end;
 
-    if (*p++ != '(')
-    {
+    if (*p++ != '(') {
         media_dbg(media, "Expected '('\n");
         *endp = (char*)p - 1;
         return -EINVAL;
     }
 
     r->left = strtoul(p, &end, 10);
-    if (*end != ',')
-    {
+    if (*end != ',') {
         media_dbg(media, "Expected ','\n");
         *endp = end;
         return -EINVAL;
@@ -411,14 +385,12 @@ static int v4l2_subdev_parse_rectangle(struct media_device* media, struct v4l2_r
 
     p = end + 1;
     r->top = strtoul(p, &end, 10);
-    if (*end++ != ')')
-    {
+    if (*end++ != ')') {
         media_dbg(media, "Expected ')'\n");
         *endp = end - 1;
         return -EINVAL;
     }
-    if (*end != '/')
-    {
+    if (*end != '/') {
         media_dbg(media, "Expected '/'\n");
         *endp = end;
         return -EINVAL;
@@ -426,8 +398,7 @@ static int v4l2_subdev_parse_rectangle(struct media_device* media, struct v4l2_r
 
     p = end + 1;
     r->width = strtoul(p, &end, 10);
-    if (*end != 'x')
-    {
+    if (*end != 'x') {
         media_dbg(media, "Expected 'x'\n");
         *endp = end;
         return -EINVAL;
@@ -440,7 +411,8 @@ static int v4l2_subdev_parse_rectangle(struct media_device* media, struct v4l2_r
     return 0;
 }
 
-static int v4l2_subdev_parse_frame_interval(struct media_device* media, struct v4l2_fract* interval, const char* p, char** endp)
+static int v4l2_subdev_parse_frame_interval(struct media_device* media, struct v4l2_fract* interval, const char* p,
+                                            char** endp)
 {
     char* end;
 
@@ -451,8 +423,7 @@ static int v4l2_subdev_parse_frame_interval(struct media_device* media, struct v
 
     for (p = end; isspace(*p); ++p)
         ;
-    if (*p++ != '/')
-    {
+    if (*p++ != '/') {
         media_dbg(media, "Expected '/'\n");
         *endp = (char*)p - 1;
         return -EINVAL;
@@ -475,8 +446,7 @@ static bool strhazit(const char* str, const char** p)
 {
     int len = strlen(str);
 
-    if (strncmp(str, *p, len))
-    {
+    if (strncmp(str, *p, len)) {
         return false;
     }
 
@@ -485,7 +455,9 @@ static bool strhazit(const char* str, const char** p)
     return true;
 }
 
-static struct media_pad* v4l2_subdev_parse_pad_format(struct media_device* media, struct v4l2_mbus_framefmt* format, struct v4l2_rect* crop, struct v4l2_rect* compose, struct v4l2_fract* interval, const char* p, char** endp)
+static struct media_pad* v4l2_subdev_parse_pad_format(struct media_device* media, struct v4l2_mbus_framefmt* format,
+                                                      struct v4l2_rect* crop, struct v4l2_rect* compose,
+                                                      struct v4l2_fract* interval, const char* p, char** endp)
 {
     struct media_pad* pad;
     bool first;
@@ -496,23 +468,20 @@ static struct media_pad* v4l2_subdev_parse_pad_format(struct media_device* media
         ;
 
     pad = media_parse_pad(media, p, &end);
-    if (pad == NULL)
-    {
+    if (pad == NULL) {
         *endp = end;
         return NULL;
     }
 
     for (p = end; isspace(*p); ++p)
         ;
-    if (*p++ != '[')
-    {
+    if (*p++ != '[') {
         media_dbg(media, "Expected '['\n");
         *endp = (char*)p - 1;
         return NULL;
     }
 
-    for (first = true;; first = false)
-    {
+    for (first = true;; first = false) {
         for (; isspace(*p); p++)
             ;
 
@@ -520,11 +489,9 @@ static struct media_pad* v4l2_subdev_parse_pad_format(struct media_device* media
          * Backward compatibility: if the first property starts with an
          * uppercase later, process it as a format description.
          */
-        if (strhazit("fmt:", &p) || (first && isupper(*p)))
-        {
+        if (strhazit("fmt:", &p) || (first && isupper(*p))) {
             ret = v4l2_subdev_parse_format(media, format, p, &end);
-            if (ret < 0)
-            {
+            if (ret < 0) {
                 *endp = end;
                 return NULL;
             }
@@ -533,8 +500,7 @@ static struct media_pad* v4l2_subdev_parse_pad_format(struct media_device* media
             continue;
         }
 
-        if (strhazit("field:", &p))
-        {
+        if (strhazit("field:", &p)) {
             enum v4l2_field field;
             char* strfield;
 
@@ -542,16 +508,14 @@ static struct media_pad* v4l2_subdev_parse_pad_format(struct media_device* media
                 ;
 
             strfield = strndup(p, end - p);
-            if (!strfield)
-            {
+            if (!strfield) {
                 *endp = (char*)p;
                 return NULL;
             }
 
             field = v4l2_subdev_string_to_field(strfield);
             free(strfield);
-            if (field == (enum v4l2_field) - 1)
-            {
+            if (field == (enum v4l2_field) - 1) {
                 media_dbg(media, "Invalid field value '%*s'\n", end - p, p);
                 *endp = (char*)p;
                 return NULL;
@@ -563,8 +527,7 @@ static struct media_pad* v4l2_subdev_parse_pad_format(struct media_device* media
             continue;
         }
 
-        if (strhazit("colorspace:", &p))
-        {
+        if (strhazit("colorspace:", &p)) {
             enum v4l2_colorspace colorspace;
             char* strfield;
 
@@ -572,16 +535,14 @@ static struct media_pad* v4l2_subdev_parse_pad_format(struct media_device* media
                 ;
 
             strfield = strndup(p, end - p);
-            if (!strfield)
-            {
+            if (!strfield) {
                 *endp = (char*)p;
                 return NULL;
             }
 
             colorspace = v4l2_subdev_string_to_colorspace(strfield);
             free(strfield);
-            if (colorspace == (enum v4l2_colorspace) - 1)
-            {
+            if (colorspace == (enum v4l2_colorspace) - 1) {
                 media_dbg(media, "Invalid colorspace value '%*s'\n", end - p, p);
                 *endp = (char*)p;
                 return NULL;
@@ -593,8 +554,7 @@ static struct media_pad* v4l2_subdev_parse_pad_format(struct media_device* media
             continue;
         }
 
-        if (strhazit("xfer:", &p))
-        {
+        if (strhazit("xfer:", &p)) {
             enum v4l2_xfer_func xfer_func;
             char* strfield;
 
@@ -602,16 +562,14 @@ static struct media_pad* v4l2_subdev_parse_pad_format(struct media_device* media
                 ;
 
             strfield = strndup(p, end - p);
-            if (!strfield)
-            {
+            if (!strfield) {
                 *endp = (char*)p;
                 return NULL;
             }
 
             xfer_func = v4l2_subdev_string_to_xfer_func(strfield);
             free(strfield);
-            if (xfer_func == (enum v4l2_xfer_func) - 1)
-            {
+            if (xfer_func == (enum v4l2_xfer_func) - 1) {
                 media_dbg(media, "Invalid transfer function value '%*s'\n", end - p, p);
                 *endp = (char*)p;
                 return NULL;
@@ -623,8 +581,7 @@ static struct media_pad* v4l2_subdev_parse_pad_format(struct media_device* media
             continue;
         }
 
-        if (strhazit("ycbcr:", &p))
-        {
+        if (strhazit("ycbcr:", &p)) {
             enum v4l2_ycbcr_encoding ycbcr_enc;
             char* strfield;
 
@@ -632,16 +589,14 @@ static struct media_pad* v4l2_subdev_parse_pad_format(struct media_device* media
                 ;
 
             strfield = strndup(p, end - p);
-            if (!strfield)
-            {
+            if (!strfield) {
                 *endp = (char*)p;
                 return NULL;
             }
 
             ycbcr_enc = v4l2_subdev_string_to_ycbcr_encoding(strfield);
             free(strfield);
-            if (ycbcr_enc == (enum v4l2_ycbcr_encoding) - 1)
-            {
+            if (ycbcr_enc == (enum v4l2_ycbcr_encoding) - 1) {
                 media_dbg(media, "Invalid YCbCr encoding value '%*s'\n", end - p, p);
                 *endp = (char*)p;
                 return NULL;
@@ -653,8 +608,7 @@ static struct media_pad* v4l2_subdev_parse_pad_format(struct media_device* media
             continue;
         }
 
-        if (strhazit("quantization:", &p))
-        {
+        if (strhazit("quantization:", &p)) {
             enum v4l2_quantization quantization;
             char* strfield;
 
@@ -662,16 +616,14 @@ static struct media_pad* v4l2_subdev_parse_pad_format(struct media_device* media
                 ;
 
             strfield = strndup(p, end - p);
-            if (!strfield)
-            {
+            if (!strfield) {
                 *endp = (char*)p;
                 return NULL;
             }
 
             quantization = v4l2_subdev_string_to_quantization(strfield);
             free(strfield);
-            if (quantization == (enum v4l2_quantization) - 1)
-            {
+            if (quantization == (enum v4l2_quantization) - 1) {
                 media_dbg(media, "Invalid quantization value '%*s'\n", end - p, p);
                 *endp = (char*)p;
                 return NULL;
@@ -687,11 +639,9 @@ static struct media_pad* v4l2_subdev_parse_pad_format(struct media_device* media
          * Backward compatibility: crop rectangles can be specified
          * implicitly without the 'crop:' property name.
          */
-        if (strhazit("crop:", &p) || *p == '(')
-        {
+        if (strhazit("crop:", &p) || *p == '(') {
             ret = v4l2_subdev_parse_rectangle(media, crop, p, &end);
-            if (ret < 0)
-            {
+            if (ret < 0) {
                 *endp = end;
                 return NULL;
             }
@@ -700,11 +650,9 @@ static struct media_pad* v4l2_subdev_parse_pad_format(struct media_device* media
             continue;
         }
 
-        if (strhazit("compose:", &p))
-        {
+        if (strhazit("compose:", &p)) {
             ret = v4l2_subdev_parse_rectangle(media, compose, p, &end);
-            if (ret < 0)
-            {
+            if (ret < 0) {
                 *endp = end;
                 return NULL;
             }
@@ -714,11 +662,9 @@ static struct media_pad* v4l2_subdev_parse_pad_format(struct media_device* media
             continue;
         }
 
-        if (*p == '@')
-        {
+        if (*p == '@') {
             ret = v4l2_subdev_parse_frame_interval(media, interval, ++p, &end);
-            if (ret < 0)
-            {
+            if (ret < 0) {
                 *endp = end;
                 return NULL;
             }
@@ -730,8 +676,7 @@ static struct media_pad* v4l2_subdev_parse_pad_format(struct media_device* media
         break;
     }
 
-    if (*p != ']')
-    {
+    if (*p != ']') {
         media_dbg(media, "Expected ']'\n");
         *endp = (char*)p;
         return NULL;
@@ -745,21 +690,22 @@ static int set_format(struct media_pad* pad, struct v4l2_mbus_framefmt* format)
 {
     int ret;
 
-    if (format->width == 0 || format->height == 0)
-    {
+    if (format->width == 0 || format->height == 0) {
         return 0;
     }
 
-    media_dbg(pad->entity->media, "Setting up format %s %ux%u on pad %s/%u\n", v4l2_subdev_pixelcode_to_string(format->code), format->width, format->height, pad->entity->info.name, pad->index);
+    media_dbg(pad->entity->media, "Setting up format %s %ux%u on pad %s/%u\n",
+              v4l2_subdev_pixelcode_to_string(format->code), format->width, format->height, pad->entity->info.name,
+              pad->index);
 
     ret = v4l2_subdev_set_format(pad->entity, format, pad->index, V4L2_SUBDEV_FORMAT_ACTIVE);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         media_dbg(pad->entity->media, "Unable to set format: %s (%d)\n", strerror(-ret), ret);
         return ret;
     }
 
-    media_dbg(pad->entity->media, "Format set: %s %ux%u\n", v4l2_subdev_pixelcode_to_string(format->code), format->width, format->height);
+    media_dbg(pad->entity->media, "Format set: %s %ux%u\n", v4l2_subdev_pixelcode_to_string(format->code),
+              format->width, format->height);
 
     return 0;
 }
@@ -768,21 +714,21 @@ static int set_selection(struct media_pad* pad, unsigned int target, struct v4l2
 {
     int ret;
 
-    if (rect->left == -1 || rect->top == -1)
-    {
+    if (rect->left == -1 || rect->top == -1) {
         return 0;
     }
 
-    media_dbg(pad->entity->media, "Setting up selection target %u rectangle (%u,%u)/%ux%u on pad %s/%u\n", target, rect->left, rect->top, rect->width, rect->height, pad->entity->info.name, pad->index);
+    media_dbg(pad->entity->media, "Setting up selection target %u rectangle (%u,%u)/%ux%u on pad %s/%u\n", target,
+              rect->left, rect->top, rect->width, rect->height, pad->entity->info.name, pad->index);
 
     ret = v4l2_subdev_set_selection(pad->entity, rect, pad->index, target, V4L2_SUBDEV_FORMAT_ACTIVE);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         media_dbg(pad->entity->media, "Unable to set selection rectangle: %s (%d)\n", strerror(-ret), ret);
         return ret;
     }
 
-    media_dbg(pad->entity->media, "Selection rectangle set: (%u,%u)/%ux%u\n", rect->left, rect->top, rect->width, rect->height);
+    media_dbg(pad->entity->media, "Selection rectangle set: (%u,%u)/%ux%u\n", rect->left, rect->top, rect->width,
+              rect->height);
 
     return 0;
 }
@@ -791,16 +737,15 @@ static int set_frame_interval(struct media_pad* pad, struct v4l2_fract* interval
 {
     int ret;
 
-    if (interval->numerator == 0)
-    {
+    if (interval->numerator == 0) {
         return 0;
     }
 
-    media_dbg(pad->entity->media, "Setting up frame interval %u/%u on pad %s/%u\n", interval->numerator, interval->denominator, pad->entity->info.name, pad->index);
+    media_dbg(pad->entity->media, "Setting up frame interval %u/%u on pad %s/%u\n", interval->numerator,
+              interval->denominator, pad->entity->info.name, pad->index);
 
     ret = v4l2_subdev_set_frame_interval(pad->entity, interval, pad->index);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         media_dbg(pad->entity->media, "Unable to set frame interval: %s (%d)", strerror(-ret), ret);
         return ret;
     }
@@ -822,72 +767,59 @@ static int v4l2_subdev_parse_setup_format(struct media_device* media, const char
     int ret;
 
     pad = v4l2_subdev_parse_pad_format(media, &format, &crop, &compose, &interval, p, &end);
-    if (pad == NULL)
-    {
+    if (pad == NULL) {
         media_print_streampos(media, p, end);
         media_dbg(media, "Unable to parse format\n");
         return -EINVAL;
     }
 
-    if (pad->flags & MEDIA_PAD_FL_SINK)
-    {
+    if (pad->flags & MEDIA_PAD_FL_SINK) {
         ret = set_format(pad, &format);
-        if (ret < 0)
-        {
+        if (ret < 0) {
             return ret;
         }
     }
 
     ret = set_selection(pad, V4L2_SEL_TGT_CROP, &crop);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return ret;
     }
 
     ret = set_selection(pad, V4L2_SEL_TGT_COMPOSE, &compose);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return ret;
     }
 
-    if (pad->flags & MEDIA_PAD_FL_SOURCE)
-    {
+    if (pad->flags & MEDIA_PAD_FL_SOURCE) {
         ret = set_format(pad, &format);
-        if (ret < 0)
-        {
+        if (ret < 0) {
             return ret;
         }
     }
 
     ret = set_frame_interval(pad, &interval);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return ret;
     }
 
     /* If the pad is an output pad, automatically set the same format and
      * frame interval on the remote subdev input pads, if any.
      */
-    if (pad->flags & MEDIA_PAD_FL_SOURCE)
-    {
-        for (i = 0; i < pad->entity->num_links; ++i)
-        {
+    if (pad->flags & MEDIA_PAD_FL_SOURCE) {
+        for (i = 0; i < pad->entity->num_links; ++i) {
             struct media_link* link = &pad->entity->links[i];
             struct v4l2_mbus_framefmt remote_format;
 
-            if (!(link->flags & MEDIA_LNK_FL_ENABLED))
-            {
+            if (!(link->flags & MEDIA_LNK_FL_ENABLED)) {
                 continue;
             }
 
-            if (link->source == pad && link->sink->entity->info.type == MEDIA_ENT_T_V4L2_SUBDEV)
-            {
+            if (link->source == pad && link->sink->entity->info.type == MEDIA_ENT_T_V4L2_SUBDEV) {
                 remote_format = format;
                 set_format(link->sink, &remote_format);
 
                 ret = set_frame_interval(link->sink, &interval);
-                if (ret < 0 && ret != -EINVAL && ret != -ENOTTY)
-                {
+                if (ret < 0 && ret != -EINVAL && ret != -ENOTTY) {
                     return ret;
                 }
             }
@@ -903,11 +835,9 @@ int v4l2_subdev_parse_setup_formats(struct media_device* media, const char* p)
     char* end;
     int ret;
 
-    do
-    {
+    do {
         ret = v4l2_subdev_parse_setup_format(media, p, &end);
-        if (ret < 0)
-        {
+        if (ret < 0) {
             return ret;
         }
 
@@ -919,8 +849,7 @@ int v4l2_subdev_parse_setup_formats(struct media_device* media, const char* p)
     return *end ? -EINVAL : 0;
 }
 
-static const struct
-{
+static const struct {
     const char* name;
     enum v4l2_mbus_pixelcode code;
 } mbus_formats[] = {
@@ -961,10 +890,8 @@ const char* v4l2_subdev_pixelcode_to_string(enum v4l2_mbus_pixelcode code)
 {
     unsigned int i;
 
-    for (i = 0; i < ARRAY_SIZE(mbus_formats); ++i)
-    {
-        if (mbus_formats[i].code == code)
-        {
+    for (i = 0; i < ARRAY_SIZE(mbus_formats); ++i) {
+        if (mbus_formats[i].code == code) {
             return mbus_formats[i].name;
         }
     }
@@ -976,10 +903,8 @@ enum v4l2_mbus_pixelcode v4l2_subdev_string_to_pixelcode(const char* string)
 {
     unsigned int i;
 
-    for (i = 0; i < ARRAY_SIZE(mbus_formats); ++i)
-    {
-        if (strcmp(mbus_formats[i].name, string) == 0)
-        {
+    for (i = 0; i < ARRAY_SIZE(mbus_formats); ++i) {
+        if (strcmp(mbus_formats[i].name, string) == 0) {
             return mbus_formats[i].code;
         }
     }
@@ -987,8 +912,7 @@ enum v4l2_mbus_pixelcode v4l2_subdev_string_to_pixelcode(const char* string)
     return (enum v4l2_mbus_pixelcode) - 1;
 }
 
-static struct
-{
+static struct {
     const char* name;
     enum v4l2_field field;
 } fields[] = {
@@ -1008,10 +932,8 @@ const char* v4l2_subdev_field_to_string(enum v4l2_field field)
 {
     unsigned int i;
 
-    for (i = 0; i < ARRAY_SIZE(fields); ++i)
-    {
-        if (fields[i].field == field)
-        {
+    for (i = 0; i < ARRAY_SIZE(fields); ++i) {
+        if (fields[i].field == field) {
             return fields[i].name;
         }
     }
@@ -1023,10 +945,8 @@ enum v4l2_field v4l2_subdev_string_to_field(const char* string)
 {
     unsigned int i;
 
-    for (i = 0; i < ARRAY_SIZE(fields); ++i)
-    {
-        if (strcasecmp(fields[i].name, string) == 0)
-        {
+    for (i = 0; i < ARRAY_SIZE(fields); ++i) {
+        if (strcasecmp(fields[i].name, string) == 0) {
             return fields[i].field;
         }
     }
@@ -1034,29 +954,28 @@ enum v4l2_field v4l2_subdev_string_to_field(const char* string)
     return (enum v4l2_field) - 1;
 }
 
-static struct
-{
+static struct {
     const char* name;
     enum v4l2_colorspace colorspace;
 } colorspaces[] = {
-    {"default", V4L2_COLORSPACE_DEFAULT},   {"smpte170m", V4L2_COLORSPACE_SMPTE170M}, {"smpte240m", V4L2_COLORSPACE_SMPTE240M}, {"rec709", V4L2_COLORSPACE_REC709},
-    {"470m", V4L2_COLORSPACE_470_SYSTEM_M}, {"470bg", V4L2_COLORSPACE_470_SYSTEM_BG}, {"jpeg", V4L2_COLORSPACE_JPEG},           {"srgb", V4L2_COLORSPACE_SRGB},
+    {"default", V4L2_COLORSPACE_DEFAULT},     {"smpte170m", V4L2_COLORSPACE_SMPTE170M},
+    {"smpte240m", V4L2_COLORSPACE_SMPTE240M}, {"rec709", V4L2_COLORSPACE_REC709},
+    {"470m", V4L2_COLORSPACE_470_SYSTEM_M},   {"470bg", V4L2_COLORSPACE_470_SYSTEM_BG},
+    {"jpeg", V4L2_COLORSPACE_JPEG},           {"srgb", V4L2_COLORSPACE_SRGB},
 #ifdef __ANDROID__
     {"oprgb", V4L2_COLORSPACE_ADOBERGB},
 #else
     {"oprgb", V4L2_COLORSPACE_OPRGB},
 #endif
-    {"bt2020", V4L2_COLORSPACE_BT2020},     {"dcip3", V4L2_COLORSPACE_DCI_P3},
+    {"bt2020", V4L2_COLORSPACE_BT2020},       {"dcip3", V4L2_COLORSPACE_DCI_P3},
 };
 
 const char* v4l2_subdev_colorspace_to_string(enum v4l2_colorspace colorspace)
 {
     unsigned int i;
 
-    for (i = 0; i < ARRAY_SIZE(colorspaces); ++i)
-    {
-        if (colorspaces[i].colorspace == colorspace)
-        {
+    for (i = 0; i < ARRAY_SIZE(colorspaces); ++i) {
+        if (colorspaces[i].colorspace == colorspace) {
             return colorspaces[i].name;
         }
     }
@@ -1068,10 +987,8 @@ enum v4l2_colorspace v4l2_subdev_string_to_colorspace(const char* string)
 {
     unsigned int i;
 
-    for (i = 0; i < ARRAY_SIZE(colorspaces); ++i)
-    {
-        if (strcasecmp(colorspaces[i].name, string) == 0)
-        {
+    for (i = 0; i < ARRAY_SIZE(colorspaces); ++i) {
+        if (strcasecmp(colorspaces[i].name, string) == 0) {
             return colorspaces[i].colorspace;
         }
     }
@@ -1079,8 +996,7 @@ enum v4l2_colorspace v4l2_subdev_string_to_colorspace(const char* string)
     return (enum v4l2_colorspace) - 1;
 }
 
-static struct
-{
+static struct {
     const char* name;
     enum v4l2_xfer_func xfer_func;
 } xfer_funcs[] = {
@@ -1099,10 +1015,8 @@ const char* v4l2_subdev_xfer_func_to_string(enum v4l2_xfer_func xfer_func)
 {
     unsigned int i;
 
-    for (i = 0; i < ARRAY_SIZE(xfer_funcs); ++i)
-    {
-        if (xfer_funcs[i].xfer_func == xfer_func)
-        {
+    for (i = 0; i < ARRAY_SIZE(xfer_funcs); ++i) {
+        if (xfer_funcs[i].xfer_func == xfer_func) {
             return xfer_funcs[i].name;
         }
     }
@@ -1114,10 +1028,8 @@ enum v4l2_xfer_func v4l2_subdev_string_to_xfer_func(const char* string)
 {
     unsigned int i;
 
-    for (i = 0; i < ARRAY_SIZE(xfer_funcs); ++i)
-    {
-        if (strcasecmp(xfer_funcs[i].name, string) == 0)
-        {
+    for (i = 0; i < ARRAY_SIZE(xfer_funcs); ++i) {
+        if (strcasecmp(xfer_funcs[i].name, string) == 0) {
             return xfer_funcs[i].xfer_func;
         }
     }
@@ -1125,22 +1037,26 @@ enum v4l2_xfer_func v4l2_subdev_string_to_xfer_func(const char* string)
     return (enum v4l2_xfer_func) - 1;
 }
 
-static struct
-{
+static struct {
     const char* name;
     enum v4l2_ycbcr_encoding ycbcr_enc;
 } ycbcr_encs[] = {
-    {"default", V4L2_YCBCR_ENC_DEFAULT}, {"601", V4L2_YCBCR_ENC_601}, {"709", V4L2_YCBCR_ENC_709}, {"xv601", V4L2_YCBCR_ENC_XV601}, {"xv709", V4L2_YCBCR_ENC_XV709}, {"bt2020", V4L2_YCBCR_ENC_BT2020}, {"bt2020c", V4L2_YCBCR_ENC_BT2020_CONST_LUM}, {"smpte240m", V4L2_YCBCR_ENC_SMPTE240M},
+    {"default", V4L2_YCBCR_ENC_DEFAULT},
+    {"601", V4L2_YCBCR_ENC_601},
+    {"709", V4L2_YCBCR_ENC_709},
+    {"xv601", V4L2_YCBCR_ENC_XV601},
+    {"xv709", V4L2_YCBCR_ENC_XV709},
+    {"bt2020", V4L2_YCBCR_ENC_BT2020},
+    {"bt2020c", V4L2_YCBCR_ENC_BT2020_CONST_LUM},
+    {"smpte240m", V4L2_YCBCR_ENC_SMPTE240M},
 };
 
 const char* v4l2_subdev_ycbcr_encoding_to_string(enum v4l2_ycbcr_encoding ycbcr_enc)
 {
     unsigned int i;
 
-    for (i = 0; i < ARRAY_SIZE(ycbcr_encs); ++i)
-    {
-        if (ycbcr_encs[i].ycbcr_enc == ycbcr_enc)
-        {
+    for (i = 0; i < ARRAY_SIZE(ycbcr_encs); ++i) {
+        if (ycbcr_encs[i].ycbcr_enc == ycbcr_enc) {
             return ycbcr_encs[i].name;
         }
     }
@@ -1152,10 +1068,8 @@ enum v4l2_ycbcr_encoding v4l2_subdev_string_to_ycbcr_encoding(const char* string
 {
     unsigned int i;
 
-    for (i = 0; i < ARRAY_SIZE(ycbcr_encs); ++i)
-    {
-        if (strcasecmp(ycbcr_encs[i].name, string) == 0)
-        {
+    for (i = 0; i < ARRAY_SIZE(ycbcr_encs); ++i) {
+        if (strcasecmp(ycbcr_encs[i].name, string) == 0) {
             return ycbcr_encs[i].ycbcr_enc;
         }
     }
@@ -1163,8 +1077,7 @@ enum v4l2_ycbcr_encoding v4l2_subdev_string_to_ycbcr_encoding(const char* string
     return (enum v4l2_ycbcr_encoding) - 1;
 }
 
-static struct
-{
+static struct {
     const char* name;
     enum v4l2_quantization quantization;
 } quantizations[] = {
@@ -1177,10 +1090,8 @@ const char* v4l2_subdev_quantization_to_string(enum v4l2_quantization quantizati
 {
     unsigned int i;
 
-    for (i = 0; i < ARRAY_SIZE(quantizations); ++i)
-    {
-        if (quantizations[i].quantization == quantization)
-        {
+    for (i = 0; i < ARRAY_SIZE(quantizations); ++i) {
+        if (quantizations[i].quantization == quantization) {
             return quantizations[i].name;
         }
     }
@@ -1192,10 +1103,8 @@ enum v4l2_quantization v4l2_subdev_string_to_quantization(const char* string)
 {
     unsigned int i;
 
-    for (i = 0; i < ARRAY_SIZE(quantizations); ++i)
-    {
-        if (strcasecmp(quantizations[i].name, string) == 0)
-        {
+    for (i = 0; i < ARRAY_SIZE(quantizations); ++i) {
+        if (strcasecmp(quantizations[i].name, string) == 0) {
             return quantizations[i].quantization;
         }
     }

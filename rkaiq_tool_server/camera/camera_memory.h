@@ -44,16 +44,14 @@ enum sensor_link
     link_to_dvp,
 };
 
-struct buffer
-{
+struct buffer {
     void* start;
     size_t length;
     int socket;
     unsigned short checksum;
 };
 
-struct isp_t
-{
+struct isp_t {
     char media_dev_path[DEV_PATH_LEN];
     char isp_main_path[DEV_PATH_LEN];
     char isp_sd_path[DEV_PATH_LEN];
@@ -62,16 +60,14 @@ struct isp_t
     __u32 sd_fmt;
 };
 
-struct vicap_t
-{
+struct vicap_t {
     char cif_video_path[DEV_PATH_LEN];
     int width;
     int height;
     __u32 sd_fmt;
 };
 
-struct sensor_t
-{
+struct sensor_t {
     char device_name[DEV_PATH_LEN];
     char sensor_name[DEV_PATH_LEN];
     int width;
@@ -80,75 +76,43 @@ struct sensor_t
     __u32 sen_fmt;
 };
 
-struct lens_t
-{
+struct lens_t {
     char lens_device_name[DEV_PATH_LEN];
 };
 
 #pragma pack(1)
-typedef struct RkAiqExpRealParam_s1
-{
-
-    // M4_NUMBER_DESC("CISTime", "f32", M4_RANGE(0,1), "0", M4_DIGIT(6))
+typedef struct RkToolExpToolParam_s {
     float integration_time;
-
-    // M4_NUMBER_DESC("CISGain", "f32", M4_RANGE(0,4096), "0", M4_DIGIT(3))
     float analog_gain;
-
-    // M4_NUMBER_DESC("digital_gain", "f32", M4_RANGE(0,4096), "0", M4_DIGIT(3),M4_HIDE(1))
     float digital_gain;
-
-    // M4_NUMBER_DESC("isp_dgain", "f32", M4_RANGE(0,256), "0", M4_DIGIT(3),M4_HIDE(1))
     float isp_dgain;
-
-    // M4_NUMBER_DESC("iso", "s32", M4_RANGE(0,524288), "0", M4_DIGIT(0),M4_HIDE(1))
     int iso;
-
-    // M4_NUMBER_DESC("DcgMode", "s32", M4_RANGE(-1,1), "0", M4_DIGIT(0))
     int dcg_mode;
-
-    // M4_NUMBER_DESC("longfrm_mode", "s32", M4_RANGE(0,1), "0", M4_DIGIT(0),M4_HIDE(1))
     int longfrm_mode;
-} RkAiqExpRealParam_t1;
+} RkToolExpRealParam_t;
 
-typedef struct RkAiqExpSensorParam_s1
-{
+typedef struct RkToolExpSensorParam_s {
+    uint32_t fine_integration_time;
+    uint32_t coarse_integration_time;
+    uint32_t analog_gain_code_global;
+    uint32_t digital_gain_global;
+    uint32_t isp_digital_gain;
+} RkToolExpSensorParam_t;
+typedef struct RkToolExpParam_s {
+    RkToolExpRealParam_t exp_real_params;     // real value
+    RkToolExpSensorParam_t exp_sensor_params; // reg value
+} RkToolExpParam_t;
 
-    // M4_NUMBER_DESC("fine_integration_time", "u32", M4_RANGE(0,65535), "0", M4_DIGIT(0),M4_HIDE(1))
-    unsigned int fine_integration_time;
-
-    // M4_NUMBER_DESC("coarse_integration_time", "u32", M4_RANGE(0,65535), "0", M4_DIGIT(0),M4_HIDE(1))
-    unsigned int coarse_integration_time;
-
-    // M4_NUMBER_DESC("analog_gain_code_global", "u32", M4_RANGE(0,524288), "0", M4_DIGIT(0),M4_HIDE(1))
-    unsigned int analog_gain_code_global;
-
-    // M4_NUMBER_DESC("digital_gain_global", "u32", M4_RANGE(0,65535), "0", M4_DIGIT(0),M4_HIDE(1))
-    unsigned int digital_gain_global;
-
-    // M4_NUMBER_DESC("isp_digital_gain", "u32", M4_RANGE(0,65535), "0", M4_DIGIT(0),M4_HIDE(1))
-    unsigned int isp_digital_gain;
-} RkAiqExpSensorParam_t1;
-
-typedef struct
-{
-    // M4_STRUCT_DESC("RealPara", "normal_ui_style")
-    RkAiqExpRealParam_t1 exp_real_params; // real value
-
-    // M4_STRUCT_DESC("RegPara", "normal_ui_style",M4_HIDE(1))
-    RkAiqExpSensorParam_t1 exp_sensor_params; // reg value
-} RkAiqExpParamComb_t1;
-
-typedef struct ExpInfo_s1
-{
-    uint32_t frameId;
-    RkAiqExpParamComb_t1 linearExp;
-    RkAiqExpParamComb_t1 hdrExp[3];
-} ExpInfo_t1;
+typedef struct rk_aiq_isp_tool_stats_s {
+    uint16_t version; // 0x0100 = v1.0
+    uint32_t frameID;
+    RkToolExpParam_t linearExp; // from RKAiqAecStats_t::ae_exp.LinearExp.exp_real_params
+    RkToolExpParam_t hdrExp[3];
+    uint8_t reserved[256];
+} rk_aiq_isp_tool_stats_t;
 #pragma pack()
 
-struct capture_info
-{
+struct capture_info {
     const char* dev_name;
     int dev_fd;
     int subdev_fd;
@@ -166,7 +130,7 @@ struct capture_info
     int lhcg;
 
     uint sequence;
-    vector<rk_aiq_isp_stats_t> ispStatsList;
+    vector<rk_aiq_isp_tool_stats_t> ispStatsList;
 
     enum sensor_link link;
     enum v4l2_buf_type capture_buf_type;
