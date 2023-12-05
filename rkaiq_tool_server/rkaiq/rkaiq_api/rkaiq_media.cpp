@@ -15,6 +15,8 @@ extern int g_width;
 extern int g_height;
 extern int g_device_id;
 extern int g_cam_count;
+extern std::string g_capture_dev_name;
+extern std::string g_stream_dev_name;
 
 std::string RKAiqMedia::GetSensorName(struct media_device* device, int cam_index)
 {
@@ -232,7 +234,8 @@ void RKAiqMedia::GetIspSubDevs(int id, struct media_device* device, const char* 
         if (ret != 0) {
             LOG_ERROR("v4l2_subdev_get_format failed!\n");
         } else {
-            if (g_width > format.width || g_height > format.height) {
+            if (g_capture_dev_name.length() == 0 && g_stream_dev_name.length() == 0 &&
+                (g_width > format.width || g_height > format.height)) {
                 g_width = format.width;
                 g_height = format.height;
                 LOG_ERROR("fixup width %d height %d\n", g_width, g_height);

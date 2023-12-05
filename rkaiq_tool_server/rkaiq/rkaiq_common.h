@@ -43,6 +43,8 @@ typedef enum
 
 #define MAXPACKETSIZE 2048
 #define RKAIQ_TOOL_VERSION "v0.0.1"
+#define RKAIQ_J2S_PROCESS_VERSION "v1.0.0"
+#define RKAIQ_I2C_PROCESS_VERSION "v1.0.0"
 
 #define STOP_RKLUNCH_CMD "sh /oem/RkLunch-stop.sh"
 
@@ -56,6 +58,8 @@ extern std::shared_ptr<RKAiqToolManager> rkaiq_manager;
 #define RKID_SEND_FILE "SendFile"
 #define RKID_OFFLINE_RAW "OffRAW"
 #define RKID_GET_AWB_PARA_FILE "GetAWBp"
+#define RKID_JSON_TO_BIN_PROC "J2SFUNC"
+#define RKID_I2C_TRANSFER_PROC "I2CFUNC"
 
 #pragma pack(1)
 typedef struct CommandData_s {

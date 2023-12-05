@@ -48,6 +48,7 @@ extern std::string g_offline_raw_dir;
 extern std::shared_ptr<RKAiqMedia> rkaiq_media;
 extern std::string g_stream_dev_name;
 extern int ConnectAiq();
+extern unsigned int GetCRC32(unsigned char* buf, unsigned int len);
 
 bool RKAiqProtocol::is_recv_running = false;
 std::unique_ptr<std::thread> RKAiqProtocol::forward_thread = nullptr;
@@ -97,6 +98,10 @@ typedef struct TransportAWBPara_s {
     void* awbParaFile;
 } TransportAWBPara_t;
 #pragma pack()
+
+extern bool g_crcTableInitFlag;
+extern unsigned int g_CRC32_table[256];
+extern unsigned int GetCRC32(unsigned char* buf, unsigned int len);
 
 static std::string string_format(const std::string fmt_str, ...)
 {
@@ -153,6 +158,17 @@ static int strcmp_natural(const char* a, const char* b)
         b++;
     }
     return *a ? 1 : *b ? -1 : 0;
+}
+
+static size_t GetFileSize(const char* fileName)
+{
+    if (fileName == NULL) {
+        return 0;
+    }
+    struct stat statbuf;
+    stat(fileName, &statbuf);
+    size_t filesize = statbuf.st_size;
+    return filesize;
 }
 
 static bool natural_less(const string& lhs, const string& rhs)
@@ -347,6 +363,7 @@ int RKAiqProtocol::StartApp()
 
 int RKAiqProtocol::StartRTSP()
 {
+#ifdef __ANDROID__
     int ret = -1;
     KillApp();
     ret = rkaiq_media->LinkToIsp(true);
@@ -356,7 +373,7 @@ int RKAiqProtocol::StartRTSP()
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     media_info_t mi = rkaiq_media->GetMediaInfoT(g_device_id);
-#ifdef __ANDROID__
+
     int readback = 0;
     // std::string isp3a_server_cmd = "/vendor/bin/rkaiq_3A_server -mmedia=";
     // if (mi.isp.media_dev_path.length() > 0)
@@ -380,7 +397,7 @@ int RKAiqProtocol::StartRTSP()
     // system("pkill rkaiq_3A_server*");
     // system(isp3a_server_cmd.c_str());
     // std::this_thread::sleep_for(std::chrono::milliseconds(200));
-#endif
+
     if (true) {
         int isp_ver = rkaiq_media->GetIspVer();
         LOG_DEBUG(">>>>>>>> isp ver = %d\n", isp_ver);
@@ -400,18 +417,19 @@ int RKAiqProtocol::StartRTSP()
     }
 
     LOG_DEBUG("Started RTSP !!!");
+#endif
     return 0;
 }
 
 int RKAiqProtocol::StopRTSP()
 {
+#ifdef __ANDROID__
     LOG_DEBUG("Stopping RTSP !!!");
     // deinit_rtsp();
-#ifdef __ANDROID__
     system("pkill rkaiq_3A_server*");
-#endif
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     LOG_DEBUG("Stopped RTSP !!!");
+#endif
     return 0;
 }
 
@@ -991,6 +1009,531 @@ void RKAiqProtocol::HandlerGetAWBParaFileProcess(int sockfd, char* buffer, int s
     }
 }
 
+static void DoJ2SProcessAnswer(int sockfd, CommandData_t* cmd, int cmd_type, int cmd_id, char* data, uint dataLen)
+{
+    char send_data[MAXPACKETSIZE];
+    LOG_DEBUG("enter\n");
+
+    strncpy((char*)cmd->RKID, RKID_JSON_TO_BIN_PROC, sizeof(cmd->RKID));
+    cmd->cmdType = cmd_type;
+    cmd->cmdID = cmd_id;
+    strncpy((char*)cmd->version, RKAIQ_J2S_PROCESS_VERSION, sizeof(cmd->version));
+    cmd->datLen = min(dataLen, (uint)48);
+    memset(cmd->dat, 0, sizeof(cmd->dat));
+    memcpy(cmd->dat, data, sizeof(cmd->dat));
+    cmd->checkSum = 0;
+    for (int i = 0; i < cmd->datLen; i++) {
+        cmd->checkSum += cmd->dat[i];
+    }
+
+    memcpy(send_data, cmd, sizeof(CommandData_t));
+    send(sockfd, send_data, sizeof(CommandData_t), 0);
+    LOG_DEBUG("exit\n");
+}
+
+void RKAiqProtocol::HandlerJson2BinProcess(int sockfd, char* buffer, int size)
+{
+    uint32_t result;
+    CommandData_t* common_cmd = (CommandData_t*)buffer;
+    CommandData_t send_cmd;
+    char send_data[MAXPACKETSIZE];
+    int ret = -1;
+    LOG_DEBUG("HandlerJson2BinProcess begin\n");
+    HexDump((unsigned char*)buffer, size);
+
+    if (strncmp((char*)common_cmd->RKID, RKID_JSON_TO_BIN_PROC, 7) == 0) {
+        LOG_DEBUG("RKID: %s\n", common_cmd->RKID);
+    } else {
+        LOG_DEBUG("RKID: unknown\n");
+        return;
+    }
+
+    LOG_DEBUG("cmdID: %d\n", common_cmd->cmdID);
+    LOG_DEBUG("cmdType: %d\n", common_cmd->cmdType);
+
+    if (common_cmd->cmdType == 0x3001) {
+        LOG_DEBUG("process request AIQ version begin\n");
+        switch (common_cmd->cmdID) {
+            case 0x0001: {
+                char cmdResStr[2048] = {0};
+                ExecuteCMD("find / -name librkaiq.so -exec strings {} \\; | grep \"AIQ v\" | head -n 1", cmdResStr);
+                // string aiqVersion "AIQ v5.0x1.3-rc2";
+                string aiqVersion = cmdResStr;
+                LOG_DEBUG("aiqVersion:%s\n", aiqVersion.c_str());
+                DoJ2SProcessAnswer(sockfd, common_cmd, common_cmd->cmdType, common_cmd->cmdID,
+                                   (char*)aiqVersion.c_str(), aiqVersion.length());
+                break;
+            }
+            default:
+                break;
+        }
+        LOG_DEBUG("process request AIQ version end\n");
+    } else if (common_cmd->cmdType == 0x3002) {
+        LOG_DEBUG("process receive j2s tool begin\n");
+        HexDump((unsigned char*)common_cmd->dat, sizeof(common_cmd->dat));
+        switch (common_cmd->cmdID) {
+            case 0x0001: {
+                ////TODO
+                uint32_t packetSize = *((uint32_t*)common_cmd->dat);
+                uint32_t crc32 = *((uint32_t*)(common_cmd->dat + 4));
+                LOG_DEBUG("file size:%u crc32:%x\n", packetSize, crc32);
+
+                uint8_t status = 0x81;
+                DoJ2SProcessAnswer(sockfd, common_cmd, common_cmd->cmdType, common_cmd->cmdID, (char*)&status, 1);
+
+                // receive data
+                char* receivedPacket = (char*)malloc(packetSize);
+                memset(receivedPacket, 0, packetSize);
+
+                uint32_t remain_size = packetSize;
+                int recv_size = 0;
+
+                struct timespec startTime = {0, 0};
+                struct timespec currentTime = {0, 0};
+                clock_gettime(CLOCK_REALTIME, &startTime);
+                LOG_DEBUG("FILETRANS get, start receive:%ld\n", startTime.tv_sec);
+                while (remain_size > 0) {
+                    clock_gettime(CLOCK_REALTIME, &currentTime);
+                    if (currentTime.tv_sec - startTime.tv_sec >= 20) {
+                        LOG_DEBUG("FILETRANS receive: receive data timeout, return\n");
+                        status = 0; // 1:success  0:fail
+                        DoJ2SProcessAnswer(sockfd, common_cmd, common_cmd->cmdType, 0x0002, (char*)&status, 1);
+                        return;
+                    }
+
+                    uint32_t offset = packetSize - remain_size;
+
+                    uint32_t targetSize = 0;
+                    if (remain_size > MAX_PACKET_SIZE) {
+                        targetSize = MAX_PACKET_SIZE;
+                    } else {
+                        targetSize = remain_size;
+                    }
+                    recv_size = recv(sockfd, &receivedPacket[offset], targetSize, 0);
+                    remain_size = remain_size - recv_size;
+
+                    LOG_DEBUG("FILETRANS receive,remain_size: %u\n", remain_size);
+                }
+                LOG_DEBUG("FILETRANS receive: receive success, need check data\n");
+
+                // check data
+                uint32_t myCrc32 = GetCRC32((unsigned char*)receivedPacket, packetSize);
+                if (crc32 == myCrc32) {
+                    // save file
+                    FILE* fWrite = fopen("/data/j2sToolBin", "w");
+                    if (fWrite != NULL) {
+                        fwrite(receivedPacket, packetSize, 1, fWrite);
+                        fclose(fWrite);
+                        LOG_DEBUG("FILETRANS save /data/j2sToolBin success\n");
+                        status = 1; // 1:success  0:fail
+                        DoJ2SProcessAnswer(sockfd, common_cmd, common_cmd->cmdType, 0x0002, (char*)&status, 1);
+                    } else {
+                        LOG_DEBUG("FILETRANS failed to create file /data/j2sToolBin\n");
+                        status = 0; // 1:success  0:fail
+                        DoJ2SProcessAnswer(sockfd, common_cmd, common_cmd->cmdType, 0x0002, (char*)&status, 1);
+                    }
+                } else {
+                    LOG_DEBUG("FILETRANS crc32 check fail. crc32=%u,target=%u\n", myCrc32, crc32);
+                    status = 0; // 1:success  0:fail
+                    DoJ2SProcessAnswer(sockfd, common_cmd, common_cmd->cmdType, 0x0002, (char*)&status, 1);
+                }
+                break;
+            }
+            default:
+                break;
+        }
+        LOG_DEBUG("process receive j2s tool end\n");
+    } else if (common_cmd->cmdType == 0x3003) {
+        LOG_DEBUG("process receive json file begin\n");
+        switch (common_cmd->cmdID) {
+            case 0x0001: {
+                ////TODO
+                uint32_t packetSize = *((uint32_t*)common_cmd->dat);
+                uint32_t crc32 = *((uint32_t*)(common_cmd->dat + 4));
+                LOG_DEBUG("file size:%u crc32:%x\n", packetSize, crc32);
+
+                uint8_t status = 0x81;
+                DoJ2SProcessAnswer(sockfd, common_cmd, common_cmd->cmdType, common_cmd->cmdID, (char*)&status, 1);
+
+                // receive data
+                char* receivedPacket = (char*)malloc(packetSize);
+                memset(receivedPacket, 0, packetSize);
+
+                uint32_t remain_size = packetSize;
+                int recv_size = 0;
+
+                struct timespec startTime = {0, 0};
+                struct timespec currentTime = {0, 0};
+                clock_gettime(CLOCK_REALTIME, &startTime);
+                LOG_DEBUG("FILETRANS get, start receive:%ld\n", startTime.tv_sec);
+                while (remain_size > 0) {
+                    clock_gettime(CLOCK_REALTIME, &currentTime);
+                    if (currentTime.tv_sec - startTime.tv_sec >= 20) {
+                        LOG_DEBUG("FILETRANS receive: receive data timeout, return\n");
+                        status = 0; // 1:success  0:fail
+                        DoJ2SProcessAnswer(sockfd, common_cmd, common_cmd->cmdType, 0x0002, (char*)&status, 1);
+                        return;
+                    }
+
+                    uint32_t offset = packetSize - remain_size;
+
+                    uint32_t targetSize = 0;
+                    if (remain_size > MAX_PACKET_SIZE) {
+                        targetSize = MAX_PACKET_SIZE;
+                    } else {
+                        targetSize = remain_size;
+                    }
+                    recv_size = recv(sockfd, &receivedPacket[offset], targetSize, 0);
+                    remain_size = remain_size - recv_size;
+
+                    LOG_DEBUG("FILETRANS receive,remain_size: %u\n", remain_size);
+                }
+                LOG_DEBUG("FILETRANS receive: receive success, need check data\n");
+
+                // check data
+                uint32_t myCrc32 = GetCRC32((unsigned char*)receivedPacket, packetSize);
+                if (crc32 == myCrc32) {
+                    // save file
+                    FILE* fWrite = fopen("/data/jsonfile.json", "w");
+                    if (fWrite != NULL) {
+                        fwrite(receivedPacket, packetSize, 1, fWrite);
+                        fclose(fWrite);
+                        LOG_DEBUG("FILETRANS save /data/jsonfile.json success\n");
+                        status = 1; // 1:success  0:fail
+                        DoJ2SProcessAnswer(sockfd, common_cmd, common_cmd->cmdType, 0x0002, (char*)&status, 1);
+                    } else {
+                        LOG_DEBUG("FILETRANS failed to create file /data/jsonfile.json\n");
+                        status = 0; // 1:success  0:fail
+                        DoJ2SProcessAnswer(sockfd, common_cmd, common_cmd->cmdType, 0x0002, (char*)&status, 1);
+                    }
+                } else {
+                    LOG_DEBUG("FILETRANS crc32 check fail. crc32=%u,target=%u\n", myCrc32, crc32);
+                    status = 0; // 1:success  0:fail
+                    DoJ2SProcessAnswer(sockfd, common_cmd, common_cmd->cmdType, 0x0002, (char*)&status, 1);
+                }
+                break;
+            }
+            default:
+                break;
+        }
+        LOG_DEBUG("process receive json file end\n");
+    } else if (common_cmd->cmdType == 0x3004) {
+        LOG_DEBUG("process send converted bin file begin\n");
+        switch (common_cmd->cmdID) {
+            case 0x0001: {
+                LOG_DEBUG("process convert file begin\n");
+                system("chmod +x /data/j2sToolBin");
+                system("/data/j2sToolBin /data/jsonfile.json /data/convertResult.bin");
+                usleep(1000 * 100);
+                LOG_DEBUG("process convert file end\n");
+                ////TODO
+                bool res = true;
+
+                char* sendBuffer = NULL;
+                char tmpResult[10] = {0}; //转换结果2byte 文件长度4byte CRC 4byte
+                uint16_t result;
+                uint32_t fileLen;
+                uint32_t crc;
+                FILE* file = fopen("/data/convertResult.bin", "rb");
+                if (file) {
+                    fseek(file, 0, SEEK_END);
+                    fileLen = ftell(file);
+                    rewind(file);
+
+                    sendBuffer = (char*)malloc(fileLen);
+                    if (sendBuffer) {
+                        fread(sendBuffer, fileLen, 1, file);
+                        crc = GetCRC32((unsigned char*)sendBuffer, fileLen);
+                    } else {
+                        LOG_DEBUG("alloc sendBuffer failed\n");
+                        res = false;
+                    }
+                } else {
+                    res = false;
+                    LOG_DEBUG("open file convertResult.bin failed\n");
+                }
+
+                //
+                if (res == true) {
+                    uint16_t convertResult = RES_SUCCESS; // success
+                    uint32_t offset = 0;
+                    *reinterpret_cast<uint16_t*>(tmpResult + offset) = convertResult;
+                    offset += sizeof(convertResult);
+                    *reinterpret_cast<uint32_t*>(tmpResult + offset) = fileLen;
+                    offset += sizeof(fileLen);
+                    *reinterpret_cast<uint32_t*>(tmpResult + offset) = crc;
+                    offset += sizeof(crc);
+                    //
+                    LOG_DEBUG("fileLen:%u, crc:%u\n", fileLen, crc);
+                    LOG_DEBUG("fileLen:%x, crc:%x\n", fileLen, crc);
+                    HexDump((unsigned char*)tmpResult, sizeof(tmpResult));
+                    DoJ2SProcessAnswer(sockfd, common_cmd, common_cmd->cmdType, common_cmd->cmdID, tmpResult,
+                                       sizeof(tmpResult));
+                } else {
+                    uint16_t convertResult = RES_FAILED; // failed
+                    uint32_t offset = 0;
+                    memcpy(tmpResult + offset, &convertResult, sizeof(convertResult));
+                    //
+                    DoJ2SProcessAnswer(sockfd, common_cmd, common_cmd->cmdType, common_cmd->cmdID, tmpResult,
+                                       sizeof(tmpResult));
+                }
+
+                free(sendBuffer);
+                fclose(file);
+                break;
+            }
+            case 0x0002: {
+                LOG_DEBUG("process send file begin\n");
+                char* sendBuffer = NULL;
+                uint32_t fileLen;
+                FILE* file = fopen("/data/convertResult.bin", "rb");
+                if (file) {
+                    fseek(file, 0, SEEK_END);
+                    fileLen = ftell(file);
+                    rewind(file);
+                    sendBuffer = (char*)malloc(fileLen);
+                    if (sendBuffer) {
+                        fread(sendBuffer, fileLen, 1, file);
+                        //
+                        send(sockfd, sendBuffer, fileLen, 0);
+                    } else {
+                        LOG_DEBUG("alloc sendBuffer failed\n");
+                    }
+                } else {
+                    LOG_DEBUG("open file convertResult.bin failed\n");
+                }
+
+                free(sendBuffer);
+                fclose(file);
+                LOG_DEBUG("process send file end\n");
+                break;
+            }
+            default:
+                break;
+        }
+        LOG_DEBUG("process send converted bin file end\n");
+    }
+    LOG_DEBUG("HandlerJson2BinProcess end\n");
+}
+
+static void DoI2CProcessAnswer(int sockfd, CommandData_t* cmd, int cmd_type, int cmd_id, char* data, uint dataLen)
+{
+    char send_data[MAXPACKETSIZE];
+    LOG_DEBUG("enter\n");
+
+    strncpy((char*)cmd->RKID, RKID_I2C_TRANSFER_PROC, sizeof(cmd->RKID));
+    cmd->cmdType = cmd_type;
+    cmd->cmdID = cmd_id;
+    strncpy((char*)cmd->version, RKAIQ_I2C_PROCESS_VERSION, sizeof(cmd->version));
+    cmd->datLen = min(dataLen, (uint)48);
+    memset(cmd->dat, 0, sizeof(cmd->dat));
+    memcpy(cmd->dat, data, sizeof(cmd->dat));
+    cmd->checkSum = 0;
+    for (int i = 0; i < cmd->datLen; i++) {
+        cmd->checkSum += cmd->dat[i];
+    }
+
+    memcpy(send_data, cmd, sizeof(CommandData_t));
+    send(sockfd, send_data, sizeof(CommandData_t), 0);
+    LOG_DEBUG("exit\n");
+}
+
+void RKAiqProtocol::HandlerI2CTransferProcess(int sockfd, char* buffer, int size)
+{
+    CommandData_t* common_cmd = (CommandData_t*)buffer;
+    CommandData_t send_cmd;
+    char send_data[MAXPACKETSIZE];
+    int ret = -1;
+    LOG_DEBUG("HandlerI2CTransferProcess begin\n");
+    HexDump((unsigned char*)buffer, size);
+
+    if (strncmp((char*)common_cmd->RKID, RKID_I2C_TRANSFER_PROC, 7) == 0) {
+        LOG_DEBUG("RKID: %s\n", common_cmd->RKID);
+    } else {
+        LOG_DEBUG("RKID: unknown\n");
+        return;
+    }
+
+    LOG_DEBUG("cmdID: %d\n", common_cmd->cmdID);
+    LOG_DEBUG("cmdType: %d\n", common_cmd->cmdType);
+
+    if (common_cmd->cmdType == 0x4001) {
+        LOG_DEBUG("process quiry i2c status begin\n");
+        switch (common_cmd->cmdID) {
+            case 0x0001: {
+                uint16_t status = 0x81; // ready  0x82 busy
+                DoI2CProcessAnswer(sockfd, common_cmd, common_cmd->cmdType, common_cmd->cmdID, (char*)&status,
+                                   sizeof(status));
+                break;
+            }
+            default:
+                break;
+        }
+        LOG_DEBUG("process quiry i2c status end\n");
+    } else if (common_cmd->cmdType == 0x4002) {
+        LOG_DEBUG("process write i2c data begin\n");
+        switch (common_cmd->cmdID) {
+            case 0x0001: {
+                //
+                uint32_t offset = 0;
+                uint32_t i2cCommandLen = *((uint32_t*)common_cmd->dat);
+                offset += sizeof(i2cCommandLen);
+                uint32_t crc32 = *((uint32_t*)(common_cmd->dat + offset));
+                //
+                uint16_t status = 0x81; // ready  0x82 busy
+                DoI2CProcessAnswer(sockfd, common_cmd, common_cmd->cmdType, common_cmd->cmdID, (char*)&status,
+                                   sizeof(status));
+
+                // receive data
+                string i2cCommand;
+                char* receivedPacket = (char*)malloc(i2cCommandLen + 1); // add 1 for \0
+                memset(receivedPacket, 0, i2cCommandLen + 1);
+
+                uint32_t remain_size = i2cCommandLen;
+                int recv_size = 0;
+
+                struct timespec startTime = {0, 0};
+                struct timespec currentTime = {0, 0};
+                clock_gettime(CLOCK_REALTIME, &startTime);
+                LOG_DEBUG("command get, start receive:%ld\n", startTime.tv_sec);
+                while (remain_size > 0) {
+                    clock_gettime(CLOCK_REALTIME, &currentTime);
+                    if (currentTime.tv_sec - startTime.tv_sec >= 20) {
+                        LOG_DEBUG("command receive: receive data timeout, return\n");
+                        uint16_t res = RES_FAILED; // 1:success  0:fail
+                        DoI2CProcessAnswer(sockfd, common_cmd, common_cmd->cmdType, 0x0002, (char*)&res, sizeof(res));
+                        return;
+                    }
+
+                    uint32_t offset = i2cCommandLen - remain_size;
+
+                    uint32_t targetSize = 0;
+                    if (remain_size > MAX_PACKET_SIZE) {
+                        targetSize = MAX_PACKET_SIZE;
+                    } else {
+                        targetSize = remain_size;
+                    }
+                    recv_size = recv(sockfd, &receivedPacket[offset], targetSize, 0);
+                    remain_size = remain_size - recv_size;
+
+                    LOG_DEBUG("command receive,remain_size: %u\n", remain_size);
+                }
+                LOG_DEBUG("command receive: receive success, need check data\n");
+                LOG_DEBUG("command size:%u crc32:%x\n", i2cCommandLen, crc32);
+                receivedPacket[i2cCommandLen] = '\0'; // add \0 to string end
+                i2cCommand = receivedPacket;
+                LOG_DEBUG("i2cCommand:%s\n", i2cCommand.c_str());
+                HexDump((unsigned char*)receivedPacket, i2cCommandLen);
+                free(receivedPacket);
+
+                //开始执行命令
+                char cmdResStr[2048] = {0};
+                ExecuteCMD(i2cCommand.c_str(), cmdResStr);
+                LOG_DEBUG("i2c transfer command result:%s\n", cmdResStr);
+
+                //
+                uint16_t res = RES_SUCCESS;
+                DoI2CProcessAnswer(sockfd, common_cmd, common_cmd->cmdType, 0x0002, (char*)&res, sizeof(res));
+                break;
+            }
+            default:
+                break;
+        }
+        LOG_DEBUG("process write i2c data end\n");
+    } else if (common_cmd->cmdType == 0x4003) {
+        LOG_DEBUG("process read i2c data begin\n");
+        static char cmdResStr[4096] = {0};
+        switch (common_cmd->cmdID) {
+            case 0x0001: {
+                //
+                uint32_t offset = 0;
+                uint32_t i2cCommandLen = *((uint32_t*)common_cmd->dat);
+                offset += sizeof(i2cCommandLen);
+                uint32_t crc32 = *((uint32_t*)(common_cmd->dat + offset));
+                //
+                uint16_t status = 0x81; // ready  0x82 busy
+                DoI2CProcessAnswer(sockfd, common_cmd, common_cmd->cmdType, common_cmd->cmdID, (char*)&status,
+                                   sizeof(status));
+
+                // receive data
+                string i2cCommand;
+                char* receivedPacket = (char*)malloc(i2cCommandLen + 1); // add 1 for \0
+                memset(receivedPacket, 0, i2cCommandLen + 1);
+
+                uint32_t remain_size = i2cCommandLen;
+                int recv_size = 0;
+
+                struct timespec startTime = {0, 0};
+                struct timespec currentTime = {0, 0};
+                clock_gettime(CLOCK_REALTIME, &startTime);
+                LOG_DEBUG("command get, start receive:%ld\n", startTime.tv_sec);
+                while (remain_size > 0) {
+                    clock_gettime(CLOCK_REALTIME, &currentTime);
+                    if (currentTime.tv_sec - startTime.tv_sec >= 20) {
+                        LOG_DEBUG("command receive: receive data timeout, return\n");
+                        uint16_t res = RES_FAILED; // 1:success  0:fail
+                        DoI2CProcessAnswer(sockfd, common_cmd, common_cmd->cmdType, 0x0002, (char*)&res, sizeof(res));
+                        return;
+                    }
+
+                    uint32_t offset = i2cCommandLen - remain_size;
+
+                    uint32_t targetSize = 0;
+                    if (remain_size > MAX_PACKET_SIZE) {
+                        targetSize = MAX_PACKET_SIZE;
+                    } else {
+                        targetSize = remain_size;
+                    }
+                    recv_size = recv(sockfd, &receivedPacket[offset], targetSize, 0);
+                    remain_size = remain_size - recv_size;
+
+                    LOG_DEBUG("command receive,remain_size: %u\n", remain_size);
+                }
+                LOG_DEBUG("command receive: receive success, need check data\n");
+                LOG_DEBUG("command size:%u crc32:%x\n", i2cCommandLen, crc32);
+                receivedPacket[i2cCommandLen] = '\0'; // add \0 to string end
+                i2cCommand = receivedPacket;
+                LOG_DEBUG("i2cCommand:%s\n", i2cCommand.c_str());
+                HexDump((unsigned char*)receivedPacket, i2cCommandLen);
+                free(receivedPacket);
+
+                //开始执行命令
+                ExecuteCMD(i2cCommand.c_str(), cmdResStr);
+                LOG_DEBUG("i2c transfer command result:%s\n", cmdResStr);
+
+                //
+                char tmpResult[10] = {0};               //结果2byte 数据长度4byte CRC 4byte
+                uint16_t exei2cCmdResult = RES_SUCCESS; // success
+                crc32 = GetCRC32((unsigned char*)cmdResStr, strlen(cmdResStr));
+                offset = 0;
+                *reinterpret_cast<uint16_t*>(tmpResult + offset) = exei2cCmdResult;
+                offset += sizeof(exei2cCmdResult);
+                *reinterpret_cast<uint32_t*>(tmpResult + offset) = strlen(cmdResStr);
+                offset += 4;
+                *reinterpret_cast<uint32_t*>(tmpResult + offset) = crc32;
+                offset += sizeof(crc32);
+                //
+                LOG_DEBUG("cmdResStr:%u, crc:%u\n", strlen(cmdResStr), crc32);
+                LOG_DEBUG("cmdResStr:%x, crc:%x\n", strlen(cmdResStr), crc32);
+                HexDump((unsigned char*)cmdResStr, strlen(cmdResStr));
+                DoI2CProcessAnswer(sockfd, common_cmd, common_cmd->cmdType, 0x0002, tmpResult, sizeof(tmpResult));
+                break;
+            }
+            case 0x0003: {
+                LOG_DEBUG("process send i2c result begin\n");
+                send(sockfd, cmdResStr, strlen(cmdResStr), 0);
+                LOG_DEBUG("process send i2c result end\n");
+                memset(cmdResStr, 0, sizeof(cmdResStr));
+                break;
+            }
+            default:
+                break;
+        }
+        LOG_DEBUG("process read i2c data end\n");
+    }
+    LOG_DEBUG("HandlerI2CTransferProcess end\n");
+}
+
 void RKAiqProtocol::HandlerTCPMessage(int sockfd, char* buffer, int size)
 {
     CommandData_t* common_cmd = (CommandData_t*)buffer;
@@ -1025,6 +1568,10 @@ void RKAiqProtocol::HandlerTCPMessage(int sockfd, char* buffer, int size)
         HandlerOfflineRawProcess(sockfd, buffer, size);
     } else if (memcmp((char*)common_cmd->RKID, RKID_GET_AWB_PARA_FILE, 6) == 0) {
         HandlerGetAWBParaFileProcess(sockfd, buffer, size);
+    } else if (memcmp((char*)common_cmd->RKID, RKID_JSON_TO_BIN_PROC, 7) == 0) {
+        HandlerJson2BinProcess(sockfd, buffer, size);
+    } else if (memcmp((char*)common_cmd->RKID, RKID_I2C_TRANSFER_PROC, 7) == 0) {
+        HandlerI2CTransferProcess(sockfd, buffer, size);
     } else {
         resetThreadFlag = 0;
         if (!DoChangeAppMode(APP_RUN_STATUS_TUNRING))

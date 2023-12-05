@@ -29,6 +29,8 @@ class RKAiqProtocol
     static void HandlerReceiveFile(int sockfd, char* buffer, int size);
     static void HandlerOfflineRawProcess(int sockfd, char* buffer, int size);
     static void HandlerGetAWBParaFileProcess(int sockfd, char* buffer, int size);
+    static void HandlerJson2BinProcess(int sockfd, char* buffer, int size);
+    static void HandlerI2CTransferProcess(int sockfd, char* buffer, int size);
     static int MessageForward(int sockfd, char* buffer, int size);
     static int doMessageForward(int sockfd);
     static int offlineRawProcess(int sockfd);

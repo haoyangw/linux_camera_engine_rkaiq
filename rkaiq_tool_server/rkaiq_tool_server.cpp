@@ -57,6 +57,7 @@ int g_allow_killapp = 0;
 int g_cam_count = 0;
 uint32_t g_sensorHdrMode = 0;
 std::string g_capture_dev_name = "";
+int g_compactModeFlag = 0;
 int g_usingCaptureCacheFlag = 0;
 std::string g_capture_cache_dir = "/tmp/capture_file_cache";
 std::string g_offline_raw_dir = "/data/OfflineRAW";
@@ -99,7 +100,7 @@ static int get_env(const char* name, int* value, int default_value)
     return 0;
 }
 
-static const char short_options[] = "c:s:S:r:i:m:Dd:w:h:n:f:g:v:b:";
+static const char short_options[] = "c:C:s:S:r:i:m:Dd:w:h:n:f:g:v:b:";
 static const struct option long_options[] = {{"stream_dev", required_argument, NULL, 's'},
                                              {"enable_rtsp", required_argument, NULL, 'r'},
                                              {"iqfile", required_argument, NULL, 'i'},
@@ -180,8 +181,13 @@ static int parse_args(int argc, char** argv)
                 }
                 LOG_INFO("set offline reset index:%u\n", g_sendSpecificFrame);
                 break;
+            case 'C':
+                g_capture_dev_name = optarg;
+                LOG_INFO("capture image using no compact mode. capture dev name:%s\n", g_capture_dev_name.c_str());
+                break;
             case 'c':
                 g_capture_dev_name = optarg;
+                g_compactModeFlag = 1;
                 LOG_INFO("capture image using compact mode. capture dev name:%s\n", g_capture_dev_name.c_str());
                 break;
             case 'v':
@@ -206,6 +212,31 @@ static int parse_args(int argc, char** argv)
     }
 
     return ret;
+}
+
+static unsigned int g_CRC32_table[256];
+void InitCRC32Table()
+{
+    for (int i = 0; i != 256; i++) {
+        unsigned int CRC = i;
+        for (int j = 0; j != 8; j++) {
+            if (CRC & 1)
+                CRC = (CRC >> 1) ^ 0xEDB88320; // norm:0x04C11DB7  reversed:0xEDB88320  reciprocal:0xDB710641
+                                               // reciprocal_reversed:0x82608EDB
+            else
+                CRC >>= 1;
+        }
+        g_CRC32_table[i] = CRC;
+    }
+}
+unsigned int GetCRC32(unsigned char* buf, unsigned int len)
+{
+    unsigned int CRC32_data = 0xFFFFFFFF;
+    for (unsigned int i = 0; i != len; ++i) {
+        unsigned int t = (CRC32_data ^ buf[i]) & 0xFF;
+        CRC32_data = ((CRC32_data >> 8) & 0xFFFFFF) ^ g_CRC32_table[t];
+    }
+    return ~CRC32_data;
 }
 
 void PrintLocalIP()
@@ -258,7 +289,7 @@ static std::string string_format(const std::string fmt_str, ...)
 int main(int argc, char** argv)
 {
     int ret = -1;
-    LOG_ERROR("#### 20231201_174623 ####\n");
+    LOG_ERROR("#### 20240111_150236 ####\n");
     struct sigaction sa;
     sa.sa_handler = signal_handle;
     assert(sigaction(SIGPIPE, NULL, NULL) != -1);
@@ -478,6 +509,7 @@ int main(int argc, char** argv)
     }
 #endif
 
+    InitCRC32Table();
     PrintLocalIP();
 
     NewTCPServer<> newTcpServer;

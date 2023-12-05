@@ -41,6 +41,7 @@ extern int g_sensorMemoryMode;
 extern int g_sensorSyncMode;
 extern int g_usingCaptureCacheFlag; //配置是否使用本地缓存文件
 extern std::string g_capture_dev_name;
+extern int g_compactModeFlag;
 extern std::string g_capture_cache_dir;
 extern uint g_lastCapturedSequense;
 extern DomainTCPClient g_tcpClient;
@@ -855,7 +856,7 @@ static int DoCaptureYuv(int sockfd)
             }
 
             //
-            if (g_usingCaptureCacheFlag==1 && 0 != access(g_capture_cache_dir.c_str(), 0)) {
+            if (g_usingCaptureCacheFlag == 1 && 0 != access(g_capture_cache_dir.c_str(), 0)) {
                 if (mkdir(g_capture_cache_dir.c_str(), 0777) != 0) {
                     LOG_ERROR("Create folder %s failed.\n", g_capture_cache_dir.c_str());
                     return;
@@ -1161,7 +1162,7 @@ static void OnlineRawCaptureCallBackNoHDR(int socket, int index, void* buffer, i
 
         if (g_sensorHdrMode == NO_HDR && size > (width * height * 2)) {
             // SendMessageToPC(socket, "OnlineRawCaptureCallBackNoHDR size error");
-            LOG_ERROR("OnlineRawCaptureCallBackNoHDR size error\n");
+            LOG_ERROR("OnlineRawCaptureCallBackNoHDR size error. size:%d. width:%d, height:%d\n", size, width, height);
             return;
         }
 
@@ -1201,7 +1202,7 @@ static void OnlineRawCaptureCallBackNoHDR(int socket, int index, void* buffer, i
                     // LOG_INFO("expRealParams.dcg_mode:%d\n", expInfo.linearExp.exp_real_params.dcg_mode);
                     // LOG_INFO("expRealParams.longfrm_mode:%d\n", expInfo.linearExp.exp_real_params.longfrm_mode);
 
-                    if (g_usingCaptureCacheFlag==1 && g_usingCaptureCacheFlag == 1) {
+                    if (g_usingCaptureCacheFlag == 1) {
                         if (0 != access(g_capture_cache_dir.c_str(), 0)) {
                             if (mkdir(g_capture_cache_dir.c_str(), 0777) != 0) {
                                 LOG_ERROR("Create folder %s failed.\n", g_capture_cache_dir.c_str());
@@ -1374,7 +1375,7 @@ static void OnlineRawCaptureCallBackHDRX2_1(int socket, int index, void* buffer,
                     expInfo.frameID = cap_info_hdr2_1.sequence;
                     get3AStatsMtx.unlock();
 
-                    HexDump((unsigned char*)&expInfo, sizeof(rk_aiq_isp_tool_stats_t));
+                    // HexDump((unsigned char*)&expInfo, sizeof(rk_aiq_isp_tool_stats_t));
                     for (int i = 0; i < 3; i++) {
                         LOG_INFO("hdrExp[%d].expRealParams.integration_time:%f\n", i,
                                  expInfo.hdrExp[i].exp_real_params.integration_time);
@@ -1391,40 +1392,47 @@ static void OnlineRawCaptureCallBackHDRX2_1(int socket, int index, void* buffer,
                                  expInfo.hdrExp[i].exp_real_params.longfrm_mode);
                     }
 
-                    if (0 != access(g_capture_cache_dir.c_str(), 0)) {
-                        if (g_usingCaptureCacheFlag==1 && mkdir(g_capture_cache_dir.c_str(), 0777) != 0) {
-                            LOG_ERROR("Create folder %s failed.\n", g_capture_cache_dir.c_str());
+                    if (g_usingCaptureCacheFlag == 1) {
+
+                        if (0 != access(g_capture_cache_dir.c_str(), 0)) {
+                            if (g_usingCaptureCacheFlag == 1 && mkdir(g_capture_cache_dir.c_str(), 0777) != 0) {
+                                LOG_ERROR("Create folder %s failed.\n", g_capture_cache_dir.c_str());
+                                return;
+                            }
+                        }
+
+                        LOG_DEBUG("DoCaptureCallBack size %d, sequence:%u\n", size, cap_info_hdr2_1.sequence);
+                        uint32_t seq = cap_info_hdr2_1.sequence;
+                        LOG_DEBUG("%s | DoCaptureCallBack start save file. sequence:%u\n", GetTime().c_str(), seq);
+                        string targetFileName =
+                            g_capture_cache_dir + "/" + to_string(cap_info_hdr2_1.sequence) + "-2_2.raw";
+                        LOG_ERROR("Capture image :%s\n", targetFileName.c_str());
+
+                        size_t totalSize = size + sizeof(rk_aiq_isp_tool_stats_t);
+                        std::vector<char> tempBuffer(totalSize);
+                        if (!tempBuffer.empty()) {
+                            memcpy(tempBuffer.data(), buffer, size);
+                            memcpy(tempBuffer.data() + size, &expInfo, sizeof(rk_aiq_isp_tool_stats_t));
+                            LOG_DEBUG("write file begin:%s\n", GetTime().c_str());
+                            std::future<void> result(std::async(std::launch::async, write_to_file,
+                                                                targetFileName.c_str(), tempBuffer.data(), totalSize));
+                            // result.wait();
+                            LOG_DEBUG("write file end:%s\n", GetTime().c_str());
+                            LOG_ERROR("Capture image save to :%s\n", targetFileName.c_str());
+                        } else {
+                            LOG_DEBUG("Failed to allocate memory for tempBuffer, return\n");
                             return;
                         }
-                    }
+                        LOG_DEBUG("%s | DoCaptureCallBack end save file. sequence:%u\n", GetTime().c_str(), seq);
+                        lastSavedSequence = seq;
 
-                    LOG_DEBUG("DoCaptureCallBack size %d, sequence:%u\n", size, cap_info_hdr2_1.sequence);
-                    uint32_t seq = cap_info_hdr2_1.sequence;
-                    LOG_DEBUG("%s | DoCaptureCallBack start save file. sequence:%u\n", GetTime().c_str(), seq);
-                    string targetFileName =
-                        g_capture_cache_dir + "/" + to_string(cap_info_hdr2_1.sequence) + "-2_2.raw";
-                    LOG_ERROR("Capture image :%s\n", targetFileName.c_str());
-
-                    size_t totalSize = size + sizeof(rk_aiq_isp_tool_stats_t);
-                    std::vector<char> tempBuffer(totalSize);
-                    if (!tempBuffer.empty()) {
-                        memcpy(tempBuffer.data(), buffer, size);
-                        memcpy(tempBuffer.data() + size, &expInfo, sizeof(rk_aiq_isp_tool_stats_t));
-                        LOG_DEBUG("write file begin:%s\n", GetTime().c_str());
-                        std::future<void> result(std::async(std::launch::async, write_to_file, targetFileName.c_str(),
-                                                            tempBuffer.data(), totalSize));
-                        // result.wait();
-                        LOG_DEBUG("write file end:%s\n", GetTime().c_str());
-                        LOG_ERROR("Capture image save to :%s\n", targetFileName.c_str());
+                        LOG_DEBUG("SendRawDataWithExpInfo\n");
+                        // SendRawDataWithExpInfo(socket, index, buffer, size, &expInfo,
+                        // sizeof(rk_aiq_isp_tool_stats_t));
                     } else {
-                        LOG_DEBUG("Failed to allocate memory for tempBuffer, return\n");
-                        return;
+                        LOG_DEBUG("SendRawDataWithExpInfo\n");
+                        SendRawDataWithExpInfo(socket, index, buffer, size, &expInfo, sizeof(rk_aiq_isp_tool_stats_t));
                     }
-                    LOG_DEBUG("%s | DoCaptureCallBack end save file. sequence:%u\n", GetTime().c_str(), seq);
-                    lastSavedSequence = seq;
-
-                    LOG_DEBUG("SendRawDataWithExpInfo\n");
-                    // SendRawDataWithExpInfo(socket, index, buffer, size, &expInfo, sizeof(rk_aiq_isp_tool_stats_t));
                     break;
                 } else {
                     if (lastSavedSequence != 0 && cap_info_hdr2_1.sequence > (*it).frameID &&
@@ -1435,31 +1443,43 @@ static void OnlineRawCaptureCallBackHDRX2_1(int socket, int index, void* buffer,
         } else {
 
             LOG_DEBUG("DoCaptureCallBack size %d, sequence:%u\n", size, cap_info_hdr2_1.sequence);
+
             uint seq = cap_info_hdr2_1.sequence;
             LOG_DEBUG("%s | DoCaptureCallBack start save file. sequence:%u\n", GetTime().c_str(), seq);
             string targetFileName = g_capture_cache_dir + "/" + to_string(cap_info_hdr2_1.sequence) + "-2_2.raw";
             LOG_ERROR("Capture image :%s\n", targetFileName.c_str());
 
-            size_t totalSize = size + sizeof(rk_aiq_isp_tool_stats_t);
-            std::vector<char> tempBuffer(totalSize);
-            if (!tempBuffer.empty()) {
+            if (g_usingCaptureCacheFlag == 1) {
+                size_t totalSize = size + sizeof(rk_aiq_isp_tool_stats_t);
+                std::vector<char> tempBuffer(totalSize);
+                if (!tempBuffer.empty()) {
+                    rk_aiq_isp_tool_stats_t expInfo;
+                    memset(&expInfo, 0, sizeof(rk_aiq_isp_tool_stats_t));
+                    memcpy(tempBuffer.data(), buffer, size);
+                    memcpy(tempBuffer.data() + size, &expInfo, sizeof(rk_aiq_isp_tool_stats_t));
+                    LOG_DEBUG("write file begin:%s\n", GetTime().c_str());
+                    std::future<void> result(std::async(std::launch::async, write_to_file, targetFileName.c_str(),
+                                                        tempBuffer.data(), totalSize));
+                    // result.wait();
+                    LOG_DEBUG("write file end:%s\n", GetTime().c_str());
+                    LOG_ERROR("Capture image save to :%s\n", targetFileName.c_str());
+                } else {
+                    LOG_DEBUG("Failed to allocate memory for tempBuffer, return\n");
+                    return;
+                }
+
+                LOG_DEBUG("%s | DoCaptureCallBack end save file. sequence:%u\n", GetTime().c_str(), seq);
+                LOG_DEBUG("SendRawData NOExpInfo\n");
+            } else {
+                size_t totalSize = size + sizeof(rk_aiq_isp_tool_stats_t);
+                std::vector<char> tempBuffer(totalSize);
                 rk_aiq_isp_tool_stats_t expInfo;
                 memset(&expInfo, 0, sizeof(rk_aiq_isp_tool_stats_t));
                 memcpy(tempBuffer.data(), buffer, size);
                 memcpy(tempBuffer.data() + size, &expInfo, sizeof(rk_aiq_isp_tool_stats_t));
-                LOG_DEBUG("write file begin:%s\n", GetTime().c_str());
-                std::future<void> result(std::async(std::launch::async, write_to_file, targetFileName.c_str(),
-                                                    tempBuffer.data(), totalSize));
-                // result.wait();
-                LOG_DEBUG("write file end:%s\n", GetTime().c_str());
-                LOG_ERROR("Capture image save to :%s\n", targetFileName.c_str());
-            } else {
-                LOG_DEBUG("Failed to allocate memory for tempBuffer, return\n");
-                return;
+                SendRawData(socket, index, tempBuffer.data(), totalSize);
+                LOG_DEBUG("SendRawData NOExpInfo\n");
             }
-
-            LOG_DEBUG("%s | DoCaptureCallBack end save file. sequence:%u\n", GetTime().c_str(), seq);
-            LOG_DEBUG("SendRawData NOExpInfo\n");
         }
     }
 }
@@ -1488,9 +1508,9 @@ static void OnlineRawCaptureCallBackHDRX2_2(int socket, int index, void* buffer,
             return;
         }
 
-        {
+        if (g_usingCaptureCacheFlag == 1) {
             if (0 != access(g_capture_cache_dir.c_str(), 0)) {
-                if (g_usingCaptureCacheFlag==1 && mkdir(g_capture_cache_dir.c_str(), 0777) != 0) {
+                if (g_usingCaptureCacheFlag == 1 && mkdir(g_capture_cache_dir.c_str(), 0777) != 0) {
                     LOG_ERROR("Create folder %s failed.\n", g_capture_cache_dir.c_str());
                     return;
                 }
@@ -1518,6 +1538,11 @@ static void OnlineRawCaptureCallBackHDRX2_2(int socket, int index, void* buffer,
             }
             LOG_DEBUG("%s | DoCaptureCallBack end save file. sequence:%u\n", GetTime().c_str(), seq);
             LOG_DEBUG("SendRawData NOExpInfo\n");
+            capture_frames_index++;
+        } else {
+            LOG_DEBUG("SendRawData NOExpInfo\n");
+            SendRawData(socket, index, buffer, size);
+            capture_frames_index++;
         }
     }
 }
@@ -1612,7 +1637,7 @@ static void OnlineRawCaptureCallBackHDRX3_1(int socket, int index, void* buffer,
                                  expInfo.hdrExp[i].exp_real_params.longfrm_mode);
                     }
 
-                    if (g_usingCaptureCacheFlag==1 && 0 != access(g_capture_cache_dir.c_str(), 0)) {
+                    if (g_usingCaptureCacheFlag == 1 && 0 != access(g_capture_cache_dir.c_str(), 0)) {
                         if (mkdir(g_capture_cache_dir.c_str(), 0777) != 0) {
                             LOG_ERROR("Create folder %s failed.\n", g_capture_cache_dir.c_str());
                             return;
@@ -1646,7 +1671,7 @@ static void OnlineRawCaptureCallBackHDRX3_1(int socket, int index, void* buffer,
                 }
             }
         } else {
-            if (g_usingCaptureCacheFlag==1 && 0 != access(g_capture_cache_dir.c_str(), 0)) {
+            if (g_usingCaptureCacheFlag == 1 && 0 != access(g_capture_cache_dir.c_str(), 0)) {
                 if (mkdir(g_capture_cache_dir.c_str(), 0777) != 0) {
                     LOG_ERROR("Create folder %s failed.\n", g_capture_cache_dir.c_str());
                     return;
@@ -1703,7 +1728,7 @@ static void OnlineRawCaptureCallBackHDRX3_2(int socket, int index, void* buffer,
         }
 
         {
-            if (g_usingCaptureCacheFlag==1 && 0 != access(g_capture_cache_dir.c_str(), 0)) {
+            if (g_usingCaptureCacheFlag == 1 && 0 != access(g_capture_cache_dir.c_str(), 0)) {
                 if (mkdir(g_capture_cache_dir.c_str(), 0777) != 0) {
                     LOG_ERROR("Create folder %s failed.\n", g_capture_cache_dir.c_str());
                     return;
@@ -1758,7 +1783,7 @@ static void OnlineRawCaptureCallBackHDRX3_3(int socket, int index, void* buffer,
         }
 
         {
-            if (g_usingCaptureCacheFlag==1 && 0 != access(g_capture_cache_dir.c_str(), 0)) {
+            if (g_usingCaptureCacheFlag == 1 && 0 != access(g_capture_cache_dir.c_str(), 0)) {
                 if (mkdir(g_capture_cache_dir.c_str(), 0777) != 0) {
                     LOG_ERROR("Create folder %s failed.\n", g_capture_cache_dir.c_str());
                     return;
@@ -1846,8 +1871,7 @@ static int DoCaptureOnlineRaw(int sockfd)
                 printf("capture_frames_index/capture_frames:%u/%u", capture_frames_index, capture_frames);
                 break;
             }
-            if (g_mmapNumber <= 2)
-            {
+            if (g_mmapNumber <= 2) {
                 usleep(1000 * 100);
                 break;
             }
@@ -2114,7 +2138,7 @@ static int DoCaptureOnlineRaw(int sockfd)
     }
 
     //
-    if (g_capture_dev_name.length() == 0 && g_sensorHdrMode == NO_HDR && g_sensorMemoryMode != -1) {
+    if (g_compactModeFlag == 0 && g_sensorHdrMode == NO_HDR && g_sensorMemoryMode != -1) {
         int fd = open(cap_info.dev_name, O_RDWR, 0);
         LOG_INFO("fd: %d\n", fd);
         if (fd < 0) {
@@ -2123,6 +2147,8 @@ static int DoCaptureOnlineRaw(int sockfd)
             int ret = ioctl(fd, RKCIF_CMD_SET_CSI_MEMORY_MODE, &g_sensorMemoryMode); // set to origional mode
             if (ret > 0) {
                 LOG_ERROR("set cif node %s compact mode failed.\n", cap_info.dev_name);
+            } else {
+                LOG_ERROR("set cif node %s compact mode success.\n", cap_info.dev_name);
             }
         }
 
@@ -2382,8 +2408,12 @@ static void GetSensorHDRMode()
     assert(results.length() >= 2);
     string width = results.str(1);
     string height = results.str(2);
-    g_width = atoi(width.c_str());
-    g_height = atoi(height.c_str());
+
+    if (g_capture_dev_name.length() == 0) {
+        g_width = atoi(width.c_str());
+        g_height = atoi(height.c_str());
+    }
+
     if (g_width == 0 || g_height == 0) {
         LOG_ERROR("Captrure online raw, get output resolution failed.\n");
     } else {
@@ -2843,21 +2873,28 @@ static void ReplyOnlineRawSensorPara(int sockfd, CommandData_t* cmd)
         return;
     }
 
-    if (g_capture_dev_name.length() == 0) {
+    if (g_compactModeFlag == 0) {
         int fd = open(cap_info.dev_name, O_RDWR, 0);
         LOG_INFO("fd: %d\n", fd);
         if (fd < 0) {
             LOG_ERROR("Open dev %s failed.\n", cap_info.dev_name);
         } else {
+            int ret = ioctl(fd, RKCIF_CMD_GET_CSI_MEMORY_MODE, &g_sensorMemoryMode); // get original memory mode
+            if (ret > 0) {
+                LOG_ERROR("get cif node %s memory mode failed.\n", cap_info.dev_name);
+            }
+
+            //
             int value = CSI_LVDS_MEM_WORD_LOW_ALIGN;
-            int ret = ioctl(fd, RKCIF_CMD_SET_CSI_MEMORY_MODE, &value); // set to no compact
+            ret = ioctl(fd, RKCIF_CMD_SET_CSI_MEMORY_MODE, &value); // set to no compact
             if (ret > 0) {
                 LOG_ERROR("set cif node %s compact mode failed.\n", cap_info.dev_name);
             }
         }
+
         // set sync mode to no sync for dual camera
         int sensorfd = open(cap_info.sd_path.device_name, O_RDWR, 0);
-        int ret = ioctl(sensorfd, RKMODULE_GET_SYNC_MODE, &g_sensorSyncMode); // get original memory mode
+        int ret = ioctl(sensorfd, RKMODULE_GET_SYNC_MODE, &g_sensorSyncMode);
         if (ret > 0) {
             LOG_ERROR("get cif node %s sync mode failed.\n", cap_info.dev_name);
         }
@@ -2920,8 +2957,10 @@ static void ReplyOnlineRawSensorPara(int sockfd, CommandData_t* cmd)
     if (g_capture_dev_name.length() > 0) {
         if (g_sensorHdrMode == HDR_X2) {
             param->sensorImageFormat = PROC_ID_CAPTURE_RAW_COMPACT_HDR2_ALIGN256;
-        } else {
+        } else if (g_compactModeFlag == 1) {
             param->sensorImageFormat = PROC_ID_CAPTURE_RAW_COMPACT_LINEAR_ALIGN256;
+        } else {
+            param->sensorImageFormat = sensorFormat;
         }
     } else {
         param->sensorImageFormat = sensorFormat;
