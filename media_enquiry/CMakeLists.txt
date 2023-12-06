@@ -161,8 +161,6 @@ set(XCORE_SRC
     ${RK_AIQ_SOURCE_DIR}/xcore/xcam_thread.cpp
     )
 
-
-
 if(WIN32)
     SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/exe)
     SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/all_lib/)
@@ -181,3 +179,6 @@ message(${LIBRARY_OUTPUT_PATH})
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
 add_executable(media_enquiry ${DIR_SRCS} ${XCORE_SRC})
+if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Android")
+    target_link_libraries(media_enquiry pthread)
+endif()
