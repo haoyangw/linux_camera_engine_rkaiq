@@ -1030,9 +1030,9 @@ bool RkAiqResourceTranslator::getAeStatsRunFlag(uint8_t* HistMean)
 
     if (cur_working_mode == RK_AIQ_WORKING_MODE_NORMAL)
         FrameNum = 1;
-    else if(cur_working_mode == RK_AIQ_WORKING_MODE_ISP_HDR2)
+    else if(cur_working_mode >= RK_AIQ_WORKING_MODE_ISP_HDR2 && cur_working_mode < RK_AIQ_WORKING_MODE_ISP_HDR3)
         FrameNum = 2;
-    else if(cur_working_mode == RK_AIQ_WORKING_MODE_ISP_HDR3)
+    else if(cur_working_mode >= RK_AIQ_WORKING_MODE_ISP_HDR3)
         FrameNum = 3;
     else
         LOGE("wrong working mode=%d\n", cur_working_mode);
