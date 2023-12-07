@@ -6369,54 +6369,57 @@ XCamReturn
 CamHwIsp20::setFastAeExp(uint32_t frameId)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-    rkisp32_thunderboot_resmem_head fastAeAwbInfo;
-    SensorHw* mSensor = mSensorDev.get_cast_ptr<SensorHw>();
-    if (mIspCoreDev->io_control(RKISP_CMD_GET_TB_HEAD_V32, &fastAeAwbInfo) < 0)
-        ret = XCAM_RETURN_ERROR_FAILED;
 
-    rk_aiq_exposure_params_t fastae;
+    if (mTbInfo.rtt_share_addr) {
+        rkisp32_thunderboot_resmem_head fastAeAwbInfo;
+        rk_aiq_exposure_params_t fastae;
+        SensorHw* mSensor = mSensorDev.get_cast_ptr<SensorHw>();
+        if (mIspCoreDev->io_control(RKISP_CMD_GET_TB_HEAD_V32, &fastAeAwbInfo) < 0)
+            ret = XCAM_RETURN_ERROR_FAILED;
 
-    if (ret == XCAM_RETURN_NO_ERROR) {
-        if( _working_mode == RK_AIQ_WORKING_MODE_NORMAL) {
-            fastae.LinearExp.exp_real_params.analog_gain      = (float)fastAeAwbInfo.head.exp_gain[0] / (1 << 16);
-            fastae.LinearExp.exp_real_params.integration_time = (float)fastAeAwbInfo.head.exp_time[0] / (1 << 16);
-            fastae.LinearExp.exp_real_params.digital_gain     = 1.0f;
-            fastae.LinearExp.exp_real_params.isp_dgain        = (float)fastAeAwbInfo.head.exp_isp_dgain[0] / (1 << 16);
-            fastae.LinearExp.exp_sensor_params.analog_gain_code_global = fastAeAwbInfo.head.exp_gain_reg[0];
-            fastae.LinearExp.exp_sensor_params.coarse_integration_time = fastAeAwbInfo.head.exp_time_reg[0];
-            LOGD_CAMHW("fast LinearExp ae set frame %u effect exp %f %f %f", frameId,
-                                                                             fastae.LinearExp.exp_real_params.analog_gain,
-                                                                             fastae.LinearExp.exp_real_params.integration_time,
-                                                                             fastae.LinearExp.exp_real_params.isp_dgain);
-        } else {
-            fastae.HdrExp[0].exp_real_params.analog_gain      = (float)fastAeAwbInfo.head.exp_gain[0] / (1 << 16);
-            fastae.HdrExp[0].exp_real_params.integration_time = (float)fastAeAwbInfo.head.exp_time[0] / (1 << 16);
-            fastae.HdrExp[0].exp_real_params.digital_gain     = 1.0f;
-            fastae.HdrExp[0].exp_real_params.isp_dgain        = (float)fastAeAwbInfo.head.exp_isp_dgain[0] / (1 << 16);
-            fastae.HdrExp[0].exp_sensor_params.analog_gain_code_global = fastAeAwbInfo.head.exp_gain_reg[0];
-            fastae.HdrExp[0].exp_sensor_params.coarse_integration_time = fastAeAwbInfo.head.exp_time_reg[0];
+        if (ret == XCAM_RETURN_NO_ERROR) {
+            if( _working_mode == RK_AIQ_WORKING_MODE_NORMAL) {
+                fastae.LinearExp.exp_real_params.analog_gain      = (float)fastAeAwbInfo.head.exp_gain[0] / (1 << 16);
+                fastae.LinearExp.exp_real_params.integration_time = (float)fastAeAwbInfo.head.exp_time[0] / (1 << 16);
+                fastae.LinearExp.exp_real_params.digital_gain     = 1.0f;
+                fastae.LinearExp.exp_real_params.isp_dgain        = (float)fastAeAwbInfo.head.exp_isp_dgain[0] / (1 << 16);
+                fastae.LinearExp.exp_sensor_params.analog_gain_code_global = fastAeAwbInfo.head.exp_gain_reg[0];
+                fastae.LinearExp.exp_sensor_params.coarse_integration_time = fastAeAwbInfo.head.exp_time_reg[0];
+                LOGD_CAMHW("fast LinearExp ae set frame %u effect exp %f %f %f", frameId,
+                                                                                fastae.LinearExp.exp_real_params.analog_gain,
+                                                                                fastae.LinearExp.exp_real_params.integration_time,
+                                                                                fastae.LinearExp.exp_real_params.isp_dgain);
+            } else {
+                fastae.HdrExp[0].exp_real_params.analog_gain      = (float)fastAeAwbInfo.head.exp_gain[0] / (1 << 16);
+                fastae.HdrExp[0].exp_real_params.integration_time = (float)fastAeAwbInfo.head.exp_time[0] / (1 << 16);
+                fastae.HdrExp[0].exp_real_params.digital_gain     = 1.0f;
+                fastae.HdrExp[0].exp_real_params.isp_dgain        = (float)fastAeAwbInfo.head.exp_isp_dgain[0] / (1 << 16);
+                fastae.HdrExp[0].exp_sensor_params.analog_gain_code_global = fastAeAwbInfo.head.exp_gain_reg[0];
+                fastae.HdrExp[0].exp_sensor_params.coarse_integration_time = fastAeAwbInfo.head.exp_time_reg[0];
 
-            fastae.HdrExp[1].exp_real_params.analog_gain      = (float)fastAeAwbInfo.head.exp_gain[1] / (1 << 16);
-            fastae.HdrExp[1].exp_real_params.integration_time = (float)fastAeAwbInfo.head.exp_time[1] / (1 << 16);
-            fastae.HdrExp[1].exp_real_params.digital_gain     = 1.0f;
-            fastae.HdrExp[1].exp_real_params.isp_dgain        = (float)fastAeAwbInfo.head.exp_isp_dgain[1] / (1 << 16);
-            fastae.HdrExp[1].exp_sensor_params.analog_gain_code_global = fastAeAwbInfo.head.exp_gain_reg[1];
-            fastae.HdrExp[1].exp_sensor_params.coarse_integration_time = fastAeAwbInfo.head.exp_time_reg[1];
+                fastae.HdrExp[1].exp_real_params.analog_gain      = (float)fastAeAwbInfo.head.exp_gain[1] / (1 << 16);
+                fastae.HdrExp[1].exp_real_params.integration_time = (float)fastAeAwbInfo.head.exp_time[1] / (1 << 16);
+                fastae.HdrExp[1].exp_real_params.digital_gain     = 1.0f;
+                fastae.HdrExp[1].exp_real_params.isp_dgain        = (float)fastAeAwbInfo.head.exp_isp_dgain[1] / (1 << 16);
+                fastae.HdrExp[1].exp_sensor_params.analog_gain_code_global = fastAeAwbInfo.head.exp_gain_reg[1];
+                fastae.HdrExp[1].exp_sensor_params.coarse_integration_time = fastAeAwbInfo.head.exp_time_reg[1];
 
-            fastae.HdrExp[2].exp_real_params.analog_gain      = (float)fastAeAwbInfo.head.exp_gain[2] / (1 << 16);
-            fastae.HdrExp[2].exp_real_params.integration_time = (float)fastAeAwbInfo.head.exp_time[2] / (1 << 16);
-            fastae.HdrExp[2].exp_real_params.digital_gain     = 1.0f;
-            fastae.HdrExp[2].exp_real_params.isp_dgain        = (float)fastAeAwbInfo.head.exp_isp_dgain[2] / (1 << 16);
-            fastae.HdrExp[2].exp_sensor_params.analog_gain_code_global = fastAeAwbInfo.head.exp_gain_reg[2];
-            fastae.HdrExp[2].exp_sensor_params.coarse_integration_time = fastAeAwbInfo.head.exp_time_reg[2];
-            LOGD_CAMHW("fast HdrExp[0] ae set frame %u effect exp %f %f %f", frameId,
-                                                                             fastae.HdrExp[0].exp_real_params.analog_gain,
-                                                                             fastae.HdrExp[0].exp_real_params.integration_time,
-                                                                             fastae.HdrExp[0].exp_real_params.isp_dgain);
+                fastae.HdrExp[2].exp_real_params.analog_gain      = (float)fastAeAwbInfo.head.exp_gain[2] / (1 << 16);
+                fastae.HdrExp[2].exp_real_params.integration_time = (float)fastAeAwbInfo.head.exp_time[2] / (1 << 16);
+                fastae.HdrExp[2].exp_real_params.digital_gain     = 1.0f;
+                fastae.HdrExp[2].exp_real_params.isp_dgain        = (float)fastAeAwbInfo.head.exp_isp_dgain[2] / (1 << 16);
+                fastae.HdrExp[2].exp_sensor_params.analog_gain_code_global = fastAeAwbInfo.head.exp_gain_reg[2];
+                fastae.HdrExp[2].exp_sensor_params.coarse_integration_time = fastAeAwbInfo.head.exp_time_reg[2];
+                LOGD_CAMHW("fast HdrExp[0] ae set frame %u effect exp %f %f %f", frameId,
+                                                                                fastae.HdrExp[0].exp_real_params.analog_gain,
+                                                                                fastae.HdrExp[0].exp_real_params.integration_time,
+                                                                                fastae.HdrExp[0].exp_real_params.isp_dgain);
+            }
+            mSensor->set_effecting_exp_map(frameId, &fastae, 0);
         }
-        mSensor->set_effecting_exp_map(frameId, &fastae, 0);
+    } else {
+        ret = XCAM_RETURN_ERROR_FAILED;
     }
-
     mAweekId = frameId;
 
     return ret;
