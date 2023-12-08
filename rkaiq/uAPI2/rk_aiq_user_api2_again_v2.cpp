@@ -195,7 +195,7 @@ rk_aiq_user_api2_againV2_GetInfo(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_gain_in
 }
 
 XCamReturn
-rk_aiq_user_api2_againV2_WriteInput(const rk_aiq_sys_ctx_t* sys_ctx, const rk_aiq_uapiV2_again_wrtIn_attr_t &attr, bool need_sync)
+rk_aiq_user_api2_againV2_WriteInput(const rk_aiq_sys_ctx_t* sys_ctx, const rk_aiq_uapiV2_again_wrtIn_attr_t *attr, bool need_sync)
 {
     return XCAM_RETURN_ERROR_UNKNOWN;
 }
