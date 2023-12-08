@@ -879,7 +879,7 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStats(const SmartPtr<Vid
     // calc ae stats run flag
     uint64_t SumHistPix[2] = { 0, 0 };
     uint64_t SumHistBin[2] = { 0, 0 };
-    uint8_t HistMean[2] = { 0, 0 };
+    uint16_t HistMean[2] = { 0, 0 };
     u32* hist_bin[2];
     u32 pixel_num[ISP32_RAWAEBIG_SUBWIN_NUM] = { 0 };
 
@@ -897,8 +897,8 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStats(const SmartPtr<Vid
         SumHistBin[index1] += (hist_bin[index1][i] * (i + 1));
     }
 
-    HistMean[0] = (uint8_t)(SumHistBin[0] / MAX(SumHistPix[0], 1));
-    HistMean[1] = (uint8_t)(SumHistBin[1] / MAX(SumHistPix[1], 1));
+    HistMean[0] = (uint16_t)(SumHistBin[0] / MAX(SumHistPix[0], 1));
+    HistMean[1] = (uint16_t)(SumHistBin[1] / MAX(SumHistPix[1], 1));
     bool run_flag = getAeStatsRunFlag(HistMean);
     run_flag |= _aeAlgoStatsCfg.UpdateStats;
 
@@ -908,7 +908,7 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStats(const SmartPtr<Vid
             MergeAecWinLiteStats(&left_stats->params.rawae0,
                                  &right_stats->params.rawae0,
                                  &statsInt->aec_stats.ae_data.chn[index0].rawae_lite,
-                                 &_aeRawMean[index0],
+                                 &statsInt->aec_stats.ae_data.raw_mean[index0],
                                  _aeAlgoStatsCfg.LiteWeight, _aeAlgoStatsCfg.RawStatsChnSel, _aeAlgoStatsCfg.YRangeMode,
                                  AeWinSplitMode[0], bls1_val, awb1_gain);
         }
@@ -918,7 +918,7 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStats(const SmartPtr<Vid
             MergeAecWinBigStats(&left_stats->params.rawae1_0,
                                 &right_stats->params.rawae1_0,
                                 &statsInt->aec_stats.ae_data.chn[index1].rawae_big,
-                                &_aeRawMean[index1],
+                                &statsInt->aec_stats.ae_data.raw_mean[index1],
                                 _aeAlgoStatsCfg.BigWeight, _aeAlgoStatsCfg.RawStatsChnSel, _aeAlgoStatsCfg.YRangeMode,
                                 AeWinSplitMode[1], bls1_val, awb1_gain);
 
@@ -941,7 +941,7 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStats(const SmartPtr<Vid
                 MergeAecWinBigStats(&left_stats->params.rawae3_0,
                                     &right_stats->params.rawae3_0,
                                     &statsInt->aec_stats.ae_data.chn[AeSelMode].rawae_big,
-                                    &_aeRawMean[AeSelMode],
+                                    &statsInt->aec_stats.ae_data.raw_mean[AeSelMode],
                                     _aeAlgoStatsCfg.BigWeight, _aeAlgoStatsCfg.RawStatsChnSel, _aeAlgoStatsCfg.YRangeMode,
                                     AeWinSplitMode[AeSelMode], bls1_val, awb1_gain);
 
@@ -970,7 +970,7 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStats(const SmartPtr<Vid
                 MergeAecWinBigStats(&left_stats->params.rawae3_0,
                                     &right_stats->params.rawae3_0,
                                     &statsInt->aec_stats.ae_data.extra.rawae_big,
-                                    &_aeRawMean[AeSelMode],
+                                    &statsInt->aec_stats.ae_data.raw_mean[AeSelMode],
                                     _aeAlgoStatsCfg.BigWeight, _aeAlgoStatsCfg.RawStatsChnSel, _aeAlgoStatsCfg.YRangeMode,
                                     AeWinSplitMode[AeSelMode], bls1_val, awb1_gain);
 
@@ -998,9 +998,10 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStats(const SmartPtr<Vid
                 return XCAM_RETURN_ERROR_PARAM;
             }
         }
+        _lastAeStats =  statsInt->aec_stats.ae_data;
+    } else {
+        statsInt->aec_stats.ae_data = _lastAeStats;
     }
-
-    memcpy(statsInt->aec_stats.ae_data.raw_mean, _aeRawMean, sizeof(_aeRawMean));
 
 #ifdef AE_STATS_DEBUG
     if (AeSwapMode != 0) {
@@ -1158,8 +1159,8 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAwbStats(const SmartPtr<Vid
            sizeof(statsInt->awb_stats_v32.awb_cfg_effect_v32.IllIndxSetCurrent));
     memcpy(statsInt->awb_stats_v32.awb_cfg_effect_v32.timeSign, _ispParams.awb_cfg_v32.timeSign,
            sizeof(statsInt->awb_stats_v32.awb_cfg_effect_v32.timeSign));
-    memcpy(statsInt->awb_stats_v32.awb_cfg_effect_v32.preWbgainSw,_ispParams.awb_cfg_v32.preWbgainSw,
-        sizeof(_ispParams.awb_cfg_v32.preWbgainSw));
+    memcpy(statsInt->awb_stats_v32.awb_cfg_effect_v32.preWbgainSw, _ispParams.awb_cfg_v32.preWbgainSw,
+           sizeof(_ispParams.awb_cfg_v32.preWbgainSw));
     statsInt->awb_cfg_effect_valid = true;
     statsInt->frame_id = left_stats->frame_id;
 
@@ -2317,7 +2318,7 @@ XCamReturn RkAiqResourceTranslatorV32::translateAecStats(const SmartPtr<VideoBuf
     // calc ae stats run flag
     uint64_t SumHistPix[2] = { 0, 0 };
     uint64_t SumHistBin[2] = { 0, 0 };
-    uint8_t HistMean[2] = { 0, 0 };
+    uint16_t HistMean[2] = { 0, 0 };
     u32* hist_bin[2];
     u32 pixel_num[ISP32_RAWAEBIG_SUBWIN_NUM] = { 0 };
 
@@ -2335,8 +2336,8 @@ XCamReturn RkAiqResourceTranslatorV32::translateAecStats(const SmartPtr<VideoBuf
         SumHistBin[index1] += (hist_bin[index1][i] * (i + 1));
     }
 
-    HistMean[0] = (uint8_t)(SumHistBin[0] / MAX(SumHistPix[0], 1));
-    HistMean[1] = (uint8_t)(SumHistBin[1] / MAX(SumHistPix[1], 1));
+    HistMean[0] = (uint16_t)(SumHistBin[0] / MAX(SumHistPix[0], 1));
+    HistMean[1] = (uint16_t)(SumHistBin[1] / MAX(SumHistPix[1], 1));
     bool run_flag = getAeStatsRunFlag(HistMean);
     run_flag |= _aeAlgoStatsCfg.UpdateStats;
 
@@ -2344,7 +2345,7 @@ XCamReturn RkAiqResourceTranslatorV32::translateAecStats(const SmartPtr<VideoBuf
         if (is_hdr || AeSwapMode == AEC_RAWSWAP_MODE_S_LITE) {
             calcAecLiteWinStatsV32(&stats->params.rawae0,
                                    &statsInt->aec_stats.ae_data.chn[index0].rawae_lite,
-                                   &_aeRawMean[index0],
+                                   &statsInt->aec_stats.ae_data.raw_mean[index0],
                                    _aeAlgoStatsCfg.LiteWeight, _aeAlgoStatsCfg.RawStatsChnSel, _aeAlgoStatsCfg.YRangeMode,
                                    bls1_val, awb1_gain);
 
@@ -2363,7 +2364,7 @@ XCamReturn RkAiqResourceTranslatorV32::translateAecStats(const SmartPtr<VideoBuf
             pixel_num[3] = isp_params->rawae1.subwin[3].h_size * isp_params->rawae1.subwin[3].v_size;
             calcAecBigWinStatsV32(&stats->params.rawae1_0, &stats->params.rawae1_1,
                                   &statsInt->aec_stats.ae_data.chn[index1].rawae_big,
-                                  &_aeRawMean[index1],
+                                  &statsInt->aec_stats.ae_data.raw_mean[index1],
                                   _aeAlgoStatsCfg.BigWeight, _aeAlgoStatsCfg.RawStatsChnSel, _aeAlgoStatsCfg.YRangeMode,
                                   bls1_val, awb1_gain, pixel_num);
 
@@ -2386,7 +2387,7 @@ XCamReturn RkAiqResourceTranslatorV32::translateAecStats(const SmartPtr<VideoBuf
                 pixel_num[3] = isp_params->rawae3.subwin[3].h_size * isp_params->rawae3.subwin[3].v_size;
                 calcAecBigWinStatsV32(&stats->params.rawae3_0, &stats->params.rawae3_1,
                                       &statsInt->aec_stats.ae_data.chn[AeSelMode].rawae_big,
-                                      &_aeRawMean[AeSelMode],
+                                      &statsInt->aec_stats.ae_data.raw_mean[AeSelMode],
                                       _aeAlgoStatsCfg.BigWeight, _aeAlgoStatsCfg.RawStatsChnSel, _aeAlgoStatsCfg.YRangeMode,
                                       bls1_val, awb1_gain, pixel_num);
 
@@ -2412,7 +2413,7 @@ XCamReturn RkAiqResourceTranslatorV32::translateAecStats(const SmartPtr<VideoBuf
 
                 calcAecBigWinStatsV32(&stats->params.rawae3_0, &stats->params.rawae3_1,
                                       &statsInt->aec_stats.ae_data.extra.rawae_big,
-                                      &_aeRawMean[AeSelMode],
+                                      &statsInt->aec_stats.ae_data.raw_mean[AeSelMode],
                                       _aeAlgoStatsCfg.BigWeight, _aeAlgoStatsCfg.RawStatsChnSel, _aeAlgoStatsCfg.YRangeMode,
                                       bls1_val, awb1_gain, pixel_num);
 
@@ -2427,9 +2428,10 @@ XCamReturn RkAiqResourceTranslatorV32::translateAecStats(const SmartPtr<VideoBuf
                 break;
             }
         }
+        _lastAeStats = statsInt->aec_stats.ae_data;
+    } else {
+        statsInt->aec_stats.ae_data = _lastAeStats;
     }
-
-    memcpy(statsInt->aec_stats.ae_data.raw_mean, _aeRawMean, sizeof(_aeRawMean));
 
 #ifdef AE_STATS_DEBUG
     if (AeSwapMode != 0) {
@@ -2566,7 +2568,7 @@ XCamReturn RkAiqResourceTranslatorV32::translateAecStats(const SmartPtr<VideoBuf
     // ae stats v3.2-lite
     statsInt->frame_id = stats->frame_id;
     statsInt->aec_stats_valid = (meas_type & 0x01) ? true : false;
-        if (!statsInt->aec_stats_valid)
+    if (!statsInt->aec_stats_valid)
         return XCAM_RETURN_BYPASS;
     /*
      * For isp32-lite, both RawAE0(lite) and RawAE3(big3) can share with AF, arawaf.ae_sel=0 use RawAE3, rawaf.ae_sel=1 use RawAE0.
@@ -2589,7 +2591,7 @@ XCamReturn RkAiqResourceTranslatorV32::translateAecStats(const SmartPtr<VideoBuf
     // calc ae stats run flag
     uint64_t SumHistPix[2] = { 0, 0 };
     uint64_t SumHistBin[2] = { 0, 0 };
-    uint8_t HistMean[2] = { 0, 0 };
+    uint16_t HistMean[2] = { 0, 0 };
     int oneBinWidth = 256 / ISP32L_HIST_LITE_BIN_N_MAX;
     u32 pixel_num = 0;
 
@@ -2612,8 +2614,8 @@ XCamReturn RkAiqResourceTranslatorV32::translateAecStats(const SmartPtr<VideoBuf
         }
     }
 
-    HistMean[0] = (uint8_t)(SumHistBin[0] / MAX(SumHistPix[0], 1));
-    HistMean[1] = (uint8_t)(SumHistBin[1] / MAX(SumHistPix[1], 1));
+    HistMean[0] = (uint16_t)(SumHistBin[0] / MAX(SumHistPix[0], 1));
+    HistMean[1] = (uint16_t)(SumHistBin[1] / MAX(SumHistPix[1], 1));
     bool run_flag = getAeStatsRunFlag(HistMean);
     run_flag |= _aeAlgoStatsCfg.UpdateStats;
 
@@ -2621,7 +2623,7 @@ XCamReturn RkAiqResourceTranslatorV32::translateAecStats(const SmartPtr<VideoBuf
         if (!AfUseRawAE0 && is_hdr) {
             calcAecLiteWinStatsV32Lite(&stats->params.rawae0,
                                        &statsInt->aec_stats.ae_data.chn[index0].rawae_lite,
-                                       &_aeRawMean[index0],
+                                       &statsInt->aec_stats.ae_data.raw_mean[index0],
                                        _aeAlgoStatsCfg.LiteWeight, _aeAlgoStatsCfg.RawStatsChnSel, _aeAlgoStatsCfg.YRangeMode,
                                        bls1_val, awb1_gain);
 
@@ -2641,7 +2643,7 @@ XCamReturn RkAiqResourceTranslatorV32::translateAecStats(const SmartPtr<VideoBuf
             pixel_num = MAX(1, isp_params->rawae3.subwin[0].h_size * isp_params->rawae3.subwin[0].v_size);
             calcAecBigWinStatsV32Lite(&stats->params.rawae3,
                                       &statsInt->aec_stats.ae_data.chn[AeSelMode].rawae_big,
-                                      &_aeRawMean[AeSelMode],
+                                      &statsInt->aec_stats.ae_data.raw_mean[AeSelMode],
                                       _aeAlgoStatsCfg.BigWeight, _aeAlgoStatsCfg.RawStatsChnSel, _aeAlgoStatsCfg.YRangeMode,
                                       bls1_val, awb1_gain, pixel_num);
 
@@ -2667,7 +2669,7 @@ XCamReturn RkAiqResourceTranslatorV32::translateAecStats(const SmartPtr<VideoBuf
             pixel_num = MAX(1, isp_params->rawae3.subwin[0].h_size * isp_params->rawae3.subwin[0].v_size);
             calcAecBigWinStatsV32Lite(&stats->params.rawae3,
                                       &statsInt->aec_stats.ae_data.extra.rawae_big,
-                                      &_aeRawMean[AeSelMode],
+                                      &statsInt->aec_stats.ae_data.raw_mean[AeSelMode],
                                       _aeAlgoStatsCfg.BigWeight, _aeAlgoStatsCfg.RawStatsChnSel, _aeAlgoStatsCfg.YRangeMode,
                                       bls1_val, awb1_gain, pixel_num);
 
@@ -2679,10 +2681,10 @@ XCamReturn RkAiqResourceTranslatorV32::translateAecStats(const SmartPtr<VideoBuf
             LOGE("wrong AeSelMode=%d\n", AeSelMode);
             return XCAM_RETURN_ERROR_PARAM;
         }
-
+        _lastAeStats = statsInt->aec_stats.ae_data;
+    } else {
+        statsInt->aec_stats.ae_data = _lastAeStats;
     }
-
-    memcpy(statsInt->aec_stats.ae_data.raw_mean, _aeRawMean, sizeof(_aeRawMean));
 
 #ifdef AE_STATS_DEBUG
     if(is_hdr) {
@@ -2872,8 +2874,8 @@ XCamReturn RkAiqResourceTranslatorV32::translateAwbStats(const SmartPtr<VideoBuf
            sizeof(statsInt->awb_stats_v32.awb_cfg_effect_v32.IllIndxSetCurrent));
     memcpy(statsInt->awb_stats_v32.awb_cfg_effect_v32.timeSign, _ispParams.awb_cfg_v32.timeSign,
            sizeof(statsInt->awb_stats_v32.awb_cfg_effect_v32.timeSign));
-    memcpy(statsInt->awb_stats_v32.awb_cfg_effect_v32.preWbgainSw,_ispParams.awb_cfg_v32.preWbgainSw,
-        sizeof(_ispParams.awb_cfg_v32.preWbgainSw));
+    memcpy(statsInt->awb_stats_v32.awb_cfg_effect_v32.preWbgainSw, _ispParams.awb_cfg_v32.preWbgainSw,
+           sizeof(_ispParams.awb_cfg_v32.preWbgainSw));
     statsInt->awb_cfg_effect_valid = true;
     statsInt->frame_id = stats->frame_id;
     for(int i = 0; i < statsInt->awb_stats_v32.awb_cfg_effect_v32.lightNum; i++) {
@@ -3209,8 +3211,8 @@ XCamReturn RkAiqResourceTranslatorV32::translateAgainStats(const SmartPtr<VideoB
         LOGE("fail to get stats ,ignore\n");
         return XCAM_RETURN_BYPASS;
     }
-    LOGD_ANALYZER("again stats: camId:%d, frame_id: %d, meas_type; 0x%x" ,
-                 mCamPhyId, stats->frame_id, stats->meas_type);
+    LOGD_ANALYZER("again stats: camId:%d, frame_id: %d, meas_type; 0x%x",
+                  mCamPhyId, stats->frame_id, stats->meas_type);
 
     if (stats->params.info2ddr.owner == RKISP_INFO2DRR_OWNER_GAIN) {
         statsInt->again_stats.dbginfo_fd = stats->params.info2ddr.buf_fd;
@@ -3968,15 +3970,15 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStatsV32Lite(const Smart
     }
 
     if(top_left_stats->frame_id != top_right_stats->frame_id || top_left_stats->meas_type != top_right_stats->meas_type ||
-       bottom_left_stats->frame_id != bottom_right_stats->frame_id || bottom_left_stats->meas_type != bottom_right_stats->meas_type ||
-       bottom_left_stats->frame_id != top_left_stats->frame_id || bottom_left_stats->meas_type != top_left_stats->meas_type) {
+            bottom_left_stats->frame_id != bottom_right_stats->frame_id || bottom_left_stats->meas_type != bottom_right_stats->meas_type ||
+            bottom_left_stats->frame_id != top_left_stats->frame_id || bottom_left_stats->meas_type != top_left_stats->meas_type) {
         LOGE_ANALYZER("status params(frmid or meas_type) of left isp and right isp are different");
         LOGE_ANALYZER("top left id %d meas %llx left id %d meas %llx bottom left id %d meas %llx left id %d meas %llx mode %d",
-        top_left_stats->frame_id, top_left_stats->meas_type,
-        top_right_stats->frame_id, top_right_stats->meas_type,
-        bottom_left_stats->frame_id, bottom_left_stats->meas_type,
-        bottom_right_stats->frame_id, bottom_right_stats->meas_type,
-        AeSwapMode);
+                      top_left_stats->frame_id, top_left_stats->meas_type,
+                      top_right_stats->frame_id, top_right_stats->meas_type,
+                      bottom_left_stats->frame_id, bottom_left_stats->meas_type,
+                      bottom_right_stats->frame_id, bottom_right_stats->meas_type,
+                      AeSwapMode);
         return XCAM_RETURN_ERROR_PARAM;
     }
 
@@ -4007,12 +4009,12 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStatsV32Lite(const Smart
     if (!statsInt->aec_stats_valid)
         return XCAM_RETURN_BYPASS;
 
-     /*
-     * For isp32-lite, both RawAE0(lite) and RawAE3(big3) can share with AF, arawaf.ae_sel=0 use RawAE3, rawaf.ae_sel=1 use RawAE0.
-     * Conventional rules, 3A specify share RawAE0 with AF, so RawAE3 can be used independently by AE algorithm.
-     * AF prior is always false, which means that the AE algorithm can always use RawAE3 stats.
-     * In summary, when AF is enabled, rawaf.ae_mode=1, rawaf.ae_sel=1. When AF is disabled, rawaf.ae_mode=0, rawaf.ae_sel=0.
-     */
+    /*
+    * For isp32-lite, both RawAE0(lite) and RawAE3(big3) can share with AF, arawaf.ae_sel=0 use RawAE3, rawaf.ae_sel=1 use RawAE0.
+    * Conventional rules, 3A specify share RawAE0 with AF, so RawAE3 can be used independently by AE algorithm.
+    * AF prior is always false, which means that the AE algorithm can always use RawAE3 stats.
+    * In summary, when AF is enabled, rawaf.ae_mode=1, rawaf.ae_sel=1. When AF is disabled, rawaf.ae_mode=0, rawaf.ae_sel=0.
+    */
     statsInt->af_prior = false; //used for AE algorithm
     u8 AfUseRawAE0 = isp_params->rawaf.ae_sel;
     if ((AfUseAeHW && !AfUseRawAE0) || (!AfUseAeHW && AfUseRawAE0)) {
@@ -4030,20 +4032,20 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStatsV32Lite(const Smart
         unsigned int bottom_stats[RAWHIST_BIN_N_MAX];
 
         MergeAecHistBinStats(top_left_stats->params.rawhist0.hist_bin,
-                            top_right_stats->params.rawhist0.hist_bin,
-                            top_stats,
-                            AeWinSplitMode[index0], rawhist_mode,
-                            isp_ob_offset_rb, isp_ob_offset_g,
-                            bls1_ori_val, awb1_gain, is_hdr,
-                            ISP32L_HIST_LITE_BIN_N_MAX);
+                             top_right_stats->params.rawhist0.hist_bin,
+                             top_stats,
+                             AeWinSplitMode[index0], rawhist_mode,
+                             isp_ob_offset_rb, isp_ob_offset_g,
+                             bls1_ori_val, awb1_gain, is_hdr,
+                             ISP32L_HIST_LITE_BIN_N_MAX);
 
         MergeAecHistBinStats(bottom_left_stats->params.rawhist0.hist_bin,
-                            bottom_right_stats->params.rawhist0.hist_bin,
-                            bottom_stats,
-                            AeWinSplitMode[index0], rawhist_mode,
-                            isp_ob_offset_rb, isp_ob_offset_g,
-                            bls1_ori_val, awb1_gain, is_hdr,
-                            ISP32L_HIST_LITE_BIN_N_MAX);
+                             bottom_right_stats->params.rawhist0.hist_bin,
+                             bottom_stats,
+                             AeWinSplitMode[index0], rawhist_mode,
+                             isp_ob_offset_rb, isp_ob_offset_g,
+                             bls1_ori_val, awb1_gain, is_hdr,
+                             ISP32L_HIST_LITE_BIN_N_MAX);
 
         switch (AeWinSplitModeV[index0])
         {
@@ -4112,7 +4114,7 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStatsV32Lite(const Smart
     // calc ae stats run flag
     uint64_t SumHistPix[2] = { 0, 0 };
     uint64_t SumHistBin[2] = { 0, 0 };
-    uint8_t HistMean[2] = { 0, 0 };
+    uint16_t HistMean[2] = { 0, 0 };
     int oneBinWidth = 256 / ISP32L_HIST_LITE_BIN_N_MAX;
     u32* hist_bin[2];
     u32 pixel_num = 0;
@@ -4144,8 +4146,8 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStatsV32Lite(const Smart
         }
     }
 
-    HistMean[0] = (uint8_t)(SumHistBin[0] / MAX(SumHistPix[0], 1));
-    HistMean[1] = (uint8_t)(SumHistBin[1] / MAX(SumHistPix[1], 1));
+    HistMean[0] = (uint16_t)(SumHistBin[0] / MAX(SumHistPix[0], 1));
+    HistMean[1] = (uint16_t)(SumHistBin[1] / MAX(SumHistPix[1], 1));
     bool run_flag = getAeStatsRunFlag(HistMean);
     run_flag |= _aeAlgoStatsCfg.UpdateStats;
 
@@ -4154,18 +4156,18 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStatsV32Lite(const Smart
         if(!AfUseRawAE0 && is_hdr) {
             struct isp2x_rawaelite_stat rawae_lite_top, rawae_lite_bottom;
             MergeAecHorizontalWinLiteStats(&rawae_lite_top, &rawae_lite_bottom,
-                                    &top_left_stats->params.rawae0,
-                                    &top_right_stats->params.rawae0,
-                                    &bottom_left_stats->params.rawae0,
-                                    &bottom_right_stats->params.rawae0,
-                                    AeWinSplitMode[0]);
+                                           &top_left_stats->params.rawae0,
+                                           &top_right_stats->params.rawae0,
+                                           &bottom_left_stats->params.rawae0,
+                                           &bottom_right_stats->params.rawae0,
+                                           AeWinSplitMode[0]);
 
             MergeAecWinLiteStatsVerticalV32Lite(&rawae_lite_top,
-                                &rawae_lite_bottom,
-                                &statsInt->aec_stats.ae_data.chn[index0].rawae_lite,
-                                &_aeRawMean[index0],
-                                _aeAlgoStatsCfg.LiteWeight, _aeAlgoStatsCfg.RawStatsChnSel, _aeAlgoStatsCfg.YRangeMode,
-                                AeWinSplitModeV[0], bls1_val, awb1_gain);
+                                                &rawae_lite_bottom,
+                                                &statsInt->aec_stats.ae_data.chn[index0].rawae_lite,
+                                                &statsInt->aec_stats.ae_data.raw_mean[index0],
+                                                _aeAlgoStatsCfg.LiteWeight, _aeAlgoStatsCfg.RawStatsChnSel, _aeAlgoStatsCfg.YRangeMode,
+                                                AeWinSplitModeV[0], bls1_val, awb1_gain);
         }
 
         switch (AeSelMode) {
@@ -4174,17 +4176,17 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStatsV32Lite(const Smart
         {
             struct isp32_lite_rawaebig_stat rawae_big_top, rawae_big_bottom;
             MergeAecHorizontalWinBigStats(&rawae_big_top, &rawae_big_bottom,
-                                        &top_left_stats->params.rawae3,
-                                        &top_right_stats->params.rawae3,
-                                        &bottom_left_stats->params.rawae3,
-                                        &bottom_right_stats->params.rawae3,
-                                        AeWinSplitMode[AeSelMode]);
+                                          &top_left_stats->params.rawae3,
+                                          &top_right_stats->params.rawae3,
+                                          &bottom_left_stats->params.rawae3,
+                                          &bottom_right_stats->params.rawae3,
+                                          AeWinSplitMode[AeSelMode]);
             MergeAecWinBigStatsVerticalV32Lite(&rawae_big_top,
-                                &rawae_big_bottom,
-                                &statsInt->aec_stats.ae_data.chn[AeSelMode].rawae_big,
-                                &_aeRawMean[AeSelMode],
-                                _aeAlgoStatsCfg.BigWeight, _aeAlgoStatsCfg.RawStatsChnSel, _aeAlgoStatsCfg.YRangeMode,
-                                AeWinSplitMode[AeSelMode], bls1_val, awb1_gain);
+                                               &rawae_big_bottom,
+                                               &statsInt->aec_stats.ae_data.chn[AeSelMode].rawae_big,
+                                               &statsInt->aec_stats.ae_data.raw_mean[AeSelMode],
+                                               _aeAlgoStatsCfg.BigWeight, _aeAlgoStatsCfg.RawStatsChnSel, _aeAlgoStatsCfg.YRangeMode,
+                                               AeWinSplitMode[AeSelMode], bls1_val, awb1_gain);
 
             pixel_num = isp_params->rawae3.subwin[0].h_size * isp_params->rawae3.subwin[0].v_size;
             statsInt->aec_stats.ae_data.chn[AeSelMode].rawae_big.wndx_sumb[0] =
@@ -4204,7 +4206,7 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStatsV32Lite(const Smart
             statsInt->aec_stats.ae_data.chn[AeSelMode].rawae_big.wndx_sumb[0] =
                 CLIP((s64)(statsInt->aec_stats.ae_data.chn[AeSelMode].rawae_big.wndx_sumb[0] * awb1_gain.b / 256 - (pixel_num >> 2) * bls1_val.b), 0, MAX_29BITS);
         }
-            break;
+        break;
 #if 0
         case AEC_RAWSEL_MODE_TMO:
         {
@@ -4219,17 +4221,17 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStatsV32Lite(const Smart
             awb1_gain.b = 256;
             struct isp32_lite_rawaebig_stat rawae_big_top, rawae_big_bottom;
             MergeAecHorizontalWinBigStats(&rawae_big_top, &rawae_big_bottom,
-                                        &top_left_stats->params.rawae3,
-                                        &top_right_stats->params.rawae3,
-                                        &bottom_left_stats->params.rawae3,
-                                        &bottom_right_stats->params.rawae3,
-                                        AeWinSplitMode[AeSelMode]);
+                                          &top_left_stats->params.rawae3,
+                                          &top_right_stats->params.rawae3,
+                                          &bottom_left_stats->params.rawae3,
+                                          &bottom_right_stats->params.rawae3,
+                                          AeWinSplitMode[AeSelMode]);
             MergeAecWinBigStatsVerticalV32Lite(&rawae_big_top,
-                                &rawae_big_bottom,
-                                &statsInt->aec_stats.ae_data.extra.rawae_big,
-                                &_aeRawMean[AeSelMode],
-                                _aeAlgoStatsCfg.BigWeight, _aeAlgoStatsCfg.RawStatsChnSel, _aeAlgoStatsCfg.YRangeMode,
-                                AeWinSplitMode[AeSelMode], bls1_val, awb1_gain);
+                                               &rawae_big_bottom,
+                                               &statsInt->aec_stats.ae_data.extra.rawae_big,
+                                               &statsInt->aec_stats.ae_data.raw_mean[AeSelMode],
+                                               _aeAlgoStatsCfg.BigWeight, _aeAlgoStatsCfg.RawStatsChnSel, _aeAlgoStatsCfg.YRangeMode,
+                                               AeWinSplitMode[AeSelMode], bls1_val, awb1_gain);
 
             pixel_num = isp_params->rawae3.subwin[0].h_size * isp_params->rawae3.subwin[0].v_size;
             statsInt->aec_stats.ae_data.extra.rawae_big.wndx_sumb[0] =
@@ -4249,15 +4251,16 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStatsV32Lite(const Smart
             statsInt->aec_stats.ae_data.extra.rawae_big.wndx_sumb[0] =
                 CLIP((s64)(statsInt->aec_stats.ae_data.extra.rawae_big.wndx_sumb[0] * awb1_gain.b / 256 - (pixel_num >> 2) * bls1_val.b), 0, MAX_29BITS);
         }
-            break;
+        break;
 #endif
         default:
             LOGE("wrong AeSelMode=%d\n", AeSelMode);
             return XCAM_RETURN_ERROR_PARAM;
         }
+        _lastAeStats = statsInt->aec_stats.ae_data;
+    } else {
+        statsInt->aec_stats.ae_data = _lastAeStats;
     }
-
-    memcpy(statsInt->aec_stats.ae_data.raw_mean, _aeRawMean, sizeof(_aeRawMean));
 
 #ifdef AE_STATS_DEBUG
     if (AeSwapMode != 0) {
@@ -4434,8 +4437,8 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAwbStatsV32Lite(const Smart
            sizeof(statsInt->awb_stats_v32.awb_cfg_effect_v32.IllIndxSetCurrent));
     memcpy(statsInt->awb_stats_v32.awb_cfg_effect_v32.timeSign, _ispParams.awb_cfg_v32.timeSign,
            sizeof(statsInt->awb_stats_v32.awb_cfg_effect_v32.timeSign));
-    memcpy(statsInt->awb_stats_v32.awb_cfg_effect_v32.preWbgainSw,_ispParams.awb_cfg_v32.preWbgainSw,
-        sizeof(_ispParams.awb_cfg_v32.preWbgainSw));
+    memcpy(statsInt->awb_stats_v32.awb_cfg_effect_v32.preWbgainSw, _ispParams.awb_cfg_v32.preWbgainSw,
+           sizeof(_ispParams.awb_cfg_v32.preWbgainSw));
     statsInt->awb_cfg_effect_valid = true;
     statsInt->frame_id = top_left_stats->frame_id;
 
@@ -4451,11 +4454,11 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAwbStatsV32Lite(const Smart
     JudgeWinLocation32(&ori_win, AwbWinSplitMode, GetLeftIspRect(), GetRightIspRect());
     JudgeWinLocationVertical32(&ori_win, AwbWinSplitModeV, GetLeftIspRect(), GetBottomLeftIspRect());
     MergeAwbWinStats(top_stats->light, &top_left_stats->params.rawawb, &top_right_stats->params.rawawb,
-                    statsInt->awb_stats_v32.awb_cfg_effect_v32.lightNum, AwbWinSplitMode);
+                     statsInt->awb_stats_v32.awb_cfg_effect_v32.lightNum, AwbWinSplitMode);
     MergeAwbWinStats(bottom_stats->light, &bottom_left_stats->params.rawawb, &bottom_right_stats->params.rawawb,
-                    statsInt->awb_stats_v32.awb_cfg_effect_v32.lightNum, AwbWinSplitMode);
+                     statsInt->awb_stats_v32.awb_cfg_effect_v32.lightNum, AwbWinSplitMode);
     MergeAwbWinStatsVertical(statsInt->awb_stats_v32.light, top_stats->light, bottom_stats->light,
-                    statsInt->awb_stats_v32.awb_cfg_effect_v32.lightNum, AwbWinSplitModeV);
+                             statsInt->awb_stats_v32.awb_cfg_effect_v32.lightNum, AwbWinSplitModeV);
 
     struct isp2x_window top_left_win;
     top_left_win.h_offs = _ispParams.isp_params_v32[0].meas.rawawb.h_offs;
@@ -4945,7 +4948,7 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAfStatsV32Lite(const SmartP
             t_af_stats.wndb_sharpness = top_left_stats->params.rawaf.afm_sum_b * af_split_info.winb_l_ratio +
                                         top_right_stats->params.rawaf.afm_sum_b * af_split_info.winb_r_ratio;
             t_af_stats.winb_highlit_cnt = top_left_stats->params.rawaf.highlit_cnt_winb +
-                    top_right_stats->params.rawaf.highlit_cnt_winb;
+                                          top_right_stats->params.rawaf.highlit_cnt_winb;
 
             b_af_stats.wndb_luma = bottom_left_stats->params.rawaf.afm_lum_b * af_split_info.winb_l_ratio +
                                    bottom_right_stats->params.rawaf.afm_lum_b * af_split_info.winb_r_ratio;
@@ -5198,9 +5201,9 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAfStatsV32Lite(const SmartP
     {
         if (af_split_info_v.winb_side_info == LEFT_AND_RIGHT_MODE) {
             statsInt->af_stats_v3x.wndb_luma = t_af_stats.wndb_luma * af_split_info_v.winb_l_ratio +
-                                   b_af_stats.wndb_luma * af_split_info_v.winb_r_ratio;
+                                               b_af_stats.wndb_luma * af_split_info_v.winb_r_ratio;
             statsInt->af_stats_v3x.wndb_sharpness = t_af_stats.wndb_sharpness * af_split_info_v.winb_l_ratio +
-                                        b_af_stats.wndb_sharpness * af_split_info_v.winb_r_ratio;
+                                                    b_af_stats.wndb_sharpness * af_split_info_v.winb_r_ratio;
             statsInt->af_stats_v3x.winb_highlit_cnt = t_af_stats.winb_highlit_cnt + b_af_stats.winb_highlit_cnt;
         } else if (af_split_info_v.winb_side_info == LEFT_MODE) {
             statsInt->af_stats_v3x.wndb_luma = t_af_stats.wndb_luma;
@@ -5349,7 +5352,7 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAfStatsV32Lite(const SmartP
     }
 
     if (_expParams.ptr())
-            statsInt->aecExpInfo = _expParams->data()->aecExpInfo;
+        statsInt->aecExpInfo = _expParams->data()->aecExpInfo;
 
     return ret;
 

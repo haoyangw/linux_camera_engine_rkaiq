@@ -68,7 +68,7 @@ public:
         memcpy(_aeAlgoStatsCfg.BigWeight, cfg->BigWeight, RAWHISTBIG_WIN_NUM);
         memcpy(_aeAlgoStatsCfg.LiteWeight, cfg->LiteWeight, RAWHISTLITE_WIN_NUM);
     }
-    bool getAeStatsRunFlag(uint8_t* HistMean);
+    bool getAeStatsRunFlag(uint16_t* HistMean);
 
 protected:
     rkisp_effect_params_v20 _ispParams;
@@ -81,8 +81,8 @@ protected:
         unsigned char LiteWeight[RAWHISTLITE_WIN_NUM];
     } aeAlgoStatsCfg_t;
     aeAlgoStatsCfg_t _aeAlgoStatsCfg;
-    uint16_t _aeRawMean[4]{0, 0, 0, 0};
-    uint8_t _aeHistMean[3]{0, 0, 0};
+    uint16_t _lastHistMean[3] {0, 0, 0};
+    RkAiqAecHwStatsRes_t _lastAeStats;
 
 #if RKAIQ_HAVE_PDAF
     int mPdafDumpCnt;
