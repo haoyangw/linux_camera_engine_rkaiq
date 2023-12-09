@@ -129,6 +129,9 @@ void Isp21Params::convertAiqAwbGainToIsp21Params(T& isp_cfg,
     cfg->gain2_blue      = B > max_wb_gain ? max_wb_gain : B;
     cfg->gain2_green_r   = Gr > max_wb_gain ? max_wb_gain : Gr ;
     cfg->gain2_green_b   = Gb > max_wb_gain ? max_wb_gain : Gb;
+#if defined(ISP_HW_V30) || defined(ISP_HW_V21)
+    mLatestWbGainCfg = *cfg;
+#endif
 
 }
 
@@ -1116,7 +1119,6 @@ void Isp21Params::convertAiqCgcToIsp21Params(T& isp_cfg,
 void Isp21Params::convertAiqExpIspDgainToIspParams(void* isp_cfg_, RKAiqAecExpInfo_t ae_exp)
 {
 #if defined(ISP_HW_V30) || defined(ISP_HW_V21)
-
 #if defined(ISP_HW_V30)
     struct isp3x_isp_params_cfg* isp_cfg = (struct isp3x_isp_params_cfg*)isp_cfg_;
     uint16_t max_wb_gain = (1 << (ISP2X_WBGAIN_FIXSCALE_BIT + ISP3X_WBGAIN_INTSCALE_BIT)) - 1;
@@ -1126,7 +1128,8 @@ void Isp21Params::convertAiqExpIspDgainToIspParams(void* isp_cfg_, RKAiqAecExpIn
 #else
    LOGE("not suppport !");
 #endif
-    struct isp21_awb_gain_cfg *  cfg = &isp_cfg->others.awb_gain_cfg;
+    struct isp21_awb_gain_cfg *  dest_cfg = &isp_cfg->others.awb_gain_cfg;
+    struct isp21_awb_gain_cfg *  cfg = &mLatestWbGainCfg;
 
     if(_working_mode == RK_AIQ_WORKING_MODE_NORMAL) {
 
@@ -1138,20 +1141,21 @@ void Isp21Params::convertAiqExpIspDgainToIspParams(void* isp_cfg_, RKAiqAecExpIn
             isRecalc = false;
 
         if (isRecalc) {
-            cfg->gain0_red = MIN(cfg->gain0_red * isp_dgain + 0.5, max_wb_gain);
-            cfg->gain0_green_r = MIN(cfg->gain0_green_r * isp_dgain + 0.5, max_wb_gain);
-            cfg->gain0_green_b = MIN(cfg->gain0_green_b * isp_dgain + 0.5, max_wb_gain);
-            cfg->gain0_blue = MIN(cfg->gain0_blue * isp_dgain + 0.5, max_wb_gain);
+            dest_cfg->gain0_red = MIN(cfg->gain0_red * isp_dgain + 0.5, max_wb_gain);
+            dest_cfg->gain0_green_r = MIN(cfg->gain0_green_r * isp_dgain + 0.5, max_wb_gain);
+            dest_cfg->gain0_green_b = MIN(cfg->gain0_green_b * isp_dgain + 0.5, max_wb_gain);
+            dest_cfg->gain0_blue = MIN(cfg->gain0_blue * isp_dgain + 0.5, max_wb_gain);
 
-            cfg->gain1_red = MIN(cfg->gain1_red * isp_dgain + 0.5, max_wb_gain);
-            cfg->gain1_green_r = MIN(cfg->gain1_green_r * isp_dgain + 0.5, max_wb_gain);
-            cfg->gain1_green_b = MIN(cfg->gain1_green_b * isp_dgain + 0.5, max_wb_gain);
-            cfg->gain1_blue = MIN(cfg->gain1_blue * isp_dgain + 0.5, max_wb_gain);
+            dest_cfg->gain1_red = MIN(cfg->gain1_red * isp_dgain + 0.5, max_wb_gain);
+            dest_cfg->gain1_green_r = MIN(cfg->gain1_green_r * isp_dgain + 0.5, max_wb_gain);
+            dest_cfg->gain1_green_b = MIN(cfg->gain1_green_b * isp_dgain + 0.5, max_wb_gain);
+            dest_cfg->gain1_blue = MIN(cfg->gain1_blue * isp_dgain + 0.5, max_wb_gain);
 
-            cfg->gain2_red = MIN(cfg->gain2_red * isp_dgain + 0.5, max_wb_gain);
-            cfg->gain2_green_r = MIN(cfg->gain2_green_r * isp_dgain + 0.5, max_wb_gain);
-            cfg->gain2_green_b = MIN(cfg->gain2_green_b * isp_dgain + 0.5, max_wb_gain);
-            cfg->gain2_blue = MIN(cfg->gain2_blue * isp_dgain + 0.5, max_wb_gain);
+            dest_cfg->gain2_red = MIN(cfg->gain2_red * isp_dgain + 0.5, max_wb_gain);
+            dest_cfg->gain2_green_r = MIN(cfg->gain2_green_r * isp_dgain + 0.5, max_wb_gain);
+            dest_cfg->gain2_green_b = MIN(cfg->gain2_green_b * isp_dgain + 0.5, max_wb_gain);
+            dest_cfg->gain2_blue = MIN(cfg->gain2_blue * isp_dgain + 0.5, max_wb_gain);
+            isp_cfg->module_cfg_update |= 1LL << RK_ISP2X_AWB_GAIN_ID;
         }
 
         if (mBlcResult) {
@@ -1189,6 +1193,7 @@ void Isp21Params::convertAiqExpIspDgainToIspParams(void* isp_cfg_, RKAiqAecExpIn
                 if(tmp < 0)
                     tmp = 0;
                 isp_cfg->others.bls_cfg.bls1_val.b = tmp;
+                isp_cfg->module_cfg_update |= 1LL << RK_ISP2X_BLS_ID;
             }
             #define MAX_LSC_VALUE 8191
 #if defined (RKAIQ_HAVE_LSC_V2) || defined (RKAIQ_HAVE_LSC_V3)
@@ -1211,6 +1216,7 @@ void Isp21Params::convertAiqExpIspDgainToIspParams(void* isp_cfg_, RKAiqAecExpIn
                         cfg->gr_data_tbl[i] = cfg->gr_data_tbl[i]*((1 << ISP2X_BLC_BIT_MAX) - 1) / ((1 << ISP2X_BLC_BIT_MAX) - 1 - bls_cfg.bls1_val.gr);
                         cfg->gr_data_tbl[i] = MIN(cfg->gr_data_tbl[i],MAX_LSC_VALUE);
                     }
+                    isp_cfg->module_cfg_update |= ISP2X_MODULE_LSC;
                 }else{
                     isp_cfg->module_ens |= ISP2X_MODULE_LSC; //force open lsc
                     isp_cfg->module_en_update |= ISP2X_MODULE_LSC;
@@ -1246,20 +1252,21 @@ void Isp21Params::convertAiqExpIspDgainToIspParams(void* isp_cfg_, RKAiqAecExpIn
             isp_dgain2 < 1.0000001f )
             return;
 
-        cfg->gain0_red = MIN(cfg->gain0_red * isp_dgain0 + 0.5, max_wb_gain);
-        cfg->gain0_green_r = MIN(cfg->gain0_green_r * isp_dgain0 + 0.5, max_wb_gain);
-        cfg->gain0_green_b = MIN(cfg->gain0_green_b * isp_dgain0 + 0.5, max_wb_gain);
-        cfg->gain0_blue = MIN(cfg->gain0_blue * isp_dgain0 + 0.5, max_wb_gain);
+        dest_cfg->gain0_red = MIN(cfg->gain0_red * isp_dgain0 + 0.5, max_wb_gain);
+        dest_cfg->gain0_green_r = MIN(cfg->gain0_green_r * isp_dgain0 + 0.5, max_wb_gain);
+        dest_cfg->gain0_green_b = MIN(cfg->gain0_green_b * isp_dgain0 + 0.5, max_wb_gain);
+        dest_cfg->gain0_blue = MIN(cfg->gain0_blue * isp_dgain0 + 0.5, max_wb_gain);
 
-        cfg->gain1_red = MIN(cfg->gain1_red * isp_dgain1 + 0.5, max_wb_gain);
-        cfg->gain1_green_r = MIN(cfg->gain1_green_r * isp_dgain1 + 0.5, max_wb_gain);
-        cfg->gain1_green_b = MIN(cfg->gain1_green_b * isp_dgain1 + 0.5, max_wb_gain);
-        cfg->gain1_blue = MIN(cfg->gain1_blue * isp_dgain1 + 0.5, max_wb_gain);
+        dest_cfg->gain1_red = MIN(cfg->gain1_red * isp_dgain1 + 0.5, max_wb_gain);
+        dest_cfg->gain1_green_r = MIN(cfg->gain1_green_r * isp_dgain1 + 0.5, max_wb_gain);
+        dest_cfg->gain1_green_b = MIN(cfg->gain1_green_b * isp_dgain1 + 0.5, max_wb_gain);
+        dest_cfg->gain1_blue = MIN(cfg->gain1_blue * isp_dgain1 + 0.5, max_wb_gain);
 
-        cfg->gain2_red = MIN(cfg->gain2_red * isp_dgain2 + 0.5, max_wb_gain);
-        cfg->gain2_green_r = MIN(cfg->gain2_green_r * isp_dgain2 + 0.5, max_wb_gain);
-        cfg->gain2_green_b = MIN(cfg->gain2_green_b * isp_dgain2 + 0.5, max_wb_gain);
-        cfg->gain2_blue = MIN(cfg->gain2_blue * isp_dgain2 + 0.5, max_wb_gain);
+        dest_cfg->gain2_red = MIN(cfg->gain2_red * isp_dgain2 + 0.5, max_wb_gain);
+        dest_cfg->gain2_green_r = MIN(cfg->gain2_green_r * isp_dgain2 + 0.5, max_wb_gain);
+        dest_cfg->gain2_green_b = MIN(cfg->gain2_green_b * isp_dgain2 + 0.5, max_wb_gain);
+        dest_cfg->gain2_blue = MIN(cfg->gain2_blue * isp_dgain2 + 0.5, max_wb_gain);
+        isp_cfg->module_cfg_update |= 1LL << RK_ISP2X_AWB_GAIN_ID;
 
     }
 #else

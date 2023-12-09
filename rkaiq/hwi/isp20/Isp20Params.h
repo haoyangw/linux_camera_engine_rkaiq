@@ -265,6 +265,9 @@ protected:
 	struct isp32_bls_cfg mLatestBlsCfg;
 	struct isp32_awb_gain_cfg mLatestWbGainCfg;
 #endif
+#if defined(ISP_HW_V30) || defined(ISP_HW_V21)
+    struct isp21_awb_gain_cfg mLatestWbGainCfg;
+#endif
 };
 }
 #endif
