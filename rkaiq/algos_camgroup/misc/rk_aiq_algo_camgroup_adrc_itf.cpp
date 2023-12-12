@@ -418,7 +418,7 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
         bypass_tuning_params = AdrcByPassTuningProcessing(pAdrcGrpCtx);
 
         // get tuning paras
-        if (!bypass_tuning_params || !pAdrcGrpCtx->isDampStable)
+        if (!bypass_expo_params || !bypass_tuning_params || !pAdrcGrpCtx->isDampStable)
             AdrcTuningParaProcessing(pAdrcGrpCtx,
                                      pAdrcGrpProcRes->camgroupParmasArray[0]->_adrcConfig);
 

@@ -394,7 +394,7 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
         }
 
         // get tuning paras
-        if (!bypass_tuning_params || !pAdrcCtx->isDampStable)
+        if (!bypass_expo_params || !bypass_tuning_params || !pAdrcCtx->isDampStable)
             AdrcTuningParaProcessing(pAdrcCtx, pAdrcProcRes->AdrcProcRes);
 
         // get expo related paras

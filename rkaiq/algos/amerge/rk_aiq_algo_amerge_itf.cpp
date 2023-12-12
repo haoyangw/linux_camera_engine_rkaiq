@@ -324,7 +324,7 @@ static XCamReturn AmergeProcess(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* o
         }
 
         // get tuning para process
-        if (!bypass_tuning_process)
+        if (!bypass_expo_process || !bypass_tuning_process)
             AmergeTuningProcessing(pAmergeCtx, pAmergeProcRes->AmergeProcRes);
 
         // get expo para process
