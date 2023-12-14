@@ -697,6 +697,64 @@ XCamReturn alscGetOtpInfo(RkAiqAlgoCom* params)
     return XCAM_RETURN_NO_ERROR;
 }
 
+XCamReturn UpdateLscCalibPtr(alsc_handle_t hAlsc) {
+    const CalibDbV2_LSC_t* calib2 = hAlsc->calibLscV2;
+    const CalibDbV2_AlscCof_ill_t* alsc_cof_tmp;
+    // update hAlsc->illu_case
+    for(uint32_t ill_id = 0; ill_id < hAlsc->illu_case_count; ill_id++)
+    {
+        alsc_illu_case_t& illu_case = hAlsc->illu_case[ill_id];
+        alsc_cof_tmp = &(calib2->alscCoef.illAll[ill_id]);
+
+        illu_case.alsc_cof = alsc_cof_tmp;
+        illu_case.res_count = calib2->common.resolutionAll_len;
+
+        for(uint32_t res_id = 0; res_id < illu_case.res_count; res_id++)
+        {
+            alsc_illu_case_resolution_t& illu_case_res = illu_case.res_group[res_id];
+            strcpy(illu_case_res.resolution.name, calib2->common.resolutionAll[res_id].name);
+            illu_case_res.lsc_table_count = alsc_cof_tmp->tableUsed_len;
+            //TODO: illu_case.resolution.width & height
+            for (int used_id = 0; used_id < alsc_cof_tmp->tableUsed_len; used_id++)
+            {
+                char profile_name[64];
+                memset(profile_name, 0, sizeof(profile_name));
+                sprintf(profile_name, "%s_%s", illu_case_res.resolution.name,
+                    alsc_cof_tmp->tableUsed[used_id].name);
+                XCamReturn ret = CamCalibDbGetLscProfileByName(calib2,
+                    profile_name, illu_case_res.lsc_table_group[used_id]);
+                if (XCAM_RETURN_NO_ERROR != ret) {
+                    LOGE_ALSC("%s: CamCalibDbGetLscProfileByName failed\n", __func__);
+                    return ret;
+                }
+            }
+            OrderLscProfilesByVignetting(illu_case_res.lsc_table_group, illu_case_res.lsc_table_count);
+        }
+    }
+
+    // update hAlsc->alsc_mode_data_t
+    uint32_t update_count[USED_FOR_CASE_MAX];
+    memset(update_count, 0, sizeof(update_count));
+    for(uint32_t ill_id = 0; ill_id < hAlsc->illu_case_count; ill_id++)
+    {
+        uint32_t used_case = hAlsc->illu_case[ill_id].alsc_cof->usedForCase;
+        if (used_case >= USED_FOR_CASE_MAX) {
+            LOGE_ALSC("%s: used_case=%d\n", __func__, used_case);
+            return XCAM_RETURN_ERROR_PARAM;
+        }
+        uint32_t update_id = update_count[used_case];
+        if (update_id >= hAlsc->alsc_mode[used_case].illu_case_count) {
+            LOGE_ALSC("%s: update_id=%d\n", __func__, update_id);
+            return XCAM_RETURN_ERROR_PARAM;
+        }
+        hAlsc->alsc_mode[used_case].illu_case[update_id] = &(hAlsc->illu_case[ill_id]);
+        update_count[used_case]++;
+    }
+
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
 /** @brief called to arrange data to fill alsc_mode_data_t from CalibDb */
 static XCamReturn UpdateLscCalibPara(alsc_handle_t hAlsc)
 {
@@ -940,8 +998,8 @@ XCamReturn AlscAutoConfig(alsc_handle_t hAlsc)
         ret = VignSelectLscProfiles(illu_case, fVignetting, pLscProfile1, pLscProfile2);
         if (pLscProfile1 && pLscProfile2) {
             hAlsc->isReCal_ = hAlsc->isReCal_ ||
-                            strcmp(pLscProfile1->name, hAlsc->alscRest.pLscProfile1->name) ||
-                            strcmp(pLscProfile2->name, hAlsc->alscRest.pLscProfile2->name);
+                            strcmp(pLscProfile1->name, hAlsc->alscRest.LscProName1) ||
+                            strcmp(pLscProfile2->name, hAlsc->alscRest.LscProName2);
             LOGD_ALSC("hAlsc->isReCal_: %d = forceRunFlag(%d) || fVignetting changed || pLscProfile1/2 changed", hAlsc->isReCal_, hAlsc->smartRunRes.forceRunFlag);
         } else {
             LOGE_ALSC("check %s %s pLscProfile: %p %p \n", hAlsc->cur_res.name, illu_case->alsc_cof->name, pLscProfile1, pLscProfile2);
@@ -968,8 +1026,8 @@ XCamReturn AlscAutoConfig(alsc_handle_t hAlsc)
                 memcpy(&hAlsc->alscRest.undampedLscMatrixTable.LscMatrix[CAM_4CH_COLOR_COMPONENT_BLUE],
                     &pLscProfile1->lsc_samples_blue, sizeof(Cam17x17UShortMatrix_t));
             }
-            hAlsc->alscRest.pLscProfile1 = pLscProfile1;
-            hAlsc->alscRest.pLscProfile2 = pLscProfile2;
+            strcpy(hAlsc->alscRest.LscProName1, pLscProfile1->name);
+            strcpy(hAlsc->alscRest.LscProName2, pLscProfile2->name);
         }
     }
 

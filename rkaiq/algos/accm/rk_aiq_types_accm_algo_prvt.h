@@ -58,8 +58,8 @@ typedef struct accm_rest_s {
 #endif
     struct list_head problist;
     int dominateIlluProfileIdx;
-    const CalibDbV2_Ccm_Matrix_Para_t *pCcmProfile1;
-    const CalibDbV2_Ccm_Matrix_Para_t *pCcmProfile2;
+    char CcmProf1Name[25];
+    char CcmProf2Name[25];
     float undampedCcmMatrix[9];
     float undampedCcOffset[3];
     float fScale;

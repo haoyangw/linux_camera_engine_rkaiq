@@ -91,9 +91,6 @@ static XCamReturn prepare(RkAiqAlgoCom* params) {
         pAdehazeHandle->FrameNumber = HDR_3X_NUM;
 
     if (!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB)) {
-        // just update calib ptr
-        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR)
-            return XCAM_RETURN_NO_ERROR;
         LOGD_ADEHAZE("%s: Adehaze Reload Para!\n", __FUNCTION__);
 #if RKAIQ_HAVE_DEHAZE_V10
         CalibDbV2_dehaze_v10_t* calibv2_adehaze_calib_V10 =
@@ -126,6 +123,9 @@ static XCamReturn prepare(RkAiqAlgoCom* params) {
             memcpy(&pAdehazeHandle->AdehazeAtrrV12.stAuto, calibv2_adehaze_calib_V12,
                    sizeof(CalibDbV2_dehaze_v12_t));
 #endif
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR)
+            return XCAM_RETURN_NO_ERROR;
         pAdehazeHandle->ifReCalcStAuto = true;
     } else if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_CHANGERES) {
         pAdehazeHandle->isCapture = true;

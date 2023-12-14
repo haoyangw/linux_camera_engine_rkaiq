@@ -52,8 +52,10 @@ typedef struct alsc_rest_s {
     struct list_head dominateIlluList;//to record domain illuminant
     uint32_t estimateIlluCaseIdx;
     uint32_t resIdx;
-    pLscTableProfile_t pLscProfile1;
-    pLscTableProfile_t pLscProfile2;
+    // pLscTableProfile_t pLscProfile1;
+    // pLscTableProfile_t pLscProfile2;
+    char LscProName1[32];
+    char LscProName2[32];
     lsc_matrix_t undampedLscMatrixTable;
     lsc_matrix_t dampedLscMatrixTable;
 } alsc_rest_t;

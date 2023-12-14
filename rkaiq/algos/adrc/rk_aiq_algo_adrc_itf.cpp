@@ -92,9 +92,6 @@ prepare(RkAiqAlgoCom* params)
         pAdrcCtx->FrameNumber = HDR_3X_NUM;
 
     if(!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB )) {
-        // just update calib ptr
-        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR)
-            return XCAM_RETURN_NO_ERROR;
         LOGI_ATMO("%s: Adrc Reload Para!\n", __FUNCTION__);
 #if RKAIQ_HAVE_DRC_V10
         CalibDbV2_drc_V10_t* calibv2_adrc_calib =
@@ -118,6 +115,9 @@ prepare(RkAiqAlgoCom* params)
         memcpy(&pAdrcCtx->drcAttrV12.stAuto, calibv2_adrc_calib, sizeof(CalibDbV2_drc_v12_lite_t));
         AdrcV12ClipStAutoParams(pAdrcCtx);
 #endif
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR)
+            return XCAM_RETURN_NO_ERROR;
         pAdrcCtx->ifReCalcStAuto = true;
     } else if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_CHANGERES) {
         pAdrcCtx->isCapture = true;

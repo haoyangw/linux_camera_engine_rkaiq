@@ -74,8 +74,25 @@ prepare(RkAiqAlgoCom* params)
 #endif
     }
     // just update calib ptr
-    if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR)
+    if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
+#if (RKAIQ_HAVE_CCM_V1 || RKAIQ_HAVE_CCM_V2 || RKAIQ_HAVE_CCM_V3)
+#if RKAIQ_HAVE_CCM_V1
+        CalibDbV2_Ccm_Para_V2_t* pCcm = hAccm->ccm_v1;
+#elif RKAIQ_HAVE_CCM_V2
+        CalibDbV2_Ccm_Para_V32_t* pCcm = hAccm->ccm_v2;
+#elif RKAIQ_HAVE_CCM_V3
+        CalibDbV2_Ccm_Para_V39_t* pCcm = hAccm->ccm_v3;
+#endif
+        pCcmMatrixAll_init(pCcm->TuningPara.aCcmCof,
+                           pCcm->TuningPara.aCcmCof_len,
+                           pCcm->TuningPara.matrixAll,
+                           pCcm->TuningPara.matrixAll_len,
+                           hAccm->pCcmMatrixAll);
+#endif
+
         return XCAM_RETURN_NO_ERROR;
+    }
+
 
     AccmPrepare((accm_handle_t)(params->ctx->accm_para));
 

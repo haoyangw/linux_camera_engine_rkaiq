@@ -1837,7 +1837,10 @@ rk_aiq_uapi_sysctl_tuning(const rk_aiq_sys_ctx_t* sys_ctx, char* param)
 
     auto tuning_calib = RkCam::RkAiqCalibDbV2::analyzTuningCalib(
                             last_calib, json_str.c_str());
-
+    if (!tuning_calib.calib) {
+        LOGE_ANALYZER("invalied tuning param\n");
+        return XCAM_RETURN_ERROR_PARAM;
+    }
 #ifdef RKAIQ_ENABLE_CAMGROUP
     // api helper call with single instance
     if (get_binded_group_ctx(sys_ctx)) {

@@ -115,6 +115,7 @@ static XCamReturn groupAbayertnrV23Prepare(RkAiqAlgoCom* params)
 
     if(CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
         Abayertnr_Context_V23_t * abayertnr_contex_v23 = abayertnr_group_contex->abayertnr_contex_v23;
+        abayertnr_contex_v23->prepare_type = params->u.prepare.conf_type;
         if(!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB )) {
             // todo  update calib pars for surround view
 #if ABAYERTNR_USE_JSON_FILE_V23

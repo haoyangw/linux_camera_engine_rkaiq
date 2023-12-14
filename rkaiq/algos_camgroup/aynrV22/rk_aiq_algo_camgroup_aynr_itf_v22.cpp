@@ -115,6 +115,7 @@ static XCamReturn groupAynrV22Prepare(RkAiqAlgoCom* params)
 
     if(CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
         Aynr_Context_V22_t * aynr_contex_v22 = aynr_group_contex->aynr_contex_v22;
+        aynr_contex_v22->prepare_type = params->u.prepare.conf_type;
         if(!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB )) {
             // todo  update calib pars for surround view
 #if AYNR_USE_JSON_FILE_V22

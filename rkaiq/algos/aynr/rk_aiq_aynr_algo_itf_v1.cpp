@@ -86,10 +86,6 @@ prepare(RkAiqAlgoCom* params)
 	pAynrCtx->prepare_type = params->u.prepare.conf_type;
 	
 	if(!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB )){
-        // just update calib ptr
-        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
-            return XCAM_RETURN_NO_ERROR;
-        }
 		#if AYNR_USE_JSON_FILE_V1
 		void *pCalibDbV2 = (void*)(pCfgParam->com.u.prepare.calibv2);
 		CalibDbV2_YnrV1_t *ynr_v1 = (CalibDbV2_YnrV1_t*)(CALIBDBV2_GET_MODULE_PTR((void*)pCalibDbV2, ynr_v1));
@@ -99,6 +95,10 @@ prepare(RkAiqAlgoCom* params)
         pAynrCtx->stYnrCalib=
             *(CalibDb_YNR_2_t*)(CALIBDB_GET_MODULE_PTR((void*)pCalibDb, ynr));
 		#endif
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
+            return XCAM_RETURN_NO_ERROR;
+        }
 		pAynrCtx->isIQParaUpdate = true;
 	}
 	

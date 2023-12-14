@@ -346,9 +346,6 @@ prepare(RkAiqAlgoCom* params)
     pAgainCtx->rawWidth = params->u.prepare.sns_op_width;
 
     if(!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB )) {
-        // just update calib ptr
-        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR)
-            return XCAM_RETURN_NO_ERROR;
 #if AGAIN_USE_JSON_FILE_V2
 #if 1
         void *pCalibDbV2 = (void*)(pCfgParam->com.u.prepare.calibv2);
@@ -356,6 +353,9 @@ prepare(RkAiqAlgoCom* params)
             (CalibDbV2_GainV2_t *)(CALIBDBV2_GET_MODULE_PTR((CamCalibDbV2Context_t*)pCalibDbV2, gain_v2));
 
         pAgainCtx->gain_v2 = *pcalibdbV2_gain_v2;
+        // just update calib ptr
+        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR)
+            return XCAM_RETURN_NO_ERROR;
         pAgainCtx->isIQParaUpdate = true;
         pAgainCtx->isReCalculate |= 1;
         LOGE_ANR("enter!!\n");

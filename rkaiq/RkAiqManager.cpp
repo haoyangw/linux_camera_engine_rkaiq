@@ -1330,8 +1330,6 @@ XCamReturn RkAiqManager::calibTuning(CamCalibDbV2Context_t* aiqCalib,
     *mCalibDbV2 = *aiqCalib;
     tuningCalib = const_cast<CamCalibDbV2Context_t*>(aiqCalib);
 
-    change_list.reset();
-
     EXIT_XCORE_FUNCTION();
 
     return ret;

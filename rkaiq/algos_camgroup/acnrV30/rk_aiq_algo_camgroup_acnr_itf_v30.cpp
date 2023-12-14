@@ -115,6 +115,7 @@ static XCamReturn groupAcnrV30Prepare(RkAiqAlgoCom* params)
 
     if(CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
         Acnr_Context_V30_t * acnr_contex_v30 = acnr_group_contex->acnr_contex_v30;
+        acnr_contex_v30->prepare_type = params->u.prepare.conf_type;
         if(!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB )) {
             // todo  update calib pars for surround view
 #if ACNR_USE_JSON_FILE_V30

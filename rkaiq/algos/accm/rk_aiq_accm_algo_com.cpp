@@ -247,7 +247,7 @@ XCamReturn pCcmMatrixAll_init(const CalibDbV2_Ccm_Accm_Cof_Para_t*   aCcmCof,
         return ret;
     }
 
-    //Config  pCcmMatrixAll (normal and hdr)
+    //Config  pCcmMatrixAll
        // 1) get and reorder para
     for(int i = 0; i < aCcmCof_len; i++) {
         for (int j = 0; j < aCcmCof[i].matrixUsed_len; j++) {
@@ -255,7 +255,7 @@ XCamReturn pCcmMatrixAll_init(const CalibDbV2_Ccm_Accm_Cof_Para_t*   aCcmCof,
             sprintf(name, "%s", aCcmCof[i].matrixUsed[j]);
             const CalibDbV2_Ccm_Matrix_Para_t* pCcmMatrixProfile = NULL;
             // get a ccm-profile from database
-            ret = CamCalibDbGetCcmProfileByName(&matrixAll[0], matrixAll_len, name, &pCcmMatrixProfile);
+            ret = CamCalibDbGetCcmProfileByName(matrixAll, matrixAll_len, name, &pCcmMatrixProfile);
             RETURN_RESULT_IF_DIFFERENT(ret, XCAM_RETURN_NO_ERROR);
             // store ccm-profile in pointer array
             pCcmMatrixAll[i][j] = pCcmMatrixProfile;
@@ -299,14 +299,14 @@ static XCamReturn SatSelectCcmProfiles
     if (fSaturation >= pCcmProfiles[0]->saturation) {
         *pCcmProfile1 = pCcmProfiles[0];
         *pCcmProfile2 = pCcmProfiles[0];
-        LOGV_ACCM( "select:%s \n", (*pCcmProfile1)->name);
+        LOGV_ACCM( "select:%p->%s \n", *pCcmProfile1, (*pCcmProfile1)->name);
         XCamReturn = XCAM_RETURN_ERROR_OUTOFRANGE;
     } else {
         int32_t nLast = no_ccm - 1;
         if (fSaturation <= pCcmProfiles[nLast]->saturation) {
             *pCcmProfile1 = pCcmProfiles[nLast];
             *pCcmProfile2 = pCcmProfiles[nLast];
-            LOGV_ACCM( "select:%s \n", (*pCcmProfile1)->name);
+            LOGV_ACCM( "select:%p->%s \n", *pCcmProfile1, (*pCcmProfile1)->name);
             XCamReturn = XCAM_RETURN_ERROR_OUTOFRANGE;
         } else {
             uint16_t n = 0;
@@ -321,6 +321,9 @@ static XCamReturn SatSelectCcmProfiles
 
             *pCcmProfile1 = pCcmProfiles[n];
             *pCcmProfile2 = pCcmProfiles[n + 1];
+            LOGV_ACCM( "select:%p->%s, %p->%s\n",
+                        *pCcmProfile1, (*pCcmProfile1)->name,
+                        *pCcmProfile2, (*pCcmProfile2)->name);
 
         }
     }
@@ -541,6 +544,7 @@ XCamReturn CamCalibDbGetCcmProfileByName(const CalibDbV2_Ccm_Matrix_Para_t* matr
     for(int i = 0; i <matrixAll_len; i++) {
         if(strcmp(matrixAll[i].name, name) == 0) {
             *pCcmMatrixProfile = &matrixAll[i];
+            LOGI_ACCM("matrixAll[%d]: %p->%s ", i, &matrixAll[i], matrixAll[i].name);
             ret = XCAM_RETURN_NO_ERROR;
             break;
         }
@@ -604,7 +608,12 @@ static void StableProbEstimation(struct list_head *l, int listSize, int count, i
     }
 
     for(int i=0; i<illuNum; i++){
-        probSet[i] = prob_tmp[i]/(float)count;
+        if (count > 0) {
+            probSet[i] = prob_tmp[i]/(float)count;
+        } else {
+            probSet[i] = 1.0/(float)illuNum;
+        }
+
         LOGD_ACCM("illu(%d), stable prob = %f \n", i, probSet[i]);
     }
     free(prob_tmp);
@@ -763,8 +772,8 @@ XCamReturn interpCCMbywbgain(const CalibDbV2_Ccm_illu_est_Para_t* illu_estim,
             hAccm->accmRest.undampedCcOffset[j] += undampedCcOffset[j]*prob[i];
     }
     hAccm->accmRest.fSaturation =  probfSaturation;
-    hAccm->accmRest.pCcmProfile1 = pCcmProfile1;
-    hAccm->accmRest.pCcmProfile2 = pCcmProfile2;
+    strcpy(hAccm->accmRest.CcmProf1Name, pCcmProfile1->name);
+    strcpy(hAccm->accmRest.CcmProf2Name, pCcmProfile2->name);
 
     // 3)
     free(prob);
@@ -801,6 +810,7 @@ XCamReturn selectCCM(const CalibDbV2_Ccm_Accm_Cof_Para_t aCcmCof[],
 
     // 2)
     const CalibDbV2_Ccm_Accm_Cof_Para_t* pDomIlluProfile = &aCcmCof[dominateIlluProfileIdx];
+    LOGI_ACCM("pDomIlluProfile = aCcmCof[%d]: %p\n", dominateIlluProfileIdx, pDomIlluProfile);
     interpolation(pDomIlluProfile->gain_sat_curve.gains,
                   pDomIlluProfile->gain_sat_curve.sat,
                   4,
@@ -826,12 +836,12 @@ XCamReturn selectCCM(const CalibDbV2_Ccm_Accm_Cof_Para_t aCcmCof[],
                                 &pCcmProfile2);
         if (pCcmProfile1 && pCcmProfile2) {
             *updUndampMat = (*updUndampMat) ||
-                            strcmp(pCcmProfile1->name, hAccm->accmRest.pCcmProfile1->name) ||
-                            strcmp(pCcmProfile2->name, hAccm->accmRest.pCcmProfile2->name);
+                            strcmp(pCcmProfile1->name, hAccm->accmRest.CcmProf1Name) ||
+                            strcmp(pCcmProfile2->name, hAccm->accmRest.CcmProf2Name);
             LOGD_ACCM("CcmProfile changed: %d = calib_update(%d) || fSaturation changed || pCcmProfile1/2 changed",
                       *updUndampMat, hAccm->calib_update);
         } else {
-            LOGD_ACCM("check %s pCcmProfile: %p %p \n", pDomIlluProfile->name, pCcmProfile1, pCcmProfile2);
+            LOGE_ACCM("check %s pCcmProfile: %p %p \n", pDomIlluProfile->name, pCcmProfile1, pCcmProfile2);
             return XCAM_RETURN_ERROR_PARAM;
         }
         if (*updUndampMat) {
@@ -855,8 +865,8 @@ XCamReturn selectCCM(const CalibDbV2_Ccm_Accm_Cof_Para_t aCcmCof[],
                 return (ret);
             }
         }
-        hAccm->accmRest.pCcmProfile1 = pCcmProfile1;
-        hAccm->accmRest.pCcmProfile2 = pCcmProfile2;
+        strcpy(hAccm->accmRest.CcmProf1Name, pCcmProfile1->name);
+        strcpy(hAccm->accmRest.CcmProf2Name, pCcmProfile2->name);
     }
 
     return (ret);

@@ -6298,8 +6298,8 @@ CamHwIsp20::rawReproc_preInit(const char* isp_driver, const char* offline_sns_en
         }
     }
     LOGI_CAMHW_SUBM(ISP20HW_SUBM, "offline preInit faile\n");
-    return NULL;
     EXIT_XCORE_FUNCTION();
+    return NULL;
 }
 
 XCamReturn

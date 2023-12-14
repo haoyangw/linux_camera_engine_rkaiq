@@ -31,6 +31,12 @@ XCamReturn AccmConfig(accm_handle_t hAccm);
 XCamReturn AccmPreProc(accm_handle_t hAccm);
 XCamReturn AccmProcessing(accm_handle_t hAccm);
 XCamReturn ConfigbyCalib(accm_handle_t hAccm);
+extern
+XCamReturn pCcmMatrixAll_init(const CalibDbV2_Ccm_Accm_Cof_Para_t*   aCcmCof,
+                              int                                    aCcmCof_len,
+                              const CalibDbV2_Ccm_Matrix_Para_t*     matrixAll,
+                              int                                    matrixAll_len,
+                              const CalibDbV2_Ccm_Matrix_Para_t*     pCcmMatrixAll[][CCM_PROFILES_NUM_MAX]);
 
 RKAIQ_END_DECLARE
 

@@ -101,11 +101,11 @@ rk_aiq_uapi_accm_QueryCcmInfo(const RkAiqAlgoContext *ctx,
 #if RKAIQ_HAVE_CCM_V1
     if (ccm_contex->ccmHwConf.ccmEnable && ccm_contex->mCurAtt.mode == RK_AIQ_CCM_MODE_AUTO){
         ccm_querry_info->finalSat = ccm_contex->accmRest.fSaturation;
-        if (ccm_contex->accmRest.pCcmProfile1) {
-            strcpy(ccm_querry_info->ccmname1, ccm_contex->accmRest.pCcmProfile1->name);
+        if (ccm_contex->accmRest.CcmProf1Name) {
+            strcpy(ccm_querry_info->ccmname1, ccm_contex->accmRest.CcmProf1Name);
         }
-        if (ccm_contex->accmRest.pCcmProfile2) {
-            strcpy(ccm_querry_info->ccmname2, ccm_contex->accmRest.pCcmProfile2->name);
+        if (ccm_contex->accmRest.CcmProf1Name) {
+            strcpy(ccm_querry_info->ccmname2, ccm_contex->accmRest.CcmProf2Name);
         }
         else
             strcpy(ccm_querry_info->ccmname2, ccm_querry_info->ccmname1);
@@ -123,11 +123,11 @@ rk_aiq_uapi_accm_QueryCcmInfo(const RkAiqAlgoContext *ctx,
 #if RKAIQ_HAVE_CCM_V2
     if (ccm_contex->ccmHwConf_v2.ccmEnable && ccm_contex->mCurAttV2.mode == RK_AIQ_CCM_MODE_AUTO){
         ccm_querry_info->finalSat = ccm_contex->accmRest.fSaturation;
-        if (ccm_contex->accmRest.pCcmProfile1) {
-            strcpy(ccm_querry_info->ccmname1, ccm_contex->accmRest.pCcmProfile1->name);
+        if (strlen(ccm_contex->accmRest.CcmProf1Name) > 0) {
+            strcpy(ccm_querry_info->ccmname1, ccm_contex->accmRest.CcmProf1Name);
         }
-        if (ccm_contex->accmRest.pCcmProfile2) {
-            strcpy(ccm_querry_info->ccmname2, ccm_contex->accmRest.pCcmProfile2->name);
+        if (strlen(ccm_contex->accmRest.CcmProf2Name) > 0) {
+            strcpy(ccm_querry_info->ccmname2, ccm_contex->accmRest.CcmProf2Name);
         }
         else
             strcpy(ccm_querry_info->ccmname2, ccm_querry_info->ccmname1);
