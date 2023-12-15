@@ -7498,7 +7498,7 @@
 						},
 						"cac_v11":	{
 							"SettingPara":	{
-								"enable":	1,
+								"enable":	0,
 								"psf_path":	"./CAC_sc200ai_CMK-OT2115-PC1_30IRC-F16/cac_map_hw_1920x1080.bin",
 								"psf_shift_bits":	2,
 								"center_en":	0,
