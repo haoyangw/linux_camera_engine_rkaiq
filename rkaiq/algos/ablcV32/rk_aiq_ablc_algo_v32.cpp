@@ -122,25 +122,25 @@ AblcResult_V32_t AblcV32_IQParams_Check(AblcParams_V32_t* pBLC0Params, AblcOBPar
 
         diff = ((pBlcRef->Reference_r[i] - blc_r_caculate) > 0 ) ? (pBlcRef->Reference_r[i] - blc_r_caculate) : ( blc_r_caculate - pBlcRef->Reference_r[i]);
         if (diff > 0.01) {
-            LOGE_ABLC("BLC0_r-ob_offset not equal to the blc Reference_r in iso(%d) Reference_r=%.4f, blc_r_caculate=%.4f\n",
+            LOGW_ABLC("BLC0_r-ob_offset not equal to the blc Reference_r in iso(%d) Reference_r=%.4f, blc_r_caculate=%.4f\n",
                       int(pBlcRef->iso[i]), pBlcRef->Reference_r[i], blc_r_caculate);
         }
 
         diff = ((pBlcRef->Reference_gr[i] - blc_gr_caculate) > 0 ) ? (pBlcRef->Reference_gr[i] - blc_gr_caculate) : ( blc_gr_caculate - pBlcRef->Reference_gr[i]);
         if (diff > 0.01) {
-            LOGE_ABLC("BLC0_gr-ob_offset not equal to the blc Reference_gr in iso(%d) Reference_gr=%.4f, blc_gr_caculate=%.4f\n, cur-blc-gr=%.4f",
+            LOGW_ABLC("BLC0_gr-ob_offset not equal to the blc Reference_gr in iso(%d) Reference_gr=%.4f, blc_gr_caculate=%.4f\n, cur-blc-gr=%.4f",
                       int(pBlcRef->iso[i]), pBlcRef->Reference_gr[i], blc_gr_caculate, pBLC0Params->blc_gr[i]);
         }
 
         diff = ((pBlcRef->Reference_gb[i] - blc_gb_caculate) > 0 ) ? (pBlcRef->Reference_gb[i] - blc_gb_caculate) : ( blc_gb_caculate - pBlcRef->Reference_gb[i]);
         if (diff > 0.01) {
-            LOGE_ABLC("BLC0_gb-ob_offset not equal to the blc Reference_gb in iso(%d) Reference_gb=%.4f, blc_gb_caculate=%.4f\n",
+            LOGW_ABLC("BLC0_gb-ob_offset not equal to the blc Reference_gb in iso(%d) Reference_gb=%.4f, blc_gb_caculate=%.4f\n",
                       int(pBlcRef->iso[i]), pBlcRef->Reference_gb[i], blc_gb_caculate);
         }
 
         diff = ((pBlcRef->Reference_b[i] - blc_b_caculate) > 0 ) ? (pBlcRef->Reference_b[i] - blc_b_caculate) : ( blc_b_caculate - pBlcRef->Reference_b[i]);
         if (diff > 0.01) {
-            LOGE_ABLC("BLC0_b-ob_offset not equal to the blc Reference_b in iso(%d) Reference_b=%.4f, blc_b_caculate=%.4f\n",
+            LOGW_ABLC("BLC0_b-ob_offset not equal to the blc Reference_b in iso(%d) Reference_b=%.4f, blc_b_caculate=%.4f\n",
                       int(pBlcRef->iso[i]), pBlcRef->Reference_b[i], blc_b_caculate);
         }
     }
