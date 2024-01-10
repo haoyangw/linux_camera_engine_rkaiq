@@ -101,10 +101,10 @@ rk_aiq_uapi_accm_QueryCcmInfo(const RkAiqAlgoContext *ctx,
 #if RKAIQ_HAVE_CCM_V1
     if (ccm_contex->ccmHwConf.ccmEnable && ccm_contex->mCurAtt.mode == RK_AIQ_CCM_MODE_AUTO){
         ccm_querry_info->finalSat = ccm_contex->accmRest.fSaturation;
-        if (ccm_contex->accmRest.CcmProf1Name) {
+        if (strlen(ccm_contex->accmRest.CcmProf1Name) > 0) {
             strcpy(ccm_querry_info->ccmname1, ccm_contex->accmRest.CcmProf1Name);
         }
-        if (ccm_contex->accmRest.CcmProf1Name) {
+        if (strlen(ccm_contex->accmRest.CcmProf2Name) > 0) {
             strcpy(ccm_querry_info->ccmname2, ccm_contex->accmRest.CcmProf2Name);
         }
         else
