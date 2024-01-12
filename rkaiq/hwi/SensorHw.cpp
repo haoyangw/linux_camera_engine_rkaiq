@@ -626,7 +626,7 @@ SensorHw::setExposureParams(SmartPtr<RkAiqExpParamsProxy>& expPar)
         }
         if (!exp->exp_i2c_params.bValid) {
             _is_i2c_exp = false;
-            if (!(mTbInfo.is_pre_aiq || mTbInfo.is_start_once)) {
+            if (!mTbInfo.is_pre_aiq) {
                 if (_working_mode == RK_AIQ_WORKING_MODE_NORMAL)
                     setLinearSensorExposure(&exp->new_ae_exp);
                 else
