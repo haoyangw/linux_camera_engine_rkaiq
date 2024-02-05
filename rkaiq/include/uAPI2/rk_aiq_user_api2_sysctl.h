@@ -317,17 +317,6 @@ char* rk_aiq_uapi2_sysctl_readiq(const rk_aiq_sys_ctx_t* sys_ctx, char* param);
 XCamReturn
 rk_aiq_uapi2_sysctl_preInit_scene(const char* sns_ent_name, const char *main_scene,
                                   const char *sub_scene);
-/**
- * @brief set thunder boot info to aiq
- *
- * @param sns_ent_name sensor name
- * @param is_pre_aiq is pre-customer aiq
- *
- * @return 0 if no error
- */
-XCamReturn
-rk_aiq_uapi2_sysctl_preInit_tb_info(const char* sns_ent_name,
-                           const rk_aiq_tb_info_t* info);
 
 /**
  * @brief preInit the addr of IQ
@@ -546,15 +535,21 @@ rk_aiq_uapi2_sysctl_setCrop(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_rect_t rect)
  * @brief pause vicap stream
  *
  * \param[in] sys_ctx             the context returned by \ref rk_aiq_uapi2_sysctl_init
+ * 
+ * @return 0 if no error
  */
-void rk_aiq_uapi2_sysctl_pause(rk_aiq_sys_ctx_t* sys_ctx, bool isSingleMode);
+XCamReturn
+rk_aiq_uapi2_sysctl_pause(rk_aiq_sys_ctx_t* sys_ctx, bool isSingleMode);
 
 /**
  * @brief resume vicap stream
  *
  * \param[in] sys_ctx             the context returned by \ref rk_aiq_uapi2_sysctl_init
+ * 
+ * @return 0 if no error
  */
-void rk_aiq_uapi2_sysctl_resume(rk_aiq_sys_ctx_t* sys_ctx);
+XCamReturn
+rk_aiq_uapi2_sysctl_resume(rk_aiq_sys_ctx_t* sys_ctx);
 
 XCamReturn
 rk_aiq_uapi2_sysctl_getAinrParams(const rk_aiq_sys_ctx_t* sys_ctx, rk_ainr_param* para);
@@ -571,6 +566,11 @@ rk_aiq_uapi2_sysctl_setUserOtpInfo(rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_user_otp_in
 void
 rk_aiq_uapi2_sysctl_setListenStrmStatus(rk_aiq_sys_ctx_t* sys_ctx, bool isListen);
 
+XCamReturn
+rk_aiq_uapi2_sysctl_initAiisp(rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_aiisp_cfg_t* aiisp_cfg,
+                                rk_aiq_aiisp_cb aiisp_cb);
+XCamReturn
+rk_aiq_uapi2_sysctl_ReadAiisp(rk_aiq_sys_ctx_t* sys_ctx);
 RKAIQ_END_DECLARE
 
 #endif

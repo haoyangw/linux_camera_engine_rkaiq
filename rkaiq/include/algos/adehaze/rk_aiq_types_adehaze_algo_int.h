@@ -66,4 +66,14 @@ typedef struct adehaze_sw_v12_s {
     mDehazeAttrInfoV11_t Info;
 } adehaze_sw_v12_t;
 
+// dehaze v14
+typedef struct adehaze_sw_v14_s {
+    rk_aiq_uapi_sync_t sync;
+
+    dehaze_api_mode_t mode;
+    CalibDbV2_dehaze_v14_t stAuto;
+    mDehazeAttrV14_t stManual;
+    mDehazeAttrInfoV11_t Info;
+} adehaze_sw_v14_t;
+
 #endif

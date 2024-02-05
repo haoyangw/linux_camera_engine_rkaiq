@@ -142,6 +142,7 @@ typedef struct DrcHandleDataV12_s {
 } DrcHandleDataV12_t;
 
 typedef struct adrcDynParams_s {
+    float damp;
 #if RKAIQ_HAVE_DRC_V10
     DrcHandleDataV10_t Drc_v10;
 #endif
@@ -150,6 +151,9 @@ typedef struct adrcDynParams_s {
 #endif
 #if RKAIQ_HAVE_DRC_V12 || RKAIQ_HAVE_DRC_V12_LITE
     DrcHandleDataV12_t Drc_v12;
+#endif
+#if RKAIQ_HAVE_DRC_V20
+    mdrcAttr_V20_t Drc_v20;
 #endif
 } adrcDynParams_t;
 
@@ -195,10 +199,17 @@ typedef struct AdrcContext_s {
 #if RKAIQ_HAVE_DRC_V12
     drcAttrV12_t drcAttrV12;
     adrc_blcRes_V32_t ablcV32_proc_res;
+    unsigned char compr_bit;
 #endif
 #if RKAIQ_HAVE_DRC_V12_LITE
     drcAttrV12Lite_t drcAttrV12;
     adrc_blcRes_V32_t ablcV32_proc_res;
+    unsigned char compr_bit;
+#endif
+#if RKAIQ_HAVE_DRC_V20
+    drcAttrV20_t drcAttrV20;
+    adrc_blcRes_V32_t ablcV32_proc_res;
+    unsigned char compr_bit;
 #endif
     AdrcState_t state;
     CurrData_t CurrData;

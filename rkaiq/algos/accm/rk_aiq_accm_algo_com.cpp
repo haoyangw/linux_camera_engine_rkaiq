@@ -948,7 +948,7 @@ XCamReturn YAlpSymAutoCfg(const int isoNum,
         }
         if (diff > 1) {
             memcpy(alp, alp_tmp, sizeof(alp_tmp));
-            LOGD_ACCM("%s: scl = %f -> %f, idx = %d -> %d\n", __FUNCTION__, lastscl, k, lastTidx, ii);
+            LOGE_ACCM("%s: scl = %f -> %f, idx = %d -> %d\n", __FUNCTION__, lastscl, k, lastTidx, ii);
             lastscl = k;
             lastTidx = ii;
             *update_flag = true;
@@ -990,7 +990,7 @@ XCamReturn YAlpAsymAutoCfg(const int isoNum,
         }
         k = (iso - alpTbl[ii - 1].iso) / (alpTbl[ii].iso - alpTbl[ii - 1].iso);
     }
-
+    LOGE_ACCM("whm: scl = %f, idx = %d\n", k, ii);
     if (fabs(k - lastscl) > 0.01 || (ii != lastTidx) || update) {
         float alp_tmp[CCM_CURVE_DOT_NUM_V2] = {0};
         float diff = 0;
@@ -1004,7 +1004,7 @@ XCamReturn YAlpAsymAutoCfg(const int isoNum,
         }
         if (diff > 1) {
             memcpy(alp, alp_tmp, sizeof(alp_tmp));
-            LOGD_ACCM("%s: scl = %f -> %f, idx = %d -> %d\n", __FUNCTION__, lastscl, k, lastTidx, ii);
+            LOGE_ACCM("%s: scl = %f -> %f, idx = %d -> %d\n", __FUNCTION__, lastscl, k, lastTidx, ii);
             lastscl = k;
             lastTidx = ii;
             *update_flag = true;

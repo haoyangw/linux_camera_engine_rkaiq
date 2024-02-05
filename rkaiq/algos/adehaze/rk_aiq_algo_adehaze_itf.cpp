@@ -33,6 +33,9 @@
 #if RKAIQ_HAVE_DEHAZE_V12
 #include "adehaze/rk_aiq_adehaze_algo_v12.h"
 #endif
+#if RKAIQ_HAVE_DEHAZE_V14
+#include "adehaze/rk_aiq_adehaze_algo_v14.h"
+#endif
 #include "RkAiqCalibDbTypes.h"
 #include "rk_aiq_algo_types.h"
 #include "xcam_log.h"
@@ -123,6 +126,13 @@ static XCamReturn prepare(RkAiqAlgoCom* params) {
             memcpy(&pAdehazeHandle->AdehazeAtrrV12.stAuto, calibv2_adehaze_calib_V12,
                    sizeof(CalibDbV2_dehaze_v12_t));
 #endif
+#if RKAIQ_HAVE_DEHAZE_V14
+        CalibDbV2_dehaze_v14_t* calibv2_adehaze_calib_V14 =
+            (CalibDbV2_dehaze_v14_t*)(CALIBDBV2_GET_MODULE_PTR((void*)pCalibDb, adehaze_calib));
+        if (calibv2_adehaze_calib_V14)
+            memcpy(&pAdehazeHandle->AdehazeAtrrV14.stAuto, calibv2_adehaze_calib_V14,
+                   sizeof(CalibDbV2_dehaze_v14_t));
+#endif
         // just update calib ptr
         if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR)
             return XCAM_RETURN_NO_ERROR;
@@ -163,6 +173,10 @@ static XCamReturn processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
 #endif
 #if RKAIQ_HAVE_DEHAZE_V12
             ret = AdehazeProcess(pAdehazeHandle, pProcPara->dehaze_stats_v12, pProcPara->stats_true,
+                                 pProcRes->AdehzeProcRes);
+#endif
+#if RKAIQ_HAVE_DEHAZE_V14
+            ret = AdehazeProcess(pAdehazeHandle, pProcPara->dehaze_stats_v14, pProcPara->stats_true,
                                  pProcRes->AdehzeProcRes);
 #endif
         }

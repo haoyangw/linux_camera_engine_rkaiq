@@ -102,6 +102,8 @@ typedef struct cJSON
     struct cJSON *prev;
     /* An array or object item will have a child pointer pointing to a chain of the items in the array/object. */
     struct cJSON *child;
+    /* any child has parent except for root */
+    struct cJSON *parent;
 
     /* The type of the item, as above. */
     int type;

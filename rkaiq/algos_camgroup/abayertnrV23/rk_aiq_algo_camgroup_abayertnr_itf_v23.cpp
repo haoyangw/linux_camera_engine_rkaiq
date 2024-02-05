@@ -123,11 +123,11 @@ static XCamReturn groupAbayertnrV23Prepare(RkAiqAlgoCom* params)
 #if (RKAIQ_HAVE_BAYERTNR_V23)
             CalibDbV2_BayerTnrV23_t* bayertnr_v23 =
                 (CalibDbV2_BayerTnrV23_t*)(CALIBDBV2_GET_MODULE_PTR((void*)pCalibdbV23,
-                                                                    bayertnr_v23));
+                                           bayertnr_v23));
 #else
             CalibDbV2_BayerTnrV23Lite_t* bayertnr_v23 =
                 (CalibDbV2_BayerTnrV23Lite_t*)(CALIBDBV2_GET_MODULE_PTR((void*)pCalibdbV23,
-                                                                        bayertnr_v23));
+                                               bayertnr_v23));
 #endif
 
             abayertnr_contex_v23->bayertnr_v23   = *bayertnr_v23;

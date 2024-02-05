@@ -11,6 +11,13 @@
 #ifndef __RK_AIQ_TYPES_ADEHAZE_ALGO_STAT_H__
 #define __RK_AIQ_TYPES_ADEHAZE_ALGO_STAT_H__
 
+typedef struct dehaze_stats_v14_s {
+    unsigned short adp_wt;
+    unsigned short adp_air_base;
+    unsigned short adp_tmax;
+    unsigned short hist_iir[80][16];
+} dehaze_stats_v14_t;
+
 typedef struct dehaze_stats_v12_s {
     unsigned int dhaz_pic_sumh;
     unsigned short dhaz_adp_air_base;
@@ -61,6 +68,9 @@ typedef struct rkisp_adehaze_stats_s {
 #endif
 #if RKAIQ_HAVE_DEHAZE_V12
     dehaze_stats_v12_t dehaze_stats_v12;
+#endif
+#if RKAIQ_HAVE_DEHAZE_V14
+    dehaze_stats_v14_t dehaze_stats_v14;
 #endif
 } rkisp_adehaze_stats_t;
 

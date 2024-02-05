@@ -62,6 +62,13 @@ XCamReturn RkAiqAdebayerHandleInt::updateConfig(bool needSync) {
         updateAtt = false;
 #endif
 
+#if RKAIQ_HAVE_DEBAYER_V3
+        mCurAttV3 = mNewAttV3;
+        rk_aiq_uapi_adebayer_v3_SetAttrib(mAlgoCtx, mCurAttV3, false);
+        sendSignal(mCurAttV3.sync.sync_mode);
+        updateAtt = false;
+#endif
+
     }
 
     if (needSync) mCfgMutex.unlock();
@@ -144,7 +151,9 @@ XCamReturn RkAiqAdebayerHandleInt::setAttribV2(adebayer_v2_attrib_t att) {
     mCfgMutex.lock();
 
 #ifdef DISABLE_HANDLE_ATTRIB
+#ifndef USE_NEWSTRUCT
     ret = rk_aiq_uapi_adebayer_v2_SetAttrib(mAlgoCtx, att, false);
+#endif
 #else
     // check if there is different between att & mCurAtt(sync)/mNewAtt(async)
     // if something changed, set att to mNewAtt, and
@@ -177,10 +186,12 @@ XCamReturn RkAiqAdebayerHandleInt::getAttribV2(adebayer_v2_attrib_t* att) {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
 #ifdef DISABLE_HANDLE_ATTRIB
+#ifndef USE_NEWSTRUCT
     mCfgMutex.lock();
     rk_aiq_uapi_adebayer_v2_GetAttrib(mAlgoCtx, att);
     att->sync.done = true;
     mCfgMutex.unlock();
+#endif
 #else
     if (att->sync.sync_mode == RK_AIQ_UAPI_MODE_SYNC) {
         mCfgMutex.lock();
@@ -270,6 +281,73 @@ XCamReturn RkAiqAdebayerHandleInt::getAttribV2(adebayer_v2lite_attrib_t* att) {
 }
 #endif
 
+#if RKAIQ_HAVE_DEBAYER_V3
+XCamReturn RkAiqAdebayerHandleInt::setAttribV3(adebayer_v3_attrib_t att) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    mCfgMutex.lock();
+
+#ifdef DISABLE_HANDLE_ATTRIB
+    ret = rk_aiq_uapi_adebayer_v3_SetAttrib(mAlgoCtx, att, false);
+#else
+    // check if there is different between att & mCurAtt(sync)/mNewAtt(async)
+    // if something changed, set att to mNewAtt, and
+    // the new params will be effective later when updateConfig
+    // called by RkAiqCore
+    bool isChanged = false;
+    if (att.sync.sync_mode == RK_AIQ_UAPI_MODE_ASYNC && \
+            memcmp(&mNewAttV3, &att, sizeof(att)))
+        isChanged = true;
+    else if (att.sync.sync_mode != RK_AIQ_UAPI_MODE_ASYNC && \
+             memcmp(&mCurAttV3, &att, sizeof(att)))
+        isChanged = true;
+
+    // if something changed
+    if (isChanged) {
+        mNewAttV3   = att;
+        updateAtt = true;
+        waitSignal(att.sync.sync_mode);
+    }
+#endif
+    mCfgMutex.unlock();
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn RkAiqAdebayerHandleInt::getAttribV3(adebayer_v3_attrib_t* att) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+#ifdef DISABLE_HANDLE_ATTRIB
+    mCfgMutex.lock();
+    rk_aiq_uapi_adebayer_v3_GetAttrib(mAlgoCtx, att);
+    att->sync.done = true;
+    mCfgMutex.unlock();
+#else
+    if (att->sync.sync_mode == RK_AIQ_UAPI_MODE_SYNC) {
+        mCfgMutex.lock();
+        rk_aiq_uapi_adebayer_v3_GetAttrib(mAlgoCtx, att);
+        att->sync.done = true;
+        mCfgMutex.unlock();
+    } else {
+        if (updateAtt) {
+            memcpy(att, &mNewAttV3, sizeof(mNewAttV3));
+            att->sync.done = false;
+        } else {
+            rk_aiq_uapi_adebayer_v3_GetAttrib(mAlgoCtx, att);
+            att->sync.sync_mode = mNewAttV3.sync.sync_mode;
+            att->sync.done      = true;
+        }
+    }
+#endif
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+#endif
+
 XCamReturn RkAiqAdebayerHandleInt::prepare() {
     ENTER_ANALYZER_FUNCTION();
 
@@ -277,6 +355,13 @@ XCamReturn RkAiqAdebayerHandleInt::prepare() {
 
     ret = RkAiqHandle::prepare();
     RKAIQCORE_CHECK_RET(ret, "adebayer handle prepare failed");
+
+    RkAiqAlgoConfigAdebayer* adebayer_config_int = (RkAiqAlgoConfigAdebayer*)mConfig;
+    RkAiqCore::RkAiqAlgosGroupShared_t* shared =
+        (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
+    RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
+
+    adebayer_config_int->compr_bit = sharedCom->snsDes.compr_bit;
 
     RkAiqAlgoDescription* des = (RkAiqAlgoDescription*)mDes;
     ret                       = des->prepare(mConfig);
@@ -328,6 +413,9 @@ XCamReturn RkAiqAdebayerHandleInt::processing() {
 #endif
 #if RKAIQ_HAVE_DEBAYER_V2 || RKAIQ_HAVE_DEBAYER_V2_LITE
     adebayer_proc_res_int->debayerResV2.config = &shared->fullParams->mDebayerParams->data()->result;
+#endif
+#if RKAIQ_HAVE_DEBAYER_V3
+    adebayer_proc_res_int->debayerResV3.config = &shared->fullParams->mDebayerParams->data()->result;
 #endif
 
     ret = RkAiqHandle::processing();

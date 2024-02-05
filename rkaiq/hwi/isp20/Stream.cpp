@@ -621,6 +621,147 @@ RKSofEventStream::new_video_buffer(struct v4l2_event &event,
     return video_buf;
 }
 
+/*--------------------aiisp event stream---------------------------*/
+std::atomic<bool> RKAiispEventStream::_is_subscribed{false};
+
+RKAiispEventStream::RKAiispEventStream (SmartPtr<V4l2SubDevice> dev, int type)
+    :RKStream(dev, type)
+{
+    LOGD_CAMHW_SUBM(ISP20HW_SUBM, "RKAiispEventStream constructed");
+}
+
+//RKAiispEventStream::RKAiispEventStream (const char *name, int type)
+//    :RKStream(name, type)
+//{
+//    LOGD_CAMHW_SUBM(ISP20HW_SUBM, "RKAiispEventStream constructed");
+//}
+
+RKAiispEventStream::~RKAiispEventStream()
+{
+    LOGD_CAMHW_SUBM(ISP20HW_SUBM, "~RKAiispEventStream destructed");
+}
+
+void
+RKAiispEventStream::start()
+{
+    _subdev->start(_dev_prepared);
+    _poll_thread->setCamPhyId(mCamPhyId);
+    _poll_thread->start();
+    _subdev->subscribe_event(RKISP_V4L2_EVENT_AIISP_LINECNT);
+}
+
+void
+RKAiispEventStream::stop()
+{
+    close_aiisp();
+    _poll_thread->stop();
+    _subdev->unsubscribe_event(RKISP_V4L2_EVENT_AIISP_LINECNT);
+    _subdev->stop();
+}
+
+XCamReturn
+RKAiispEventStream::set_aiisp_linecnt(rk_aiq_aiisp_cfg_t aiisp_cfg)
+{
+    int res = -1;
+    rkisp_aiisp_cfg aiisp_cfg_io;
+    aiisp_cfg_io.wr_mode = aiisp_cfg.wr_mode;
+    aiisp_cfg_io.rd_mode = aiisp_cfg.rd_mode;
+    aiisp_cfg_io.wr_linecnt = aiisp_cfg.wr_linecnt;
+    aiisp_cfg_io.rd_linecnt = aiisp_cfg.rd_linecnt;
+    res = _subdev->io_control(RKISP_CMD_SET_AIISP_LINECNT, &aiisp_cfg_io);
+    if (res) {
+        LOGE_CAMHW_SUBM(ISP20HW_SUBM,"set aiisp linecnt failed! %d", res);
+        return XCAM_RETURN_ERROR_IOCTL;
+    }
+    LOGK_CAMHW_SUBM(ISP20HW_SUBM, "aiisp wr_linecnt is %d rd_linecnt is %d", aiisp_cfg.wr_linecnt, aiisp_cfg.rd_linecnt);
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn
+RKAiispEventStream::close_aiisp()
+{
+    int res = -1;
+    rk_aiq_aiisp_cfg_t aiisp_cfg;
+    aiisp_cfg.wr_linecnt = 0;
+    res = _subdev->io_control(RKISP_CMD_SET_AIISP_LINECNT, &aiisp_cfg);
+    if (res) {
+        LOGE_CAMHW_SUBM(ISP20HW_SUBM,"close aiisp failed! %d", res);
+        return XCAM_RETURN_ERROR_IOCTL;
+    }
+    int mun_ret = munmap(iir_address, bay3dbuf.iir_size);
+    mun_ret = munmap(gain_address, bay3dbuf.u.v39.gain_size);
+    LOGK_CAMHW_SUBM(ISP20HW_SUBM, "close aiisp success");
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn
+RKAiispEventStream::get_aiisp_bay3dbuf()
+{
+    int res = -1;
+    memset(&bay3dbuf, 0, sizeof(bay3dbuf));
+    res = _subdev->io_control(RKISP_CMD_GET_BAY3D_BUFFD, &bay3dbuf);
+    if (res) {
+        LOGE_CAMHW_SUBM(ISP20HW_SUBM, "get aiisp bay3dbuf failed! %d", res);
+        return XCAM_RETURN_ERROR_IOCTL;
+    }
+    LOGK_CAMHW_SUBM(ISP20HW_SUBM, "get aiisp bay3dbuf: iir_fd is %d iir_size is %d", bay3dbuf.iir_fd, bay3dbuf.iir_size);
+    int iir_fd = bay3dbuf.iir_fd;
+    int iir_size = bay3dbuf.iir_size;
+    iir_address = (char*)mmap(NULL, iir_size, PROT_READ | PROT_WRITE, MAP_SHARED, iir_fd, 0);
+    if (MAP_FAILED == iir_address) {
+        LOGE_CAMHW_SUBM(ISP20HW_SUBM, "iir_fd mmap failed");
+        return XCAM_RETURN_ERROR_FAILED;
+    }
+    LOGK_CAMHW_SUBM(ISP20HW_SUBM, "iir_fd %d, iir_size %d", iir_fd, iir_size);
+    int gain_fd = bay3dbuf.u.v39.gain_fd;
+    int gain_size = bay3dbuf.u.v39.gain_size;
+    gain_address = (char*)mmap(NULL, gain_size, PROT_READ | PROT_WRITE, MAP_SHARED, gain_fd, 0);
+    if (MAP_FAILED == gain_address) {
+        LOGE_CAMHW_SUBM(ISP20HW_SUBM, "gain_fd mmap failed");
+        return XCAM_RETURN_ERROR_FAILED;
+    }
+    LOGK_CAMHW_SUBM(ISP20HW_SUBM, "gain_fd %d, gain_size %d", gain_fd, gain_size);
+    return XCAM_RETURN_NO_ERROR;
+}
+
+SmartPtr<VideoBuffer>
+RKAiispEventStream::new_video_buffer(struct v4l2_event &event,
+                                       SmartPtr<V4l2Device> dev)
+{
+    ENTER_CAMHW_FUNCTION();
+    SmartPtr<VideoBuffer> video_buf = nullptr;
+    rkisp_aiisp_ev_info* aiisp_ev_info = (rkisp_aiisp_ev_info*)event.u.data;
+    SmartPtr<AiispEventData> evtdata = new AiispEventData();
+    evtdata->_height = aiisp_ev_info->height;
+    evtdata->_frameid = aiisp_ev_info->sequence;
+    evtdata->bay3dbuf = bay3dbuf;
+    evtdata->iir_address = iir_address;
+    evtdata->gain_address = gain_address;
+
+    video_buf = new AiispEventBuffer(evtdata, dev);
+    if (event.type != RKISP_V4L2_EVENT_AIISP_LINECNT) {
+        video_buf->_buf_type = _dev_type;
+        LOGE_CAMHW_SUBM(ISP20HW_SUBM,"The type of event is not RKISP_V4L2_EVENT_AIISP_LINECNT!");
+    }
+    else {
+        video_buf->_buf_type = _dev_type;
+    }
+    video_buf->set_sequence (evtdata->_frameid);
+    EXIT_CAMHW_FUNCTION();
+
+    return video_buf;
+}
+
+XCamReturn RKAiispEventStream::call_aiisp_rd_start()
+{
+    int res = -1;
+    res = _subdev->io_control(RKISP_CMD_AIISP_RD_START, NULL);
+    if (res)
+        return XCAM_RETURN_ERROR_IOCTL;
+    LOGD_CAMHW_SUBM(ISP20HW_SUBM, "call aiisp rd start success");
+    return XCAM_RETURN_NO_ERROR;
+}
+
 /*--------------------Output stream---------------------------*/
 
 RKRawStream::RKRawStream (SmartPtr<V4l2Device> dev, int index, int type)

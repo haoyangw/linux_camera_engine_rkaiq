@@ -63,10 +63,20 @@ XCamReturn sample_acnr_getAtrr_v30(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode
     rk_aiq_cnr_attrib_v30_t cnr_attr;
     cnr_attr.sync.sync_mode = sync_mode;
     ret = rk_aiq_user_api2_acnrV30_GetAttrib(ctx, &cnr_attr);
-    printf("get acnr v2 attri ret:%d done:%d\n\n", ret, cnr_attr.sync.done);
+    printf("get acnr v30 attri ret:%d done:%d\n\n", ret, cnr_attr.sync.done);
     return ret;
 }
 
+
+XCamReturn sample_acnr_getAtrr_v31(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync_mode)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    rk_aiq_cnr_attrib_v31_t cnr_attr;
+    cnr_attr.sync.sync_mode = sync_mode;
+    ret = rk_aiq_user_api2_acnrV31_GetAttrib(ctx, &cnr_attr);
+    printf("get acnr v31 attri ret:%d done:%d\n\n", ret, cnr_attr.sync.done);
+    return ret;
+}
 
 XCamReturn sample_acnr_getStrength_v2(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync_mode)
 {
@@ -85,11 +95,22 @@ XCamReturn sample_acnr_getStrength_v30(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_
     rk_aiq_cnr_strength_v30_t cnr_Strength;
     cnr_Strength.sync.sync_mode = sync_mode;
     ret = rk_aiq_user_api2_acnrV30_GetStrength(ctx, &cnr_Strength);
-    printf("get acnr v2 attri ret:%d strength:%f done:%d \n\n",
+    printf("get acnr v30 attri ret:%d strength:%f done:%d \n\n",
            ret, cnr_Strength.percent, cnr_Strength.sync.done);
     return ret;
 }
 
+
+XCamReturn sample_acnr_getStrength_v31(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync_mode)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    rk_aiq_cnr_strength_v31_t cnr_Strength;
+    cnr_Strength.sync.sync_mode = sync_mode;
+    ret = rk_aiq_user_api2_acnrV31_GetStrength(ctx, &cnr_Strength);
+    printf("get acnr v31 attri ret:%d strength:%f done:%d \n\n",
+           ret, cnr_Strength.percent, cnr_Strength.sync.done);
+    return ret;
+}
 
 XCamReturn sample_acnr_setAuto_v2(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync_mode)
 {
@@ -164,45 +185,6 @@ XCamReturn sample_acnr_setAuto_v30(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode
     cnr_attr.sync.sync_mode = sync_mode;
     cnr_attr.eMode = ACNRV30_OP_MODE_AUTO;
 
-
-    // int enable;
-
-    // int down_scale_x;
-    // int down_scale_y;
-
-    // float thumb_sigma;
-    // float thumb_bf_ratio;
-
-    // float chroma_filter_strength;
-    // float chroma_filter_wgt_clip;
-    // float anti_chroma_ghost;
-    // float chroma_filter_uv_gain;
-    // float wgt_slope;
-
-    // float gaus_ratio;
-
-    // float bf_sigmaR;
-    // float bf_uvgain;
-    // float bf_ratio;
-    // float hbf_wgt_clip;
-    // float bf_wgt0_sel;
-    // float global_alpha;
-
-    // float saturation_adj_offset;
-    // float saturation_adj_ratio;
-
-    // float global_gain;
-    // float global_gain_alpha;
-    // float local_gain_scale;
-    // float global_gain_thumb;
-    // float global_gain_alpha_thumb;
-
-    // float gain_adj_strength_ratio[13];
-
-    // float thumb_filter_wgt_coeff[4];
-    // float gaus_coeff[6];
-
-
     for(int i = 0; i < RK_CNR_V30_MAX_ISO_NUM; i++) {
         cnr_attr.stAuto.stParams.iso[i] = 50 * pow(2, i);
         cnr_attr.stAuto.stParams.CnrParamsISO[i].enable = 1;
@@ -271,6 +253,129 @@ XCamReturn sample_acnr_setAuto_v30(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode
     get_cnr_attr.sync.sync_mode = sync_mode;
     ret = rk_aiq_user_api2_acnrV30_GetAttrib(ctx, &get_cnr_attr);
     printf("get acnr v2 attri ret:%d done:%d\n\n", ret, get_cnr_attr.sync.done);
+    return ret;
+}
+
+
+
+
+XCamReturn sample_acnr_setAuto_v31(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync_mode)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    rk_aiq_cnr_attrib_v31_t cnr_attr;
+    cnr_attr.sync.sync_mode = sync_mode;
+    ret = rk_aiq_user_api2_acnrV31_GetAttrib(ctx, &cnr_attr);
+    cnr_attr.sync.sync_mode = sync_mode;
+    cnr_attr.eMode = ACNRV31_OP_MODE_AUTO;
+
+    for(int i = 0; i < RK_CNR_V31_MAX_ISO_NUM; i++) {
+        cnr_attr.stAuto.stParams.iso[i] = 50 * pow(2, i);
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].enable = 1;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].hw_cnrT_exgain_bypass = 0;
+
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_ds_scaleX = 4;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_ds_scaleY = 4;
+
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_thumbBf_coeff[0] = 1;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_thumbBf_coeff[1] = 1;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_thumbBf_coeff[2] = 1;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_thumbBf_coeff[3] = 1;
+
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_loBfFlt_vsigma = 0.01;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_loBfFlt_alpha = 1;
+
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].hw_cnrT_loFlt_coeff[0] = 1;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].hw_cnrT_loFlt_coeff[1] = 1;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].hw_cnrT_loFlt_coeff[2] = 1;
+
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_loFlt_vsigma = 0.02;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_loFltWgt_maxLimit = 2;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_loFltWgt_minThred = 0.0313;
+
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_loFltUV_gain = 0.333;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_loFltWgt_slope = 0.7;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gausFlt_alpha = 1;
+
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_hiFltVsigma_idx[0] = 0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_hiFltVsigma_idx[1] = 64;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_hiFltVsigma_idx[2] = 128;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_hiFltVsigma_idx[3] = 256;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_hiFltVsigma_idx[4] = 384;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_hiFltVsigma_idx[5] = 640;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_hiFltVsigma_idx[6] = 896;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_hiFltVsigma_idx[7] = 1024;
+
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_hiFlt_vsigma[0] = 0.02;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_hiFlt_vsigma[1] = 0.02;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_hiFlt_vsigma[2] = 0.02;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_hiFlt_vsigma[3] = 0.02;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_hiFlt_vsigma[4] = 0.02;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_hiFlt_vsigma[5] = 0.02;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_hiFlt_vsigma[6] = 0.02;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_hiFlt_vsigma[7] = 0.02;
+
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_hiFltUV_gain = 6;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_hiFltCur_wgt = 0.01;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_hiFltWgt_minLimit = 0;
+
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].hw_cnrT_hiFltWgt0_mode = 0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_hiFlt_alpha = 1;
+
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].hw_cnrT_satAdj_offset = 0.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_satAdj_scale = 0.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_global_gain = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_globalGain_alpha = 0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_localGain_scale = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_loFltGlobalSgm_ratio = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_loFltGlobalSgmRto_alpha = 0.0;
+
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltSgm_ratio[0] = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltSgm_ratio[1] = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltSgm_ratio[2] = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltSgm_ratio[3] = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltSgm_ratio[4] = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltSgm_ratio[5] = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltSgm_ratio[6] = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltSgm_ratio[7] = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltSgm_ratio[8] = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltSgm_ratio[9] = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltSgm_ratio[10] = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltSgm_ratio[11] = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltSgm_ratio[12] = 1.0;
+
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltCur_wgt[0] = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltCur_wgt[1] = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltCur_wgt[2] = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltCur_wgt[3] = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltCur_wgt[4] = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltCur_wgt[5] = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltCur_wgt[6] = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltCur_wgt[7] = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltCur_wgt[8] = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltCur_wgt[9] = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltCur_wgt[10] = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltCur_wgt[11] = 1.0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gainAdjHiFltCur_wgt[12] = 1.0;
+
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].hw_cnrT_gausFltSigma_en = 0;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gausFlt_sigma = 1.0;
+
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gausFlt_coeff[0] = 0.1758;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gausFlt_coeff[1] = 0.1094;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gausFlt_coeff[2] = 0.0234;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gausFlt_coeff[3] = 0.1094;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gausFlt_coeff[4] = 0.0664;
+        cnr_attr.stAuto.stParams.CnrParamsISO[i].sw_cnrT_gausFlt_coeff[5] = 0.0156;
+
+    }
+
+    ret = rk_aiq_user_api2_acnrV31_SetAttrib(ctx, &cnr_attr);
+    printf("set acnr attri auto ret:%d \n\n", ret);
+
+    rk_aiq_cnr_attrib_v31_t get_cnr_attr;
+    get_cnr_attr.sync.sync_mode = sync_mode;
+    ret = rk_aiq_user_api2_acnrV31_GetAttrib(ctx, &get_cnr_attr);
+    printf("get acnr v31 attri ret:%d done:%d\n\n", ret, get_cnr_attr.sync.done);
     return ret;
 }
 
@@ -407,6 +512,120 @@ XCamReturn sample_acnr_setManual_v30(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mo
     return ret;
 }
 
+
+XCamReturn sample_acnr_setManual_v31(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync_mode)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    rk_aiq_cnr_attrib_v31_t cnr_attr;
+    cnr_attr.sync.sync_mode = sync_mode;
+    ret = rk_aiq_user_api2_acnrV31_GetAttrib(ctx, &cnr_attr);
+    cnr_attr.sync.sync_mode = sync_mode;
+    cnr_attr.eMode = ACNRV31_OP_MODE_MANUAL;
+    cnr_attr.stManual.stSelect.enable = 1;
+    cnr_attr.stManual.stSelect.hw_cnrT_exgain_bypass = 0;
+    cnr_attr.stManual.stSelect.sw_cnrT_ds_scaleX = 4;
+    cnr_attr.stManual.stSelect.sw_cnrT_ds_scaleY = 4;
+
+    cnr_attr.stManual.stSelect.sw_cnrT_thumbBf_coeff[0] = 1;
+    cnr_attr.stManual.stSelect.sw_cnrT_thumbBf_coeff[1] = 1;
+    cnr_attr.stManual.stSelect.sw_cnrT_thumbBf_coeff[2] = 1;
+    cnr_attr.stManual.stSelect.sw_cnrT_thumbBf_coeff[3] = 1;
+
+    cnr_attr.stManual.stSelect.sw_cnrT_loBfFlt_vsigma = 0.01;
+    cnr_attr.stManual.stSelect.sw_cnrT_loBfFlt_alpha = 1;
+
+    cnr_attr.stManual.stSelect.hw_cnrT_loFlt_coeff[0] = 1;
+    cnr_attr.stManual.stSelect.hw_cnrT_loFlt_coeff[1] = 1;
+    cnr_attr.stManual.stSelect.hw_cnrT_loFlt_coeff[2] = 1;
+
+    cnr_attr.stManual.stSelect.sw_cnrT_loFlt_vsigma = 0.02;
+    cnr_attr.stManual.stSelect.sw_cnrT_loFltWgt_maxLimit = 2;
+    cnr_attr.stManual.stSelect.sw_cnrT_loFltWgt_minThred = 0.0313;
+
+    cnr_attr.stManual.stSelect.sw_cnrT_loFltUV_gain = 0.333;
+    cnr_attr.stManual.stSelect.sw_cnrT_loFltWgt_slope = 0.7;
+    cnr_attr.stManual.stSelect.sw_cnrT_gausFlt_alpha = 1;
+
+    cnr_attr.stManual.stSelect.sw_cnrT_hiFltVsigma_idx[0] = 0;
+    cnr_attr.stManual.stSelect.sw_cnrT_hiFltVsigma_idx[1] = 64;
+    cnr_attr.stManual.stSelect.sw_cnrT_hiFltVsigma_idx[2] = 128;
+    cnr_attr.stManual.stSelect.sw_cnrT_hiFltVsigma_idx[3] = 256;
+    cnr_attr.stManual.stSelect.sw_cnrT_hiFltVsigma_idx[4] = 384;
+    cnr_attr.stManual.stSelect.sw_cnrT_hiFltVsigma_idx[5] = 640;
+    cnr_attr.stManual.stSelect.sw_cnrT_hiFltVsigma_idx[6] = 896;
+    cnr_attr.stManual.stSelect.sw_cnrT_hiFltVsigma_idx[7] = 1024;
+
+    cnr_attr.stManual.stSelect.sw_cnrT_hiFlt_vsigma[0] = 0.02;
+    cnr_attr.stManual.stSelect.sw_cnrT_hiFlt_vsigma[1] = 0.02;
+    cnr_attr.stManual.stSelect.sw_cnrT_hiFlt_vsigma[2] = 0.02;
+    cnr_attr.stManual.stSelect.sw_cnrT_hiFlt_vsigma[3] = 0.02;
+    cnr_attr.stManual.stSelect.sw_cnrT_hiFlt_vsigma[4] = 0.02;
+    cnr_attr.stManual.stSelect.sw_cnrT_hiFlt_vsigma[5] = 0.02;
+    cnr_attr.stManual.stSelect.sw_cnrT_hiFlt_vsigma[6] = 0.02;
+    cnr_attr.stManual.stSelect.sw_cnrT_hiFlt_vsigma[7] = 0.02;
+
+    cnr_attr.stManual.stSelect.sw_cnrT_hiFltUV_gain = 6;
+    cnr_attr.stManual.stSelect.sw_cnrT_hiFltCur_wgt = 0.01;
+    cnr_attr.stManual.stSelect.sw_cnrT_hiFltWgt_minLimit = 0;
+
+    cnr_attr.stManual.stSelect.hw_cnrT_hiFltWgt0_mode = 0;
+    cnr_attr.stManual.stSelect.sw_cnrT_hiFlt_alpha = 1;
+
+    cnr_attr.stManual.stSelect.hw_cnrT_satAdj_offset = 0.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_satAdj_scale = 0.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_global_gain = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_globalGain_alpha = 0;
+    cnr_attr.stManual.stSelect.sw_cnrT_localGain_scale = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_loFltGlobalSgm_ratio = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_loFltGlobalSgmRto_alpha = 0.0;
+
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltSgm_ratio[0] = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltSgm_ratio[1] = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltSgm_ratio[2] = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltSgm_ratio[3] = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltSgm_ratio[4] = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltSgm_ratio[5] = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltSgm_ratio[6] = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltSgm_ratio[7] = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltSgm_ratio[8] = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltSgm_ratio[9] = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltSgm_ratio[10] = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltSgm_ratio[11] = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltSgm_ratio[12] = 1.0;
+
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltCur_wgt[0] = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltCur_wgt[1] = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltCur_wgt[2] = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltCur_wgt[3] = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltCur_wgt[4] = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltCur_wgt[5] = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltCur_wgt[6] = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltCur_wgt[7] = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltCur_wgt[8] = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltCur_wgt[9] = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltCur_wgt[10] = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltCur_wgt[11] = 1.0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gainAdjHiFltCur_wgt[12] = 1.0;
+
+    cnr_attr.stManual.stSelect.hw_cnrT_gausFltSigma_en = 0;
+    cnr_attr.stManual.stSelect.sw_cnrT_gausFlt_sigma = 1.0;
+
+    cnr_attr.stManual.stSelect.sw_cnrT_gausFlt_coeff[0] = 0.1758;
+    cnr_attr.stManual.stSelect.sw_cnrT_gausFlt_coeff[1] = 0.1094;
+    cnr_attr.stManual.stSelect.sw_cnrT_gausFlt_coeff[2] = 0.0234;
+    cnr_attr.stManual.stSelect.sw_cnrT_gausFlt_coeff[3] = 0.1094;
+    cnr_attr.stManual.stSelect.sw_cnrT_gausFlt_coeff[4] = 0.0664;
+    cnr_attr.stManual.stSelect.sw_cnrT_gausFlt_coeff[5] = 0.0156;
+
+    ret = rk_aiq_user_api2_acnrV31_SetAttrib(ctx, &cnr_attr);
+    printf("set cnr v31 attri manual ret:%d \n\n", ret);
+
+    rk_aiq_cnr_attrib_v31_t get_cnr_attr;
+    get_cnr_attr.sync.sync_mode = sync_mode;
+    ret = rk_aiq_user_api2_acnrV31_GetAttrib(ctx, &get_cnr_attr);
+    printf("get acnr v31 attri ret:%d done:%d\n\n", ret, get_cnr_attr.sync.done);
+    return ret;
+}
 
 
 XCamReturn sample_acnr_setReg_v2(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync_mode)
@@ -589,6 +808,138 @@ XCamReturn sample_acnr_setReg_v30(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_
     return ret;
 }
 
+XCamReturn sample_acnr_setReg_v31(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync_mode)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    rk_aiq_cnr_attrib_v31_t cnr_attr;
+    cnr_attr.sync.sync_mode = sync_mode;
+    ret = rk_aiq_user_api2_acnrV31_GetAttrib(ctx, &cnr_attr);
+    cnr_attr.sync.sync_mode = sync_mode;
+    cnr_attr.eMode = ACNRV31_OP_MODE_REG_MANUAL;
+
+    //CNR_CTRL
+    cnr_attr.stManual.stFix.loflt_coeff = 0x3f;
+    cnr_attr.stManual.stFix.hiflt_wgt0_mode = 0;
+    cnr_attr.stManual.stFix.thumb_mode = 0;
+    cnr_attr.stManual.stFix.yuv422_mode = 0;
+    cnr_attr.stManual.stFix.exgain_bypass = 0;
+    cnr_attr.stManual.stFix.cnr_en = 1;
+
+    // CNR_EXGAIN
+    cnr_attr.stManual.stFix.global_gain_alpha = 0x0;
+    cnr_attr.stManual.stFix.local_gain_scale = 0x80;
+    cnr_attr.stManual.stFix.global_gain = 0x10;
+
+    // CNR_THUMB1
+    cnr_attr.stManual.stFix.lobfflt_vsigma_uv = 0x88;
+    cnr_attr.stManual.stFix.lobfflt_vsigma_y = 0xa3;
+
+    // CNR_THUMB_BF_RATIO
+    cnr_attr.stManual.stFix.lobfflt_alpha = 0x400;
+
+    // CNR_LBF_WEITD
+    cnr_attr.stManual.stFix.thumb_bf_coeff[0] = 0x80;
+    cnr_attr.stManual.stFix.thumb_bf_coeff[1] = 0x80;
+    cnr_attr.stManual.stFix.thumb_bf_coeff[2] = 0x80;
+    cnr_attr.stManual.stFix.thumb_bf_coeff[3] = 0x80;
+
+    // CNR_IIR_PARA1
+    cnr_attr.stManual.stFix.loflt_uv_gain = 0x05;
+    cnr_attr.stManual.stFix.loflt_vsigma = 0xd9;
+    cnr_attr.stManual.stFix.exp_x_shift_bit = 0x06;
+    cnr_attr.stManual.stFix.loflt_wgt_slope = 0x5a;
+
+    // CNR_IIR_PARA2
+    cnr_attr.stManual.stFix.loflt_wgt_max_limit = 0x02;
+    cnr_attr.stManual.stFix.loflt_wgt_min_thred = 0x3a;
+
+    // CNR_GAUS_COE
+    cnr_attr.stManual.stFix.gaus_flt_coeff[0] = 0x30;
+    cnr_attr.stManual.stFix.gaus_flt_coeff[1] = 0x1c;
+    cnr_attr.stManual.stFix.gaus_flt_coeff[2] = 0x6;
+    cnr_attr.stManual.stFix.gaus_flt_coeff[3] = 0x1c;
+    cnr_attr.stManual.stFix.gaus_flt_coeff[4] = 0x11;
+    cnr_attr.stManual.stFix.gaus_flt_coeff[5] = 0x4;
+
+
+    // CNR_GAUS_RATIO
+    cnr_attr.stManual.stFix.gaus_flt_alpha = 0x400;
+    cnr_attr.stManual.stFix.hiflt_wgt_min_limit = 0x01;
+    cnr_attr.stManual.stFix.hiflt_alpha = 0x400;
+
+    // CNR_BF_PARA1
+    cnr_attr.stManual.stFix.hiflt_uv_gain = 0x30;
+    cnr_attr.stManual.stFix.hiflt_global_vsigma = 0x6c;
+    cnr_attr.stManual.stFix.hiflt_cur_wgt = 0x8;
+
+
+    // CNR_SIGMA
+    cnr_attr.stManual.stFix.adj_offset = 0x00;
+    cnr_attr.stManual.stFix.adj_scale = 0x00;
+
+    //CNR_SIGMA-SIGMA3
+    cnr_attr.stManual.stFix.sgm_ratio[0] = 0x10;
+    cnr_attr.stManual.stFix.sgm_ratio[1] = 0x10;
+    cnr_attr.stManual.stFix.sgm_ratio[2] = 0x10;
+    cnr_attr.stManual.stFix.sgm_ratio[3] = 0x10;
+    cnr_attr.stManual.stFix.sgm_ratio[4] = 0x10;
+    cnr_attr.stManual.stFix.sgm_ratio[5] = 0x10;
+    cnr_attr.stManual.stFix.sgm_ratio[6] = 0x10;
+    cnr_attr.stManual.stFix.sgm_ratio[7] = 0x10;
+    cnr_attr.stManual.stFix.sgm_ratio[8] = 0x10;
+    cnr_attr.stManual.stFix.sgm_ratio[9] = 0x10;
+    cnr_attr.stManual.stFix.sgm_ratio[10] = 0x10;
+    cnr_attr.stManual.stFix.sgm_ratio[11] = 0x10;
+    cnr_attr.stManual.stFix.sgm_ratio[12] = 0x10;
+
+    // CNR_IIR_GLOBAL_GAIN
+    cnr_attr.stManual.stFix.loflt_global_sgm_ratio_alpha = 0x08;
+    cnr_attr.stManual.stFix.loflt_global_sgm_ratio = 0x40;
+
+    // CNR_WGT_SIGMA
+    cnr_attr.stManual.stFix.cur_wgt[0] = 0x80;
+    cnr_attr.stManual.stFix.cur_wgt[1] = 0x80;
+    cnr_attr.stManual.stFix.cur_wgt[2] = 0x80;
+    cnr_attr.stManual.stFix.cur_wgt[3] = 0x80;
+    cnr_attr.stManual.stFix.cur_wgt[4] = 0x80;
+    cnr_attr.stManual.stFix.cur_wgt[5] = 0x80;
+    cnr_attr.stManual.stFix.cur_wgt[6] = 0x80;
+    cnr_attr.stManual.stFix.cur_wgt[7] = 0x80;
+    cnr_attr.stManual.stFix.cur_wgt[8] = 0x80;
+    cnr_attr.stManual.stFix.cur_wgt[9] = 0x80;
+    cnr_attr.stManual.stFix.cur_wgt[10] = 0x80;
+    cnr_attr.stManual.stFix.cur_wgt[11] = 0x80;
+    cnr_attr.stManual.stFix.cur_wgt[12] = 0x80;
+
+    cnr_attr.stManual.stFix.hiflt_vsigma_idx[0] = 0x00;
+    cnr_attr.stManual.stFix.hiflt_vsigma_idx[1] = 0x10;
+    cnr_attr.stManual.stFix.hiflt_vsigma_idx[2] = 0x80;
+    cnr_attr.stManual.stFix.hiflt_vsigma_idx[3] = 0x100;
+    cnr_attr.stManual.stFix.hiflt_vsigma_idx[4] = 0x180;
+    cnr_attr.stManual.stFix.hiflt_vsigma_idx[5] = 0x280;
+    cnr_attr.stManual.stFix.hiflt_vsigma_idx[6] = 0x380;
+    cnr_attr.stManual.stFix.hiflt_vsigma_idx[7] = 0x3ff;
+
+
+    cnr_attr.stManual.stFix.hiflt_vsigma[0] = 0x2a8;
+    cnr_attr.stManual.stFix.hiflt_vsigma[1] = 0x2a8;
+    cnr_attr.stManual.stFix.hiflt_vsigma[2] = 0x2a8;
+    cnr_attr.stManual.stFix.hiflt_vsigma[3] = 0x2a8;
+    cnr_attr.stManual.stFix.hiflt_vsigma[4] = 0x2a8;
+    cnr_attr.stManual.stFix.hiflt_vsigma[5] = 0x2a8;
+    cnr_attr.stManual.stFix.hiflt_vsigma[6] = 0x2a8;
+    cnr_attr.stManual.stFix.hiflt_vsigma[7] = 0x2a8;
+
+    ret = rk_aiq_user_api2_acnrV31_SetAttrib(ctx, &cnr_attr);
+    printf("set cnr v31 attri manual ret:%d \n\n", ret);
+
+    rk_aiq_cnr_attrib_v31_t get_cnr_attr;
+    get_cnr_attr.sync.sync_mode = sync_mode;
+    ret = rk_aiq_user_api2_acnrV31_GetAttrib(ctx, &get_cnr_attr);
+    printf("get acnr v31 attri ret:%d done:%d\n\n", ret, get_cnr_attr.sync.done);
+    return ret;
+}
+
 XCamReturn sample_acnr_setStrength_v2(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync_mode, float fStrength)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
@@ -624,6 +975,24 @@ XCamReturn sample_acnr_setStrength_v30(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_
     return ret;
 }
 
+XCamReturn sample_acnr_setStrength_v31(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync_mode, float fStrength)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    rk_aiq_cnr_strength_v31_t cnr_Strength;
+    cnr_Strength.sync.sync_mode = sync_mode;
+    cnr_Strength.percent = fStrength;
+    cnr_Strength.strength_enable = true;
+    ret = rk_aiq_user_api2_acnrV31_SetStrength(ctx, &cnr_Strength);
+    printf("Set acnr v31 set streangth ret:%d strength:%f \n\n", ret, cnr_Strength.percent);
+
+    rk_aiq_cnr_strength_v31_t get_cnr_Strength;
+    get_cnr_Strength.sync.sync_mode = sync_mode;
+    ret = rk_aiq_user_api2_acnrV31_GetStrength(ctx, &get_cnr_Strength);
+    printf("get acnr v31 attri ret:%d strength:%f done:%d \n\n",
+           ret, get_cnr_Strength.percent, get_cnr_Strength.sync.done);
+    return ret;
+}
+
 XCamReturn sample_acnr_setDefault_v2(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync_mode, rk_aiq_cnr_attrib_v2_t default_cnrV2_attr)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
@@ -644,16 +1013,31 @@ XCamReturn sample_acnr_setDefault_v30(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_m
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
     default_cnr_attr.sync.sync_mode = sync_mode;
     ret = rk_aiq_user_api2_acnrV30_SetAttrib(ctx, &default_cnr_attr);
-    printf("Set acnr v2 set default attri ret:%d \n\n", ret);
+    printf("Set acnr v30 set default attri ret:%d \n\n", ret);
 
     rk_aiq_cnr_attrib_v30_t get_cnr_attr;
     get_cnr_attr.sync.sync_mode = sync_mode;
     ret = rk_aiq_user_api2_acnrV30_GetAttrib(ctx, &get_cnr_attr);
-    printf("get acnr v2 attri ret:%d done:%d\n\n", ret, get_cnr_attr.sync.done);
+    printf("get acnr v30 attri ret:%d done:%d\n\n", ret, get_cnr_attr.sync.done);
 
     return ret;
 }
 
+
+XCamReturn sample_acnr_setDefault_v31(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync_mode, rk_aiq_cnr_attrib_v31_t & default_cnr_attr)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    default_cnr_attr.sync.sync_mode = sync_mode;
+    ret = rk_aiq_user_api2_acnrV31_SetAttrib(ctx, &default_cnr_attr);
+    printf("Set acnr v31 set default attri ret:%d \n\n", ret);
+
+    rk_aiq_cnr_attrib_v31_t get_cnr_attr;
+    get_cnr_attr.sync.sync_mode = sync_mode;
+    ret = rk_aiq_user_api2_acnrV31_GetAttrib(ctx, &get_cnr_attr);
+    printf("get acnr v31 attri ret:%d done:%d\n\n", ret, get_cnr_attr.sync.done);
+
+    return ret;
+}
 
 
 XCamReturn sample_acnr_module (const void *arg)
@@ -684,11 +1068,16 @@ XCamReturn sample_acnr_module (const void *arg)
     }
 
     rk_aiq_cnr_attrib_v30_t default_cnrV30_attr;
-    if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+    if ( CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
         ret = rk_aiq_user_api2_acnrV30_GetAttrib(ctx, &default_cnrV30_attr);
-        printf("get acnr v2 default attri ret:%d \n\n", ret);
+        printf("get acnr v30 default attri ret:%d \n\n", ret);
     }
 
+    rk_aiq_cnr_attrib_v31_t default_cnrV31_attr;
+    if ( CHECK_ISP_HW_V39()) {
+        ret = rk_aiq_user_api2_acnrV31_GetAttrib(ctx, &default_cnrV31_attr);
+        printf("get acnr v31 default attri ret:%d \n\n", ret);
+    }
     do {
         sample_acnr_usage ();
 
@@ -705,6 +1094,9 @@ XCamReturn sample_acnr_module (const void *arg)
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_acnr_getAtrr_v30(ctx, RK_AIQ_UAPI_MODE_SYNC);
             }
+            if (CHECK_ISP_HW_V39()) {
+                sample_acnr_getAtrr_v31(ctx, RK_AIQ_UAPI_MODE_SYNC);
+            }
             break;
         case '1':
             if (CHECK_ISP_HW_V30()) {
@@ -712,6 +1104,9 @@ XCamReturn sample_acnr_module (const void *arg)
             }
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_acnr_getStrength_v30(ctx, RK_AIQ_UAPI_MODE_SYNC);
+            }
+            if (CHECK_ISP_HW_V39()) {
+                sample_acnr_getStrength_v31(ctx, RK_AIQ_UAPI_MODE_SYNC);
             }
             break;
         case '2':
@@ -721,6 +1116,9 @@ XCamReturn sample_acnr_module (const void *arg)
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_acnr_setAuto_v30(ctx, RK_AIQ_UAPI_MODE_SYNC);
             }
+            if (CHECK_ISP_HW_V39()) {
+                sample_acnr_setAuto_v31(ctx, RK_AIQ_UAPI_MODE_SYNC);
+            }
             break;
         case '3':
             if (CHECK_ISP_HW_V30()) {
@@ -728,6 +1126,9 @@ XCamReturn sample_acnr_module (const void *arg)
             }
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_acnr_setManual_v30(ctx, RK_AIQ_UAPI_MODE_SYNC);
+            }
+            if (CHECK_ISP_HW_V39()) {
+                sample_acnr_setManual_v31(ctx, RK_AIQ_UAPI_MODE_SYNC);
             }
             break;
         case '4':
@@ -737,6 +1138,9 @@ XCamReturn sample_acnr_module (const void *arg)
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_acnr_setReg_v30(ctx, RK_AIQ_UAPI_MODE_SYNC);
             }
+            if (CHECK_ISP_HW_V39()) {
+                sample_acnr_setReg_v31(ctx, RK_AIQ_UAPI_MODE_SYNC);
+            }
             break;
         case '5':
             if (CHECK_ISP_HW_V30()) {
@@ -744,6 +1148,9 @@ XCamReturn sample_acnr_module (const void *arg)
             }
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_acnr_setStrength_v30(ctx, RK_AIQ_UAPI_MODE_SYNC, 1.0);
+            }
+            if (CHECK_ISP_HW_V39()) {
+                sample_acnr_setStrength_v31(ctx, RK_AIQ_UAPI_MODE_SYNC, 1.0);
             }
             break;
         case '6':
@@ -753,6 +1160,9 @@ XCamReturn sample_acnr_module (const void *arg)
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_acnr_setStrength_v30(ctx, RK_AIQ_UAPI_MODE_SYNC, 0.0);
             }
+            if (CHECK_ISP_HW_V39()) {
+                sample_acnr_setStrength_v31(ctx, RK_AIQ_UAPI_MODE_SYNC, 0.0);
+            }
             break;
         case '7':
             if (CHECK_ISP_HW_V30()) {
@@ -760,6 +1170,9 @@ XCamReturn sample_acnr_module (const void *arg)
             }
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_acnr_setStrength_v30(ctx, RK_AIQ_UAPI_MODE_SYNC, 0.5);
+            }
+            if (CHECK_ISP_HW_V39()) {
+                sample_acnr_setStrength_v31(ctx, RK_AIQ_UAPI_MODE_SYNC, 0.5);
             }
             break;
         case '8':
@@ -769,6 +1182,9 @@ XCamReturn sample_acnr_module (const void *arg)
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_acnr_setDefault_v30(ctx, RK_AIQ_UAPI_MODE_SYNC, default_cnrV30_attr);
             }
+            if (CHECK_ISP_HW_V39()) {
+                sample_acnr_setDefault_v31(ctx, RK_AIQ_UAPI_MODE_SYNC, default_cnrV31_attr);
+            }
             break;
         case 'a':
             if (CHECK_ISP_HW_V30()) {
@@ -776,6 +1192,9 @@ XCamReturn sample_acnr_module (const void *arg)
             }
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_acnr_getAtrr_v30(ctx, RK_AIQ_UAPI_MODE_ASYNC);
+            }
+            if (CHECK_ISP_HW_V39()) {
+                sample_acnr_getAtrr_v31(ctx, RK_AIQ_UAPI_MODE_ASYNC);
             }
             break;
         case 'b':
@@ -785,6 +1204,9 @@ XCamReturn sample_acnr_module (const void *arg)
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_acnr_getStrength_v30(ctx, RK_AIQ_UAPI_MODE_ASYNC);
             }
+            if (CHECK_ISP_HW_V39()) {
+                sample_acnr_getStrength_v31(ctx, RK_AIQ_UAPI_MODE_ASYNC);
+            }
             break;
         case 'c':
             if (CHECK_ISP_HW_V30()) {
@@ -792,6 +1214,9 @@ XCamReturn sample_acnr_module (const void *arg)
             }
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_acnr_setAuto_v30(ctx, RK_AIQ_UAPI_MODE_ASYNC);
+            }
+            if (CHECK_ISP_HW_V39()) {
+                sample_acnr_setAuto_v31(ctx, RK_AIQ_UAPI_MODE_ASYNC);
             }
             break;
         case 'd':
@@ -801,6 +1226,9 @@ XCamReturn sample_acnr_module (const void *arg)
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_acnr_setManual_v30(ctx, RK_AIQ_UAPI_MODE_ASYNC);
             }
+            if (CHECK_ISP_HW_V39()) {
+                sample_acnr_setManual_v31(ctx, RK_AIQ_UAPI_MODE_ASYNC);
+            }
             break;
         case 'e':
             if (CHECK_ISP_HW_V30()) {
@@ -808,6 +1236,9 @@ XCamReturn sample_acnr_module (const void *arg)
             }
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_acnr_setReg_v30(ctx, RK_AIQ_UAPI_MODE_ASYNC);
+            }
+            if (CHECK_ISP_HW_V39()) {
+                sample_acnr_setReg_v31(ctx, RK_AIQ_UAPI_MODE_ASYNC);
             }
             break;
         case 'f':
@@ -817,6 +1248,9 @@ XCamReturn sample_acnr_module (const void *arg)
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_acnr_setStrength_v30(ctx, RK_AIQ_UAPI_MODE_ASYNC, 1.0);
             }
+            if (CHECK_ISP_HW_V39()) {
+                sample_acnr_setStrength_v31(ctx, RK_AIQ_UAPI_MODE_ASYNC, 1.0);
+            }
             break;
         case 'g':
             if (CHECK_ISP_HW_V30()) {
@@ -824,6 +1258,9 @@ XCamReturn sample_acnr_module (const void *arg)
             }
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_acnr_setStrength_v30(ctx, RK_AIQ_UAPI_MODE_ASYNC, 0.0);
+            }
+            if (CHECK_ISP_HW_V39()) {
+                sample_acnr_setStrength_v31(ctx, RK_AIQ_UAPI_MODE_ASYNC, 0.0);
             }
             break;
         case 'h':
@@ -833,6 +1270,9 @@ XCamReturn sample_acnr_module (const void *arg)
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_acnr_setStrength_v30(ctx, RK_AIQ_UAPI_MODE_ASYNC, 0.5);
             }
+            if (CHECK_ISP_HW_V39()) {
+                sample_acnr_setStrength_v31(ctx, RK_AIQ_UAPI_MODE_ASYNC, 0.5);
+            }
             break;
         case 'i':
             if (CHECK_ISP_HW_V30()) {
@@ -840,6 +1280,9 @@ XCamReturn sample_acnr_module (const void *arg)
             }
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_acnr_setDefault_v30(ctx, RK_AIQ_UAPI_MODE_ASYNC, default_cnrV30_attr);
+            }
+            if (CHECK_ISP_HW_V39()) {
+                sample_acnr_setDefault_v31(ctx, RK_AIQ_UAPI_MODE_ASYNC, default_cnrV31_attr);
             }
             break;
         default:

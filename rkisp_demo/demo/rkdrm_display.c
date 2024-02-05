@@ -47,14 +47,14 @@ static bool drm_plane_set_property (int fd, drmModePlane * plane,
 {
     drmModeObjectPropertiesPtr props;
     drmModePropertyPtr prop;
-    int i, ret = -1;
+    int ret = -1;
 
     props = drmModeObjectGetProperties (fd, plane->plane_id,
             DRM_MODE_OBJECT_PLANE);
     if (!props)
         return false;
 
-    for (i = 0; i < props->count_props; i++) {
+    for (uint32_t i = 0; i < props->count_props; i++) {
         prop = drmModeGetProperty (fd, props->props[i]);
         if (prop && !strcmp (prop->name, prop_name)) {
             ret = drmModeObjectSetProperty (fd, plane->plane_id,
@@ -280,7 +280,7 @@ static int drmGetPlaneType(int fd, drmModePlanePtr p)
 {
     drmModeObjectPropertiesPtr props;
     drmModePropertyPtr prop;
-    int i, type = -1;
+    int type = -1;
 
     props = drmModeObjectGetProperties(fd, p->plane_id,
                     DRM_MODE_OBJECT_PLANE);
@@ -290,7 +290,7 @@ static int drmGetPlaneType(int fd, drmModePlanePtr p)
         return -errno;
     }
 
-    for (i = 0; i < props->count_props; i++) {
+    for (uint32_t i = 0; i < props->count_props; i++) {
         prop = drmModeGetProperty(fd, props->props[i]);
         if (!strcmp(prop->name, "type")) {
             type = props->prop_values[i];
@@ -310,7 +310,6 @@ static int drmFillPlaneProp(int fd, struct drm_dev_plane *pp)
     drmModePropertyPtr prop;
     struct plane_prop *plane_prop = &pp->plane_prop;
     drmModePlanePtr p = pp->p;
-    int i;
 
     props = drmModeObjectGetProperties(fd, p->plane_id,
                     DRM_MODE_OBJECT_PLANE);
@@ -321,7 +320,7 @@ static int drmFillPlaneProp(int fd, struct drm_dev_plane *pp)
     }
 
     pp->zpos_max = INT_MAX;
-    for (i = 0; i < props->count_props; i++) {
+    for (uint32_t i = 0; i < props->count_props; i++) {
         prop = drmModeGetProperty(fd, props->props[i]);
         if (!strcmp(prop->name, "CRTC_ID"))
             plane_prop->crtc_id = prop->prop_id;
@@ -359,10 +358,9 @@ static drmModePlanePtr drmGetPlaneByType(int fd, int crtc_index, int type)
 {
     drmModePlanePtr plane = NULL;
     drmModePlaneResPtr plane_res;
-    int i;
 
     plane_res = drmModeGetPlaneResources(fd);
-    for (i = 0; i < plane_res->count_planes; i++) {
+    for (uint32_t i = 0; i < plane_res->count_planes; i++) {
         drmModePlanePtr p = drmModeGetPlane(fd, plane_res->planes[i]);
 
         if (!(p->possible_crtcs & (1 << crtc_index))) {
@@ -384,9 +382,8 @@ static drmModePlanePtr drmGetPlaneByType(int fd, int crtc_index, int type)
 drmModeConnectorPtr drmFoundConn(int fd, drmModeResPtr res)
 {
     drmModeConnectorPtr connector = NULL;
-    int i;
 
-    for (i = 0; i < res->count_connectors; ++i) {
+    for (int32_t i = 0; i < res->count_connectors; ++i) {
         drmModeConnectorPtr c;
         c = drmModeGetConnector(fd, res->connectors[i]);
         if (!c)
@@ -407,7 +404,6 @@ static drmModePropertyPtr drmFoundDPMS(int fd, drmModeConnectorPtr connector)
 {
     drmModePropertyPtr dpms_prop = NULL;
     drmModeObjectPropertiesPtr props;
-    int i;
 
     props = drmModeObjectGetProperties(fd, connector->connector_id,
                        DRM_MODE_OBJECT_CONNECTOR);
@@ -416,7 +412,7 @@ static drmModePropertyPtr drmFoundDPMS(int fd, drmModeConnectorPtr connector)
             connector->connector_id, strerror(errno));
         goto out;
     }
-    for (i = 0; i < props->count_props; i++) {
+    for (uint32_t i = 0; i < props->count_props; i++) {
         drmModePropertyPtr prop;
         prop = drmModeGetProperty(fd, props->props[i]);
         if (!strcmp(prop->name, "DPMS")) {
@@ -434,14 +430,13 @@ out:
 static drmModeCrtcPtr drmFoundCrtc(int fd, drmModeResPtr res,
             drmModeConnector * conn, int *crtc_index)
 {
-  int i;
   int crtc_id;
   drmModeEncoder *enc;
   drmModeCrtc *crtc;
   uint32_t crtcs_for_connector = 0;
 
   crtc_id = -1;
-  for (i = 0; i < res->count_encoders; i++) {
+  for (int32_t i = 0; i < res->count_encoders; i++) {
     enc = drmModeGetEncoder (fd, res->encoders[i]);
     if (enc) {
       if (enc->encoder_id == conn->encoder_id) {
@@ -455,7 +450,7 @@ static drmModeCrtcPtr drmFoundCrtc(int fd, drmModeResPtr res,
 
   /* If no active crtc was found, pick the first possible crtc */
   if (crtc_id == -1) {
-    for (i = 0; i < conn->count_encoders; i++) {
+    for (int32_t i = 0; i < conn->count_encoders; i++) {
       enc = drmModeGetEncoder (fd, conn->encoders[i]);
       crtcs_for_connector |= enc->possible_crtcs;
       drmModeFreeEncoder (enc);
@@ -468,10 +463,10 @@ static drmModeCrtcPtr drmFoundCrtc(int fd, drmModeResPtr res,
   if (crtc_id == -1)
     return NULL;
 
-  for (i = 0; i < res->count_crtcs; i++) {
+  for (int32_t i = 0; i < res->count_crtcs; i++) {
     crtc = drmModeGetCrtc (fd, res->crtcs[i]);
     if (crtc) {
-      if (crtc_id == crtc->crtc_id) {
+      if ((uint32_t)crtc_id == crtc->crtc_id) {
         if (crtc_index)
           *crtc_index= i;
         return crtc;
@@ -615,7 +610,7 @@ int drmCommit(struct drm_buf *buffer, int width, int height,
     drmModeCrtcPtr crtc = dev->crtc;
     drmModePlanePtr plane;
     struct plane_prop *plane_prop;
-    int plane_zpos;
+    // int plane_zpos;
     uint32_t flags = 0;
     int ret;
 
@@ -626,11 +621,11 @@ int drmCommit(struct drm_buf *buffer, int width, int height,
 
     if (plane_type == DRM_PLANE_TYPE_PRIMARY) {
         plane = dev->plane_primary.p;
-        plane_zpos = dev->plane_primary.zpos_max;
+        // plane_zpos = dev->plane_primary.zpos_max;
         plane_prop = &dev->plane_primary.plane_prop;
     } else {
         plane = dev->plane_overlay.p;
-        plane_zpos = dev->plane_overlay.zpos_max;
+        // plane_zpos = dev->plane_overlay.zpos_max;
         plane_prop = &dev->plane_overlay.plane_prop;
     }
 

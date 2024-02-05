@@ -16,7 +16,17 @@
  */
 
 #include "sample_comm.h"
+
+
+// #define USE_GAMMA_NEWSTRUCT
+#ifdef USE_GAMMA_NEWSTRUCT
+#include "uAPI2/rk_aiq_user_api2_gamma.h"
+#include "isp/rk_aiq_isp_gamma21.h"
+#else
 #include "uAPI2/rk_aiq_user_api2_agamma.h"
+#endif
+#include "uAPI2/rk_aiq_user_api2_helper.h"
+#include <string>
 
 #define LIMIT_VALUE(value,max_value,min_value)      (value > max_value? max_value : value < min_value ? min_value : value)
 
@@ -36,7 +46,10 @@ static void sample_agamma_usage()
     printf("\t 9) AGAMMA:         test rk_aiq_user_api2_agamma_SetAttrib stFast Sync.\n");
     printf("\t a) AGAMMA:         test rk_aiq_user_api2_agamma_SetAttrib stFast Async.\n");
     printf("\t b) AGAMMA:         test rk_aiq_user_api2_agamma_GetAttrib.\n");
-    printf("\t q) AGAMMA:         return to main sample screen.\n");
+    printf("\t c) AGAMMA:         test rk_aiq_user_api2_gamma_GetAttrib.\n");
+    printf("\t d) AGAMMA:         test rk_aiq_user_api2_gamma_SetAttrib manual.\n");
+    printf("\t e) AGAMMA:         test rk_aiq_user_api2_gamma_SetAttrib auto.\n");
+    printf("\t f) AGAMMA:         test rk_aiq_user_api2_gamma_QueryStatus.\n");
 
     printf("\n");
     printf("\t please press the key: ");
@@ -49,11 +62,91 @@ void sample_print_agamma_info(const void *arg)
     printf ("enter AGAMMA modult test!\n");
 }
 
-XCamReturn sample_agamma_module(const void *arg)
+static void sample_agamma_test(const rk_aiq_sys_ctx_t* ctx) {
+
+    printf("sample_agamma_test\n");
+    rk_aiq_gamma_v11_attr_t attr_v11;
+    memset(&attr_v11, 0x0, sizeof(rk_aiq_gamma_v11_attr_t));
+    rk_aiq_user_api2_agamma_v11_GetAttrib(ctx, &attr_v11);
+
+    // attr_v11.mode = RK_AIQ_GAMMA_MODE_MANUAL;
+    // attr_v11.stManual.Gamma_out_offset +=20;
+    // for (int i = 0; i < CALIBDB_AGAMMA_KNOTS_NUM_V11; i++) {
+    //     attr_v11.stManual.Gamma_curve[i] += 1;
+    // }
+
+    attr_v11.stAuto.GammaTuningPara.Gamma_out_offset +=20;
+    for (int i = 0; i < CALIBDB_AGAMMA_KNOTS_NUM_V11; i++) {
+        attr_v11.stAuto.GammaTuningPara.Gamma_curve[i] += 1;
+    }
+
+    rk_aiq_user_api2_agamma_v11_SetAttrib(ctx, &attr_v11);
+}
+
+static void sample_gamma_tuningtool_test(const rk_aiq_sys_ctx_t* ctx)
+{
+    char *ret_str = NULL;
+
+    printf(">>> start tuning tool test: op attrib get ...\n");
+
+    std::string json_gamma_status_str = " \n\
+        [{ \n\
+            \"op\":\"get\", \n\
+            \"path\": \"/uapi/0/gamma_uapi/info\", \n\
+            \"value\": \n\
+            { \"opMode\": \"RK_AIQ_OP_MODE_MANUAL\", \"en\": 0,\"bypass\": 3} \n\
+        }]";
+
+    rkaiq_uapi_unified_ctl(const_cast<rk_aiq_sys_ctx_t*>(ctx),
+                           const_cast<char*>(json_gamma_status_str.c_str()), &ret_str, RKAIQUAPI_OPMODE_GET);
+
+    if (ret_str) {
+        printf("gamma status json str: %s\n", ret_str);
+    }
+
+    printf("  start tuning tool test: op attrib set ...\n");
+    std::string json_gamma_str = " \n\
+        [{ \n\
+            \"op\":\"replace\", \n\
+            \"path\": \"/uapi/0/gamma_uapi/attr\", \n\
+            \"value\": \n\
+            { \"opMode\": \"RK_AIQ_OP_MODE_MANUAL\", \"en\": 1,\"bypass\": 1} \n\
+        }]";
+    printf("gamma json_cmd_str: %s\n", json_gamma_str.c_str());
+    ret_str = NULL;
+    rkaiq_uapi_unified_ctl(const_cast<rk_aiq_sys_ctx_t*>(ctx),
+                           const_cast<char*>(json_gamma_str.c_str()), &ret_str, RKAIQUAPI_OPMODE_SET);
+
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+#ifdef USE_GAMMA_NEWSTRUCT
+    gamma_status_t status;
+    memset(&status, 0, sizeof(gamma_status_t));
+
+    rk_aiq_user_api2_gamma_QueryStatus(ctx, &status);
+
+    if (status.opMode != RK_AIQ_OP_MODE_MANUAL || status.en != 1 || status.bypass != 1) {
+        printf("gamma op set_attrib failed !\n");
+        printf("gamma status: opmode:%d(EXP:%d), en:%d(EXP:%d), bypass:%d(EXP:%d)\n",
+               status.opMode, RK_AIQ_OP_MODE_MANUAL, status.en, 1, status.bypass, 1);
+    } else {
+        printf("gamma op set_attrib success !\n");
+    }
+#endif
+
+    printf(">>> tuning tool test done \n");
+}
+
+XCamReturn sample_agamma_module(const void* arg)
 {
     int key = -1;
     CLEAR();
 
+#ifdef USE_GAMMA_NEWSTRUCT
+    gamma_api_attrib_t attr21;
+    gamma_status_t status;
+#endif
     rk_aiq_gamma_v10_attr_t attr_v10;
     rk_aiq_gamma_v11_attr_t attr_v11;
     rk_aiq_gamma_attrib_V2_t attr_v2;
@@ -245,6 +338,66 @@ XCamReturn sample_agamma_module(const void *arg)
                    attr_v2.atrrV30.stManual.Gamma_curve[2], attr_v2.atrrV30.stManual.Gamma_curve[3],
                    attr_v2.atrrV30.stManual.Gamma_curve[4],
                    attr_v2.atrrV30.stManual.Gamma_curve[5]);
+            break;
+        }
+#ifdef USE_GAMMA_NEWSTRUCT
+        case 'c': {
+            printf("\t GAMMA test rk_aiq_user_api2_gamma_GetAttrib\n\n");
+            rk_aiq_user_api2_gamma_GetAttrib(ctx, &attr21);
+
+            printf("\t attr21.opMode:%d attr21.en:%d attr21.stAuto.sta.Gamma_out_offset:%d\n\n",
+                   attr21.opMode, attr21.en,
+                   attr21.stAuto.sta.Gamma_out_offset);
+            printf("\t attr21.stAuto.sta.EnableDot49:%d attr21.stAuto.sta.equ_segm:%d\n\n",
+                   attr21.stAuto.sta.EnableDot49, attr21.stAuto.sta.equ_segm);
+            printf("\t stAuto.Gamma_curve:%d %d %d %d \n\n",
+                   attr21.stAuto.sta.Gamma_curve[0], attr21.stAuto.sta.Gamma_curve[1],
+                   attr21.stAuto.sta.Gamma_curve[2], attr21.stAuto.sta.Gamma_curve[3]);
+
+            printf("\t attr21.opMode:%d attr21.en:%d attr21.stMan.sta.Gamma_out_offset:%d\n\n",
+                   attr21.opMode, attr21.en,
+                   attr21.stMan.sta.Gamma_out_offset);
+            printf("\t attr21.stMan.sta.EnableDot49:%d attr21.stMan.sta.equ_segm:%d\n\n",
+                   attr21.stMan.sta.EnableDot49, attr21.stMan.sta.equ_segm);
+            printf("\t stManual.Gamma_curve:%d %d %d %d \n\n",
+                   attr21.stMan.sta.Gamma_curve[0], attr21.stMan.sta.Gamma_curve[1],
+                   attr21.stMan.sta.Gamma_curve[2], attr21.stMan.sta.Gamma_curve[3]);
+            break;
+        }
+        case 'd': {
+            printf("\t GAMMA test rk_aiq_user_api2_gamma_SetAttrib manual\n\n");
+            attr21.opMode = RK_AIQ_OP_MODE_MANUAL;
+            attr21.stMan.sta.Gamma_out_offset += 20;
+            for (int i = 0; i < 49; i++) attr21.stMan.sta.Gamma_curve[i]+=1;
+            rk_aiq_user_api2_gamma_SetAttrib(ctx, &attr21);
+            break;
+        }
+        case 'e': {
+            printf("\t GAMMA test rk_aiq_user_api2_gamma_SetAttrib auto\n\n");
+            attr21.opMode = RK_AIQ_OP_MODE_AUTO;
+            attr21.stAuto.sta.Gamma_out_offset += 20;
+            for (int i = 0; i < 49; i++) attr21.stAuto.sta.Gamma_curve[i]+=1;
+            rk_aiq_user_api2_gamma_SetAttrib(ctx, &attr21);
+            break;
+        }
+        case 'f': {
+            printf("\t GAMMA test rk_aiq_user_api2_gamma_QueryStatus\n\n");
+            rk_aiq_user_api2_gamma_QueryStatus(ctx, &status);
+            printf("\t status.opMode:%d status.en:%d status.stMan.sta.Gamma_out_offset:%d\n\n",
+                   status.opMode, status.en,
+                   status.stMan.sta.Gamma_out_offset);
+            printf("\t stManual.Gamma_curve:%d %d %d %d\n\n",
+                   status.stMan.sta.Gamma_curve[0], status.stMan.sta.Gamma_curve[1],
+                   status.stMan.sta.Gamma_curve[2], status.stMan.sta.Gamma_curve[3]);
+            break;
+        }
+        case 'g': {
+            sample_gamma_tuningtool_test(ctx);
+            break;
+        }
+#endif
+        case 'h': {
+            sample_agamma_test(ctx);
             break;
         }
         default:

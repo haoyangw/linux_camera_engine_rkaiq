@@ -63,6 +63,8 @@ typedef enum RKAiqOPMode_e {
     RK_AIQ_OP_MODE_MAX                                      /**< max */
 } RKAiqOPMode_t;
 
+#define rk_aiq_op_mode_t RKAiqOPMode_t
+
 #define ABS(a) (((a) > 0) ? (a) : (-(a)))
 #ifndef MIN
 #define MIN(a,b)  ((a) > (b) ? (b) : (a))
@@ -86,6 +88,7 @@ typedef enum RKAiqOPMode_e {
 #define RETURN_RESULT_IF_DIFFERENT( cur_res, exp_res ) if ( exp_res != cur_res ) { return ( cur_res ); }
 #define DCT_ASSERT(exp) ((void)0)
 
+#define ROUND_I32(a)    (int32_t)( (a) > 0 ? ((double) (a) + 0.5) : ((double) (a) - 0.5) )
 #ifndef __FLT_EPSILON__
 #define __FLT_EPSILON__     0.000000119209289550781250000000
 #endif /* __FLT_EPSILON__ */
@@ -533,6 +536,9 @@ extern int g_rkaiq_isp_hw_ver;
 
 #define CHECK_ISP_HW_V32_LITE() \
     (g_rkaiq_isp_hw_ver == 321 ? true : false)
+
+#define CHECK_ISP_HW_V39() \
+    (g_rkaiq_isp_hw_ver == 39 ? true : false)
 
 #define CHECK_ISP_HW_V3X() \
     (g_rkaiq_isp_hw_ver == 30 ? true : \

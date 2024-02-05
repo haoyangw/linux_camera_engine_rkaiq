@@ -37,7 +37,7 @@ static XCamReturn groupAbayer2dnrV23CreateCtx(RkAiqAlgoContext **context, const 
     AlgoCtxInstanceCfgCamGroup *cfgInt = (AlgoCtxInstanceCfgCamGroup*)cfg;
 
 
-    if(CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+    if(CHECK_ISP_HW_V39() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
         abayernr_group_contex = (CamGroup_Abayer2dnrV23_Contex_t*)malloc(sizeof(CamGroup_Abayer2dnrV23_Contex_t));
 #if ABAYER2DNR_USE_JSON_FILE_V23
         Abayer2dnr_result_V23_t ret_v23 = ABAYER2DNR_V23_RET_SUCCESS;
@@ -81,7 +81,7 @@ static XCamReturn groupAbayer2dnrV23DestroyCtx(RkAiqAlgoContext *context)
 
     CamGroup_Abayer2dnrV23_Contex_t *abayernr_group_contex = (CamGroup_Abayer2dnrV23_Contex_t*)context;
 
-    if(CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+    if(CHECK_ISP_HW_V39() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
         Abayer2dnr_result_V23_t ret_v23 = ABAYER2DNR_V23_RET_SUCCESS;
         ret_v23 = Abayer2dnr_Release_V23(abayernr_group_contex->abayer2dnr_contex_v23);
         if(ret_v23 != ABAYER2DNR_V23_RET_SUCCESS) {
@@ -114,7 +114,7 @@ static XCamReturn groupAbayer2dnrV23Prepare(RkAiqAlgoCom* params)
     CamGroup_Abayer2dnrV23_Contex_t * abayernr_group_contex = (CamGroup_Abayer2dnrV23_Contex_t *)params->ctx;
     RkAiqAlgoCamGroupPrepare* para = (RkAiqAlgoCamGroupPrepare*)params;
 
-    if(CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+    if(CHECK_ISP_HW_V39() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
         Abayer2dnr_Context_V23_t * abayer2dnr_contex_v23 = abayernr_group_contex->abayer2dnr_contex_v23;
         abayer2dnr_contex_v23->prepare_type = params->u.prepare.conf_type;
         if(!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB )) {
@@ -242,7 +242,7 @@ static XCamReturn groupAbayer2dnrV23Processing(const RkAiqAlgoCom* inparams, RkA
 
 
 
-    if(CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+    if(CHECK_ISP_HW_V39() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
         Abayer2dnr_Context_V23_t * abayer2dnr_contex_v23 = abayernr_group_contex->abayer2dnr_contex_v23;
         Abayer2dnr_ProcResult_V23_t stAbayer2dnrResultV23;
         RK_Bayer2dnr_Fix_V23_t st2DFix;

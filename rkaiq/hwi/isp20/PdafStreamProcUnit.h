@@ -62,8 +62,8 @@ public:
     void set_devices(CamHwIsp20* camHw);
     int64_t get_systime_us();
     XCamReturn prepare(rk_sensor_pdaf_info_t *pdaf_inf);
-    XCamReturn start_stream();
-    XCamReturn stop_stream();
+    XCamReturn start_stream(bool lock);
+    XCamReturn stop_stream(bool lock);
     XCamReturn deinit();
 protected:
     XCAM_DEAD_COPY (PdafStreamProcUnit);
@@ -77,6 +77,7 @@ protected:
     int mBufType;
     SmartPtr<PdafStreamHelperThd> mHelperThd;
     XCam::Mutex mStreamMutex;
+    rk_sensor_pdaf_info_t mPdafInf;
 };
 
 typedef struct _PdafStreamParam {

@@ -1665,16 +1665,16 @@ RkAiqResourceTranslatorV3x::translateMultiAfStats (const SmartPtr<VideoBuffer> &
                 af_split_info.winb_side_info, af_split_info.winb_l_ratio, af_split_info.winb_r_ratio);
 
         if(afParams.ptr()) {
-            statsInt->af_stats_v3x.focusCode = afParams->data()->focusCode;
-            statsInt->af_stats_v3x.zoomCode = afParams->data()->zoomCode;
-            statsInt->af_stats_v3x.focus_endtim = afParams->data()->focusEndTim;
-            statsInt->af_stats_v3x.focus_starttim = afParams->data()->focusStartTim;
-            statsInt->af_stats_v3x.zoom_endtim = afParams->data()->zoomEndTim;
-            statsInt->af_stats_v3x.zoom_starttim = afParams->data()->zoomStartTim;
-            statsInt->af_stats_v3x.sof_tim = afParams->data()->sofTime;
-            statsInt->af_stats_v3x.focusCorrection = afParams->data()->focusCorrection;
-            statsInt->af_stats_v3x.zoomCorrection = afParams->data()->zoomCorrection;
-            statsInt->af_stats_v3x.angleZ = afParams->data()->angleZ;
+            statsInt->stat_motor.focusCode = afParams->data()->focusCode;
+            statsInt->stat_motor.zoomCode = afParams->data()->zoomCode;
+            statsInt->stat_motor.focus_endtim = afParams->data()->focusEndTim;
+            statsInt->stat_motor.focus_starttim = afParams->data()->focusStartTim;
+            statsInt->stat_motor.zoom_endtim = afParams->data()->zoomEndTim;
+            statsInt->stat_motor.zoom_starttim = afParams->data()->zoomStartTim;
+            statsInt->stat_motor.sof_tim = afParams->data()->sofTime;
+            statsInt->stat_motor.focusCorrection = afParams->data()->focusCorrection;
+            statsInt->stat_motor.zoomCorrection = afParams->data()->zoomCorrection;
+            statsInt->stat_motor.angleZ = afParams->data()->angleZ;
         }
     }
 
@@ -2886,6 +2886,7 @@ RkAiqResourceTranslatorV3x::translateAfStats (const SmartPtr<VideoBuffer> &from,
     SmartPtr<RkAiqAfInfoProxy> afParams = buf->get_af_params();
 
     memset(&statsInt->af_stats_v3x, 0, sizeof(rk_aiq_isp_af_stats_v3x_t));
+    memset(&statsInt->stat_motor, 0, sizeof(rk_aiq_af_algo_motor_stat_t));
     statsInt->frame_id = stats->frame_id;
 
     SmartPtr<RkAiqSensorExpParamsProxy> expParams = nullptr;
@@ -2914,16 +2915,16 @@ RkAiqResourceTranslatorV3x::translateAfStats (const SmartPtr<VideoBuffer> &from,
         }
 
         if(afParams.ptr()) {
-            statsInt->af_stats_v3x.focusCode = afParams->data()->focusCode;
-            statsInt->af_stats_v3x.zoomCode = afParams->data()->zoomCode;
-            statsInt->af_stats_v3x.focus_endtim = afParams->data()->focusEndTim;
-            statsInt->af_stats_v3x.focus_starttim = afParams->data()->focusStartTim;
-            statsInt->af_stats_v3x.zoom_endtim = afParams->data()->zoomEndTim;
-            statsInt->af_stats_v3x.zoom_starttim = afParams->data()->zoomStartTim;
-            statsInt->af_stats_v3x.sof_tim = afParams->data()->sofTime;
-            statsInt->af_stats_v3x.focusCorrection = afParams->data()->focusCorrection;
-            statsInt->af_stats_v3x.zoomCorrection = afParams->data()->zoomCorrection;
-            statsInt->af_stats_v3x.angleZ = afParams->data()->angleZ;
+            statsInt->stat_motor.focusCode = afParams->data()->focusCode;
+            statsInt->stat_motor.zoomCode = afParams->data()->zoomCode;
+            statsInt->stat_motor.focus_endtim = afParams->data()->focusEndTim;
+            statsInt->stat_motor.focus_starttim = afParams->data()->focusStartTim;
+            statsInt->stat_motor.zoom_endtim = afParams->data()->zoomEndTim;
+            statsInt->stat_motor.zoom_starttim = afParams->data()->zoomStartTim;
+            statsInt->stat_motor.sof_tim = afParams->data()->sofTime;
+            statsInt->stat_motor.focusCorrection = afParams->data()->focusCorrection;
+            statsInt->stat_motor.zoomCorrection = afParams->data()->zoomCorrection;
+            statsInt->stat_motor.angleZ = afParams->data()->angleZ;
         }
     }
 #endif

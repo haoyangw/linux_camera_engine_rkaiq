@@ -51,6 +51,29 @@
 #include "ynr_head_v22.h"
 #include "rkpostisp_head_v1.h"
 
+#if defined(ISP_HW_V32)
+#ifdef USE_NEWSTRUCT
+#include "isp/rk_aiq_isp_dm21.h"
+#include "algos/rk_aiq_api_types_dm.h"
+#include "isp/rk_aiq_isp_btnr32.h"
+#include "algos/rk_aiq_api_types_btnr32.h"
+#include "isp/rk_aiq_isp_gamma21.h"
+#include "algos/rk_aiq_api_types_gamma.h"
+#include "isp/rk_aiq_isp_ynr32.h"
+#include "algos/rk_aiq_api_types_ynr.h"
+#include "isp/rk_aiq_isp_sharp32.h"
+#include "algos/rk_aiq_api_types_sharp.h"
+#include "isp/rk_aiq_isp_cnr32.h"
+#include "algos/rk_aiq_api_types_cnr.h"
+#include "isp/rk_aiq_isp_drc32.h"
+#include "algos/rk_aiq_api_types_drc.h"
+#include "isp/rk_aiq_isp_dehaze22.h"
+#include "algos/rk_aiq_api_types_dehaze.h"
+#include "isp/rk_aiq_isp_dpcc20.h"
+#include "algos/rk_aiq_api_types_dpcc20.h"
+#endif
+#endif
+
 RKAIQ_BEGIN_DECLARE
 
 typedef struct CalibDbV2_ColorAsGrey_Param_s {
@@ -91,8 +114,13 @@ typedef struct CamCalibDbV2ContextIsp32_s {
 #endif
 
 #if defined(ISP_HW_V32)
+    #ifdef USE_NEWSTRUCT
+    // M4_STRUCT_DESC("demosaic", "normal_ui_style")
+    dm_api_attrib_t demosaic;
+    #else
     // M4_STRUCT_DESC("debayer_calib", "normal_ui_style")
     CalibDbV2_Debayer_v2_t debayer_v2;
+    #endif
 #endif
 
 #if defined(ISP_HW_V32_LITE)
@@ -103,18 +131,35 @@ typedef struct CamCalibDbV2ContextIsp32_s {
     // M4_STRUCT_DESC("Amerge_calib", "normal_ui_style")
     CalibDbV2_merge_v12_t amerge_calib_v12;
 #if defined(ISP_HW_V32)
+    #ifdef USE_NEWSTRUCT
+    // M4_STRUCT_DESC("drc", "normal_ui_style")
+    drc_api_attrib_t drc;
+    #else
     // M4_STRUCT_DESC("Adrc_calib", "normal_ui_style")
     CalibDbV2_drc_V12_t adrc_calib_v12;
+    #endif
 #elif defined(ISP_HW_V32_LITE)
     // M4_STRUCT_DESC("adrc_calib_v12_lite", "normal_ui_style")
     CalibDbV2_drc_v12_lite_t adrc_calib_v12_lite;
 #endif
+    #ifdef USE_NEWSTRUCT
+    // M4_STRUCT_DESC("gamma", "normal_ui_style")
+    gamma_api_attrib_t gamma;
+    // M4_STRUCT_DESC("dehaze", "normal_ui_style")
+    dehaze_api_attrib_t dehaze;
+    #else
     // M4_STRUCT_DESC("agamma_calib", "normal_ui_style")
     CalibDbV2_gamma_v11_t agamma_calib_v11;
     // M4_STRUCT_DESC("adehaze_calib", "normal_ui_style")
     CalibDbV2_dehaze_v12_t adehaze_calib_v12;
+    #endif
+#ifdef USE_NEWSTRUCT
+    // M4_STRUCT_DESC("dpcc", "normal_ui_style")
+    dpcc_api_attrib_t dpcc;
+#else
     // M4_STRUCT_DESC("adpcc_calib", "normal_ui_style")
     CalibDbV2_Dpcc_t adpcc_calib;
+#endif
     // M4_STRUCT_DESC("aldch", "normal_ui_style")
     CalibDbV2_LDCH_t aldch;
     // M4_STRUCT_DESC("cpsl", "normal_ui_style")
@@ -130,12 +175,25 @@ typedef struct CamCalibDbV2ContextIsp32_s {
 #if defined(ISP_HW_V32)
     // M4_STRUCT_DESC("bayer2dnr_v23", "normal_ui_style")
     CalibDbV2_Bayer2dnrV23_t bayer2dnr_v23;
+#ifdef USE_NEWSTRUCT
+    // M4_STRUCT_DESC("bayertnr", "normal_ui_style")
+    btnr_api_attrib_t bayertnr;
+#else
     // M4_STRUCT_DESC("bayertnr_v23", "normal_ui_style")
     CalibDbV2_BayerTnrV23_t bayertnr_v23;
+#endif
 #else
     // M4_STRUCT_DESC("bayertnr_v23_lite", "normal_ui_style")
     CalibDbV2_BayerTnrV23Lite_t bayertnr_v23;
 #endif
+#ifdef USE_NEWSTRUCT
+    // M4_STRUCT_DESC("ynr", "normal_ui_style")
+    cnr_api_attrib_t cnr;
+    // M4_STRUCT_DESC("ynr", "normal_ui_style")
+    ynr_api_attrib_t ynr;
+    // M4_STRUCT_DESC("sharp", "normal_ui_style")
+    sharp_api_attrib_t sharp;
+#else
     // M4_STRUCT_DESC("ynr_v22", "normal_ui_style")
     CalibDbV2_YnrV22_t ynr_v22;
     // M4_STRUCT_DESC("cnr_v30", "normal_ui_style")
@@ -146,6 +204,7 @@ typedef struct CamCalibDbV2ContextIsp32_s {
 #else
     // M4_STRUCT_DESC("sharp_v33_lite", "normal_ui_style")
     CalibDbV2_SharpV33Lite_t sharp_v33;
+#endif
 #endif
     // M4_STRUCT_DESC("ainr_v1", "normal_ui_style")
     CalibDbV2_PostIspV1_t ainr_v1;

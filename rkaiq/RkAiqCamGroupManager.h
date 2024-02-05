@@ -38,6 +38,7 @@ class RkAiqCore;
 typedef struct rk_aiq_singlecam_result_s {
     rk_aiq_singlecam_3a_result_t _3aResults;
     SmartPtr<RkAiqFullParamsProxy> _fullIspParam;
+
     rk_aiq_singlecam_result_s () {
         memset(&_3aResults, 0, sizeof(_3aResults));
     }
@@ -54,6 +55,10 @@ typedef struct rk_aiq_singlecam_result_s {
         if (stats_buf)
             stats_buf->unref(stats_buf);
 
+#if (USE_NEWSTRUCT == 0)
+        stats_buf = _3aResults.abayertnr._tnr_stats;
+        if (stats_buf) stats_buf->unref(stats_buf);
+#endif
         memset(&_3aResults, 0, sizeof(_3aResults));
         _fullIspParam = NULL;
     }
@@ -278,6 +283,7 @@ protected:
     SmartPtr<RkAiqCamgroupHandle> getDefAlgoTypeHandle(int algo_type);
     XCamReturn syncSingleCamResultWithMaster(rk_aiq_groupcam_result_t* gc_res);
     std::map<int, SmartPtr<RkAiqCamgroupHandle>>* getAlgoTypeHandleMap(int algo_type);
+    void calcHdrIso(RKAiqAecExpInfo_t* pCurExp, rk_aiq_singlecam_3a_result_t *singleCam3aRes);
     void* mGroupCtx;
 private:
     CamCalibDbV2Context_t mCalibv2;

@@ -31,23 +31,22 @@ extern "C" {
 #define CCM_CURVE_DOT_NUM_V2 18
 #endif
 
-typedef struct rk_aiq_ccm_mccm_attrib_s {
+typedef struct rk_aiq_ccm_mcoef_attr_s {
     // M4_ARRAY_DESC("ccMatrix", "f32", M4_SIZE(3,3), M4_RANGE(-8,7.992), "[1,0,0,0,1,0,0,0,1]", M4_DIGIT(4), M4_DYNAMIC(0))
     float  ccMatrix[9];
     // M4_ARRAY_DESC("ccOffsets", "f32", M4_SIZE(1,3), M4_RANGE(-4095,4095), "0", M4_DIGIT(1), M4_DYNAMIC(0))
     float  ccOffsets[3];
+} rk_aiq_ccm_mcoef_attr_t;
+
+typedef struct rk_aiq_ccm_yalp_attr_v1_s {
     // M4_ARRAY_DESC("y_alpha_curve", "f32", M4_SIZE(1,17), M4_RANGE(-4095,4095), "1024", M4_DIGIT(0), M4_DYNAMIC(0))
     float  y_alpha_curve[CCM_CURVE_DOT_NUM];
     // M4_NUMBER_DESC("bound pos bit", "f32", M4_RANGE(4, 10), "8", M4_DIGIT(0))
     float low_bound_pos_bit;
-} rk_aiq_ccm_mccm_attrib_t;
+} rk_aiq_ccm_yalp_attr_v1_t;
 
-typedef struct rk_aiq_ccm_mccm_attrib_v2_s {
-    // M4_ARRAY_DESC("ccMatrix", "f32", M4_SIZE(3,3), M4_RANGE(-8,7.992), "[1,0,0,0,1,0,0,0,1]", M4_DIGIT(4), M4_DYNAMIC(0))
-    float ccMatrix[9];
-    // M4_ARRAY_DESC("ccOffsets", "f32", M4_SIZE(1,3), M4_RANGE(-4095,4095), "0", M4_DIGIT(1), M4_DYNAMIC(0))
-    float ccOffsets[3];
-    // M4_BOOL_DESC("high Y adjust enable", "1")
+typedef struct rk_aiq_ccm_yalp_attr_v2_s {
+     // M4_BOOL_DESC("high Y adjust enable", "1")
     bool highy_adj_en;
     // M4_BOOL_DESC("asym enable", "0")
     bool asym_enable;
@@ -57,13 +56,43 @@ typedef struct rk_aiq_ccm_mccm_attrib_v2_s {
     float right_pos_bit;  // high y alpha adjust
     // M4_ARRAY_DESC("y alpha curve", "f32", M4_SIZE(1,18), M4_RANGE(-4095,4095), "1024", M4_DIGIT(0), M4_DYNAMIC(0))
     float y_alpha_curve[CCM_CURVE_DOT_NUM_V2];
+} rk_aiq_ccm_yalp_attr_v2_t;
+
+typedef struct rk_aiq_ccm_enh_attr_v1_s {
     // M4_NUMBER_DESC("ccm enhance enable", "u8", M4_RANGE(0, 1), "0", M4_DIGIT(0))
     unsigned short enh_adj_en;
     // M4_ARRAY_DESC("Enhance RGB2Y para", "u8", M4_SIZE(1,3), M4_RANGE(0,128), "[38 75 15]", M4_DIGIT(0),  M4_DYNAMIC(0))
     unsigned char enh_rgb2y_para[3];
     // M4_NUMBER_DESC("Enhance ratio max", "f32", M4_RANGE(0, 8), "0", M4_DIGIT(1))
     float enh_rat_max;
+} rk_aiq_ccm_enh_attr_v1_t;
+
+typedef struct rk_aiq_ccm_mccm_attrib_s {
+    // M4_STRUCT_DESC("matrix", "normal_ui_style")
+    rk_aiq_ccm_mcoef_attr_t Matrix;
+    // M4_STRUCT_DESC("yalp_curve", "normal_ui_style")
+    rk_aiq_ccm_yalp_attr_v1_t YAlp;
+} rk_aiq_ccm_mccm_attrib_t;
+
+typedef struct rk_aiq_ccm_mccm_attrib_v2_s {
+    // M4_STRUCT_DESC("matrix", "normal_ui_style")
+    rk_aiq_ccm_mcoef_attr_t Matrix;
+    // M4_STRUCT_DESC("yalp_curve", "normal_ui_style")
+    rk_aiq_ccm_yalp_attr_v2_t YAlp;
+    // M4_STRUCT_DESC("enhance", "normal_ui_style")
+    rk_aiq_ccm_enh_attr_v1_t Enh;
 } rk_aiq_ccm_mccm_attrib_v2_t;
+
+typedef struct rk_aiq_ccm_mccm_attrib_v3_s {
+    // M4_STRUCT_DESC("matrix", "normal_ui_style")
+    rk_aiq_ccm_mcoef_attr_t Matrix;
+    // M4_STRUCT_DESC("yalp_curve", "normal_ui_style")
+    rk_aiq_ccm_yalp_attr_v2_t YAlp;
+    // M4_STRUCT_DESC("enhance", "normal_ui_style")
+    rk_aiq_ccm_enh_attr_v1_t Enh;
+    // M4_STRUCT_DESC("hfSat", "normal_ui_style")
+    CalibDbV2_Ccm_Hf_Para_t HfSat;
+} rk_aiq_ccm_mccm_attrib_v3_t;
 
 typedef enum rk_aiq_ccm_op_mode_s {
     RK_AIQ_CCM_MODE_INVALID                     = 0,        /**< initialization value */
@@ -74,17 +103,10 @@ typedef enum rk_aiq_ccm_op_mode_s {
 
 typedef struct rk_aiq_ccm_querry_info_s {
     bool ccm_en;
-    // M4_ARRAY_DESC("ccMatrix", "f32", M4_SIZE(3,3), M4_RANGE(-8,7.992), "[1,0,0,0,1,0,0,0,1]", M4_DIGIT(4), M4_DYNAMIC(0), "0", "1")
-    float ccMatrix[9];
-    // M4_ARRAY_DESC("ccOffsets", "f32", M4_SIZE(1,3), M4_RANGE(-4095,4095), "0", M4_DIGIT(0), M4_DYNAMIC(0), "0", "1")
-    float ccOffsets[3];
-    bool highy_adj_en;
-    bool asym_enable;
-    float y_alpha_curve[CCM_CURVE_DOT_NUM_V2];
-    // M4_NUMBER_DESC("bound pos bit", "f32", M4_RANGE(3, 11), "8", M4_DIGIT(0), "0", "1")
-    float low_bound_pos_bit;
-    // M4_NUMBER_DESC("high bound pos bit", "f32", M4_RANGE(3, 11), "8", M4_DIGIT(0), "0", "1")
-    float right_pos_bit;
+    // M4_STRUCT_DESC("matrix", "normal_ui_style")
+    rk_aiq_ccm_mcoef_attr_t Matrix;
+    // M4_STRUCT_DESC("yalp_curve", "normal_ui_style")
+    rk_aiq_ccm_yalp_attr_v2_t YAlp;
     float color_inhibition_level;
     float color_saturation_level;
     // M4_NUMBER_DESC("CCM Saturation", "f32", M4_RANGE(0,200), "0", M4_DIGIT(2), "0", "1")

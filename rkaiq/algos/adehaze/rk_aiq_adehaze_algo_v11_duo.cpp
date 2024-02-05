@@ -677,7 +677,7 @@ XCamReturn GetDehazeLocalGainSettingV11Duo(RkAiqAdehazeProcResult_t* pProcRes, f
     for (int i = 0; i < DHAZ_V11_SIGMA_IDX_NUM; i++) sigam_total += sigma[i];
 
     if (sigam_total < FLT_EPSILON) {
-        for (int i = 0; i < DHAZ_V11_SIGMA_IDX_NUM; i++)
+        for (int i = 0; i < DHAZ_V11_SIGMA_LUT_NUM; i++)
             pProcRes->ProcResV11duo.sigma_lut[i] = 0x200;
     } else {
         int tmp = 0;

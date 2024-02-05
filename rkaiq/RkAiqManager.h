@@ -24,6 +24,7 @@
 #include "RkAiqCalibDbV2.h"
 #include "RkLumaCore.h"
 #include "rk_aiq.h"
+#include "RkAiqGlobalParamsManager.h"
 #include <memory>
 #include <list>
 
@@ -145,7 +146,10 @@ public:
         mHwEvtCbCtx = evt_cb_ctx;
         mHwEvtCb = hwevt_cb;
     };
-    void setTbInfo(rk_aiq_tb_info_t& info) {
+    void setAiispCb(rk_aiq_aiispCtx_t aiispCtx) {
+        mAiispCtx = aiispCtx;
+    };
+    void setTbInfo(RkAiqTbInfo_t& info) {
         mTbInfo = info;
     }
     void setCamHw(SmartPtr<ICamHw>& camhw);
@@ -209,6 +213,10 @@ public:
     rk_aiq_working_mode_t getWorkingMode() {
         return mWorkingMode;
     }
+
+    GlobalParamsManager* getGlobalParamsManager() {
+        return mGlobalParamsManager.ptr();
+    }
     uint32_t sensor_output_width;
     uint32_t sensor_output_height;
     // post aiisp status
@@ -236,9 +244,11 @@ private:
     rk_aiq_error_cb mErrCb;
     rk_aiq_metas_cb mMetasCb;
     rk_aiq_hwevt_cb mHwEvtCb;
+    rk_aiq_aiispCtx_t mAiispCtx;
+
     void* mHwEvtCbCtx;
     const char* mSnsEntName;
-    rk_aiq_tb_info_t mTbInfo;
+    RkAiqTbInfo_t mTbInfo;
 #ifdef RKAIQ_ENABLE_PARSER_V1
     const CamCalibDbContext_t* mCalibDb;
 #endif
@@ -262,6 +272,7 @@ private:
     bool mIsMain;
     int mTBStatsCnt {0};
     uint32_t mLastAweekId{(uint32_t)-1};
+    SmartPtr<GlobalParamsManager> mGlobalParamsManager;
 };
 
 } //namespace RkCam

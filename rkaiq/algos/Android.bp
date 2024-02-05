@@ -327,6 +327,16 @@ cc_rkaiq_library_static {
 }
 
 cc_rkaiq_library_static {
+    name: "librkaiq_asharp_v34",
+    vendor: true,
+    defaults: ["algo_defaults"],
+
+    include_dirs: [
+        "external/camera_engine_rkaiq/include/algos/asharpV34",
+    ],
+}
+
+cc_rkaiq_library_static {
     name: "librkaiq_again_v1",
     vendor: true,
     defaults: ["algo_defaults"],
@@ -397,6 +407,16 @@ cc_rkaiq_library_static {
 }
 
 cc_rkaiq_library_static {
+    name: "librkaiq_aynr_v24",
+    vendor: true,
+    defaults: ["algo_defaults"],
+
+    include_dirs: [
+        "external/camera_engine_rkaiq/include/algos/aynrV24",
+    ],
+}
+
+cc_rkaiq_library_static {
     name: "librkaiq_auvnr_v1",
     vendor: true,
     defaults: ["algo_defaults"],
@@ -433,6 +453,26 @@ cc_rkaiq_library_static {
 
     include_dirs: [
         "external/camera_engine_rkaiq/include/algos/acnrV30",
+    ],
+}
+
+cc_rkaiq_library_static {
+    name: "librkaiq_acnr_v31",
+    vendor: true,
+    defaults: ["algo_defaults"],
+
+    include_dirs: [
+        "external/camera_engine_rkaiq/include/algos/acnrV31",
+    ],
+}
+
+cc_rkaiq_library_static {
+    name: "librkaiq_ayuvme_v1",
+    vendor: true,
+    defaults: ["algo_defaults"],
+
+    include_dirs: [
+        "external/camera_engine_rkaiq/include/algos/ayuvmeV1",
     ],
 }
 
@@ -497,6 +537,16 @@ cc_rkaiq_library_static {
 }
 
 cc_rkaiq_library_static {
+    name: "librkaiq_abayertnr_v30",
+    vendor: true,
+    defaults: ["algo_defaults"],
+
+    include_dirs: [
+        "external/camera_engine_rkaiq/include/algos/abayertnrV30",
+    ],
+}
+
+cc_rkaiq_library_static {
     name: "librkaiq_amd",
     vendor: true,
     defaults: ["algo_defaults"],
@@ -526,5 +576,15 @@ cc_rkaiq_library_static {
 
     include_dirs: [
         "external/camera_engine_rkaiq/include/algos/acac",
+    ],
+}
+
+cc_rkaiq_library_static {
+    name: "librkaiq_argbir",
+    vendor: true,
+    defaults: ["algo_defaults"],
+
+    include_dirs: [
+        "external/camera_engine_rkaiq/include/algos/argbir",
     ],
 }

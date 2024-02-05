@@ -17,11 +17,11 @@ static void set_af_manual_meascfg(const rk_aiq_sys_ctx_t* ctx)
         attr.manual_meascfg.rawaf_sel = 0; // normal = 0; hdr = 1
 
         attr.manual_meascfg.window_num = 2;
+        // should changed by sensor input size!!!
         attr.manual_meascfg.wina_h_offs = 2;
         attr.manual_meascfg.wina_v_offs = 2;
         attr.manual_meascfg.wina_h_size = 2580;
         attr.manual_meascfg.wina_v_size = 1935;
-
         attr.manual_meascfg.winb_h_offs = 500;
         attr.manual_meascfg.winb_v_offs = 600;
         attr.manual_meascfg.winb_h_size = 300;
@@ -60,11 +60,11 @@ static void set_af_manual_meascfg(const rk_aiq_sys_ctx_t* ctx)
         attr.manual_meascfg_v30.ae_mode = 1;
 
         attr.manual_meascfg_v30.window_num = 2;
+        // should changed by sensor input size!!!
         attr.manual_meascfg_v30.wina_h_offs = 2;
         attr.manual_meascfg_v30.wina_v_offs = 2;
         attr.manual_meascfg_v30.wina_h_size = 2580;
         attr.manual_meascfg_v30.wina_v_size = 1935;
-
         attr.manual_meascfg_v30.winb_h_offs = 500;
         attr.manual_meascfg_v30.winb_v_offs = 600;
         attr.manual_meascfg_v30.winb_h_size = 300;
@@ -205,11 +205,11 @@ static void set_af_manual_meascfg(const rk_aiq_sys_ctx_t* ctx)
         attr.manual_meascfg_v31.v_dnscl_mode = 1;
 
         attr.manual_meascfg_v31.window_num = 2;
+        // should changed by sensor input size!!!
         attr.manual_meascfg_v31.wina_h_offs = 2;
         attr.manual_meascfg_v31.wina_v_offs = 2;
         attr.manual_meascfg_v31.wina_h_size = 2550;
         attr.manual_meascfg_v31.wina_v_size = 1425;
-
         attr.manual_meascfg_v31.winb_h_offs = 500;
         attr.manual_meascfg_v31.winb_v_offs = 600;
         attr.manual_meascfg_v31.winb_h_size = 300;
@@ -351,11 +351,11 @@ static void set_af_manual_meascfg(const rk_aiq_sys_ctx_t* ctx)
         attr.manual_meascfg_v32.v_dnscl_mode = 1;
 
         attr.manual_meascfg_v32.window_num = 2;
+        // should changed by sensor input size!!!
         attr.manual_meascfg_v32.wina_h_offs = 51;
         attr.manual_meascfg_v32.wina_v_offs = 51;
         attr.manual_meascfg_v32.wina_h_size = 2550;
         attr.manual_meascfg_v32.wina_v_size = 1425;
-
         attr.manual_meascfg_v32.winb_h_offs = 500;
         attr.manual_meascfg_v32.winb_v_offs = 600;
         attr.manual_meascfg_v32.winb_h_size = 300;
@@ -487,6 +487,156 @@ static void set_af_manual_meascfg(const rk_aiq_sys_ctx_t* ctx)
         // bls
         attr.manual_meascfg_v32.bls_en = 0;
         attr.manual_meascfg_v32.bls_offset = 0;
+    } else if (attr.AfHwVer == RKAIQ_AF_HW_V33) {
+        // rk3576
+        memset(&attr.manual_meascfg_v33, 0, sizeof(attr.manual_meascfg_v33));
+        attr.manual_meascfg_v33.af_en = 1;
+        attr.manual_meascfg_v33.rawaf_sel = 0; // normal = 0; hdr = 1
+        attr.manual_meascfg_v33.ae_mode = 1;
+        attr.manual_meascfg_v33.aehgl_en = 1;
+        attr.manual_meascfg_v33.v_dnscl_mode = 1;
+
+        attr.manual_meascfg_v33.window_num = 2;
+        // should changed by sensor input size!!!
+        attr.manual_meascfg_v33.wina_h_offs = 4;
+        attr.manual_meascfg_v33.wina_v_offs = 4;
+        attr.manual_meascfg_v33.wina_h_size = 300;
+        attr.manual_meascfg_v33.wina_v_size = 300;
+        attr.manual_meascfg_v33.winb_h_offs = 500;
+        attr.manual_meascfg_v33.winb_v_offs = 600;
+        attr.manual_meascfg_v33.winb_h_size = 300;
+        attr.manual_meascfg_v33.winb_v_size = 300;
+
+        attr.manual_meascfg_v33.gamma_en = 1;
+        memcpy(attr.manual_meascfg_v33.gamma_y, gamma_y, RKAIQ_RAWAF_GAMMA_NUM * sizeof(uint16_t));
+
+        // param for winb
+        attr.manual_meascfg_v33.winb_v1_shift = 1;
+        attr.manual_meascfg_v33.winb_v2_shift = 1;
+        attr.manual_meascfg_v33.winb_h1_shift = 1;
+        attr.manual_meascfg_v33.winb_h2_shift = 1;
+
+        // Vertical filter
+        // face [0.025, 0.06], max=0.5
+        int ver_flt_face[6] =
+            { -410, 895, 330, -79, 0, 79 };
+
+        // lowlit [0.025, 0.075], max=0.5
+        int ver_flt_lowlit[6] =
+            { -372, 851, 465, -77, 0, 77 };
+
+        // normal [0.042, 0.14], max=0.5
+        int ver_flt_normal[6] =
+            { -265, 686, 512, -124, 0, 124 };
+
+        // high [0.055, 0.125], max=0.5
+        int ver_flt_high[6] =
+            { -325, 724, 512, -94, 0, 94 };
+
+        // dotlight [0.1 0.175], max=0.5
+        int ver_flt_dotlight[6] =
+            { -314, 552, 512, -99, 0, 99 };
+
+        // full [0.025, 0.175], max=0.5
+        int ver_flt_full[6] =
+            { -166, 616, 512, -173, 0, 173 };
+
+        attr.manual_meascfg_v33.gaus_en = 1;
+        attr.manual_meascfg_v33.gaus_coe[1] = 64;
+        attr.manual_meascfg_v33.gaus_coe[4] = 64;
+        attr.manual_meascfg_v33.viir_en = 1;
+        attr.manual_meascfg_v33.v1_fv_outmode = 0; // 0 square, 1 absolute
+        attr.manual_meascfg_v33.wina_v1_shift = 1;
+        attr.manual_meascfg_v33.wina_v2_shift = 1;
+        attr.manual_meascfg_v33.v_fv_thresh = 0;
+        attr.manual_meascfg_v33.v_fv_limit = 1023;
+        attr.manual_meascfg_v33.v_fv_slope = 256;
+        for (int i = 0; i < 3; i++) {
+            attr.manual_meascfg_v33.v1_iir_coe[i] = ver_flt_lowlit[i];
+            attr.manual_meascfg_v33.v1_fir_coe[i] = ver_flt_lowlit[i + 3];
+            attr.manual_meascfg_v33.v2_iir_coe[i] = ver_flt_normal[i];
+            attr.manual_meascfg_v33.v2_fir_coe[i] = ver_flt_normal[i + 3];
+        }
+
+        // Horizontal filter
+        // low [0.0125, 0.03], max=0.5
+        int hor_flt_low[2][6] =
+        {
+            { 256,   958,  -460,   202,     0,  -202 },
+            {  45,   994,  -485,    87,     0,   -87 },
+        };
+        // face [0.025, 0.06], max=0.5
+        int hor_flt_face[2][6] =
+        {
+            { 512,   877,  -417,   184,     0,  -184 },
+            { 181,   957,  -460,    42,     0,   -42 },
+        };
+        // lowlit [0.025, 0.075], max=0.5
+        int hor_flt_lowlit[2][6] =
+        {
+            { 512,   811,  -375,   266,     0,  -266 },
+            { 249,   945,  -448,    41,     0,   -41 },
+        };
+        // normal [0.042, 0.14], max=0.5
+        int hor_flt_normal[2][6] =
+        {
+            { 512,   557,  -276,   460,     0,  -460 },
+            { 512,   870,  -399,    37,     0,   -37 },
+        };
+        // high [0.055, 0.125], max=0.5
+        int hor_flt_high[2][6] =
+        {
+            { 512,   648,  -344,   327,     0,  -327 },
+            { 512,   854,  -409,    29,     0,   -29 },
+        };
+        // dotlight [0.1 0.175], max=0.5
+        int hor_flt_dotlight[2][6] =
+        {
+            { 512,   447,  -349,   319,     0,  -319 },
+            { 512,   698,  -386,    34,     0,   -34 },
+        };
+        // full [0.025, 0.175], max=0.5
+        int hor_flt_full[2][6] =
+        {
+            { 512,   362,  -171,   512,     0,  -512 },
+            { 512,   915,  -417,    67,     0,   -67 },
+        };
+        attr.manual_meascfg_v33.hiir_en = 1;
+        attr.manual_meascfg_v33.h1_fv_outmode = 0; // 0 square, 1 absolute
+        attr.manual_meascfg_v33.wina_h1_shift = 1;
+        attr.manual_meascfg_v33.wina_h2_shift = 1;
+        attr.manual_meascfg_v33.h_fv_thresh = 0;
+        attr.manual_meascfg_v33.h_fv_limit = 1023;
+        attr.manual_meascfg_v33.h_fv_slope = 256;
+        for (int i = 0; i < 6; i++) {
+            attr.manual_meascfg_v33.h1_iir1_coe[i] = hor_flt_lowlit[0][i];
+            attr.manual_meascfg_v33.h1_iir2_coe[i] = hor_flt_lowlit[1][i];
+            attr.manual_meascfg_v33.h2_iir1_coe[i] = hor_flt_normal[0][i];
+            attr.manual_meascfg_v33.h2_iir2_coe[i] = hor_flt_normal[1][i];
+        }
+
+        // level depended gain
+        attr.manual_meascfg_v33.ldg_en = 0;
+        attr.manual_meascfg_v33.h_ldg_lumth[0] = 64;
+        attr.manual_meascfg_v33.h_ldg_gain[0]  = 28;
+        attr.manual_meascfg_v33.h_ldg_gslp[0]  = (255-28)*255/45;
+        attr.manual_meascfg_v33.h_ldg_lumth[1] = 185;
+        attr.manual_meascfg_v33.h_ldg_gain[1]  = 8;
+        attr.manual_meascfg_v33.h_ldg_gslp[1]  = (255-8)*255/45;
+        attr.manual_meascfg_v33.v_ldg_lumth[0] = 64;
+        attr.manual_meascfg_v33.v_ldg_gain[0]  = 28;
+        attr.manual_meascfg_v33.v_ldg_gslp[0]  = (255-28)*255/45;
+        attr.manual_meascfg_v33.v_ldg_lumth[1] = 185;
+        attr.manual_meascfg_v33.v_ldg_gain[1]  = 8;
+        attr.manual_meascfg_v33.v_ldg_gslp[1]  = (255-8)*255/45;
+        attr.manual_meascfg_v33.hldg_dilate_num = 0;
+
+        // High light
+        attr.manual_meascfg_v33.highlit_thresh = 912;
+
+        // bls
+        attr.manual_meascfg_v33.bls_en = 0;
+        attr.manual_meascfg_v33.bls_offset = 0;
     }
 
     attr.sync.sync_mode = RK_AIQ_UAPI_MODE_SYNC;
@@ -496,17 +646,13 @@ static void set_af_manual_meascfg(const rk_aiq_sys_ctx_t* ctx)
 
 static void print_af_stats(rk_aiq_isp_stats_t *stats_ref)
 {
-    unsigned long sof_time;
-
     // show af stats every 30 frames
     if (stats_ref->frame_id % 30 != 0)
         return;
-
+    printf("%s: af_hw_ver %d\n", __func__, stats_ref->af_hw_ver);
     if (stats_ref->af_hw_ver == RKAIQ_AF_HW_V20) {
         // rv1126/rv1109 rk356x
-        sof_time = stats_ref->af_stats.sof_tim / 1000000LL;
-        printf("sof_tim %lu, sharpness roia: 0x%llx-0x%08x roib: 0x%x-0x%08x\n",
-               sof_time,
+        printf("sharpness roia: 0x%llx-0x%08x roib: 0x%x-0x%08x\n",
                stats_ref->af_stats.roia_sharpness,
                stats_ref->af_stats.roia_luminance,
                stats_ref->af_stats.roib_sharpness,
@@ -549,7 +695,6 @@ static void print_af_stats(rk_aiq_isp_stats_t *stats_ref)
         }
     } else if (stats_ref->af_hw_ver == RKAIQ_AF_HW_V30 || stats_ref->af_hw_ver == RKAIQ_AF_HW_V31) {
         // rk3588 & rk1106
-        sof_time = stats_ref->af_stats_v3x.sof_tim / 1000000LL;
         printf("wnda_fv_h1\n");
         for (int i = 0; i < 15; i++) {
             for (int j = 0; j < 15; j++) {
@@ -594,7 +739,6 @@ static void print_af_stats(rk_aiq_isp_stats_t *stats_ref)
         }
     } else if (stats_ref->af_hw_ver == RKAIQ_AF_HW_V32_LITE) {
         // rk3562
-        sof_time = stats_ref->af_stats_v3x.sof_tim / 1000000LL;
         printf("wnda_fv_h1\n");
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
@@ -623,6 +767,115 @@ static void print_af_stats(rk_aiq_isp_stats_t *stats_ref)
             }
             printf("\n");
         }
+    } else if (stats_ref->af_hw_ver == RKAIQ_AF_HW_V33) {
+        // rk3576
+//#define USE_NEWSTRUCT
+#ifndef USE_NEWSTRUCT
+        printf("wnda_fv_h1\n");
+        for (int i = 0; i < 15; i++) {
+            for (int j = 0; j < 15; j++) {
+                printf("0x%08x, ", stats_ref->af_stats_v3x.wnda_fv_h1[15 * i + j]);
+            }
+            printf("\n");
+        }
+        printf("wnda_fv_v1\n");
+        for (int i = 0; i < 15; i++) {
+            for (int j = 0; j < 15; j++) {
+                printf("0x%08x, ", stats_ref->af_stats_v3x.wnda_fv_v1[15 * i + j]);
+            }
+            printf("\n");
+        }
+        printf("wnda_fv_h2\n");
+        for (int i = 0; i < 15; i++) {
+            for (int j = 0; j < 15; j++) {
+                printf("0x%08x, ", stats_ref->af_stats_v3x.wnda_fv_h2[15 * i + j]);
+            }
+            printf("\n");
+        }
+        printf("wnda_fv_v2\n");
+        for (int i = 0; i < 15; i++) {
+            for (int j = 0; j < 15; j++) {
+                printf("0x%08x, ", stats_ref->af_stats_v3x.wnda_fv_v2[15 * i + j]);
+            }
+            printf("\n");
+        }
+        printf("wnda_luma\n");
+        for (int i = 0; i < 15; i++) {
+            for (int j = 0; j < 15; j++) {
+                printf("0x%08x, ", stats_ref->af_stats_v3x.wnda_luma[15 * i + j]);
+            }
+            printf("\n");
+        }
+        printf("wina_highlit_cnt\n");
+        for (int i = 0; i < 15; i++) {
+            for (int j = 0; j < 15; j++) {
+                printf("0x%08x, ", stats_ref->af_stats_v3x.wina_highlit_cnt[15 * i + j]);
+            }
+            printf("\n");
+        }
+
+        printf("winb: luma 0x%x, v1 0x%x, v2 0x%x, h1 0x%x, h2 0x%x, highlit 0x%x\n",
+            stats_ref->af_stats_v3x.wndb_luma,
+            stats_ref->af_stats_v3x.wndb_fv_v1,
+            stats_ref->af_stats_v3x.wndb_fv_v2,
+            stats_ref->af_stats_v3x.wndb_fv_h1,
+            stats_ref->af_stats_v3x.wndb_fv_h2,
+            stats_ref->af_stats_v3x.winb_highlit_cnt);
+
+#else
+
+        printf("mainWin.hw_af_hFilt1Fv_val\n");
+        for (int i = 0; i < 15; i++) {
+            for (int j = 0; j < 15; j++) {
+                printf("0x%08x, ", stats_ref->afStats_stats.mainWin.hw_af_hFilt1Fv_val[15 * i + j]);
+            }
+            printf("\n");
+        }
+        printf("mainWin.hw_af_vFilt1Fv_val\n");
+        for (int i = 0; i < 15; i++) {
+            for (int j = 0; j < 15; j++) {
+                printf("0x%08x, ", stats_ref->afStats_stats.mainWin.hw_af_vFilt1Fv_val[15 * i + j]);
+            }
+            printf("\n");
+        }
+        printf("mainWin.hw_af_hFilt2Fv_val\n");
+        for (int i = 0; i < 15; i++) {
+            for (int j = 0; j < 15; j++) {
+                printf("0x%08x, ", stats_ref->afStats_stats.mainWin.hw_af_hFilt2Fv_val[15 * i + j]);
+            }
+            printf("\n");
+        }
+        printf("mainWin.hw_af_vFilt2Fv_val\n");
+        for (int i = 0; i < 15; i++) {
+            for (int j = 0; j < 15; j++) {
+                printf("0x%08x, ", stats_ref->afStats_stats.mainWin.hw_af_vFilt2Fv_val[15 * i + j]);
+            }
+            printf("\n");
+        }
+        printf("mainWin.hw_af_luma_val\n");
+        for (int i = 0; i < 15; i++) {
+            for (int j = 0; j < 15; j++) {
+                printf("0x%08x, ", stats_ref->afStats_stats.mainWin.hw_af_luma_val[15 * i + j]);
+            }
+            printf("\n");
+        }
+        printf("mainWin.hw_af_hLumaCnt_val\n");
+        for (int i = 0; i < 15; i++) {
+            for (int j = 0; j < 15; j++) {
+                printf("0x%08x, ", stats_ref->afStats_stats.mainWin.hw_af_hLumaCnt_val[15 * i + j]);
+            }
+            printf("\n");
+        }
+
+        printf("winb: luma 0x%x, v1 0x%x, v2 0x%x, h1 0x%x, h2 0x%x, highlit 0x%x\n",
+            stats_ref->afStats_stats.subWin.hw_af_luma_val,
+            stats_ref->afStats_stats.subWin.hw_af_vFilt1Fv_val,
+            stats_ref->afStats_stats.subWin.hw_af_vFilt2Fv_val,
+            stats_ref->afStats_stats.subWin.hw_af_hFilt1Fv_val,
+            stats_ref->afStats_stats.subWin.hw_af_hFilt2Fv_val,
+            stats_ref->afStats_stats.subWin.hw_af_hLumaCnt_val);
+
+#endif
     }
 }
 

@@ -15,7 +15,6 @@
  */
 #ifndef _RK_AIQ_GAMMA_HANDLE_INT_H_
 #define _RK_AIQ_GAMMA_HANDLE_INT_H_
-
 #include "RkAiqHandle.h"
 #include "agamma/rk_aiq_uapi_agamma_int.h"
 #include "rk_aiq_api_private.h"

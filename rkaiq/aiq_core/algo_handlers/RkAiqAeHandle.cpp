@@ -17,9 +17,12 @@
 #include "RkAiqAfHandle.h"
 #include "RkAiqAfdHandle.h"
 #include "RkAiqAmergeHandle.h"
-#include "RkAiqAdrcHandle.h"
 #include "smart_buffer_priv.h"
-
+#if USE_NEWSTRUCT
+#include "newStruct/RkAiqDrcHandler.h"
+#else
+#include "RkAiqAdrcHandle.h"
+#endif
 #include "RkAiqCore.h"
 
 namespace RkCam {
@@ -972,6 +975,7 @@ XCamReturn RkAiqAeHandleInt::prepare() {
     ae_config_int->RawWidth  = sharedCom->snsDes.isp_acq_width;
     ae_config_int->RawHeight = sharedCom->snsDes.isp_acq_height;
     ae_config_int->nr_switch = sharedCom->snsDes.nr_switch;
+    ae_config_int->compr_bit = sharedCom->snsDes.compr_bit;
     ae_config_int->dcg_ratio = sharedCom->snsDes.dcg_ratio;
 
     RkAiqAlgoDescription* des = (RkAiqAlgoDescription*)mDes;
@@ -1226,8 +1230,13 @@ XCamReturn RkAiqAeHandleInt::processing() {
     }
 
     if (mAdrc_handle) {
+#if USE_NEWSTRUCT
+        RkAiqDrcHandleInt* Drc_algo = dynamic_cast<RkAiqDrcHandleInt*>(mAdrc_handle->ptr());
+        Drc_algo->setAeProcRes(&aeProcResShared);
+#else
         RkAiqAdrcHandleInt* adrc_algo = dynamic_cast<RkAiqAdrcHandleInt*>(mAdrc_handle->ptr());
         adrc_algo->setAeProcRes(&aeProcResShared);
+#endif
     }
 
     RkAiqResourceTranslator* translator = dynamic_cast<RkAiqResourceTranslator*>(mAiqCore->getTranslator());

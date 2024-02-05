@@ -33,6 +33,9 @@
 #if RKAIQ_HAVE_DEHAZE_V12
 #include "adehaze/rk_aiq_adehaze_algo_v12.h"
 #endif
+#if RKAIQ_HAVE_DEHAZE_V14
+#include "adehaze/rk_aiq_adehaze_algo_v14.h"
+#endif
 #include "RkAiqCalibDbTypes.h"
 #include "xcam_log.h"
 
@@ -119,6 +122,13 @@ static XCamReturn prepare(RkAiqAlgoCom* params) {
             memcpy(&pAdehazeGrpHandle->AdehazeAtrrV12.stAuto, calibv2_adehaze_calib_V12,
                    sizeof(CalibDbV2_dehaze_v12_t));
 #endif
+#if RKAIQ_HAVE_DEHAZE_V14
+        CalibDbV2_dehaze_v14_t* calibv2_adehaze_calib_V14 =
+            (CalibDbV2_dehaze_v14_t*)(CALIBDBV2_GET_MODULE_PTR((void*)pCalibDb, adehaze_calib));
+        if (calibv2_adehaze_calib_V14)
+            memcpy(&pAdehazeGrpHandle->AdehazeAtrrV14.stAuto, calibv2_adehaze_calib_V14,
+                   sizeof(CalibDbV2_dehaze_v14_t));
+#endif
         pAdehazeGrpHandle->ifReCalcStAuto = true;
     } else if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_CHANGERES) {
         pAdehazeGrpHandle->isCapture = true;
@@ -160,12 +170,18 @@ static XCamReturn processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
         // dehaze group dehaze not ready for now
         dehaze_stats_v12_t dehazeStats;
 #endif
+#if RKAIQ_HAVE_DEHAZE_V14
+        // dehaze group dehaze not ready for now
+        dehaze_stats_v14_t dehazeStats;
+#endif
         memset(&dehazeStats, 0x0, sizeof(dehazeStats));
         // process
         if (!dehaze_bypass_processing) {
 #if RKAIQ_HAVE_DEHAZE_V12
             ret = AdehazeProcess(pAdehazeGrpHandle, &dehazeStats, false,
                                  pGrpProcResPara->camgroupParmasArray[0]->_adehazeConfig);
+#elif RKAIQ_HAVE_DEHAZE_V14
+            // TODO
 #else
             ret = AdehazeProcess(pAdehazeGrpHandle, &dehazeStats,
                                  pGrpProcResPara->camgroupParmasArray[0]->_adehazeConfig);

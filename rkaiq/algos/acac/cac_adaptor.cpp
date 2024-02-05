@@ -58,6 +58,7 @@ static const uint8_t CacChannelCount       = 2;
 #endif
 static const uint8_t CacScaleFactorDefault = 64;
 static const uint8_t CacScaleFactorBigMode = 128;
+static const uint16_t CacScaleFactor256Mode = 256;
 static const uint8_t CacStrengthDistance   = 128;
 static const uint8_t CacPsfKernelSize      = 7 * 5;
 static const uint8_t CacPsfKernelWordSizeInMemory =
@@ -83,6 +84,30 @@ static inline bool IsIspBigMode(uint32_t width, uint32_t height, bool is_multi_s
  * lut_h_wsize = cac_wsize*9
  * lut_v_size = cac_hsize*2
  */
+
+#if RKAIQ_HAVE_CAC_V12
+static inline void CalcCacLutConfig(uint32_t width, uint32_t height, bool is_big_mode,
+                                    LutBufferConfig& config) {
+    //is_big_mode is useless;
+    config.Width     = width;
+    config.Height    = height;
+    config.IsBigMode = true;
+    config.ScaleFactor = CacScaleFactor256Mode;
+    /**
+     * CAC only processes R & B channels, that means for R or R channels,
+     * which have only half size of full picture, only need to div round up by 32(scale==64) or
+     * 64(scale==128). For calculate convinient, use full picture size to calculate
+     */
+    config.LutHCount   =(width + 254) >> 8 ;
+    config.LutVCount   = (height  + 254) >> 8;
+    config.PsfCfgCount = config.LutHCount * config.LutVCount;
+    XCAM_ASSERT(config.PsfCfgCount <= CacPsfCountLimit);
+    /**
+     * CAC stores one PSF point's kernel in 9 words, one kernel size is 8 bytes.
+     * (8bytes*8bits/byte + 32 - 1) / 32bits/word = 9 words.
+     */
+}
+#else
 static inline void CalcCacLutConfig(uint32_t width, uint32_t height, bool is_big_mode,
                                     LutBufferConfig& config) {
     config.Width     = width;
@@ -108,6 +133,7 @@ static inline void CalcCacLutConfig(uint32_t width, uint32_t height, bool is_big
      */
 }
 
+#endif
 CacAlgoAdaptor::~CacAlgoAdaptor() {
     current_lut_.clear();
     lut_manger_ = nullptr;

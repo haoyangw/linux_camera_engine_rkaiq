@@ -30,6 +30,15 @@ RKAIQ_BEGIN_DECLARE
 #define CCM_PROFILES_NUM_MAX    ( 5 )
 #define CCM_RESOLUTIONS_NUM_MAX ( 4 )
 #define CALIBDB_ISO_NUM         ( 9 )
+#ifndef CCM_CURVE_DOT_NUM
+#define CCM_CURVE_DOT_NUM       17
+#endif
+#ifndef CCM_CURVE_DOT_NUM_HALF
+#define CCM_CURVE_DOT_NUM_HALF  9
+#endif
+#ifndef CCM_HF_FACTOR_NUM
+#define CCM_HF_FACTOR_NUM       17
+#endif
 #define CCM_YALP_ISO_STEP_MAX   ( 13 )
 
 /*****************************************************************************/
@@ -163,13 +172,6 @@ typedef struct CalibDbV2_Ccm_Tuning_Para_s {
     int matrixAll_len;
 } CalibDbV2_Ccm_Tuning_Para_t;
 
-typedef struct CalibDbV2_Ccm_Manual_Para_s {
-    // M4_ARRAY_DESC("ccMatrix", "f32", M4_SIZE(3,3), M4_RANGE(-8,7.992), "[1.0000,0.0000,0.0000,0.0000,1.0000,0.0000,0.0000,0.0000,1.0000]", M4_DIGIT(4), M4_DYNAMIC(0))
-    float ccMatrix[9];
-    // M4_ARRAY_DESC("ccOffsets", "f32", M4_SIZE(1,3), M4_RANGE(-4095,4095), "[0.0,0.0,0.0]", M4_DIGIT(1), M4_DYNAMIC(0))
-    float ccOffsets[3];
-} CalibDbV2_Ccm_Manual_Para_t;
-
 typedef struct CalibDbV2_Ccm_Control_Para_s {
     // M4_BOOL_DESC("enable", "1")
     bool enable;
@@ -195,6 +197,19 @@ typedef struct CalibDbV2_Ccm_Enhance_Para_s {
     unsigned char enh_rgb2y_para[3];
 } CalibDbV2_Ccm_Enhance_Para_t;
 
+typedef struct CalibDbV2_Ccm_Hf_Para_s {
+    // M4_BOOL_DESC("enable", "0")
+    bool en;
+    // M4_ARRAY_DESC("hf_lowTh", "u8", M4_SIZE(1,1),  M4_RANGE(0, 255), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint8_t hf_lowTh;
+    // M4_ARRAY_DESC("hf_upTh", "u8", M4_SIZE(1,1),  M4_RANGE(0, 255), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+	uint8_t hf_upTh;
+    // M4_ARRAY_DESC("hf_scale", "u16", M4_SIZE(1,1),  M4_RANGE(0, 16128), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+	uint16_t hf_scale;
+    // M4_ARRAY_DESC("enable", "u16", M4_SIZE(1,17),  M4_RANGE(0, 1024), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+	uint16_t hf_factor[CCM_HF_FACTOR_NUM];
+} CalibDbV2_Ccm_Hf_Para_t;
+
 typedef struct CalibDbV2_Ccm_Para_V2_s {
     // M4_STRUCT_DESC("control", "normal_ui_style")
     CalibDbV2_Ccm_Control_Para_t control;
@@ -214,6 +229,19 @@ typedef struct CalibDbV2_Ccm_Para_V32_s {
     // M4_STRUCT_DESC("autoCCM", "normal_ui_style")
     CalibDbV2_Ccm_Tuning_Para_t TuningPara;
 } CalibDbV2_Ccm_Para_V32_t;
+
+typedef struct CalibDbV2_Ccm_Para_V39_s {
+    // M4_STRUCT_DESC("control", "normal_ui_style")
+    CalibDbV2_Ccm_Control_Para_t control;
+    // M4_STRUCT_DESC("lumaCCM", "normal_ui_style")
+    CalibDbV2_Ccm_Luma_Ccm_V2_t lumaCCM;
+    // M4_STRUCT_DESC("enhanceCCM", "normal_ui_style")
+    CalibDbV2_Ccm_Enhance_Para_t enhCCM;
+    // M4_STRUCT_DESC("hfCCM", "normal_ui_style")
+    CalibDbV2_Ccm_Hf_Para_t hfCCM;
+    // M4_STRUCT_DESC("autoCCM", "normal_ui_style")
+    CalibDbV2_Ccm_Tuning_Para_t TuningPara;
+} CalibDbV2_Ccm_Para_V39_t;
 
 RKAIQ_END_DECLARE
 

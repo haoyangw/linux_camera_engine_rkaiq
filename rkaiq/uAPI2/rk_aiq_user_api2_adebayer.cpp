@@ -59,5 +59,17 @@ rk_aiq_user_api2_adebayer_v2_lite_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, ade
 {
     return rk_aiq_user_api_adebayer_v2_lite_GetAttrib(sys_ctx, attr);
 }
+XCamReturn
+rk_aiq_user_api2_adebayer_v3_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, adebayer_v3_attrib_t attr)
+{
+    return rk_aiq_user_api_adebayer_v3_SetAttrib(sys_ctx, attr);
+}
+
+XCamReturn
+rk_aiq_user_api2_adebayer_v3_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, adebayer_v3_attrib_t *attr)
+{
+    return rk_aiq_user_api_adebayer_v3_GetAttrib(sys_ctx, attr);
+}
+
 
 RKAIQ_END_DECLARE

@@ -21,5 +21,8 @@ XCamReturn rk_aiq_uapi_adehaze_v11_GetAttrib(RkAiqAlgoContext* ctx, adehaze_sw_v
 XCamReturn rk_aiq_uapi_adehaze_v12_SetAttrib(RkAiqAlgoContext* ctx, adehaze_sw_v12_t* attr,
                                              bool need_sync);
 XCamReturn rk_aiq_uapi_adehaze_v12_GetAttrib(RkAiqAlgoContext* ctx, adehaze_sw_v12_t* attr);
+XCamReturn rk_aiq_uapi_adehaze_v14_SetAttrib(RkAiqAlgoContext* ctx, adehaze_sw_v14_t* attr,
+                                             bool need_sync);
+XCamReturn rk_aiq_uapi_adehaze_v14_GetAttrib(RkAiqAlgoContext* ctx, adehaze_sw_v14_t* attr);
 
 #endif

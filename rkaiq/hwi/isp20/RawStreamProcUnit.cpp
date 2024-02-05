@@ -3,11 +3,19 @@
 #include "CaptureRawData.h"
 #include "CamHwIsp20.h"
 
+#ifdef ANDROID_OS
+#include <cutils/properties.h>
+#ifndef PROPERTY_VALUE_MAX
+#define PROPERTY_VALUE_MAX 32
+#endif
+#endif
+
 namespace RkCam {
 RawStreamProcUnit::RawStreamProcUnit ()
     : _is_multi_cam_conc(false)
     , _first_trigger(true)
     , _is_1608_sensor(false)
+    , dumpRkRawType(DUMP_RKRAW_DEFAULT)
 {
     _raw_proc_thread = new RawProcThread(this);
     _PollCallback = NULL;
@@ -19,6 +27,7 @@ RawStreamProcUnit::RawStreamProcUnit (const rk_sensor_full_info_t *s_info, bool 
     : _is_multi_cam_conc(false)
     , _first_trigger(true)
     , _is_1608_sensor(false)
+    ,dumpRkRawType(DUMP_RKRAW_DEFAULT)
 {
     _raw_proc_thread = new RawProcThread(this);
     _PollCallback = NULL;
@@ -69,7 +78,16 @@ RawStreamProcUnit::~RawStreamProcUnit ()
 
 XCamReturn RawStreamProcUnit::start(int mode)
 {
+#ifdef UseCaptureRawData
     _rawCap = new CaptureRawData(mCamPhyId);
+#else
+    if (getDumpRkRawType() == DUMP_RKRAW1)
+        _rawCap = new DumpRkRaw1(mCamPhyId);
+    else
+        _rawCap = new DumpRkRaw2(mCamPhyId);
+#endif
+    setIspInfoToDump();
+
     for (int i = 0; i < _mipi_dev_max; i++) {
         _stream[i]->setCamPhyId(mCamPhyId);
         _stream[i]->start();
@@ -253,15 +271,23 @@ RawStreamProcUnit::set_devices(SmartPtr<V4l2SubDevice> ispdev, CamHwIsp20* handl
 XCamReturn
 RawStreamProcUnit::poll_buffer_ready (SmartPtr<V4l2BufferProxy> &buf, int dev_index)
 {
-    SmartLock locker (_buf_mutex);
+    SmartPtr<V4l2BufferProxy> rx_buf = nullptr;
 
-    if (!buf_list[dev_index].is_empty()) {
-        SmartPtr<V4l2BufferProxy> rx_buf = buf_list[dev_index].pop(-1);
-        LOG1_CAMHW_SUBM(ISP20HW_SUBM,"%s dev_index:%d index:%d fd:%d\n",
-                        __func__, dev_index, rx_buf->get_v4l2_buf_index(), rx_buf->get_expbuf_fd());
+    {
+        SmartLock locker (_buf_mutex);
+
+        if (!buf_list[dev_index].is_empty()) {
+            rx_buf = buf_list[dev_index].pop(-1);
+            LOGV_CAMHW_SUBM(ISP20HW_SUBM,"%s dev_index:%d index:%d fd:%d, seq:%d\n",
+                    __func__, dev_index, rx_buf->get_v4l2_buf_index(),
+                    rx_buf->get_expbuf_fd(), rx_buf->get_sequence());
+        }
+        if (_PollCallback)
+            _PollCallback->poll_buffer_ready (buf, dev_index);
     }
-    if (_PollCallback)
-        _PollCallback->poll_buffer_ready (buf, dev_index);
+
+    if (dev_index == 0)
+        DumpRkRawInFrameEnd(rx_buf);
 
     return XCAM_RETURN_NO_ERROR;
 }
@@ -447,8 +473,13 @@ RawStreamProcUnit::trigger_isp_readback()
             int ret = XCAM_RETURN_NO_ERROR;
 
             // whether to start capturing raw files
-            if (_rawCap)
+            if (_rawCap) {
+#ifdef UseCaptureRawData
                 _rawCap->detect_capture_raw_status(sequence, _first_trigger);
+#else
+                _rawCap->detectDumpStatus(sequence);
+#endif
+            }
 
             //CaptureRawData::getInstance().detect_capture_raw_status(sequence, _first_trigger);
             //_camHw->setIsppConfig(sequence);
@@ -485,12 +516,17 @@ RawStreamProcUnit::trigger_isp_readback()
                     }
 
                     if (_rawCap) {
+#ifdef UseCaptureRawData
                        _rawCap->dynamic_capture_raw(i, sequence, buf_proxy, v4l2buf[i],_mipi_dev_max,_working_mode,_dev[0]);
+#else
+                       _rawCap->dumpRkRawBlock(i, sequence, buf_proxy->get_v4l2_userptr(), v4l2buf[i]->get_buf().m.planes[0].bytesused);
+#endif
                     }
                    //CaptureRawData::getInstance().dynamic_capture_raw(i, sequence, buf_proxy, v4l2buf[i],_mipi_dev_max,_working_mode,_dev[0]);
                 }
             }
 
+#ifdef UseCaptureRawData
             if (_rawCap) {
                 if (_rawCap->is_need_save_metadata_and_register()) {
                     rkisp_effect_params_v20 ispParams;
@@ -507,6 +543,7 @@ RawStreamProcUnit::trigger_isp_readback()
                     _rawCap->save_metadata_and_register(sequence, ispParams, ExpParams, afParams, _working_mode);
                 }
             }
+#endif
 
             for (int i = 0; i < _mipi_dev_max; i++) {
                 ret = _dev[i]->queue_buffer(v4l2buf[i]);
@@ -556,8 +593,16 @@ RawStreamProcUnit::trigger_isp_readback()
                                 __func__, sequence);
             }
 
-            if (_rawCap)
+            if (_rawCap){
+                _buf_mutex.unlock();
+#ifdef UseCaptureRawData
                 _rawCap->update_capture_raw_status(_first_trigger);
+#else
+                _rawCap->waitDumpRawDone();
+                _rawCap->waitThirdPartyDumpDone(_first_trigger);
+#endif
+                _buf_mutex.lock();
+            }
             //CaptureRawData::getInstance().update_capture_raw_status(_first_trigger);
         }
     }
@@ -597,5 +642,88 @@ RawStreamProcUnit::set_csi_mem_word_big_align(uint32_t width, uint32_t height,
     return ret;
 }
 
+XCamReturn RawStreamProcUnit::setIspInfoToDump()
+{
+    if (!_dev[0].ptr() || !_rawCap || !_camHw)
+        return XCAM_RETURN_ERROR_FAILED;
+
+    struct ispInfo_s ispInfo;
+    struct v4l2_format format;
+    memset(&format, 0, sizeof(format));
+
+    if (_dev[0]->get_format (format) < 0)
+        return XCAM_RETURN_ERROR_FAILED;
+
+    ispInfo.sns_width = format.fmt.pix.width;
+    ispInfo.sns_height = format.fmt.pix.height;
+    ispInfo.pixelformat = format.fmt.pix.pixelformat;
+    ispInfo.working_mode = _working_mode;
+    ispInfo.mCamPhyId = mCamPhyId;
+    ispInfo.stridePerLine = format.fmt.pix_mp.plane_fmt[0].bytesperline;
+
+    if (strlen(_camHw->sns_name) > 0)
+        sscanf(&_camHw->sns_name[6], "%s", ispInfo.sns_name);
+    // memcpy(ispInfo.sns_name, _camHw->sns_name, strlen(_camHw->sns_name));
+#ifndef UseCaptureRawData
+    _rawCap->setIspInfo(ispInfo);
+#endif
+
+    return XCAM_RETURN_NO_ERROR;
 }
+
+XCamReturn
+RawStreamProcUnit::DumpRkRawInFrameEnd(SmartPtr<V4l2BufferProxy> &rx_buf)
+{
+    uint32_t sequence = 0;
+
+    if(rx_buf.ptr()) {
+        sequence = rx_buf->get_sequence();
+    }
+
+	SmartPtr<BaseSensorHw> mSensorSubdev = _camHw->mSensorDev.dynamic_cast_ptr<BaseSensorHw>();
+	SmartPtr<RkAiqSensorExpParamsProxy> expParams = nullptr;
+	mSensorSubdev->getEffectiveExpParams(expParams, sequence);
+	rkisp_effect_params_v20 ispParams;
+	_camHw->getEffectiveIspParams(ispParams, sequence);
+
+#ifndef UseCaptureRawData
+	if (_rawCap->isDumpInFrameEnd(sequence, ispParams, expParams) == XCAM_RETURN_NO_ERROR) {
+		SmartPtr<LensHw> mLensSubdev = _camHw->mLensDev.dynamic_cast_ptr<LensHw>();
+		SmartPtr<RkAiqAfInfoProxy> afParams = nullptr;
+		if (mLensSubdev.ptr())
+			mLensSubdev->getAfInfoParams(afParams, sequence);
+
+		_rawCap->dumpMetadataBlock(sequence, ispParams, expParams, afParams);
+#ifdef ISP_REGS_BASE
+		_rawCap->dumpIspRegBlock(ISP_REGS_BASE, 0, ISP_REGS_SIZE, sequence);
+#endif
+		_rawCap->dumpPlatformInfoBlock();
+		_rawCap->updateDumpStatus();
+		_rawCap->notifyDumpRaw();
+	}
+#endif
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
+int8_t
+RawStreamProcUnit::getDumpRkRawType()
+{
+#ifdef ANDROID_OS
+    char property_value[PROPERTY_VALUE_MAX] = {0};
+
+    property_get("persist.vendor.rkisp.rkraw.type", property_value, "1");
+    dumpRkRawType = strtoull(property_value, nullptr, 16);
+#else
+    char* valueStr = getenv("rkisp_dump_rkraw_type");
+    if (valueStr)
+         dumpRkRawType = strtoull(valueStr, nullptr, 16);
+#endif
+
+    LOGE_CAMHW_SUBM(ISP20HW_SUBM,"dumpRkRawType: %d", dumpRkRawType);
+
+    return dumpRkRawType;
+}
+
+}; //namspace RkCam
 

@@ -36,7 +36,7 @@ static XCamReturn groupAcnrV30CreateCtx(RkAiqAlgoContext **context, const AlgoCt
     AlgoCtxInstanceCfgCamGroup *cfgInt = (AlgoCtxInstanceCfgCamGroup*)cfg;
 
 
-    if(CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+    if(CHECK_ISP_HW_V39() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
         acnr_group_contex = (CamGroup_AcnrV30_Contex_t*)malloc(sizeof(CamGroup_AcnrV30_Contex_t));
 #if ACNR_USE_JSON_FILE_V30
         AcnrV30_result_t ret_v30 = ACNRV30_RET_SUCCESS;
@@ -80,7 +80,7 @@ static XCamReturn groupAcnrV30DestroyCtx(RkAiqAlgoContext *context)
 
     CamGroup_AcnrV30_Contex_t *acnr_group_contex = (CamGroup_AcnrV30_Contex_t*)context;
 
-    if(CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+    if(CHECK_ISP_HW_V39() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
         AcnrV30_result_t ret_v30 = ACNRV30_RET_SUCCESS;
         ret_v30 = Acnr_Release_V30(acnr_group_contex->acnr_contex_v30);
         if(ret_v30 != ACNRV30_RET_SUCCESS) {
@@ -113,7 +113,7 @@ static XCamReturn groupAcnrV30Prepare(RkAiqAlgoCom* params)
     CamGroup_AcnrV30_Contex_t * acnr_group_contex = (CamGroup_AcnrV30_Contex_t *)params->ctx;
     RkAiqAlgoCamGroupPrepare* para = (RkAiqAlgoCamGroupPrepare*)params;
 
-    if(CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+    if(CHECK_ISP_HW_V39() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
         Acnr_Context_V30_t * acnr_contex_v30 = acnr_group_contex->acnr_contex_v30;
         acnr_contex_v30->prepare_type = params->u.prepare.conf_type;
         if(!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB )) {
@@ -237,7 +237,7 @@ static XCamReturn groupAcnrV30Processing(const RkAiqAlgoCom* inparams, RkAiqAlgo
 
 
 
-    if(CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+    if(CHECK_ISP_HW_V39() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
         Acnr_Context_V30_t * acnr_contex_v30 = acnr_group_contex->acnr_contex_v30;
         Acnr_ProcResult_V30_t stAcnrResultV30;
         RK_CNR_Fix_V30_t stFix;

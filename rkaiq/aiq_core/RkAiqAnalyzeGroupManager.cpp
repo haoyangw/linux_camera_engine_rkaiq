@@ -131,10 +131,8 @@ bool RkAiqAnalyzerGroup::msgHandle(RkAiqCoreVdBufMsg* msg) {
 
     XCamMessageType  msg_id = msg->msg_id;
     uint32_t delayCnt = getMsgDelayCnt(msg_id);
-    if (getAiqCore()->getTbInfo()->prd_type != RK_AIQ_PRD_TYPE_NORMAL) {
-        if (msg->frame_id == mAwakenId)
-            delayCnt = 0;
-    }
+    if (msg->frame_id == mAwakenId)
+        delayCnt = 0;
     uint32_t userId = msg->frame_id + delayCnt;
     GroupMessage& msgWrapper = mGroupMsgMap[userId];
 
@@ -337,6 +335,7 @@ XCamReturn RkAiqAnalyzeGroupManager::groupMessageHandler(std::array<RkAiqCoreVdB
                 shared->preExp = sofInfoMsg->data()->preExp->data()->aecExpInfo;
                 shared->nxtExp = sofInfoMsg->data()->nxtExp->data()->aecExpInfo;
                 shared->sof = sofInfoMsg->data()->sof;
+                shared->iso = sofInfoMsg->data()->iso;
                 break;
             case XCAM_MESSAGE_ISP_STATS_OK:
                 shared->ispStats = convert_to_XCamVideoBuffer(vdBufMsg->msg);
@@ -476,6 +475,64 @@ XCamReturn RkAiqAnalyzeGroupManager::groupMessageHandler(std::array<RkAiqCoreVdB
                                    shared->res_comb.aynrV22_proc_res->stSelect->sigma[15],
                                    shared->res_comb.aynrV22_proc_res->stSelect->sigma[16]);
                 break;
+            case XCAM_MESSAGE_YNR_V24_PROC_RES_OK:
+                shared->res_comb.aynrV24_proc_res =
+                    &((RkAiqAlgoProcResAynrV24*)vdBufMsg->msg->map())->stAynrProcResult;
+                LOGD_ANALYZER_SUBM(ANALYZER_SUBM,
+                                   "camId: %d, group: %s: id: %d, sigma: %f %f %f %f %f %f %f "
+                                   "%f %f %f %f %f %f %f %f %f %f ",
+                                   mAiqCore->mAlogsComSharedParams.mCamPhyId,
+                                   AnalyzerGroupType2Str[grpId],
+                                   vdBufMsg->msg->get_sequence(),
+                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[0],
+                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[1],
+                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[2],
+                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[3],
+                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[4],
+                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[5],
+                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[6],
+                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[7],
+                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[8],
+                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[9],
+                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[10],
+                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[11],
+                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[12],
+                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[13],
+                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[14],
+                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[15],
+                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[16]);
+                break;
+#if USE_NEWSTRUCT
+            case XCAM_MESSAGE_YNR_PROC_RES_OK:
+                shared->res_comb.ynr_proc_res =
+                    ((RkAiqAlgoProcResYnr*)vdBufMsg->msg->map())->ynrRes;
+                /*
+                LOGD_ANALYZER_SUBM(ANALYZER_SUBM,
+                                   "camId: %d, group: %s: id: %d, sigma: %d %d %d %d %d %d %d "
+                                   "%d %d %d %d %d %d %d %d %d %d ",
+                                   mAiqCore->mAlogsComSharedParams.mCamPhyId,
+                                   AnalyzerGroupType2Str[grpId],
+                                   vdBufMsg->msg->get_sequence(),
+                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[0],
+                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[1],
+                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[2],
+                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[3],
+                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[4],
+                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[5],
+                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[6],
+                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[7],
+                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[8],
+                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[9],
+                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[10],
+                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[11],
+                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[12],
+                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[13],
+                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[14],
+                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[15],
+                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[16]);
+                */
+                break;
+#endif
             case XCAM_MESSAGE_ADEHAZE_STATS_OK:
                 {
                     RkAiqAdehazeStatsProxy* dehazeStats = vdBufMsg->msg.get_cast_ptr<RkAiqAdehazeStatsProxy>();

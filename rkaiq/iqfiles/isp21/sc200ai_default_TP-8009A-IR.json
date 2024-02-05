@@ -2291,16 +2291,6 @@
 									"zoom_move_dot_len":	32,
 									"zoom_move_step":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 									"zoom_move_step_len":	32,
-									"focal_length":	[],
-									"focal_length_len":	0,
-									"zoomcode":	[0],
-									"zoomcode_len":	1,
-									"focuscode":	[{
-											"pos":	0,
-											"code":	[0],
-											"code_len":	1
-										}],
-									"focuscode_len":	1,
 									"ZoomSearchTbl":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 									"ZoomSearchTbl_len":	100,
 									"ZoomSearchRefCurveIdx":	0,
@@ -2316,7 +2306,8 @@
 									"searchEavg":	0,
 									"IsZoomFocusRec":	0,
 									"ZoomInfoDir":	"/data/",
-									"ZoomInitIndex":	0
+									"ZoomInitIndex":	0,
+									"ZoomCurveFile":	"/data/zoomfocus_curve.bin"
 								},
 								"measiso_cfg":	[{
 										"iso":	50,

@@ -32,6 +32,9 @@
 #if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
 #include "RkAiqCalibDbV2TypesIsp32.h"
 #endif
+#ifdef ISP_HW_V39
+#include "RkAiqCalibDbV2TypesIsp39.h"
+#endif
 #include "RkAiqUapitypes.h"
 
 RKAIQ_BEGIN_DECLARE
@@ -151,6 +154,8 @@ typedef struct CamCalibDbV2Tuning_s {
     CamCalibDbV2ContextIsp30_t calib_scene;
 #elif defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
     CamCalibDbV2ContextIsp32_t calib_scene;
+#elif defined(ISP_HW_V39)
+    CamCalibDbV2ContextIsp39_t calib_scene;
 #else
 #error "WRONG ISP_HW_VERSION, ONLY SUPPORT V20 AND V21 AND V30 NOW !"
 #endif
@@ -173,6 +178,8 @@ typedef struct CamCalibSubSceneList_s {
     CamCalibDbV2ContextIsp30_t scene_isp30;
 #elif defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
     CamCalibDbV2ContextIsp32_t scene_isp32;
+#elif defined(ISP_HW_V39)
+    CamCalibDbV2ContextIsp39_t scene_isp39;
 #else
 #error "WRONG ISP_HW_VERSION, ONLY SUPPORT V20 AND V21 AND V30 NOW !"
 #endif

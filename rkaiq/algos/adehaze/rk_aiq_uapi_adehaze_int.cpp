@@ -173,5 +173,49 @@ XCamReturn rk_aiq_uapi_adehaze_v12_GetAttrib(RkAiqAlgoContext* ctx, adehaze_sw_v
 
     return ret;
 }
+#endif
+#if RKAIQ_HAVE_DEHAZE_V14
+XCamReturn rk_aiq_uapi_adehaze_v14_SetAttrib(RkAiqAlgoContext* ctx, adehaze_sw_v14_t* attr,
+                                             bool need_sync) {
+    XCamReturn ret                  = XCAM_RETURN_NO_ERROR;
+    AdehazeHandle_t* pAdehazeHandle = (AdehazeHandle_t*)ctx;
 
+    pAdehazeHandle->AdehazeAtrrV14.mode = attr->mode;
+    if (attr->mode == DEHAZE_API_MANUAL) {
+        memcpy(&pAdehazeHandle->AdehazeAtrrV14.stManual, &attr->stManual, sizeof(mDehazeAttrV14_t));
+        pAdehazeHandle->ifReCalcStManual = true;
+    }
+    if (attr->mode == DEHAZE_API_AUTO) {
+        memcpy(&pAdehazeHandle->AdehazeAtrrV14.stAuto, &attr->stAuto,
+               sizeof(CalibDbV2_dehaze_v14_t));
+        pAdehazeHandle->ifReCalcStAuto = true;
+    }
+
+    if (attr->Info.updateMDehazeStrth) {
+        pAdehazeHandle->AdehazeAtrrV14.Info.MDehazeStrth = attr->Info.MDehazeStrth;
+        attr->Info.updateMDehazeStrth                    = false;
+    }
+    if (attr->Info.updateMEnhanceStrth) {
+        pAdehazeHandle->AdehazeAtrrV14.Info.MEnhanceStrth = attr->Info.MEnhanceStrth;
+        attr->Info.updateMEnhanceStrth                    = false;
+    }
+    if (attr->Info.updateMEnhanceChromeStrth) {
+        pAdehazeHandle->AdehazeAtrrV14.Info.MEnhanceChromeStrth = attr->Info.MEnhanceChromeStrth;
+        attr->Info.updateMEnhanceChromeStrth                    = false;
+    }
+
+    return ret;
+}
+
+XCamReturn rk_aiq_uapi_adehaze_v14_GetAttrib(RkAiqAlgoContext* ctx, adehaze_sw_v14_t* attr) {
+    XCamReturn ret                  = XCAM_RETURN_NO_ERROR;
+    AdehazeHandle_t* pAdehazeHandle = (AdehazeHandle_t*)ctx;
+
+    attr->mode = pAdehazeHandle->AdehazeAtrrV14.mode;
+    attr->Info = pAdehazeHandle->AdehazeAtrrV14.Info;
+    memcpy(&attr->stManual, &pAdehazeHandle->AdehazeAtrrV14.stManual, sizeof(mDehazeAttrV14_t));
+    memcpy(&attr->stAuto, &pAdehazeHandle->AdehazeAtrrV14.stAuto, sizeof(CalibDbV2_dehaze_v14_t));
+
+    return ret;
+}
 #endif

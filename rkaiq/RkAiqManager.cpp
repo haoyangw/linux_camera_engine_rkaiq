@@ -118,6 +118,7 @@ RkAiqManager::RkAiqManager(const char* sns_ent_name,
     , mErrCb(err_cb)
     , mMetasCb(metas_cb)
     , mHwEvtCb(NULL)
+    , mAiispCtx({NULL, NULL})
     , mHwEvtCbCtx(NULL)
     , mSnsEntName(sns_ent_name)
 #ifdef RKAIQ_ENABLE_PARSER_V1
@@ -136,6 +137,7 @@ RkAiqManager::RkAiqManager(const char* sns_ent_name,
     , mCamGroupCoreManager(NULL)
 #endif
     , mIsMain(false)
+    , mGlobalParamsManager(new GlobalParamsManager())
 {
     ENTER_XCORE_FUNCTION();
     EXIT_XCORE_FUNCTION();
@@ -210,6 +212,8 @@ RkAiqManager::init()
     XCAM_ASSERT (mCalibDbV2);
 
     mRkAiqAnalyzer->setAnalyzeResultCb(this);
+    mRkAiqAnalyzer->setGlobalParamsManager(mGlobalParamsManager.ptr());
+    mGlobalParamsManager->init(false, mCalibDbV2);
 #ifdef RKAIQ_ENABLE_PARSER_V1
     ret = mRkAiqAnalyzer->init(mSnsEntName, mCalibDb, mCalibDbV2);
 #else
@@ -316,7 +320,7 @@ RkAiqManager::prepare(uint32_t width, uint32_t height, rk_aiq_working_mode_t mod
 
     SmartPtr<RkAiqFullParamsProxy> initParams = mRkAiqAnalyzer->getAiqFullParams();
 
-    if (mTbInfo.is_pre_aiq) {
+    if (mTbInfo.is_fastboot) {
 #ifndef DISABLE_RESULT_APPLY_THREADS
         mAiqRstAppTh->triger_start();
 #endif
@@ -330,6 +334,7 @@ RkAiqManager::prepare(uint32_t width, uint32_t height, rk_aiq_working_mode_t mod
     }
 #endif
 
+    mCamHw->get_aiisp_bay3dbuf();
     mWorkingMode = mode;
     mOldWkModeForGray = RK_AIQ_WORKING_MODE_NORMAL;
     mWidth = width;
@@ -365,7 +370,7 @@ RkAiqManager::start()
         return ret;
     }
 
-    if (mTbInfo.is_pre_aiq) {
+    if (mTbInfo.is_fastboot) {
 #ifndef DISABLE_RESULT_APPLY_THREADS
         bool bret = mAiqRstAppTh->start();
         ret = bret ? XCAM_RETURN_NO_ERROR : XCAM_RETURN_ERROR_FAILED;
@@ -385,7 +390,7 @@ RkAiqManager::start()
     ret = mCamHw->start();
     RKAIQMNG_CHECK_RET(ret, "camhw start error %d", ret);
 
-    if (!mTbInfo.is_pre_aiq) {
+    if (!mTbInfo.is_fastboot) {
 #ifndef DISABLE_RESULT_APPLY_THREADS
         mAiqRstAppTh->triger_start();
 
@@ -546,45 +551,46 @@ RkAiqManager::hwResCb(SmartPtr<VideoBuffer>& hwres)
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
     if (hwres->_buf_type == ISP_POLL_3A_STATS) {
-        if (mTbInfo.prd_type != RK_AIQ_PRD_TYPE_NORMAL) {
-            uint32_t seq = -1;
-            seq = hwres.dynamic_cast_ptr<VideoBuffer>()->get_sequence();
-            Isp20StatsBuffer* buf = hwres.get_cast_ptr<Isp20StatsBuffer>();
-            SmartPtr<CamHwIsp20> mCamHwIsp20 = mCamHw.dynamic_cast_ptr<CamHwIsp20>();
-            struct rkisp32_isp_stat_buffer* stats;
-            stats = (struct rkisp32_isp_stat_buffer*)(buf->get_v4l2_userptr());
-            if (stats == NULL) {
-                LOGE("fail to get stats ,ignore\n");
-                return XCAM_RETURN_BYPASS;
-            }
+        uint32_t seq = -1;
+        seq = hwres.dynamic_cast_ptr<VideoBuffer>()->get_sequence();
+        Isp20StatsBuffer* buf = hwres.get_cast_ptr<Isp20StatsBuffer>();
+        SmartPtr<CamHwIsp20> mCamHwIsp20 = mCamHw.dynamic_cast_ptr<CamHwIsp20>();
+        struct rkisp32_isp_stat_buffer* stats;
 
-            if ((stats->meas_type & ISP32_STAT_RTT_FST) && (seq != mLastAweekId)) {
-                mRkAiqAnalyzer->awakenClean(seq);
-                ret = mCamHwIsp20->setFastAeExp(seq);
-                if (ret == XCAM_RETURN_NO_ERROR) {
-                    //special setting for AOV AE if run rtt
-                    mRkAiqAnalyzer->setAOVForAE(true);
-                }
-                mLastAweekId = seq;
-
-                // push sof msg
-                struct timespec tp;
-                clock_gettime(CLOCK_MONOTONIC_RAW, &tp);
-
-                SmartPtr<ispHwEvt_t> hw_evt = mCamHwIsp20->make_ispHwEvt(
-                                                    seq, V4L2_EVENT_FRAME_SYNC,
-                                                    tp.tv_sec * 1000 * 1000 * 1000 + tp.tv_nsec);
-                mRkAiqAnalyzer->pushEvts(hw_evt);
-                LOGD("stats meas is special, buf frame id %d", seq);
-            } else if ((mTbInfo.prd_type != RK_AIQ_PRD_TYPE_SINGLE_FRAME && mTbInfo.is_pre_aiq) ||
-                       seq == mLastAweekId) {
-                return ret;
-            }
-            ret = mRkAiqAnalyzer->pushStats(hwres);
-
-        } else {
-            ret = mRkAiqAnalyzer->pushStats(hwres);
+        stats = (struct rkisp32_isp_stat_buffer*)(buf->get_v4l2_userptr());
+        if (stats == NULL) {
+            LOGE("fail to get stats ,ignore\n");
+            return XCAM_RETURN_BYPASS;
         }
+
+        if ((stats->meas_type & ISP32_STAT_RTT_FST) && (seq != mLastAweekId)) {
+            mRkAiqAnalyzer->awakenClean(seq);
+            ret = mCamHwIsp20->setFastAeExp(seq);
+#if 0
+            if (ret == XCAM_RETURN_NO_ERROR) {
+                //special setting for AOV AE if run rtt
+                mRkAiqAnalyzer->setAOVForAE(true);
+            }
+#endif
+            mLastAweekId = seq;
+
+            // push sof msg
+            struct timespec tp;
+            clock_gettime(CLOCK_MONOTONIC_RAW, &tp);
+
+            SmartPtr<ispHwEvt_t> hw_evt = mCamHwIsp20->make_ispHwEvt(
+                                                seq, V4L2_EVENT_FRAME_SYNC,
+                                                tp.tv_sec * 1000 * 1000 * 1000 + tp.tv_nsec);
+            mRkAiqAnalyzer->pushEvts(hw_evt);
+            LOGD("stats meas is special, buf frame id %d", seq);
+        } else if (seq == mLastAweekId) {
+            return ret;
+        } else if (mTbInfo.is_fastboot && !mTBStatsCnt && seq) {
+            mTBStatsCnt++;
+        }
+
+        ret = mRkAiqAnalyzer->pushStats(hwres);
+
 #ifdef ISP_HW_V20
     } else if (hwres->_buf_type == ISP_POLL_LUMA) {
         if (mRkLumaAnalyzer.ptr())
@@ -593,11 +599,13 @@ RkAiqManager::hwResCb(SmartPtr<VideoBuffer>& hwres)
     } else if (hwres->_buf_type == ISP_POLL_PARAMS) {
         rk_aiq_err_msg_t msg;
         msg.err_code = XCAM_RETURN_BYPASS;
-        if (mTbInfo.is_start_once && !mTBStatsCnt) {
+        if (mTbInfo.is_fastboot && !mTBStatsCnt) {
+            if (mErrCb) {
+                (*mErrCb)(&msg);
+            }
             mTBStatsCnt++;
-        } else if (!mTbInfo.is_start_once && mErrCb) {
-            (*mErrCb)(&msg);
         }
+
         if (mHwEvtCb) {
             rk_aiq_hwevt_t hwevt;
 
@@ -608,9 +616,15 @@ RkAiqManager::hwResCb(SmartPtr<VideoBuffer>& hwres)
 
             (*mHwEvtCb)(&hwevt);
         }
+        
+        if (mGlobalParamsManager->isFullManualMode())
+            applyAnalyzerResult(mGlobalParamsManager->getFullManParamsProxy());
     } else if (hwres->_buf_type == ISPP_POLL_NR_STATS) {
         ret = mRkAiqAnalyzer->pushStats(hwres);
     } else if (hwres->_buf_type == ISP_POLL_SOF) {
+        if (mTbInfo.is_fastboot && !mTBStatsCnt) {
+            return ret;
+        }
         SmartPtr<CamHwIsp20> mCamHwIsp20 = mCamHw.dynamic_cast_ptr<CamHwIsp20>();
         mCamHwIsp20->notify_sof(hwres);
 
@@ -621,10 +635,6 @@ RkAiqManager::hwResCb(SmartPtr<VideoBuffer>& hwres)
         if (evtdata->_frameid % 100 == 0)
             xcam_get_runtime_log_level();
 
-        if (mTbInfo.is_pre_aiq || (mTbInfo.is_start_once && !mTBStatsCnt)) {
-            return ret;
-        }
-
         mRkAiqAnalyzer->pushEvts(hw_evt);
         // TODO: moved to aiq core ?
         if (mMetasCb) {
@@ -634,6 +644,29 @@ RkAiqManager::hwResCb(SmartPtr<VideoBuffer>& hwres)
             metas.cam_id = mCamHw->getCamPhyId();
             metas.sensor_name = mSnsEntName;
             (*mMetasCb)(&metas);
+        }
+    }
+    else if (hwres->_buf_type == ISP_POLL_AIISP) {
+        SmartPtr<CamHwIsp20> mCamHwIsp20 = mCamHw.dynamic_cast_ptr<CamHwIsp20>();
+        SmartPtr<AiispEventBuffer> evtbuf = hwres.dynamic_cast_ptr<AiispEventBuffer>();
+        SmartPtr<AiispEventData> evtdata = evtbuf->get_data();
+        if (mAiispCtx.mAiispEvtcb) {
+            rk_aiq_aiisp_t aiisp_evt;
+            memset(&aiisp_evt, 0, sizeof(aiisp_evt));
+            aiisp_evt.wr_linecnt = mCamHwIsp20->mAiisp_cfg.wr_linecnt;
+            aiisp_evt.rd_linecnt = mCamHwIsp20->mAiisp_cfg.rd_linecnt;
+            aiisp_evt.height = evtdata->_height;
+            aiisp_evt.sequence = evtdata->_frameid;
+            aiisp_evt.bay3dbuf = evtdata->bay3dbuf;
+            aiisp_evt.iir_address = evtdata->iir_address;
+            aiisp_evt.gain_address = evtdata->gain_address;
+            LOGD_ANALYZER("aiisp params: wr_linecnt %d rd_linecnt %d _height %d _frameid %d bay3dbuf.iir_fd  %d bay3dbuf.iir_size %d",
+                          aiisp_evt.wr_linecnt, aiisp_evt.rd_linecnt, aiisp_evt.height, aiisp_evt.sequence, aiisp_evt.bay3dbuf.iir_fd,
+                          aiisp_evt.bay3dbuf.iir_size);
+            (*mAiispCtx.mAiispEvtcb)(&aiisp_evt, mAiispCtx.ctx);
+        }
+        else {
+            LOGE_ANALYZER("mAiispEvtcb is NULL");
         }
     } else if (hwres->_buf_type == ISP_POLL_TX) {
 #if 0
@@ -792,12 +825,22 @@ RkAiqManager::applyAnalyzerResult(SmartPtr<RkAiqFullParamsProxy>& results, bool 
 
 
 #define APPLY_ANALYZER_RESULT(lc, BC) \
-    if (aiqParams->m##lc##Params.ptr() && (ignoreIsUpdate || aiqParams->m##lc##Params->data()->is_update)) { \
-        LOGD("new result type: %s", #BC);\
-        aiqParams->m##lc##Params->setType(RESULT_TYPE_##BC##_PARAM); \
-        aiqParams->m##lc##Params->setId(aiqParams->mFrmId); \
-        aiqParams->m##lc##Params->data()->is_update = false; \
-        results_list.push_back(aiqParams->m##lc##Params); \
+    { \
+        if (mGlobalParamsManager->isFullManualMode()) { \
+            SmartPtr<cam3aResult> manual_params = \
+                mGlobalParamsManager->getAndClearPending(RESULT_TYPE_##BC##_PARAM); \
+            if (!manual_params.ptr()) { \
+                LOGD("new manual result type: %s", #BC);\
+                manual_params->setType(RESULT_TYPE_##BC##_PARAM); \
+                manual_params->setId(aiqParams->mFrmId); \
+                results_list.push_back(manual_params); \
+            } \
+        } else if (aiqParams->m##lc##Params.ptr() && (ignoreIsUpdate || aiqParams->m##lc##Params->data()->is_update)) { \
+            aiqParams->m##lc##Params->setType(RESULT_TYPE_##BC##_PARAM); \
+            aiqParams->m##lc##Params->setId(aiqParams->mFrmId); \
+            aiqParams->m##lc##Params->data()->is_update = false; \
+            results_list.push_back(aiqParams->m##lc##Params); \
+        } \
     } \
 
 #if RKAIQ_HAVE_ASD
@@ -838,7 +881,11 @@ RkAiqManager::applyAnalyzerResult(SmartPtr<RkAiqFullParamsProxy>& results, bool 
     APPLY_ANALYZER_RESULT(Gic, GIC);
 #endif
 #if RKAIQ_HAVE_DEBAYER
+#if USE_NEWSTRUCT
+    APPLY_ANALYZER_RESULT(Dm, DEBAYER);
+#else
     APPLY_ANALYZER_RESULT(Debayer, DEBAYER);
+#endif
 #endif
 #if RKAIQ_HAVE_LDCH
     APPLY_ANALYZER_RESULT(Ldch, LDCH);
@@ -850,9 +897,13 @@ RkAiqManager::applyAnalyzerResult(SmartPtr<RkAiqFullParamsProxy>& results, bool 
     APPLY_ANALYZER_RESULT(Dehaze, DEHAZE);
 #endif
 #if RKAIQ_HAVE_GAMMA
+#if USE_NEWSTRUCT
+    APPLY_ANALYZER_RESULT(Gamma, AGAMMA);
+#else
     APPLY_ANALYZER_RESULT(Agamma, AGAMMA);
 #endif
-#if RKAIQ_HAVE_DEGAMMA_V1
+#endif
+#if RKAIQ_HAVE_DEGAMMA
     APPLY_ANALYZER_RESULT(Adegamma, ADEGAMMA);
 #endif
 #if RKAIQ_HAVE_WDR
@@ -894,6 +945,7 @@ RkAiqManager::applyAnalyzerResult(SmartPtr<RkAiqFullParamsProxy>& results, bool 
     // ispv21
 #if RKAIQ_HAVE_DRC
     APPLY_ANALYZER_RESULT(Drc, DRC);
+
 #endif
 #if RKAIQ_HAVE_YNR
     APPLY_ANALYZER_RESULT(Ynr, YNR);
@@ -902,7 +954,11 @@ RkAiqManager::applyAnalyzerResult(SmartPtr<RkAiqFullParamsProxy>& results, bool 
     APPLY_ANALYZER_RESULT(Cnr, UVNR);
 #endif
 #if RKAIQ_HAVE_SHARP
+#if USE_NEWSTRUCT
+    APPLY_ANALYZER_RESULT(Sharp, SHARPEN);
+#else
     APPLY_ANALYZER_RESULT(Sharpen, SHARPEN);
+#endif
 #endif
 #if RKAIQ_HAVE_BAYERNR || RKAIQ_HAVE_BAYER2DNR
     APPLY_ANALYZER_RESULT(Baynr, RAWNR);
@@ -915,12 +971,23 @@ RkAiqManager::applyAnalyzerResult(SmartPtr<RkAiqFullParamsProxy>& results, bool 
     APPLY_ANALYZER_RESULT(Cac, CAC);
 #endif
 #if RKAIQ_HAVE_BAYERTNR
+#if USE_NEWSTRUCT
+    APPLY_ANALYZER_RESULT(Btnr, TNR);
+#else
     APPLY_ANALYZER_RESULT(Tnr, TNR);
+#endif
 #endif
     // ispv32
 #if RKAIQ_HAVE_AFD
     APPLY_ANALYZER_RESULT(Afd, AFD);
 #endif
+#if RKAIQ_HAVE_YUVME
+    APPLY_ANALYZER_RESULT(Yuvme, MOTION);
+#endif
+#if RKAIQ_HAVE_RGBIR_REMOSAIC
+    APPLY_ANALYZER_RESULT(Rgbir, RGBIR);
+#endif
+
     mCamHw->applyAnalyzerResult(results_list);
 
     EXIT_XCORE_FUNCTION();
@@ -1085,35 +1152,9 @@ void RkAiqManager::setDefMirrorFlip()
     CalibDb_Sensor_ParaV2_t* sensor =
         (CalibDb_Sensor_ParaV2_t*)(CALIBDBV2_GET_MODULE_PTR(mCalibDbV2, sensor_calib));
 
-    if (mTbInfo.prd_type == RK_AIQ_PRD_TYPE_TB_DOORLOCK ||
-            mTbInfo.prd_type == RK_AIQ_PRD_TYPE_TB_BATIPC) {
-        XCamReturn ret = XCAM_RETURN_NO_ERROR;
-
-        ret = mCamHw->getSensorFlip(mCurMirror, mCurFlip);
-        if (ret == XCAM_RETURN_NO_ERROR) {
-            sensor->CISFlip = 0x0;
-            if (mCurMirror) {
-                sensor->CISFlip |= 0x1;
-            }
-            if (mCurFlip) {
-                sensor->CISFlip |= 0x2;
-            }
-
-            LOGI_ANALYZER("get mirror %d, flip %d from sensor driver", mCurMirror, mCurFlip);
-
-            // notify aiq sensor flip is changed
-            mRkAiqAnalyzer->setSensorFlip(mCurMirror, mCurFlip);
-            if (updateCalibDb(mCalibDbV2) < 0) {
-                LOGW_ANALYZER("Failed to updateCalibDb for update sensor mirror/flip");
-            }
-        } else {
-            LOGW_ANALYZER("Failed to get mirror/flip from sensor driver");
-        }
-    } else {
-        bool def_mirr = sensor->CISFlip & 0x1 ? true : false;
-        bool def_flip = sensor->CISFlip & 0x2 ? true : false;
-        setMirrorFlip(def_mirr, def_flip, 0);
-    }
+    bool def_mirr = sensor->CISFlip & 0x1 ? true : false;
+    bool def_flip = sensor->CISFlip & 0x2 ? true : false;
+    setMirrorFlip(def_mirr, def_flip, 0);
 }
 
 XCamReturn RkAiqManager::swWorkingModeDyn_msg(rk_aiq_working_mode_t mode) {

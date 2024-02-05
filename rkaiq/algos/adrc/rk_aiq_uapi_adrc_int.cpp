@@ -9,6 +9,9 @@
 #if RKAIQ_HAVE_DRC_V12 || RKAIQ_HAVE_DRC_V12_LITE
 #include "adrc/rk_aiq_adrc_algo_v12.h"
 #endif
+#if RKAIQ_HAVE_DRC_V20
+#include "adrc/rk_aiq_adrc_algo_v20.h"
+#endif
 
 #if RKAIQ_HAVE_DRC_V10
 XCamReturn rk_aiq_uapi_adrc_v10_SetAttrib(RkAiqAlgoContext* ctx, const drcAttrV10_t* attr,
@@ -155,6 +158,44 @@ XCamReturn rk_aiq_uapi_adrc_v12_lite_GetAttrib(RkAiqAlgoContext* ctx, drcAttrV12
     memcpy(&attr->stManual, &pAdrcCtx->drcAttrV12.stManual, sizeof(mdrcAttr_v12_lite_t));
     // drc info
     AdrcV12LiteParams2Api(pAdrcCtx, &attr->Info);
+
+    LOG1_ATMO("EXIT: %s \n", __func__);
+    return XCAM_RETURN_NO_ERROR;
+}
+#endif
+#if RKAIQ_HAVE_DRC_V20
+XCamReturn rk_aiq_uapi_adrc_v20_SetAttrib(RkAiqAlgoContext* ctx, const drcAttrV20_t* attr,
+                                          bool need_sync) {
+    LOG1_ATMO("ENTER: %s \n", __func__);
+    AdrcContext_t* pAdrcCtx = (AdrcContext_t*)(ctx);
+    XCamReturn ret          = XCAM_RETURN_NO_ERROR;
+
+    pAdrcCtx->drcAttrV20.opMode = attr->opMode;
+    if (attr->opMode == DRC_OPMODE_AUTO) {
+        memcpy(&pAdrcCtx->drcAttrV20.stAuto, &attr->stAuto, sizeof(CalibDbV2_drc_V20_t));
+        AdrcV20ClipStAutoParams(pAdrcCtx);
+        pAdrcCtx->ifReCalcStAuto = true;
+    }
+    if (attr->opMode == DRC_OPMODE_MANUAL) {
+        memcpy(&pAdrcCtx->drcAttrV20.stManual, &attr->stManual, sizeof(mdrcAttr_V20_t));
+        pAdrcCtx->ifReCalcStManual = true;
+    }
+
+    LOG1_ATMO("EXIT: %s \n", __func__);
+    return ret;
+}
+
+XCamReturn rk_aiq_uapi_adrc_v20_GetAttrib(RkAiqAlgoContext* ctx, drcAttrV20_t* attr) {
+    LOG1_ATMO("ENTER: %s \n", __func__);
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    AdrcContext_t* pAdrcCtx = (AdrcContext_t*)ctx;
+
+    attr->opMode = pAdrcCtx->drcAttrV20.opMode;
+    memcpy(&attr->stAuto, &pAdrcCtx->drcAttrV20.stAuto, sizeof(CalibDbV2_drc_V20_t));
+    memcpy(&attr->stManual, &pAdrcCtx->drcAttrV20.stManual, sizeof(mdrcAttr_V20_t));
+    // drc info
+    AdrcV20Params2Api(pAdrcCtx, &attr->Info);
 
     LOG1_ATMO("EXIT: %s \n", __func__);
     return XCAM_RETURN_NO_ERROR;

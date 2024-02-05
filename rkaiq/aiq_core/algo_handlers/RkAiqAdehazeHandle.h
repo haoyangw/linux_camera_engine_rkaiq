@@ -48,6 +48,10 @@ class RkAiqAdehazeHandleInt : virtual public RkAiqHandle {
     XCamReturn setSwAttribV12(const adehaze_sw_v12_t* att);
     XCamReturn getSwAttribV12(adehaze_sw_v12_t* att);
 #endif
+#if RKAIQ_HAVE_DEHAZE_V14
+    XCamReturn setSwAttribV14(const adehaze_sw_v14_t* att);
+    XCamReturn getSwAttribV14(adehaze_sw_v14_t* att);
+#endif
 
  protected:
     virtual void init();
@@ -67,6 +71,10 @@ class RkAiqAdehazeHandleInt : virtual public RkAiqHandle {
 #if RKAIQ_HAVE_DEHAZE_V12
     adehaze_sw_v12_t mCurAttV12;
     adehaze_sw_v12_t mNewAttV12;
+#endif
+#if RKAIQ_HAVE_DEHAZE_V14
+    adehaze_sw_v12_t mCurAttV14;
+    adehaze_sw_v12_t mNewAttV14;
 #endif
 #endif
 

@@ -105,6 +105,13 @@ typedef struct AdebayerContext_s {
     AdebayerSeletedParamV2Lite_t   select_param_v2_lite;//actually use params
 #endif
 
+#if RKAIQ_HAVE_DEBAYER_V3
+    AdebayerHwConfigV3_t config; //result params
+    CalibDbV2_Debayer_Tuning_V3_t full_param_v3; //json params
+    AdebayerSeletedParamV3_t   select_param_v3;//actually use params
+    int                  compr_bit;
+#endif
+
     int iso;
 } AdebayerContext_t;
 

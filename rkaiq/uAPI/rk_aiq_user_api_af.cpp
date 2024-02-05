@@ -75,7 +75,37 @@ rk_aiq_user_api_af_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_af_attrib_t
 
 #endif
 
-#if RKAIQ_HAVE_AF_V20 || RKAIQ_HAVE_AF_V30 || RKAIQ_HAVE_AF_V31 || RKAIQ_HAVE_AF_V32_LITE
+#if RKAIQ_HAVE_AF_V20 || RKAIQ_HAVE_AF_V30 || RKAIQ_HAVE_AF_V31 || RKAIQ_HAVE_AF_V32_LITE || RKAIQ_HAVE_AF_V33
+
+XCamReturn
+rk_aiq_user_api_af_SetCalib(const rk_aiq_sys_ctx_t* sys_ctx, void *calib)
+{
+    CHECK_USER_API_ENABLE2(sys_ctx);
+    CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_AF);
+    RKAIQ_API_SMART_LOCK(sys_ctx);
+    RkAiqAfHandleInt* algo_handle =
+        algoHandle<RkAiqAfHandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_AF);
+
+    if (algo_handle) {
+        return algo_handle->setCalib(calib);
+    }
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn
+rk_aiq_user_api_af_GetCalib(const rk_aiq_sys_ctx_t* sys_ctx, void *calib)
+{
+    RKAIQ_API_SMART_LOCK(sys_ctx);
+    RkAiqAfHandleInt* algo_handle =
+        algoHandle<RkAiqAfHandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_AF);
+
+    if (algo_handle) {
+        return algo_handle->getCalib(calib);
+    }
+
+    return XCAM_RETURN_NO_ERROR;
+}
 
 XCamReturn
 rk_aiq_user_api_af_Lock(const rk_aiq_sys_ctx_t* sys_ctx)
@@ -151,36 +181,8 @@ XCamReturn
 rk_aiq_user_api_af_SetZoomIndex(const rk_aiq_sys_ctx_t* sys_ctx, int index)
 {
     RKAIQ_API_SMART_LOCK(sys_ctx);
-    CamCalibDbV2Context_t calibdbv2_ctx =
-        RkAiqCalibDbV2::toDefaultCalibDb(sys_ctx->_calibDbProj);
     RkAiqAfHandleInt* algo_handle =
         algoHandle<RkAiqAfHandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_AF);
-    CalibDbV2_Af_ZoomFocusTbl_t *zoomfocus_tbl;
-    int focal_length_len;
-
-    if (CHECK_ISP_HW_V32()) {
-        CalibDbV2_AFV31_t *af_v31 =
-            (CalibDbV2_AFV31_t*)(CALIBDBV2_GET_MODULE_PTR((&calibdbv2_ctx), af_v31));
-        zoomfocus_tbl = (CalibDbV2_Af_ZoomFocusTbl_t*)(&af_v31->TuningPara.zoomfocus_tbl);
-    } else if (CHECK_ISP_HW_V30()) {
-        CalibDbV2_AFV30_t *af_v30 =
-            (CalibDbV2_AFV30_t*)(CALIBDBV2_GET_MODULE_PTR((&calibdbv2_ctx), af_v30));
-        zoomfocus_tbl = (CalibDbV2_Af_ZoomFocusTbl_t*)(&af_v30->TuningPara.zoomfocus_tbl);
-    } else if (CHECK_ISP_HW_V20() || CHECK_ISP_HW_V21()) {
-        CalibDbV2_AF_t *af =
-            (CalibDbV2_AF_t*)CALIBDBV2_GET_MODULE_PTR((&calibdbv2_ctx), af);
-        zoomfocus_tbl = (CalibDbV2_Af_ZoomFocusTbl_t*)(&af->TuningPara.zoomfocus_tbl);
-    } else {
-        CalibDbV2_AFV32_t *af_v32 =
-            (CalibDbV2_AFV32_t*)(CALIBDBV2_GET_MODULE_PTR((&calibdbv2_ctx), af_v32));
-        zoomfocus_tbl = (CalibDbV2_Af_ZoomFocusTbl_t*)(&af_v32->TuningPara.zoomfocus_tbl);
-    }
-    focal_length_len = zoomfocus_tbl->focal_length_len;
-
-    if (index < 0)
-        index = 0;
-    else if (index >= focal_length_len)
-        index = focal_length_len - 1;
 
     if (algo_handle) {
         return algo_handle->setZoomIndex(index);
@@ -297,37 +299,12 @@ rk_aiq_user_api_af_GetZoomRange(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_af_zoomr
 {
     RKAIQ_API_SMART_LOCK(sys_ctx);
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-    CamCalibDbV2Context_t calibdbv2_ctx =
-        RkAiqCalibDbV2::toDefaultCalibDb(sys_ctx->_calibDbProj);
-    CalibDbV2_Af_ZoomFocusTbl_t *zoomfocus_tbl;
-    int focal_length_len;
 
-    if (CHECK_ISP_HW_V32()) {
-        CalibDbV2_AFV31_t *af_v31 =
-            (CalibDbV2_AFV31_t*)(CALIBDBV2_GET_MODULE_PTR((&calibdbv2_ctx), af_v31));
-        zoomfocus_tbl = (CalibDbV2_Af_ZoomFocusTbl_t*)(&af_v31->TuningPara.zoomfocus_tbl);
-    } else if (CHECK_ISP_HW_V30()) {
-        CalibDbV2_AFV30_t *af_v30 =
-            (CalibDbV2_AFV30_t*)(CALIBDBV2_GET_MODULE_PTR((&calibdbv2_ctx), af_v30));
-        zoomfocus_tbl = (CalibDbV2_Af_ZoomFocusTbl_t*)(&af_v30->TuningPara.zoomfocus_tbl);
-    } else if (CHECK_ISP_HW_V20() || CHECK_ISP_HW_V21()) {
-        CalibDbV2_AF_t *af =
-            (CalibDbV2_AF_t*)CALIBDBV2_GET_MODULE_PTR((&calibdbv2_ctx), af);
-        zoomfocus_tbl = (CalibDbV2_Af_ZoomFocusTbl_t*)(&af->TuningPara.zoomfocus_tbl);
-    } else {
-        CalibDbV2_AFV32_t *af_v32 =
-            (CalibDbV2_AFV32_t*)(CALIBDBV2_GET_MODULE_PTR((&calibdbv2_ctx), af_v32));
-        zoomfocus_tbl = (CalibDbV2_Af_ZoomFocusTbl_t*)(&af_v32->TuningPara.zoomfocus_tbl);
-    }
-    focal_length_len = zoomfocus_tbl->focal_length_len;
+    RkAiqAfHandleInt* algo_handle =
+        algoHandle<RkAiqAfHandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_AF);
 
-    if (focal_length_len > 1) {
-        range->min_fl = zoomfocus_tbl->focal_length[0];
-        range->max_fl = zoomfocus_tbl->focal_length[focal_length_len - 1];
-        range->min_pos = 0;
-        range->max_pos = focal_length_len - 1;
-    } else {
-        ret = XCAM_RETURN_ERROR_FAILED;
+    if (algo_handle) {
+        return algo_handle->GetZoomRange(range);
     }
 
     return ret;
@@ -389,6 +366,18 @@ rk_aiq_user_api_af_setAngleZ(const rk_aiq_sys_ctx_t* sys_ctx, float angleZ)
 }
 
 #else
+
+XCamReturn
+rk_aiq_user_api_af_SetCalib(const rk_aiq_sys_ctx_t* sys_ctx, void *calib)
+{
+    return XCAM_RETURN_ERROR_UNKNOWN;
+}
+
+XCamReturn
+rk_aiq_user_api_af_GetCalib(const rk_aiq_sys_ctx_t* sys_ctx, void *calib)
+{
+    return XCAM_RETURN_ERROR_UNKNOWN;
+}
 
 XCamReturn
 rk_aiq_user_api_af_Lock(const rk_aiq_sys_ctx_t* sys_ctx)

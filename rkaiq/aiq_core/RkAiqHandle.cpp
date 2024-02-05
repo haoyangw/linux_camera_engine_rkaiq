@@ -44,6 +44,7 @@ RkAiqHandle::RkAiqHandle(RkAiqAlgoDesComm* des, RkAiqCore* aiqCore)
     mGroupId      = 0;
     mAlogsGroupSharedParams = NULL;
     mSyncFlag = (uint32_t)(-1);
+    mIsUpdateGrpAttr = false;
 }
 
 RkAiqHandle::~RkAiqHandle() {
@@ -69,11 +70,12 @@ XCamReturn RkAiqHandle::configInparamsCom(RkAiqAlgoCom* com, int type) {
         com->u.prepare.calib = (CamCalibDbContext_t*)(sharedCom->calib);
 #endif
         com->u.prepare.calibv2 = (CamCalibDbV2Context_t*)(sharedCom->calibv2);
+        com->u.prepare.compr_bit = sharedCom->snsDes.compr_bit;
     } else {
         com->ctx         = mAlgoCtx;
         com->frame_id    = shared->frameId;
         com->u.proc.init = sharedCom->init;
-        com->u.proc.iso = sharedCom->iso;
+        com->u.proc.iso = shared->iso;
         com->u.proc.fill_light_on = sharedCom->fill_light_on;
         com->u.proc.gray_mode = sharedCom->gray_mode;
         com->u.proc.is_bw_sensor = sharedCom->is_bw_sensor;

@@ -53,6 +53,11 @@ public:
     XCamReturn getAttribV2(adebayer_v2lite_attrib_t* att);
 #endif
 
+#if RKAIQ_HAVE_DEBAYER_V3
+    XCamReturn setAttribV3(adebayer_v3_attrib_t att);
+    XCamReturn getAttribV3(adebayer_v3_attrib_t* att);
+#endif
+
 protected:
     virtual void init();
     virtual void deInit() {
@@ -76,6 +81,13 @@ private:
     adebayer_v2lite_attrib_t mCurAttV2Lite;
     adebayer_v2lite_attrib_t mNewAttV2Lite;
 #endif
+
+#if RKAIQ_HAVE_DEBAYER_V3
+    adebayer_v3_attrib_t mCurAttV3;
+    adebayer_v3_attrib_t mNewAttV3;
+#endif
+
+
 #endif
 
 private:

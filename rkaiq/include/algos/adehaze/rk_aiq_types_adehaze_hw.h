@@ -30,6 +30,13 @@
 #define DHAZ_V12_ENHANCE_CRUVE_NUM DHAZ_V11_ENHANCE_CRUVE_NUM
 #define DHAZ_V12_HIST_WR_NUM       DHAZ_V11_HIST_WR_NUM
 #define DHAZ_V12_ENH_LUMA_NUM      17
+#define DHAZ_V14_ENHANCE_CRUVE_NUM DHAZ_V12_ENHANCE_CRUVE_NUM
+#define DHAZ_V14_ENH_LUMA_NUM      DHAZ_V12_ENH_LUMA_NUM
+#define DHAZ_V14_SIGMA_IDX_NUM     DHAZ_V11_SIGMA_IDX_NUM
+#define DHAZ_V14_SIGMA_LUT_NUM     DHAZ_V11_SIGMA_LUT_NUM
+#define DHAZ_V14_BLEND_WET_NUM     17
+#define DHAZ_V14_HIST_IIR_BLK_MAX  8 * 10
+#define DHAZ_V14_HIST_IIR_NUM      16
 
 typedef struct AdehazeV10ProcResult_s {
     int enhance_en;
@@ -250,6 +257,73 @@ typedef struct AdehazeV12ProcResult_s {
     unsigned short enh_luma[DHAZ_V12_ENH_LUMA_NUM];
 } AdehazeV12ProcResult_t;
 
+typedef struct AdehazeV14ProcResult_s {
+    unsigned char dc_en;
+    unsigned char hist_en;
+    unsigned char map_mode;
+    unsigned char mem_mode;
+    unsigned char mem_force;
+    unsigned char air_lc_en;
+    unsigned char enhance_en;
+    unsigned char soft_wr_en;
+    unsigned char round_en;
+    unsigned char color_deviate_en;
+    unsigned char enh_luma_en;
+    unsigned char dc_min_th;
+    unsigned char dc_max_th;
+    unsigned char yhist_th;
+    unsigned char yblk_th;
+    unsigned char bright_min;
+    unsigned char bright_max;
+    unsigned short wt_max;
+    unsigned char air_min;
+    unsigned char air_max;
+    unsigned char dark_th;
+    unsigned char tmax_base;
+    unsigned short tmax_off;
+    unsigned short tmax_max;
+    unsigned short enhance_chroma;
+    unsigned short enhance_value;
+    unsigned char stab_fnum;
+    unsigned char iir_sigma;
+    unsigned short iir_wt_sigma;
+    unsigned char iir_air_sigma;
+    unsigned short iir_tmax_sigma;
+    unsigned char iir_pre_wet;
+    unsigned char cfg_alpha;
+    unsigned char cfg_air;
+    unsigned short cfg_wt;
+    unsigned short cfg_tmax;
+    unsigned char space_sigma_cur;
+    unsigned char space_sigma_pre;
+    unsigned short range_sima;
+    unsigned short bf_weight;
+    unsigned short dc_weitcur;
+    unsigned short enh_curve[DHAZ_V14_ENHANCE_CRUVE_NUM];
+    unsigned char gaus_h0;
+    unsigned char gaus_h1;
+    unsigned char gaus_h2;
+    unsigned short enh_luma[DHAZ_V14_ENH_LUMA_NUM];
+    unsigned short adp_wt_wr;
+    unsigned char adp_air_wr;
+    unsigned short adp_tmax_wr;
+    unsigned char sigma_idx[DHAZ_V14_SIGMA_IDX_NUM];
+    unsigned short sigma_lut[DHAZ_V14_SIGMA_LUT_NUM];
+    unsigned short gain_fuse_alpha;
+    unsigned char hist_k;
+    unsigned char hist_th_off;
+    unsigned char hist_min;
+    unsigned short blk_het;
+    unsigned short blk_wid;
+    unsigned char thumb_row;
+    unsigned char thumb_col;
+    unsigned short cfg_k_alpha;
+    unsigned short cfg_k;
+    unsigned short k_gain;
+    unsigned short blend_wet[DHAZ_V14_BLEND_WET_NUM];
+    unsigned short hist_iir[DHAZ_V14_HIST_IIR_BLK_MAX][DHAZ_V14_HIST_IIR_NUM];
+} AdehazeV14ProcResult_t;
+
 typedef struct RkAiqAdehazeProcResult_s {
     bool enable;
 #if RKAIQ_HAVE_DEHAZE_V10
@@ -263,6 +337,9 @@ typedef struct RkAiqAdehazeProcResult_s {
 #endif
 #if RKAIQ_HAVE_DEHAZE_V12
     AdehazeV12ProcResult_t ProcResV12;
+#endif
+#if RKAIQ_HAVE_DEHAZE_V14
+    AdehazeV14ProcResult_t ProcResV14;
 #endif
 } RkAiqAdehazeProcResult_t;
 

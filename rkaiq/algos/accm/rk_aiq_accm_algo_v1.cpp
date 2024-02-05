@@ -235,10 +235,10 @@ XCamReturn AccmManualConfig
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
-    memcpy(hAccm->ccmHwConf.matrix, hAccm->mCurAtt.stManual.ccMatrix, sizeof(hAccm->mCurAtt.stManual.ccMatrix));
-    memcpy(hAccm->ccmHwConf.offs, hAccm->mCurAtt.stManual.ccOffsets, sizeof(hAccm->mCurAtt.stManual.ccOffsets));
-    memcpy(hAccm->ccmHwConf.alp_y, hAccm->mCurAtt.stManual.y_alpha_curve, sizeof(hAccm->mCurAtt.stManual.y_alpha_curve));
-    hAccm->ccmHwConf.bound_bit = hAccm->mCurAtt.stManual.low_bound_pos_bit;
+    memcpy(hAccm->ccmHwConf.matrix, hAccm->mCurAtt.stManual.Matrix.ccMatrix, sizeof(hAccm->mCurAtt.stManual.Matrix.ccMatrix));
+    memcpy(hAccm->ccmHwConf.offs, hAccm->mCurAtt.stManual.Matrix.ccOffsets, sizeof(hAccm->mCurAtt.stManual.Matrix.ccOffsets));
+    memcpy(hAccm->ccmHwConf.alp_y, hAccm->mCurAtt.stManual.YAlp.y_alpha_curve, sizeof(hAccm->mCurAtt.stManual.YAlp.y_alpha_curve));
+    hAccm->ccmHwConf.bound_bit = hAccm->mCurAtt.stManual.YAlp.low_bound_pos_bit;
     LOG1_ACCM("%s: (exit)\n", __FUNCTION__);
     return ret;
 
@@ -389,21 +389,21 @@ static XCamReturn ApiAttrInit(const rk_aiq_ccm_cfg_t*        ccmHwConf,
     }
     // StManual
     if (Calib->TuningPara.matrixAll_len > 0) {
-        memcpy(mCurAtt->stManual.ccMatrix, Calib->TuningPara.matrixAll[0].ccMatrix,
+        memcpy(mCurAtt->stManual.Matrix.ccMatrix, Calib->TuningPara.matrixAll[0].ccMatrix,
                sizeof(Calib->TuningPara.matrixAll[0].ccMatrix));
-        memcpy(mCurAtt->stManual.ccOffsets, Calib->TuningPara.matrixAll[0].ccOffsets,
+        memcpy(mCurAtt->stManual.Matrix.ccOffsets, Calib->TuningPara.matrixAll[0].ccOffsets,
                sizeof(Calib->TuningPara.matrixAll[0].ccOffsets));
     } else {
-        memset(mCurAtt->stManual.ccMatrix, 0, sizeof(mCurAtt->stManual.ccMatrix));
-        memset(mCurAtt->stManual.ccOffsets, 0, sizeof(mCurAtt->stManual.ccOffsets));
-        mCurAtt->stManual.ccMatrix[0] = 1.0;
-        mCurAtt->stManual.ccMatrix[4] = 1.0;
-        mCurAtt->stManual.ccMatrix[8] = 1.0;
+        memset(mCurAtt->stManual.Matrix.ccMatrix, 0, sizeof(mCurAtt->stManual.Matrix.ccMatrix));
+        memset(mCurAtt->stManual.Matrix.ccOffsets, 0, sizeof(mCurAtt->stManual.Matrix.ccOffsets));
+        mCurAtt->stManual.Matrix.ccMatrix[0] = 1.0;
+        mCurAtt->stManual.Matrix.ccMatrix[4] = 1.0;
+        mCurAtt->stManual.Matrix.ccMatrix[8] = 1.0;
     }
 
-    memcpy(mCurAtt->stManual.y_alpha_curve, ccmHwConf->alp_y,
+    memcpy(mCurAtt->stManual.YAlp.y_alpha_curve, ccmHwConf->alp_y,
            sizeof(ccmHwConf->alp_y));
-    mCurAtt->stManual.low_bound_pos_bit = ccmHwConf->bound_bit;
+    mCurAtt->stManual.YAlp.low_bound_pos_bit = ccmHwConf->bound_bit;
 
     LOGI_ACCM("%s: (exit)\n", __FUNCTION__);
     return (ret);

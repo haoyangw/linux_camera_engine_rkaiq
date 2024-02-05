@@ -17,6 +17,17 @@
 
 #include "sample_comm.h"
 
+#ifdef USE_NEWSTRUCT
+#ifdef ISP_HW_V39
+#include "rk_aiq_user_api2_rk3576.h"
+#elif  defined(ISP_HW_V32)
+#include "rk_aiq_user_api2_rv1106.h"
+#endif
+#endif
+
+#include "uAPI2/rk_aiq_user_api2_helper.h"
+#include <string>
+
 static void sample_ablc_usage()
 {
     printf("Usage : \n");
@@ -277,6 +288,100 @@ XCamReturn sample_ablc_setDefault_v32(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_m
 
 }
 
+#if USE_NEWSTRUCT
+static void sample_blc_tuningtool_test(const rk_aiq_sys_ctx_t* ctx)
+{
+    char *ret_str = NULL;
+
+    printf(">>> start tuning tool test: op attrib get ...\n");
+
+    std::string json_blc_status_str = " \n\
+        [{ \n\
+            \"op\":\"get\", \n\
+            \"path\": \"/uapi/0/blc_uapi/info\", \n\
+            \"value\": \n\
+            { \"opMode\": \"RK_AIQ_OP_MODE_MANUAL\", \"en\": 0,\"bypass\": 3} \n\
+        }]";
+
+    rkaiq_uapi_unified_ctl(const_cast<rk_aiq_sys_ctx_t*>(ctx),
+                           const_cast<char*>(json_blc_status_str.c_str()), &ret_str, RKAIQUAPI_OPMODE_GET);
+
+    if (ret_str) {
+        printf("blc status json str: %s\n", ret_str);
+    }
+
+    printf("  start tuning tool test: op attrib set ...\n");
+    std::string json_blc_str = " \n\
+        [{ \n\
+            \"op\":\"replace\", \n\
+            \"path\": \"/uapi/0/blc_uapi/attr\", \n\
+            \"value\": \n\
+            { \"opMode\": \"RK_AIQ_OP_MODE_MANUAL\", \"en\": 1,\"bypass\": 1} \n\
+        }]";
+    printf("blc json_cmd_str: %s\n", json_blc_str.c_str());
+    ret_str = NULL;
+    rkaiq_uapi_unified_ctl(const_cast<rk_aiq_sys_ctx_t*>(ctx),
+                           const_cast<char*>(json_blc_str.c_str()), &ret_str, RKAIQUAPI_OPMODE_SET);
+
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    blc_status_t status;
+    memset(&status, 0, sizeof(blc_status_t));
+
+    rk_aiq_user_api2_blc_QueryStatus(ctx, &status);
+
+    if (status.opMode != RK_AIQ_OP_MODE_MANUAL || status.en != 1 || status.bypass != 1) {
+        printf("blc op set_attrib failed !\n");
+        printf("blc status: opmode:%d(EXP:%d), en:%d(EXP:%d), bypass:%d(EXP:%d)\n",
+               status.opMode, RK_AIQ_OP_MODE_MANUAL, status.en, 1, status.bypass, 1);
+    } else {
+        printf("blc op set_attrib success !\n");
+    }
+
+    printf(">>> tuning tool test done \n");
+}
+
+void sample_new_blc(const rk_aiq_sys_ctx_t* ctx) {
+    // get cur mode
+    printf("+++++++ BLC module test start ++++++++\n");
+
+    sample_blc_tuningtool_test(ctx);
+
+    blc_api_attrib_t attr;
+    memset(&attr, 0, sizeof(attr));
+
+    rk_aiq_user_api2_blc_GetAttrib(ctx, &attr);
+
+    printf("blc attr: opmode:%d, en:%d, bypass:%d\n", attr.opMode, attr.en, attr.bypass);
+
+    if (attr.opMode == RK_AIQ_OP_MODE_AUTO)
+        attr.opMode = RK_AIQ_OP_MODE_MANUAL;
+    else
+        attr.opMode = RK_AIQ_OP_MODE_AUTO;
+
+    // reverse en
+    attr.en = !attr.en;
+
+    rk_aiq_user_api2_blc_SetAttrib(ctx, &attr);
+
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    blc_status_t status;
+    rk_aiq_user_api2_blc_QueryStatus(ctx, &status);
+
+    printf("blc status: opmode:%d, en:%d, bypass:%d\n", status.opMode, status.en, status.bypass);
+
+    if (status.opMode != attr.opMode || status.en != attr.en)
+        printf("blc arrib api test failed\n");
+    else
+        printf("blc arrib api test success\n");
+
+    printf("-------- BLC module test done --------\n");
+
+}
+#endif
 
 XCamReturn sample_ablc_module (const void *arg)
 {
@@ -305,7 +410,7 @@ XCamReturn sample_ablc_module (const void *arg)
     }
 
     rk_aiq_blc_attrib_V32_t default_blc_attr_v32;
-    if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+    if (CHECK_ISP_HW_V39() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
         memset(&default_blc_attr_v32, 0x00, sizeof(default_blc_attr_v32));//important, need init first
         rk_aiq_user_api2_ablcV32_GetAttrib(ctx, &default_blc_attr_v32);
     }
@@ -323,7 +428,7 @@ XCamReturn sample_ablc_module (const void *arg)
             if (CHECK_ISP_HW_V30()) {
                 sample_ablc_getAttr(ctx, RK_AIQ_UAPI_MODE_SYNC);
             }
-            if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+            if (CHECK_ISP_HW_V39() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ablc_getAttr_v32(ctx, RK_AIQ_UAPI_MODE_SYNC);
             }
             break;
@@ -331,7 +436,7 @@ XCamReturn sample_ablc_module (const void *arg)
             if (CHECK_ISP_HW_V30()) {
                 sample_ablc_setAuto(ctx, RK_AIQ_UAPI_MODE_SYNC);
             }
-            if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+            if (CHECK_ISP_HW_V39() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ablc_setAuto_v32(ctx, RK_AIQ_UAPI_MODE_SYNC);
             }
             break;
@@ -339,7 +444,7 @@ XCamReturn sample_ablc_module (const void *arg)
             if (CHECK_ISP_HW_V30()) {
                 sample_ablc_setManual(ctx, RK_AIQ_UAPI_MODE_SYNC);
             }
-            if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+            if (CHECK_ISP_HW_V39() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ablc_setManual_v32(ctx, RK_AIQ_UAPI_MODE_SYNC);
             }
             break;
@@ -347,7 +452,7 @@ XCamReturn sample_ablc_module (const void *arg)
             if (CHECK_ISP_HW_V30()) {
                 sample_ablc_setDefault(ctx, RK_AIQ_UAPI_MODE_SYNC, default_blc_attr);
             }
-            if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+            if (CHECK_ISP_HW_V39() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ablc_setDefault_v32(ctx, RK_AIQ_UAPI_MODE_SYNC, default_blc_attr_v32);
             }
             break;
@@ -355,7 +460,7 @@ XCamReturn sample_ablc_module (const void *arg)
             if (CHECK_ISP_HW_V30()) {
                 sample_ablc_getAttr(ctx, RK_AIQ_UAPI_MODE_ASYNC);
             }
-            if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+            if (CHECK_ISP_HW_V39() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ablc_getAttr_v32(ctx, RK_AIQ_UAPI_MODE_ASYNC);
             }
             break;
@@ -363,7 +468,7 @@ XCamReturn sample_ablc_module (const void *arg)
             if (CHECK_ISP_HW_V30()) {
                 sample_ablc_setAuto(ctx, RK_AIQ_UAPI_MODE_ASYNC);
             }
-            if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+            if (CHECK_ISP_HW_V39() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ablc_setAuto_v32(ctx, RK_AIQ_UAPI_MODE_ASYNC);
             }
             break;
@@ -371,7 +476,7 @@ XCamReturn sample_ablc_module (const void *arg)
             if (CHECK_ISP_HW_V30()) {
                 sample_ablc_setManual(ctx, RK_AIQ_UAPI_MODE_ASYNC);
             }
-            if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+            if (CHECK_ISP_HW_V39() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ablc_setManual_v32(ctx, RK_AIQ_UAPI_MODE_ASYNC);
             }
             break;
@@ -379,10 +484,15 @@ XCamReturn sample_ablc_module (const void *arg)
             if (CHECK_ISP_HW_V30()) {
                 sample_ablc_setDefault(ctx, RK_AIQ_UAPI_MODE_ASYNC, default_blc_attr);
             }
-            if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+            if (CHECK_ISP_HW_V39() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ablc_setDefault_v32(ctx, RK_AIQ_UAPI_MODE_ASYNC, default_blc_attr_v32);
             }
             break;
+#if USE_NEWSTRUCT
+        case '8':
+            sample_new_blc(ctx);
+            break;
+#endif
         default:
             printf("not support test\n\n");
             break;

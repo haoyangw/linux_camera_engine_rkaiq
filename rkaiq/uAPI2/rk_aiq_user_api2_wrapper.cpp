@@ -367,7 +367,7 @@ XCamReturn rk_aiq_get_adrc_v12_manual_attr(const rk_aiq_sys_ctx_t* sys_ctx,
 #endif
 #if RKAIQ_HAVE_DRC_V12_LITE
 XCamReturn rk_aiq_user_api2_adrc_v12_lite_queryinfo(const rk_aiq_sys_ctx_t* sys_ctx,
-                                                    DrcInfoV12Lite_t* drc_info) {
+        DrcInfoV12Lite_t* drc_info) {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
     drcAttrV12Lite_t drc_attr_v12_lite;
@@ -378,7 +378,7 @@ XCamReturn rk_aiq_user_api2_adrc_v12_lite_queryinfo(const rk_aiq_sys_ctx_t* sys_
 }
 
 XCamReturn rk_aiq_set_adrc_v12_lite_manual_attr(const rk_aiq_sys_ctx_t* sys_ctx,
-                                                mdrcAttr_v12_lite_t* manual) {
+        mdrcAttr_v12_lite_t* manual) {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
     drcAttrV12Lite_t drc_attr_v12_lite;
@@ -389,12 +389,46 @@ XCamReturn rk_aiq_set_adrc_v12_lite_manual_attr(const rk_aiq_sys_ctx_t* sys_ctx,
     return ret;
 }
 XCamReturn rk_aiq_get_adrc_v12_lite_manual_attr(const rk_aiq_sys_ctx_t* sys_ctx,
-                                                mdrcAttr_v12_lite_t* manual) {
+        mdrcAttr_v12_lite_t* manual) {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
     drcAttrV12Lite_t drc_attr_v12_lite;
     ret     = rk_aiq_user_api2_adrc_v12_lite_GetAttrib(sys_ctx, &drc_attr_v12_lite);
     *manual = drc_attr_v12_lite.stManual;
+
+    return ret;
+}
+#endif
+#if RKAIQ_HAVE_DRC_V20
+XCamReturn rk_aiq_user_api2_adrc_v20_queryinfo(const rk_aiq_sys_ctx_t* sys_ctx,
+        DrcInfoV20_t* drc_info) {
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    drcAttrV20_t drc_attr_v20;
+    ret       = rk_aiq_user_api2_adrc_v20_GetAttrib(sys_ctx, &drc_attr_v20);
+    *drc_info = drc_attr_v20.Info;
+
+    return ret;
+}
+
+XCamReturn rk_aiq_set_adrc_v20_manual_attr(const rk_aiq_sys_ctx_t* sys_ctx,
+        mdrcAttr_V20_t* manual) {
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    drcAttrV20_t drc_attr_v20;
+    ret                   = rk_aiq_user_api2_adrc_v20_GetAttrib(sys_ctx, &drc_attr_v20);
+    drc_attr_v20.stManual = *manual;
+    ret                   = rk_aiq_user_api2_adrc_v20_SetAttrib(sys_ctx, &drc_attr_v20);
+
+    return ret;
+}
+XCamReturn rk_aiq_get_adrc_v20_manual_attr(const rk_aiq_sys_ctx_t* sys_ctx,
+        mdrcAttr_V20_t* manual) {
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    drcAttrV20_t drc_attr_v20;
+    ret     = rk_aiq_user_api2_adrc_v20_GetAttrib(sys_ctx, &drc_attr_v20);
+    *manual = drc_attr_v20.stManual;
 
     return ret;
 }
@@ -511,6 +545,40 @@ XCamReturn rk_aiq_get_adehaze_v12_manual_attr(const rk_aiq_sys_ctx_t* sys_ctx,
     adehaze_sw_v12_t dehaze_attr_v12;
     ret     = rk_aiq_user_api2_adehaze_v12_getSwAttrib(sys_ctx, &dehaze_attr_v12);
     *manual = dehaze_attr_v12.stManual;
+
+    return ret;
+}
+#endif
+#if RKAIQ_HAVE_DEHAZE_V14
+XCamReturn rk_aiq_user_api2_adehaze_v14_queryinfo(const rk_aiq_sys_ctx_t* sys_ctx,
+        mDehazeAttrInfoV11_t* dehaze_info) {
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    adehaze_sw_v14_t dehaze_attr_v14;
+    ret          = rk_aiq_user_api2_adehaze_v14_getSwAttrib(sys_ctx, &dehaze_attr_v14);
+    *dehaze_info = dehaze_attr_v14.Info;
+
+    return ret;
+}
+
+XCamReturn rk_aiq_set_adehaze_v14_manual_attr(const rk_aiq_sys_ctx_t* sys_ctx,
+        mDehazeAttrV14_t* manual) {
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    adehaze_sw_v14_t dehaze_attr_v14;
+    ret                      = rk_aiq_user_api2_adehaze_v14_getSwAttrib(sys_ctx, &dehaze_attr_v14);
+    dehaze_attr_v14.stManual = *manual;
+    ret                      = rk_aiq_user_api2_adehaze_v14_setSwAttrib(sys_ctx, &dehaze_attr_v14);
+
+    return ret;
+}
+XCamReturn rk_aiq_get_adehaze_v14_manual_attr(const rk_aiq_sys_ctx_t* sys_ctx,
+        mDehazeAttrV14_t* manual) {
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    adehaze_sw_v14_t dehaze_attr_v14;
+    ret     = rk_aiq_user_api2_adehaze_v14_getSwAttrib(sys_ctx, &dehaze_attr_v14);
+    *manual = dehaze_attr_v14.stManual;
 
     return ret;
 }
@@ -707,7 +775,7 @@ XCamReturn rk_aiq_get_current_camindex(const rk_aiq_sys_ctx_t *sys_ctx,
 XCamReturn rk_aiq_set_ablc_manual_attr(const rk_aiq_sys_ctx_t *sys_ctx, ablc_uapi_manual_t *manual) {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
+#if defined(ISP_HW_V39) || defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
     rk_aiq_blc_attrib_V32_t blc_attr_v32;
     memset(&blc_attr_v32, 0, sizeof(rk_aiq_blc_attrib_V32_t));
     if (manual->AblcOPMode == RK_AIQ_OP_MODE_AUTO)
@@ -752,7 +820,7 @@ XCamReturn rk_aiq_set_ablc_manual_attr(const rk_aiq_sys_ctx_t *sys_ctx, ablc_uap
 
 XCamReturn rk_aiq_get_ablc_manual_attr(const rk_aiq_sys_ctx_t *sys_ctx, ablc_uapi_manual_t* manual) {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
+#if defined(ISP_HW_V39) || defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
     rk_aiq_blc_attrib_V32_t blc_attr_v32;
     memset(&blc_attr_v32, 0, sizeof(rk_aiq_blc_attrib_V32_t));
     ret = rk_aiq_user_api2_ablcV32_GetAttrib(sys_ctx, &blc_attr_v32);
@@ -761,7 +829,7 @@ XCamReturn rk_aiq_get_ablc_manual_attr(const rk_aiq_sys_ctx_t *sys_ctx, ablc_uap
         manual->AblcOPMode = RK_AIQ_OP_MODE_AUTO;
     else if (blc_attr_v32.eMode == ABLC_V32_OP_MODE_OFF)
         manual->AblcOPMode = RK_AIQ_OP_MODE_MANUAL;
-    else if (blc_attr_v32.eMode ==ABLC_V32_OP_MODE_MANUAL)
+    else if (blc_attr_v32.eMode == ABLC_V32_OP_MODE_MANUAL)
         manual->AblcOPMode = RK_AIQ_OP_MODE_MANUAL;
     else if (blc_attr_v32.eMode == ABLC_V32_OP_MODE_MAX)
         manual->AblcOPMode = RK_AIQ_OP_MODE_MAX;
@@ -798,7 +866,26 @@ XCamReturn rk_aiq_set_asharp_manual_attr(const rk_aiq_sys_ctx_t *sys_ctx,
         asharp_uapi_manual_t *manual) {
     XCamReturn res = XCAM_RETURN_NO_ERROR;
 
-#if defined(ISP_HW_V32)
+#if defined(ISP_HW_V39)
+    rk_aiq_sharp_attrib_v34_t sharp_attr_v34;
+    memset(&sharp_attr_v34, 0, sizeof(rk_aiq_sharp_attrib_v34_t));
+    rk_aiq_user_api2_asharpV34_GetAttrib(sys_ctx, &sharp_attr_v34);
+    memcpy(&sharp_attr_v34.stManual.stSelect, &manual->manual_v34, sizeof(RK_SHARP_Params_V34_Select_t));
+
+    if (manual->AsharpOpMode == RK_AIQ_OP_MODE_AUTO)
+        sharp_attr_v34.eMode = ASHARP_V34_OP_MODE_AUTO;
+    else if(manual->AsharpOpMode == RK_AIQ_OP_MODE_MANUAL)
+        sharp_attr_v34.eMode = ASHARP_V34_OP_MODE_MANUAL;
+    else if(manual->AsharpOpMode == RK_AIQ_OP_MODE_INVALID)
+        sharp_attr_v34.eMode = ASHARP_V34_OP_MODE_INVALID;
+    else if(manual->AsharpOpMode == RK_AIQ_OP_MODE_MAX)
+        sharp_attr_v34.eMode = ASHARP_V34_OP_MODE_MAX;
+    else
+        sharp_attr_v34.eMode = ASHARP_V34_OP_MODE_AUTO;
+
+    res = rk_aiq_user_api2_asharpV34_SetAttrib(sys_ctx, &sharp_attr_v34);
+
+#elif defined(ISP_HW_V32)
     rk_aiq_sharp_attrib_v33_t sharp_attr_v33;
     memset(&sharp_attr_v33, 0, sizeof(rk_aiq_sharp_attrib_v33_t));
     rk_aiq_user_api2_asharpV33_GetAttrib(sys_ctx, &sharp_attr_v33);
@@ -860,7 +947,24 @@ XCamReturn rk_aiq_set_asharp_manual_attr(const rk_aiq_sys_ctx_t *sys_ctx,
 
 XCamReturn rk_aiq_get_asharp_manual_attr(const rk_aiq_sys_ctx_t *sys_ctx,
         asharp_uapi_manual_t *manual) {
-#if defined(ISP_HW_V32)
+#if defined(ISP_HW_V39)
+    rk_aiq_sharp_attrib_v34_t sharp_attr_v34;
+    memset(&sharp_attr_v34, 0, sizeof(rk_aiq_sharp_attrib_v34_t));
+    rk_aiq_user_api2_asharpV34_GetAttrib(sys_ctx, &sharp_attr_v34);
+    memcpy(&manual->manual_v34, &sharp_attr_v34.stManual.stSelect, sizeof(RK_SHARP_Params_V34_Select_t));
+
+    if (sharp_attr_v34.eMode == ASHARP_V34_OP_MODE_AUTO)
+        manual->AsharpOpMode = RK_AIQ_OP_MODE_AUTO;
+    else if(sharp_attr_v34.eMode == ASHARP_V34_OP_MODE_MANUAL)
+        manual->AsharpOpMode = RK_AIQ_OP_MODE_MANUAL;
+    else if(sharp_attr_v34.eMode == ASHARP_V34_OP_MODE_INVALID )
+        manual->AsharpOpMode = RK_AIQ_OP_MODE_INVALID;
+    else if(sharp_attr_v34.eMode == ASHARP_V34_OP_MODE_MAX)
+        manual->AsharpOpMode = RK_AIQ_OP_MODE_MAX;
+    else
+        manual->AsharpOpMode = RK_AIQ_OP_MODE_AUTO;
+
+#elif defined(ISP_HW_V32)
     rk_aiq_sharp_attrib_v33_t sharp_attr_v33;
     memset(&sharp_attr_v33, 0, sizeof(rk_aiq_sharp_attrib_v33_t));
     rk_aiq_user_api2_asharpV33_GetAttrib(sys_ctx, &sharp_attr_v33);
@@ -919,7 +1023,7 @@ rk_aiq_set_abayer2dnr_manual_attr(const rk_aiq_sys_ctx_t *sys_ctx,
                                   abayer2dnr_uapi_manual_t *manual) {
     XCamReturn res = XCAM_RETURN_NO_ERROR;
 
-#if defined(ISP_HW_V32)
+#if  defined(ISP_HW_V32)
     rk_aiq_bayer2dnr_attrib_v23_t abayer2dnr_attr_v23;
 
     memset(&abayer2dnr_attr_v23, 0, sizeof(rk_aiq_bayer2dnr_attrib_v23_t));
@@ -1012,6 +1116,28 @@ rk_aiq_set_abayertnr_manual_attr(const rk_aiq_sys_ctx_t *sys_ctx,
                                  abayertnr_uapi_manual_t *manual) {
     XCamReturn res = XCAM_RETURN_NO_ERROR;
 
+#if defined(ISP_HW_V39)
+    rk_aiq_bayertnr_attrib_v30_t abayertnr_attr_v30;
+    memset(&abayertnr_attr_v30, 0, sizeof(rk_aiq_bayertnr_attrib_v30_t));
+    rk_aiq_user_api2_abayertnrV30_GetAttrib(sys_ctx, &abayertnr_attr_v30);
+    memcpy(&abayertnr_attr_v30.stManual.st3DSelect, &manual->manual_v30,
+           sizeof(RK_Bayertnr_Params_V30_Select_t));
+
+    if (manual->AbayertnrOpMode == RK_AIQ_OP_MODE_AUTO)
+        abayertnr_attr_v30.eMode = ABAYERTNRV30_OP_MODE_AUTO;
+    else if(manual->AbayertnrOpMode == RK_AIQ_OP_MODE_MANUAL)
+        abayertnr_attr_v30.eMode = ABAYERTNRV30_OP_MODE_MANUAL;
+    else if(manual->AbayertnrOpMode == RK_AIQ_OP_MODE_INVALID)
+        abayertnr_attr_v30.eMode = ABAYERTNRV30_OP_MODE_INVALID;
+    else if(manual->AbayertnrOpMode == RK_AIQ_OP_MODE_MAX)
+        abayertnr_attr_v30.eMode = ABAYERTNRV30_OP_MODE_MAX;
+    else
+        abayertnr_attr_v30.eMode = ABAYERTNRV30_OP_MODE_AUTO;
+
+    res = rk_aiq_user_api2_abayertnrV30_SetAttrib(sys_ctx, &abayertnr_attr_v30);
+
+#endif
+
 #if defined(ISP_HW_V32)
     rk_aiq_bayertnr_attrib_v23_t abayertnr_attr_v23;
     memset(&abayertnr_attr_v23, 0, sizeof(rk_aiq_bayertnr_attrib_v23_t));
@@ -1083,7 +1209,26 @@ XCamReturn
 rk_aiq_get_abayertnr_manual_attr(const rk_aiq_sys_ctx_t *sys_ctx,
                                  abayertnr_uapi_manual_t *manual) {
 
-#if defined(ISP_HW_V32)
+#if defined(ISP_HW_V39)
+    rk_aiq_bayertnr_attrib_v30_t abayertnr_attr;
+    memset(&abayertnr_attr, 0, sizeof(rk_aiq_bayertnr_attrib_v30_t));
+    rk_aiq_user_api2_abayertnrV30_GetAttrib(sys_ctx, &abayertnr_attr);
+    memcpy(&manual->manual_v30, &abayertnr_attr.stManual.st3DSelect,
+           sizeof(RK_Bayertnr_Params_V30_Select_t));
+
+    if (abayertnr_attr.eMode == ABAYERTNRV30_OP_MODE_AUTO)
+        manual->AbayertnrOpMode = RK_AIQ_OP_MODE_AUTO;
+    else if(abayertnr_attr.eMode == ABAYERTNRV30_OP_MODE_MANUAL)
+        manual->AbayertnrOpMode = RK_AIQ_OP_MODE_MANUAL;
+    else if(abayertnr_attr.eMode == ABAYERTNRV30_OP_MODE_INVALID )
+        manual->AbayertnrOpMode = RK_AIQ_OP_MODE_INVALID;
+    else if(abayertnr_attr.eMode == ABAYERTNRV30_OP_MODE_MAX)
+        manual->AbayertnrOpMode = RK_AIQ_OP_MODE_MAX;
+    else
+        manual->AbayertnrOpMode = RK_AIQ_OP_MODE_AUTO;
+
+
+#elif defined(ISP_HW_V32)
     rk_aiq_bayertnr_attrib_v23_t abayertnr_attr;
     memset(&abayertnr_attr, 0, sizeof(rk_aiq_bayertnr_attrib_v23_t));
     rk_aiq_user_api2_abayertnrV23_GetAttrib(sys_ctx, &abayertnr_attr);
@@ -1144,7 +1289,23 @@ XCamReturn rk_aiq_set_aynr_manual_attr(const rk_aiq_sys_ctx_t *sys_ctx,
                                        aynr_uapi_manual_t *manual) {
     XCamReturn res = XCAM_RETURN_NO_ERROR;
 
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
+#if defined(ISP_HW_V39)
+    rk_aiq_ynr_attrib_v24_t aynr_attr_v24;
+    memset(&aynr_attr_v24, 0, sizeof(rk_aiq_ynr_attrib_v24_t));
+    rk_aiq_user_api2_aynrV24_GetAttrib(sys_ctx, &aynr_attr_v24);
+    memcpy(&aynr_attr_v24.stManual.stSelect, &manual->manual_v24, sizeof(RK_YNR_Params_V24_Select_t));
+
+    if (manual->AynrOpMode == RK_AIQ_OP_MODE_AUTO)
+        aynr_attr_v24.eMode = AYNRV24_OP_MODE_AUTO;
+    else if(manual->AynrOpMode == RK_AIQ_OP_MODE_MANUAL)
+        aynr_attr_v24.eMode = AYNRV24_OP_MODE_MANUAL;
+    else if(manual->AynrOpMode == RK_AIQ_OP_MODE_INVALID)
+        aynr_attr_v24.eMode = AYNRV24_OP_MODE_INVALID;
+    else if(manual->AynrOpMode == RK_AIQ_OP_MODE_MAX)
+        aynr_attr_v24.eMode = AYNRV24_OP_MODE_MAX;
+
+    res = rk_aiq_user_api2_aynrV24_SetAttrib(sys_ctx, &aynr_attr_v24);
+#elif defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
     rk_aiq_ynr_attrib_v22_t aynr_attr_v22;
     memset(&aynr_attr_v22, 0, sizeof(rk_aiq_ynr_attrib_v22_t));
     rk_aiq_user_api2_aynrV22_GetAttrib(sys_ctx, &aynr_attr_v22);
@@ -1183,7 +1344,24 @@ XCamReturn rk_aiq_set_aynr_manual_attr(const rk_aiq_sys_ctx_t *sys_ctx,
 
 XCamReturn rk_aiq_get_aynr_manual_attr(const rk_aiq_sys_ctx_t *sys_ctx,
                                        aynr_uapi_manual_t *manual) {
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
+#if defined(ISP_HW_V39)
+    rk_aiq_ynr_attrib_v24_t aynr_attr_v24;
+    memset(&aynr_attr_v24, 0, sizeof(rk_aiq_ynr_attrib_v24_t));
+    rk_aiq_user_api2_aynrV24_GetAttrib(sys_ctx, &aynr_attr_v24);
+    memcpy(&manual->manual_v24, &aynr_attr_v24.stManual.stSelect, sizeof(RK_YNR_Params_V24_Select_t));
+
+    if (aynr_attr_v24.eMode == AYNRV24_OP_MODE_AUTO)
+        manual->AynrOpMode = RK_AIQ_OP_MODE_AUTO;
+    else if(aynr_attr_v24.eMode == AYNRV24_OP_MODE_MANUAL)
+        manual->AynrOpMode = RK_AIQ_OP_MODE_MANUAL;
+    else if(aynr_attr_v24.eMode == AYNRV24_OP_MODE_INVALID )
+        manual->AynrOpMode = RK_AIQ_OP_MODE_INVALID;
+    else if(aynr_attr_v24.eMode == AYNRV24_OP_MODE_MAX)
+        manual->AynrOpMode = RK_AIQ_OP_MODE_MAX;
+    else
+        manual->AynrOpMode = RK_AIQ_OP_MODE_AUTO;
+
+#elif defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
     rk_aiq_ynr_attrib_v22_t aynr_attr_v22;
 
     memset(&aynr_attr_v22, 0, sizeof(rk_aiq_ynr_attrib_v22_t));
@@ -1226,7 +1404,27 @@ XCamReturn rk_aiq_set_acnr_manual_attr(const rk_aiq_sys_ctx_t *sys_ctx,
                                        acnr_uapi_manual_t *manual) {
     XCamReturn res = XCAM_RETURN_NO_ERROR;
 
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
+#if defined(ISP_HW_V39)
+    rk_aiq_cnr_attrib_v31_t acnr_attr_v31;
+
+    memset(&acnr_attr_v31, 0, sizeof(rk_aiq_cnr_attrib_v31_t));
+    rk_aiq_user_api2_acnrV31_GetAttrib(sys_ctx, &acnr_attr_v31);
+    memcpy(&acnr_attr_v31.stManual.stSelect, &manual->manual_v31, sizeof(RK_CNR_Params_V31_Select_t));
+
+    if (manual->AcnrOpMode == RK_AIQ_OP_MODE_AUTO)
+        acnr_attr_v31.eMode = ACNRV31_OP_MODE_AUTO;
+    else if(manual->AcnrOpMode == RK_AIQ_OP_MODE_MANUAL)
+        acnr_attr_v31.eMode = ACNRV31_OP_MODE_MANUAL;
+    else if(manual->AcnrOpMode == RK_AIQ_OP_MODE_INVALID)
+        acnr_attr_v31.eMode = ACNRV31_OP_MODE_INVALID;
+    else if(manual->AcnrOpMode == RK_AIQ_OP_MODE_MAX)
+        acnr_attr_v31.eMode = ACNRV31_OP_MODE_MAX;
+    else
+        acnr_attr_v31.eMode = ACNRV31_OP_MODE_AUTO;
+
+    res = rk_aiq_user_api2_acnrV31_SetAttrib(sys_ctx, &acnr_attr_v31);
+
+#elif defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
     rk_aiq_cnr_attrib_v30_t acnr_attr_v30;
 
     memset(&acnr_attr_v30, 0, sizeof(rk_aiq_cnr_attrib_v30_t));
@@ -1271,7 +1469,24 @@ XCamReturn rk_aiq_set_acnr_manual_attr(const rk_aiq_sys_ctx_t *sys_ctx,
 
 XCamReturn rk_aiq_get_acnr_manual_attr(const rk_aiq_sys_ctx_t *sys_ctx,
                                        acnr_uapi_manual_t *manual) {
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
+#if defined(ISP_HW_V39)
+    rk_aiq_cnr_attrib_v31_t acnr_attr_v31;
+    memset(&acnr_attr_v31, 0, sizeof(rk_aiq_cnr_attrib_v31_t));
+    rk_aiq_user_api2_acnrV31_GetAttrib(sys_ctx, &acnr_attr_v31);
+    memcpy(&manual->manual_v31, &acnr_attr_v31.stManual.stSelect, sizeof(RK_CNR_Params_V31_Select_t));
+
+    if (acnr_attr_v31.eMode == ACNRV31_OP_MODE_AUTO)
+        manual->AcnrOpMode = RK_AIQ_OP_MODE_AUTO;
+    else if(acnr_attr_v31.eMode == ACNRV31_OP_MODE_MANUAL)
+        manual->AcnrOpMode = RK_AIQ_OP_MODE_MANUAL;
+    else if(acnr_attr_v31.eMode == ACNRV31_OP_MODE_INVALID )
+        manual->AcnrOpMode = RK_AIQ_OP_MODE_INVALID;
+    else if(acnr_attr_v31.eMode == ACNRV31_OP_MODE_MAX)
+        manual->AcnrOpMode = RK_AIQ_OP_MODE_MAX;
+    else
+        manual->AcnrOpMode = RK_AIQ_OP_MODE_AUTO;
+
+#elif defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
     rk_aiq_cnr_attrib_v30_t acnr_attr_v30;
     memset(&acnr_attr_v30, 0, sizeof(rk_aiq_cnr_attrib_v30_t));
     rk_aiq_user_api2_acnrV30_GetAttrib(sys_ctx, &acnr_attr_v30);
@@ -1312,7 +1527,7 @@ XCamReturn rk_aiq_set_again_manual_attr(const rk_aiq_sys_ctx_t *sys_ctx,
                                         again_uapi_manual_t *manual) {
     XCamReturn res = XCAM_RETURN_NO_ERROR;
 
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE) || defined(ISP_HW_V30)
+#if defined(ISP_HW_V39) || defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE) || defined(ISP_HW_V30)
     rk_aiq_gain_attrib_v2_t again_attr_v2;
     memset(&again_attr_v2, 0, sizeof(rk_aiq_gain_attrib_v2_t));
     rk_aiq_user_api2_againV2_GetAttrib(sys_ctx, &again_attr_v2);
@@ -1337,7 +1552,7 @@ XCamReturn rk_aiq_set_again_manual_attr(const rk_aiq_sys_ctx_t *sys_ctx,
 
 XCamReturn rk_aiq_get_again_manual_attr(const rk_aiq_sys_ctx_t *sys_ctx,
                                         again_uapi_manual_t *manual) {
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE) || defined(ISP_HW_V30)
+#if defined(ISP_HW_V39) || defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE) || defined(ISP_HW_V30)
     rk_aiq_gain_attrib_v2_t again_attr_v2;
 
     memset(&again_attr_v2, 0, sizeof(rk_aiq_gain_attrib_v2_t));
@@ -1358,11 +1573,62 @@ XCamReturn rk_aiq_get_again_manual_attr(const rk_aiq_sys_ctx_t *sys_ctx,
     return XCAM_RETURN_NO_ERROR;
 }
 
+XCamReturn rk_aiq_set_ayuvme_manual_attr(const rk_aiq_sys_ctx_t *sys_ctx,
+        ayuvme_uapi_manual_t *manual) {
+    XCamReturn res = XCAM_RETURN_NO_ERROR;
+
+#if defined(ISP_HW_V39)
+    rk_aiq_yuvme_attrib_v1_t ayuvme_attr_v1;
+    memset(&ayuvme_attr_v1, 0, sizeof(rk_aiq_yuvme_attrib_v1_t));
+    rk_aiq_user_api2_ayuvmeV1_GetAttrib(sys_ctx, &ayuvme_attr_v1);
+    memcpy(&ayuvme_attr_v1.stManual.stSelect, &manual->manual_v1, sizeof(RK_YUVME_Params_V1_Select_t));
+
+    if (manual->AyuvmeOpMode == RK_AIQ_OP_MODE_AUTO)
+        ayuvme_attr_v1.eMode = AYUVMEV1_OP_MODE_AUTO;
+    else if(manual->AyuvmeOpMode == RK_AIQ_OP_MODE_MANUAL)
+        ayuvme_attr_v1.eMode = AYUVMEV1_OP_MODE_MANUAL;
+    else if(manual->AyuvmeOpMode == RK_AIQ_OP_MODE_INVALID)
+        ayuvme_attr_v1.eMode = AYUVMEV1_OP_MODE_INVALID;
+    else if(manual->AyuvmeOpMode == RK_AIQ_OP_MODE_MAX)
+        ayuvme_attr_v1.eMode = AYUVMEV1_OP_MODE_MAX;
+    else
+        ayuvme_attr_v1.eMode = AYUVMEV1_OP_MODE_AUTO;
+
+    res = rk_aiq_user_api2_ayuvmeV1_SetAttrib(sys_ctx, &ayuvme_attr_v1);
+#endif
+
+    return res;
+}
+
+XCamReturn rk_aiq_get_ayuvme_manual_attr(const rk_aiq_sys_ctx_t *sys_ctx,
+        ayuvme_uapi_manual_t *manual) {
+#if defined(ISP_HW_V39)
+    rk_aiq_yuvme_attrib_v1_t ayuvme_attr_v1;
+
+    memset(&ayuvme_attr_v1, 0, sizeof(rk_aiq_yuvme_attrib_v1_t));
+    rk_aiq_user_api2_ayuvmeV1_GetAttrib(sys_ctx, &ayuvme_attr_v1);
+    memcpy(&manual->manual_v1, &ayuvme_attr_v1.stManual.stSelect, sizeof(RK_YUVME_Params_V1_Select_t));
+
+    if (ayuvme_attr_v1.eMode == AYUVMEV1_OP_MODE_AUTO)
+        manual->AyuvmeOpMode = RK_AIQ_OP_MODE_AUTO;
+    else if(ayuvme_attr_v1.eMode == AYUVMEV1_OP_MODE_MANUAL)
+        manual->AyuvmeOpMode = RK_AIQ_OP_MODE_MANUAL;
+    else if(ayuvme_attr_v1.eMode == AYUVMEV1_OP_MODE_INVALID )
+        manual->AyuvmeOpMode = RK_AIQ_OP_MODE_INVALID;
+    else if(ayuvme_attr_v1.eMode == AYUVMEV1_OP_MODE_MAX)
+        manual->AyuvmeOpMode = RK_AIQ_OP_MODE_MAX;
+    else
+        manual->AyuvmeOpMode = RK_AIQ_OP_MODE_AUTO;
+#endif
+    return XCAM_RETURN_NO_ERROR;
+}
+
+
 XCamReturn
 rk_aiq_get_ablc_info(const rk_aiq_sys_ctx_t *sys_ctx,
                      ablc_uapi_info_t* pInfo) {
 
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
+#if defined(ISP_HW_V39) || defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
     rk_aiq_blc_info_v32_t ablc_info_v23;
     rk_aiq_user_api2_ablcV32_GetInfo(sys_ctx, &ablc_info_v23);
     pInfo->iso = ablc_info_v23.iso;
@@ -1380,7 +1646,12 @@ XCamReturn
 rk_aiq_get_abayertnr_info(const rk_aiq_sys_ctx_t *sys_ctx,
                           abayertnr_uapi_info_t  *info) {
 
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
+#if defined(ISP_HW_V39)
+    rk_aiq_bayertnr_info_v30_t abayertnr_info_v30;
+    rk_aiq_user_api2_abayertnrV30_GetInfo(sys_ctx, &abayertnr_info_v30);
+    info->iso = abayertnr_info_v30.iso;
+    info->expo_info = abayertnr_info_v30.expo_info;
+#elif defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
     rk_aiq_bayertnr_info_v23_t abayertnr_info_v23;
     rk_aiq_user_api2_abayertnrV23_GetInfo(sys_ctx, &abayertnr_info_v23);
     info->iso = abayertnr_info_v23.iso;
@@ -1397,7 +1668,7 @@ rk_aiq_get_abayertnr_info(const rk_aiq_sys_ctx_t *sys_ctx,
 XCamReturn
 rk_aiq_get_abayer2dnr_info(const rk_aiq_sys_ctx_t *sys_ctx,
                            abayer2dnr_uapi_info_t *info) {
-#if defined(ISP_HW_V32)
+#if  defined(ISP_HW_V32)
     rk_aiq_bayer2dnr_info_v23_t bayer2dnr_info_v23;
     rk_aiq_user_api2_abayer2dnrV23_GetInfo(sys_ctx, &bayer2dnr_info_v23);
     info->iso = bayer2dnr_info_v23.iso;
@@ -1414,7 +1685,12 @@ rk_aiq_get_abayer2dnr_info(const rk_aiq_sys_ctx_t *sys_ctx,
 XCamReturn
 rk_aiq_get_aynr_info(const rk_aiq_sys_ctx_t *sys_ctx,
                      aynr_uapi_info_t  *info) {
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
+#if defined(ISP_HW_V39)
+    rk_aiq_ynr_info_v24_t ynr_info_v24;
+    rk_aiq_user_api2_aynrV24_GetInfo(sys_ctx, &ynr_info_v24);
+    info->iso = ynr_info_v24.iso;
+    info->expo_info = ynr_info_v24.expo_info;
+#elif defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
     rk_aiq_ynr_info_v22_t ynr_info_v22;
     rk_aiq_user_api2_aynrV22_GetInfo(sys_ctx, &ynr_info_v22);
     info->iso = ynr_info_v22.iso;
@@ -1431,7 +1707,12 @@ rk_aiq_get_aynr_info(const rk_aiq_sys_ctx_t *sys_ctx,
 XCamReturn
 rk_aiq_get_acnr_info(const rk_aiq_sys_ctx_t *sys_ctx,
                      acnr_uapi_info_t  *info) {
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
+#if defined(ISP_HW_V39)
+    rk_aiq_cnr_info_v31_t cnr_info_v31;
+    rk_aiq_user_api2_acnrV31_GetInfo(sys_ctx, &cnr_info_v31);
+    info->iso = cnr_info_v31.iso;
+    info->expo_info = cnr_info_v31.expo_info;
+#elif defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
     rk_aiq_cnr_info_v30_t cnr_info_v30;
     rk_aiq_user_api2_acnrV30_GetInfo(sys_ctx, &cnr_info_v30);
     info->iso = cnr_info_v30.iso;
@@ -1450,7 +1731,12 @@ XCamReturn
 rk_aiq_get_asharp_info(const rk_aiq_sys_ctx_t *sys_ctx,
                        asharp_uapi_info_t *info) {
 
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
+#if defined(ISP_HW_V39)
+    rk_aiq_sharp_info_v34_t sharp_info_v34;
+    rk_aiq_user_api2_asharpV34_GetInfo(sys_ctx, &sharp_info_v34);
+    info->iso = sharp_info_v34.iso;
+    info->expo_info = sharp_info_v34.expo_info;
+#elif defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
     rk_aiq_sharp_info_v33_t sharp_info_v33;
     rk_aiq_user_api2_asharpV33_GetInfo(sys_ctx, &sharp_info_v33);
     info->iso = sharp_info_v33.iso;
@@ -1471,7 +1757,7 @@ XCamReturn
 rk_aiq_get_again_info(const rk_aiq_sys_ctx_t *sys_ctx,
                       again_uapi_info_t *info) {
 
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE) || defined(ISP_HW_V30)
+#if defined(ISP_HW_V39) || defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE) || defined(ISP_HW_V30)
     rk_aiq_gain_info_v2_t gain_info_v2;
     rk_aiq_user_api2_againV2_GetInfo(sys_ctx, &gain_info_v2);
     info->iso = gain_info_v2.iso;
@@ -1480,6 +1766,23 @@ rk_aiq_get_again_info(const rk_aiq_sys_ctx_t *sys_ctx,
 
     return XCAM_RETURN_NO_ERROR;
 }
+
+
+
+XCamReturn
+rk_aiq_get_ayuvme_info(const rk_aiq_sys_ctx_t *sys_ctx,
+                       ayuvme_uapi_info_t *info) {
+
+#if defined(ISP_HW_V39)
+    rk_aiq_yuvme_info_v1_t yuvme_info_v1;
+    rk_aiq_user_api2_ayuvmeV1_GetInfo(sys_ctx, &yuvme_info_v1);
+    info->iso = yuvme_info_v1.iso;
+    info->expo_info = yuvme_info_v1.expo_info;
+#endif
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
 
 rk_aiq_sys_ctx_t* rk_aiq_get_last_sysctx(rk_aiq_sys_ctx_t *sys_ctx) {
 #if RKAIQ_ENABLE_CAMGROUP

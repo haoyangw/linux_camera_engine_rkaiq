@@ -285,4 +285,89 @@ typedef struct DrcInfoV12Lite_s {
     mdrcAttr_v12_lite_t ValidParams;
 } DrcInfoV12Lite_t;
 
+typedef struct mDrc_gain_drcGain_auto_s {
+    // M4_NUMBER_DESC("sw_adrc_drcGain_maxLimit", "f32", M4_RANGE(1,8), "1.00", M4_DIGIT(2))
+    float sw_adrc_drcGain_maxLimit;
+    // M4_NUMBER_DESC("sw_adrc_drcGainLumaAdj_scale", "f32", M4_RANGE(0,1), "0.20", M4_DIGIT(2))
+    float sw_adrc_drcGainLumaAdj_scale;
+} mDrc_gain_drcGain_auto_t;
+
+typedef struct mDrcGainV20_s {
+    // M4_ENUM_DESC("sw_adrc_drcGain_mode", "drc_gain_mode_t", "DRC_GAIN_TABLE_AUTO")
+    drc_gain_mode_t sw_adrc_drcGain_mode;
+    // M4_NUMBER_DESC("hw_adrc_drcGainIdxLuma_scale", "f32", M4_RANGE(0,64), "1.00", M4_DIGIT(2))
+    float hw_adrc_drcGainIdxLuma_scale;
+    // M4_ARRAY_MARK_DESC("hw_adrc_luma2drcGain_manualVal", "u32", M4_SIZE(1,17),  M4_RANGE(0, 8191), "[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint16_t hw_adrc_luma2drcGain_manualVal[ADRC_Y_NUM];
+    mDrc_gain_drcGain_auto_t sw_adrc_luma2drcGain_autoVal;
+} mDrcGainV20_t;
+
+typedef struct mLocalDataV20_s {
+    // M4_NUMBER_DESC("sw_adrc_bifilt_wgt", "u8", M4_RANGE(0,16), "16", M4_DIGIT(0))
+    uint8_t hw_adrc_bifilt_wgt;
+    // M4_NUMBER_DESC("hw_adrc_bifiltSoftThred_en", "u8", M4_RANGE(0,1), "1", M4_DIGIT(0))
+    uint8_t hw_adrc_bifiltSoftThred_en;
+    // M4_NUMBER_DESC("sw_adrc_bifilt_softThred", "u16", M4_RANGE(0,2047), "119", M4_DIGIT(0))
+    uint16_t hw_adrc_bifilt_softThred;
+} mLocalDataV20_t;
+
+typedef struct mBifltSettingV20_s {
+    // M4_ARRAY_TABLE_DESC("hw_adrc_biflt_params", "array_table_ui", "none")
+    mLocalDataV20_t hw_adrc_biflt_params;
+    // M4_ARRAY_TABLE_DESC("hw_adrc_thumb_setting", "array_table_ui", "none")
+    thumbSetting_t hw_adrc_thumb_setting;
+    // M4_NUMBER_DESC("hw_adrc_gas_t", "u16", M4_RANGE(0,1023), "0", M4_DIGIT(0))
+    uint16_t hw_adrc_gas_t;
+    // M4_NUMBER_DESC("hw_adrc_bifilt_curPixelWgt", "u8", M4_RANGE(0,255), "16", M4_DIGIT(0))
+    uint8_t hw_adrc_bifilt_curPixelWgt;
+    // M4_NUMBER_DESC("hw_adrc_bifilt_hiWgt", "u8", M4_RANGE(0,255), "255", M4_DIGIT(0))
+    uint8_t hw_adrc_bifilt_hiWgt;
+    // M4_NUMBER_DESC("hw_adrc_bifilt_wgtOffset", "u8", M4_RANGE(0,255), "0", M4_DIGIT(0))
+    uint8_t hw_adrc_bifilt_wgtOffset;
+    // M4_NUMBER_DESC("hw_adrc_hiRange_invSigma", "u16", M4_RANGE(0,1023), "256", M4_DIGIT(0))
+    uint16_t hw_adrc_hiRange_invSigma;
+    // M4_NUMBER_DESC("hw_adrc_loRange_invSigma", "u16", M4_RANGE(0,1023), "256", M4_DIGIT(0))
+    uint16_t hw_adrc_loRange_invSigma;
+} mBifltSettingV20_t;
+
+typedef struct hw_mdrc_adjCompsGain_params_s {
+    // M4_NUMBER_DESC("sw_adrc_loDetail_ratio", "u16", M4_RANGE(0,4095), "0.00", M4_DIGIT(0))
+    uint16_t hw_adrc_loDetail_ratio;
+    // M4_NUMBER_DESC("sw_adrc_hiDetail_ratio", "u16", M4_RANGE(0,4095), "0.00", M4_DIGIT(0))
+    uint16_t hw_adrc_hiDetail_ratio;
+} hw_mdrc_adjCompsGain_params_t;
+
+typedef struct hw_mdrc_adjCompsGain_setting_s {
+    // M4_ENUM_DESC("hw_adrc_compsGain_minLimit", "drc_compsGain_mode_t", "DRC_COMPSGAIN_NORMAL1")
+    drc_compsGain_mode_t hw_adrc_compsGain_minLimit;
+    // M4_STRUCT_DESC("hw_adrc_adjCompsGain_params_t", "array_table_ui", "none")
+    hw_mdrc_adjCompsGain_params_t hw_adrc_adjCompsGain_params;
+    // M4_NUMBER_DESC("hw_adrc_adjCompsGainIdxLuma_scl", "u8", M4_RANGE(0,255), "64", M4_DIGIT(0))
+    uint8_t hw_adrc_adjCompsGainIdxLuma_scl;
+    // M4_ARRAY_DESC("hw_adrc_luma2compsGainScale_val", "u16", M4_SIZE(1,17),  M4_RANGE(0, 2048), "[0,2,20,76,193,381,631,772,919,1066,1211,1479,1700,1863,1968,2024,2048]", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint16_t hw_adrc_luma2compsGainScale_val[ADRC_Y_NUM];
+} hw_mdrc_adjCompsGain_setting_t;
+
+typedef struct mdrcAttr_V20_s {
+    // M4_BOOL_DESC("hw_adrc_en", "1")
+    bool hw_adrc_en;
+    // M4_ARRAY_TABLE_DESC("hw_adrc_cmps_setting", "array_table_ui", "none")
+    adrcCmpsSetting_t hw_adrc_cmps_setting;
+    // M4_ARRAY_TABLE_DESC("hw_adrc_luma2drcGain_setting", "array_table_ui", "none")
+    mDrcGainV20_t hw_adrc_luma2drcGain_setting;
+    // M4_STRUCT_DESC("LocalSetting", "normal_ui_style")
+    mBifltSettingV20_t hw_adrc_biflt_setting;
+    // M4_STRUCT_DESC("hw_adrc_luma2compsLuma_setting", "normal_ui_style")
+    CompressV20_t hw_adrc_luma2compsLuma_setting;
+    // M4_STRUCT_DESC("hw_adrc_adjCompsGain_setting", "normal_ui_style")
+    hw_mdrc_adjCompsGain_setting_t hw_adrc_adjCompsGain_setting;
+} mdrcAttr_V20_t;
+
+typedef struct DrcInfoV20_s {
+    // M4_STRUCT_DESC("CtrlInfo", "normal_ui_style")
+    DrcInfo_t CtrlInfo;
+    // M4_STRUCT_DESC("ValidParams", "normal_ui_style")
+    mdrcAttr_V20_t ValidParams;
+} DrcInfoV20_t;
+
 #endif /*__ADRC_UAPI_HEAD_H__*/

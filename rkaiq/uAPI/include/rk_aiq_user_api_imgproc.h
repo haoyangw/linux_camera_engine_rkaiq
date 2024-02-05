@@ -53,6 +53,11 @@
 #include "rk_aiq_user_api_abayer2dnr_v23.h"
 #include "rk_aiq_user_api_abayertnr_v23.h"
 
+#include "rk_aiq_user_api_aynr_v24.h"
+#include "rk_aiq_user_api_acnr_v31.h"
+#include "rk_aiq_user_api_asharp_v34.h"
+#include "rk_aiq_user_api_abayertnr_v30.h"
+#include "rk_aiq_user_api_ayuvme_v1.h"
 
 
 RKAIQ_BEGIN_DECLARE

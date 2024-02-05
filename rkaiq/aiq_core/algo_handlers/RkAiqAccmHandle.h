@@ -41,6 +41,12 @@ class RkAiqAccmHandleInt : virtual public RkAiqHandle {
         memset(&mCurCalibAttV2, 0, sizeof(rk_aiq_ccm_v2_calib_attrib_t));
         memset(&mNewCalibAttV2, 0, sizeof(rk_aiq_ccm_v2_calib_attrib_t));
 #endif
+#if RKAIQ_HAVE_CCM_V3
+        memset(&mCurAttV3, 0, sizeof(rk_aiq_ccm_v3_attrib_t));
+        memset(&mNewAttV3, 0, sizeof(rk_aiq_ccm_v3_attrib_t));
+        memset(&mCurCalibAttV3, 0, sizeof(rk_aiq_ccm_v3_calib_attrib_t));
+        memset(&mNewCalibAttV3, 0, sizeof(rk_aiq_ccm_v3_calib_attrib_t));
+#endif
 #endif
         colorConstFlag = false;
         memset(&colorSwInfo,0,sizeof(colorSwInfo));
@@ -64,6 +70,12 @@ class RkAiqAccmHandleInt : virtual public RkAiqHandle {
     XCamReturn getAttribV2(rk_aiq_ccm_v2_attrib_t* att);
     XCamReturn setIqParamV2(const rk_aiq_ccm_v2_calib_attrib_t* att);
     XCamReturn getIqParamV2(rk_aiq_ccm_v2_calib_attrib_t* att);
+#endif
+#if RKAIQ_HAVE_CCM_V3
+    XCamReturn setAttribV3(const rk_aiq_ccm_v3_attrib_t* att);
+    XCamReturn getAttribV3(rk_aiq_ccm_v3_attrib_t* att);
+    XCamReturn setIqParamV3(const rk_aiq_ccm_v3_calib_attrib_t* att);
+    XCamReturn getIqParamV3(rk_aiq_ccm_v3_calib_attrib_t* att);
 #endif
     XCamReturn queryCcmInfo(rk_aiq_ccm_querry_info_t* ccm_querry_info);
     XCamReturn getAcolorSwInfo(rk_aiq_color_info_t* aColor_sw_info);
@@ -90,6 +102,12 @@ class RkAiqAccmHandleInt : virtual public RkAiqHandle {
     rk_aiq_ccm_v2_calib_attrib_t mCurCalibAttV2;
     rk_aiq_ccm_v2_attrib_t       mNewAttV2;
     rk_aiq_ccm_v2_calib_attrib_t mNewCalibAttV2;
+#endif
+#if RKAIQ_HAVE_CCM_V3
+    rk_aiq_ccm_v3_attrib_t mCurAttV3;
+    rk_aiq_ccm_v3_calib_attrib_t mCurCalibAttV3;
+    rk_aiq_ccm_v3_attrib_t mNewAttV3;
+    rk_aiq_ccm_v3_calib_attrib_t mNewCalibAttV3;
 #endif
     mutable std::atomic<bool>    updateCalibAttr;
 #endif

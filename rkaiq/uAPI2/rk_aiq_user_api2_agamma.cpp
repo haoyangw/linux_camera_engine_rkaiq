@@ -27,6 +27,7 @@ RKAIQ_BEGIN_DECLARE
 XCamReturn rk_aiq_user_api2_agamma_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
                                              rk_aiq_gamma_attrib_V2_t attr) {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
+#ifndef USE_NEWSTRUCT
 #if RKAIQ_HAVE_GAMMA_V10
     rk_aiq_gamma_v10_attr_t attr_v10;
     memset(&attr_v10, 0x0, sizeof(rk_aiq_gamma_v10_attr_t));
@@ -96,11 +97,13 @@ XCamReturn rk_aiq_user_api2_agamma_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
     }
     ret = rk_aiq_user_api2_agamma_v11_SetAttrib(sys_ctx, &attr_v11);
 #endif
+#endif
     return ret;
 }
 XCamReturn rk_aiq_user_api2_agamma_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
                                              rk_aiq_gamma_attrib_V2_t* attr) {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
+#ifndef USE_NEWSTRUCT
 #if RKAIQ_HAVE_GAMMA_V10
     rk_aiq_gamma_v10_attr_t attr_v10;
     memset(&attr_v10, 0x0, sizeof(rk_aiq_gamma_v10_attr_t));
@@ -135,6 +138,7 @@ XCamReturn rk_aiq_user_api2_agamma_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
     attr->atrrV30.stManual.Gamma_out_offset = attr_v11.stManual.Gamma_out_offset;
     for (int i = 0; i < CALIBDB_AGAMMA_KNOTS_NUM_V11; i++)
         attr->atrrV30.stManual.Gamma_curve[i] = attr_v11.stManual.Gamma_curve[i];
+#endif
 #endif
     return ret;
 }
@@ -235,6 +239,7 @@ XCamReturn rk_aiq_user_api2_agamma_v10_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx
 #if RKAIQ_HAVE_GAMMA_V11
 XCamReturn rk_aiq_user_api2_agamma_v11_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
                                                  const rk_aiq_gamma_v11_attr_t* attr) {
+#ifndef USE_NEWSTRUCT
     CHECK_USER_API_ENABLE2(sys_ctx);
     CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_AGAMMA);
     RKAIQ_API_SMART_LOCK(sys_ctx);
@@ -270,10 +275,14 @@ XCamReturn rk_aiq_user_api2_agamma_v11_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx
     }
 
     return ret;
+#else
+        return XCAM_RETURN_ERROR_FAILED;
+#endif
 }
 
 XCamReturn rk_aiq_user_api2_agamma_v11_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
                                                  rk_aiq_gamma_v11_attr_t* attr) {
+#ifndef USE_NEWSTRUCT
     RKAIQ_API_SMART_LOCK(sys_ctx);
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
@@ -307,6 +316,9 @@ XCamReturn rk_aiq_user_api2_agamma_v11_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx
     }
 
     return ret;
+#else
+        return XCAM_RETURN_ERROR_FAILED;
+#endif
 }
 #else
 XCamReturn rk_aiq_user_api2_agamma_v11_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,

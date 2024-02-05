@@ -1413,17 +1413,21 @@ bool Isp21Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult> &result,
     // followings are the same as isp20
     case RESULT_TYPE_AEC_PARAM:
     {
+#ifdef ISP_HW_V21
         RkAiqIspAecParamsProxy* params = result.get_cast_ptr<RkAiqIspAecParamsProxy>();
         if (params) {
             convertAiqAeToIsp20Params(isp_cfg, params->data()->result);
         }
+#endif
     }
     break;
     case RESULT_TYPE_HIST_PARAM:
     {
+#ifdef ISP_HW_V21
         RkAiqIspHistParamsProxy* params = result.get_cast_ptr<RkAiqIspHistParamsProxy>();
         if (params)
             convertAiqHistToIsp20Params(isp_cfg, params->data()->result);
+#endif
     }
     break;
     case RESULT_TYPE_AF_PARAM:
@@ -1436,11 +1440,15 @@ bool Isp21Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult> &result,
     }
     break;
     case RESULT_TYPE_DPCC_PARAM:
+#if RKAIQ_HAVE_DPCC_V1
+#ifndef USE_NEWSTRUCT
     {
         RkAiqIspDpccParamsProxy* params = result.get_cast_ptr<RkAiqIspDpccParamsProxy>();
         if (params)
             convertAiqDpccToIsp20Params(isp_cfg, params->data()->result);
     }
+#endif
+#endif
     break;
     case RESULT_TYPE_MERGE_PARAM:
     {

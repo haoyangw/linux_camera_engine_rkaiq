@@ -23,10 +23,11 @@ RKAIQ_BEGIN_DECLARE
 #define CHECK_USER_API_ENABLE
 #endif
 
-#if RKAIQ_HAVE_DPCC_V1
+#if RKAIQ_HAVE_DPCC_V1 || RKAIQ_HAVE_DPCC_V2
 XCamReturn rk_aiq_user_api2_adpcc_SetAttrib(const rk_aiq_sys_ctx_t *sys_ctx,
                                             rk_aiq_dpcc_attrib_V20_t *attr) {
   XCamReturn ret = XCAM_RETURN_NO_ERROR;
+#ifndef USE_NEWSTRUCT
   CHECK_USER_API_ENABLE2(sys_ctx);
   CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_ADPCC);
   RKAIQ_API_SMART_LOCK(sys_ctx);
@@ -65,7 +66,7 @@ XCamReturn rk_aiq_user_api2_adpcc_SetAttrib(const rk_aiq_sys_ctx_t *sys_ctx,
       return algo_handle->setAttrib(attr);
     }
   }
-
+#endif
   return XCAM_RETURN_ERROR_FAILED;
 }
 
@@ -73,7 +74,7 @@ XCamReturn rk_aiq_user_api2_adpcc_GetAttrib(const rk_aiq_sys_ctx_t *sys_ctx,
                                             rk_aiq_dpcc_attrib_V20_t *attr) {
   RKAIQ_API_SMART_LOCK(sys_ctx);
   XCamReturn ret = XCAM_RETURN_NO_ERROR;
-
+#ifndef USE_NEWSTRUCT
   if (sys_ctx->cam_type == RK_AIQ_CAM_TYPE_GROUP) {
 #ifdef RKAIQ_ENABLE_CAMGROUP
     RkAiqCamGroupAdpccHandleInt *algo_handle =
@@ -106,7 +107,7 @@ XCamReturn rk_aiq_user_api2_adpcc_GetAttrib(const rk_aiq_sys_ctx_t *sys_ctx,
       return algo_handle->getAttrib(attr);
     }
   }
-
+#endif
   return (ret);
 }
 #else

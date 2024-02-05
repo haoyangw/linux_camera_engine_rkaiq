@@ -39,6 +39,13 @@ XCamReturn RkAiqCamGroupAccmHandleInt::updateConfig(bool needSync) {
         updateAtt = false;
         sendSignal(mCurAttV2.sync.sync_mode);
 #endif
+#if RKAIQ_HAVE_CCM_V3
+        mCurAttV3   = mNewAttV3;
+        // TODO
+        rk_aiq_uapi_accm_v3_SetAttrib(mAlgoCtx, &mCurAttV3, false);
+        updateAtt = false;
+        sendSignal(mCurAttV3.sync.sync_mode);
+#endif
     }
     if (updateCalibAttr) {
 #if RKAIQ_HAVE_CCM_V1
@@ -297,6 +304,68 @@ XCamReturn RkAiqCamGroupAccmHandleInt::getIqParamV2(rk_aiq_ccm_v2_calib_attrib_t
         } else {
             rk_aiq_uapi_accm_GetIqParam(mAlgoCtx, att);
             att->sync.sync_mode = mNewCalibAttV2.sync.sync_mode;
+            att->sync.done = true;
+        }
+    }
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+#endif
+
+#if RKAIQ_HAVE_CCM_V3
+XCamReturn RkAiqCamGroupAccmHandleInt::setAttribV3(const rk_aiq_ccm_v3_attrib_t* att) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCAM_ASSERT(att != nullptr);
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    mCfgMutex.lock();
+
+    // check if there is different between att & mCurAtt(sync)/mNewAtt(async)
+    // if something changed, set att to mNewAtt, and
+    // the new params will be effective later when updateConfig
+    // called by RkAiqCore
+    bool isChanged = false;
+    if (att->sync.sync_mode == RK_AIQ_UAPI_MODE_ASYNC && \
+        memcmp(&mNewAttV3, att, sizeof(*att)))
+        isChanged = true;
+    else if (att->sync.sync_mode != RK_AIQ_UAPI_MODE_ASYNC && \
+             memcmp(&mCurAttV3, att, sizeof(*att)))
+        isChanged = true;
+
+    // if something changed
+    if (isChanged) {
+        mNewAttV3   = *att;
+        updateAtt = true;
+        waitSignal(att->sync.sync_mode);
+    }
+
+    mCfgMutex.unlock();
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn RkAiqCamGroupAccmHandleInt::getAttribV3(rk_aiq_ccm_v3_attrib_t* att) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCAM_ASSERT(att != nullptr);
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    if (att->sync.sync_mode == RK_AIQ_UAPI_MODE_SYNC) {
+        mCfgMutex.lock();
+        rk_aiq_uapi_accm_v3_GetAttrib(mAlgoCtx, att);
+        att->sync.done = true;
+        mCfgMutex.unlock();
+    } else {
+        if (updateAtt) {
+            memcpy(att, &mNewAttV3, sizeof(mNewAttV3));
+            att->sync.done = false;
+        } else {
+            rk_aiq_uapi_accm_v3_GetAttrib(mAlgoCtx, att);
+            att->sync.sync_mode = mNewAttV3.sync.sync_mode;
             att->sync.done = true;
         }
     }

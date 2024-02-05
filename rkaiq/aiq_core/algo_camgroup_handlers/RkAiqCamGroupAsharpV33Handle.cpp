@@ -19,6 +19,7 @@
 
 namespace RkCam {
 
+#if (USE_NEWSTRUCT == 0)
 #if (RKAIQ_HAVE_SHARP_V33 || RKAIQ_HAVE_SHARP_V33_LITE)
 
 XCamReturn RkAiqCamGroupAsharpV33HandleInt::updateConfig(bool needSync) {
@@ -244,6 +245,7 @@ XCamReturn RkAiqCamGroupAsharpV33HandleInt::getInfo(rk_aiq_sharp_info_v33_t* pIn
     return ret;
 }
 
+#endif
 #endif
 
 }  // namespace RkCam

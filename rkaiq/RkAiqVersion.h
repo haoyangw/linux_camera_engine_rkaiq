@@ -737,10 +737,37 @@
  * - optimize TB procedure
  * - support j2s4b on device
  * - support AI nr
- * - support 8k for rk3562
  * - fix bugs:
  *   - fix ae is not running for 3562
  *   - fix drc longframeMode error
+ * v5.0x4.0-rk3576-rc0
+ * - AE & Adebayer: adapt to bnr20bit
+ * - cac: bring up for 3576
+ * - rkisp_demo: don't check if hdr mode is supported in offline mode
+ * - aiq_core: send bay3d stat to the tnr
+ * - hwi: support raw16 format for fake camera
+ * - Asharp: support rk3576
+ * - Adehaze: support rk3576
+ * - YNR: support rk3576
+ * - Adrc: support expander function
+ * - CamHwIsp20: get isp info from drv
+ * - Adrc: supprot rk3576
+ * - aiq: hwi: Update kernel driver header of isp39
+ * - NR: adapt to isp39
+ * - aiq: hwi: Update kernel driver header of isp39
+ * - iqfiles: update sc4336_OT01_40IRC_F16.json
+ * - Debayer: adapt to isp39
+ * - AF: adapt to isp39
+ * - aiq: hwi: Update kernel driver header of isp39
+ * - aiq: hwi: Update kernel driver header of isp39
+ * - CCM: adapt to isp39
+ * - AE: adapt to isp39
+ * - TEST: add '-DENABLE_PARTIAL_ALOGS' to only enable partial algos
+ * - [TEST ONLY] display in intel fpga
+ * - aiq: hwi: Update kernel driver header of isp39
+ * - scripts: Jenkinsfile: support rk3576
+ * - rkaiq: Initial support for ISP39
+ * - aiq: hwi: Update kernel driver header of isp39
  * v5.0x4.1
  * - update kernel headers: rkisp_thunderboot_resmem_head
  * - awb:
@@ -752,18 +779,26 @@
  *   - fix ae may be not running on all platform introduced in v5.0x3.0
  *   - fix aiq_core state error when aiq stop
  * v5.0x5.0
+ * - on isp32 branch
  * - update kernel headers
  *   - https://10.10.10.29/c/rk/kernel/+/198712/2
  * - split to 2 or 4 grids according to resolution on rk3562
  * - API rk_aiq_uapi2_sysctl_preInit_tb_info is no longer needed for AOV or TB
  * - add some members for awb in iq json, rtt should be updated along with it
  * - fix some AIQ crash bugs when tuning
+ * - update IQBIN Version v1.0.0
+ * v6.0x6.1
+ * - isp39 branch update to 29 first version
+ * - support rk3576
+ * - support aiisp
+ * - isp driver version: 2.6.0
+ * - update IQBIN Version v1.0.1
  */
 
-#define RK_AIQ_VERSION_REAL_V "v5.0x5.0"
-#define RK_AIQ_RELEASE_DATE "2024-2-18"
+#define RK_AIQ_VERSION_REAL_V "v6.0x6.1"
+#define RK_AIQ_RELEASE_DATE "2024-03-03"
 
-#define RK_AIQ_IQ_HEAD_VERSION_REAL_V "v1.0.0"
+#define RK_AIQ_IQ_HEAD_VERSION_REAL_V "v1.0.1"
 
 /******* DO NOT EDIT THE FOLLOWINGS ***********/
 

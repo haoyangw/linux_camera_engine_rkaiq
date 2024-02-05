@@ -60,6 +60,8 @@ else()
     string(TOLOWER ${CMAKE_SYSTEM_NAME} OS)
 endif()
 
+add_compile_options(${ISP_HW_VERSION})
+
 if(ADD_RK_AIQ)
     add_compile_options(-Os)
     add_compile_options(-DADD_RK_AIQ)
@@ -76,6 +78,7 @@ if(ADD_RK_AIQ)
         ${RK_AIQ_INSTALLED_DIR}/include/rkaiq/common/
         ${RK_AIQ_INSTALLED_DIR}/include/rkaiq/iq_parser/
         ${RK_AIQ_INSTALLED_DIR}/include/rkaiq/iq_parser_v2/
+        ${RK_AIQ_INSTALLED_DIR}/include/rkaiq/isp/
         )
     set(RK_AIQ_LIB rkaiq)
 endif()
@@ -123,18 +126,33 @@ include_directories(
     ${RK_AIQ_HEADER_DIR}
     )
 
-if (libdrm_FOUND)
-    aux_source_directory(demo DIR_SRCS)
+set (DIR_SRCS demo/rkisp_demo.cpp)
+
+if (libdrm_FOUND OR LOCAL_DRM_LIB_FOUND)
+    set(DIR_SRCS
+        ${DIR_SRCS}
+        demo/drmDsp.c
+        demo/rkdrm_display.c
+        )
     aux_source_directory(demo/drmDsp DRMDSP_DIR_SRCS)
-    aux_source_directory(demo/sample SAMPLE_DIR_SRCS)
-elseif (LOCAL_DRM_LIB_FOUND)
-    set (DIR_SRCS demo/rkisp_demo.cpp demo/drmDsp.c)
-    aux_source_directory(demo/drmDsp DRMDSP_DIR_SRCS)
-    aux_source_directory(demo/sample SAMPLE_DIR_SRCS)
-else()
-    set (DIR_SRCS demo/rkisp_demo.cpp)
-    aux_source_directory(demo/sample SAMPLE_DIR_SRCS)
 endif()
+
+if (librga_FOUND)
+    set(DIR_SRCS
+        ${DIR_SRCS}
+        demo/rga_control.c
+        demo/rkRgaApi.cpp
+        )
+endif()
+
+if (libdrm_FOUND AND librga_FOUND)
+    set(DIR_SRCS
+        ${DIR_SRCS}
+        demo/display.c
+        )
+endif()
+
+aux_source_directory(demo/sample SAMPLE_DIR_SRCS)
 
 if (ENABLE_IIO_API)
     AUX_SOURCE_DIRECTORY(demo/iio/demo IIO_DIR_SRCS)
@@ -179,11 +197,11 @@ if (libdrm_FOUND)
         "${PROJECT_SOURCE_DIR}/deps/lib" "${SMARTIR_INSTALLED_LIB_DIR}" "${ISPFEC_LIB_DIR}")
 else()
     link_directories("${LIBRARY_OUTPUT_PATH}" "${RK_AIQ_LIB_DIR}" "${IIO_LIB_DIR}"
-        "${SMARTIR_INSTALLED_LIB_DIR}" "${LOCAL_DRM_LIB_DIR}"  "${ISPFEC_LIB_DIR}")
+        "${SMARTIR_INSTALLED_LIB_DIR}" "${LOCAL_DRM_LIB_DIR}" "${ISPFEC_LIB_DIR}")
 endif()
 add_executable(rkisp_demo ${DIR_SRCS})
 if (libdrm_FOUND)
-    target_link_libraries(rkisp_demo rga drm ${RK_AIQ_LIB} ${IIO_LIBS}
+    target_link_libraries(rkisp_demo drm ${RK_AIQ_LIB} ${IIO_LIBS}
         ${SMARTIR_LIB} ${ISPFEC_LIB})
 else()
     target_link_libraries(rkisp_demo ${RK_AIQ_LIB} ${IIO_LIBS} ${SMARTIR_LIB} ${LOCAL_DRM_LIB} ${ISPFEC_LIB})

@@ -33,7 +33,7 @@ RKAIQ_BEGIN_DECLARE
 #define CALD_AWB_RGCT_GRID_NUM 9
 #define CALD_AWB_BGCRI_GRID_NUM 11
 
-#if ISP_HW_V32_LITE
+#if ISP_HW_V32_LITE || ISP_HW_V39
 typedef enum CalibDbV2_Awb_Down_Scale_Mode_e {
     CALIB_AWB_DS_4X4 = 0,
     CALIB_AWB_DS_8X8 = 1,

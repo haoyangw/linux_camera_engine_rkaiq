@@ -17,6 +17,12 @@
 
 #include "sample_comm.h"
 
+#ifdef ISP_HW_V39
+#include "rk_aiq_user_api2_rk3576.h"
+#elif  ISP_HW_V32
+#include "rk_aiq_user_api2_rv1106.h"
+#endif
+
 static void sample_aynr_usage()
 {
     printf("Usage : \n");
@@ -38,6 +44,7 @@ static void sample_aynr_usage()
     printf("\t g) AYNR:         set aynr strength min value 0.0 on async mode, only on auto mode has effect.\n");
     printf("\t h) AYNR:         set aynr strength med value 0.5 on async mode, only on auto mode has effect.\n");
     printf("\t i) AYNR:         set aynr attri to default vaule on async mode.\n");
+    printf("\t j) YNR:          test mode/en switch.\n");
     printf("\t q) AYNR:         press key q or Q to quit.\n");
 
 }
@@ -63,10 +70,20 @@ XCamReturn sample_ynr_getAttr_v22(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_
     rk_aiq_ynr_attrib_v22_t ynr_attr;
     ynr_attr.sync.sync_mode = sync_mode;
     ret = rk_aiq_user_api2_aynrV22_GetAttrib(ctx, &ynr_attr);
-    printf("get aynr v3 attri ret:%d done:%d \n\n", ret, ynr_attr.sync.done);
+    printf("get aynr v22 attri ret:%d done:%d \n\n", ret, ynr_attr.sync.done);
     return ret;
 }
 
+
+XCamReturn sample_ynr_getAttr_v24(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync_mode)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    rk_aiq_ynr_attrib_v24_t ynr_attr;
+    ynr_attr.sync.sync_mode = sync_mode;
+    ret = rk_aiq_user_api2_aynrV24_GetAttrib(ctx, &ynr_attr);
+    printf("get aynr v24 attri ret:%d done:%d \n\n", ret, ynr_attr.sync.done);
+    return ret;
+}
 
 XCamReturn sample_ynr_getStrength_v3(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync_mode)
 {
@@ -88,7 +105,20 @@ XCamReturn sample_ynr_getStrength_v22(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_m
     rk_aiq_ynr_strength_v22_t ynr_strength;
     ynr_strength.sync.sync_mode = sync_mode;
     ret = rk_aiq_user_api2_aynrV22_GetStrength(ctx, &ynr_strength);
-    printf("get aynr v3 attri ret:%d strength:%f done:%d\n\n",
+    printf("get aynr v22 attri ret:%d strength:%f done:%d\n\n",
+           ret, ynr_strength.percent, ynr_strength.sync.done);
+
+    return ret;
+}
+
+XCamReturn sample_ynr_getStrength_v24(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync_mode)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    rk_aiq_ynr_strength_v24_t ynr_strength;
+    ynr_strength.sync.sync_mode = sync_mode;
+    ret = rk_aiq_user_api2_aynrV24_GetStrength(ctx, &ynr_strength);
+    printf("get aynr v24 attri ret:%d strength:%f done:%d\n\n",
            ret, ynr_strength.percent, ynr_strength.sync.done);
 
     return ret;
@@ -346,6 +376,126 @@ XCamReturn sample_ynr_setAuto_v22(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_
 }
 
 
+XCamReturn sample_ynr_setAuto_v24(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync_mode)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    rk_aiq_ynr_attrib_v24_t ynr_attr;
+    ynr_attr.sync.sync_mode = sync_mode;
+    ret = rk_aiq_user_api2_aynrV24_GetAttrib(ctx, &ynr_attr);
+    ynr_attr.sync.sync_mode = sync_mode;
+    ynr_attr.eMode = AYNRV24_OP_MODE_AUTO;
+    ynr_attr.stAuto.stParams.enable = 1;
+
+    for(int i = 0; i < RK_YNR_V24_MAX_ISO_NUM; i++) {
+        ynr_attr.stAuto.stParams.iso[i] = 50 * pow(2, i);
+
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].lumaPoint[0] = 0x000;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].lumaPoint[1] = 0x040;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].lumaPoint[2] = 0x080;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].lumaPoint[3] = 0x0c0;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].lumaPoint[4] = 0x100;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].lumaPoint[5] = 0x140;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].lumaPoint[6] = 0x180;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].lumaPoint[7] = 0x1c0;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].lumaPoint[8] = 0x200;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].lumaPoint[9] = 0x240;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].lumaPoint[10] = 0x280;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].lumaPoint[11] = 0x2c0;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].lumaPoint[12] = 0x300;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].lumaPoint[13] = 0x340;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].lumaPoint[14] = 0x380;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].lumaPoint[15] = 0x3c0;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].lumaPoint[16] = 0x400;
+
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sigma[0] = 16;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sigma[1] = 20;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sigma[2] = 24;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sigma[3] = 30;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sigma[4] = 40;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sigma[5] = 60;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sigma[6] = 40;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sigma[7] = 38;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sigma[8] = 36;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sigma[9] = 32;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sigma[10] = 30;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sigma[11] = 28;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sigma[12] = 24;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sigma[13] = 24;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sigma[14] = 20;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sigma[15] = 20;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sigma[16] = 16;
+
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].ynr_lci = 1.0;
+
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_loSpnr_bypass = 0;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_hiSpnr_bypass = 0;
+
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_gainMerge_alpha = 0.0;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_globalSet_gain = 1.0;
+
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_hiSpnrLocalGain_alpha = 0.5;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_hiSpnrFilt_centerWgt = 0.5;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_hiSpnrFilt_wgtOffset = 0.1;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_hiSpnrSigma_minLimit = 0.05;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_hiSpnrFilt_wgt = 0.5;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_hiSpnr_gainThred = 8;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_hiSpnrStrongEdge_scale = 8;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_hiSpnrFilt_coeff0 = 7;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_hiSpnrFilt_coeff1 = 6;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_hiSpnrFilt_coeff2 = 3;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_hiSpnrFilt_coeff3 = 6;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_hiSpnrFilt_coeff4 = 5;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_hiSpnrFilt_coeff5 = 3;
+
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_dsImg_edgeScale = 6;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_dsFiltSoftThred_scale = 0.4;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_dsFiltWgtThred_scale = 0.3;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_dsFilt_centerWgt = 0.025;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_dsFilt_strg = 0.3;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_dsIIRinitWgt_scale = 0.06;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_dsFiltLocalGain_alpha = 0.5;
+
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_preFilt_strg = 0.5;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_loSpnr_strg = 0.5;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_loSpnr_wgt = 0.5;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_loSpnr_centerWgt = 0.5;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_loSpnrDistVstrg_scale = 0.0625;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_loSpnrDistHstrg_scale = 0.75;
+
+
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_luma2loStrg_lumaPoint[0] = 0;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_luma2loStrg_lumaPoint[1] = 32;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_luma2loStrg_lumaPoint[2] = 64;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_luma2loStrg_lumaPoint[3] = 128;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_luma2loStrg_lumaPoint[4] = 192;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_luma2loStrg_lumaPoint[5] = 256;
+
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_luma2loStrg_val[0] = 1.0;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_luma2loStrg_val[1] = 1.0;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_luma2loStrg_val[2] = 1.0;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_luma2loStrg_val[3] = 1.0;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_luma2loStrg_val[4] = 1.0;
+        ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_luma2loStrg_val[5] = 1.0;
+
+        for(int j = 0; j < 17; j++) {
+            ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_radius2strg_val[j] = 1.0;
+        }
+
+        for(int j = 0; j < 9; j++) {
+            ynr_attr.stAuto.stParams.arYnrParamsISO[i].sw_ynr_loSpnrGain2Strg_val[j] = 1.0;
+        }
+    }
+
+    ret = rk_aiq_user_api2_aynrV24_SetAttrib(ctx, &ynr_attr);
+    printf("set aynr v24 attri auto ret:%d \n\n", ret);
+
+    rk_aiq_ynr_attrib_v24_t get_ynr_attr;
+    get_ynr_attr.sync.sync_mode = sync_mode;
+    ret = rk_aiq_user_api2_aynrV24_GetAttrib(ctx, &get_ynr_attr);
+    printf("get aynr v24 attri ret:%d done:%d \n\n", ret, get_ynr_attr.sync.done);
+    return ret;
+}
+
 XCamReturn sample_ynr_setManual_v3(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync_mode)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
@@ -586,12 +736,134 @@ XCamReturn sample_ynr_setManual_v22(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mod
     }
 
     ret = rk_aiq_user_api2_aynrV22_SetAttrib(ctx, &ynr_attr);
-    printf("set ynr v3 attri manual ret:%d \n\n", ret);
+    printf("set ynr v22 attri manual ret:%d \n\n", ret);
 
     rk_aiq_ynr_attrib_v22_t get_ynr_attr;
     get_ynr_attr.sync.sync_mode = sync_mode;
     ret = rk_aiq_user_api2_aynrV22_GetAttrib(ctx, &get_ynr_attr);
-    printf("get aynr v3 attri ret:%d done:%d \n\n", ret, get_ynr_attr.sync.done);
+    printf("get aynr v22 attri ret:%d done:%d \n\n", ret, get_ynr_attr.sync.done);
+    return ret;
+}
+
+
+
+XCamReturn sample_ynr_setManual_v24(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync_mode)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    rk_aiq_ynr_attrib_v24_t ynr_attr;
+    ynr_attr.sync.sync_mode = sync_mode;
+    ret = rk_aiq_user_api2_aynrV24_GetAttrib(ctx, &ynr_attr);
+    ynr_attr.sync.sync_mode = sync_mode;
+    ynr_attr.eMode = AYNRV24_OP_MODE_MANUAL;
+    ynr_attr.stManual.stSelect.enable = 1;
+
+    ynr_attr.stManual.stSelect.lumaPoint[0] = 0x000;
+    ynr_attr.stManual.stSelect.lumaPoint[1] = 0x040;
+    ynr_attr.stManual.stSelect.lumaPoint[2] = 0x080;
+    ynr_attr.stManual.stSelect.lumaPoint[3] = 0x0c0;
+    ynr_attr.stManual.stSelect.lumaPoint[4] = 0x100;
+    ynr_attr.stManual.stSelect.lumaPoint[5] = 0x140;
+    ynr_attr.stManual.stSelect.lumaPoint[6] = 0x180;
+    ynr_attr.stManual.stSelect.lumaPoint[7] = 0x1c0;
+    ynr_attr.stManual.stSelect.lumaPoint[8] = 0x200;
+    ynr_attr.stManual.stSelect.lumaPoint[9] = 0x240;
+    ynr_attr.stManual.stSelect.lumaPoint[10] = 0x280;
+    ynr_attr.stManual.stSelect.lumaPoint[11] = 0x2c0;
+    ynr_attr.stManual.stSelect.lumaPoint[12] = 0x300;
+    ynr_attr.stManual.stSelect.lumaPoint[13] = 0x340;
+    ynr_attr.stManual.stSelect.lumaPoint[14] = 0x380;
+    ynr_attr.stManual.stSelect.lumaPoint[15] = 0x3c0;
+    ynr_attr.stManual.stSelect.lumaPoint[16] = 0x400;
+
+    ynr_attr.stManual.stSelect.sigma[0] = 16;
+    ynr_attr.stManual.stSelect.sigma[1] = 20;
+    ynr_attr.stManual.stSelect.sigma[2] = 24;
+    ynr_attr.stManual.stSelect.sigma[3] = 30;
+    ynr_attr.stManual.stSelect.sigma[4] = 40;
+    ynr_attr.stManual.stSelect.sigma[5] = 60;
+    ynr_attr.stManual.stSelect.sigma[6] = 40;
+    ynr_attr.stManual.stSelect.sigma[7] = 38;
+    ynr_attr.stManual.stSelect.sigma[8] = 36;
+    ynr_attr.stManual.stSelect.sigma[9] = 32;
+    ynr_attr.stManual.stSelect.sigma[10] = 30;
+    ynr_attr.stManual.stSelect.sigma[11] = 28;
+    ynr_attr.stManual.stSelect.sigma[12] = 24;
+    ynr_attr.stManual.stSelect.sigma[13] = 24;
+    ynr_attr.stManual.stSelect.sigma[14] = 20;
+    ynr_attr.stManual.stSelect.sigma[15] = 20;
+    ynr_attr.stManual.stSelect.sigma[16] = 16;
+
+    ynr_attr.stManual.stSelect.ynr_lci = 1.0;
+
+    ynr_attr.stManual.stSelect.sw_ynr_loSpnr_bypass = 0;
+    ynr_attr.stManual.stSelect.sw_ynr_hiSpnr_bypass = 0;
+
+    ynr_attr.stManual.stSelect.sw_ynr_gainMerge_alpha = 0.0;
+    ynr_attr.stManual.stSelect.sw_ynr_globalSet_gain = 1.0;
+
+    ynr_attr.stManual.stSelect.sw_ynr_hiSpnrLocalGain_alpha = 0.3;
+    ynr_attr.stManual.stSelect.sw_ynr_hiSpnr_strg = 0.4;
+
+    ynr_attr.stManual.stSelect.sw_ynr_hiSpnrFilt_centerWgt = 0.5;
+    ynr_attr.stManual.stSelect.sw_ynr_hiSpnrFilt_wgtOffset = 0.1;
+    ynr_attr.stManual.stSelect.sw_ynr_hiSpnrSigma_minLimit = 0.05;
+    ynr_attr.stManual.stSelect.sw_ynr_hiSpnrFilt_wgt = 0.5;
+    ynr_attr.stManual.stSelect.sw_ynr_hiSpnr_gainThred = 7;
+    ynr_attr.stManual.stSelect.sw_ynr_hiSpnrStrongEdge_scale = 16;
+
+    ynr_attr.stManual.stSelect.sw_ynr_hiSpnrFilt_coeff0 = 7;
+    ynr_attr.stManual.stSelect.sw_ynr_hiSpnrFilt_coeff1 = 6;
+    ynr_attr.stManual.stSelect.sw_ynr_hiSpnrFilt_coeff2 = 3;
+    ynr_attr.stManual.stSelect.sw_ynr_hiSpnrFilt_coeff3 = 6;
+    ynr_attr.stManual.stSelect.sw_ynr_hiSpnrFilt_coeff4 = 5;
+    ynr_attr.stManual.stSelect.sw_ynr_hiSpnrFilt_coeff5 = 3;
+
+    ynr_attr.stManual.stSelect.sw_ynr_dsImg_edgeScale = 6;
+    ynr_attr.stManual.stSelect.sw_ynr_dsFiltSoftThred_scale = 0.4;
+    ynr_attr.stManual.stSelect.sw_ynr_dsFiltWgtThred_scale = 0.3;
+    ynr_attr.stManual.stSelect.sw_ynr_dsFilt_centerWgt = 0.6;
+    ynr_attr.stManual.stSelect.sw_ynr_dsFilt_strg = 0.5;
+    ynr_attr.stManual.stSelect.sw_ynr_dsIIRinitWgt_scale = 0.06;
+    ynr_attr.stManual.stSelect.sw_ynr_dsFiltLocalGain_alpha = 0.5;
+
+    ynr_attr.stManual.stSelect.sw_ynr_preFilt_strg = 0.6;
+    ynr_attr.stManual.stSelect.sw_ynr_loSpnr_wgt = 0.3;
+    ynr_attr.stManual.stSelect.sw_ynr_loSpnr_centerWgt = 0.3;
+    ynr_attr.stManual.stSelect.sw_ynr_loSpnr_strg = 0.6;
+    ynr_attr.stManual.stSelect.sw_ynr_dsFilt_strg = 0.5;
+    ynr_attr.stManual.stSelect.sw_ynr_loSpnrDistVstrg_scale = 0.0625;
+    ynr_attr.stManual.stSelect.sw_ynr_loSpnrDistHstrg_scale = 0.75;
+
+    ynr_attr.stManual.stSelect.sw_ynr_luma2loStrg_lumaPoint[0] = 0;
+    ynr_attr.stManual.stSelect.sw_ynr_luma2loStrg_lumaPoint[1] = 32;
+    ynr_attr.stManual.stSelect.sw_ynr_luma2loStrg_lumaPoint[2] = 64;
+    ynr_attr.stManual.stSelect.sw_ynr_luma2loStrg_lumaPoint[3] = 128;
+    ynr_attr.stManual.stSelect.sw_ynr_luma2loStrg_lumaPoint[4] = 192;
+    ynr_attr.stManual.stSelect.sw_ynr_luma2loStrg_lumaPoint[5] = 256;
+
+    ynr_attr.stManual.stSelect.sw_ynr_luma2loStrg_val[0] = 1.0;
+    ynr_attr.stManual.stSelect.sw_ynr_luma2loStrg_val[1] = 1.0;
+    ynr_attr.stManual.stSelect.sw_ynr_luma2loStrg_val[2] = 1.0;
+    ynr_attr.stManual.stSelect.sw_ynr_luma2loStrg_val[3] = 1.0;
+    ynr_attr.stManual.stSelect.sw_ynr_luma2loStrg_val[4] = 1.0;
+    ynr_attr.stManual.stSelect.sw_ynr_luma2loStrg_val[5] = 1.0;
+
+    for(int j = 0; j < 17; j++) {
+        ynr_attr.stManual.stSelect.sw_ynr_radius2strg_val[j] = 1.0;
+    }
+
+    for(int j = 0; j < 9; j++) {
+        ynr_attr.stManual.stSelect.sw_ynr_loSpnrGain2Strg_val[j] = 1.0;
+    }
+
+    ret = rk_aiq_user_api2_aynrV24_SetAttrib(ctx, &ynr_attr);
+    printf("set ynr v24 attri manual ret:%d \n\n", ret);
+
+    rk_aiq_ynr_attrib_v24_t get_ynr_attr;
+    get_ynr_attr.sync.sync_mode = sync_mode;
+    ret = rk_aiq_user_api2_aynrV24_GetAttrib(ctx, &get_ynr_attr);
+    printf("get aynr v24 attri ret:%d done:%d \n\n", ret, get_ynr_attr.sync.done);
     return ret;
 }
 
@@ -892,12 +1164,159 @@ XCamReturn sample_ynr_setReg_v22(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_s
     ynr_attr.stManual.stFix.nlm_nr_weight = 0x31e;
 
     ret = rk_aiq_user_api2_aynrV22_SetAttrib(ctx, &ynr_attr);
-    printf("set ynr v3 attri manual ret:%d \n\n", ret);
+    printf("set ynr v22 attri manual ret:%d \n\n", ret);
 
     rk_aiq_ynr_attrib_v22_t get_ynr_attr;
     get_ynr_attr.sync.sync_mode = sync_mode;
     ret = rk_aiq_user_api2_aynrV22_GetAttrib(ctx, &get_ynr_attr);
-    printf("get aynr v3 attri ret:%d done:%d \n\n", ret, get_ynr_attr.sync.done);
+    printf("get aynr v22 attri ret:%d done:%d \n\n", ret, get_ynr_attr.sync.done);
+
+    return ret;
+}
+
+
+XCamReturn sample_ynr_setReg_v24(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync_mode)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    rk_aiq_ynr_attrib_v24_t ynr_attr;
+    ynr_attr.sync.sync_mode = sync_mode;
+    ret = rk_aiq_user_api2_aynrV24_GetAttrib(ctx, &ynr_attr);
+    ynr_attr.sync.sync_mode = sync_mode;
+    ynr_attr.eMode = AYNRV24_OP_MODE_REG_MANUAL;
+
+
+
+
+
+    /* LOWNR_CTRL3 */
+    uint16_t lospnr_center_wgt;
+    uint16_t lospnr_strg;
+
+
+    // YNR_2700_GLOBAL_CTRL (0x0000)
+    ynr_attr.stManual.stFix.rnr_en = 1;
+    ynr_attr.stManual.stFix.gain_merge_alpha = 0x0;
+    ynr_attr.stManual.stFix.global_set_gain = 0x10;
+    ynr_attr.stManual.stFix.exgain_bypass = 0;
+    ynr_attr.stManual.stFix.hispnr_bypass = 0;
+    ynr_attr.stManual.stFix.lospnr_bypass = 0;
+    ynr_attr.stManual.stFix.ynr_en = 1;
+
+    // YNR_2700_RNR_MAX_R  (0x0004)
+    ynr_attr.stManual.stFix.local_gain_scale = 0x80;
+    ynr_attr.stManual.stFix.rnr_max_radius = 0x1c33;
+
+    // YNR_2700_RNR_MAX_R  (0x0008)
+    ynr_attr.stManual.stFix.rnr_center_coorv = 0x2f8;
+    ynr_attr.stManual.stFix.rnr_center_coorh = 0x540;
+
+    // YNR_2700_LOWNR_CTRL0 (0x0010)
+    ynr_attr.stManual.stFix.ds_filt_soft_thred_scale = 0x0c;
+    ynr_attr.stManual.stFix.ds_img_edge_scale = 0x06;
+    ynr_attr.stManual.stFix.ds_filt_wgt_thred_scale = 0x13;
+
+    // YNR_2700_LOWNR_CTRL1  (0x0014)
+    ynr_attr.stManual.stFix.ds_filt_local_gain_alpha = 0x10;
+    ynr_attr.stManual.stFix.ds_iir_init_wgt_scale = 0x03;
+    ynr_attr.stManual.stFix.ds_filt_center_wgt = 0x19;
+
+    // YNR_2700_LOWNR_CTRL2 (0x0018)
+    ynr_attr.stManual.stFix.ds_filt_inv_strg = 0x6aa;
+    ynr_attr.stManual.stFix.lospnr_wgt = 0x133;
+
+    // YNR_2700_LOWNR_CTRL3 (0x001c)
+    ynr_attr.stManual.stFix.lospnr_center_wgt = 0x600;
+    ynr_attr.stManual.stFix.lospnr_strg = 0x40;
+
+    // YNR_2700_LOWNR_CTRL4 (0x002c)
+    ynr_attr.stManual.stFix.lospnr_dist_vstrg_scale = 0x4;
+    ynr_attr.stManual.stFix.lospnr_dist_hstrg_scale = 0x30;
+
+
+    // YNR_2700_GAUSS1_COEFF  (0x0030)
+    ynr_attr.stManual.stFix.pre_filt_coeff0 = 0x28;
+    ynr_attr.stManual.stFix.pre_filt_coeff1 = 0x10;
+    ynr_attr.stManual.stFix.pre_filt_coeff2 = 0x6;
+
+    for(int j = 0; j < 9; j++) {
+        // /* LOW_GAIN_ADJ */ (0x0034- 0x003c)
+        ynr_attr.stManual.stFix.lospnr_gain2strg_val[j] = 0x10;
+    }
+
+    // YNR_2700_SGM_DX_0_1 (0x0040 - 0x0060)
+    ynr_attr.stManual.stFix.luma2sima_idx[0] = 0x000;
+    ynr_attr.stManual.stFix.luma2sima_idx[1] = 0x040;
+    ynr_attr.stManual.stFix.luma2sima_idx[2] = 0x080;
+    ynr_attr.stManual.stFix.luma2sima_idx[3] = 0x0c0;
+    ynr_attr.stManual.stFix.luma2sima_idx[4] = 0x100;
+    ynr_attr.stManual.stFix.luma2sima_idx[5] = 0x140;
+    ynr_attr.stManual.stFix.luma2sima_idx[6] = 0x180;
+    ynr_attr.stManual.stFix.luma2sima_idx[7] = 0x1c0;
+    ynr_attr.stManual.stFix.luma2sima_idx[8] = 0x200;
+    ynr_attr.stManual.stFix.luma2sima_idx[9] = 0x240;
+    ynr_attr.stManual.stFix.luma2sima_idx[10] = 0x280;
+    ynr_attr.stManual.stFix.luma2sima_idx[11] = 0x2c0;
+    ynr_attr.stManual.stFix.luma2sima_idx[12] = 0x300;
+    ynr_attr.stManual.stFix.luma2sima_idx[13] = 0x340;
+    ynr_attr.stManual.stFix.luma2sima_idx[14] = 0x380;
+    ynr_attr.stManual.stFix.luma2sima_idx[15] = 0x3c0;
+    ynr_attr.stManual.stFix.luma2sima_idx[16] = 0x400;
+
+
+    // YNR_2700_LSGM_Y_0_1 (0x0070- 0x0090)
+    ynr_attr.stManual.stFix.luma2sima_val[0] = 0x04c;
+    ynr_attr.stManual.stFix.luma2sima_val[1] = 0x0a0;
+    ynr_attr.stManual.stFix.luma2sima_val[2] = 0x0d0;
+    ynr_attr.stManual.stFix.luma2sima_val[3] = 0x0e4;
+    ynr_attr.stManual.stFix.luma2sima_val[4] = 0x0e8;
+    ynr_attr.stManual.stFix.luma2sima_val[5] = 0x0e4;
+    ynr_attr.stManual.stFix.luma2sima_val[6] = 0x0d8;
+    ynr_attr.stManual.stFix.luma2sima_val[7] = 0x0cc;
+    ynr_attr.stManual.stFix.luma2sima_val[8] = 0x0c4;
+    ynr_attr.stManual.stFix.luma2sima_val[9] = 0x0c0;
+    ynr_attr.stManual.stFix.luma2sima_val[10] = 0x0bc;
+    ynr_attr.stManual.stFix.luma2sima_val[11] = 0x0b8;
+    ynr_attr.stManual.stFix.luma2sima_val[12] = 0x0b4;
+    ynr_attr.stManual.stFix.luma2sima_val[13] = 0x0a4;
+    ynr_attr.stManual.stFix.luma2sima_val[14] = 0x088;
+    ynr_attr.stManual.stFix.luma2sima_val[15] = 0x054;
+    ynr_attr.stManual.stFix.luma2sima_val[16] = 0x028;
+
+    for(int j = 0; j < 17; j++) {
+        // YNR_2700_RNR_STRENGTH03 (0x00d0- 0x00e0)
+        ynr_attr.stManual.stFix.radius2strg_val[j] = 0x10;
+    }
+    // (0x00ec)
+    ynr_attr.stManual.stFix.hispnr_strong_edge = 0x80;
+
+    //YNR_NLM_SIGMA_GAIN
+    ynr_attr.stManual.stFix.hispnr_sigma_min_limit = 0x0d;
+    ynr_attr.stManual.stFix.hispnr_local_gain_alpha = 0x10;
+    ynr_attr.stManual.stFix.hispnr_strg = 0x40;
+
+    // YNR_NLM_COE  (0x0038 - 0x003c)
+    ynr_attr.stManual.stFix.hispnr_filt_coeff[0] = 0x07;
+    ynr_attr.stManual.stFix.hispnr_filt_coeff[1] = 0x06;
+    ynr_attr.stManual.stFix.hispnr_filt_coeff[2] = 0x00;
+    ynr_attr.stManual.stFix.hispnr_filt_coeff[3] = 0x06;
+    ynr_attr.stManual.stFix.hispnr_filt_coeff[4] = 0x05;
+    ynr_attr.stManual.stFix.hispnr_filt_coeff[5] = 0x03;
+
+    // YNR_NLM_WEIGHT
+    ynr_attr.stManual.stFix.hispnr_filt_center_wgt = 0x400;
+    ynr_attr.stManual.stFix.hispnr_filt_wgt_offset = 0x32;
+
+    // YNR_NLM_NR_WEIGHT
+    ynr_attr.stManual.stFix.hispnr_filt_wgt = 0x31e;
+    ynr_attr.stManual.stFix.hispnr_gain_thred = 0x08;
+
+    ret = rk_aiq_user_api2_aynrV24_SetAttrib(ctx, &ynr_attr);
+    printf("set ynr v24 attri manual ret:%d \n\n", ret);
+
+    rk_aiq_ynr_attrib_v24_t get_ynr_attr;
+    get_ynr_attr.sync.sync_mode = sync_mode;
+    ret = rk_aiq_user_api2_aynrV24_GetAttrib(ctx, &get_ynr_attr);
+    printf("get aynr v24 attri ret:%d done:%d \n\n", ret, get_ynr_attr.sync.done);
 
     return ret;
 }
@@ -929,18 +1348,37 @@ XCamReturn sample_ynr_setStrength_v22(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_m
     ynr_strength.percent = fStrength;
     ynr_strength.strength_enable = true;
     ret = rk_aiq_user_api2_aynrV22_SetStrength(ctx, &ynr_strength);
-    printf("Set aynr v3 set streangth ret:%d strength:%f \n\n", ret, ynr_strength.percent);
+    printf("Set aynr v22 set streangth ret:%d strength:%f \n\n", ret, ynr_strength.percent);
 
     rk_aiq_ynr_strength_v22_t get_ynr_strength;
     get_ynr_strength.sync.sync_mode = sync_mode;
     ret = rk_aiq_user_api2_aynrV22_GetStrength(ctx, &get_ynr_strength);
-    printf("get aynr v3 attri ret:%d strength:%f done:%d\n\n",
+    printf("get aynr v22 attri ret:%d strength:%f done:%d\n\n",
            ret, get_ynr_strength.percent, get_ynr_strength.sync.done);
 
     return ret;
 }
 
 
+
+XCamReturn sample_ynr_setStrength_v24(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync_mode, float fStrength)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    rk_aiq_ynr_strength_v24_t ynr_strength;
+    ynr_strength.sync.sync_mode = sync_mode;
+    ynr_strength.percent = fStrength;
+    ynr_strength.strength_enable = true;
+    ret = rk_aiq_user_api2_aynrV24_SetStrength(ctx, &ynr_strength);
+    printf("Set aynr v24 set streangth ret:%d strength:%f \n\n", ret, ynr_strength.percent);
+
+    rk_aiq_ynr_strength_v24_t get_ynr_strength;
+    get_ynr_strength.sync.sync_mode = sync_mode;
+    ret = rk_aiq_user_api2_aynrV24_GetStrength(ctx, &get_ynr_strength);
+    printf("get aynr v24 attri ret:%d strength:%f done:%d\n\n",
+           ret, get_ynr_strength.percent, get_ynr_strength.sync.done);
+
+    return ret;
+}
 
 XCamReturn sample_ynr_setDefault_v3(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync_mode, rk_aiq_ynr_attrib_v3_t default_ynrV3_attr)
 {
@@ -963,14 +1401,66 @@ XCamReturn sample_ynr_setDefault_v22(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mo
 
     default_ynr_attr.sync.sync_mode = sync_mode;
     ret = rk_aiq_user_api2_aynrV22_SetAttrib(ctx, &default_ynr_attr);
-    printf("set ynr v3 attri auto default value ret:%d \n\n", ret);
+    printf("set ynr v22 attri auto default value ret:%d \n\n", ret);
 
     ret = rk_aiq_user_api2_aynrV22_GetAttrib(ctx, &default_ynr_attr);
-    printf("get aynr v3 attri ret:%d done:%d \n\n", ret, default_ynr_attr.sync.done);
+    printf("get aynr v22 attri ret:%d done:%d \n\n", ret, default_ynr_attr.sync.done);
 
     return ret;
 }
 
+XCamReturn sample_ynr_setDefault_v24(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync_mode, rk_aiq_ynr_attrib_v24_t default_ynr_attr)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    default_ynr_attr.sync.sync_mode = sync_mode;
+    ret = rk_aiq_user_api2_aynrV24_SetAttrib(ctx, &default_ynr_attr);
+    printf("set ynr v24 attri auto default value ret:%d \n\n", ret);
+
+    ret = rk_aiq_user_api2_aynrV24_GetAttrib(ctx, &default_ynr_attr);
+    printf("get aynr v24 attri ret:%d done:%d \n\n", ret, default_ynr_attr.sync.done);
+
+    return ret;
+}
+
+#ifdef USE_NEWSTRUCT
+static void sample_ynr_test(const rk_aiq_sys_ctx_t* ctx)
+{
+    // get cur mode
+    printf("+++++++ YNR module test start ++++++++\n");
+
+    ynr_api_attrib_t attr;
+    memset(&attr, 0, sizeof(attr));
+
+    rk_aiq_user_api2_ynr_GetAttrib(ctx, &attr);
+
+    printf("ynr attr: opmode:%d, en:%d, bypass:%d\n", attr.opMode, attr.en, attr.bypass);
+
+    if (attr.opMode == RK_AIQ_OP_MODE_AUTO)
+        attr.opMode = RK_AIQ_OP_MODE_MANUAL;
+    else
+        attr.opMode = RK_AIQ_OP_MODE_AUTO;
+
+    // reverse en
+    attr.en = !attr.en;
+
+    rk_aiq_user_api2_ynr_SetAttrib(ctx, &attr);
+
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    ynr_status_t status;
+    memset(&status, 0, sizeof(ynr_status_t));
+
+    rk_aiq_user_api2_ynr_QueryStatus(ctx, &status);
+
+    printf("ynr status: opmode:%d, en:%d, bypass:%d\n", status.opMode, status.en, status.bypass);
+
+    if (status.opMode != attr.opMode || status.en != attr.en)
+        printf("ynr test failed\n");
+    printf("-------- YNR module test done --------\n");
+}
+#endif
 
 XCamReturn sample_aynr_module (const void *arg)
 {
@@ -1003,6 +1493,10 @@ XCamReturn sample_aynr_module (const void *arg)
         rk_aiq_user_api2_aynrV22_GetAttrib(ctx, &default_ynrV22_attr);
     }
 
+    rk_aiq_ynr_attrib_v24_t default_ynrV24_attr;
+    if (CHECK_ISP_HW_V39()) {
+        rk_aiq_user_api2_aynrV24_GetAttrib(ctx, &default_ynrV24_attr);
+    }
     do {
         sample_aynr_usage ();
 
@@ -1019,13 +1513,19 @@ XCamReturn sample_aynr_module (const void *arg)
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ynr_getAttr_v22(ctx, RK_AIQ_UAPI_MODE_SYNC);
             }
+            if (CHECK_ISP_HW_V39()) {
+                sample_ynr_getAttr_v24(ctx, RK_AIQ_UAPI_MODE_SYNC);
+            }
             break;
         case '1':
             if (CHECK_ISP_HW_V30()) {
                 sample_ynr_getStrength_v3(ctx, RK_AIQ_UAPI_MODE_SYNC);
             }
-            if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+            if ( CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ynr_getStrength_v22(ctx, RK_AIQ_UAPI_MODE_SYNC);
+            }
+            if (CHECK_ISP_HW_V39() ) {
+                sample_ynr_getStrength_v24(ctx, RK_AIQ_UAPI_MODE_SYNC);
             }
             break;
         case '2':
@@ -1035,6 +1535,9 @@ XCamReturn sample_aynr_module (const void *arg)
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ynr_setAuto_v22(ctx, RK_AIQ_UAPI_MODE_SYNC);
             }
+            if (CHECK_ISP_HW_V39()) {
+                sample_ynr_setAuto_v24(ctx, RK_AIQ_UAPI_MODE_SYNC);
+            }
             break;
         case '3':
             if (CHECK_ISP_HW_V30()) {
@@ -1042,6 +1545,9 @@ XCamReturn sample_aynr_module (const void *arg)
             }
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ynr_setManual_v22(ctx, RK_AIQ_UAPI_MODE_SYNC);
+            }
+            if (CHECK_ISP_HW_V39() ) {
+                sample_ynr_setManual_v24(ctx, RK_AIQ_UAPI_MODE_SYNC);
             }
             break;
         case '4':
@@ -1051,6 +1557,9 @@ XCamReturn sample_aynr_module (const void *arg)
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ynr_setReg_v22(ctx, RK_AIQ_UAPI_MODE_SYNC);
             }
+            if (CHECK_ISP_HW_V39() ) {
+                sample_ynr_setReg_v24(ctx, RK_AIQ_UAPI_MODE_SYNC);
+            }
             break;
         case '5':
             if (CHECK_ISP_HW_V30()) {
@@ -1059,13 +1568,19 @@ XCamReturn sample_aynr_module (const void *arg)
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ynr_setStrength_v22(ctx, RK_AIQ_UAPI_MODE_SYNC, 1.0);
             }
+            if (CHECK_ISP_HW_V39() ) {
+                sample_ynr_setStrength_v24(ctx, RK_AIQ_UAPI_MODE_SYNC, 1.0);
+            }
             break;
         case '6':
             if (CHECK_ISP_HW_V30()) {
                 sample_ynr_setStrength_v3(ctx, RK_AIQ_UAPI_MODE_SYNC, 0.0);
             }
-            if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+            if ( CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ynr_setStrength_v22(ctx, RK_AIQ_UAPI_MODE_SYNC, 0.0);
+            }
+            if (CHECK_ISP_HW_V39()) {
+                sample_ynr_setStrength_v24(ctx, RK_AIQ_UAPI_MODE_SYNC, 0.0);
             }
             break;
         case '7':
@@ -1075,6 +1590,9 @@ XCamReturn sample_aynr_module (const void *arg)
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ynr_setStrength_v22(ctx, RK_AIQ_UAPI_MODE_SYNC, 0.5);
             }
+            if (CHECK_ISP_HW_V39() ) {
+                sample_ynr_setStrength_v24(ctx, RK_AIQ_UAPI_MODE_SYNC, 0.5);
+            }
             break;
         case '8':
             if (CHECK_ISP_HW_V30()) {
@@ -1082,6 +1600,9 @@ XCamReturn sample_aynr_module (const void *arg)
             }
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ynr_setDefault_v22(ctx, RK_AIQ_UAPI_MODE_SYNC, default_ynrV22_attr);
+            }
+            if (CHECK_ISP_HW_V39()) {
+                sample_ynr_setDefault_v24(ctx, RK_AIQ_UAPI_MODE_SYNC, default_ynrV24_attr);
             }
             break;
         case 'a':
@@ -1091,13 +1612,19 @@ XCamReturn sample_aynr_module (const void *arg)
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ynr_getAttr_v22(ctx, RK_AIQ_UAPI_MODE_ASYNC);
             }
+            if (CHECK_ISP_HW_V39()) {
+                sample_ynr_getAttr_v24(ctx, RK_AIQ_UAPI_MODE_ASYNC);
+            }
             break;
         case 'b':
             if (CHECK_ISP_HW_V30()) {
                 sample_ynr_getStrength_v3(ctx, RK_AIQ_UAPI_MODE_ASYNC);
             }
-            if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+            if ( CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ynr_getStrength_v22(ctx, RK_AIQ_UAPI_MODE_ASYNC);
+            }
+            if (CHECK_ISP_HW_V39()) {
+                sample_ynr_getStrength_v24(ctx, RK_AIQ_UAPI_MODE_ASYNC);
             }
             break;
         case 'c':
@@ -1107,6 +1634,9 @@ XCamReturn sample_aynr_module (const void *arg)
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ynr_setAuto_v22(ctx, RK_AIQ_UAPI_MODE_ASYNC);
             }
+            if (CHECK_ISP_HW_V39()) {
+                sample_ynr_setAuto_v24(ctx, RK_AIQ_UAPI_MODE_ASYNC);
+            }
             break;
         case 'd':
             if (CHECK_ISP_HW_V30()) {
@@ -1114,6 +1644,9 @@ XCamReturn sample_aynr_module (const void *arg)
             }
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ynr_setManual_v22(ctx, RK_AIQ_UAPI_MODE_ASYNC);
+            }
+            if (CHECK_ISP_HW_V39()) {
+                sample_ynr_setManual_v24(ctx, RK_AIQ_UAPI_MODE_ASYNC);
             }
             break;
         case 'e':
@@ -1123,6 +1656,9 @@ XCamReturn sample_aynr_module (const void *arg)
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ynr_setReg_v22(ctx, RK_AIQ_UAPI_MODE_ASYNC);
             }
+            if (CHECK_ISP_HW_V39()) {
+                sample_ynr_setReg_v24(ctx, RK_AIQ_UAPI_MODE_ASYNC);
+            }
             break;
         case 'f':
             if (CHECK_ISP_HW_V30()) {
@@ -1130,6 +1666,9 @@ XCamReturn sample_aynr_module (const void *arg)
             }
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ynr_setStrength_v22(ctx, RK_AIQ_UAPI_MODE_ASYNC, 1.0);
+            }
+            if (CHECK_ISP_HW_V39()) {
+                sample_ynr_setStrength_v24(ctx, RK_AIQ_UAPI_MODE_ASYNC, 1.0);
             }
             break;
         case 'g':
@@ -1139,6 +1678,9 @@ XCamReturn sample_aynr_module (const void *arg)
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ynr_setStrength_v22(ctx, RK_AIQ_UAPI_MODE_ASYNC, 0.0);
             }
+            if (CHECK_ISP_HW_V39()) {
+                sample_ynr_setStrength_v24(ctx, RK_AIQ_UAPI_MODE_ASYNC, 0.0);
+            }
             break;
         case 'h':
             if (CHECK_ISP_HW_V30()) {
@@ -1146,6 +1688,9 @@ XCamReturn sample_aynr_module (const void *arg)
             }
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ynr_setStrength_v22(ctx, RK_AIQ_UAPI_MODE_ASYNC, 0.5);
+            }
+            if (CHECK_ISP_HW_V39()) {
+                sample_ynr_setStrength_v24(ctx, RK_AIQ_UAPI_MODE_ASYNC, 0.5);
             }
             break;
         case 'i':
@@ -1155,9 +1700,15 @@ XCamReturn sample_aynr_module (const void *arg)
             if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
                 sample_ynr_setDefault_v22(ctx, RK_AIQ_UAPI_MODE_ASYNC, default_ynrV22_attr);
             }
+            if (CHECK_ISP_HW_V39()) {
+                sample_ynr_setDefault_v24(ctx, RK_AIQ_UAPI_MODE_ASYNC, default_ynrV24_attr);
+            }
             break;
-
-
+#ifdef USE_NEWSTRUCT
+        case 'j':
+            sample_ynr_test(ctx);
+            break;
+#endif
         default:
             printf("not support test\n\n");
             break;

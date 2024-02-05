@@ -46,6 +46,8 @@ class RkAiqAfHandleInt : virtual public RkAiqHandle {
     virtual XCamReturn postProcess();
     virtual XCamReturn genIspResult(RkAiqFullParams* params, RkAiqFullParams* cur_params);
     // TODO add algo specific methords, this is a sample
+    XCamReturn setCalib(void* calib);
+    XCamReturn getCalib(void* calib);
     XCamReturn setAttrib(rk_aiq_af_attrib_t* att);
     XCamReturn getAttrib(rk_aiq_af_attrib_t* att);
     XCamReturn lock();
@@ -61,6 +63,7 @@ class RkAiqAfHandleInt : virtual public RkAiqHandle {
     XCamReturn GetSearchPath(rk_aiq_af_sec_path_t* path);
     XCamReturn GetSearchResult(rk_aiq_af_result_t* result);
     XCamReturn GetFocusRange(rk_aiq_af_focusrange* range);
+    XCamReturn GetZoomRange(rk_aiq_af_zoomrange* range);
     XCamReturn setAeStable(bool ae_stable);
 
  protected:

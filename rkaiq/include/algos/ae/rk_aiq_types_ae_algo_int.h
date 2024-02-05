@@ -400,6 +400,12 @@ typedef struct Aec_uapi_advanced_attr_s {
 typedef enum AecHwVersion_e
 {
     /*
+    NOTE: name of rawae/rawhist channel has been renamed!
+       RawAE0 = RawAE lite, addr=0x4500 <=> RawHIST0
+       RawAE1 = RawAE big2, addr=0x4600 <=> RawHIST1
+       RawAE2 = RawAE big3, addr=0x4700 <=> RawHIST2
+       RawAE3 = RawAE big1, addr=0x4400 <=> RawHIST3, extra aebig
+
     | AEC HW   | RawAE0 | RawAE1 | RawAE2 | RawAE3 | YUVAE | HDR FRAME | Share with AF               | E.G.          |
     |----------|--------|--------|--------|--------|-------|-----------|-----------------------------|---------------|
     | V20      | lite   | big    | big    | big    | Y     | 3         | -                           | RV1126/RV1109 |
@@ -407,12 +413,14 @@ typedef enum AecHwVersion_e
     | V30      | lite   | big    | big    | big    | -     | 3         | RawAE3                      | RK3588        |
     | V32      | lite   | big    | -      | big    | -     | 2         | RawAE3                      | RV1106/RV1103 |
     | V32_LITE | lite   | -      | -      | big    | -     | 2         | RawAE0/3, 3A specify RawAE0 | RK3562        |
+    | V39      | big    | -      | -      | big    | -     | 2         | -                           | RK3576        |
     */
     AEC_HARDWARE_V20   = 0,
     AEC_HARDWARE_V21   = 1,
     AEC_HARDWARE_V30   = 2,
     AEC_HARDWARE_V32   = 3,
     AEC_HARDWARE_V32_LITE = 4,
+    AEC_HARDWARE_V39   = 5,
     AEC_HARDWARE_MAX,
 } AecHwVersion_t;
 
@@ -487,6 +495,9 @@ typedef struct AecConfig_s {
 
     /*add for api using ae translator params*/
     AecStatsCfg_t                 AecStatsCfg;
+    /*for build-in HDR*/
+    bool                          BuildInHdr;
+    int                           ComprBit;
 
     /*update attr flag*/
     uint16_t                      IsReconfig;

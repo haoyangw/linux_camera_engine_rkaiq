@@ -1095,7 +1095,11 @@ void Isp3xParams::convertAiqAgammaToIsp3xParams(T& isp_cfg,
     cfg->finalx4_dense_en          = gamma_out_cfg.Gamma_v11.EnableDot49 ? 1 : 0;
     cfg->equ_segm                  = gamma_out_cfg.Gamma_v11.equ_segm;
     for (int i = 0; i < 49; i++) cfg->gamma_y[i] = gamma_out_cfg.Gamma_v11.gamma_y[i];
-
+#if 0
+    printf("cfg->offset %d\n", cfg->offset);
+    for (int i = 0; i < 6; i++)
+        printf("cfg->gamma_y[%d] %d\n", i, cfg->gamma_y[i]);
+#endif
 #if 0
     LOGE_CAMHW_SUBM(ISP20PARAM_SUBM, "%s:(%d) gamma en:%d, finalx4_dense_en:%d offset:%d, equ_segm:%d\n", __FUNCTION__, __LINE__, gamma_out_cfg.Gamma_v11.gamma_en,
                     cfg->finalx4_dense_en, cfg->offset, cfg->offset);
@@ -1471,9 +1475,11 @@ bool Isp3xParams::convert3aResultsToIspCfg(SmartPtr<cam3aResult> &result,
     case RESULT_TYPE_AGAMMA_PARAM:
     {
 #if RKAIQ_HAVE_GAMMA_V11
+#ifndef USE_NEWSTRUCT
         RkAiqIspAgammaParamsProxy* params = result.get_cast_ptr<RkAiqIspAgammaParamsProxy>();
         if (params)
             convertAiqAgammaToIsp3xParams(isp_cfg, params->data()->result);
+#endif
 #endif
     }
     break;
@@ -1545,11 +1551,15 @@ bool Isp3xParams::convert3aResultsToIspCfg(SmartPtr<cam3aResult> &result,
     }
     break;
     case RESULT_TYPE_DPCC_PARAM:
+#if RKAIQ_HAVE_DPCC_V1
+#ifndef USE_NEWSTRUCT
     {
         RkAiqIspDpccParamsProxy* params = result.get_cast_ptr<RkAiqIspDpccParamsProxy>();
         if (params)
             convertAiqDpccToIsp20Params(isp_cfg, params->data()->result);
     }
+#endif
+#endif
     break;
     case RESULT_TYPE_DEBAYER_PARAM:
     {

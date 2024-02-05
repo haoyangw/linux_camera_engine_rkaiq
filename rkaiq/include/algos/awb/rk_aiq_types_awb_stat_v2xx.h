@@ -36,7 +36,7 @@
 #define AWB_UV_RANGE_SLOVE_FRACTION 10
 #define AWB_UV_RANGE_SLOVE_SINTER 9
 
-#if RKAIQ_HAVE_AWB_V32LT
+#if RKAIQ_HAVE_AWB_V32LT||ISP_HW_V39
 typedef enum rk_aiq_down_scale_mode_e {
     RK_AIQ_AWB_DS_INVALIED = -1,
     RK_AIQ_AWB_DS_4X4 = 0,

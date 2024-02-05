@@ -17,6 +17,7 @@ typedef enum AdebayerHwVersion_e
     ADEBAYER_HARDWARE_V1 = 0,  // rk1126/1109/356X/3588
     ADEBAYER_HARDWARE_V2 = 1,  //rk1106
     ADEBAYER_HARDWARE_V2_LITE = 2,  //rk3562
+    ADEBAYER_HARDWARE_V3 = 3,   //rk3576
     ADEBAYER_HARDWARE_MAX,
 } AdebayerHwVersion_t;
 
@@ -111,6 +112,62 @@ typedef struct AdebayerSeletedParamV2Lite_s {
 
 } AdebayerSeletedParamV2Lite_t;
 
+typedef struct AdebayerSeletedParamV3_s
+{
+    // debayer params
+    bool    hw_dmT_en;
+    char    hw_dmT_loDrctFlt_coeff[4];
+    char    hw_dmT_hiDrctFlt_coeff[4];
+
+    int     sw_dmT_luma_val[RK_DEBAYER_V31_LUMA_POINT_NUM];
+    int     sw_dmT_drct_offset[RK_DEBAYER_V31_LUMA_POINT_NUM];
+
+    float   sw_dmT_gradLoFlt_alpha;
+
+    int     hw_dmT_hiDrct_thred;
+    int     hw_dmT_loDrct_thred;
+    int     hw_dmT_hiTexture_thred;
+    int     hw_dmT_drctMethod_thred;
+
+    float   sw_dmT_gInterpWgtFlt_alpha;
+
+    int     hw_dmT_gInterpSharpStrg_offset;
+    int     hw_dmT_gInterpSharpStrg_maxLimit;
+    int     hw_dmT_gInterpClip_en;
+
+    int     hw_dmT_gOutlsFlt_en;
+    int     hw_dmT_gOutlsFlt_mode;
+    int     hw_dmT_gOutlsFltRange_offset;
+    int     sw_dmT_gOutlsFlt_vsigma[RK_DEBAYER_V31_LUMA_POINT_NUM];
+    float   sw_dmT_gOutlsFltRsigma_en;
+    float   sw_dmT_gOutlsFlt_rsigma;
+    float   sw_dmT_gOutlsFlt_coeff[3];
+    float   sw_dmT_gOutlsFlt_ratio;
+
+    // chroma filter
+    int     hw_dmT_cnrFlt_en;
+    int     hw_dmT_cnrAlphaLpf_coeff[3];
+    int     hw_dmT_cnrLoGuideLpf_coeff[3];
+    int     hw_dmT_cnrPreFlt_coeff[3];
+
+    float   hw_dmT_cnrMoireAlpha_offset;
+    float   sw_dmT_cnrMoireAlpha_scale;
+    float   hw_dmT_cnrEdgeAlpha_offset;
+    float   sw_dmT_cnrEdgeAlpha_scale;
+    int     hw_dmT_logTrans_en;
+    int     hw_dmT_cnrLogGrad_offset;
+    int     hw_dmT_cnrLogGuide_offset;
+    float   sw_dmT_cnrLoFlt_vsigma;
+    float   sw_dmT_cnrLoFltWgt_maxLimit;
+    float   sw_dmT_cnrLoFltWgt_minThred;
+    float   sw_dmT_cnrLoFltWgt_slope;
+
+    float   sw_dmT_cnrHiFlt_vsigma;
+    float   hw_dmT_cnrHiFltWgt_minLimit;
+    float   hw_dmT_cnrHiFltCur_wgt;
+
+} AdebayerSeletedParamV3_t;
+
 typedef struct AdebayerProcResultV1_s {
     AdebayerHwConfigV1_t* config;
 } AdebayerProcResultV1_t;
@@ -118,5 +175,9 @@ typedef struct AdebayerProcResultV1_s {
 typedef struct AdebayerProcResultV2_s {
     AdebayerHwConfigV2_t* config;
 } AdebayerProcResultV2_t;
+
+typedef struct AdebayerProcResultV3_s {
+    AdebayerHwConfigV3_t* config;
+} AdebayerProcResultV3_t;
 
 #endif//__RKAIQ_TYPES_ADEBAYER_ALGO_INT_H__

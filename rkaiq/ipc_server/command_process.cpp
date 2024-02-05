@@ -367,7 +367,7 @@ int ProcessCommand(rk_aiq_sys_ctx_t* ctx, RkAiqSocketPacket *dataRecv, RkAiqSock
         dataReply->data = (char*)malloc(dataReply->dataSize);
         dataReply->commandResult =  getCcmAttrib(ctx, dataReply->data);
 #endif
-#if RKAIQ_HAVE_CCM_V2
+#if RKAIQ_HAVE_CCM_V2 || RKAIQ_HAVE_CCM_V3
         dataReply->dataSize = sizeof(rk_aiq_ccm_v2_attrib_t);
         dataReply->data = (char*)malloc(dataReply->dataSize);
         dataReply->commandResult =  getCcmAttrib(ctx, dataReply->data);

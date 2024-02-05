@@ -48,6 +48,10 @@
 #define ENHANCE_CHROME_MIN                          (1.0)
 #define HSIT_WR_MIN_STEP                            (16)
 #define HSIT_WR_X_MAX                               (1023)
+#define HSIT_BLOCK_HEIGHT_MIN                       (64)
+#define HIST_BLOCK_HEIGHT_MAX                       (876)
+#define HSIT_BLOCK_WIDTH_MIN                        (66)
+#define HIST_BLOCK_WIDTH_MAX                        (1168)
 
 //define for dehaze local gain
 #define YNR_BIT_CALIB (12)
@@ -103,6 +107,12 @@ typedef struct AdehazeHandle_s {
     float YnrProcResV22_sigma[YNR_V22_ISO_CURVE_POINT_NUM];
     AdehazeAePreResV11_t CurrDataV12;
     AdehazeAePreResV11_t PreDataV12;
+#endif
+#if RKAIQ_HAVE_DEHAZE_V14
+    adehaze_sw_v14_t AdehazeAtrrV14;
+    float YnrProcResV24_sigma[YNR_V24_ISO_CURVE_POINT_NUM];
+    AdehazeAePreResV11_t CurrDataV14;
+    AdehazeAePreResV11_t PreDataV14;
 #endif
     int width;
     int height;

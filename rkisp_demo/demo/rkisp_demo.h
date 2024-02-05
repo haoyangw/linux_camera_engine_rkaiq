@@ -32,6 +32,7 @@ typedef struct _demo_context {
     char                    dev_name2[255];
     char                    dev_name3[255];
     char                    dev_name4[255];
+    char                    dev_name5[255];
     char                    sns_name[32];
     int                     dev_using;
     int                     width;

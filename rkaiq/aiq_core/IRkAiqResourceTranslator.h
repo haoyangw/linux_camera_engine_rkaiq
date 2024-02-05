@@ -78,6 +78,10 @@ public:
     virtual XCamReturn getParams(const SmartPtr<VideoBuffer>& from) {
         return XCAM_RETURN_BYPASS;
     }
+    virtual XCamReturn translateBay3dStats(const SmartPtr<VideoBuffer>& from,
+                                           std::list<SmartPtr<RkAiqBay3dStat>>& to, Mutex& mutex) {
+        return XCAM_RETURN_BYPASS;
+    }
     virtual void releaseParams() {}
     void setCamPhyId(int phyId) {
         mCamPhyId = phyId;

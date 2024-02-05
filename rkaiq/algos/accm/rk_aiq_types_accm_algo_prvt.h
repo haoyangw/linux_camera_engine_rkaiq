@@ -98,6 +98,11 @@ typedef struct accm_context_s {
     rk_aiq_ccm_cfg_v2_t ccmHwConf_v2;
     rk_aiq_ccm_v2_attrib_t mCurAttV2;
 #endif
+#if RKAIQ_HAVE_CCM_V3
+    CalibDbV2_Ccm_Para_V39_t* ccm_v3;
+    rk_aiq_ccm_cfg_v2_t ccmHwConf_v2;
+    rk_aiq_ccm_v3_attrib_t mCurAttV3;
+#endif
     const CalibDbV2_Ccm_Matrix_Para_t *pCcmMatrixAll[CCM_ILLUMINATION_MAX][CCM_PROFILES_NUM_MAX];// reorder para //to do, change to pointer
     accm_sw_info_t accmSwInfo;
     accm_rest_t accmRest;

@@ -150,6 +150,9 @@ void CamProfiles::ParseFromIni(const std::string ini_path) {
         if (rkaiq_ini_sget(ini, policy.c_str(), "sharp", "%d", &val)) {
             algo_policies_[RK_AIQ_ALGO_TYPE_ASHARP] = val;
         }
+        if (rkaiq_ini_sget(ini, policy.c_str(), "rgbir", "%d", &val)) {
+            algo_policies_[RK_AIQ_ALGO_TYPE_ARGBIR] = val;
+        }
     }
 
     for (auto p : algo_policies_) {

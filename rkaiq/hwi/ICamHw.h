@@ -138,12 +138,16 @@ public:
 #if RKAIQ_HAVE_PDAF
     virtual bool get_pdaf_support() = 0;
 #endif
-    virtual void setTbInfo(rk_aiq_tb_info_t& info) = 0;
+    virtual void setTbInfo(RkAiqTbInfo_t& info) = 0;
     virtual void setDevBufCnt(const std::map<std::string, int>& dev_buf_cnt_map) = 0;
     virtual XCamReturn reset_hardware() = 0;
     virtual XCamReturn rawReproc_genIspParams (uint32_t sequence, rk_aiq_frame_info_t *offline_finfo, int mode) = 0;
     virtual XCamReturn rawReProc_prepare (uint32_t sequence, rk_aiq_frame_info_t *offline_finfo) = 0;
     virtual void setRawStreamInfo(rk_aiq_rkrawstream_info_t *info) = 0;
+    virtual XCamReturn setAiispMode(rk_aiq_aiisp_cfg_t *aiisp_cfg) = 0;
+    virtual XCamReturn read_aiisp_result() = 0;
+    virtual XCamReturn get_aiisp_bay3dbuf() = 0;
+    virtual XCamReturn aiisp_processing(rk_aiq_aiisp_t *aiisp_evt) = 0;
 private:
     XCAM_DEAD_COPY (ICamHw);
 };

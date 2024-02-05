@@ -12,7 +12,10 @@
 // in framework. And if called by user app directly,
 // sync should be done in inner. now we just need implement
 // the case of need_sync == false; need_sync is for future usage.
-
+XCamReturn
+rk_aiq_uapi_af_SetCalib(RkAiqAlgoContext *ctx, void *af_calib_cfg);
+XCamReturn
+rk_aiq_uapi_af_GetCalib(const RkAiqAlgoContext *ctx, void *af_calib_cfg);
 XCamReturn
 rk_aiq_uapi_af_SetAttrib(RkAiqAlgoContext *ctx,
                          rk_aiq_af_attrib_t attr,
@@ -44,6 +47,8 @@ XCamReturn
 rk_aiq_uapi_af_getSearchResult(const RkAiqAlgoContext *ctx, rk_aiq_af_result_t* result);
 XCamReturn
 rk_aiq_uapi_af_getFocusRange(const RkAiqAlgoContext *ctx, rk_aiq_af_focusrange* range);
+XCamReturn
+rk_aiq_uapi_af_getZoomRange(const RkAiqAlgoContext *ctx, rk_aiq_af_zoomrange* range);
 XCamReturn
 rk_aiq_uapi_af_resetZoom(const RkAiqAlgoContext *ctx);
 

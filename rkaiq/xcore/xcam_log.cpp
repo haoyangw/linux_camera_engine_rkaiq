@@ -60,10 +60,10 @@ static char log_file_name[LOG_FILE_NAME_MAX_LENGTH] = {0};
  * bit:      48          46       45          44       43       42        41          40
  * meaning:  [IPC]   [RKSTREAM] [GROUPAEC] [AWBGROUP]  [CAMGROUP]   [ACAC]    [AMD]   [AMERGE]
  *
- * bit:                                                                               48
- * meaning:                                                                           [AFD]
+ * bit:                                                                       49        48
+ * meaning:                                                                 [ARGBIR]   [AFD]
  *
- * bit:     [63-49]
+ * bit:     [63-50]
  * meaning:  [U]
  *
  * [U] means unused now.
@@ -104,43 +104,44 @@ typedef struct xcore_cam_log_module_info_s {
 #endif
 
 xcore_cam_log_module_info_t g_xcore_log_infos[XCORE_LOG_MODULE_MAX] = {
-    {"AEC", XCORE_LOG_LEVEL_ERR, 0xff},       // XCORE_LOG_MODULE_AEC
-    {"AWB", XCORE_LOG_LEVEL_ERR, 0xff},       // XCORE_LOG_MODULE_AWB
-    {"AF", XCORE_LOG_LEVEL_ERR, 0xff},        // XCORE_LOG_MODULE_AF
-    {"ABLC", XCORE_LOG_LEVEL_ERR, 0xff},      // XCORE_LOG_MODULE_ABLC
-    {"ADPCC", XCORE_LOG_LEVEL_ERR, 0xff},     // XCORE_LOG_MODULE_ADPCC
-    {"ATMO", XCORE_LOG_LEVEL_ERR, 0xff},      // XCORE_LOG_MODULE_ATMO
-    {"ANR", XCORE_LOG_LEVEL_ERR, 0xff},       // XCORE_LOG_MODULE_ANR
-    {"ALSC", XCORE_LOG_LEVEL_ERR, 0xff},      // XCORE_LOG_MODULE_ALSC
-    {"AGIC", XCORE_LOG_LEVEL_ERR, 0xff},      // XCORE_LOG_MODULE_AGIC
-    {"ADEBAYER", XCORE_LOG_LEVEL_ERR, 0xff},  // XCORE_LOG_MODULE_ADEBAYER
-    {"ACCM", XCORE_LOG_LEVEL_ERR, 0xff},      // XCORE_LOG_MODULE_ACCM
-    {"AGAMMA", XCORE_LOG_LEVEL_ERR, 0xff},    // XCORE_LOG_MODULE_AGAMMA
-    {"AWDR", XCORE_LOG_LEVEL_ERR, 0xff},      // XCORE_LOG_MODULE_AWDR
-    {"ADEHAZE", XCORE_LOG_LEVEL_ERR, 0xff},   // XCORE_LOG_MODULE_ADEHAZE
-    {"A3DLUT", XCORE_LOG_LEVEL_ERR, 0xff},    // XCORE_LOG_MODULE_A3DLUT
-    {"ALDCH", XCORE_LOG_LEVEL_ERR, 0xff},     // XCORE_LOG_MODULE_ALDCH
-    {"ACSM", XCORE_LOG_LEVEL_ERR, 0xff},      // XCORE_LOG_MODULE_ACSM
-    {"ACP", XCORE_LOG_LEVEL_ERR, 0xff},       // XCORE_LOG_MODULE_ACP
-    {"AIE", XCORE_LOG_LEVEL_ERR, 0xff},       // XCORE_LOG_MODULE_AIE
-    {"ASHARP", XCORE_LOG_LEVEL_ERR, 0xff},    // XCORE_LOG_MODULE_ASHARP
-    {"AORB", XCORE_LOG_LEVEL_ERR, 0xff},      // XCORE_LOG_MODULE_AORB
-    {"AFEC", XCORE_LOG_LEVEL_ERR, 0xff},      // XCORE_LOG_MODULE_AFEC
-    {"ACGC", XCORE_LOG_LEVEL_ERR, 0xff},      // XCORE_LOG_MODULE_ACGC
-    {"ASD", XCORE_LOG_LEVEL_ERR, 0xff},       // XCORE_LOG_MODULE_ASD
-    {"XCORE", XCORE_LOG_LEVEL_ERR, 0xff},     // XCORE_LOG_MODULE_XCORE
-    {"ANALYZER", XCORE_LOG_LEVEL_ERR, 0xff},  // XCORE_LOG_MODULE_ANALYZER
-    {"CAMHW", XCORE_LOG_LEVEL_ERR, 0xff},     // XCORE_LOG_MODULE_CAMHW
-    {"ADEGAMMA", XCORE_LOG_LEVEL_ERR, 0xff},  // XCORE_LOG_MODULE_ADEGAMMA
-    {"AMERGE", XCORE_LOG_LEVEL_ERR, 0xff},    // XCORE_LOG_MODULE_AMERGE
-    {"AMD", XCORE_LOG_LEVEL_ERR, 0xff},       // XCORE_LOG_MODULE_AMMD
-    {"ACAC", XCORE_LOG_LEVEL_ERR, 0xff},      // XCORE_LOG_MODULE_AMMD
-    {"CAMGROUP", XCORE_LOG_LEVEL_ERR, 0xff},      // XCORE_LOG_MODULE_CAMGROUP
-    {"AWBGROUP", XCORE_LOG_LEVEL_ERR, 0xff},      // XCORE_LOG_MODULE_CAMGROUP
-    {"GROUPAEC", XCORE_LOG_LEVEL_ERR, 0xff},      // XCORE_LOG_MODULE_GROUPAEC
-    {"RKSTREAM", XCORE_LOG_LEVEL_ERR, 0xff},      // XCORE_LOG_MODULE_RKSTREAM
-    {"IPCSERVER", XCORE_LOG_LEVEL_ERR, 0xff},     // XCORE_LOG_MODULE_IPC
-    {"AFD", XCORE_LOG_LEVEL_ERR, 0xff},       // XCORE_LOG_MODULE_AFD
+    {"AEC", XCORE_LOG_LEVEL_ERR, 0xff},        // XCORE_LOG_MODULE_AEC
+    {"AWB", XCORE_LOG_LEVEL_ERR, 0xff},        // XCORE_LOG_MODULE_AWB
+    {"AF", XCORE_LOG_LEVEL_ERR, 0xff},         // XCORE_LOG_MODULE_AF
+    {"ABLC", XCORE_LOG_LEVEL_ERR, 0xff},       // XCORE_LOG_MODULE_ABLC
+    {"ADPCC", XCORE_LOG_LEVEL_ERR, 0xff},      // XCORE_LOG_MODULE_ADPCC
+    {"ATMO", XCORE_LOG_LEVEL_ERR, 0xff},       // XCORE_LOG_MODULE_ATMO
+    {"ANR", XCORE_LOG_LEVEL_ERR, 0xff},        // XCORE_LOG_MODULE_ANR
+    {"ALSC", XCORE_LOG_LEVEL_ERR, 0xff},       // XCORE_LOG_MODULE_ALSC
+    {"AGIC", XCORE_LOG_LEVEL_ERR, 0xff},       // XCORE_LOG_MODULE_AGIC
+    {"ADEBAYER", XCORE_LOG_LEVEL_ERR, 0xff},   // XCORE_LOG_MODULE_ADEBAYER
+    {"ACCM", XCORE_LOG_LEVEL_ERR, 0xff},       // XCORE_LOG_MODULE_ACCM
+    {"AGAMMA", XCORE_LOG_LEVEL_ERR, 0xff},     // XCORE_LOG_MODULE_AGAMMA
+    {"AWDR", XCORE_LOG_LEVEL_ERR, 0xff},       // XCORE_LOG_MODULE_AWDR
+    {"ADEHAZE", XCORE_LOG_LEVEL_ERR, 0xff},    // XCORE_LOG_MODULE_ADEHAZE
+    {"A3DLUT", XCORE_LOG_LEVEL_ERR, 0xff},     // XCORE_LOG_MODULE_A3DLUT
+    {"ALDCH", XCORE_LOG_LEVEL_ERR, 0xff},      // XCORE_LOG_MODULE_ALDCH
+    {"ACSM", XCORE_LOG_LEVEL_ERR, 0xff},       // XCORE_LOG_MODULE_ACSM
+    {"ACP", XCORE_LOG_LEVEL_ERR, 0xff},        // XCORE_LOG_MODULE_ACP
+    {"AIE", XCORE_LOG_LEVEL_ERR, 0xff},        // XCORE_LOG_MODULE_AIE
+    {"ASHARP", XCORE_LOG_LEVEL_ERR, 0xff},     // XCORE_LOG_MODULE_ASHARP
+    {"AORB", XCORE_LOG_LEVEL_ERR, 0xff},       // XCORE_LOG_MODULE_AORB
+    {"AFEC", XCORE_LOG_LEVEL_ERR, 0xff},       // XCORE_LOG_MODULE_AFEC
+    {"ACGC", XCORE_LOG_LEVEL_ERR, 0xff},       // XCORE_LOG_MODULE_ACGC
+    {"ASD", XCORE_LOG_LEVEL_ERR, 0xff},        // XCORE_LOG_MODULE_ASD
+    {"XCORE", XCORE_LOG_LEVEL_ERR, 0xff},      // XCORE_LOG_MODULE_XCORE
+    {"ANALYZER", XCORE_LOG_LEVEL_ERR, 0xff},   // XCORE_LOG_MODULE_ANALYZER
+    {"CAMHW", XCORE_LOG_LEVEL_ERR, 0xff},      // XCORE_LOG_MODULE_CAMHW
+    {"ADEGAMMA", XCORE_LOG_LEVEL_ERR, 0xff},   // XCORE_LOG_MODULE_ADEGAMMA
+    {"AMERGE", XCORE_LOG_LEVEL_ERR, 0xff},     // XCORE_LOG_MODULE_AMERGE
+    {"AMD", XCORE_LOG_LEVEL_ERR, 0xff},        // XCORE_LOG_MODULE_AMMD
+    {"ACAC", XCORE_LOG_LEVEL_ERR, 0xff},       // XCORE_LOG_MODULE_AMMD
+    {"CAMGROUP", XCORE_LOG_LEVEL_ERR, 0xff},   // XCORE_LOG_MODULE_CAMGROUP
+    {"AWBGROUP", XCORE_LOG_LEVEL_ERR, 0xff},   // XCORE_LOG_MODULE_CAMGROUP
+    {"GROUPAEC", XCORE_LOG_LEVEL_ERR, 0xff},   // XCORE_LOG_MODULE_GROUPAEC
+    {"RKSTREAM", XCORE_LOG_LEVEL_ERR, 0xff},   // XCORE_LOG_MODULE_RKSTREAM
+    {"IPCSERVER", XCORE_LOG_LEVEL_ERR, 0xff},  // XCORE_LOG_MODULE_IPC
+    {"AFD", XCORE_LOG_LEVEL_ERR, 0xff},        // XCORE_LOG_MODULE_AFD
+    {"ARGBIR", XCORE_LOG_LEVEL_ERR, 0xff},     // XCORE_LOG_MODULE_RGBIR
 };
 
 bool xcam_get_enviroment_value(const char* variable, unsigned long long* value)

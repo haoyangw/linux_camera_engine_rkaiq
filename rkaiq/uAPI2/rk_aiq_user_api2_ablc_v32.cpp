@@ -26,7 +26,7 @@ RKAIQ_BEGIN_DECLARE
 #define CHECK_USER_API_ENABLE
 #endif
 
-#if RKAIQ_HAVE_BLC_V32
+#if RKAIQ_HAVE_BLC_V32 && !USE_NEWSTRUCT
 
 XCamReturn
 rk_aiq_user_api2_ablcV32_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, const rk_aiq_blc_attrib_V32_t *attr)
@@ -35,6 +35,11 @@ rk_aiq_user_api2_ablcV32_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, const rk_aiq
     CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_ABLC);
     RKAIQ_API_SMART_LOCK(sys_ctx);
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    if (sys_ctx->_use_aiisp && (attr->stBlcOBAuto.enable || attr->stBlcOBManual.enable)) {
+        LOGE_ABLC("Aiisp is on, BlcOB should be off\n");
+        return ret;
+    }
 
     if (sys_ctx->cam_type == RK_AIQ_CAM_TYPE_GROUP) {
 #ifdef RKAIQ_ENABLE_CAMGROUP

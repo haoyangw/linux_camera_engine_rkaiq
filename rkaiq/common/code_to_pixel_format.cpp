@@ -59,6 +59,18 @@ uint32_t get_v4l2_pixelformat(uint32_t pixelcode)
     case MEDIA_BUS_FMT_SPD_2X8:
         pixelformat = V4l2_PIX_FMT_SPD16;
         break;
+    case MEDIA_BUS_FMT_SBGGR16_1X16:
+        pixelformat = V4L2_PIX_FMT_SBGGR16;
+        break;
+    case MEDIA_BUS_FMT_SGBRG16_1X16:
+        pixelformat = V4L2_PIX_FMT_SGBRG16;
+        break;
+    case MEDIA_BUS_FMT_SGRBG16_1X16:
+        pixelformat = V4L2_PIX_FMT_SGRBG16;
+        break;
+    case MEDIA_BUS_FMT_SRGGB16_1X16:
+        pixelformat = V4L2_PIX_FMT_SRGGB16;
+        break;
     default:
         //TODO add other
         LOGE("%s no support pixelcode:0x%x\n",
@@ -67,3 +79,4 @@ uint32_t get_v4l2_pixelformat(uint32_t pixelcode)
     return pixelformat;
 }
 RKAIQ_END_DECLARE
+

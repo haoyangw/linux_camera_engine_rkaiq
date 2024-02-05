@@ -56,7 +56,8 @@ func rkaiq_getStaticLibSrcs(name string, macros_map map[string]bool) []string {
             flag0 := macros_map["RKAIQ_HAVE_CAC_V03"]
             flag1 := macros_map["RKAIQ_HAVE_CAC_V10"]
             flag2 := macros_map["RKAIQ_HAVE_CAC_V11"]
-            if flag0 || flag1 || flag2 {
+            flag3 := macros_map["RKAIQ_HAVE_CAC_V12"]
+            if flag0 || flag1 || flag2 || flag3 {
                 srcs = append(srcs, "acac/cac_adaptor.cpp")
                 srcs = append(srcs, "acac/rk_aiq_algo_acac_itf.cpp")
                 srcs = append(srcs, "acac/rk_aiq_uapi_acac_int.cpp")
@@ -111,6 +112,18 @@ func rkaiq_getStaticLibSrcs(name string, macros_map map[string]bool) []string {
             }
         }
 
+    case "librkaiq_aynr_v24":
+        {
+            srcs = srcs[len(srcs):]
+            flag0 := macros_map["RKAIQ_HAVE_YNR_V24"]
+            if flag0 {
+                srcs = append(srcs, "aynrV24/rk_aiq_aynr_algo_itf_v24.cpp")
+                srcs = append(srcs, "aynrV24/rk_aiq_aynr_algo_ynr_v24.cpp")
+                srcs = append(srcs, "aynrV24/rk_aiq_aynr_algo_v24.cpp")
+                srcs = append(srcs, "aynrV24/rk_aiq_uapi_aynr_int_v24.cpp")
+            }
+        }
+
     case "librkaiq_auvnr_v1":
         {
             srcs = srcs[len(srcs):]
@@ -157,6 +170,18 @@ func rkaiq_getStaticLibSrcs(name string, macros_map map[string]bool) []string {
                 srcs = append(srcs, "acnrV30/rk_aiq_acnr_algo_cnr_v30.cpp")
                 srcs = append(srcs, "acnrV30/rk_aiq_acnr_algo_v30.cpp")
                 srcs = append(srcs, "acnrV30/rk_aiq_uapi_acnr_int_v30.cpp")
+            }
+        }
+
+    case "librkaiq_acnr_v31":
+        {
+            srcs = srcs[len(srcs):]
+            flag0 := macros_map["RKAIQ_HAVE_CNR_V31"]
+            if flag0 {
+                srcs = append(srcs, "acnrV31/rk_aiq_acnr_algo_itf_v31.cpp")
+                srcs = append(srcs, "acnrV31/rk_aiq_acnr_algo_cnr_v31.cpp")
+                srcs = append(srcs, "acnrV31/rk_aiq_acnr_algo_v31.cpp")
+                srcs = append(srcs, "acnrV31/rk_aiq_uapi_acnr_int_v31.cpp")
             }
         }
 
@@ -207,6 +232,18 @@ func rkaiq_getStaticLibSrcs(name string, macros_map map[string]bool) []string {
                 srcs = append(srcs, "asharpV33/rk_aiq_asharp_algo_sharp_v33.cpp")
                 srcs = append(srcs, "asharpV33/rk_aiq_asharp_algo_v33.cpp")
                 srcs = append(srcs, "asharpV33/rk_aiq_uapi_asharp_int_v33.cpp")
+            }
+        }
+
+    case "librkaiq_asharp_v34":
+        {
+            srcs = srcs[len(srcs):]
+            flag0 := macros_map["RKAIQ_HAVE_SHARP_V34"]
+            if flag0 {
+                srcs = append(srcs, "asharpV34/rk_aiq_asharp_algo_itf_v34.cpp")
+                srcs = append(srcs, "asharpV34/rk_aiq_asharp_algo_sharp_v34.cpp")
+                srcs = append(srcs, "asharpV34/rk_aiq_asharp_algo_v34.cpp")
+                srcs = append(srcs, "asharpV34/rk_aiq_uapi_asharp_int_v34.cpp")
             }
         }
 
@@ -292,6 +329,18 @@ func rkaiq_getStaticLibSrcs(name string, macros_map map[string]bool) []string {
                 srcs = append(srcs, "abayertnrV23/rk_aiq_abayertnr_algo_bayertnr_v23.cpp")
                 srcs = append(srcs, "abayertnrV23/rk_aiq_abayertnr_algo_v23.cpp")
                 srcs = append(srcs, "abayertnrV23/rk_aiq_uapi_abayertnr_int_v23.cpp")
+            }
+        }
+
+    case "librkaiq_abayertnr_v30":
+        {
+            srcs = srcs[len(srcs):]
+            flag0 := macros_map["RKAIQ_HAVE_BAYERTNR_V30"]
+            if flag0 {
+                srcs = append(srcs, "abayertnrV30/rk_aiq_abayertnr_algo_itf_v30.cpp")
+                srcs = append(srcs, "abayertnrV30/rk_aiq_abayertnr_algo_bayertnr_v30.cpp")
+                srcs = append(srcs, "abayertnrV30/rk_aiq_abayertnr_algo_v30.cpp")
+                srcs = append(srcs, "abayertnrV30/rk_aiq_uapi_abayertnr_int_v30.cpp")
             }
         }
 
@@ -382,14 +431,15 @@ func rkaiq_getStaticLibSrcs(name string, macros_map map[string]bool) []string {
             srcs = srcs[len(srcs):]
             flag0 := macros_map["RKAIQ_HAVE_CCM_V1"]
             flag1 := macros_map["RKAIQ_HAVE_CCM_V2"]
-            if flag0 || flag1 {
+            flag2 := macros_map["RKAIQ_HAVE_CCM_V3"]
+            if flag0 || flag1 || flag2 {
                 srcs = append(srcs, "accm/rk_aiq_algo_accm_itf.cpp")
                 srcs = append(srcs, "accm/rk_aiq_accm_algo_com.cpp")
                 srcs = append(srcs, "accm/rk_aiq_uapi_accm_int.cpp")
                 if flag0 {
                     srcs = append(srcs, "accm/rk_aiq_accm_algo_v1.cpp")
                 }
-                if flag1 {
+                if flag1 || flag2 {
                     srcs = append(srcs, "accm/rk_aiq_accm_algo_v2.cpp")
                 }
             }
@@ -440,7 +490,8 @@ func rkaiq_getStaticLibSrcs(name string, macros_map map[string]bool) []string {
             flag1 := macros_map["RKAIQ_HAVE_DRC_V11"]
             flag2 := macros_map["RKAIQ_HAVE_DRC_V12"]
             flag3 := macros_map["RKAIQ_HAVE_DRC_V12_LITE"]
-            if flag0 || flag1 || flag2 || flag3 {
+            flag4 := macros_map["RKAIQ_HAVE_DRC_V20"]
+            if flag0 || flag1 || flag2 || flag3 || flag4 {
                 srcs = append(srcs, "adrc/rk_aiq_algo_adrc_itf.cpp")
                 srcs = append(srcs, "adrc/rk_aiq_uapi_adrc_int.cpp")
                 if flag0 {
@@ -452,6 +503,9 @@ func rkaiq_getStaticLibSrcs(name string, macros_map map[string]bool) []string {
                 if flag2 || flag3 {
                     srcs = append(srcs, "adrc/rk_aiq_adrc_algo_v12.cpp")
                 }
+                if flag4 {
+                    srcs = append(srcs, "adrc/rk_aiq_adrc_algo_v20.cpp")
+                }
             }
         }
 
@@ -462,7 +516,8 @@ func rkaiq_getStaticLibSrcs(name string, macros_map map[string]bool) []string {
             flag1 := macros_map["RKAIQ_HAVE_DEHAZE_V11"]
             flag2 := macros_map["RKAIQ_HAVE_DEHAZE_V11_DUO"]
             flag3 := macros_map["RKAIQ_HAVE_DEHAZE_V12"]
-            if flag0 || flag1 || flag2 || flag3 {
+            flag4 := macros_map["RKAIQ_HAVE_DEHAZE_V14"]
+            if flag0 || flag1 || flag2 || flag3 || flag4 {
                 srcs = append(srcs, "adehaze/rk_aiq_algo_adehaze_itf.cpp")
                 srcs = append(srcs, "adehaze/rk_aiq_uapi_adehaze_int.cpp")
                 if flag0 {
@@ -476,6 +531,22 @@ func rkaiq_getStaticLibSrcs(name string, macros_map map[string]bool) []string {
                 }
                 if flag3 {
                     srcs = append(srcs, "adehaze/rk_aiq_adehaze_algo_v12.cpp")
+                }
+                if flag4 {
+                    srcs = append(srcs, "adehaze/rk_aiq_adehaze_algo_v14.cpp")
+                }
+            }
+        }
+    
+    case "librkaiq_argbir":
+        {
+            srcs = srcs[len(srcs):]
+            flag0 := macros_map["RKAIQ_HAVE_RGBIR_REMOSAIC_V10"]
+            if flag0 {
+                srcs = append(srcs, "argbir/rk_aiq_algo_argbir_itf.cpp")
+                srcs = append(srcs, "argbir/rk_aiq_uapi_argbir_int.cpp")
+                if flag0 {
+                    srcs = append(srcs, "argbir/rk_aiq_argbir_algo_v10.cpp")
                 }
             }
         }
@@ -566,7 +637,8 @@ func rkaiq_getStaticLibSrcs(name string, macros_map map[string]bool) []string {
             flag0 := macros_map["RKAIQ_HAVE_DEBAYER_V1"]
             flag1 := macros_map["RKAIQ_HAVE_DEBAYER_V2"]
             flag2 := macros_map["RKAIQ_HAVE_DEBAYER_V2_LITE"]
-            if flag0 || flag1 || flag2 {
+            flag3 := macros_map["RKAIQ_HAVE_DEBAYER_V3"]
+            if flag0 || flag1 || flag2 || flag3 {
                 srcs = append(srcs, "adebayer/rk_aiq_algo_adebayer_itf.cpp")
                 srcs = append(srcs, "adebayer/rk_aiq_uapi_adebayer_int.cpp")
                 if flag0 {
@@ -574,6 +646,9 @@ func rkaiq_getStaticLibSrcs(name string, macros_map map[string]bool) []string {
                 }
                 if flag1 || flag2 {
                     srcs = append(srcs, "adebayer/rk_aiq_adebayer_algo_v2.cpp")
+                }
+                if flag3 {
+                    srcs = append(srcs, "adebayer/rk_aiq_adebayer_algo_v3.cpp")
                 }
             }
         }
@@ -596,7 +671,8 @@ func rkaiq_getStaticLibSrcs(name string, macros_map map[string]bool) []string {
         {
             srcs = srcs[len(srcs):]
             flag0 := macros_map["RKAIQ_HAVE_DPCC_V1"]
-            if flag0 {
+            flag1 := macros_map["RKAIQ_HAVE_DPCC_V2"]
+            if flag0 || flag1 {
                 srcs = append(srcs, "adpcc/rk_aiq_algo_adpcc_itf.cpp")
                 srcs = append(srcs, "adpcc/rk_aiq_adpcc_algo.cpp")
                 srcs = append(srcs, "adpcc/rk_aiq_uapi_adpcc_int.cpp")
@@ -652,38 +728,35 @@ func rkaiq_getStaticLibSrcs(name string, macros_map map[string]bool) []string {
         }
 
     case "librkaiq_afd":
-	{
-		srcs = srcs[len(srcs):]
-		flag0 := macros_map["RKAIQ_HAVE_AFD_V1"]
-		flag1 := macros_map["RKAIQ_HAVE_AFD_V2"]
-		if flag0 || flag1 {
-			srcs = append(srcs, "afd/rk_aiq_algo_afd_itf.cpp")
-			srcs = append(srcs, "afd/rk_aiq_afd_algo.cpp")
-                        srcs = append(srcs, "afd/rk_aiq_uapi_afd_int.cpp")
-		}
-	}
+        {
+            srcs = srcs[len(srcs):]
+            flag0 := macros_map["RKAIQ_HAVE_AFD_V1"]
+            flag1 := macros_map["RKAIQ_HAVE_AFD_V2"]
+            if flag0 || flag1 {
+                srcs = append(srcs, "afd/rk_aiq_algo_afd_itf.cpp")
+                srcs = append(srcs, "afd/rk_aiq_afd_algo.cpp")
+                srcs = append(srcs, "afd/rk_aiq_uapi_afd_int.cpp")
+            }
+        }
+
+    case "librkaiq_ayuvme_v1":
+        {
+            srcs = srcs[len(srcs):]
+            flag0 := macros_map["RKAIQ_HAVE_YUVME_V1"]
+            if flag0 {
+                srcs = append(srcs, "ayuvmeV1/rk_aiq_ayuvme_algo_itf_v1.cpp")
+                srcs = append(srcs, "ayuvmeV1/rk_aiq_ayuvme_algo_yuvme_v1.cpp")
+                srcs = append(srcs, "ayuvmeV1/rk_aiq_ayuvme_algo_v1.cpp")
+                srcs = append(srcs, "ayuvmeV1/rk_aiq_uapi_ayuvme_int_v1.cpp")
+            }
+        }
 
     case "librkaiq_camgroup_misc":
         {
             srcs = srcs[len(srcs):]
             flag0 := macros_map["RKAIQ_ENABLE_CAMGROUP"]
             if flag0 {
-                srcs = append(srcs, "abayer2dnr2/*.cpp")
-                srcs = append(srcs, "abayer2dnrV23/*.cpp")
-                srcs = append(srcs, "abayernr2/*.cpp")
-                srcs = append(srcs, "abayertnr2/*.cpp")
-                srcs = append(srcs, "abayertnrV23/*.cpp")
-                srcs = append(srcs, "acnr/*.cpp")
-                srcs = append(srcs, "acnr2/*.cpp")
-                srcs = append(srcs, "acnrV30/*.cpp")
-                srcs = append(srcs, "again2/*.cpp")
-                srcs = append(srcs, "asharp3/*.cpp")
-                srcs = append(srcs, "asharp4/*.cpp")
-                srcs = append(srcs, "asharpV33/*.cpp")
-                srcs = append(srcs, "aynr2/*.cpp")
-                srcs = append(srcs, "aynr3/*.cpp")
-                srcs = append(srcs, "aynrV22/*.cpp")
-                srcs = append(srcs, "misc/*.cpp")
+                srcs = rkaiq_getCamgroupStaticLibSrcs(macros_map);
             }
         }
 
@@ -691,4 +764,130 @@ func rkaiq_getStaticLibSrcs(name string, macros_map map[string]bool) []string {
     // fmt.Printf("%s srcs:", name, srcs)
     // fmt.Printf("\n")
     return srcs
+}
+
+func rkaiq_getCamgroupStaticLibSrcs(macros_map map[string]bool) []string {
+    var flag0 bool = false;
+    var flag1 bool = false;
+    var flag2 bool = false;
+    var flag3 bool = false;
+    var flag4 bool = false;
+    var srcs []string
+
+    // misc
+    srcs = append(srcs, "misc/rk_aiq_algo_camgroup_alsc_itf.cpp")
+    srcs = append(srcs, "misc/rk_aiq_algo_camgroup_adpcc_itf.cpp")
+    srcs = append(srcs, "misc/rk_aiq_algo_camgroup_accm_itf.cpp")
+    srcs = append(srcs, "misc/rk_aiq_algo_camgroup_a3dlut_itf.cpp")
+    srcs = append(srcs, "misc/rk_aiq_algo_camgroup_amerge_itf.cpp")
+    srcs = append(srcs, "misc/rk_aiq_algo_camgroup_ablc_itf.cpp")
+    srcs = append(srcs, "misc/rk_aiq_algo_camgroup_ablc_itf_v32.cpp")
+    srcs = append(srcs, "misc/rk_aiq_algo_camgroup_agamma_itf.cpp")
+    srcs = append(srcs, "misc/rk_aiq_algo_camgroup_adrc_itf.cpp")
+    srcs = append(srcs, "misc/rk_aiq_algo_camgroup_adehaze_itf.cpp")
+
+    flag0 = macros_map["RKAIQ_HAVE_GAIN_V2"]
+    if flag0 {
+        srcs = append(srcs, "again2/rk_aiq_algo_camgroup_again_itf_v2.cpp")
+        srcs = append(srcs, "again2/rk_aiq_uapi_camgroup_again_int_v2.cpp")
+    }
+
+    flag0 = macros_map["RKAIQ_HAVE_BAYER2DNR_V2"]
+    flag1 = macros_map["RKAIQ_HAVE_BAYER2DNR_V23"]
+    if flag0 {
+        srcs = append(srcs, "abayer2dnr2/rk_aiq_uapi_camgroup_abayer2dnr_int_v2.cpp")
+        srcs = append(srcs, "abayer2dnr2/rk_aiq_algo_camgroup_abayer2dnr_itf_v2.cpp")
+    } else if flag1 {
+        srcs = append(srcs, "abayer2dnrV23/rk_aiq_uapi_camgroup_abayer2dnr_int_v23.cpp")
+        srcs = append(srcs, "abayer2dnrV23/rk_aiq_algo_camgroup_abayer2dnr_itf_v23.cpp")
+    }
+
+    flag0 = macros_map["RKAIQ_HAVE_YNR_V2"]
+    flag1 = macros_map["RKAIQ_HAVE_YNR_V3"]
+    flag2 = macros_map["RKAIQ_HAVE_YNR_V22"]
+    flag3 = macros_map["RKAIQ_HAVE_YNR_V24"]
+    if flag0 {
+        srcs = append(srcs, "aynr2/rk_aiq_algo_camgroup_aynr_itf_v2.cpp")
+    } else if flag1 {
+        srcs = append(srcs, "aynr3/rk_aiq_algo_camgroup_aynr_itf_v3.cpp")
+        srcs = append(srcs, "aynr3/rk_aiq_uapi_camgroup_aynr_int_v3.cpp")
+    } else if flag2 {
+        srcs = append(srcs, "aynrV22/rk_aiq_algo_camgroup_aynr_itf_v22.cpp")
+        srcs = append(srcs, "aynrV22/rk_aiq_uapi_camgroup_aynr_int_v22.cpp")
+    } else if flag3 {
+        srcs = append(srcs, "aynrV24/rk_aiq_algo_camgroup_aynr_itf_v24.cpp")
+        srcs = append(srcs, "aynrV24/rk_aiq_uapi_camgroup_aynr_int_v24.cpp")
+    }
+
+    flag0 = macros_map["RKAIQ_HAVE_BAYERTNR_V2"]
+    flag1 = macros_map["RKAIQ_HAVE_BAYERTNR_V23"]
+    flag2 = macros_map["RKAIQ_HAVE_BAYERTNR_V23_LITE"]
+    flag3 = macros_map["RKAIQ_HAVE_BAYERTNR_V30"]
+    if flag0 {
+        srcs = append(srcs, "abayertnr2/rk_aiq_algo_camgroup_abayertnr_itf_v2.cpp")
+        srcs = append(srcs, "abayertnr2/rk_aiq_uapi_camgroup_abayertnr_int_v2.cpp")
+    } else if flag1 || flag2 {
+        srcs = append(srcs, "abayertnrV23/rk_aiq_uapi_camgroup_abayertnr_int_v23.cpp")
+        srcs = append(srcs, "abayertnrV23/rk_aiq_algo_camgroup_abayertnr_itf_v23.cpp")
+    } else if flag3 {
+        srcs = append(srcs, "abayertnrV30/rk_aiq_uapi_camgroup_abayertnr_int_v30.cpp")
+        srcs = append(srcs, "abayertnrV30/rk_aiq_algo_camgroup_abayertnr_itf_v30.cpp")
+    }
+
+    flag0 = macros_map["RKAIQ_HAVE_BAYERNR_V1"]
+    flag1 = macros_map["RKAIQ_HAVE_BAYERNR_V2"]
+    if flag0 || flag1 {
+        srcs = append(srcs, "abayernr2/rk_aiq_algo_camgroup_abayernr_itf_v2.cpp")
+    }
+
+    flag0 = macros_map["RKAIQ_HAVE_RGBIR_REMOSAIC_V10"]
+    if flag0 {
+        srcs = append(srcs, "misc/rk_aiq_algo_camgroup_argbir_itf.cpp")
+    }
+
+    flag0 = macros_map["RKAIQ_HAVE_SHARP_V34"]
+    flag1 = macros_map["RKAIQ_HAVE_SHARP_V33"]
+    flag2 = macros_map["RKAIQ_HAVE_SHARP_V3"]
+    flag3 = macros_map["RKAIQ_HAVE_SHARP_V4"]
+    flag4 = macros_map["RKAIQ_HAVE_SHARP_V33_LITE"]
+    if flag0 {
+        srcs = append(srcs, "asharpV34/rk_aiq_uapi_camgroup_asharp_int_v34.cpp")
+        srcs = append(srcs, "asharpV34/rk_aiq_algo_camgroup_asharp_itf_v34.cpp")
+    } else if flag1 || flag4 {
+        srcs = append(srcs, "asharpV33/rk_aiq_uapi_camgroup_asharp_int_v33.cpp")
+        srcs = append(srcs, "asharpV33/rk_aiq_algo_camgroup_asharp_itf_v33.cpp")
+    } else if flag2 {
+        srcs = append(srcs, "asharp3/rk_aiq_algo_camgroup_asharp_itf_v3.cpp")
+    } else if flag3 {
+        srcs = append(srcs, "asharp4/rk_aiq_algo_camgroup_asharp_itf_v4.cpp")
+        srcs = append(srcs, "asharp4/rk_aiq_uapi_camgroup_asharp_int_v4.cpp")
+    }
+
+    flag0 = macros_map["RKAIQ_HAVE_CNR_V31"]
+    flag1 = macros_map["RKAIQ_HAVE_CNR_V30"]
+    flag2 = macros_map["RKAIQ_HAVE_CNR_V1"]
+    flag3 = macros_map["RKAIQ_HAVE_CNR_V2"]
+    flag4 = macros_map["RKAIQ_HAVE_CNR_V30_LITE"]
+    if flag0 {
+        srcs = append(srcs, "acnrV31/rk_aiq_algo_camgroup_acnr_itf_v31.cpp")
+        srcs = append(srcs, "acnrV31/rk_aiq_uapi_camgroup_acnr_int_v31.cpp")
+    } else if flag1 || flag4 {
+        srcs = append(srcs, "acnrV30/rk_aiq_algo_camgroup_acnr_itf_v30.cpp")
+        srcs = append(srcs, "acnrV30/rk_aiq_uapi_camgroup_acnr_int_v30.cpp")
+    } else if flag2 {
+        srcs = append(srcs, "acnr/rk_aiq_algo_camgroup_acnr_itf.cpp")
+    } else if flag3 {
+        srcs = append(srcs, "acnr2/rk_aiq_algo_camgroup_acnr_itf_v2.cpp")
+        srcs = append(srcs, "acnr2/rk_aiq_uapi_camgroup_acnr_int_v2.cpp")
+    }
+
+    flag0 = macros_map["RKAIQ_HAVE_YUVME_V1"]
+    if flag0 {
+        srcs = append(srcs, "ayuvmeV1/rk_aiq_algo_camgroup_ayuvme_itf_v1.cpp")
+        srcs = append(srcs, "ayuvmeV1/rk_aiq_uapi_camgroup_ayuvme_int_v1.cpp")
+    }
+
+    // fmt.Printf("libcamgroup_misc srcs:", srcs)
+    // fmt.Printf("\n")
+    return srcs;
 }

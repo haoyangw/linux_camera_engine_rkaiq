@@ -18,7 +18,15 @@
 #ifndef __RK_AIQ_USER_API2_HELPER_H__
 #define __RK_AIQ_USER_API2_HELPER_H__
 
-#include "rk_aiq_user_api_sysctl.h"
+#include "common/rk_aiq_comm.h"
+//#include "rk_aiq_user_api_sysctl.h"
+
+#ifndef RK_AIQ_SYS_CTX_T
+#define RK_AIQ_SYS_CTX_T
+typedef struct rk_aiq_sys_ctx_s rk_aiq_sys_ctx_t;
+#endif
+
+RKAIQ_BEGIN_DECLARE
 
 typedef enum __RkAiqUapiOpMode {
   RKAIQUAPI_OPMODE_SET = 0,
@@ -140,5 +148,7 @@ typedef struct __RkAiqUapiDesc {
 
 int rkaiq_uapi_unified_ctl(rk_aiq_sys_ctx_t *sys_ctx, const char *js_str,
                            char **ret_str, int op_mode);
+
+RKAIQ_END_DECLARE
 
 #endif /*__RK_AIQ_USER_API2_HELPER_H__*/

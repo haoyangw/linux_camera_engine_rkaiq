@@ -3661,3 +3661,12 @@ XCamReturn IspParamsSplitter::SplitIspParamsVertical<struct isp32_isp_params_cfg
 
     return ret;
 }
+
+template <>
+XCamReturn IspParamsSplitter::SplitIspParams<struct isp39_isp_params_cfg>(
+    struct isp39_isp_params_cfg* orig_isp_params,
+    struct isp39_isp_params_cfg* isp_params) {
+    // TODO
+    XCamReturn ret = XCAM_RETURN_ERROR_FAILED;
+    return ret;
+}

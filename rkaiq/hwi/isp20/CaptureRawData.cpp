@@ -492,7 +492,7 @@ CaptureRawData::write_metadata_to_file(const char* dir_path,
                          focusCode,
                          zoomCode);
 #endif
-            } else if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+            } else if (CHECK_ISP_HW_V39() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
 #if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
                 snprintf(buffer,
                          sizeof(buffer),
@@ -572,7 +572,7 @@ CaptureRawData::write_metadata_to_file(const char* dir_path,
                          focusCode,
                          zoomCode);
 #endif
-            } else if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+            } else if (CHECK_ISP_HW_V39() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
 #if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
                 snprintf(buffer,
                          sizeof(buffer),
@@ -643,7 +643,7 @@ CaptureRawData::write_metadata_to_file(const char* dir_path,
                          focusCode,
                          zoomCode);
 #endif
-            } else if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+            } else if (CHECK_ISP_HW_V39() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
 #if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
                 snprintf(buffer,
                          sizeof(buffer),

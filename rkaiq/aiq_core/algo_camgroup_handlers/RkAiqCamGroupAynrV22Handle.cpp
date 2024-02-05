@@ -19,6 +19,7 @@
 
 namespace RkCam {
 
+#if (USE_NEWSTRUCT == 0)
 #if RKAIQ_HAVE_YNR_V22
 
 XCamReturn RkAiqCamGroupAynrV22HandleInt::updateConfig(bool needSync) {
@@ -182,5 +183,6 @@ XCamReturn RkAiqCamGroupAynrV22HandleInt::getInfo(rk_aiq_ynr_info_v22_t *pInfo) 
     return ret;
 }
 
+#endif
 #endif
 }  // namespace RkCam

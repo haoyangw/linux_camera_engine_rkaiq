@@ -16,6 +16,16 @@
  */
 
 #include "sample_comm.h"
+
+#ifdef ISP_HW_V39
+#include "rk_aiq_user_api2_rk3576.h"
+#elif  defined(ISP_HW_V32)
+#include "rk_aiq_user_api2_rv1106.h"
+#endif
+
+#include "uAPI2/rk_aiq_user_api2_helper.h"
+#include <string>
+
 #define INTERP_SAMPLE(x0, x1, ratio)    ((ratio) * ((x1) - (x0)) + x0)
 #define ISO_STEP_MAX 13
 
@@ -43,6 +53,11 @@ static void sample_adebayer_usage()
     printf("\t d) ADEBAYER v2-lite:    set manual params with MANUAL mode in sync, iso is 900.\n");
     printf("\t e) ADEBAYER v2-lite:    set manual params with MANUAL mode in sync, iso is 2800.\n");
     printf("\t f) ADEBAYER v2-lite:    set auto params with AUTO mode in sync.\n");
+
+    printf("\t g) ADEBAYER v3:         set manual params with MANUAL mode in sync, iso is 900.\n");
+    printf("\t i) ADEBAYER v3:         set manual params with MANUAL mode in sync, iso is 2800.\n");
+    printf("\t j) ADEBAYER v3:         set auto params with AUTO mode in sync.\n");
+    printf("\t k) DM:                  test mode/en switch.\n");
 
     printf("\n");
 
@@ -470,6 +485,290 @@ XCamReturn sample_adebayer_setAutoAtrrib_v2lite(const rk_aiq_sys_ctx_t* ctx)
     return ret;
 }
 
+XCamReturn
+sample_adebayer_translate_params_v3(adebayer_v3_attrib_t* attr, int32_t iso)
+{
+    //select sharp params
+    int i = 0;
+    int iso_low = 0, iso_high = 0, iso_low_index = 0, iso_high_index = 0;
+    float ratio = 0.0f;
+
+    //g_interp
+
+    for(i = 0; i < ISO_STEP_MAX; i++) {
+        if (iso < attr->stAuto.dyn.gDrctWgt.iso[i])
+        {
+
+            iso_low = attr->stAuto.dyn.gDrctWgt.iso[MAX(0, i - 1)];
+            iso_high = attr->stAuto.dyn.gDrctWgt.iso[i];
+            iso_low_index = MAX(0, i - 1);
+            iso_high_index = i;
+
+            if(i == 0)
+                ratio = 0.0f;
+            else
+                ratio = (float)(iso - iso_low) / (iso_high - iso_low);
+
+            break;
+        }
+    }
+
+    if(i == ISO_STEP_MAX) {
+        iso_low = attr->stAuto.dyn.gDrctWgt.iso[i - 1];
+        iso_high = attr->stAuto.dyn.gDrctWgt.iso[i - 1];
+        iso_low_index = i - 1;
+        iso_high_index = i - 1;
+        ratio = 1;
+    }
+
+    //0) static
+
+    attr->stManual.hw_dmT_en = attr->stAuto.en;
+
+    attr->stManual.hw_dmT_hiDrctFlt_coeff[0] = attr->stAuto.sta.gDrctWgt.hw_dmT_hiDrctFlt_coeff[0];
+    attr->stManual.hw_dmT_hiDrctFlt_coeff[1] = attr->stAuto.sta.gDrctWgt.hw_dmT_hiDrctFlt_coeff[1];
+    attr->stManual.hw_dmT_hiDrctFlt_coeff[2] = attr->stAuto.sta.gDrctWgt.hw_dmT_hiDrctFlt_coeff[2];
+    attr->stManual.hw_dmT_hiDrctFlt_coeff[3] = attr->stAuto.sta.gDrctWgt.hw_dmT_hiDrctFlt_coeff[3];
+
+    attr->stManual.hw_dmT_loDrctFlt_coeff[0] = attr->stAuto.sta.gDrctWgt.hw_dmT_loDrctFlt_coeff[0];
+    attr->stManual.hw_dmT_loDrctFlt_coeff[1] = attr->stAuto.sta.gDrctWgt.hw_dmT_loDrctFlt_coeff[1];
+    attr->stManual.hw_dmT_loDrctFlt_coeff[2] = attr->stAuto.sta.gDrctWgt.hw_dmT_loDrctFlt_coeff[2];
+    attr->stManual.hw_dmT_loDrctFlt_coeff[3] = attr->stAuto.sta.gDrctWgt.hw_dmT_loDrctFlt_coeff[3];
+
+    attr->stManual.sw_dmT_luma_val[0] = attr->stAuto.sta.gDrctWgt.sw_dmT_luma_val[0];
+    attr->stManual.sw_dmT_luma_val[1] = attr->stAuto.sta.gDrctWgt.sw_dmT_luma_val[1];
+    attr->stManual.sw_dmT_luma_val[2] = attr->stAuto.sta.gDrctWgt.sw_dmT_luma_val[2];
+    attr->stManual.sw_dmT_luma_val[3] = attr->stAuto.sta.gDrctWgt.sw_dmT_luma_val[3];
+    attr->stManual.sw_dmT_luma_val[4] = attr->stAuto.sta.gDrctWgt.sw_dmT_luma_val[4];
+    attr->stManual.sw_dmT_luma_val[5] = attr->stAuto.sta.gDrctWgt.sw_dmT_luma_val[5];
+    attr->stManual.sw_dmT_luma_val[6] = attr->stAuto.sta.gDrctWgt.sw_dmT_luma_val[6];
+    attr->stManual.sw_dmT_luma_val[7] = attr->stAuto.sta.gDrctWgt.sw_dmT_luma_val[7];
+
+    attr->stManual.hw_dmT_cnrAlphaLpf_coeff[0] = attr->stAuto.sta.cFlt.hw_dmT_cnrAlphaLpf_coeff[0];
+    attr->stManual.hw_dmT_cnrAlphaLpf_coeff[1] = attr->stAuto.sta.cFlt.hw_dmT_cnrAlphaLpf_coeff[1];
+    attr->stManual.hw_dmT_cnrAlphaLpf_coeff[2] = attr->stAuto.sta.cFlt.hw_dmT_cnrAlphaLpf_coeff[2];
+
+    attr->stManual.hw_dmT_cnrLoGuideLpf_coeff[0] = attr->stAuto.sta.cFlt.hw_dmT_cnrLoGuideLpf_coeff[0];
+    attr->stManual.hw_dmT_cnrLoGuideLpf_coeff[1] = attr->stAuto.sta.cFlt.hw_dmT_cnrLoGuideLpf_coeff[1];
+    attr->stManual.hw_dmT_cnrLoGuideLpf_coeff[2] = attr->stAuto.sta.cFlt.hw_dmT_cnrLoGuideLpf_coeff[2];
+
+    attr->stManual.hw_dmT_cnrPreFlt_coeff[0] = attr->stAuto.sta.cFlt.hw_dmT_cnrPreFlt_coeff[0];
+    attr->stManual.hw_dmT_cnrPreFlt_coeff[1] = attr->stAuto.sta.cFlt.hw_dmT_cnrPreFlt_coeff[1];
+    attr->stManual.hw_dmT_cnrPreFlt_coeff[2] = attr->stAuto.sta.cFlt.hw_dmT_cnrPreFlt_coeff[2];
+
+
+    //1) dynamic
+
+    //g_interp
+
+    attr->stManual.hw_dmT_gInterpClip_en = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.gInterp.hw_dmT_gInterpClip_en[iso_low_index], attr->stAuto.dyn.gInterp.hw_dmT_gInterpClip_en[iso_high_index], ratio));
+    attr->stManual.hw_dmT_gInterpSharpStrg_maxLimit = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.gInterp.hw_dmT_gInterpSharpStrg_maxLim[iso_low_index], attr->stAuto.dyn.gInterp.hw_dmT_gInterpSharpStrg_maxLim[iso_high_index], ratio));
+    attr->stManual.hw_dmT_gInterpSharpStrg_offset = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.gInterp.hw_dmT_gInterpSharpStrg_offset[iso_low_index], attr->stAuto.dyn.gInterp.hw_dmT_gInterpSharpStrg_offset[iso_high_index], ratio));
+    attr->stManual.sw_dmT_gInterpWgtFlt_alpha = INTERP_SAMPLE(attr->stAuto.dyn.gInterp.sw_dmT_gInterpWgtFlt_alpha[iso_low_index], attr->stAuto.dyn.gInterp.sw_dmT_gInterpWgtFlt_alpha[iso_high_index], ratio);
+
+    //g_drctwgt
+
+    attr->stManual.hw_dmT_loDrct_thred = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.gDrctWgt.hw_dmT_loDrct_thred[iso_low_index], attr->stAuto.dyn.gDrctWgt.hw_dmT_loDrct_thred[iso_high_index], ratio));
+    attr->stManual.hw_dmT_hiDrct_thred = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.gDrctWgt.hw_dmT_hiDrct_thred[iso_low_index], attr->stAuto.dyn.gDrctWgt.hw_dmT_hiDrct_thred[iso_high_index], ratio));
+
+    attr->stManual.hw_dmT_hiTexture_thred = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.gDrctWgt.hw_dmT_hiTexture_thred[iso_low_index], attr->stAuto.dyn.gDrctWgt.hw_dmT_hiTexture_thred[iso_high_index], ratio));
+    attr->stManual.hw_dmT_drctMethod_thred = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.gDrctWgt.hw_dmT_drctMethod_thred[iso_low_index], attr->stAuto.dyn.gDrctWgt.hw_dmT_drctMethod_thred[iso_high_index], ratio));
+    attr->stManual.sw_dmT_gradLoFlt_alpha = INTERP_SAMPLE(attr->stAuto.dyn.gDrctWgt.sw_dmT_gradLoFlt_alpha[iso_low_index], attr->stAuto.dyn.gDrctWgt.sw_dmT_gradLoFlt_alpha[iso_high_index], ratio);
+
+    attr->stManual.sw_dmT_drct_offset[0] = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.gDrctWgt.sw_dmT_drct_offset0[iso_low_index], attr->stAuto.dyn.gDrctWgt.sw_dmT_drct_offset0[iso_high_index], ratio));
+    attr->stManual.sw_dmT_drct_offset[1] = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.gDrctWgt.sw_dmT_drct_offset1[iso_low_index], attr->stAuto.dyn.gDrctWgt.sw_dmT_drct_offset1[iso_high_index], ratio));
+    attr->stManual.sw_dmT_drct_offset[2] = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.gDrctWgt.sw_dmT_drct_offset2[iso_low_index], attr->stAuto.dyn.gDrctWgt.sw_dmT_drct_offset2[iso_high_index], ratio));
+    attr->stManual.sw_dmT_drct_offset[3] = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.gDrctWgt.sw_dmT_drct_offset3[iso_low_index], attr->stAuto.dyn.gDrctWgt.sw_dmT_drct_offset3[iso_high_index], ratio));
+    attr->stManual.sw_dmT_drct_offset[4] = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.gDrctWgt.sw_dmT_drct_offset4[iso_low_index], attr->stAuto.dyn.gDrctWgt.sw_dmT_drct_offset4[iso_high_index], ratio));
+    attr->stManual.sw_dmT_drct_offset[5] = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.gDrctWgt.sw_dmT_drct_offset5[iso_low_index], attr->stAuto.dyn.gDrctWgt.sw_dmT_drct_offset5[iso_high_index], ratio));
+    attr->stManual.sw_dmT_drct_offset[6] = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.gDrctWgt.sw_dmT_drct_offset6[iso_low_index], attr->stAuto.dyn.gDrctWgt.sw_dmT_drct_offset6[iso_high_index], ratio));
+    attr->stManual.sw_dmT_drct_offset[7] = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.gDrctWgt.sw_dmT_drct_offset7[iso_low_index], attr->stAuto.dyn.gDrctWgt.sw_dmT_drct_offset7[iso_high_index], ratio));
+
+    //g_filter
+
+    attr->stManual.hw_dmT_gOutlsFlt_en = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.gOutlsFlt.hw_dmT_gOutlsFlt_en[iso_low_index], attr->stAuto.dyn.gOutlsFlt.hw_dmT_gOutlsFlt_en[iso_high_index], ratio));
+    attr->stManual.hw_dmT_gOutlsFlt_mode = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.gOutlsFlt.hw_dmT_gOutlsFlt_mode[iso_low_index], attr->stAuto.dyn.gOutlsFlt.hw_dmT_gOutlsFlt_mode[iso_high_index], ratio));
+    attr->stManual.hw_dmT_gOutlsFltRange_offset = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.gOutlsFlt.hw_dmT_gOutlsFltRange_offset[iso_low_index], attr->stAuto.dyn.gOutlsFlt.hw_dmT_gOutlsFltRange_offset[iso_high_index], ratio));
+
+    attr->stManual.sw_dmT_gOutlsFltRsigma_en = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFltRsigma_en[iso_low_index], attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFltRsigma_en[iso_high_index], ratio));
+    attr->stManual.sw_dmT_gOutlsFlt_rsigma = INTERP_SAMPLE(attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_rsigma[iso_low_index], attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_rsigma[iso_high_index], ratio);
+    attr->stManual.sw_dmT_gOutlsFlt_ratio = INTERP_SAMPLE(attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_ratio[iso_low_index], attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_ratio[iso_high_index], ratio);
+
+    attr->stManual.sw_dmT_gOutlsFlt_vsigma[0] = INTERP_SAMPLE(attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_vsigma0[iso_low_index], attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_vsigma0[iso_high_index], ratio);
+    attr->stManual.sw_dmT_gOutlsFlt_vsigma[1] = INTERP_SAMPLE(attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_vsigma1[iso_low_index], attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_vsigma1[iso_high_index], ratio);
+    attr->stManual.sw_dmT_gOutlsFlt_vsigma[2] = INTERP_SAMPLE(attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_vsigma2[iso_low_index], attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_vsigma2[iso_high_index], ratio);
+    attr->stManual.sw_dmT_gOutlsFlt_vsigma[3] = INTERP_SAMPLE(attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_vsigma3[iso_low_index], attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_vsigma3[iso_high_index], ratio);
+    attr->stManual.sw_dmT_gOutlsFlt_vsigma[4] = INTERP_SAMPLE(attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_vsigma4[iso_low_index], attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_vsigma4[iso_high_index], ratio);
+    attr->stManual.sw_dmT_gOutlsFlt_vsigma[5] = INTERP_SAMPLE(attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_vsigma5[iso_low_index], attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_vsigma5[iso_high_index], ratio);
+    attr->stManual.sw_dmT_gOutlsFlt_vsigma[6] = INTERP_SAMPLE(attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_vsigma6[iso_low_index], attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_vsigma6[iso_high_index], ratio);
+    attr->stManual.sw_dmT_gOutlsFlt_vsigma[7] = INTERP_SAMPLE(attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_vsigma7[iso_low_index], attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_vsigma7[iso_high_index], ratio);
+
+    attr->stManual.sw_dmT_gOutlsFlt_coeff[0] = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_coeff0[iso_low_index], attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_coeff0[iso_high_index], ratio));
+    attr->stManual.sw_dmT_gOutlsFlt_coeff[1] = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_coeff1[iso_low_index], attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_coeff1[iso_high_index], ratio));
+    attr->stManual.sw_dmT_gOutlsFlt_coeff[2] = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_coeff2[iso_low_index], attr->stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFlt_coeff2[iso_high_index], ratio));
+
+    //c_filter
+
+    attr->stManual.hw_dmT_cnrFlt_en = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.cFlt.hw_dmT_cnrFlt_en[iso_low_index], attr->stAuto.dyn.cFlt.hw_dmT_cnrFlt_en[iso_high_index], ratio));
+    attr->stManual.hw_dmT_cnrEdgeAlpha_offset = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.cFlt.hw_dmT_cnrEdgeAlpha_offset[iso_low_index], attr->stAuto.dyn.cFlt.hw_dmT_cnrEdgeAlpha_offset[iso_high_index], ratio));
+    attr->stManual.hw_dmT_cnrMoireAlpha_offset = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.cFlt.hw_dmT_cnrMoireAlpha_offset[iso_low_index], attr->stAuto.dyn.cFlt.hw_dmT_cnrMoireAlpha_offset[iso_high_index], ratio));
+    attr->stManual.hw_dmT_cnrLogGrad_offset = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.cFlt.hw_dmT_cnrLogGrad_offset[iso_low_index], attr->stAuto.dyn.cFlt.hw_dmT_cnrLogGrad_offset[iso_high_index], ratio));
+    attr->stManual.hw_dmT_cnrLogGuide_offset = ROUND_F(INTERP_SAMPLE(attr->stAuto.dyn.cFlt.hw_dmT_cnrLogGuide_offset[iso_low_index], attr->stAuto.dyn.cFlt.hw_dmT_cnrLogGuide_offset[iso_high_index], ratio));
+    attr->stManual.hw_dmT_cnrHiFltCur_wgt = INTERP_SAMPLE(attr->stAuto.dyn.cFlt.hw_dmT_cnrHiFltCur_wgt[iso_low_index], attr->stAuto.dyn.cFlt.hw_dmT_cnrHiFltCur_wgt[iso_high_index], ratio);
+    attr->stManual.hw_dmT_cnrHiFltWgt_minLimit = INTERP_SAMPLE(attr->stAuto.dyn.cFlt.hw_dmT_cnrHiFltWgt_minLimit[iso_low_index], attr->stAuto.dyn.cFlt.hw_dmT_cnrHiFltWgt_minLimit[iso_high_index], ratio);
+
+    attr->stManual.sw_dmT_cnrEdgeAlpha_scale = INTERP_SAMPLE(attr->stAuto.dyn.cFlt.sw_dmT_cnrEdgeAlpha_scale[iso_low_index], attr->stAuto.dyn.cFlt.sw_dmT_cnrEdgeAlpha_scale[iso_high_index], ratio);
+    attr->stManual.sw_dmT_cnrMoireAlpha_scale = INTERP_SAMPLE(attr->stAuto.dyn.cFlt.sw_dmT_cnrMoireAlpha_scale[iso_low_index], attr->stAuto.dyn.cFlt.sw_dmT_cnrMoireAlpha_scale[iso_high_index], ratio);
+    attr->stManual.sw_dmT_cnrLoFltWgt_maxLimit = INTERP_SAMPLE(attr->stAuto.dyn.cFlt.sw_dmT_cnrLoFltWgt_maxLimit[iso_low_index], attr->stAuto.dyn.cFlt.sw_dmT_cnrLoFltWgt_maxLimit[iso_high_index], ratio);
+    attr->stManual.sw_dmT_cnrLoFltWgt_minThred = INTERP_SAMPLE(attr->stAuto.dyn.cFlt.sw_dmT_cnrLoFltWgt_minThred[iso_low_index], attr->stAuto.dyn.cFlt.sw_dmT_cnrLoFltWgt_minThred[iso_high_index], ratio);
+    attr->stManual.sw_dmT_cnrLoFltWgt_slope = INTERP_SAMPLE(attr->stAuto.dyn.cFlt.sw_dmT_cnrLoFltWgt_slope[iso_low_index], attr->stAuto.dyn.cFlt.sw_dmT_cnrLoFltWgt_slope[iso_high_index], ratio);
+    attr->stManual.sw_dmT_cnrLoFlt_vsigma = INTERP_SAMPLE(attr->stAuto.dyn.cFlt.sw_dmT_cnrLoFlt_vsigma[iso_low_index], attr->stAuto.dyn.cFlt.sw_dmT_cnrLoFlt_vsigma[iso_high_index], ratio);
+    attr->stManual.sw_dmT_cnrHiFlt_vsigma = INTERP_SAMPLE(attr->stAuto.dyn.cFlt.sw_dmT_cnrHiFlt_vsigma[iso_low_index], attr->stAuto.dyn.cFlt.sw_dmT_cnrHiFlt_vsigma[iso_high_index], ratio);
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn sample_adebayer_setManualAtrrib_v3(const rk_aiq_sys_ctx_t* ctx, int32_t ISO)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    if (ctx == NULL) {
+        ret = XCAM_RETURN_ERROR_PARAM;
+        RKAIQ_SAMPLE_CHECK_RET(ret, "param error!");
+    }
+
+    adebayer_v3_attrib_t attr;
+    ret = rk_aiq_user_api2_adebayer_v3_GetAttrib(ctx, &attr);
+    RKAIQ_SAMPLE_CHECK_RET(ret, "get debayer v3 attrib failed!");
+    attr.mode = RK_AIQ_DEBAYER_MODE_MANUAL;
+    sample_adebayer_translate_params_v3(&attr, ISO);
+    rk_aiq_user_api2_adebayer_v3_SetAttrib(ctx, attr);
+
+    printf ("mode: %d, sync_mode: %d, done: %d\n", attr.mode, attr.sync.sync_mode, attr.sync.done);
+
+    return ret;
+}
+
+XCamReturn sample_adebayer_setAutoAtrrib_v3(const rk_aiq_sys_ctx_t* ctx)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    if (ctx == NULL) {
+        ret = XCAM_RETURN_ERROR_PARAM;
+        RKAIQ_SAMPLE_CHECK_RET(ret, "param error!");
+    }
+
+    adebayer_v3_attrib_t attr;
+    ret = rk_aiq_user_api2_adebayer_v3_GetAttrib(ctx, &attr);
+    RKAIQ_SAMPLE_CHECK_RET(ret, "get debayer v3 attrib failed!");
+    attr.mode = RK_AIQ_DEBAYER_MODE_AUTO;
+
+    attr.stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFltRsigma_en[0] = 1;
+    attr.stAuto.dyn.gOutlsFlt.sw_dmT_gOutlsFltRsigma_en[1] = 1;
+    attr.stAuto.dyn.cFlt.sw_dmT_cnrMoireAlpha_scale[0] = 10;
+    attr.stAuto.dyn.cFlt.sw_dmT_cnrMoireAlpha_scale[1] = 10;
+
+    rk_aiq_user_api2_adebayer_v3_SetAttrib(ctx, attr);
+
+    printf ("mode: %d, sync_mode: %d, done: %d\n", attr.mode, attr.sync.sync_mode, attr.sync.done);
+
+    return ret;
+}
+
+#ifdef USE_NEWSTRUCT
+static void sample_dm_tuningtool_test(const rk_aiq_sys_ctx_t* ctx)
+{
+    char *ret_str = NULL;
+
+    printf(">>> start tuning tool test: op attrib get ...\n");
+
+    std::string json_dm_status_str = " \n\
+        [{ \n\
+            \"op\":\"get\", \n\
+            \"path\": \"/uapi/0/dm_uapi/info\", \n\
+            \"value\": \n\
+            { \"opMode\": \"RK_AIQ_OP_MODE_MANUAL\", \"en\": 0,\"bypass\": 3} \n\
+        }]";
+
+    rkaiq_uapi_unified_ctl(const_cast<rk_aiq_sys_ctx_t*>(ctx),
+                           const_cast<char*>(json_dm_status_str.c_str()), &ret_str, RKAIQUAPI_OPMODE_GET);
+
+    if (ret_str) {
+        printf("dm status json str: %s\n", ret_str);
+    }
+
+    printf("  start tuning tool test: op attrib set ...\n");
+    std::string json_dm_str = " \n\
+        [{ \n\
+            \"op\":\"replace\", \n\
+            \"path\": \"/uapi/0/dm_uapi/attr\", \n\
+            \"value\": \n\
+            { \"opMode\": \"RK_AIQ_OP_MODE_MANUAL\", \"en\": 1,\"bypass\": 1} \n\
+        }]";
+    printf("dm json_cmd_str: %s\n", json_dm_str.c_str());
+    ret_str = NULL;
+    rkaiq_uapi_unified_ctl(const_cast<rk_aiq_sys_ctx_t*>(ctx),
+                           const_cast<char*>(json_dm_str.c_str()), &ret_str, RKAIQUAPI_OPMODE_SET);
+
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    dm_status_t status;
+    memset(&status, 0, sizeof(dm_status_t));
+
+    rk_aiq_user_api2_dm_QueryStatus(ctx, &status);
+
+    if (status.opMode != RK_AIQ_OP_MODE_MANUAL || status.en != 1 || status.bypass != 1) {
+        printf("dm op set_attrib failed !\n");
+        printf("dm status: opmode:%d(EXP:%d), en:%d(EXP:%d), bypass:%d(EXP:%d)\n",
+               status.opMode, RK_AIQ_OP_MODE_MANUAL, status.en, 1, status.bypass, 1);
+    } else {
+        printf("dm op set_attrib success !\n");
+    }
+
+    printf(">>> tuning tool test done \n");
+}
+
+static void sample_dm_test(const rk_aiq_sys_ctx_t* ctx)
+{
+    // get cur mode
+    printf("+++++++ DM module test start ++++++++\n");
+
+    sample_dm_tuningtool_test(ctx);
+
+    dm_api_attrib_t attr;
+    memset(&attr, 0, sizeof(attr));
+
+    rk_aiq_user_api2_dm_GetAttrib(ctx, &attr);
+
+    printf("dm attr: opmode:%d, en:%d, bypass:%d\n", attr.opMode, attr.en, attr.bypass);
+
+    if (attr.opMode == RK_AIQ_OP_MODE_AUTO)
+        attr.opMode = RK_AIQ_OP_MODE_MANUAL;
+    else
+        attr.opMode = RK_AIQ_OP_MODE_AUTO;
+
+    // reverse en
+    attr.en = !attr.en;
+
+    rk_aiq_user_api2_dm_SetAttrib(ctx, &attr);
+
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    dm_status_t status;
+    memset(&status, 0, sizeof(dm_status_t));
+
+    rk_aiq_user_api2_dm_QueryStatus(ctx, &status);
+
+    printf("dm status: opmode:%d, en:%d, bypass:%d\n", status.opMode, status.en, status.bypass);
+
+    if (status.opMode != attr.opMode || status.en != attr.en)
+        printf("dm arrib api test failed\n");
+    else
+        printf("dm arrib api test success\n");
+
+    printf("-------- DM module test done --------\n");
+}
+#endif
 
 XCamReturn sample_adebayer_module (const void *arg)
 {
@@ -578,6 +877,23 @@ XCamReturn sample_adebayer_module (const void *arg)
             sample_adebayer_setAutoAtrrib_v2lite(ctx);
             printf("set manual params from json with Auto mode in sync,set cfilter off\n");
             break;
+        case 'g':
+            sample_adebayer_setManualAtrrib_v3(ctx, 900);
+            printf("set manual params from json with MANUAL mode in sync, ISO: 900\n");
+            break;
+        case 'i':
+            sample_adebayer_setManualAtrrib_v3(ctx, 2800);
+            printf("set manual params from json with MANUAL mode in sync, ISO: 2800\n");
+            break;
+        case 'j':
+            sample_adebayer_setAutoAtrrib_v3(ctx);
+            printf("set auto params from json with Auto mode in sync\n");
+            break;
+#ifdef USE_NEWSTRUCT
+        case 'k':
+            sample_dm_test(ctx);
+            break;
+#endif
         default:
             break;
         }

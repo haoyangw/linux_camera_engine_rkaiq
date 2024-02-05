@@ -94,6 +94,7 @@ XCamReturn RkAiqCamgroupHandle::prepare(RkAiqCore* aiqCore) {
     com->u.prepare.working_mode  = sharedCom->working_mode;
     com->u.prepare.sns_op_width  = sharedCom->snsDes.isp_acq_width;
     com->u.prepare.sns_op_height = sharedCom->snsDes.isp_acq_height;
+    com->u.prepare.compr_bit     = sharedCom->snsDes.compr_bit;
     com->u.prepare.conf_type     = sharedCom->conf_type;
     com->u.prepare.calibv2 =
         const_cast<CamCalibDbV2Context_t*>(prepareCfg->s_calibv2);
@@ -144,6 +145,7 @@ XCamReturn RkAiqCamgroupHandle::processing(rk_aiq_singlecam_3a_result_t** params
     procIn->_is_bw_sensor = sharedCom->is_bw_sensor;
     procIn->_offset_is_update =
          (char*)(&((rk_aiq_isp_params_t<int> *)0)->result) - (char*)(&((rk_aiq_isp_params_t<int>*)0)->is_update);
+    procIn->attribUpdated = mSingleHdl->isUpdateGrpAttr();
 
     com->ctx         = mAlgoCtx;
     com->frame_id    = params_res_array[0]->_frameId;
@@ -155,6 +157,8 @@ XCamReturn RkAiqCamgroupHandle::processing(rk_aiq_singlecam_3a_result_t** params
         LOGW_CAMGROUP("group algo %d proc error !", mDes->type);
         return ret;
     }
+
+    mSingleHdl->clearUpdateGrpAttr();
 
     EXIT_ANALYZER_FUNCTION();
 

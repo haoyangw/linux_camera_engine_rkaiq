@@ -146,7 +146,7 @@ struct sp_bo* create_sp_bo(struct sp_dev* dev, uint32_t width, uint32_t height,
 #endif
 
   ret = import_sp_bo_fd(bo);
-  //ret = map_sp_bo(bo);
+  ret = map_sp_bo(bo);
   if (ret) {
     printf("failed to map bo ret=%d\n", ret);
     goto err;

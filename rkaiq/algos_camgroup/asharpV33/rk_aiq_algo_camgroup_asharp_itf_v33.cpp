@@ -36,7 +36,7 @@ static XCamReturn groupAsharpV33CreateCtx(RkAiqAlgoContext **context, const Algo
     CamGroup_AsharpV33_Contex_t *asharp_group_contex = NULL;
     AlgoCtxInstanceCfgCamGroup *cfgInt = (AlgoCtxInstanceCfgCamGroup*)cfg;
 
-    if(CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+    if(CHECK_ISP_HW_V39() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
         asharp_group_contex = (CamGroup_AsharpV33_Contex_t*)malloc(sizeof(CamGroup_AsharpV33_Contex_t));
 #if (ASHARP_USE_JSON_FILE_V33)
         Asharp_result_V33_t ret_v33 = ASHARP_V33_RET_SUCCESS;
@@ -79,7 +79,7 @@ static XCamReturn groupAsharpV33DestroyCtx(RkAiqAlgoContext *context)
 
     CamGroup_AsharpV33_Contex_t *asharp_group_contex = (CamGroup_AsharpV33_Contex_t*)context;
 
-    if(CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+    if(CHECK_ISP_HW_V39() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
         Asharp_result_V33_t ret_v33 = ASHARP_V33_RET_SUCCESS;
         ret_v33 = Asharp_Release_V33(asharp_group_contex->asharp_contex_v33);
         if(ret_v33 != ASHARP_V33_RET_SUCCESS) {
@@ -112,7 +112,7 @@ static XCamReturn groupAsharpV33Prepare(RkAiqAlgoCom* params)
     CamGroup_AsharpV33_Contex_t * asharp_group_contex = (CamGroup_AsharpV33_Contex_t *)params->ctx;
     RkAiqAlgoCamGroupPrepare* para = (RkAiqAlgoCamGroupPrepare*)params;
 
-    if(CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+    if(CHECK_ISP_HW_V39() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
         Asharp_Context_V33_t * asharp_contex_v33 = asharp_group_contex->asharp_contex_v33;
         asharp_contex_v33->prepare_type = params->u.prepare.conf_type;
         if(!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB )) {
@@ -243,7 +243,7 @@ static XCamReturn groupAsharpV33Processing(const RkAiqAlgoCom* inparams, RkAiqAl
 
 
 
-    if(CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
+    if(CHECK_ISP_HW_V39() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
         Asharp_Context_V33_t * asharp_contex_v33 = asharp_group_contex->asharp_contex_v33;
         Asharp_ProcResult_V33_t stAsharpResultV33;
         RK_SHARP_Fix_V33_t stFix;

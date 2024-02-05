@@ -26,6 +26,9 @@
 #include "xcam_mutex.h"
 #include "Stream.h"
 #include "CaptureRawData.h"
+#include "DumpRkRaw.h"
+
+// #define UseCaptureRawData
 
 using namespace XCam;
 
@@ -82,13 +85,21 @@ public:
     XCamReturn capture_raw_ctl(capture_raw_t type, int count = 0, const char* capture_dir = nullptr, char* output_dir = nullptr) {
         if (!_rawCap)
             return XCAM_RETURN_ERROR_FAILED;
+#ifdef UseCaptureRawData
         return _rawCap->capture_raw_ctl(type, count, capture_dir, output_dir);
+#else
+        return _rawCap->dumpControl(type, count, capture_dir, output_dir);
+#endif
     }
 
     XCamReturn notify_capture_raw() {
         if (!_rawCap)
             return XCAM_RETURN_ERROR_FAILED;
+#ifdef UseCaptureRawData
         return _rawCap->notify_capture_raw();
+#else
+        return _rawCap->notifyDumpRawFromThirdParty();
+#endif
     }
     XCamReturn set_csi_mem_word_big_align(uint32_t width, uint32_t height, uint32_t sns_v4l_pix_fmt, int8_t sns_bpp);
 
@@ -99,6 +110,9 @@ protected:
     void match_lumadetect_map           (uint32_t sequence, sint32_t &additional_times);
     void match_globaltmostate_map(uint32_t sequence, bool &isHdrGlobalTmo);
     XCamReturn match_sof_timestamp_map(sint32_t sequence, uint64_t &timestamp);
+    XCamReturn setIspInfoToDump();
+    XCamReturn DumpRkRawInFrameEnd(SmartPtr<V4l2BufferProxy> &rx_buf);
+    int8_t getDumpRkRawType();
     int mCamPhyId;
 protected:
     SmartPtr<V4l2Device> _dev[3];
@@ -123,8 +137,13 @@ protected:
     Mutex _mipi_trigger_mutex;
     SafeQueue<int> _msg_queue;
     PollCallback* _PollCallback;
-    CaptureRawData* _rawCap;
     bool     _is_1608_sensor;
+    int8_t dumpRkRawType;
+#ifdef UseCaptureRawData
+    CaptureRawData* _rawCap;
+#else
+    DumpRkRaw* _rawCap;
+#endif
 };
 
 class RawProcThread

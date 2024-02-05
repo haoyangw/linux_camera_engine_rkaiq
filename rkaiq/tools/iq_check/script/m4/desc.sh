@@ -19,6 +19,10 @@ handle_hide() {
 	echo -n \`\`\"[$1, $2]\"\'\'
 }
 
+handle_generic_type() {
+	echo -n \`\`${addTag}='\"'\"[$1${2:+, $2}]\"'\"'\'\'
+}
+
 handle_struct() {
 	echo -n @desc: alias=\"$1\", type=\"struct\", ui_module=\"${2:-normal_ui_style}\", hide=\"${3:-0}\", ro=\"${4:-0}\"
 }
@@ -61,6 +65,19 @@ handle_enum() {
 
 handle_bool() {
 	echo -n @desc: type=\"bool\", alias=\"$1\", default=\"$2\", hide=\"${3:-0}\", ro=\"${4:-0}\"
+}
+
+handle_generic_desc() {
+	echo -n "@desc: "
+	while [ $# != 0 ]; do
+		echo -n $1
+		if [ $# != 1 ];then
+			echo -n ,
+		fi
+		shift
+	done
+
+	#echo -n @desc: $@
 }
 
 echo "$@" >> ./m4.log
@@ -111,6 +128,23 @@ case $MACRO in
 		;;
 	M4_BOOL_DESC)
 		handle_bool "$@"
+        ;;
+	M4_RANGE_EX|M4_SIZE_EX|M4_DIGIT_EX)
+		unset addTag
+		if [[ $MACRO == M4_RANGE_EX ]]; then
+			addTag=range
+		elif [[ $MACRO == M4_SIZE_EX ]]; then
+			addTag=size
+		elif [[ $MACRO == M4_DIGIT_EX ]]; then
+			addTag=digit
+		else
+			exit 0
+		fi
+		handle_generic_type "$@"
+		unset addTag
+        ;;
+	M4_GENERIC_DESC)
+		handle_generic_desc "$@"
         ;;
 	*)
 		exit 0

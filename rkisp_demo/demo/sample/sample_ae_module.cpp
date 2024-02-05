@@ -735,10 +735,10 @@ XCamReturn sample_ae_module (const void *arg)
             ExpWin.Params.h_offs = 0;
             ExpWin.Params.v_offs = 0;
             ExpWin.Params.h_size = 240;
-            ExpWin.Params.v_size = 100;
+            ExpWin.Params.v_size = 240;
             ExpWin.sync.sync_mode = RK_AIQ_UAPI_MODE_DEFAULT;
             rk_aiq_user_api2_ae_setExpWinAttr(ctx, ExpWin);
-            printf("set exp windows[0,0,240,100]\n\n");
+            printf("set exp windows[0,0,240,240]\n\n");
             break;
         case 'k':
             sample_set_BackLightCtrl(ctx, true, 100.0f, RK_AIQ_UAPI_MODE_DEFAULT);

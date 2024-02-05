@@ -14,6 +14,8 @@ func rkaiq_getAlgosLib(macros_map map[string]bool) []string {
     var flag5 bool = false;
     var flag6 bool = false;
     var flag7 bool = false;
+    var flag8 bool = false;
+    var flag9 bool = false;
 
     var static_lib []string;
 
@@ -49,6 +51,7 @@ func rkaiq_getAlgosLib(macros_map map[string]bool) []string {
     flag0 = macros_map["RKAIQ_HAVE_CAC_V03"]
     flag1 = macros_map["RKAIQ_HAVE_CAC_V10"]
     flag2 = macros_map["RKAIQ_HAVE_CAC_V11"]
+    flag3 = macros_map["RKAIQ_HAVE_CAC_V12"]
     if (flag0 || flag1 || flag2) {
         static_lib = append(static_lib, "librkaiq_acac")
     }
@@ -68,6 +71,10 @@ func rkaiq_getAlgosLib(macros_map map[string]bool) []string {
     if (flag0) {
         static_lib = append(static_lib, "librkaiq_aynr_v22")
     }
+    flag0 = macros_map["RKAIQ_HAVE_YNR_V24"]
+    if (flag0) {
+        static_lib = append(static_lib, "librkaiq_aynr_v24")
+    }
     flag0 = macros_map["RKAIQ_HAVE_UVNR_V1"]
     if (flag0) {
         static_lib = append(static_lib, "rkaiq_auvnr_v1")
@@ -85,6 +92,14 @@ func rkaiq_getAlgosLib(macros_map map[string]bool) []string {
 	if (flag0 || flag1) {
         static_lib = append(static_lib, "librkaiq_acnr_v30")
     }
+    flag0 = macros_map["RKAIQ_HAVE_CNR_V31"]
+    if (flag0) {
+        static_lib = append(static_lib, "librkaiq_acnr_v31")
+    }
+    flag0 = macros_map["RKAIQ_HAVE_YUVME_V1"]
+    if (flag0) {
+        static_lib = append(static_lib, "librkaiq_ayuvme_v1")
+    }
     flag0 = macros_map["RKAIQ_HAVE_SHARP_V1"]
     if (flag0) {
         static_lib = append(static_lib, "librkaiq_asharp")
@@ -101,6 +116,10 @@ func rkaiq_getAlgosLib(macros_map map[string]bool) []string {
     flag1 = macros_map["RKAIQ_HAVE_SHARP_V33_LITE"]
     if (flag0 || flag1) {
         static_lib = append(static_lib, "librkaiq_asharp_v33")
+    }
+    flag1 = macros_map["RKAIQ_HAVE_SHARP_V34"]
+    if (flag0 || flag1) {
+        static_lib = append(static_lib, "librkaiq_asharp_v34")
     }
     flag0 = macros_map["RKAIQ_HAVE_MFNR_V1"]
     if (flag0) {
@@ -131,6 +150,10 @@ func rkaiq_getAlgosLib(macros_map map[string]bool) []string {
     flag1 = macros_map["RKAIQ_HAVE_BAYERTNR_V23_LITE"]
     if (flag0 || flag1) {
         static_lib = append(static_lib, "librkaiq_abayertnr_v23")
+    }
+    flag0 = macros_map["RKAIQ_HAVE_BAYERTNR_V30"]
+    if (flag0) {
+        static_lib = append(static_lib, "librkaiq_abayertnr_v30")
     }
     flag0 = macros_map["RKAIQ_HAVE_GAIN_V1"]
     if (flag0) {
@@ -167,7 +190,8 @@ func rkaiq_getAlgosLib(macros_map map[string]bool) []string {
 
     flag0 = macros_map["RKAIQ_HAVE_CCM_V1"]
     flag1 = macros_map["RKAIQ_HAVE_CCM_V2"]
-    if (flag0 || flag1) {
+    flag2 = macros_map["RKAIQ_HAVE_CCM_V3"]
+    if (flag0 || flag1 || flag2) {
         static_lib = append(static_lib, "librkaiq_accm")
     }
 
@@ -188,15 +212,22 @@ func rkaiq_getAlgosLib(macros_map map[string]bool) []string {
     flag1 = macros_map["RKAIQ_HAVE_DRC_V11"]
     flag2 = macros_map["RKAIQ_HAVE_DRC_V12"]
     flag3 = macros_map["RKAIQ_HAVE_DRC_V12_LITE"]
-    if (flag0 || flag1 || flag2 || flag3) {
+    flag4 = macros_map["RKAIQ_HAVE_DRC_V20"]
+    if (flag0 || flag1 || flag2 || flag3 || flag4) {
         static_lib = append(static_lib, "librkaiq_adrc")
+    }
+
+    flag0 = macros_map["RKAIQ_HAVE_RGBIR_REMOSAIC_V10"]
+    if (flag0) {
+        static_lib = append(static_lib, "librkaiq_argbir")
     }
 
     flag0 = macros_map["RKAIQ_HAVE_DEHAZE_V10"]
     flag1 = macros_map["RKAIQ_HAVE_DEHAZE_V11"]
     flag2 = macros_map["RKAIQ_HAVE_DEHAZE_V11_DUO"]
     flag3 = macros_map["RKAIQ_HAVE_DEHAZE_V12"]
-    if (flag0 || flag1 || flag2 || flag3) {
+    flag4 = macros_map["RKAIQ_HAVE_DEHAZE_V14"]
+    if (flag0 || flag1 || flag2 || flag3 || flag4) {
         static_lib = append(static_lib, "librkaiq_adehaze")
     }
 
@@ -240,7 +271,8 @@ func rkaiq_getAlgosLib(macros_map map[string]bool) []string {
     flag0 = macros_map["RKAIQ_HAVE_DEBAYER_V1"]
     flag1 = macros_map["RKAIQ_HAVE_DEBAYER_V2"]
     flag2 = macros_map["RKAIQ_HAVE_DEBAYER_V2_LITE"]
-    if (flag0 || flag1 || flag2) {
+    flag3 = macros_map["RKAIQ_HAVE_DEBAYER_V3"]
+    if (flag0 || flag1 || flag2 || flag3) {
         static_lib = append(static_lib, "librkaiq_adebayer")
     }
 
@@ -251,7 +283,8 @@ func rkaiq_getAlgosLib(macros_map map[string]bool) []string {
         static_lib = append(static_lib, "librkaiq_alsc")
     }
     flag0 = macros_map["RKAIQ_HAVE_DPCC_V1"]
-    if (flag0) {
+    flag1 = macros_map["RKAIQ_HAVE_DPCC_V2"]
+    if (flag0 || flag1) {
         static_lib = append(static_lib, "librkaiq_adpcc")
     }
     flag0 = macros_map["RKAIQ_HAVE_ACP_V10"]
@@ -278,9 +311,11 @@ func rkaiq_getAlgosLib(macros_map map[string]bool) []string {
     flag5 = macros_map["RKAIQ_ONLY_AF_STATS_V30"]
     flag6 = macros_map["RKAIQ_ONLY_AF_STATS_V31"]
     flag7 = macros_map["RKAIQ_ONLY_AF_STATS_V32_LITE"]
-    if (flag0 || flag1 || flag2 || flag3) {
+    flag8 = macros_map["RKAIQ_HAVE_AF_V33"]
+    flag9 = macros_map["RKAIQ_ONLY_AF_STATS_V33"]
+    if (flag0 || flag1 || flag2 || flag3 || flag8) {
         static_lib = append(static_lib, "librkaiq_af")
-    } else if (flag4 || flag5 || flag6 || flag7) {
+    } else if (flag4 || flag5 || flag6 || flag7 || flag9) {
         static_lib = append(static_lib, "librkaiq_thirdaf")
     }
 

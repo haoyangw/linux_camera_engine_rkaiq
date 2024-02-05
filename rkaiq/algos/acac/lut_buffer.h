@@ -36,7 +36,7 @@ struct LutBufferConfig {
     uint32_t Height;
     uint32_t LutHCount;
     uint32_t LutVCount;
-    uint8_t ScaleFactor;
+    uint16_t ScaleFactor;
     uint16_t PsfCfgCount;
 };
 

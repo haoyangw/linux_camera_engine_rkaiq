@@ -48,6 +48,9 @@ CamCalibDbV2Context_t* calibdbV2_ctx_new() {
 #elif defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
     calib_scene = new CamCalibDbV2ContextIsp32_t();
     memset(calib_scene, 0, sizeof(CamCalibDbV2ContextIsp32_t));
+#elif defined(ISP_HW_V39)
+    calib_scene = new CamCalibDbV2ContextIsp39_t();
+    memset(calib_scene, 0, sizeof(CamCalibDbV2ContextIsp39_t));
 #else
     XCAM_LOG_ERROR("not supported ISP plateform");
     return NULL;
@@ -378,7 +381,7 @@ CamCalibDbProj_t *RkAiqCalibDbV2::bin2calibproj(const char *binfile) {
     }
 
     ret = checkBinVersion((uint8_t*)bin_buff, bin_size);
-    if (ret < 0) {
+    if (ret) {
         LOGW("iq bin version is no current");
     }
 
@@ -500,7 +503,9 @@ int RkAiqCalibDbV2::calib2bin(void *bin_buf,
         { "CalibDb_Sensor_ParaV2_t",  (void *)CalibDbV2->sensor_info   },
         { "CalibDb_Aec_ParaV2_t",     (void *)&sub_scene->ae_calib     },
         { "CalibDbV2_Bayer2dnrV23_t", (void *)&sub_scene->bayer2dnr_v23},
+#ifndef USE_NEWSTRUCT
         { "CalibDbV2_BayerTnrV23_t",  (void *)&sub_scene->bayertnr_v23 },
+#endif
         { "CalibDbV2_Wb_Para_V32_t",  (void *)&sub_scene->wb_v32       },
         { "CalibDbV2_Blc_V32_t",      (void *)&sub_scene->ablcV32_calib},
         {NULL, NULL},
@@ -823,8 +828,10 @@ RkAiqAlgoType_t RkAiqCalibDbV2::string2algostype(const char *str) {
         {"af_v30", RK_AIQ_ALGO_TYPE_AF},
         {"af_v31", RK_AIQ_ALGO_TYPE_AF},
         {"af_v32", RK_AIQ_ALGO_TYPE_AF},
+        {"af_v33", RK_AIQ_ALGO_TYPE_AF},
         {"ablc_calib", RK_AIQ_ALGO_TYPE_ABLC},
         {"adpcc_calib", RK_AIQ_ALGO_TYPE_ADPCC},
+        {"dpc", RK_AIQ_ALGO_TYPE_ADPCC},
         {"amerge_calib_v10", RK_AIQ_ALGO_TYPE_AMERGE},
         {"amerge_calib_v11", RK_AIQ_ALGO_TYPE_AMERGE},
         {"amerge_calib_v12", RK_AIQ_ALGO_TYPE_AMERGE},
@@ -839,10 +846,12 @@ RkAiqAlgoType_t RkAiqCalibDbV2::string2algostype(const char *str) {
         {"ccm_calib_v2", RK_AIQ_ALGO_TYPE_ACCM},
         {"agamma_calib_v10", RK_AIQ_ALGO_TYPE_AGAMMA},
         {"agamma_calib_v11", RK_AIQ_ALGO_TYPE_AGAMMA},
+        {"gamma", RK_AIQ_ALGO_TYPE_AGAMMA},
         {"awdr_calib", RK_AIQ_ALGO_TYPE_AWDR},
         {"adehaze_calib_v10", RK_AIQ_ALGO_TYPE_ADHAZ},
         {"adehaze_calib_v11", RK_AIQ_ALGO_TYPE_ADHAZ},
         {"adehaze_calib_v12", RK_AIQ_ALGO_TYPE_ADHAZ},
+        {"dehaze", RK_AIQ_ALGO_TYPE_ADHAZ},
         {"lut3d_calib", RK_AIQ_ALGO_TYPE_A3DLUT},
         {"aldch", RK_AIQ_ALGO_TYPE_ALDCH},
         {"csm", RK_AIQ_ALGO_TYPE_ACSM},
@@ -856,6 +865,8 @@ RkAiqAlgoType_t RkAiqCalibDbV2::string2algostype(const char *str) {
         {"adrc_calib_v10", RK_AIQ_ALGO_TYPE_ADRC},
         {"adrc_calib_v11", RK_AIQ_ALGO_TYPE_ADRC},
         {"adrc_calib_v12", RK_AIQ_ALGO_TYPE_ADRC},
+        {"drc", RK_AIQ_ALGO_TYPE_ADRC},
+        {"trans", RK_AIQ_ALGO_TYPE_ATRANS},
         {"adegamma_calib", RK_AIQ_ALGO_TYPE_ADEGAMMA},
         {"cac_v03", RK_AIQ_ALGO_TYPE_ACAC},
         {"cac_v10", RK_AIQ_ALGO_TYPE_ACAC},
@@ -893,10 +904,12 @@ RkAiqAlgoType_t RkAiqCalibDbV2::string2algostype(const char *str) {
         {"ablcV32_calib", RK_AIQ_ALGO_TYPE_ABLC},
         {"bayer2dnr_v23", RK_AIQ_ALGO_TYPE_ARAWNR},
         {"bayertnr_v23", RK_AIQ_ALGO_TYPE_AMFNR},
+        {"bayertnr", RK_AIQ_ALGO_TYPE_AMFNR},
         {"ynr_v22", RK_AIQ_ALGO_TYPE_AYNR},
         {"cnr_v30", RK_AIQ_ALGO_TYPE_ACNR},
         {"sharp_v33", RK_AIQ_ALGO_TYPE_ASHARP},
         {"wb_v32", RK_AIQ_ALGO_TYPE_AWB},
+        {"yuvme_v1", RK_AIQ_ALGO_TYPE_AMD},
     };
 
     auto it = table.find(std::string(str));
@@ -1393,15 +1406,13 @@ int RkAiqCalibDbV2::CamCalibDbFreeAwbV32Ctx(CalibDbV2_Wb_Para_V32_t* awb)
         calib_free(autoPara->limitRange.minG);
     if(autoPara->limitRange.minY)
         calib_free(autoPara->limitRange.minY);
-    for(int i=0;i<CALD_AWB_EXCRANGE_NUM_MAX;i++){
+    for(int i = 0; i < CALD_AWB_EXCRANGE_NUM_MAX; i++) {
         if(autoPara->extraWpRange[i].weightInculde.lumaValue)
             calib_free(autoPara->extraWpRange[i].weightInculde.lumaValue);
         if(autoPara->extraWpRange[i].weightInculde.weight)
             calib_free(autoPara->extraWpRange[i].weightInculde.weight);
     }
     CalibDbV2_Wb_Awb_Ext_Para_V32_t* autoExtPara = &awb->autoExtPara;
-    if (autoExtPara->lightSourceForFirstFrame)
-        calib_free(autoExtPara->lightSourceForFirstFrame);
     CalibDbV2_Awb_SmartRun_t* smartRun = &autoExtPara->smartRun;
     if (smartRun->cfg.lumaValue)
         calib_free(smartRun->cfg.lumaValue);
@@ -1468,15 +1479,19 @@ int RkAiqCalibDbV2::CamCalibDbFreeAwbV32Ctx(CalibDbV2_Wb_Para_V32_t* awb)
 #endif
 
 #if RKAIQ_HAVE_GAMMA_V10
+#ifndef USE_NEWSTRUCT
 int RkAiqCalibDbV2::CamCalibDbFreeGammaCtx(CalibDbV2_gamma_v10_t* gamma) {
     return 0;
 }
 #endif
+#endif
 
 #if RKAIQ_HAVE_GAMMA_V11
+#ifndef USE_NEWSTRUCT
 int RkAiqCalibDbV2::CamCalibDbFreeGammaV2Ctx(CalibDbV2_gamma_v11_t* gamma) {
     return 0;
 }
+#endif
 #endif
 
 #if RKAIQ_HAVE_BLC_V1
@@ -1544,6 +1559,7 @@ int RkAiqCalibDbV2::CamCalibDbFreeGicV21Ctx(CalibDbV2_Gic_V21_t* gic)
 }
 #endif
 
+#ifndef USE_NEWSTRUCT
 int RkAiqCalibDbV2::CamCalibDbFreeDpccCtx(CalibDbV2_Dpcc_t* dpcc)
 {
     CalibDbDpccV20_t* DpccTuningPara = &dpcc->DpccTuningPara;
@@ -1570,6 +1586,7 @@ int RkAiqCalibDbV2::CamCalibDbFreeDpccCtx(CalibDbV2_Dpcc_t* dpcc)
 
     return 0;
 }
+#endif
 
 #if RKAIQ_HAVE_ORB_V1
 int RkAiqCalibDbV2::CamCalibDbFreeOrbCtx(CalibDbV2_Orb_t* orb)
@@ -1595,6 +1612,12 @@ int RkAiqCalibDbV2::CamCalibDbFreeDebayerV2Ctx(CalibDbV2_Debayer_v2_t* debayer_v
 
 #if RKAIQ_HAVE_DEBAYER_V2_LITE
 int RkAiqCalibDbV2::CamCalibDbFreeDebayerV2Ctx(CalibDbV2_Debayer_v2_lite_t* debayer_v2)
+{
+    return 0;
+}
+#endif
+#if RKAIQ_HAVE_DEBAYER_V3
+int RkAiqCalibDbV2::CamCalibDbFreeDebayerV3Ctx(CalibDbV2_Debayer_v3_t* debayer_v3)
 {
     return 0;
 }
@@ -1689,8 +1712,9 @@ int RkAiqCalibDbV2::CamCalibDbFreeCcmV1Ctx(CalibDbV2_Ccm_Para_V2_t* ccm) {
 }
 #endif
 
-#if RKAIQ_HAVE_CCM_V2
-int RkAiqCalibDbV2::CamCalibDbFreeCcmV2Ctx(CalibDbV2_Ccm_Para_V32_t* ccm) {
+#if RKAIQ_HAVE_CCM_V2 || RKAIQ_HAVE_CCM_V3
+template<class T>
+int RkAiqCalibDbV2::CamCalibDbFreeCcmV2Ctx(T* ccm) {
     CalibDbV2_Ccm_Tuning_Para_t* TuningPara = &ccm->TuningPara;
     CalibDbV2_Ccm_illu_est_Para_t* illu_estim = &TuningPara->illu_estim;
 
@@ -1749,84 +1773,6 @@ int RkAiqCalibDbV2::CamCalibDbFreeLut3dCtx(CalibDbV2_Lut3D_Para_V2_t* lut3d)
 #if RKAIQ_HAVE_AF_V20
 int RkAiqCalibDbV2::CamCalibDbFreeAfV2xCtx(CalibDbV2_AF_t* af)
 {
-    CalibDbV2_AF_Tuning_Para_t* TuningPara = &af->TuningPara;
-    CalibDbV2_Af_ZoomFocusTbl_t* zoomfocus_tbl = &TuningPara->zoomfocus_tbl;
-
-    if (zoomfocus_tbl->zoom_move_dot)
-        calib_free(zoomfocus_tbl->zoom_move_dot);
-    if (zoomfocus_tbl->zoom_move_step)
-        calib_free(zoomfocus_tbl->zoom_move_step);
-    if (zoomfocus_tbl->focal_length)
-        calib_free(zoomfocus_tbl->focal_length);
-    if (zoomfocus_tbl->zoomcode)
-        calib_free(zoomfocus_tbl->zoomcode);
-
-    for (int i = 0; i < zoomfocus_tbl->focuscode_len; i++) {
-        if (zoomfocus_tbl->focuscode[i].code)
-            calib_free(zoomfocus_tbl->focuscode[i].code);
-    }
-    if (zoomfocus_tbl->focuscode)
-        calib_free(zoomfocus_tbl->focuscode);
-
-    if (zoomfocus_tbl->ZoomSearchTbl)
-        calib_free(zoomfocus_tbl->ZoomSearchTbl);
-    if (zoomfocus_tbl->FocusSearchPlusRange)
-        calib_free(zoomfocus_tbl->FocusSearchPlusRange);
-    if (zoomfocus_tbl->ZoomInfoDir)
-        calib_free(zoomfocus_tbl->ZoomInfoDir);
-
-    if (TuningPara->contrast_af.AdaptRangeTbl)
-        calib_free(TuningPara->contrast_af.AdaptRangeTbl);
-    if (TuningPara->contrast_af.TrigThers)
-        calib_free(TuningPara->contrast_af.TrigThers);
-    if (TuningPara->contrast_af.TrigThersFv)
-        calib_free(TuningPara->contrast_af.TrigThersFv);
-
-    if (TuningPara->contrast_af.ZoomCfg.QuickFoundThersZoomIdx)
-        calib_free(TuningPara->contrast_af.ZoomCfg.QuickFoundThersZoomIdx);
-    if (TuningPara->contrast_af.ZoomCfg.QuickFoundThers)
-        calib_free(TuningPara->contrast_af.ZoomCfg.QuickFoundThers);
-    if (TuningPara->contrast_af.ZoomCfg.SearchStepZoomIdx)
-        calib_free(TuningPara->contrast_af.ZoomCfg.SearchStepZoomIdx);
-    if (TuningPara->contrast_af.ZoomCfg.SearchStep)
-        calib_free(TuningPara->contrast_af.ZoomCfg.SearchStep);
-    if (TuningPara->contrast_af.ZoomCfg.StopStepZoomIdx)
-        calib_free(TuningPara->contrast_af.ZoomCfg.StopStepZoomIdx);
-    if (TuningPara->contrast_af.ZoomCfg.StopStep)
-        calib_free(TuningPara->contrast_af.ZoomCfg.StopStep);
-
-    if (TuningPara->video_contrast_af.AdaptRangeTbl)
-        calib_free(TuningPara->video_contrast_af.AdaptRangeTbl);
-    if (TuningPara->video_contrast_af.TrigThers)
-        calib_free(TuningPara->video_contrast_af.TrigThers);
-    if (TuningPara->video_contrast_af.TrigThersFv)
-        calib_free(TuningPara->video_contrast_af.TrigThersFv);
-
-    if (TuningPara->video_contrast_af.ZoomCfg.QuickFoundThersZoomIdx)
-        calib_free(TuningPara->video_contrast_af.ZoomCfg.QuickFoundThersZoomIdx);
-    if (TuningPara->video_contrast_af.ZoomCfg.QuickFoundThers)
-        calib_free(TuningPara->video_contrast_af.ZoomCfg.QuickFoundThers);
-    if (TuningPara->video_contrast_af.ZoomCfg.SearchStepZoomIdx)
-        calib_free(TuningPara->video_contrast_af.ZoomCfg.SearchStepZoomIdx);
-    if (TuningPara->video_contrast_af.ZoomCfg.SearchStep)
-        calib_free(TuningPara->video_contrast_af.ZoomCfg.SearchStep);
-    if (TuningPara->video_contrast_af.ZoomCfg.StopStepZoomIdx)
-        calib_free(TuningPara->video_contrast_af.ZoomCfg.StopStepZoomIdx);
-    if (TuningPara->video_contrast_af.ZoomCfg.StopStep)
-        calib_free(TuningPara->video_contrast_af.ZoomCfg.StopStep);
-
-#if RKAIQ_HAVE_PDAF
-    if (TuningPara->pdaf.pdIsoPara) {
-        for (int i = 0; i < TuningPara->pdaf.pdIsoPara_len; i++) {
-            if (TuningPara->pdaf.pdIsoPara[i].fineSearchTbl)
-                calib_free(TuningPara->pdaf.pdIsoPara[i].fineSearchTbl);
-        }
-        calib_free(TuningPara->pdaf.pdIsoPara);
-    }
-    if (TuningPara->pdaf.pdResoInf)
-        calib_free(TuningPara->pdaf.pdResoInf);
-#endif
-
     return 0;
 }
 #endif
@@ -1834,95 +1780,13 @@ int RkAiqCalibDbV2::CamCalibDbFreeAfV2xCtx(CalibDbV2_AF_t* af)
 #if RKAIQ_HAVE_AF_V32_LITE
 int RkAiqCalibDbV2::CamCalibDbFreeAfV32Ctx(CalibDbV2_AFV32_t* af)
 {
-    CalibDbV2_AFV32_Tuning_Para_t* TuningPara = &af->TuningPara;
-    CalibDbV2_Af_ZoomFocusTbl_t* zoomfocus_tbl = &TuningPara->zoomfocus_tbl;
-
-    if (zoomfocus_tbl->zoom_move_dot)
-        calib_free(zoomfocus_tbl->zoom_move_dot);
-    if (zoomfocus_tbl->zoom_move_step)
-        calib_free(zoomfocus_tbl->zoom_move_step);
-    if (zoomfocus_tbl->focal_length)
-        calib_free(zoomfocus_tbl->focal_length);
-    if (zoomfocus_tbl->zoomcode)
-        calib_free(zoomfocus_tbl->zoomcode);
-
-    for (int i = 0; i < zoomfocus_tbl->focuscode_len; i++) {
-        if (zoomfocus_tbl->focuscode[i].code)
-            calib_free(zoomfocus_tbl->focuscode[i].code);
-    }
-    if (zoomfocus_tbl->focuscode)
-        calib_free(zoomfocus_tbl->focuscode);
-
-    if (zoomfocus_tbl->ZoomSearchTbl)
-        calib_free(zoomfocus_tbl->ZoomSearchTbl);
-    if (zoomfocus_tbl->FocusSearchPlusRange)
-        calib_free(zoomfocus_tbl->FocusSearchPlusRange);
-    if (zoomfocus_tbl->ZoomInfoDir)
-        calib_free(zoomfocus_tbl->ZoomInfoDir);
-
-    if (TuningPara->contrast_af.AdaptRangeTbl)
-        calib_free(TuningPara->contrast_af.AdaptRangeTbl);
-    if (TuningPara->contrast_af.TrigThers)
-        calib_free(TuningPara->contrast_af.TrigThers);
-    if (TuningPara->contrast_af.TrigThersFv)
-        calib_free(TuningPara->contrast_af.TrigThersFv);
-
-    if (TuningPara->contrast_af.ZoomCfg.QuickFoundThersZoomIdx)
-        calib_free(TuningPara->contrast_af.ZoomCfg.QuickFoundThersZoomIdx);
-    if (TuningPara->contrast_af.ZoomCfg.QuickFoundThers)
-        calib_free(TuningPara->contrast_af.ZoomCfg.QuickFoundThers);
-    if (TuningPara->contrast_af.ZoomCfg.SearchStepZoomIdx)
-        calib_free(TuningPara->contrast_af.ZoomCfg.SearchStepZoomIdx);
-    if (TuningPara->contrast_af.ZoomCfg.SearchStep)
-        calib_free(TuningPara->contrast_af.ZoomCfg.SearchStep);
-    if (TuningPara->contrast_af.ZoomCfg.StopStepZoomIdx)
-        calib_free(TuningPara->contrast_af.ZoomCfg.StopStepZoomIdx);
-    if (TuningPara->contrast_af.ZoomCfg.StopStep)
-        calib_free(TuningPara->contrast_af.ZoomCfg.StopStep);
-
-    if (TuningPara->video_contrast_af.AdaptRangeTbl)
-        calib_free(TuningPara->video_contrast_af.AdaptRangeTbl);
-    if (TuningPara->video_contrast_af.TrigThers)
-        calib_free(TuningPara->video_contrast_af.TrigThers);
-    if (TuningPara->video_contrast_af.TrigThersFv)
-        calib_free(TuningPara->video_contrast_af.TrigThersFv);
-
-    if (TuningPara->video_contrast_af.ZoomCfg.QuickFoundThersZoomIdx)
-        calib_free(TuningPara->video_contrast_af.ZoomCfg.QuickFoundThersZoomIdx);
-    if (TuningPara->video_contrast_af.ZoomCfg.QuickFoundThers)
-        calib_free(TuningPara->video_contrast_af.ZoomCfg.QuickFoundThers);
-    if (TuningPara->video_contrast_af.ZoomCfg.SearchStepZoomIdx)
-        calib_free(TuningPara->video_contrast_af.ZoomCfg.SearchStepZoomIdx);
-    if (TuningPara->video_contrast_af.ZoomCfg.SearchStep)
-        calib_free(TuningPara->video_contrast_af.ZoomCfg.SearchStep);
-    if (TuningPara->video_contrast_af.ZoomCfg.StopStepZoomIdx)
-        calib_free(TuningPara->video_contrast_af.ZoomCfg.StopStepZoomIdx);
-    if (TuningPara->video_contrast_af.ZoomCfg.StopStep)
-        calib_free(TuningPara->video_contrast_af.ZoomCfg.StopStep);
-
-    for (int i = 0; i < TuningPara->zoom_meas_len; i++) {
-        CalibDbV2_AfV30_ZoomMeas_t *zoom_meas = TuningPara->zoom_meas + i;
-
-        if (zoom_meas->measiso)
-            calib_free(zoom_meas->measiso);
-    }
-    if (TuningPara->zoom_meas)
-        calib_free(TuningPara->zoom_meas);
-    if (TuningPara->meascfg_tbl)
-        calib_free(TuningPara->meascfg_tbl);
-
-#if RKAIQ_HAVE_PDAF
-    if (TuningPara->pdaf.pdIsoPara) {
-        for (int i = 0; i < TuningPara->pdaf.pdIsoPara_len; i++) {
-            if (TuningPara->pdaf.pdIsoPara[i].fineSearchTbl)
-                calib_free(TuningPara->pdaf.pdIsoPara[i].fineSearchTbl);
-        }
-        calib_free(TuningPara->pdaf.pdIsoPara);
-    }
-    if (TuningPara->pdaf.pdResoInf)
-        calib_free(TuningPara->pdaf.pdResoInf);
+    return 0;
+}
 #endif
 
+#if RKAIQ_HAVE_AF_V33
+int RkAiqCalibDbV2::CamCalibDbFreeAfV33Ctx(CalibDbV2_AFV33_t* af)
+{
     return 0;
 }
 #endif
@@ -1930,95 +1794,6 @@ int RkAiqCalibDbV2::CamCalibDbFreeAfV32Ctx(CalibDbV2_AFV32_t* af)
 #if RKAIQ_HAVE_AF_V31
 int RkAiqCalibDbV2::CamCalibDbFreeAfV31Ctx(CalibDbV2_AFV31_t* af)
 {
-    CalibDbV2_AFV31_Tuning_Para_t* TuningPara = &af->TuningPara;
-    CalibDbV2_Af_ZoomFocusTbl_t* zoomfocus_tbl = &TuningPara->zoomfocus_tbl;
-
-    if (zoomfocus_tbl->zoom_move_dot)
-        calib_free(zoomfocus_tbl->zoom_move_dot);
-    if (zoomfocus_tbl->zoom_move_step)
-        calib_free(zoomfocus_tbl->zoom_move_step);
-    if (zoomfocus_tbl->focal_length)
-        calib_free(zoomfocus_tbl->focal_length);
-    if (zoomfocus_tbl->zoomcode)
-        calib_free(zoomfocus_tbl->zoomcode);
-
-    for (int i = 0; i < zoomfocus_tbl->focuscode_len; i++) {
-        if (zoomfocus_tbl->focuscode[i].code)
-            calib_free(zoomfocus_tbl->focuscode[i].code);
-    }
-    if (zoomfocus_tbl->focuscode)
-        calib_free(zoomfocus_tbl->focuscode);
-
-    if (zoomfocus_tbl->ZoomSearchTbl)
-        calib_free(zoomfocus_tbl->ZoomSearchTbl);
-    if (zoomfocus_tbl->FocusSearchPlusRange)
-        calib_free(zoomfocus_tbl->FocusSearchPlusRange);
-    if (zoomfocus_tbl->ZoomInfoDir)
-        calib_free(zoomfocus_tbl->ZoomInfoDir);
-
-    if (TuningPara->contrast_af.AdaptRangeTbl)
-        calib_free(TuningPara->contrast_af.AdaptRangeTbl);
-    if (TuningPara->contrast_af.TrigThers)
-        calib_free(TuningPara->contrast_af.TrigThers);
-    if (TuningPara->contrast_af.TrigThersFv)
-        calib_free(TuningPara->contrast_af.TrigThersFv);
-
-    if (TuningPara->contrast_af.ZoomCfg.QuickFoundThersZoomIdx)
-        calib_free(TuningPara->contrast_af.ZoomCfg.QuickFoundThersZoomIdx);
-    if (TuningPara->contrast_af.ZoomCfg.QuickFoundThers)
-        calib_free(TuningPara->contrast_af.ZoomCfg.QuickFoundThers);
-    if (TuningPara->contrast_af.ZoomCfg.SearchStepZoomIdx)
-        calib_free(TuningPara->contrast_af.ZoomCfg.SearchStepZoomIdx);
-    if (TuningPara->contrast_af.ZoomCfg.SearchStep)
-        calib_free(TuningPara->contrast_af.ZoomCfg.SearchStep);
-    if (TuningPara->contrast_af.ZoomCfg.StopStepZoomIdx)
-        calib_free(TuningPara->contrast_af.ZoomCfg.StopStepZoomIdx);
-    if (TuningPara->contrast_af.ZoomCfg.StopStep)
-        calib_free(TuningPara->contrast_af.ZoomCfg.StopStep);
-
-    if (TuningPara->video_contrast_af.AdaptRangeTbl)
-        calib_free(TuningPara->video_contrast_af.AdaptRangeTbl);
-    if (TuningPara->video_contrast_af.TrigThers)
-        calib_free(TuningPara->video_contrast_af.TrigThers);
-    if (TuningPara->video_contrast_af.TrigThersFv)
-        calib_free(TuningPara->video_contrast_af.TrigThersFv);
-
-    if (TuningPara->video_contrast_af.ZoomCfg.QuickFoundThersZoomIdx)
-        calib_free(TuningPara->video_contrast_af.ZoomCfg.QuickFoundThersZoomIdx);
-    if (TuningPara->video_contrast_af.ZoomCfg.QuickFoundThers)
-        calib_free(TuningPara->video_contrast_af.ZoomCfg.QuickFoundThers);
-    if (TuningPara->video_contrast_af.ZoomCfg.SearchStepZoomIdx)
-        calib_free(TuningPara->video_contrast_af.ZoomCfg.SearchStepZoomIdx);
-    if (TuningPara->video_contrast_af.ZoomCfg.SearchStep)
-        calib_free(TuningPara->video_contrast_af.ZoomCfg.SearchStep);
-    if (TuningPara->video_contrast_af.ZoomCfg.StopStepZoomIdx)
-        calib_free(TuningPara->video_contrast_af.ZoomCfg.StopStepZoomIdx);
-    if (TuningPara->video_contrast_af.ZoomCfg.StopStep)
-        calib_free(TuningPara->video_contrast_af.ZoomCfg.StopStep);
-
-    for (int i = 0; i < TuningPara->zoom_meas_len; i++) {
-        CalibDbV2_AfV30_ZoomMeas_t *zoom_meas = TuningPara->zoom_meas + i;
-
-        if (zoom_meas->measiso)
-            calib_free(zoom_meas->measiso);
-    }
-    if (TuningPara->zoom_meas)
-        calib_free(TuningPara->zoom_meas);
-    if (TuningPara->meascfg_tbl)
-        calib_free(TuningPara->meascfg_tbl);
-
-#if RKAIQ_HAVE_PDAF
-    if (TuningPara->pdaf.pdIsoPara) {
-        for (int i = 0; i < TuningPara->pdaf.pdIsoPara_len; i++) {
-            if (TuningPara->pdaf.pdIsoPara[i].fineSearchTbl)
-                calib_free(TuningPara->pdaf.pdIsoPara[i].fineSearchTbl);
-        }
-        calib_free(TuningPara->pdaf.pdIsoPara);
-    }
-    if (TuningPara->pdaf.pdResoInf)
-        calib_free(TuningPara->pdaf.pdResoInf);
-#endif
-
     return 0;
 }
 #endif
@@ -2026,95 +1801,6 @@ int RkAiqCalibDbV2::CamCalibDbFreeAfV31Ctx(CalibDbV2_AFV31_t* af)
 #if RKAIQ_HAVE_AF_V30
 int RkAiqCalibDbV2::CamCalibDbFreeAfV30Ctx(CalibDbV2_AFV30_t* af)
 {
-    CalibDbV2_AFV30_Tuning_Para_t* TuningPara = &af->TuningPara;
-    CalibDbV2_Af_ZoomFocusTbl_t* zoomfocus_tbl = &TuningPara->zoomfocus_tbl;
-
-    if (zoomfocus_tbl->zoom_move_dot)
-        calib_free(zoomfocus_tbl->zoom_move_dot);
-    if (zoomfocus_tbl->zoom_move_step)
-        calib_free(zoomfocus_tbl->zoom_move_step);
-    if (zoomfocus_tbl->focal_length)
-        calib_free(zoomfocus_tbl->focal_length);
-    if (zoomfocus_tbl->zoomcode)
-        calib_free(zoomfocus_tbl->zoomcode);
-
-    for (int i = 0; i < zoomfocus_tbl->focuscode_len; i++) {
-        if (zoomfocus_tbl->focuscode[i].code)
-            calib_free(zoomfocus_tbl->focuscode[i].code);
-    }
-    if (zoomfocus_tbl->focuscode)
-        calib_free(zoomfocus_tbl->focuscode);
-
-    if (zoomfocus_tbl->ZoomSearchTbl)
-        calib_free(zoomfocus_tbl->ZoomSearchTbl);
-    if (zoomfocus_tbl->FocusSearchPlusRange)
-        calib_free(zoomfocus_tbl->FocusSearchPlusRange);
-    if (zoomfocus_tbl->ZoomInfoDir)
-        calib_free(zoomfocus_tbl->ZoomInfoDir);
-
-    if (TuningPara->contrast_af.AdaptRangeTbl)
-        calib_free(TuningPara->contrast_af.AdaptRangeTbl);
-    if (TuningPara->contrast_af.TrigThers)
-        calib_free(TuningPara->contrast_af.TrigThers);
-    if (TuningPara->contrast_af.TrigThersFv)
-        calib_free(TuningPara->contrast_af.TrigThersFv);
-
-    if (TuningPara->contrast_af.ZoomCfg.QuickFoundThersZoomIdx)
-        calib_free(TuningPara->contrast_af.ZoomCfg.QuickFoundThersZoomIdx);
-    if (TuningPara->contrast_af.ZoomCfg.QuickFoundThers)
-        calib_free(TuningPara->contrast_af.ZoomCfg.QuickFoundThers);
-    if (TuningPara->contrast_af.ZoomCfg.SearchStepZoomIdx)
-        calib_free(TuningPara->contrast_af.ZoomCfg.SearchStepZoomIdx);
-    if (TuningPara->contrast_af.ZoomCfg.SearchStep)
-        calib_free(TuningPara->contrast_af.ZoomCfg.SearchStep);
-    if (TuningPara->contrast_af.ZoomCfg.StopStepZoomIdx)
-        calib_free(TuningPara->contrast_af.ZoomCfg.StopStepZoomIdx);
-    if (TuningPara->contrast_af.ZoomCfg.StopStep)
-        calib_free(TuningPara->contrast_af.ZoomCfg.StopStep);
-
-    if (TuningPara->video_contrast_af.AdaptRangeTbl)
-        calib_free(TuningPara->video_contrast_af.AdaptRangeTbl);
-    if (TuningPara->video_contrast_af.TrigThers)
-        calib_free(TuningPara->video_contrast_af.TrigThers);
-    if (TuningPara->video_contrast_af.TrigThersFv)
-        calib_free(TuningPara->video_contrast_af.TrigThersFv);
-
-    if (TuningPara->video_contrast_af.ZoomCfg.QuickFoundThersZoomIdx)
-        calib_free(TuningPara->video_contrast_af.ZoomCfg.QuickFoundThersZoomIdx);
-    if (TuningPara->video_contrast_af.ZoomCfg.QuickFoundThers)
-        calib_free(TuningPara->video_contrast_af.ZoomCfg.QuickFoundThers);
-    if (TuningPara->video_contrast_af.ZoomCfg.SearchStepZoomIdx)
-        calib_free(TuningPara->video_contrast_af.ZoomCfg.SearchStepZoomIdx);
-    if (TuningPara->video_contrast_af.ZoomCfg.SearchStep)
-        calib_free(TuningPara->video_contrast_af.ZoomCfg.SearchStep);
-    if (TuningPara->video_contrast_af.ZoomCfg.StopStepZoomIdx)
-        calib_free(TuningPara->video_contrast_af.ZoomCfg.StopStepZoomIdx);
-    if (TuningPara->video_contrast_af.ZoomCfg.StopStep)
-        calib_free(TuningPara->video_contrast_af.ZoomCfg.StopStep);
-
-    for (int i = 0; i < TuningPara->zoom_meas_len; i++) {
-        CalibDbV2_AfV30_ZoomMeas_t *zoom_meas = TuningPara->zoom_meas + i;
-
-        if (zoom_meas->measiso)
-            calib_free(zoom_meas->measiso);
-    }
-    if (TuningPara->zoom_meas)
-        calib_free(TuningPara->zoom_meas);
-    if (TuningPara->meascfg_tbl)
-        calib_free(TuningPara->meascfg_tbl);
-
-#if RKAIQ_HAVE_PDAF
-    if (TuningPara->pdaf.pdIsoPara) {
-        for (int i = 0; i < TuningPara->pdaf.pdIsoPara_len; i++) {
-            if (TuningPara->pdaf.pdIsoPara[i].fineSearchTbl)
-                calib_free(TuningPara->pdaf.pdIsoPara[i].fineSearchTbl);
-        }
-        calib_free(TuningPara->pdaf.pdIsoPara);
-    }
-    if (TuningPara->pdaf.pdResoInf)
-        calib_free(TuningPara->pdaf.pdResoInf);
-#endif
-
     return 0;
 }
 #endif
@@ -2382,6 +2068,7 @@ int RkAiqCalibDbV2::CamCalibDbFreeBayertnrV2Ctx(CalibDbV2_BayerTnrV2_t* bayertnr
 #endif
 
 #if RKAIQ_HAVE_BAYERTNR_V23
+#ifndef USE_NEWSTRUCT
 int RkAiqCalibDbV2::CamCalibDbFreeBayertnrV23Ctx(CalibDbV2_BayerTnrV23_t* bayertnr_v23)
 {
     if (bayertnr_v23->Version)
@@ -2419,6 +2106,7 @@ int RkAiqCalibDbV2::CamCalibDbFreeBayertnrV23Ctx(CalibDbV2_BayerTnrV23_t* bayert
     return 0;
 }
 #endif
+#endif
 
 #if RKAIQ_HAVE_BAYERTNR_V23_LITE
 int RkAiqCalibDbV2::CamCalibDbFreeBayertnrV23LiteCtx(
@@ -2451,6 +2139,7 @@ int RkAiqCalibDbV2::CamCalibDbFreeBayertnrV23LiteCtx(
 #endif
 
 #if RKAIQ_HAVE_CNR_V2
+#if (USE_NEWSTRUCT == 0)
 int RkAiqCalibDbV2::CamCalibDbFreeCnrV2Ctx(CalibDbV2_CNRV2_t* cnr_v2)
 {
     if (cnr_v2->Version)
@@ -2472,6 +2161,7 @@ int RkAiqCalibDbV2::CamCalibDbFreeCnrV2Ctx(CalibDbV2_CNRV2_t* cnr_v2)
 
     return 0;
 }
+#endif
 #endif
 
 #if (RKAIQ_HAVE_CNR_V30 || RKAIQ_HAVE_CNR_V30_LITE)
@@ -2562,6 +2252,7 @@ int RkAiqCalibDbV2::CamCalibDbFreeYnrV3Ctx(CalibDbV2_YnrV3_t* ynr_v3)
 #endif
 
 #if RKAIQ_HAVE_YNR_V22
+#if (USE_NEWSTRUCT == 0)
 int RkAiqCalibDbV2::CamCalibDbFreeYnrV22Ctx(CalibDbV2_YnrV22_t* ynr_v22)
 {
     if (ynr_v22->Version)
@@ -2597,6 +2288,37 @@ int RkAiqCalibDbV2::CamCalibDbFreeYnrV22Ctx(CalibDbV2_YnrV22_t* ynr_v22)
 
     return 0;
 }
+#endif
+#endif
+
+#if RKAIQ_HAVE_YNR_V24
+#if (USE_NEWSTRUCT == 0)
+int RkAiqCalibDbV2::CamCalibDbFreeYnrV24Ctx(CalibDbV2_YnrV24_t* ynr_v24) {
+    if (ynr_v24->Version) calib_free(ynr_v24->Version);
+
+    CalibDbV2_YnrV24_Calib_t* CalibPara = &ynr_v24->CalibPara;
+    for (int i = 0; i < CalibPara->Setting_len; i++) {
+        CalibDbV2_YnrV24_C_Set_t* Setting = CalibPara->Setting + i;
+
+        if (Setting->SNR_Mode) calib_free(Setting->SNR_Mode);
+        if (Setting->Sensor_Mode) calib_free(Setting->Sensor_Mode);
+        if (Setting->Calib_ISO) calib_free(Setting->Calib_ISO);
+    }
+    if (CalibPara->Setting) calib_free(CalibPara->Setting);
+
+    CalibDbV2_YnrV24_Tuning_t* TuningPara = &ynr_v24->TuningPara;
+    for (int i = 0; i < TuningPara->Setting_len; i++) {
+        CalibDbV2_YnrV24_T_Set_t* Setting = TuningPara->Setting + i;
+
+        if (Setting->SNR_Mode) calib_free(Setting->SNR_Mode);
+        if (Setting->Sensor_Mode) calib_free(Setting->Sensor_Mode);
+        if (Setting->Tuning_ISO) calib_free(Setting->Tuning_ISO);
+    }
+    if (TuningPara->Setting) calib_free(TuningPara->Setting);
+
+    return 0;
+}
+#endif
 #endif
 
 #if RKAIQ_HAVE_SHARP_V4
@@ -2667,6 +2389,25 @@ int RkAiqCalibDbV2::CamCalibDbFreeSharpV33LiteCtx(CalibDbV2_SharpV33Lite_t* shar
 }
 #endif
 
+#if RKAIQ_HAVE_SHARP_V34
+int RkAiqCalibDbV2::CamCalibDbFreeSharpV34Ctx(CalibDbV2_SharpV34_t* sharp_v34) {
+    if (sharp_v34->Version) calib_free(sharp_v34->Version);
+
+    CalibDbV2_SharpV34_Tuning_t* TuningPara = &sharp_v34->TuningPara;
+
+    for (int i = 0; i < TuningPara->Setting_len; i++) {
+        CalibDbV2_SharpV34_T_Set_t* Setting = TuningPara->Setting + i;
+
+        if (Setting->SNR_Mode) calib_free(Setting->SNR_Mode);
+        if (Setting->Sensor_Mode) calib_free(Setting->Sensor_Mode);
+        if (Setting->Tuning_ISO) calib_free(Setting->Tuning_ISO);
+    }
+    if (TuningPara->Setting) calib_free(TuningPara->Setting);
+
+    return 0;
+}
+#endif
+
 #if RKAIQ_HAVE_CAC_V03
 int RkAiqCalibDbV2::CamCalibDbFreeCacV03Ctx(CalibDbV2_Cac_V03_t* cac_calib) {
     if (cac_calib->TuningPara.SettingByIso) calib_free(cac_calib->TuningPara.SettingByIso);
@@ -2690,6 +2431,98 @@ int RkAiqCalibDbV2::CamCalibDbFreeCacV11Ctx(CalibDbV2_Cac_V11_t* cac_calib) {
     return 0;
 }
 #endif
+
+#if RKAIQ_HAVE_BAYERTNR_V30
+int RkAiqCalibDbV2::CamCalibDbFreeBayertnrV30Ctx(CalibDbV2_BayerTnrV30_t* bayertnr_v30)
+{
+    if (bayertnr_v30->Version)
+        calib_free(bayertnr_v30->Version);
+
+    CalibDbV2_BayerTnrV30_Calib_t* CalibPara = &bayertnr_v30->CalibPara;
+    for (int i = 0; i < CalibPara->Setting_len; i++) {
+        CalibDbV2_BayerTnrV30_C_Set_t *Setting = CalibPara->Setting + i;
+
+        if (Setting->SNR_Mode)
+            calib_free(Setting->SNR_Mode);
+        if (Setting->Sensor_Mode)
+            calib_free(Setting->Sensor_Mode);
+        if (Setting->Calib_ISO)
+            calib_free(Setting->Calib_ISO);
+    }
+    if (CalibPara->Setting)
+        calib_free(CalibPara->Setting);
+
+    CalibDbV2_BayerTnrV30_Tuning_t* TuningPara = &bayertnr_v30->TuningPara;
+
+    for (int i = 0; i < TuningPara->Setting_len; i++) {
+        CalibDbV2_BayerTnrV30_T_Set_t *Setting = TuningPara->Setting + i;
+
+        if (Setting->SNR_Mode)
+            calib_free(Setting->SNR_Mode);
+        if (Setting->Sensor_Mode)
+            calib_free(Setting->Sensor_Mode);
+        if (Setting->Tuning_ISO)
+            calib_free(Setting->Tuning_ISO);
+    }
+    if (TuningPara->Setting)
+        calib_free(TuningPara->Setting);
+
+    return 0;
+}
+#endif
+
+
+#if RKAIQ_HAVE_YUVME_V1
+int RkAiqCalibDbV2::CamCalibDbFreeYuvmeV1Ctx(CalibDbV2_YuvmeV1_t* yuvme_v1)
+{
+    if (yuvme_v1->Version)
+        calib_free(yuvme_v1->Version);
+
+
+    CalibDbV2_YuvmeV1_Tuning_t* TuningPara = &yuvme_v1->TuningPara;
+    for (int i = 0; i < TuningPara->Setting_len; i++) {
+        CalibDbV2_YuvmeV1_T_Set_t *Setting = TuningPara->Setting + i;
+
+        if (Setting->SNR_Mode)
+            calib_free(Setting->SNR_Mode);
+        if (Setting->Sensor_Mode)
+            calib_free(Setting->Sensor_Mode);
+        if (Setting->Tuning_ISO)
+            calib_free(Setting->Tuning_ISO);
+    }
+    if (TuningPara->Setting)
+        calib_free(TuningPara->Setting);
+
+    return 0;
+}
+#endif
+
+#if (RKAIQ_HAVE_CNR_V31)
+#if (USE_NEWSTRUCT == 0)
+int RkAiqCalibDbV2::CamCalibDbFreeCnrV31Ctx(CalibDbV2_CNRV31_t* cnr_v31)
+{
+    if (cnr_v31->Version)
+        calib_free(cnr_v31->Version);
+
+    CalibDbV2_CNRV31_Tuning_t* TuningPara = &cnr_v31->TuningPara;
+    for (int i = 0; i < TuningPara->Setting_len; i++) {
+        CalibDbV2_CNRV31_T_Set_t *Setting = TuningPara->Setting + i;
+
+        if (Setting->SNR_Mode)
+            calib_free(Setting->SNR_Mode);
+        if (Setting->Sensor_Mode)
+            calib_free(Setting->Sensor_Mode);
+        if (Setting->Tuning_ISO)
+            calib_free(Setting->Tuning_ISO);
+    }
+    if (TuningPara->Setting)
+        calib_free(TuningPara->Setting);
+
+    return 0;
+}
+#endif
+#endif
+
 
 int RkAiqCalibDbV2::FreeCalibByJ2S(void* ctx) {
     const std::lock_guard<std::mutex> lock(RkAiqCalibDbV2::calib_mutex);
@@ -2724,8 +2557,15 @@ int RkAiqCalibDbV2::CamCalibDbFreeSceneCtx(void* scene_ctx) {
 #if RKAIQ_HAVE_CCM_V2
     CalibDbV2_Ccm_Para_V32_t* ccm_calib_v2 =
         (CalibDbV2_Ccm_Para_V32_t*)(CALIBDBV2_GET_MODULE_PTR((void*)ctx, ccm_calib_v2));
+#elif RKAIQ_HAVE_CCM_V3
+    CalibDbV2_Ccm_Para_V39_t* ccm_calib_v2 =
+        (CalibDbV2_Ccm_Para_V39_t*)(CALIBDBV2_GET_MODULE_PTR((void*)ctx, ccm_calib_v2));
+#endif
+#if RKAIQ_HAVE_CCM_V2 || RKAIQ_HAVE_CCM_V3
     if (ccm_calib_v2) CamCalibDbFreeCcmV2Ctx(ccm_calib_v2);
 #endif
+
+
 
 #if 0  // TODO: move out
     CalibDb_Module_ParaV2_t *module_calib =
@@ -2748,6 +2588,7 @@ int RkAiqCalibDbV2::CamCalibDbFreeSceneCtx(void* scene_ctx) {
 #endif
 
 #if RKAIQ_HAVE_GAMMA_V10 || RKAIQ_HAVE_GAMMA_V11
+#ifndef USE_NEWSTRUCT
     CalibDbV2_gamma_v10_t* agamma_calib =
         (CalibDbV2_gamma_v10_t*)(CALIBDBV2_GET_MODULE_PTR((void*)ctx, agamma_calib));
     if (agamma_calib) {
@@ -2758,6 +2599,7 @@ int RkAiqCalibDbV2::CamCalibDbFreeSceneCtx(void* scene_ctx) {
         CamCalibDbFreeGammaCtx(agamma_calib);
 #endif
     }
+#endif
 #endif
 
 #if RKAIQ_HAVE_BLC_V1
@@ -2779,10 +2621,14 @@ int RkAiqCalibDbV2::CamCalibDbFreeSceneCtx(void* scene_ctx) {
         CamCalibDbFreeGicV21Ctx(agic_calib_v21);
 #endif
 
+#if RKAIQ_HAVE_DPCC_V1 || RKAIQ_HAVE_DPCC_V2
+#ifndef USE_NEWSTRUCT
     CalibDbV2_Dpcc_t *adpcc_calib =
         (CalibDbV2_Dpcc_t*)(CALIBDBV2_GET_MODULE_PTR((void*)ctx, adpcc_calib));
     if (adpcc_calib)
         CamCalibDbFreeDpccCtx(adpcc_calib);
+#endif
+#endif
 
 #if RKAIQ_HAVE_ORB_V1
     CalibDbV2_Orb_t* orb = (CalibDbV2_Orb_t*)(CALIBDBV2_GET_MODULE_PTR((void*)ctx, orb));
@@ -2806,6 +2652,12 @@ int RkAiqCalibDbV2::CamCalibDbFreeSceneCtx(void* scene_ctx) {
     CalibDbV2_Debayer_v2_lite_t* debayer =
         (CalibDbV2_Debayer_v2_lite_t*)(CALIBDBV2_GET_MODULE_PTR((void*)ctx, debayer));
     if (debayer) CamCalibDbFreeDebayerV2Ctx(debayer);
+#endif
+
+#if RKAIQ_HAVE_DEBAYER_V3
+    CalibDbV2_Debayer_v3_t* debayer =
+        (CalibDbV2_Debayer_v3_t*)(CALIBDBV2_GET_MODULE_PTR((void*)ctx, debayer));
+    if (debayer) CamCalibDbFreeDebayerV3Ctx(debayer);
 #endif
 
 #if RKAIQ_HAVE_ACP_V10
@@ -2836,6 +2688,10 @@ int RkAiqCalibDbV2::CamCalibDbFreeSceneCtx(void* scene_ctx) {
     CalibDbV2_Lut3D_Para_V2_t* lut3d_calib =
         (CalibDbV2_Lut3D_Para_V2_t*)(CALIBDBV2_GET_MODULE_PTR((void*)ctx, lut3d_calib));
     if (lut3d_calib) CamCalibDbFreeLut3dCtx(lut3d_calib);
+#endif
+#if RKAIQ_HAVE_AF_V33
+    CalibDbV2_AFV33_t* af_v33 = (CalibDbV2_AFV33_t*)(CALIBDBV2_GET_MODULE_PTR((void*)ctx, af_v33));
+    if (af_v33) CamCalibDbFreeAfV33Ctx(af_v33);
 #endif
 #if RKAIQ_HAVE_AF_V32_LITE
     CalibDbV2_AFV32_t* af_v32 = (CalibDbV2_AFV32_t*)(CALIBDBV2_GET_MODULE_PTR((void*)ctx, af_v32));
@@ -2876,9 +2732,11 @@ int RkAiqCalibDbV2::CamCalibDbFreeSceneCtx(void* scene_ctx) {
 #endif
 
 #if RKAIQ_HAVE_BAYERTNR_V23
+#ifndef USE_NEWSTRUCT
     CalibDbV2_BayerTnrV23_t* bayertnr_v23 =
         (CalibDbV2_BayerTnrV23_t*)(CALIBDBV2_GET_MODULE_PTR((void*)ctx, bayertnr_v23));
     if (bayertnr_v23) CamCalibDbFreeBayertnrV23Ctx(bayertnr_v23);
+#endif
 #endif
 
 #if RKAIQ_HAVE_BAYERTNR_V23_LITE
@@ -2888,8 +2746,10 @@ int RkAiqCalibDbV2::CamCalibDbFreeSceneCtx(void* scene_ctx) {
 #endif
 
 #if RKAIQ_HAVE_CNR_V2
+#if (USE_NEWSTRUCT == 0)
     CalibDbV2_CNRV2_t* cnr_v2 = (CalibDbV2_CNRV2_t*)(CALIBDBV2_GET_MODULE_PTR((void*)ctx, cnr_v2));
     if (cnr_v2) CamCalibDbFreeCnrV2Ctx(cnr_v2);
+#endif
 #endif
 
 #if (RKAIQ_HAVE_CNR_V30 || RKAIQ_HAVE_CNR_V30_LITE)
@@ -2903,8 +2763,18 @@ int RkAiqCalibDbV2::CamCalibDbFreeSceneCtx(void* scene_ctx) {
 #endif
 
 #if RKAIQ_HAVE_YNR_V22
+#if (USE_NEWSTRUCT == 0)
     CalibDbV2_YnrV22_t* ynr_v22 = (CalibDbV2_YnrV22_t*)(CALIBDBV2_GET_MODULE_PTR((void*)ctx, ynr_v22));
     if (ynr_v22) CamCalibDbFreeYnrV22Ctx(ynr_v22);
+#endif
+#endif
+
+#if RKAIQ_HAVE_YNR_V24
+#if (USE_NEWSTRUCT == 0)
+    CalibDbV2_YnrV24_t* ynr_v24 =
+        (CalibDbV2_YnrV24_t*)(CALIBDBV2_GET_MODULE_PTR((void*)ctx, ynr_v24));
+    if (ynr_v24) CamCalibDbFreeYnrV24Ctx(ynr_v24);
+#endif
 #endif
 
 #if RKAIQ_HAVE_SHARP_V4
@@ -2922,6 +2792,11 @@ int RkAiqCalibDbV2::CamCalibDbFreeSceneCtx(void* scene_ctx) {
     CalibDbV2_SharpV33Lite_t* sharp_v33 =
         (CalibDbV2_SharpV33Lite_t*)(CALIBDBV2_GET_MODULE_PTR((void*)ctx, sharp_v33));
     if (sharp_v33) CamCalibDbFreeSharpV33LiteCtx(sharp_v33);
+#endif
+#if RKAIQ_HAVE_SHARP_V34
+    CalibDbV2_SharpV34_t* sharp_v34 =
+        (CalibDbV2_SharpV34_t*)(CALIBDBV2_GET_MODULE_PTR((void*)ctx, sharp_v34));
+    if (sharp_v34) CamCalibDbFreeSharpV34Ctx(sharp_v34);
 #endif
 #if RKAIQ_HAVE_CAC_V03
     CalibDbV2_Cac_V03_t* cac_calib =
@@ -2965,6 +2840,24 @@ int RkAiqCalibDbV2::CamCalibDbFreeSceneCtx(void* scene_ctx) {
 #if RKAIQ_HAVE_GAIN_V2
     CalibDbV2_GainV2_t* gain_v2 = (CalibDbV2_GainV2_t*)(CALIBDBV2_GET_MODULE_PTR((void*)ctx, gain_v2));
     if (gain_v2) CamCalibDbFreeGainV2Ctx(gain_v2);
+#endif
+
+#if RKAIQ_HAVE_BAYERTNR_V30
+    CalibDbV2_BayerTnrV30_t* bayertnr_v30 =
+        (CalibDbV2_BayerTnrV30_t*)(CALIBDBV2_GET_MODULE_PTR((void*)ctx, bayertnr_v30));
+    if (bayertnr_v30) CamCalibDbFreeBayertnrV30Ctx(bayertnr_v30);
+#endif
+
+#if RKAIQ_HAVE_YUVME_V1
+    CalibDbV2_YuvmeV1_t* yuvme_v1 = (CalibDbV2_YuvmeV1_t*)(CALIBDBV2_GET_MODULE_PTR((void*)ctx, yuvme_v1));
+    if (yuvme_v1) CamCalibDbFreeYuvmeV1Ctx(yuvme_v1);
+#endif
+
+#if (RKAIQ_HAVE_CNR_V31)
+#if (USE_NEWSTRUCT == 0)
+    CalibDbV2_CNRV31_t* cnr_v31 = (CalibDbV2_CNRV31_t*)(CALIBDBV2_GET_MODULE_PTR((void*)ctx, cnr_v31));
+    if (cnr_v31) CamCalibDbFreeCnrV31Ctx(cnr_v31);
+#endif
 #endif
 
     return 0;

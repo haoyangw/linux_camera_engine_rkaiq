@@ -87,6 +87,7 @@ set(RK_AIQ_INCLUDE_DIR
 	${RK_AIQ_INSTALLED_DIR}/include/rkaiq/common/
 	${RK_AIQ_INSTALLED_DIR}/include/rkaiq/iq_parser/
 	${RK_AIQ_INSTALLED_DIR}/include/rkaiq/iq_parser_v2/
+	${RK_AIQ_INSTALLED_DIR}/include/rkaiq/isp/
 	)
 set(RK_AIQ_LIB rkaiq)
 

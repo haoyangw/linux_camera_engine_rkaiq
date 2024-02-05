@@ -34,6 +34,7 @@ XCamReturn RkAiqAdrcHandleInt::prepare() {
 
     adrc_config_int->rawHeight    = sharedCom->snsDes.isp_acq_height;
     adrc_config_int->rawWidth     = sharedCom->snsDes.isp_acq_width;
+    adrc_config_int->compr_bit    = sharedCom->snsDes.compr_bit;
     adrc_config_int->working_mode = sharedCom->working_mode;
 
     RkAiqAlgoDescription* des = (RkAiqAlgoDescription*)mDes;
@@ -86,6 +87,12 @@ XCamReturn RkAiqAdrcHandleInt::updateConfig(bool needSync) {
         rk_aiq_uapi_adrc_v12_lite_SetAttrib(mAlgoCtx, &mCurAttV12Lite, true);
         updateAtt = false;
         sendSignal(mCurAttV12Lite.sync.sync_mode);
+#endif
+#if RKAIQ_HAVE_DRC_V20
+        mCurAttV20 = mNewAttV20;
+        rk_aiq_uapi_adrc_v20_SetAttrib(mAlgoCtx, &mCurAttV20, true);
+        updateAtt = false;
+        sendSignal(mCurAttV20.sync.sync_mode);
 #endif
     }
 
@@ -234,7 +241,9 @@ XCamReturn RkAiqAdrcHandleInt::setAttribV12(const drcAttrV12_t* att) {
     mCfgMutex.lock();
 
 #ifdef DISABLE_HANDLE_ATTRIB
+#ifndef USE_NEWSTRUCT
     ret = rk_aiq_uapi_adrc_v12_SetAttrib(mAlgoCtx, att, true);
+#endif
 #else
     // check if there is different between att & mCurAtt(sync)/mNewAtt(async)
     // if something changed, set att to mNewAtt, and
@@ -266,10 +275,12 @@ XCamReturn RkAiqAdrcHandleInt::getAttribV12(drcAttrV12_t* att) {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
 #ifdef DISABLE_HANDLE_ATTRIB
+#ifndef USE_NEWSTRUCT
     mCfgMutex.lock();
     rk_aiq_uapi_adrc_v12_GetAttrib(mAlgoCtx, att);
     att->sync.done = true;
     mCfgMutex.unlock();
+#endif
 #else
     if (att->sync.sync_mode == RK_AIQ_UAPI_MODE_SYNC) {
         mCfgMutex.lock();
@@ -357,6 +368,71 @@ XCamReturn RkAiqAdrcHandleInt::getAttribV12Lite(drcAttrV12Lite_t* att) {
     return ret;
 }
 #endif
+#if RKAIQ_HAVE_DRC_V20
+XCamReturn RkAiqAdrcHandleInt::setAttribV20(const drcAttrV20_t* att) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    mCfgMutex.lock();
+
+#ifdef DISABLE_HANDLE_ATTRIB
+    ret = rk_aiq_uapi_adrc_v20_SetAttrib(mAlgoCtx, att, true);
+#else
+    // check if there is different between att & mCurAtt(sync)/mNewAtt(async)
+    // if something changed, set att to mNewAtt, and
+    // the new params will be effective later when updateConfig
+    // called by RkAiqCore
+    bool isChanged = false;
+    if (att->sync.sync_mode == RK_AIQ_UAPI_MODE_ASYNC &&
+        memcmp(&mNewAttV20, att, sizeof(drcAttrV20_t)))
+        isChanged = true;
+    else if (att->sync.sync_mode != RK_AIQ_UAPI_MODE_ASYNC &&
+             memcmp(&mCurAttV20, att, sizeof(drcAttrV20_t)))
+        isChanged = true;
+
+    // if something changed
+    if (isChanged) {
+        mNewAttV20 = *att;
+        updateAtt  = true;
+        waitSignal(att->sync.sync_mode);
+    }
+#endif
+    mCfgMutex.unlock();
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+XCamReturn RkAiqAdrcHandleInt::getAttribV20(drcAttrV20_t* att) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+#ifdef DISABLE_HANDLE_ATTRIB
+    mCfgMutex.lock();
+    rk_aiq_uapi_adrc_v20_GetAttrib(mAlgoCtx, att);
+    att->sync.done = true;
+    mCfgMutex.unlock();
+#else
+    if (att->sync.sync_mode == RK_AIQ_UAPI_MODE_SYNC) {
+        mCfgMutex.lock();
+        rk_aiq_uapi_adrc_v20_GetAttrib(mAlgoCtx, att);
+        att->sync.done = true;
+        mCfgMutex.unlock();
+    } else {
+        if (updateAtt) {
+            memcpy(att, &mNewAttV20, sizeof(drcAttrV20_t));
+            att->sync.done = false;
+        } else {
+            rk_aiq_uapi_adrc_v20_GetAttrib(mAlgoCtx, att);
+            att->sync.sync_mode = mNewAttV20.sync.sync_mode;
+            att->sync.done      = true;
+        }
+    }
+#endif
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+#endif
 
 XCamReturn RkAiqAdrcHandleInt::preProcess() {
     ENTER_ANALYZER_FUNCTION();
@@ -396,7 +472,7 @@ XCamReturn RkAiqAdrcHandleInt::processing() {
     adrc_proc_res_int->AdrcProcRes = &shared->fullParams->mDrcParams->data()->result;
     adrc_proc_int->LongFrmMode = mAeProcRes.LongFrmMode;
 
-#if RKAIQ_HAVE_DRC_V12 || RKAIQ_HAVE_DRC_V12_LITE
+#if RKAIQ_HAVE_DRC_V12 || RKAIQ_HAVE_DRC_V12_LITE || (RKAIQ_HAVE_DRC_V20 && !USE_NEWSTRUCT)
     adrc_proc_int->ablcV32_proc_res.blc_ob_enable = shared->res_comb.ablcV32_proc_res->blc_ob_enable;
     adrc_proc_int->ablcV32_proc_res.isp_ob_predgain =
         shared->res_comb.ablcV32_proc_res->isp_ob_predgain;

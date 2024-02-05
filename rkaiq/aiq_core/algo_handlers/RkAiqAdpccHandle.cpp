@@ -60,7 +60,9 @@ XCamReturn RkAiqAdpccHandleInt::setAttrib(rk_aiq_dpcc_attrib_V20_t* att) {
     mCfgMutex.lock();
 
 #ifdef DISABLE_HANDLE_ATTRIB
+#ifndef USE_NEWSTRUCT
     ret = rk_aiq_uapi_adpcc_SetAttrib(mAlgoCtx, att, false);
+#endif
 #else
     // check if there is different between att & mCurAtt(sync)/mNewAtt(async)
     // if something changed, set att to mNewAtt, and
@@ -93,9 +95,11 @@ XCamReturn RkAiqAdpccHandleInt::getAttrib(rk_aiq_dpcc_attrib_V20_t* att) {
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 #ifdef DISABLE_HANDLE_ATTRIB
+#ifndef USE_NEWSTRUCT
       mCfgMutex.lock();
       ret = rk_aiq_uapi_adpcc_GetAttrib(mAlgoCtx, att);
       mCfgMutex.unlock();
+#endif
 #else
     if (att->sync.sync_mode == RK_AIQ_UAPI_MODE_SYNC) {
       mCfgMutex.lock();

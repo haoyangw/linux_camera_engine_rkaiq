@@ -17,7 +17,7 @@
 #include "RkAiqCamGroupHandleInt.h"
 
 namespace RkCam {
-
+#if (USE_NEWSTRUCT == 0)
 XCamReturn RkAiqCamGroupAdpccHandleInt::updateConfig(bool needSync) {
   ENTER_ANALYZER_FUNCTION();
 
@@ -96,5 +96,5 @@ RkAiqCamGroupAdpccHandleInt::getAttrib(rk_aiq_dpcc_attrib_V20_t *att) {
   EXIT_ANALYZER_FUNCTION();
   return ret;
 }
-
+#endif
 } // namespace RkCam

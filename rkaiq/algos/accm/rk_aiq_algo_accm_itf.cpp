@@ -72,6 +72,11 @@ prepare(RkAiqAlgoCom* params)
         hAccm->ccm_v2 = (CalibDbV2_Ccm_Para_V32_t*)(CALIBDBV2_GET_MODULE_PTR(
             confPara->com.u.prepare.calibv2, ccm_calib_v2));
 #endif
+
+#if RKAIQ_HAVE_CCM_V3
+        hAccm->ccm_v3 = (CalibDbV2_Ccm_Para_V39_t*)(CALIBDBV2_GET_MODULE_PTR(
+            confPara->com.u.prepare.calibv2, ccm_calib_v2));
+#endif
     }
     // just update calib ptr
     if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
@@ -129,7 +134,7 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
 
     AccmConfig(hAccm);
     proResAccm->res_com.cfg_update = hAccm->isReCal_;
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
+#if defined(ISP_HW_V39) || defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
     if (proResAccm->res_com.cfg_update)
         memcpy(proResAccm->accm_hw_conf_v2, &hAccm->ccmHwConf_v2, sizeof(rk_aiq_ccm_cfg_v2_t));
 #else

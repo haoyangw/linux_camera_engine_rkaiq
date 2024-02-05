@@ -51,13 +51,6 @@ rk_aiq_uapi2_sysctl_preInit_scene(const char* sns_ent_name, const char *main_sce
 }
 
 XCamReturn
-rk_aiq_uapi2_sysctl_preInit_tb_info(const char* sns_ent_name,
-                           const rk_aiq_tb_info_t* info)
-{
-    return rk_aiq_uapi_sysctl_preInit_tb_info(sns_ent_name, info);
-}
-
-XCamReturn
 rk_aiq_uapi2_sysctl_preInit_iq_addr(const char* sns_ent_name, void *addr, size_t len)
 {
     g_rk_aiq_sys_preinit_cfg_map[sns_ent_name].iq_buffer.addr = addr;
@@ -416,14 +409,24 @@ rk_aiq_uapi2_sysctl_preInit_rkrawstream_info(const char* sns_ent_name,
     return rk_aiq_uapi_sysctl_preInit_rkrawtream_info(sns_ent_name, info);
 }
 
-void rk_aiq_uapi2_sysctl_pause(rk_aiq_sys_ctx_t* sys_ctx, bool isSingleMode)
+XCamReturn rk_aiq_uapi2_sysctl_pause(rk_aiq_sys_ctx_t* sys_ctx, bool isSingleMode)
 {
-    sys_ctx->_rkAiqManager->setVicapStreamMode(0, isSingleMode);
+    if (!sys_ctx) {
+        LOGE("%s: sys_ctx is invalied\n", __func__);
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+
+    return sys_ctx->_rkAiqManager->setVicapStreamMode(0, isSingleMode);
 }
 
-void rk_aiq_uapi2_sysctl_resume(rk_aiq_sys_ctx_t* sys_ctx)
+XCamReturn rk_aiq_uapi2_sysctl_resume(rk_aiq_sys_ctx_t* sys_ctx)
 {
-    sys_ctx->_rkAiqManager->setVicapStreamMode(1, false);
+    if (!sys_ctx) {
+        LOGE("%s: sys_ctx is invalied\n", __func__);
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+
+    return sys_ctx->_rkAiqManager->setVicapStreamMode(1, false);
 }
 
 XCamReturn
@@ -556,4 +559,91 @@ rk_aiq_uapi2_sysctl_setListenStrmStatus(rk_aiq_sys_ctx_t* sys_ctx, bool isListen
     } else {
         dynamic_cast<CamHwIsp20*>(sys_ctx->_camHw.ptr())->setListenStrmEvt(isListen);
     }
+}
+
+static XCamReturn rk_aiq_aiisp_defaut_cb(rk_aiq_aiisp_t* aiisp_evt, void* ctx) {
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    rk_aiq_sys_ctx_t* aiisp_ctx= (rk_aiq_sys_ctx_t *)ctx;
+    aiisp_ctx->_wr_linecnt_now += aiisp_evt->wr_linecnt;
+    if (aiisp_ctx->_wr_linecnt_now == aiisp_evt->rd_linecnt) {
+        aiisp_ctx->_wr_linecnt_now = 0;
+        aiisp_ctx->_camHw->aiisp_processing(aiisp_evt);
+        ret = rk_aiq_uapi2_sysctl_ReadAiisp(aiisp_ctx);
+    }
+    return ret;
+}
+
+XCamReturn rk_aiq_uapi2_sysctl_initAiisp(rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_aiisp_cfg_t* aiisp_cfg,
+                                         rk_aiq_aiisp_cb aiisp_cb)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+#ifdef ISP_HW_V39
+    if (!sys_ctx)
+        return XCAM_RETURN_ERROR_PARAM;
+
+    if (aiisp_cfg == NULL) {
+        rk_aiq_aiisp_cfg_t aiisp_cfg_tmp;
+        rk_aiq_exposure_sensor_descriptor sensor_des;
+        sys_ctx->_camHw->getSensorModeData(sys_ctx->_sensor_entity_name, sensor_des);
+        uint32_t height = sensor_des.sensor_output_height;
+        aiisp_cfg_tmp.wr_mode = 1;
+        aiisp_cfg_tmp.rd_mode = 0;
+        aiisp_cfg_tmp.wr_linecnt = height / 2;
+        aiisp_cfg_tmp.rd_linecnt = height;
+        ret = sys_ctx->_camHw->setAiispMode(&aiisp_cfg_tmp);
+    }
+    else {
+        ret = sys_ctx->_camHw->setAiispMode(aiisp_cfg);
+    }
+    if (ret != XCAM_RETURN_NO_ERROR) {
+        LOGE("Set Aiisp mode failed!");
+        return ret;
+    }
+
+    if (aiisp_cb == NULL) {
+        aiisp_cb = rk_aiq_aiisp_defaut_cb;
+    }
+    rk_aiq_aiispCtx_t aiispCtx;
+    aiispCtx.mAiispEvtcb = aiisp_cb;
+    aiispCtx.ctx = sys_ctx;
+    sys_ctx->_rkAiqManager->setAiispCb(aiispCtx);
+    sys_ctx->_use_aiisp = true;
+
+    // RkAiqAblcV32HandleInt* algo_handle =
+    //     algoHandle<RkAiqAblcV32HandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_ABLC);
+    // if (algo_handle)
+    //     ret = algo_handle->setAiisp();
+    rk_aiq_blc_attrib_V32_t blc_attr;
+    memset(&blc_attr, 0x00, sizeof(blc_attr));
+    ret = rk_aiq_user_api2_ablcV32_GetAttrib(sys_ctx, &blc_attr);
+    blc_attr.sync.sync_mode = RK_AIQ_UAPI_MODE_ASYNC;
+    AblcOPMode_V32_t eMode_tmp = blc_attr.eMode;
+    blc_attr.eMode = ABLC_V32_OP_MODE_MANUAL;
+    blc_attr.stBlcOBManual.enable = 0;
+    ret = rk_aiq_user_api2_ablcV32_SetAttrib(sys_ctx, &blc_attr);
+
+    ret = rk_aiq_user_api2_ablcV32_GetAttrib(sys_ctx, &blc_attr);
+    blc_attr.sync.sync_mode = RK_AIQ_UAPI_MODE_ASYNC;
+    blc_attr.eMode = ABLC_V32_OP_MODE_AUTO;
+    blc_attr.stBlcOBAuto.enable = 0;
+    ret = rk_aiq_user_api2_ablcV32_SetAttrib(sys_ctx, &blc_attr);
+    blc_attr.eMode = eMode_tmp;
+    ret = rk_aiq_user_api2_ablcV32_SetAttrib(sys_ctx, &blc_attr);
+
+    LOGK("AIISP on");
+#else
+    LOGE("The current platform does not support");
+#endif
+    return ret;
+}
+
+
+XCamReturn rk_aiq_uapi2_sysctl_ReadAiisp(rk_aiq_sys_ctx_t* sys_ctx)
+{
+    if (!sys_ctx)
+        return XCAM_RETURN_ERROR_PARAM;
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    ret = sys_ctx->_camHw->read_aiisp_result();
+    LOGD("start to read AIISP result");
+    return ret;
 }

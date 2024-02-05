@@ -16,7 +16,14 @@
  */
 
 #include "sample_comm.h"
-#include "uAPI2/rk_aiq_user_api2_adrc.h"
+
+#ifdef ISP_HW_V39
+#include "rk_aiq_user_api2_rk3576.h"
+#elif  defined(ISP_HW_V32)
+#include "rk_aiq_user_api2_rv1106.h"
+#endif
+#include "uAPI2/rk_aiq_user_api2_helper.h"
+#include <string>
 
 static void sample_adrc_usage()
 {
@@ -42,7 +49,8 @@ static void sample_adrc_usage()
     printf("\t i) ADRC:         test rk_aiq_uapi2_setDrcHiLit.\n");
     printf("\t j) ADRC:         test rk_aiq_uapi2_getDrcLocalData.\n");
     printf("\t k) ADRC:         test rk_aiq_uapi2_setDrcLocalData.\n");
-    printf("\t q) ADRC:         return to main sample screen.\n");
+    printf("\t l) ADRC:         sample_new_drc.\n");
+    printf("\t q) ADRC:         return to main sample screen.\n");  
 
     printf("\n");
     printf("\t please press the key: ");
@@ -54,6 +62,82 @@ void sample_print_adrc_info(const void *arg)
 {
     printf ("enter ADRC modult test!\n");
 }
+
+#ifdef USE_NEWSTRUCT
+static void sample_drc_tuningtool_test(const rk_aiq_sys_ctx_t* ctx)
+{
+    char *ret_str = NULL;
+
+    printf(">>> start tuning tool test: op attrib get ...\n");
+
+    std::string json_drc_status_str = " \n\
+        [{ \n\
+            \"op\":\"get\", \n\
+            \"path\": \"/uapi/0/drc_uapi/info\", \n\
+            \"value\": \n\
+            { \"opMode\": \"RK_AIQ_OP_MODE_MANUAL\", \"en\": 0,\"bypass\": 3} \n\
+        }]";
+
+    rkaiq_uapi_unified_ctl(const_cast<rk_aiq_sys_ctx_t*>(ctx),
+                           const_cast<char*>(json_drc_status_str.c_str()), &ret_str, RKAIQUAPI_OPMODE_GET);
+
+    if (ret_str) {
+        printf("drc status json str: %s\n", ret_str);
+    }
+
+    printf("  start tuning tool test: op attrib set ...\n");
+    std::string json_drc_str = " \n\
+        [{ \n\
+            \"op\":\"replace\", \n\
+            \"path\": \"/uapi/0/drc_uapi/attr\", \n\
+            \"value\": \n\
+            { \"opMode\": \"RK_AIQ_OP_MODE_MANUAL\", \"en\": 1,\"bypass\": 1} \n\
+        }]";
+    printf("drc json_cmd_str: %s\n", json_drc_str.c_str());
+    ret_str = NULL;
+    rkaiq_uapi_unified_ctl(const_cast<rk_aiq_sys_ctx_t*>(ctx),
+                           const_cast<char*>(json_drc_str.c_str()), &ret_str, RKAIQUAPI_OPMODE_SET);
+
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    drc_status_t status;
+    memset(&status, 0, sizeof(drc_status_t));
+
+    rk_aiq_user_api2_drc_QueryStatus(ctx, &status);
+
+    if (status.opMode != RK_AIQ_OP_MODE_MANUAL || status.en != 1 || status.bypass != 1) {
+        printf("drc op set_attrib failed !\n");
+        printf("drc status: opmode:%d(EXP:%d), en:%d(EXP:%d), bypass:%d(EXP:%d)\n",
+               status.opMode, RK_AIQ_OP_MODE_MANUAL, status.en, 1, status.bypass, 1);
+    } else {
+        printf("drc op set_attrib success !\n");
+    }
+
+    printf(">>> tuning tool test done \n");
+}
+
+static void sample_new_drc(const rk_aiq_sys_ctx_t* ctx) {
+    sample_drc_tuningtool_test(ctx);
+
+    drc_api_attrib_t attr_drc;
+    drc_status_t status;
+    rk_aiq_user_api2_drc_GetAttrib(ctx, &attr_drc);
+    printf("\t attr_drc.opMode:%d attr_drc.en:%d\n\n",
+            attr_drc.opMode, attr_drc.en);
+
+    // attr_drc.opMode = RK_AIQ_OP_MODE_MANUAL;
+    // attr_drc.stMan.sta.Edge_Weit += 0.1;
+    // rk_aiq_user_api2_drc_SetAttrib(ctx, &attr_drc);
+
+    attr_drc.opMode = RK_AIQ_OP_MODE_AUTO;
+    rk_aiq_user_api2_drc_SetAttrib(ctx, &attr_drc);
+
+    rk_aiq_user_api2_drc_QueryStatus(ctx, &status);
+    printf("\t status.opMode:%d status.en:%d\n\n",
+            status.opMode, status.en);
+}
+#endif
 
 XCamReturn sample_adrc_module(const void *arg)
 {
@@ -832,6 +916,13 @@ XCamReturn sample_adrc_module(const void *arg)
                 rk_aiq_uapi2_setDrcLocalData(ctx, 1.0f, 0.5f, 0.5f, 1, 0.9f);
                 break;
             }
+#ifdef USE_NEWSTRUCT
+            case 'l': {
+                printf("\t sample_new_drc\n\n");
+                sample_new_drc(ctx);
+                break;
+            }
+#endif
             default:
                 break;
         }

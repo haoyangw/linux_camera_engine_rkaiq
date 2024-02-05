@@ -24,6 +24,8 @@
 #include "j2s_generated_v32.h"
 #elif defined(ISP_HW_V32_LITE)
 #include "j2s_generated_v32_lite.h"
+#elif defined(ISP_HW_V39)
+#include "j2s_generated_v39.h"
 #else
 #error "Please define supported ISP version!!!, eg: -DISP_HW_V21"
 #endif

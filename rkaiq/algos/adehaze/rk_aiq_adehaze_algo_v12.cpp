@@ -1012,7 +1012,7 @@ void GetHistParamsV12(CalibDbDehazeV12_t* pCalibV12, RkAiqAdehazeProcResult_t* p
     // clip hpara_en
     pProcRes->ProcResV12.hpara_en = pProcRes->ProcResV12.dc_en
                                     ? pProcRes->ProcResV12.hpara_en
-                                    : FUNCTION_ENABLE;  //  dc en ¹Ø±Õ£¬hpara±ØÐè¿ª
+                                    : FUNCTION_ENABLE;  //  dc en ï¿½Ø±Õ£ï¿½hparaï¿½ï¿½ï¿½è¿ª
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
     if (pCalibV12->hist_setting.hist_wr.mode == HIST_WR_MANUAL) {
@@ -1111,7 +1111,7 @@ XCamReturn GetDehazeLocalGainSettingV12(RkAiqAdehazeProcResult_t* pProcRes, floa
     for (int i = 0; i < DHAZ_V12_SIGMA_IDX_NUM; i++) sigam_total += sigma[i];
 
     if (sigam_total < FLT_EPSILON) {
-        for (int i = 0; i < DHAZ_V12_SIGMA_IDX_NUM; i++) pProcRes->ProcResV12.sigma_lut[i] = 0x200;
+        for (int i = 0; i < DHAZ_V12_SIGMA_LUT_NUM; i++) pProcRes->ProcResV12.sigma_lut[i] = 0x200;
     } else {
         int tmp = 0;
         for (int i = 0; i < DHAZ_V12_SIGMA_LUT_NUM; i++) {

@@ -721,16 +721,17 @@ RkAiqResourceTranslator::translateAfStats (const SmartPtr<VideoBuffer> &from, Sm
             statsInt->af_stats.roia_sharpness += stats->params.rawaf.ramdata[i];
 
         if(afParams.ptr()) {
-            statsInt->af_stats.focusCode = afParams->data()->focusCode;
-            statsInt->af_stats.zoomCode = afParams->data()->zoomCode;
-            statsInt->af_stats.focus_endtim = afParams->data()->focusEndTim;
-            statsInt->af_stats.focus_starttim = afParams->data()->focusStartTim;
-            statsInt->af_stats.zoom_endtim = afParams->data()->zoomEndTim;
-            statsInt->af_stats.zoom_starttim = afParams->data()->zoomStartTim;
-            statsInt->af_stats.sof_tim = afParams->data()->sofTime;
+            statsInt->stat_motor.focusCode = afParams->data()->focusCode;
+            statsInt->stat_motor.zoomCode = afParams->data()->zoomCode;
+            statsInt->stat_motor.focus_endtim = afParams->data()->focusEndTim;
+            statsInt->stat_motor.focus_starttim = afParams->data()->focusStartTim;
+            statsInt->stat_motor.zoom_endtim = afParams->data()->zoomEndTim;
+            statsInt->stat_motor.zoom_starttim = afParams->data()->zoomStartTim;
+            statsInt->stat_motor.sof_tim = afParams->data()->sofTime;
+            statsInt->stat_motor.focusCorrection = afParams->data()->focusCorrection;
+            statsInt->stat_motor.zoomCorrection = afParams->data()->zoomCorrection;
+            statsInt->stat_motor.angleZ = afParams->data()->angleZ;
             statsInt->af_stats.lowpass_id = afParams->data()->lowPassId;
-            statsInt->af_stats.focusCorrection = afParams->data()->focusCorrection;
-            statsInt->af_stats.zoomCorrection = afParams->data()->zoomCorrection;
             memcpy(statsInt->af_stats.lowpass_fv4_4,
                    afParams->data()->lowPassFv4_4, ISP2X_RAWAF_SUMDATA_NUM * sizeof(u32));
             memcpy(statsInt->af_stats.lowpass_fv8_8,
@@ -739,8 +740,6 @@ RkAiqResourceTranslator::translateAfStats (const SmartPtr<VideoBuffer> &from, Sm
                    afParams->data()->lowPassHighLht, ISP2X_RAWAF_SUMDATA_NUM * sizeof(u32));
             memcpy(statsInt->af_stats.lowpass_highlht2,
                    afParams->data()->lowPassHighLht2, ISP2X_RAWAF_SUMDATA_NUM * sizeof(u32));
-
-            statsInt->af_stats.angleZ = afParams->data()->angleZ;
         }
 
         if (_expParams.ptr())
@@ -830,53 +829,85 @@ RkAiqResourceTranslator::translatePdafStats (const SmartPtr<VideoBuffer> &from, 
     }
 #endif
 
-    if (pdaf->pdLRInDiffLine == 0) {
-        pdWidth = pdaf->pdWidth >> 1;
-        pdHeight = pdaf->pdHeight;
+    if (pdaf->pdafSensorType == PDAF_SENSOR_TYPE3) {
+        if (pdaf->pdLRInDiffLine == 0) {
+            pdWidth = pdaf->pdWidth >> 1;
+            pdHeight = pdaf->pdHeight;
+
+            pixelperline = 2 * pdWidth;
+            for (j = 0; j < pdHeight; j++) {
+                pdData = (uint16_t *)pdafstats + j * pixelperline;
+                for (i = 0; i < pixelperline; i += 2) {
+                    *pdLData++ = pdData[i] >> 6;
+                    *pdRData++ = pdData[i + 1] >> 6;
+                }
+            }
+        } else {
+            pdWidth = pdaf->pdWidth;
+            pdHeight = pdaf->pdHeight >> 1;
+            pixelperline = pdaf->pdWidth;
+            for (j = 0; j < 2 * pdHeight; j += 2) {
+                for (i = 0; i < pixelperline; i++) {
+                    *pdLData++ = pdData[i] >> 6;
+                }
+                pdData += pixelperline;
+                for (i = 0; i < pixelperline; i++) {
+                    *pdRData++ = pdData[i] >> 6;
+                }
+                pdData += pixelperline;
+                pdLData += pixelperline;
+                pdRData += pixelperline;
+            }
+        }
+    } else {
+        if (pdaf->pdLRInDiffLine == 0) {
+            pdWidth = pdaf->pdWidth >> 1;
+            pdHeight = pdaf->pdHeight;
 
 #ifdef NEON_OPT
-        uint16x8x2_t vld2_data;
-        uint16x8_t vrev_data;
-        pixelperline = 2 * pdWidth;
-        for (j = 0; j < pdHeight; j++) {
-            pdData = (uint16_t *)pdafstats + j * pixelperline;
-            for (i = 0; i < pixelperline / 16 * 16; i += 16) {
-                vld2_data = vld2q_u16(pdData);
-                vst1q_u16(pdLData, vld2_data.val[0]);
-                vst1q_u16(pdRData, vld2_data.val[1]);
-                pdLData += 8;
-                pdRData += 8;
-                pdData += 16;
-            }
+            uint16x8x2_t vld2_data;
+            uint16x8_t vrev_data;
+            pixelperline = 2 * pdWidth;
+            for (j = 0; j < pdHeight; j++) {
+                pdData = (uint16_t *)pdafstats + j * pixelperline;
+                for (i = 0; i < pixelperline / 16 * 16; i += 16) {
+                    vld2_data = vld2q_u16(pdData);
+                    vst1q_u16(pdLData, vld2_data.val[0]);
+                    vst1q_u16(pdRData, vld2_data.val[1]);
+                    pdLData += 8;
+                    pdRData += 8;
+                    pdData += 16;
+                }
 
-            if (pixelperline % 16) {
-                for (i = 0; i < pixelperline % 16; i += 2) {
+                if (pixelperline % 16) {
+                    for (i = 0; i < pixelperline % 16; i += 2) {
+                        *pdLData++ = pdData[i];
+                        *pdRData++ = pdData[i + 1];
+                    }
+                }
+            }
+#else
+            pixelperline = 2 * pdWidth;
+            for (j = 0; j < pdHeight; j++) {
+                pdData = (uint16_t *)pdafstats + j * pixelperline;
+                for (i = 0; i < pixelperline; i += 2) {
                     *pdLData++ = pdData[i];
                     *pdRData++ = pdData[i + 1];
                 }
             }
-        }
-#else
-        pixelperline = 2 * pdWidth;
-        for (j = 0; j < pdHeight; j++) {
-            pdData = (uint16_t *)pdafstats + j * pixelperline;
-            for (i = 0; i < pixelperline; i += 2) {
-                *pdLData++ = pdData[i];
-                *pdRData++ = pdData[i + 1];
-            }
-        }
 #endif
-    } else {
-        pdWidth = pdaf->pdWidth;
-        pdHeight = pdaf->pdHeight >> 1;
-        pixelperline = pdaf->pdWidth;
-        for (j = 0; j < 2 * pdHeight; j += 2) {
-            memcpy(pdRData, pdData, pixelperline * sizeof(uint16_t));
-            pdData += pixelperline;
-            memcpy(pdLData, pdData, pixelperline * sizeof(uint16_t));
-            pdData += pixelperline;
-            pdLData += pixelperline;
-            pdRData += pixelperline;
+        } else {
+            pdWidth = pdaf->pdWidth;
+            pdHeight = pdaf->pdHeight >> 1;
+            pixelperline = pdaf->pdWidth;
+            for (j = 0; j < 2 * pdHeight; j += 2) {
+                memcpy(pdRData, pdData, pixelperline * sizeof(uint16_t));
+                pdData += pixelperline;
+                memcpy(pdLData, pdData, pixelperline * sizeof(uint16_t));
+                pdData += pixelperline;
+                pdLData += pixelperline;
+                pdRData += pixelperline;
+            }
         }
     }
 
@@ -988,7 +1019,9 @@ XCamReturn
 RkAiqResourceTranslator::getParams(const SmartPtr<VideoBuffer>& from)
 {
     Isp20StatsBuffer* buf = from.get_cast_ptr<Isp20StatsBuffer>();
-#ifdef ISP_HW_V32_LITE
+#ifdef ISP_HW_V39
+    auto stats = (struct rkisp39_stat_buffer*)(buf->get_v4l2_userptr());
+#elif ISP_HW_V32_LITE
     auto stats = (struct rkisp32_lite_stat_buffer*)(buf->get_v4l2_userptr());
 #elif ISP_HW_V32
     auto stats = (struct rkisp32_isp_stat_buffer*)(buf->get_v4l2_userptr());

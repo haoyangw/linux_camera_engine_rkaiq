@@ -358,7 +358,7 @@ XCamReturn rk_aiq_user_api2_adehaze_v11_getSwAttrib(const rk_aiq_sys_ctx_t* sys_
     return XCAM_RETURN_ERROR_UNKNOWN;
 }
 #endif
-#if RKAIQ_HAVE_DEHAZE_V12
+#if RKAIQ_HAVE_DEHAZE_V12 && (USE_NEWSTRUCT == 0)
 XCamReturn rk_aiq_user_api2_adehaze_v12_setSwAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
                                                     const adehaze_sw_v12_t* attr) {
     CHECK_USER_API_ENABLE2(sys_ctx);
@@ -440,6 +440,90 @@ XCamReturn rk_aiq_user_api2_adehaze_v12_setSwAttrib(const rk_aiq_sys_ctx_t* sys_
 
 XCamReturn rk_aiq_user_api2_adehaze_v12_getSwAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
                                                     adehaze_sw_v12_t* attr) {
+    return XCAM_RETURN_ERROR_UNKNOWN;
+}
+#endif
+#if RKAIQ_HAVE_DEHAZE_V14 && (USE_NEWSTRUCT == 0)
+XCamReturn rk_aiq_user_api2_adehaze_v14_setSwAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
+                                                    const adehaze_sw_v14_t* attr) {
+    CHECK_USER_API_ENABLE2(sys_ctx);
+    CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_ADHAZ);
+
+    if (sys_ctx->cam_type == RK_AIQ_CAM_TYPE_GROUP) {
+#ifdef RKAIQ_ENABLE_CAMGROUP
+        RkAiqCamGroupAdehazeHandleInt* algo_handle =
+            camgroupAlgoHandle<RkAiqCamGroupAdehazeHandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_ADHAZ);
+
+        if (algo_handle) {
+            return algo_handle->setAttribV14(attr);
+        } else {
+            const rk_aiq_camgroup_ctx_t* camgroup_ctx = (rk_aiq_camgroup_ctx_t*)sys_ctx;
+            for (auto camCtx : camgroup_ctx->cam_ctxs_array) {
+                if (!camCtx) continue;
+
+                RkAiqAdehazeHandleInt* singleCam_algo_handle =
+                    algoHandle<RkAiqAdehazeHandleInt>(camCtx, RK_AIQ_ALGO_TYPE_ADHAZ);
+                if (singleCam_algo_handle) return singleCam_algo_handle->setSwAttribV14(attr);
+            }
+        }
+#else
+        return XCAM_RETURN_ERROR_FAILED;
+#endif
+    } else {
+        RkAiqAdehazeHandleInt* algo_handle =
+            algoHandle<RkAiqAdehazeHandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_ADHAZ);
+
+        if (algo_handle) {
+            return algo_handle->setSwAttribV14(attr);
+        }
+    }
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn rk_aiq_user_api2_adehaze_v14_getSwAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
+                                                    adehaze_sw_v14_t* attr) {
+    RKAIQ_API_SMART_LOCK(sys_ctx);
+
+    if (sys_ctx->cam_type == RK_AIQ_CAM_TYPE_GROUP) {
+#ifdef RKAIQ_ENABLE_CAMGROUP
+        RkAiqCamGroupAdehazeHandleInt* algo_handle =
+            camgroupAlgoHandle<RkAiqCamGroupAdehazeHandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_ADHAZ);
+
+        if (algo_handle) {
+            return algo_handle->getAttribV14(attr);
+        } else {
+            const rk_aiq_camgroup_ctx_t* camgroup_ctx = (rk_aiq_camgroup_ctx_t*)sys_ctx;
+            for (auto camCtx : camgroup_ctx->cam_ctxs_array) {
+                if (!camCtx) continue;
+
+                RkAiqAdehazeHandleInt* singleCam_algo_handle =
+                    algoHandle<RkAiqAdehazeHandleInt>(camCtx, RK_AIQ_ALGO_TYPE_ADHAZ);
+                if (singleCam_algo_handle) return singleCam_algo_handle->getSwAttribV14(attr);
+            }
+        }
+#else
+        return XCAM_RETURN_ERROR_FAILED;
+#endif
+    } else {
+        RkAiqAdehazeHandleInt* algo_handle =
+            algoHandle<RkAiqAdehazeHandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_ADHAZ);
+
+        if (algo_handle) {
+            return algo_handle->getSwAttribV14(attr);
+        }
+    }
+
+    return XCAM_RETURN_NO_ERROR;
+}
+#else
+XCamReturn rk_aiq_user_api2_adehaze_v14_setSwAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
+                                                    const adehaze_sw_v14_t* attr) {
+    return XCAM_RETURN_ERROR_UNKNOWN;
+}
+
+XCamReturn rk_aiq_user_api2_adehaze_v14_getSwAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
+                                                    adehaze_sw_v14_t* attr) {
     return XCAM_RETURN_ERROR_UNKNOWN;
 }
 #endif

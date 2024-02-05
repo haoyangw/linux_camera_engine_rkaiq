@@ -28,6 +28,13 @@ XCamReturn
 rk_aiq_uapi_accm_v2_GetAttrib(const RkAiqAlgoContext *ctx,
                            rk_aiq_ccm_v2_attrib_t *attr);
 XCamReturn
+rk_aiq_uapi_accm_v3_SetAttrib(RkAiqAlgoContext *ctx,
+                           const rk_aiq_ccm_v3_attrib_t* attr,
+                           bool need_sync);
+XCamReturn
+rk_aiq_uapi_accm_v3_GetAttrib(const RkAiqAlgoContext *ctx,
+                           rk_aiq_ccm_v3_attrib_t *attr);
+XCamReturn
 rk_aiq_uapi_accm_QueryCcmInfo(const RkAiqAlgoContext *ctx,
                               rk_aiq_ccm_querry_info_t *ccm_querry_info );
 
@@ -47,6 +54,14 @@ rk_aiq_uapi_accm_SetIqParam(RkAiqAlgoContext *ctx,
 XCamReturn
 rk_aiq_uapi_accm_GetIqParam(const RkAiqAlgoContext *ctx,
                             rk_aiq_ccm_v2_calib_attrib_t* attr);
+#elif RKAIQ_HAVE_CCM_V3
+XCamReturn
+rk_aiq_uapi_accm_SetIqParam(RkAiqAlgoContext *ctx,
+                           const rk_aiq_ccm_v3_calib_attrib_t* attr,
+                           bool need_sync);
+XCamReturn
+rk_aiq_uapi_accm_GetIqParam(const RkAiqAlgoContext *ctx,
+                            rk_aiq_ccm_v3_calib_attrib_t* attr);
 #endif
 
 #endif

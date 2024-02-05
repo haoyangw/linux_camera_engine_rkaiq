@@ -115,7 +115,53 @@ XCamReturn rk_aiq_user_api_accm_v2_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
 }
 #endif
 
-#if RKAIQ_HAVE_CCM_V1 || RKAIQ_HAVE_CCM_V2
+#if RKAIQ_HAVE_CCM_V3
+XCamReturn rk_aiq_user_api_accm_v3_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
+                                          const rk_aiq_ccm_v3_attrib_t* attr)
+{
+    CHECK_USER_API_ENABLE2(sys_ctx);
+    CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_ACCM);
+    RKAIQ_API_SMART_LOCK(sys_ctx);
+    RkAiqAccmHandleInt* algo_handle =
+        algoHandle<RkAiqAccmHandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_ACCM);
+
+    if (algo_handle) {
+        return algo_handle->setAttribV3(attr);
+    }
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn
+rk_aiq_user_api_accm_v3_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
+                                rk_aiq_ccm_v3_attrib_t *attr)
+{
+    RKAIQ_API_SMART_LOCK(sys_ctx);
+    RkAiqAccmHandleInt* algo_handle =
+        algoHandle<RkAiqAccmHandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_ACCM);
+
+    if (algo_handle) {
+        return algo_handle->getAttribV3(attr);
+    }
+
+    return XCAM_RETURN_NO_ERROR;
+}
+#else
+
+XCamReturn rk_aiq_user_api_accm_v3_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
+                                            const rk_aiq_ccm_v3_attrib_t* attr)
+{
+    return XCAM_RETURN_ERROR_UNKNOWN;
+}
+
+XCamReturn rk_aiq_user_api_accm_v3_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
+                                            rk_aiq_ccm_v3_attrib_t *attr)
+{
+    return XCAM_RETURN_ERROR_UNKNOWN;
+}
+#endif
+
+#if RKAIQ_HAVE_CCM_V1 || RKAIQ_HAVE_CCM_V2 || RKAIQ_HAVE_CCM_V3
 XCamReturn rk_aiq_user_api_accm_QueryCcmInfo(const rk_aiq_sys_ctx_t* sys_ctx,
                                             rk_aiq_ccm_querry_info_t *ccm_querry_info)
 {

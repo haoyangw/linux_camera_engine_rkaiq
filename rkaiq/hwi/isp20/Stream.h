@@ -183,6 +183,28 @@ protected:
     XCAM_DEAD_COPY (RKSofEventStream);
 };
 
+class RKAiispEventStream : public RKStream
+{
+public:
+    RKAiispEventStream               (SmartPtr<V4l2SubDevice> dev, int type);
+    // RKSofEventStream               (const char *name, int type, bool linkedTo1608 = false);
+    virtual ~RKAiispEventStream      ();
+    virtual void start             ();
+    virtual void stop();
+    XCamReturn set_aiisp_linecnt(rk_aiq_aiisp_cfg_t aiisp_cfg);
+    XCamReturn get_aiisp_bay3dbuf();
+    virtual SmartPtr<VideoBuffer>
+    new_video_buffer               (struct v4l2_event &event, SmartPtr<V4l2Device> dev);
+    XCamReturn call_aiisp_rd_start();
+    XCamReturn close_aiisp();
+protected:
+    rkisp_bay3dbuf_info_t bay3dbuf;
+    void* iir_address;
+    void* gain_address;
+    static std::atomic<bool> _is_subscribed;
+    XCAM_DEAD_COPY (RKAiispEventStream);
+};
+
 class RKRawStream : public RKStream
 {
 public:

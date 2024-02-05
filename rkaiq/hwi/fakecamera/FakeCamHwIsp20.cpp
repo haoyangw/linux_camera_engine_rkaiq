@@ -752,10 +752,10 @@ FakeCamHwIsp20::parse_rk_rawfile(FILE *fp, struct rk_aiq_vbuf *vbuf)
                                       vbuf->buf_info[0].exp_time_reg);
     }else if (_rawfmt.hdr_mode == 2) {
          vbuf->buf_info[0].frame_id = _rawfmt.frame_id;
-         vbuf->buf_info[0].exp_gain = (float)_finfo.normal_gain;
-         vbuf->buf_info[0].exp_time = (float)_finfo.normal_exp;
-         vbuf->buf_info[0].exp_gain_reg = (uint32_t)_finfo.normal_gain_reg;
-         vbuf->buf_info[0].exp_time_reg = (uint32_t)_finfo.normal_exp_reg;
+         vbuf->buf_info[0].exp_gain = (float)_finfo.hdr_gain_s;
+         vbuf->buf_info[0].exp_time = (float)_finfo.hdr_exp_s;
+         vbuf->buf_info[0].exp_gain_reg = (uint32_t)_finfo.hdr_gain_s_reg;
+         vbuf->buf_info[0].exp_time_reg = (uint32_t)_finfo.hdr_exp_s_reg;
          vbuf->buf_info[0].valid = true;
          LOGD_CAMHW_SUBM(FAKECAM_SUBM,"buf_info[0]: data_addr=%p,fd=%d,,length=%d\n",
                                       vbuf->buf_info[0].data_addr,
@@ -784,10 +784,10 @@ FakeCamHwIsp20::parse_rk_rawfile(FILE *fp, struct rk_aiq_vbuf *vbuf)
                                       vbuf->buf_info[1].exp_time_reg);
     }else if (_rawfmt.hdr_mode == 3) {
          vbuf->buf_info[0].frame_id = _rawfmt.frame_id;
-         vbuf->buf_info[0].exp_gain = (float)_finfo.normal_gain;
-         vbuf->buf_info[0].exp_time = (float)_finfo.normal_exp;
-         vbuf->buf_info[0].exp_gain_reg = (uint32_t)_finfo.normal_gain_reg;
-         vbuf->buf_info[0].exp_time_reg = (uint32_t)_finfo.normal_exp_reg;
+         vbuf->buf_info[0].exp_gain = (float)_finfo.hdr_gain_s;
+         vbuf->buf_info[0].exp_time = (float)_finfo.hdr_exp_s;
+         vbuf->buf_info[0].exp_gain_reg = (uint32_t)_finfo.hdr_gain_s_reg;
+         vbuf->buf_info[0].exp_time_reg = (uint32_t)_finfo.hdr_exp_s_reg;
          vbuf->buf_info[0].valid = true;
          LOGD_CAMHW_SUBM(FAKECAM_SUBM,"buf_info[0]: data_addr=%p,fd=%d,,length=%d\n",
                                       vbuf->buf_info[0].data_addr,
@@ -1097,5 +1097,59 @@ FakeCamHwIsp32::poll_event_ready (uint32_t sequence, int type)
 {
    return  FakeCamHwIsp20::poll_event_ready (sequence, type);
 }
+
+#if defined(ISP_HW_V39)
+FakeCamHwIsp39::FakeCamHwIsp39()
+: FakeCamHwIsp20() {
+}
+
+FakeCamHwIsp39::~FakeCamHwIsp39()
+{
+    ENTER_CAMHW_FUNCTION();
+    EXIT_CAMHW_FUNCTION();
+}
+
+XCamReturn
+FakeCamHwIsp39::init(const char* sns_ent_name)
+{
+    return FakeCamHwIsp20::init(sns_ent_name);
+}
+
+XCamReturn
+FakeCamHwIsp39::prepare(uint32_t width, uint32_t height, int mode, int t_delay, int g_delay)
+{
+    return FakeCamHwIsp20::prepare(width, height, mode, t_delay, g_delay);
+}
+
+XCamReturn
+FakeCamHwIsp39::enqueueRawBuffer(void *rawdata, bool sync)
+{
+   return  FakeCamHwIsp20::enqueueRawBuffer(rawdata, sync);
+}
+
+XCamReturn
+FakeCamHwIsp39::enqueueRawFile(const char *path)
+{
+   return  FakeCamHwIsp20::enqueueRawFile(path);
+}
+
+XCamReturn
+FakeCamHwIsp39::registRawdataCb(void (*callback)(void *))
+{
+   return  FakeCamHwIsp20::registRawdataCb(callback);
+}
+
+XCamReturn
+FakeCamHwIsp39::rawdataPrepare(rk_aiq_raw_prop_t prop)
+{
+   return  FakeCamHwIsp20::rawdataPrepare(prop);
+}
+
+XCamReturn
+FakeCamHwIsp39::poll_event_ready (uint32_t sequence, int type)
+{
+   return  FakeCamHwIsp20::poll_event_ready (sequence, type);
+}
+#endif
 
 } //namspace RkCam

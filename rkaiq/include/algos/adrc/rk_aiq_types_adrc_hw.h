@@ -24,6 +24,7 @@
 #define DRC_V10_Y_NUM 17
 #define DRC_V11_Y_NUM DRC_V10_Y_NUM
 #define DRC_V12_Y_NUM DRC_V10_Y_NUM
+#define DRC_V20_Y_NUM DRC_V10_Y_NUM
 
 typedef struct DrcProcResV10_s {
     unsigned char sw_drc_offset_pow2;
@@ -114,6 +115,39 @@ typedef struct DrcProcResV12_s {
     unsigned short scale_y[DRC_V12_Y_NUM];
 } DrcProcResV12_t;
 
+typedef struct DrcProcResV20_s {
+    unsigned char bypass_en;
+    unsigned char cmps_byp_en;
+    unsigned char gainx32_en;
+    unsigned char raw_dly_dis;
+    unsigned short position;
+    unsigned short compres_scl;
+    unsigned char offset_pow2;
+    unsigned short lpdetail_ratio;
+    unsigned short hpdetail_ratio;
+    unsigned char delta_scalein;
+    unsigned char bilat_wt_off;
+    unsigned short thumb_thd_neg;
+    unsigned char thumb_thd_enable;
+    unsigned char weicur_pix;
+    unsigned char cmps_offset_bits_int;
+    unsigned char cmps_fixbit_mode;
+    unsigned int drc_gas_t;
+    unsigned int thumb_clip;
+    unsigned char thumb_scale;
+    unsigned int range_sgm_inv0;
+    unsigned short range_sgm_inv1;
+    unsigned char weig_bilat;
+    unsigned char weight_8x8thumb;
+    unsigned short bilat_soft_thd;
+    unsigned char enable_soft_thd;
+    unsigned short gain_y[DRC_V20_Y_NUM];
+    unsigned short compres_y[DRC_V20_Y_NUM];
+    unsigned short scale_y[DRC_V20_Y_NUM];
+    unsigned short min_ogain;
+    unsigned short sfthd_y[DRC_V20_Y_NUM];
+} DrcProcResV20_t;
+
 typedef struct DrcProcRes_s {
 #if RKAIQ_HAVE_DRC_V10
     DrcProcResV10_t Drc_v10;
@@ -123,6 +157,9 @@ typedef struct DrcProcRes_s {
 #endif
 #if RKAIQ_HAVE_DRC_V12 || RKAIQ_HAVE_DRC_V12_LITE
     DrcProcResV12_t Drc_v12;
+#endif
+#if RKAIQ_HAVE_DRC_V20
+    DrcProcResV20_t Drc_v20;
 #endif
 } DrcProcRes_t;
 

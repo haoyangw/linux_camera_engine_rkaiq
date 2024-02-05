@@ -48,6 +48,10 @@ XCamReturn rk_aiq_user_api2_GetAcolorSwInfo(const rk_aiq_sys_ctx_t* sys_ctx,
                                               rk_aiq_color_info_t* aColor_sw_info);
 XCamReturn rk_aiq_user_api2_accm_SetAcolorSwInfo(const rk_aiq_sys_ctx_t* sys_ctx,
                                               rk_aiq_color_info_t aColor_sw_info);
+XCamReturn rk_aiq_user_api2_accm_v3_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
+                                           const rk_aiq_ccm_v3_attrib_t* attr);
+XCamReturn rk_aiq_user_api2_accm_v3_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
+                                           rk_aiq_ccm_v3_attrib_t* attr);
 
 RKAIQ_END_DECLARE
 

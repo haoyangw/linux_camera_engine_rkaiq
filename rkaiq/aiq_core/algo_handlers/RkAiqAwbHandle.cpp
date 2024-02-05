@@ -900,8 +900,62 @@ XCamReturn RkAiqAwbHandleInt::processing() {
     awb_proc_int->ablcProcResVaid = true;
 #endif
 #if RKAIQ_HAVE_BLC_V32
+#if USE_NEWSTRUCT
+        blc_param_t* blc_res;
+        AblcProc_V32_t ablcProcResV32;
+        int isp_ob_max;
+        ablcProcResV32.enable = shared->res_comb.blc_en;
+        if (shared->res_comb.blc_proc_res) {
+            blc_res = shared->res_comb.blc_proc_res;
+            ablcProcResV32.blc_r  = blc_res->dyn.obcPreTnr.hw_blcC_obR_val;
+            ablcProcResV32.blc_gr = blc_res->dyn.obcPreTnr.hw_blcC_obGr_val;
+            ablcProcResV32.blc_gb = blc_res->dyn.obcPreTnr.hw_blcC_obGb_val;
+            ablcProcResV32.blc_b  = blc_res->dyn.obcPreTnr.hw_blcC_obB_val;
+            if (blc_res->dyn.obcPostTnr.sw_btnrT_obcPostTnr_en) {
+                if (blc_res->dyn.obcPostTnr.sw_blcT_obcPostTnr_mode == blc_autoOBCPostTnr_mode) {
+                    ablcProcResV32.blc1_enable = true;
+                    ablcProcResV32.blc1_r  = 0;
+                    ablcProcResV32.blc1_gr = 0;
+                    ablcProcResV32.blc1_gb = 0;
+                    ablcProcResV32.blc1_b  = 0;
+
+                    ablcProcResV32.blc_ob_enable  = true;
+                    ablcProcResV32.isp_ob_offset  = blc_res->dyn.obcPostTnr.sw_blcT_autoOB_offset;
+                    ablcProcResV32.isp_ob_predgain = 1.0;
+                    isp_ob_max = (int)(4096 * ablcProcResV32.isp_ob_predgain) - ablcProcResV32.isp_ob_offset;
+                    if (isp_ob_max > 0)
+                    ablcProcResV32.isp_ob_max = isp_ob_max < 1048575 ? isp_ob_max : 1048575;
+                } else {
+                    ablcProcResV32.blc1_enable = true;
+                    ablcProcResV32.blc1_r  = blc_res->dyn.obcPostTnr.hw_blcT_manualOBR_val;
+                    ablcProcResV32.blc1_gr = blc_res->dyn.obcPostTnr.hw_blcT_manualOBGr_val;
+                    ablcProcResV32.blc1_gb = blc_res->dyn.obcPostTnr.hw_blcT_manualOBGb_val;
+                    ablcProcResV32.blc1_b  = blc_res->dyn.obcPostTnr.hw_blcT_manualOBB_val;
+
+                    ablcProcResV32.blc_ob_enable  = true;
+                    ablcProcResV32.isp_ob_offset  = 0;
+                    ablcProcResV32.isp_ob_predgain = 1.0;
+                    ablcProcResV32.isp_ob_max = 4096;
+                }
+            } else {
+                ablcProcResV32.blc1_enable = false;
+                ablcProcResV32.blc_ob_enable = false;
+                ablcProcResV32.blc1_r  = 0;
+                ablcProcResV32.blc1_gr = 0;
+                ablcProcResV32.blc1_gb = 0;
+                ablcProcResV32.blc1_b  = 0;
+
+                ablcProcResV32.blc_ob_enable  = false;
+                ablcProcResV32.isp_ob_offset  = 0;
+                ablcProcResV32.isp_ob_predgain = 1.0;
+                ablcProcResV32.isp_ob_max = 0xfff;
+            }
+        }
+        awb_proc_int->ablcProcResV32 = &ablcProcResV32;
+#else
         awb_proc_int->ablcProcResV32= shared->res_comb.ablcV32_proc_res;
         awb_proc_int->ablcProcResVaid = true;
+#endif
 #endif
     // for otp awb
     awb_proc_int->awb_otp = &sharedCom->snsDes.otp_awb;
@@ -910,7 +964,7 @@ XCamReturn RkAiqAwbHandleInt::processing() {
     awb_proc_res_int->awb_hw1_para = &shared->fullParams->mAwbParams->data()->result;
 #elif defined(ISP_HW_V21)
     awb_proc_res_int->awb_hw1_para = &shared->fullParams->mAwbParams->data()->result;
-#elif defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
+#elif defined(ISP_HW_V39) || defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
     awb_proc_res_int->awb_hw32_para = &shared->fullParams->mAwbParams->data()->result;
 #else
     awb_proc_res_int->awb_hw0_para = &shared->fullParams->mAwbParams->data()->result;

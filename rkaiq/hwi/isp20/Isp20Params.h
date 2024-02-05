@@ -21,6 +21,8 @@
 #include "rk_aiq_pool.h"
 #include "rkisp2-config.h"
 #include "rkispp-config.h"
+#include "rk_aiq_isp32_modules.h"
+#include "rk_aiq_isp39_modules.h"
 
 namespace RkCam {
 
@@ -130,6 +132,7 @@ public:
     //XCamReturn get_nr_cfg_params(cam3aResultList &results, struct rkispp_params_nrcfg &nr_cfg);
     XCamReturn get_fec_cfg_params(cam3aResultList &results, struct rkispp_params_feccfg &fec_cfg);
     virtual XCamReturn merge_isp_results(cam3aResultList &results, void* isp_cfg, bool is_multi_isp = false);
+
 protected:
     XCAM_DEAD_COPY(Isp20Params);
 
@@ -272,10 +275,21 @@ protected:
 	struct isp32_isp_meas_cfg mLatestMeasCfg;
 	struct isp32_bls_cfg mLatestBlsCfg;
 	struct isp32_awb_gain_cfg mLatestWbGainCfg;
+#elif defined(ISP_HW_V39)
+	struct isp39_isp_meas_cfg mLatestMeasCfg;
+	struct isp32_bls_cfg mLatestBlsCfg;
+	struct isp32_awb_gain_cfg mLatestWbGainCfg;
 #endif
 #if defined(ISP_HW_V30) || defined(ISP_HW_V21)
     struct isp21_awb_gain_cfg mLatestWbGainCfg;
 #endif
+
+#if defined(ISP_HW_V39) && (USE_NEWSTRUCT)
+    btnr_cvt_info_t mBtnrInfo;
+#endif
+
+    void getCommonCvtInfo(cam3aResultList &results);
+    common_cvt_info_t mCommonCvtInfo;
 };
 }
 #endif

@@ -80,6 +80,7 @@
 #include "rk_aiq_types_v21.h"
 #include "rk_aiq_types_v3x.h" /*< v3x types */
 #include "rk_aiq_types_v32.h"
+#include "rk_aiq_types_v39.h"
 
 #define ANR_NO_SEPERATE_MARCO (0)
 
@@ -242,7 +243,10 @@ typedef enum {
     RK_PIX_FMT_SGBRG14 = rk_fmt_fourcc('G', 'B', '1', '4'), /* 14  GBGB.. RGRG.. */
     RK_PIX_FMT_SGRBG14 = rk_fmt_fourcc('B', 'A', '1', '4'), /* 14  GRGR.. BGBG.. */
     RK_PIX_FMT_SRGGB14 = rk_fmt_fourcc('R', 'G', '1', '4'), /* 14  RGRG.. GBGB.. */
-    RK_PIX_FMT_SBGGR16 = rk_fmt_fourcc('B', 'Y', 'R', '6'), /* 16  BGBG.. GRGR.. */
+    RK_PIX_FMT_SBGGR16 = rk_fmt_fourcc('B', 'Y', 'R', '2'), /* 16  BGBG.. GRGR.. */
+    RK_PIX_FMT_SGBRG16 = rk_fmt_fourcc('G', 'B', '1', '6'), /* 16  GBGB.. RGRG.. */
+    RK_PIX_FMT_SGRBG16 = rk_fmt_fourcc('G', 'R', '1', '6'), /* 16  GRGR.. BGBG.. */
+    RK_PIX_FMT_SRGGB16 = rk_fmt_fourcc('R', 'G', '1', '6'), /* 16  RGRG.. GBGB.. */
 
     /* compressed formats */
     RK_PIX_FMT_MJPEG = rk_fmt_fourcc('M', 'J', 'P', 'G'), /* Motion-JPEG   */
@@ -424,6 +428,7 @@ typedef struct {
     struct rkmodule_lsc_inf *otp_lsc;
     struct rkmodule_af_inf *otp_af;
     struct rkmodule_pdaf_inf *otp_pdaf;
+    u8 compr_bit;
 } rk_aiq_exposure_sensor_descriptor;
 
 // exposure
@@ -486,6 +491,7 @@ typedef struct {
     union {
         rk_aiq_isp_af_stats_t  af_stats;
         rk_aiq_isp_af_stats_v3x_t af_stats_v3x;
+        afStats_stats_t afStats_stats;
     };
 } rk_aiq_isp_stats_t;
 
@@ -657,6 +663,34 @@ typedef struct {
     rk_aiq_format_t format;
     rk_aiq_rkrawstream_mode_t mode;
 } rk_aiq_rkrawstream_info_t;
+
+typedef struct {
+    char wr_mode;
+    char rd_mode;
+    uint16_t wr_linecnt;
+    uint16_t rd_linecnt;
+} rk_aiq_aiisp_cfg_t;
+
+typedef struct rkisp_bay3dbuf_info_s {
+       int iir_fd;
+       int iir_size;
+       union {
+               struct {
+                       int cur_fd;
+                       int cur_size;
+                       int ds_fd;
+                       int ds_size;
+               } v30;
+               struct {
+                       int ds_fd;
+                       int ds_size;
+               } v32;
+               struct {
+                       int gain_fd;
+                       int gain_size;
+               } v39;
+       } u;
+} rkisp_bay3dbuf_info_t;
 
 #define RK_AIQ_CAM_GROUP_MAX_CAMS (8)
 

@@ -23,6 +23,8 @@
 #include <rk_aiq_comm.h>
 
 #define DEBAYER_ISO_STEP_MAX 13
+#define RK_DEBAYER_V31_LUMA_POINT_NUM           8
+
 
 RKAIQ_BEGIN_DECLARE
 
@@ -245,6 +247,180 @@ typedef struct CalibDbV2_Debayer_v2_lite_s {
     CalibDbV2_Debayer_Tuning_Lite_t param;
 } CalibDbV2_Debayer_v2_lite_t;
 
+// TODO: add debayer v3 params
+
+typedef struct {
+    // M4_ARRAY_DESC("hw_dmT_loDrctFlt_coeff", "s8", M4_SIZE(1,4),M4_RANGE(-16,15),"[0,0,-8,8]", M4_DIGIT(0), M4_DYNAMIC(0))
+    int hw_dmT_loDrctFlt_coeff[4];
+    // M4_ARRAY_DESC("hw_dmT_hiDrctFlt_coeff", "s8", M4_SIZE(1,4),M4_RANGE(-16,15),"[0,0,-4,8]", M4_DIGIT(0), M4_DYNAMIC(0))
+    int hw_dmT_hiDrctFlt_coeff[4];
+    // M4_ARRAY_DESC("sw_dmT_luma_val", "s16",M4_SIZE(1,8),M4_RANGE(0,4096),"[0,256,512,1024,1536,2560,3584,4096]", M4_DIGIT(0), M4_DYNAMIC(0))
+    int sw_dmT_luma_val[RK_DEBAYER_V31_LUMA_POINT_NUM];
+} dm23_gdrctwgt_param_static_t;
+
+
+typedef struct {
+    // M4_ARRAY_DESC("iso", "u32", M4_SIZE(1,13),M4_RANGE(0,10000000),"[50,100,200,400,800,1600,3200,6400,12800,25600,51200,102400,204800]", M4_DIGIT(0), M4_DYNAMIC(0))
+    int iso[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_drct_offset0", "u16", M4_SIZE(1,13),M4_RANGE(0,511),"[16,16,16,64,64,64,128,256,511,511,511,511,511]", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint16_t sw_dmT_drct_offset0[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_drct_offset1", "u16", M4_SIZE(1,13),M4_RANGE(0,511),"[16,16,16,64,64,64,128,256,511,511,511,511,511]", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint16_t sw_dmT_drct_offset1[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_drct_offset2", "u16", M4_SIZE(1,13),M4_RANGE(0,511),"[16,16,16,64,64,64,128,256,511,511,511,511,511]", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint16_t sw_dmT_drct_offset2[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_drct_offset3", "u16", M4_SIZE(1,13),M4_RANGE(0,511),"[16,16,16,32,32,32,64,128,256,256,256,256,256]", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint16_t sw_dmT_drct_offset3[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_drct_offset4", "u16", M4_SIZE(1,13),M4_RANGE(0,511),"[16,16,16,16,16,16,32,64,128,128,128,128,128]", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint16_t sw_dmT_drct_offset4[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_drct_offset5", "u16", M4_SIZE(1,13),M4_RANGE(0,511),"[16,16,16,16,16,16,32,32,64,64,64,64,64]", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint16_t sw_dmT_drct_offset5[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_drct_offset6", "u16", M4_SIZE(1,13),M4_RANGE(0,511),"[16,16,16,16,16,16,32,32,32,32,32,32,32]", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint16_t sw_dmT_drct_offset6[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_drct_offset7", "u16", M4_SIZE(1,13),M4_RANGE(0,511),"[16,16,16,16,16,16,32,32,32,32,32,32,32]", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint16_t sw_dmT_drct_offset7[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dmT_drctMethod_thred", "u8", M4_SIZE(1,13),M4_RANGE(0,64),"13", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint8_t hw_dmT_drctMethod_thred[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dmT_hiDrct_thred", "u8", M4_SIZE(1,13),M4_RANGE(0,15),"3", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint8_t hw_dmT_hiDrct_thred[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dmT_loDrct_thred", "u8", M4_SIZE(1,13),M4_RANGE(0,15),"6", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint8_t hw_dmT_loDrct_thred[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dmT_hiTexture_thred", "u8", M4_SIZE(1,13),M4_RANGE(0,15),"8", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint8_t hw_dmT_hiTexture_thred[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_gradLoFlt_alpha", "f32", M4_SIZE(1,13),M4_RANGE(0,1.0),"[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0]", M4_DIGIT(2), M4_DYNAMIC(0))
+    // TODO:
+    float   sw_dmT_gradLoFlt_alpha[DEBAYER_ISO_STEP_MAX];
+} dm23_gdrctwgt_param_dyn_t;
+
+typedef struct {
+    // M4_ARRAY_DESC("iso", "u32", M4_SIZE(1,13),M4_RANGE(0,10000000),"[50,100,200,400,800,1600,3200,6400,12800,25600,51200,102400,204800]", M4_DIGIT(0), M4_DYNAMIC(0))
+    int iso[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dmT_gInterpClip_en", "u8", M4_SIZE(1,13),M4_RANGE(0,1),"1", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint8_t hw_dmT_gInterpClip_en[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dmT_gInterpSharpStrg_offset", "u16", M4_SIZE(1,13),M4_RANGE(0,4095),"4", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint16_t hw_dmT_gInterpSharpStrg_offset[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dmT_gInterpSharpStrg_maxLim", "u8", M4_SIZE(1,13),M4_RANGE(0,63),"[4,4,4,4,4,4,2,2,2,2,2,2,2]", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint8_t hw_dmT_gInterpSharpStrg_maxLim[DEBAYER_ISO_STEP_MAX];
+    // TODO:
+    // M4_ARRAY_DESC("sw_dmT_gInterpWgtFlt_alpha", "f32", M4_SIZE(1,13),M4_RANGE(0,1.0),"[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0]", M4_DIGIT(2), M4_DYNAMIC(0))
+    float   sw_dmT_gInterpWgtFlt_alpha[DEBAYER_ISO_STEP_MAX];
+} dm23_ginterp_param_dyn_t;
+
+typedef struct {
+    // M4_ARRAY_DESC("iso", "u32", M4_SIZE(1,13),M4_RANGE(0,10000000),"[50,100,200,400,800,1600,3200,6400,12800,25600,51200,102400,204800]", M4_DIGIT(0), M4_DYNAMIC(0))
+    int iso[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dmT_gOutlsFlt_en", "u8",M4_SIZE(1,13),M4_RANGE(0,1),"1", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint8_t hw_dmT_gOutlsFlt_en[DEBAYER_ISO_STEP_MAX];
+    // TODO:
+    // M4_ARRAY_DESC("hw_dmT_gOutlsFlt_mode", "u8", M4_SIZE(1,13),M4_RANGE(0,1),"1", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint8_t hw_dmT_gOutlsFlt_mode[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dmT_gOutlsFltRange_offset", "u16", M4_SIZE(1,13),M4_RANGE(0,2047),"1", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint16_t hw_dmT_gOutlsFltRange_offset[DEBAYER_ISO_STEP_MAX];
+    // TODO:
+    // M4_ARRAY_DESC("sw_dmT_gOutlsFlt_vsigma0", "u16", M4_SIZE(1,13),M4_RANGE(0,2047),"32", M4_DIGIT(0), M4_DYNAMIC(0))
+    int     sw_dmT_gOutlsFlt_vsigma0[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_gOutlsFlt_vsigma1", "u16", M4_SIZE(1,13),M4_RANGE(0,2047),"32", M4_DIGIT(0), M4_DYNAMIC(0))
+    int     sw_dmT_gOutlsFlt_vsigma1[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_gOutlsFlt_vsigma2", "u16", M4_SIZE(1,13),M4_RANGE(0,2047),"64", M4_DIGIT(0), M4_DYNAMIC(0))
+    int     sw_dmT_gOutlsFlt_vsigma2[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_gOutlsFlt_vsigma3", "u16", M4_SIZE(1,13),M4_RANGE(0,2047),"128", M4_DIGIT(0), M4_DYNAMIC(0))
+    int     sw_dmT_gOutlsFlt_vsigma3[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_gOutlsFlt_vsigma4", "u16", M4_SIZE(1,13),M4_RANGE(0,2047),"192", M4_DIGIT(0), M4_DYNAMIC(0))
+    int     sw_dmT_gOutlsFlt_vsigma4[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_gOutlsFlt_vsigma5", "u16", M4_SIZE(1,13),M4_RANGE(0,2047),"320", M4_DIGIT(0), M4_DYNAMIC(0))
+    int     sw_dmT_gOutlsFlt_vsigma5[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_gOutlsFlt_vsigma6", "u16", M4_SIZE(1,13),M4_RANGE(0,2047),"448", M4_DIGIT(0), M4_DYNAMIC(0))
+    int     sw_dmT_gOutlsFlt_vsigma6[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_gOutlsFlt_vsigma7", "u16", M4_SIZE(1,13),M4_RANGE(0,2047),"512", M4_DIGIT(0), M4_DYNAMIC(0))
+    int     sw_dmT_gOutlsFlt_vsigma7[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_gOutlsFlt_coeff0", "f32", M4_SIZE(1,13),M4_RANGE(0,1.0),"[[1,1,1,1,1,1,1,0.2042,0.2042,0.2042,0.2042,0.2042,0.2042]]", M4_DIGIT(4), M4_DYNAMIC(0))
+    float   sw_dmT_gOutlsFlt_coeff0[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_gOutlsFlt_coeff1", "f32", M4_SIZE(1,13),M4_RANGE(0,1.0),"[[0,0,0,0,0,0,0,0.1238,0.1238,0.1238,0.1238,0.1238,0.1238]", M4_DIGIT(4), M4_DYNAMIC(0))
+    float   sw_dmT_gOutlsFlt_coeff1[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_gOutlsFlt_coeff2", "f32", M4_SIZE(1,13),M4_RANGE(0,1.0),"[0,0,0,0,0,0,0,0.0751,0.0751,0.0751,0.0751,0.0751,0.0751]", M4_DIGIT(4), M4_DYNAMIC(0))
+    float   sw_dmT_gOutlsFlt_coeff2[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_gOutlsFltRsigma_en","u8", M4_SIZE(1,13),M4_RANGE(0,1),"[0,0,0,0,0,0,0,1,1,1,1,1,1]", M4_DIGIT(0), M4_DYNAMIC(0))
+    bool    sw_dmT_gOutlsFltRsigma_en[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_gOutlsFlt_rsigma", "f32", M4_SIZE(1,13),M4_RANGE(0,1.0),"1.0", M4_DIGIT(2), M4_DYNAMIC(0))
+    float   sw_dmT_gOutlsFlt_rsigma[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_gOutlsFlt_ratio", "f32", M4_SIZE(1,13),M4_RANGE(0,1.0),"1.0", M4_DIGIT(2), M4_DYNAMIC(0))
+    float   sw_dmT_gOutlsFlt_ratio[DEBAYER_ISO_STEP_MAX];
+} dm23_gflt_param_dyn_t;
+
+typedef struct {
+    // M4_ARRAY_DESC("hw_dmT_cnrLoGuideLpf_coeff", "s8", M4_SIZE(1,3),M4_RANGE(0,127),"[64,32,16]", M4_DIGIT(0), M4_DYNAMIC(0))
+    int hw_dmT_cnrLoGuideLpf_coeff[3];
+    // M4_ARRAY_DESC("hw_dmT_cnrAlphaLpf_coeff", "s8", M4_SIZE(1,3),M4_RANGE(0,127),"[64,32,16]", M4_DIGIT(0), M4_DYNAMIC(0))
+    int hw_dmT_cnrAlphaLpf_coeff[3];
+    // M4_ARRAY_DESC("hw_dmT_cnrPreFlt_coeff", "s8", M4_SIZE(1,3),M4_RANGE(0,127),"[64,32,16]", M4_DIGIT(0), M4_DYNAMIC(0))
+    int hw_dmT_cnrPreFlt_coeff[3];
+} dm23_cflt_param_static_t;
+
+typedef struct {
+    // M4_ARRAY_DESC("iso", "u32", M4_SIZE(1,13),M4_RANGE(0,10000000),"[50,100,200,400,800,1600,3200,6400,12800,25600,51200,102400,204800]", M4_DIGIT(0), M4_DYNAMIC(0))
+    int iso[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dmT_cnrFlt_en", "u8", M4_SIZE(1,13),M4_RANGE(0,1),"[1,1,1,1,1,1,0,0,0,0,0,0,0]", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint8_t hw_dmT_cnrFlt_en[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dmT_cnrMoireAlpha_offset", "u16", M4_SIZE(1,13),M4_RANGE(0,4095),"0", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint16_t hw_dmT_cnrMoireAlpha_offset[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_cnrMoireAlpha_scale", "f32", M4_SIZE(1,13),M4_RANGE(0,1023.999),"1.0", M4_DIGIT(3), M4_DYNAMIC(0))
+    float sw_dmT_cnrMoireAlpha_scale[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dmT_cnrEdgeAlpha_offset", "u16", M4_SIZE(1,13),M4_RANGE(0,4095),"0", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint16_t hw_dmT_cnrEdgeAlpha_offset[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_cnrEdgeAlpha_scale", "f32", M4_SIZE(1,13),M4_RANGE(0,1023.999),"1.0", M4_DIGIT(3), M4_DYNAMIC(0))
+    float sw_dmT_cnrEdgeAlpha_scale[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dmT_cnrLogGrad_offset", "u16", M4_SIZE(1,13),M4_RANGE(0,8191),"128", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint16_t hw_dmT_cnrLogGrad_offset[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dmT_cnrLogGuide_offset", "u16", M4_SIZE(1,13),M4_RANGE(0,4095),"1", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint16_t hw_dmT_cnrLogGuide_offset[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_cnrLoFlt_vsigma", "f32", M4_SIZE(1,13),M4_RANGE(0,1.0),"0.0313", M4_DIGIT(4), M4_DYNAMIC(0))
+    float sw_dmT_cnrLoFlt_vsigma[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_cnrLoFltWgt_maxLimit", "f32", M4_SIZE(1,13),M4_RANGE(0,15.875),"7.25", M4_DIGIT(2), M4_DYNAMIC(0))
+    float sw_dmT_cnrLoFltWgt_maxLimit[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_cnrLoFltWgt_minThred", "f32", M4_SIZE(1,13),M4_RANGE(0,0.98),"0.03", M4_DIGIT(1), M4_DYNAMIC(0))
+    float sw_dmT_cnrLoFltWgt_minThred[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_cnrLoFltWgt_slope", "f32", M4_SIZE(1,13),M4_RANGE(0,31.992),"0.7", M4_DIGIT(3), M4_DYNAMIC(0))
+    float sw_dmT_cnrLoFltWgt_slope[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dmT_cnrHiFlt_vsigma", "f32", M4_SIZE(1,13),M4_RANGE(0,1.0),"0.0266", M4_DIGIT(4), M4_DYNAMIC(0))
+    float sw_dmT_cnrHiFlt_vsigma[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dmT_cnrHiFltWgt_minLimit", "u8", M4_SIZE(1,13),M4_RANGE(0,127),"1", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint8_t hw_dmT_cnrHiFltWgt_minLimit[DEBAYER_ISO_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dmT_cnrHiFltCur_wgt", "u8", M4_SIZE(1,13),M4_RANGE(0,127),"0", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint8_t hw_dmT_cnrHiFltCur_wgt[DEBAYER_ISO_STEP_MAX];
+
+} dm23_cflt_param_dyn_t;
+
+typedef struct {
+    // M4_ARRAY_TABLE_DESC("gDrctWgt", "normal_ui_style", M4_INDEX_DEFAULT)
+    dm23_gdrctwgt_param_static_t gDrctWgt;
+    // M4_ARRAY_TABLE_DESC("cFlt", "normal_ui_style", M4_INDEX_DEFAULT)
+    dm23_cflt_param_static_t cFlt;
+} dm23_params_static_t;
+
+typedef struct {
+    // M4_ARRAY_TABLE_DESC("g_interp", "array_table_ui", M4_INDEX_DEFAULT)
+    dm23_ginterp_param_dyn_t gInterp;
+    // M4_ARRAY_TABLE_DESC("gDrctWgt", "array_table_ui", M4_INDEX_DEFAULT)
+    dm23_gdrctwgt_param_dyn_t gDrctWgt;
+    // M4_ARRAY_TABLE_DESC("gOutlsFlt", "array_table_ui", M4_INDEX_DEFAULT)
+    dm23_gflt_param_dyn_t gOutlsFlt;
+    // M4_ARRAY_TABLE_DESC("cFlt", "array_table_ui", M4_INDEX_DEFAULT)
+    dm23_cflt_param_dyn_t cFlt;
+} dm23_params_dyn_t;
+
+typedef struct {
+    // M4_BOOL_DESC("debayer_en", "1")
+    bool en;
+    // M4_ARRAY_TABLE_DESC("sta", "normal_ui_style", M4_INDEX_DEFAULT)
+    dm23_params_static_t sta;
+    // M4_ARRAY_TABLE_DESC("dyn", "normal_ui_style", M4_INDEX_DEFAULT)
+    dm23_params_dyn_t dyn;
+} CalibDbV2_Debayer_Tuning_V3_t;
+
+
+typedef struct CalibDbV2_Debayer_v3_s {
+    // M4_STRUCT_DESC("TuningPara", "normal_ui_style")
+    CalibDbV2_Debayer_Tuning_V3_t param;
+} CalibDbV2_Debayer_v3_t;
 
 RKAIQ_END_DECLARE
 

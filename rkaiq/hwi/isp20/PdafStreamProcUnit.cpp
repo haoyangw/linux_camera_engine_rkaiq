@@ -38,16 +38,23 @@ PdafStreamProcUnit::prepare(rk_sensor_pdaf_info_t *pdaf_inf)
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
     stop();
-    mPdafDev = new V4l2Device(pdaf_inf->pdaf_vdev);
+    mPdafInf = *pdaf_inf;
+
+    mPdafDev = new V4l2Device(mPdafInf.pdaf_vdev);
     mPdafDev->open();
     mPdafStream = new RKPdafStream(mPdafDev, ISP_POLL_PDAF_STATS);
     mPdafStream->setPollCallback (this);
 
-    mPdafMeas.pdLRInDiffLine = pdaf_inf->pdaf_lrdiffline;
-    mPdafMeas.pdWidth = pdaf_inf->pdaf_width;
-    mPdafMeas.pdHeight = pdaf_inf->pdaf_height;
-    ret = mPdafDev->set_format(pdaf_inf->pdaf_width, pdaf_inf->pdaf_height,
-            pdaf_inf->pdaf_pixelformat, V4L2_FIELD_NONE, 0);
+    mPdafMeas.pdafSensorType = mPdafInf.pdaf_type;
+    mPdafMeas.pdLRInDiffLine = mPdafInf.pdaf_lrdiffline;
+    mPdafMeas.pdWidth = mPdafInf.pdaf_width;
+    mPdafMeas.pdHeight = mPdafInf.pdaf_height;
+
+    LOGD_AF("%s: pd inf: pdaf_vdev %s, pdafSensorType %d, pdLRInDiffLine %d, pdWidth %d, pdHeight %d",
+        __func__, mPdafInf.pdaf_vdev, mPdafMeas.pdafSensorType, mPdafMeas.pdLRInDiffLine,
+        mPdafMeas.pdWidth, mPdafMeas.pdHeight);
+    ret = mPdafDev->set_format(mPdafInf.pdaf_width, mPdafInf.pdaf_height,
+                               mPdafInf.pdaf_pixelformat, V4L2_FIELD_NONE, 0);
 
     return ret;
 }
@@ -58,19 +65,23 @@ void PdafStreamProcUnit::start()
 
     mStreamMutex.lock();
     if (mPdafStream.ptr() && !mStartFlag) {
-        mPdafDev->io_control (RKCIF_CMD_GET_CSI_MEMORY_MODE, &mem_mode);
-        if (mem_mode != CSI_LVDS_MEM_WORD_LOW_ALIGN) {
-            mem_mode = CSI_LVDS_MEM_WORD_LOW_ALIGN;
-            mPdafDev->io_control (RKCIF_CMD_SET_CSI_MEMORY_MODE, &mem_mode);
-            LOGI_AF("memory mode of pdaf video need low align, mem_mode %d", mem_mode);
+        if (mPdafInf.pdaf_type != PDAF_SENSOR_TYPE3) {
+            mPdafDev->io_control (RKCIF_CMD_GET_CSI_MEMORY_MODE, &mem_mode);
+            if (mem_mode != CSI_LVDS_MEM_WORD_LOW_ALIGN) {
+                mem_mode = CSI_LVDS_MEM_WORD_LOW_ALIGN;
+                mPdafDev->io_control (RKCIF_CMD_SET_CSI_MEMORY_MODE, &mem_mode);
+                LOGI_AF("memory mode of pdaf video need low align, mem_mode %d", mem_mode);
+            }
+
+            XCam::SmartPtr<PdafStreamParam> attrPtr = new PdafStreamParam;
+
+            attrPtr->valid = true;
+            attrPtr->stream_flag = true;
+            mHelperThd->clear_attr();
+            mHelperThd->push_attr(attrPtr);
+        } else {
+            start_stream(false);
         }
-
-        XCam::SmartPtr<PdafStreamParam> attrPtr = new PdafStreamParam;
-
-        attrPtr->valid = true;
-        attrPtr->stream_flag = true;
-        mHelperThd->clear_attr();
-        mHelperThd->push_attr(attrPtr);
 
         mStartFlag = true;
     }
@@ -81,12 +92,16 @@ void PdafStreamProcUnit::stop()
 {
     mStreamMutex.lock();
     if (mPdafStream.ptr() && mStartFlag) {
-        XCam::SmartPtr<PdafStreamParam> attrPtr = new PdafStreamParam;
+        if (mPdafInf.pdaf_type != PDAF_SENSOR_TYPE3) {
+            XCam::SmartPtr<PdafStreamParam> attrPtr = new PdafStreamParam;
 
-        attrPtr->valid = true;
-        attrPtr->stream_flag = false;
-        mHelperThd->clear_attr();
-        mHelperThd->push_attr(attrPtr);
+            attrPtr->valid = true;
+            attrPtr->stream_flag = false;
+            mHelperThd->clear_attr();
+            mHelperThd->push_attr(attrPtr);
+        } else {
+            stop_stream(false);
+        }
 
         mStartFlag = false;
     }
@@ -117,8 +132,10 @@ PdafStreamProcUnit::poll_buffer_ready (SmartPtr<V4l2BufferProxy> &buf, int dev_i
         //LOGD_AF("%s: PDAF_STATS seq: %d, driver_time : %lld, aiq_time: %lld", __func__,
         //    video_buf->get_sequence(), video_buf->get_timestamp(), get_systime_us());
 
-        // change timestamp as vicap driver set timestamp using fs, we need fe time as 3a stats use fe time.
-        video_buf->set_timestamp(get_systime_us());
+        if (mPdafInf.pdaf_type != PDAF_SENSOR_TYPE3) {
+            // change timestamp as vicap driver set timestamp using fs, we need fe time as 3a stats use fe time.
+            video_buf->set_timestamp(get_systime_us());
+        }
         mCamHw->mHwResLintener->hwResCb(video_buf);
     }
 
@@ -130,33 +147,37 @@ PdafStreamProcUnit::deinit()
 {
     mHelperThd->triger_stop();
     mHelperThd->stop();
-    stop_stream();
+    stop_stream(true);
 
     return XCAM_RETURN_NO_ERROR;
 }
 
-XCamReturn PdafStreamProcUnit::start_stream()
+XCamReturn PdafStreamProcUnit::start_stream(bool lock)
 {
-    mStreamMutex.lock();
+    if (lock)
+        mStreamMutex.lock();
     if (mPdafStream.ptr() && !mStartStreamFlag) {
         mPdafStream->start();
         mStartStreamFlag = true;
         LOGD_AF("start pdaf stream device");
     }
-    mStreamMutex.unlock();
+    if (lock)
+        mStreamMutex.unlock();
 
     return XCAM_RETURN_NO_ERROR;
 }
 
-XCamReturn PdafStreamProcUnit::stop_stream()
+XCamReturn PdafStreamProcUnit::stop_stream(bool lock)
 {
-    mStreamMutex.lock();
+    if (lock)
+        mStreamMutex.lock();
     if (mPdafStream.ptr() && mStartStreamFlag) {
         mPdafStream->stop();
         mStartStreamFlag = false;
         LOGD_AF("stop pdaf stream device");
     }
-    mStreamMutex.unlock();
+    if (lock)
+        mStreamMutex.unlock();
 
     return XCAM_RETURN_NO_ERROR;
 }
@@ -175,9 +196,9 @@ bool PdafStreamHelperThd::loop()
 
     if (attrib->valid) {
         if (attrib->stream_flag) {
-            ret = mPdafStreamProc->start_stream();
+            ret = mPdafStreamProc->start_stream(true);
         } else {
-            ret = mPdafStreamProc->stop_stream();
+            ret = mPdafStreamProc->stop_stream(true);
         }
     }
 

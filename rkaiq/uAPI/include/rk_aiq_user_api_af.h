@@ -28,6 +28,10 @@ rk_aiq_user_api_af_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_af_attrib_t
 XCamReturn
 rk_aiq_user_api_af_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_af_attrib_t *attr);
 XCamReturn
+rk_aiq_user_api_af_SetCalib(const rk_aiq_sys_ctx_t* sys_ctx, void *calib);
+XCamReturn
+rk_aiq_user_api_af_GetCalib(const rk_aiq_sys_ctx_t* sys_ctx, void *calib);
+XCamReturn
 rk_aiq_user_api_af_Lock(const rk_aiq_sys_ctx_t* sys_ctx);
 XCamReturn
 rk_aiq_user_api_af_Unlock(const rk_aiq_sys_ctx_t* sys_ctx);

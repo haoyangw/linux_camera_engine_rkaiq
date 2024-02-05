@@ -54,6 +54,8 @@ typedef struct rk_aiq_sys_ctx_s {
     bool _use_rkrawstream;
     rk_aiq_rkrawstream_info_t *_rawstream_info;
     FILE* _lock_file;
+    bool _use_aiisp;
+    uint16_t _wr_linecnt_now;
 } rk_aiq_sys_ctx_t;
 
 /**

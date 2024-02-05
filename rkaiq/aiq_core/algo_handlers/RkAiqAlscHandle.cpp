@@ -302,7 +302,7 @@ XCamReturn RkAiqAlscHandleInt::processing() {
         LOGW("fail to get sensor gain form AE module,use default value ");
     }
 
-#if RKAIQ_HAVE_BLC_V32
+#if RKAIQ_HAVE_BLC_V32 && !USE_NEWSTRUCT
         if (shared->res_comb.ablcV32_proc_res->blc_ob_enable) {
             if (shared->res_comb.ablcV32_proc_res->isp_ob_predgain >= 1.0f) {
                 alsc_proc_int->alsc_sw_info.sensorGain *=  shared->res_comb.ablcV32_proc_res->isp_ob_predgain;

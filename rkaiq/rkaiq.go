@@ -38,6 +38,9 @@ func rkaiqFlags(ctx android.BaseContext) []string {
     if board == "rk3562" {
         cflags = append(cflags, "-DISP_HW_V32_LITE")
     }
+    if board == "rk3576" {
+        cflags = append(cflags, "-DISP_HW_V39")
+    }
     return cflags
 }
 
@@ -129,6 +132,7 @@ func rkaiqPrebuiltStaticLibrary (ctx android.LoadHookContext) {
     // get static lib
     var prefix64 string = ""
     var prefix32 string = ""
+    var srcs []string
     var module_name string = ctx.ModuleName()[9:] + ".a"
     os := "android/"
     soc := rkaiq_get_aiq_version(ctx)

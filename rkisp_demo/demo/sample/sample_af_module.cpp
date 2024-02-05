@@ -16,6 +16,7 @@
  */
 
 #include "sample_comm.h"
+#include "af_head.h"
 
 static void sample_af_usage()
 {
@@ -43,6 +44,8 @@ static void sample_af_usage()
     printf("\t l) AF:         setFocusMeasCfg sync.\n");
     printf("\t m) AF:         setFocusMeasCfg async.\n");
     printf("\t n) AF:         getAfAttrib.\n");
+    printf("\t o) AF:         getAfCalib.\n");
+    printf("\t p) AF:         setAfCalib.\n");
     printf("\t q) AF:         return to main sample screen.\n");
 
     printf("\n");
@@ -603,6 +606,61 @@ void sample_get_af_attrib(const rk_aiq_sys_ctx_t* ctx)
     printf("get sync.done %d, sync_mode %d\n", attr.sync.done, attr.sync.sync_mode);
 }
 
+void sample_get_af_calib(const rk_aiq_sys_ctx_t* ctx)
+{
+    if (CHECK_ISP_HW_V20() || CHECK_ISP_HW_V21()) {
+        CalibDbV2_AF_Tuning_Para_t af_calib_cfg_v20;
+        rk_aiq_user_api2_af_GetCalib(ctx, (void *)&af_calib_cfg_v20);
+    } else if (CHECK_ISP_HW_V30()) {
+        CalibDbV2_AFV30_Tuning_Para_t af_calib_cfg_v30;
+        rk_aiq_user_api2_af_GetCalib(ctx, (void *)&af_calib_cfg_v30);
+    } else if (CHECK_ISP_HW_V32()) {
+        CalibDbV2_AFV31_Tuning_Para_t af_calib_cfg_v31;
+        rk_aiq_user_api2_af_GetCalib(ctx, (void *)&af_calib_cfg_v31);
+    } else if (CHECK_ISP_HW_V32_LITE()) {
+        CalibDbV2_AFV32_Tuning_Para_t af_calib_cfg_v32;
+        rk_aiq_user_api2_af_GetCalib(ctx, (void *)&af_calib_cfg_v32);
+    } else if (CHECK_ISP_HW_V39()) {
+        CalibDbV2_AFV33_Tuning_Para_t af_calib_cfg_v33;
+        rk_aiq_user_api2_af_GetCalib(ctx, (void *)&af_calib_cfg_v33);
+    }
+}
+
+void sample_set_af_calib(const rk_aiq_sys_ctx_t* ctx)
+{
+    if (CHECK_ISP_HW_V20() || CHECK_ISP_HW_V21()) {
+        CalibDbV2_AF_Tuning_Para_t af_calib_cfg_v20;
+        memset(&af_calib_cfg_v20, 0, sizeof(af_calib_cfg_v20));
+        rk_aiq_user_api2_af_GetCalib(ctx, (void *)&af_calib_cfg_v20);
+        af_calib_cfg_v20.af_mode = CalibDbV2_AFMODE_AUTO;
+        rk_aiq_user_api2_af_SetCalib(ctx, (void *)&af_calib_cfg_v20);
+    } else if (CHECK_ISP_HW_V30()) {
+        CalibDbV2_AFV30_Tuning_Para_t af_calib_cfg_v30;
+        memset(&af_calib_cfg_v30, 0, sizeof(af_calib_cfg_v30));
+        rk_aiq_user_api2_af_GetCalib(ctx, (void *)&af_calib_cfg_v30);
+        af_calib_cfg_v30.af_mode = CalibDbV2_AFMODE_AUTO;
+        rk_aiq_user_api2_af_SetCalib(ctx, (void *)&af_calib_cfg_v30);
+    } else if (CHECK_ISP_HW_V32()) {
+        CalibDbV2_AFV31_Tuning_Para_t af_calib_cfg_v31;
+        memset(&af_calib_cfg_v31, 0, sizeof(af_calib_cfg_v31));
+        rk_aiq_user_api2_af_GetCalib(ctx, (void *)&af_calib_cfg_v31);
+        af_calib_cfg_v31.af_mode = CalibDbV2_AFMODE_AUTO;
+        rk_aiq_user_api2_af_SetCalib(ctx, (void *)&af_calib_cfg_v31);
+    } else if (CHECK_ISP_HW_V32_LITE()) {
+        CalibDbV2_AFV32_Tuning_Para_t af_calib_cfg_v32;
+        memset(&af_calib_cfg_v32, 0, sizeof(af_calib_cfg_v32));
+        rk_aiq_user_api2_af_GetCalib(ctx, (void *)&af_calib_cfg_v32);
+        af_calib_cfg_v32.af_mode = CalibDbV2_AFMODE_AUTO;
+        rk_aiq_user_api2_af_SetCalib(ctx, (void *)&af_calib_cfg_v32);
+    } else if (CHECK_ISP_HW_V39()) {
+        CalibDbV2_AFV33_Tuning_Para_t af_calib_cfg_v33;
+        memset(&af_calib_cfg_v33, 0, sizeof(af_calib_cfg_v33));
+        rk_aiq_user_api2_af_GetCalib(ctx, (void *)&af_calib_cfg_v33);
+        af_calib_cfg_v33.af_mode = CalibDbV2_AFMODE_AUTO;
+        rk_aiq_user_api2_af_SetCalib(ctx, (void *)&af_calib_cfg_v33);
+    }
+}
+
 void sample_print_af_info(const void *arg)
 {
     printf ("enter AF modult test!\n");
@@ -704,6 +762,12 @@ XCamReturn sample_af_module(const void *arg)
                 break;
             case 'n':
                 sample_get_af_attrib(ctx);
+                break;
+            case 'o':
+                sample_get_af_calib(ctx);
+                break;
+            case 'p':
+                sample_set_af_calib(ctx);
                 break;
             default:
                 break;

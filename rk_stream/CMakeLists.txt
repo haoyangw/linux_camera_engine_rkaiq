@@ -31,6 +31,7 @@ include_directories(
     ${AIQ_DIR}/include/xcore/base
     ${AIQ_DIR}/include/algos
     ${AIQ_DIR}/include/algo_types
+    ${AIQ_DIR}/include/isp
     )
 
 set(XCORE_SRC

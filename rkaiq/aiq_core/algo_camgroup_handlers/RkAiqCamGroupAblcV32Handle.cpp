@@ -18,7 +18,7 @@
 
 namespace RkCam {
 
-#if RKAIQ_HAVE_BLC_V32
+#if RKAIQ_HAVE_BLC_V32 && !USE_NEWSTRUCT
 
 XCamReturn RkAiqCamGroupAblcV32HandleInt::updateConfig(bool needsync) {
     ENTER_ANALYZER_FUNCTION();

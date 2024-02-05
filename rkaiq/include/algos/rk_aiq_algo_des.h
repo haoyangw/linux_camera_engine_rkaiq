@@ -102,6 +102,8 @@ typedef enum RkAiqAlgoType_e {
     RK_AIQ_ALGO_TYPE_AGAIN,
     RK_AIQ_ALGO_TYPE_ACAC,
     RK_AIQ_ALGO_TYPE_AFD,
+    RK_AIQ_ALGO_TYPE_ARGBIR,
+    RK_AIQ_ALGO_TYPE_ATRANS,
     RK_AIQ_ALGO_TYPE_MAX
 } RkAiqAlgoType_t;
 
@@ -140,22 +142,24 @@ typedef enum RkAiqAlgoConfType_e {
 typedef struct _RkAiqAlgoCom {
     RkAiqAlgoContext *ctx;
     uint32_t frame_id;
-    union {
-        struct {
+    union u_s {
+        struct prepare_s {
             int working_mode; // real type is rk_aiq_working_mode_t or rk_aiq_isp_hdr_mode_t
             int sns_op_width;
             int sns_op_height;
             int conf_type;
+            unsigned char compr_bit;
             CamCalibDbContext_t* calib;
             CamCalibDbV2Context_t* calibv2;
         } prepare; //for prepare function
 
-        struct {
+        struct proc_s {
             bool init;
             int iso;
             bool fill_light_on;
             bool gray_mode;
             bool is_bw_sensor;
+            bool is_attrib_update;
             RKAiqAecExpInfo_t *preExp;
             RKAiqAecExpInfo_t *curExp;
             RKAiqAecExpInfo_t *nxtExp;
@@ -165,9 +169,16 @@ typedef struct _RkAiqAlgoCom {
     void* reserverd; //transfer whatever used by prepare/pre/processing/post
 } RkAiqAlgoCom;
 
+#ifdef  __cplusplus
+typedef struct RkAiqAlgoCom::u_s::proc_s RkAiqAlgoCom_proc_t;
+typedef struct RkAiqAlgoCom::u_s::prepare_s RkAiqAlgoCom_prepare_t;
+#endif
+
 // generic result type
 typedef struct _RkAiqAlgoResCom {
     bool cfg_update;
+    bool en;
+    bool bypass;
 } RkAiqAlgoResCom;
 
 typedef struct _RkAiqAlgoDescription {

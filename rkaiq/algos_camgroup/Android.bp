@@ -71,5 +71,6 @@ cc_rkaiq_library_static {
         "external/camera_engine_rkaiq/include/algos/agamma",
         "external/camera_engine_rkaiq/include/algos/adrc",
         "external/camera_engine_rkaiq/include/algos/ablc",
+        "external/camera_engine_rkaiq/include/algos/argbir",
     ],
 }

@@ -26,7 +26,7 @@ RKAIQ_BEGIN_DECLARE
 #define CHECK_USER_API_ENABLE
 #endif
 
-#if (RKAIQ_HAVE_SHARP_V33 || RKAIQ_HAVE_SHARP_V33_LITE)
+#if (RKAIQ_HAVE_SHARP_V33 || RKAIQ_HAVE_SHARP_V33_LITE) && (USE_NEWSTRUCT == 0)
 
 XCamReturn rk_aiq_user_api_asharpV33_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
         const rk_aiq_sharp_attrib_v33_t* attr) {

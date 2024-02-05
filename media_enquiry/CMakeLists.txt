@@ -139,6 +139,7 @@ include_directories(
     ${RK_AIQ_SOURCE_DIR}/include/algos/acac
     ${RK_AIQ_SOURCE_DIR}/include/algos_camgroup/ae
     ${RK_AIQ_SOURCE_DIR}/include/algos_camgroup/awb
+    ${RK_AIQ_SOURCE_DIR}/include/isp
     )
 
 set(DIR_SRCS

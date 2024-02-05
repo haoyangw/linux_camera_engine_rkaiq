@@ -52,26 +52,33 @@
 #define SHIFT14BIT(A)         (A * 16383.0)
 #define SHIFT15BIT(A)         (A * 32767.0)
 #define BIT_MIN               (0)
+#define BIT_3_MAX             (7)
 #define BIT_4_MAX             (15)
 #define BIT_8_MAX             (255)
+#define BIT_9_MAX             (511)
 #define BIT_10_MAX            (1023)
+#define BIT_11_MAX            (2047)
 #define BIT_12_MAX            (4095)
 #define BIT_13_MAX            (8191)
 #define BIT_14_MAX            (16383)
+#define BIT_17_MAX            (131071)
 #define RATIO_DEFAULT         (1.0f)
 #define AE_RATIO_MAX          (256)
 #define AE_RATIO_L2M_MAX      (32.0f)
 #define LONG_FRAME_MODE_RATIO (1.0f)
 #define ISP_PREDGAIN_DEFAULT  (1.0f)
 #define INIT_CALC_PARAMS_NUM  (2)
+#define ISP_HDR_BIT_NUM_MAX   (20)
+#define ISP_HDR_BIT_NUM_MIN   (12)
 #define LIMIT_VALUE(value, max_value, min_value) \
     (value > max_value ? max_value : value > min_value ? value : min_value)
 #define LIMIT_VALUE_UNSIGNED(value, max_value) (value > max_value ? max_value : value)
 
 typedef enum FrameNumber_e {
-    LINEAR_NUM   = 1,
-    HDR_2X_NUM   = 2,
-    HDR_3X_NUM   = 3,
+    LINEAR_NUM = 1,
+    HDR_2X_NUM = 2,
+    HDR_3X_NUM = 3,
+    SENSOR_MGE = 4,
     HDR_NUM_MAX
 } FrameNumber_t;
 /****************************************************************************/

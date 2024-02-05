@@ -32,6 +32,7 @@ extern RkAiqAlgoDescription g_RkIspAlgoDescCamgroupA3dlut;
 extern RkAiqAlgoDescription g_RkIspAlgoDescCamgroupAdhaz;
 extern RkAiqAlgoDescription g_RkIspAlgoDescamgroupAgamma;
 extern RkAiqAlgoDescription g_RkIspAlgoDescCamgroupAdrc;
+extern RkAiqAlgoDescription g_RkIspAlgoDescCamgroupArgbir;
 extern RkAiqAlgoDescription g_RkIspAlgoDescCamgroupAmerge;
 extern RkAiqAlgoDescription g_RkIspAlgoDescCamgroupAblc;
 extern RkAiqAlgoDescription g_RkIspAlgoDescCamgroupAblcV32;

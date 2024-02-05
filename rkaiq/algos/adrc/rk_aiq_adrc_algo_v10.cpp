@@ -562,21 +562,23 @@ void AdrcTuningParaProcessing(AdrcContext_t* pAdrcCtx, RkAiqAdrcProcResult_t* pA
     // clip drc gain
     if (pAdrcCtx->NextData.AEData.L2S_Ratio * pAdrcCtx->NextData.dynParams.Drc_v10.DrcGain >
         MAX_AE_DRC_GAIN) {
-        LOGE_ATMO("%s:  AERatio*DrcGain > 256!!!\n", __FUNCTION__);
         pAdrcCtx->NextData.dynParams.Drc_v10.DrcGain =
             MAX(MAX_AE_DRC_GAIN / pAdrcCtx->NextData.AEData.L2S_Ratio, GAINMIN);
+        LOGI_ATMO("%s:  AERatio*DrcGain > 256x, clip to %f!!!\n", __FUNCTION__,
+                  pAdrcCtx->NextData.dynParams.Drc_v10.DrcGain);
     }
 
     LOGD_ATMO(
         "%s:Current Enable:%d DrcGain:%f Alpha:%f Clip:%f Strength:%f LocalWeit:%f "
-        "GlobalContrast:%f LoLitContrast:%f CompressMode:%d\n",
+        "GlobalContrast:%f LoLitContrast:%f CompressMode:%d OutPutLongFrame:%d\n",
         __FUNCTION__, pAdrcProcRes->bDrcEn, pAdrcCtx->NextData.dynParams.Drc_v10.DrcGain,
         pAdrcCtx->NextData.dynParams.Drc_v10.Alpha, pAdrcCtx->NextData.dynParams.Drc_v10.Clip,
         pAdrcCtx->NextData.dynParams.Drc_v10.Strength,
         pAdrcCtx->NextData.dynParams.Drc_v10.LocalWeit,
         pAdrcCtx->NextData.dynParams.Drc_v10.GlobalContrast,
         pAdrcCtx->NextData.dynParams.Drc_v10.LoLitContrast,
-        pAdrcCtx->NextData.staticParams.CompressMode);
+        pAdrcCtx->NextData.staticParams.CompressMode,
+        pAdrcCtx->NextData.staticParams.OutPutLongFrame);
 
     // get tuning proc res
     AdrcGetTuningProcResV10(pAdrcCtx, pAdrcProcRes);

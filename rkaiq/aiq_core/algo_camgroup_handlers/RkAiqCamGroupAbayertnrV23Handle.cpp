@@ -17,7 +17,7 @@
 #include "abayertnrV23/rk_aiq_uapi_camgroup_abayertnr_int_v23.h"
 
 namespace RkCam {
-
+#if (USE_NEWSTRUCT == 0)
 #if (RKAIQ_HAVE_BAYERTNR_V23 || RKAIQ_HAVE_BAYERTNR_V23_LITE)
 XCamReturn RkAiqCamGroupAbayertnrV23HandleInt::updateConfig(bool needSync) {
     ENTER_ANALYZER_FUNCTION();
@@ -223,5 +223,6 @@ XCamReturn RkAiqCamGroupAbayertnrV23HandleInt::getInfo(rk_aiq_bayertnr_info_v23_
     EXIT_ANALYZER_FUNCTION();
     return ret;
 }
+#endif
 #endif
 }

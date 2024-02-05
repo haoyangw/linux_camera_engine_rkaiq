@@ -89,6 +89,32 @@ private:
     //SmartPtr<RKAiqSofInfo_t> _sofInfo;
     //SmartPtr<SofEventData> _event_data;
 };
+
+class AiispEventData : public BufferData
+{
+public:
+    explicit AiispEventData () {}
+    ~AiispEventData() {}
+    virtual uint8_t *map () {return NULL;}
+    virtual bool unmap () {return false;}
+    int32_t _height{0};
+    uint32_t _frameid{0};
+    rkisp_bay3dbuf_info_t bay3dbuf;
+    void* iir_address;
+    void* gain_address;
+};
+
+class AiispEventBuffer
+    : public BufferProxy {
+public:
+    explicit AiispEventBuffer(SmartPtr<AiispEventData> &buf,
+                              SmartPtr<V4l2Device> &device);
+    virtual ~AiispEventBuffer() {};
+    SmartPtr<AiispEventData> get_data();
+private:
+    XCAM_DEAD_COPY(AiispEventBuffer);
+};
+
 }
 
 #endif

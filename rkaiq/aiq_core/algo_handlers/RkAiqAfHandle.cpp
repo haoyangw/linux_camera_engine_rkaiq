@@ -37,6 +37,32 @@ void RkAiqAfHandleInt::init() {
     EXIT_ANALYZER_FUNCTION();
 }
 
+XCamReturn RkAiqAfHandleInt::setCalib(void* calib) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    mCfgMutex.lock();
+    ret = rk_aiq_uapi_af_SetCalib(mAlgoCtx, calib);
+    mCfgMutex.unlock();
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn RkAiqAfHandleInt::getCalib(void* calib) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    mCfgMutex.lock();
+    ret = rk_aiq_uapi_af_GetCalib(mAlgoCtx, calib);
+    mCfgMutex.unlock();
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
 XCamReturn RkAiqAfHandleInt::updateConfig(bool needSync) {
     ENTER_ANALYZER_FUNCTION();
 
@@ -330,6 +356,18 @@ XCamReturn RkAiqAfHandleInt::GetFocusRange(rk_aiq_af_focusrange* range) {
     return ret;
 }
 
+XCamReturn RkAiqAfHandleInt::GetZoomRange(rk_aiq_af_zoomrange* range) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCamReturn ret                              = XCAM_RETURN_NO_ERROR;
+    RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
+
+    if (sharedCom->snsDes.lens_des.zoom_support) rk_aiq_uapi_af_getZoomRange(mAlgoCtx, range);
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
 XCamReturn RkAiqAfHandleInt::setAeStable(bool ae_stable) {
     ENTER_ANALYZER_FUNCTION();
 
@@ -422,6 +460,13 @@ XCamReturn RkAiqAfHandleInt::processing() {
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
+#if RKAIQ_HAVE_AF_V33 || RKAIQ_ONLY_AF_STATS_V33
+#ifdef USE_NEWSTRUCT
+    af_proc_res_int->afStats_cfg = &shared->fullParams->mAfParams->data()->result;
+#else
+    af_proc_res_int->af_isp_param_v33 = &shared->fullParams->mAfParams->data()->result;
+#endif
+#endif
 #if RKAIQ_HAVE_AF_V32_LITE || RKAIQ_ONLY_AF_STATS_V32_LITE
     af_proc_res_int->af_isp_param_v32 = &shared->fullParams->mAfParams->data()->result;
 #endif
@@ -476,19 +521,35 @@ XCamReturn RkAiqAfHandleInt::processing() {
 #if RKAIQ_HAVE_AF_V20
     if (xAfStats) {
         af_proc_int->xcam_af_stats  = &xAfStats->af_stats;
+        af_proc_int->stat_motor = &xAfStats->stat_motor;
         af_proc_int->aecExpInfo = &xAfStats->aecExpInfo;
     } else {
-        af_proc_int->xcam_af_stats  = NULL;
+        af_proc_int->xcam_af_stats = NULL;
+        af_proc_int->stat_motor = NULL;
+        af_proc_int->aecExpInfo = NULL;
+    }
+#else
+#ifdef USE_NEWSTRUCT
+    if (xAfStats) {
+        af_proc_int->afStats_stats = &xAfStats->afStats_stats;
+        af_proc_int->stat_motor = &xAfStats->stat_motor;
+        af_proc_int->aecExpInfo = &xAfStats->aecExpInfo;
+    } else {
+        af_proc_int->afStats_stats = NULL;
+        af_proc_int->stat_motor = NULL;
         af_proc_int->aecExpInfo = NULL;
     }
 #else
     if (xAfStats) {
         af_proc_int->xcam_af_stats_v3x = &xAfStats->af_stats_v3x;
+        af_proc_int->stat_motor = &xAfStats->stat_motor;
         af_proc_int->aecExpInfo = &xAfStats->aecExpInfo;
     } else {
         af_proc_int->xcam_af_stats_v3x = NULL;
+        af_proc_int->stat_motor = NULL;
         af_proc_int->aecExpInfo = NULL;
     }
+#endif
 #endif
     if (shared->aecStatsBuf)
         af_proc_int->xcam_aec_stats = &shared->aecStatsBuf->aec_stats;
@@ -511,6 +572,7 @@ XCamReturn RkAiqAfHandleInt::processing() {
 #ifdef DISABLE_HANDLE_ATTRIB
     mCfgMutex.unlock();
 #endif
+
     if (ret < 0) {
         LOGE_ANALYZER("af algo processing failed ret %d", ret);
         return ret;

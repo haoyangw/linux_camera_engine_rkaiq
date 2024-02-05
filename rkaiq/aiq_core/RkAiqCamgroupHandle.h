@@ -23,6 +23,7 @@
 #include "algos/rk_aiq_algo_des.h"
 #include "rk_aiq_algo_camgroup_types.h"
 #include "xcore/xcam_mutex.h"
+#include "RkAiqHandle.h"
 
 namespace RkCam {
 
@@ -46,6 +47,7 @@ class RkAiqCamgroupHandle {
     RkAiqCamgroupHandle* getNextHdl() { return mNextHdl; }
     RkAiqCamgroupHandle* getParent() { return mParentHdl; }
     virtual XCamReturn updateConfig(bool /* needSync */) { return XCAM_RETURN_NO_ERROR; };
+    void setAlgoHandle(RkAiqHandle* handle) { mSingleHdl = handle; };
  protected:
     virtual void init();
     virtual void deInit();
@@ -62,6 +64,7 @@ class RkAiqCamgroupHandle {
     RkAiqAlgoContext* mAlgoCtx;
     RkAiqCamGroupManager* mGroupMg;
     RkAiqCore* mAiqCore;
+    RkAiqHandle* mSingleHdl;
     bool mEnable;
     XCam::Mutex mCfgMutex;
     bool updateAtt;

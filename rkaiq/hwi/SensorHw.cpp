@@ -200,11 +200,6 @@ SensorHw::setLinearSensorExposure(RKAiqAecExpInfo_t* expPar)
         return XCAM_RETURN_ERROR_IOCTL;
     }
 
-    if (mTbInfo.prd_type != RK_AIQ_PRD_TYPE_NORMAL && mTbInfo.rtt_share_addr) {
-        rk_aiq_rtt_share_info_t *share = (rk_aiq_rtt_share_info_t*)mTbInfo.rtt_share_addr;
-        share->vts = frame_line_length;
-    }
-
     int dcg_mode = expPar->LinearExp.exp_real_params.dcg_mode;
     int dcg_mode_drv;
 
@@ -370,11 +365,6 @@ SensorHw::setHdrSensorExposure(pending_split_exps_t* expPar)
     if (io_control(VIDIOC_S_CTRL, &ctrl) < 0) {
         LOGE_CAMHW_SUBM(SENSOR_SUBM, "cam%d failed to set vblank result(val: %d)", mCamPhyId, ctrl.value);
         return XCAM_RETURN_ERROR_IOCTL;
-    }
-
-    if (mTbInfo.prd_type != RK_AIQ_PRD_TYPE_NORMAL && mTbInfo.rtt_share_addr) {
-        rk_aiq_rtt_share_info_t *share = (rk_aiq_rtt_share_info_t*)mTbInfo.rtt_share_addr;
-        share->vts = frame_line_length;
     }
 
     memset(&hdrExp, 0, sizeof(hdrExp));
@@ -648,13 +638,11 @@ SensorHw::setExposureParams(SmartPtr<RkAiqExpParamsProxy>& expPar)
         }
         if (!exp->exp_i2c_params.bValid) {
             _is_i2c_exp = false;
-            if (!(mTbInfo.is_pre_aiq)) {
-                if (_working_mode == RK_AIQ_WORKING_MODE_NORMAL)
-                    setLinearSensorExposure(&exp->new_ae_exp);
-                else
-                    setHdrSensorExposure(&exp->new_ae_exp);
-                setSensorDpcc(&exp->SensorDpccInfo);
-            }
+            if (_working_mode == RK_AIQ_WORKING_MODE_NORMAL)
+                setLinearSensorExposure(&exp->new_ae_exp);
+            else
+                setHdrSensorExposure(&exp->new_ae_exp);
+            setSensorDpcc(&exp->SensorDpccInfo);
         } else {
             _is_i2c_exp = true;
             pending_split_exps_t new_exps;
@@ -688,8 +676,6 @@ SensorHw::setExposureParams(SmartPtr<RkAiqExpParamsProxy>& expPar)
         exp->ae_proc_res_rk.exp_set_cnt = 0;
         LOGD_CAMHW_SUBM(SENSOR_SUBM, "exp-sync: first set exp, add id[0] to the effected exp map\n");
     } else {
-        if (mTbInfo.is_pre_aiq)
-            return XCAM_RETURN_NO_ERROR;
         if (exp->algo_id == 0) {
             if (exp->ae_proc_res_rk.exp_set_cnt > 0) {
                 SmartPtr<RkAiqSensorExpParamsProxy> expParamsProxy = NULL;
@@ -1314,6 +1300,18 @@ BaseSensorHw::get_v4l2_pixelformat(uint32_t pixelcode)
     case MEDIA_BUS_FMT_Y12_1X12:
         pixelformat = V4L2_PIX_FMT_Y12;
         break;
+    case MEDIA_BUS_FMT_SBGGR16_1X16:
+        pixelformat = V4L2_PIX_FMT_SBGGR16;
+        break;
+    case MEDIA_BUS_FMT_SGBRG16_1X16:
+        pixelformat = V4L2_PIX_FMT_SGBRG16;
+        break;
+    case MEDIA_BUS_FMT_SGRBG16_1X16:
+        pixelformat = V4L2_PIX_FMT_SGRBG16;
+        break;
+    case MEDIA_BUS_FMT_SRGGB16_1X16:
+        pixelformat = V4L2_PIX_FMT_SRGGB16;
+        break;
     default:
         //TODO add other
         LOGD_CAMHW_SUBM(SENSOR_SUBM, "%s no support pixelcode:0x%x\n",
@@ -1384,12 +1382,6 @@ SensorHw::_set_mirror_flip() {
     ctrl.value = _flip ? 1 : 0;
     if (io_control(VIDIOC_S_CTRL, &ctrl) < 0) {
         LOGE_CAMHW_SUBM(SENSOR_SUBM, "failed to set vflip (val: %d)", ctrl.value);
-    }
-
-    if (mTbInfo.prd_type != RK_AIQ_PRD_TYPE_NORMAL && mTbInfo.rtt_share_addr) {
-        rk_aiq_rtt_share_info_t *share = (rk_aiq_rtt_share_info_t*)mTbInfo.rtt_share_addr;
-        share->mirror = _mirror;
-        share->flip   = _flip;
     }
 
     LOGD_CAMHW_SUBM(SENSOR_SUBM, "set mirror %d, flip %d", _mirror, _flip);
@@ -1630,16 +1622,17 @@ SensorHw::set_effecting_exp_map(uint32_t sequence, void *exp_ptr, int mode)
 }
 
 XCamReturn
-SensorHw::set_pause_flag(bool mode, uint32_t frameId, bool isSingleMode)
+SensorHw::set_pause_flag(bool isPause, uint32_t frameId, bool isSingleMode)
 {
     _mutex.lock();
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
     uint32_t new_exp_id, last_exp_id;
     RKAiqAecExpInfo_t *ptr_new_exp = NULL;
-    mPauseFlag = mode;
+    mPauseFlag = isPause;
     if (mPauseFlag && _time_delay > 1) {
+        mPauseId = frameId;
+        mIsSingleMode = isSingleMode;
         new_exp_id = frameId + _time_delay;
-        mPauseId = frameId; // tmp
         if (_effecting_exp_map.find(new_exp_id) != _effecting_exp_map.end()) {
             _effecting_exp_map.erase(new_exp_id);
             auto it = _effecting_exp_map.rbegin();
@@ -1649,22 +1642,14 @@ SensorHw::set_pause_flag(bool mode, uint32_t frameId, bool isSingleMode)
             } else {
                 ret = setHdrSensorExposure(ptr_new_exp);
             }
+            if (ret != XCAM_RETURN_NO_ERROR)
+                LOGE_CAMHW("set frame id %u exp again faile", it->first);
+
             LOGD_CAMHW("erase effect exp id %u, set new exp id is %u", new_exp_id, it->first);
         }
-        mIsSingleMode = isSingleMode;
         LOGD_CAMHW_SUBM(SENSOR_SUBM, "switch to %s mode, pauseId %u, handle sof id %u, _time_delay %d",
                                         mIsSingleMode ? "single" : "multi",
                                         mPauseId, _frame_sequence, _time_delay);
-    } else if (mIsSingleMode && _time_delay > 1 && _frame_sequence > 0) {
-        last_exp_id = _frame_sequence + 1;
-        auto it = _effecting_exp_map.rbegin();
-        if (it != _effecting_exp_map.rend() && it->first == last_exp_id) {
-            it++;
-            new_exp_id = _frame_sequence + 2;
-            _effecting_exp_map[new_exp_id] = _effecting_exp_map[last_exp_id];
-            if (it != _effecting_exp_map.rend())
-                _effecting_exp_map[last_exp_id] = _effecting_exp_map[it->first];
-        }
     }
     _mutex.unlock();
     return XCAM_RETURN_NO_ERROR;

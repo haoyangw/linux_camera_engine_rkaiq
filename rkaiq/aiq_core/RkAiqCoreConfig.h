@@ -52,44 +52,78 @@ inline std::string AlgoTypeToString(RkAiqAlgoType_t type) {
         { RK_AIQ_ALGO_TYPE_AE,          "Ae"        },
         { RK_AIQ_ALGO_TYPE_AWB,         "Awb"       },
         { RK_AIQ_ALGO_TYPE_AF,          "Af"        },
+#if USE_NEWSTRUCT
+        { RK_AIQ_ALGO_TYPE_ABLC,        "Blc"       },
+#else
         { RK_AIQ_ALGO_TYPE_ABLC,        "Ablc"      },
-        { RK_AIQ_ALGO_TYPE_ADPCC,       "Adpcc"     },
+#endif
         { RK_AIQ_ALGO_TYPE_AMERGE,      "Amerge"    },
         { RK_AIQ_ALGO_TYPE_ATMO,        "Atmo"      },
         { RK_AIQ_ALGO_TYPE_ANR,         "Anr"       },
         { RK_AIQ_ALGO_TYPE_ALSC,        "Alsc"      },
         { RK_AIQ_ALGO_TYPE_AGIC,        "Agic"      },
+#if USE_NEWSTRUCT
+        { RK_AIQ_ALGO_TYPE_ADEBAYER,    "Dm"  },
+        { RK_AIQ_ALGO_TYPE_ADPCC,       "Dpcc"  },
+#else
         { RK_AIQ_ALGO_TYPE_ADEBAYER,    "Adebayer"  },
+        { RK_AIQ_ALGO_TYPE_ADPCC,       "Adpcc"     },
+#endif
         { RK_AIQ_ALGO_TYPE_ACCM,        "Accm"      },
+#if USE_NEWSTRUCT
+        { RK_AIQ_ALGO_TYPE_AGAMMA,      "Gamma"     },
+#else
         { RK_AIQ_ALGO_TYPE_AGAMMA,      "Agamma"    },
+#endif
         { RK_AIQ_ALGO_TYPE_AWDR,        "Awdr"      },
-        { RK_AIQ_ALGO_TYPE_ADHAZ,       "Adehaze"   },
+#if USE_NEWSTRUCT
+        { RK_AIQ_ALGO_TYPE_ADHAZ,      "Dehaze"     },
+#else
+        { RK_AIQ_ALGO_TYPE_ADHAZ,      "Adehaze"    },
+#endif
         { RK_AIQ_ALGO_TYPE_A3DLUT,      "A3dlut"    },
         { RK_AIQ_ALGO_TYPE_ALDCH,       "Aldch"     },
         { RK_AIQ_ALGO_TYPE_ACSM,        "Acsm"      },
         { RK_AIQ_ALGO_TYPE_ACP,         "Acp"       },
         { RK_AIQ_ALGO_TYPE_AIE,         "Aie"       },
-        { RK_AIQ_ALGO_TYPE_ASHARP,      "Asharp"    },
         { RK_AIQ_ALGO_TYPE_AORB,        "Aorb"      },
         { RK_AIQ_ALGO_TYPE_ACGC,        "Acgc"      },
         { RK_AIQ_ALGO_TYPE_ASD,         "Asd"       },
+#if USE_NEWSTRUCT
+        { RK_AIQ_ALGO_TYPE_ADRC,        "Drc"      },
+#else
         { RK_AIQ_ALGO_TYPE_ADRC,        "Adrc"      },
+#endif
         { RK_AIQ_ALGO_TYPE_ADEGAMMA,    "Adegamma"  },
-#if defined(ISP_HW_V30) || defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
+#if USE_NEWSTRUCT
+        { RK_AIQ_ALGO_TYPE_ARAWNR,      "Abayer2dnr"},
+        { RK_AIQ_ALGO_TYPE_AMFNR,       "Btnr"      },
+        { RK_AIQ_ALGO_TYPE_AYNR,        "Ynr"       },
+        { RK_AIQ_ALGO_TYPE_ASHARP,      "Sharp"     },
+        { RK_AIQ_ALGO_TYPE_ACNR,        "Cnr"       },
+#else
+#if defined(ISP_HW_V39) || defined(ISP_HW_V30) || defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
         { RK_AIQ_ALGO_TYPE_ARAWNR,      "Abayer2dnr"},
         { RK_AIQ_ALGO_TYPE_AMFNR,       "Abayertnr" },
 #else
         { RK_AIQ_ALGO_TYPE_ARAWNR,      "Arawnr"    },
         { RK_AIQ_ALGO_TYPE_AMFNR,       "Amfnr"     },
 #endif
+        { RK_AIQ_ALGO_TYPE_ASHARP,      "Asharp"    },
         { RK_AIQ_ALGO_TYPE_AYNR,        "Aynr"      },
         { RK_AIQ_ALGO_TYPE_ACNR,        "Acnr"      },
+#endif
         { RK_AIQ_ALGO_TYPE_AEIS,        "Aeis"      },
         { RK_AIQ_ALGO_TYPE_AFEC,        "Afec"      },
+#if defined(ISP_HW_V39)
+        { RK_AIQ_ALGO_TYPE_AMD,         "Ayuvme"       },
+#else
         { RK_AIQ_ALGO_TYPE_AMD,         "Amd"       },
+#endif
         { RK_AIQ_ALGO_TYPE_AGAIN,       "Again"     },
         { RK_AIQ_ALGO_TYPE_ACAC,        "Acac"      },
         { RK_AIQ_ALGO_TYPE_AFD,         "Afd"       },
+        { RK_AIQ_ALGO_TYPE_ARGBIR,        "Argbir"      },
         // clang-format oon
     };
 
@@ -117,6 +151,10 @@ inline std::string AlgoTypeToString(RkAiqAlgoType_t type) {
 
 #if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
 #include "RkAiqCoreConfigV32.h"
+#endif
+
+#if defined(ISP_HW_V39)
+#include "RkAiqCoreConfigV39.h"
 #endif
 
 #if defined(__GNUC__) && !defined(__clang__)

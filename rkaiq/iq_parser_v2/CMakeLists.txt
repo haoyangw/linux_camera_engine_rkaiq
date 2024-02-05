@@ -13,13 +13,17 @@ set(J2S_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/j2s/j2s_utils.cpp
     )
 
+if (RKAIQ_NEWSTRUCT_TEST)
+	set(DEFINE_USE_NEWSTRUCT -DUSE_NEWSTRUCT=1 CACHE INTERNAL "Build with new structure")
+endif()
+
 #########################################################
 #               HEADER MACRO PREPROCESS                 #
 #########################################################
 add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/output.h
     COMMAND ${CMAKE_C_COMPILER}
-    ${rk_aiq_SOURCE_DIR}/include/iq_parser_v2/RkAiqCalibDbTypesV2.h -E -C -o .temp.h ${ISP_HW_VERSION}
+    ${rk_aiq_SOURCE_DIR}/include/iq_parser_v2/RkAiqCalibDbTypesV2.h -E -C -o .temp.h ${ISP_HW_VERSION} ${DEFINE_USE_NEWSTRUCT}
     -I${rk_aiq_SOURCE_DIR}/
     -I${rk_aiq_SOURCE_DIR}/include
     -I${rk_aiq_SOURCE_DIR}/include/common
@@ -46,7 +50,7 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/RkAiqCalibDbTypesV2_M4.h
 #########################################################
 add_custom_command(
     OUTPUT ${rk_aiq_BINARY_DIR}/.j2s_generated.h
-    COMMAND gcc ${J2S_HOST_CFLAGS} -DJ2S_ENABLE_DESC ${rk_aiq_SOURCE_DIR}/tools/iq_check/src/parser.c -o parser ${ISP_HW_VERSION}
+    COMMAND gcc ${J2S_HOST_CFLAGS} -DJ2S_ENABLE_DESC ${rk_aiq_SOURCE_DIR}/tools/iq_check/src/parser.c -o parser ${ISP_HW_VERSION} ${DEFINE_USE_NEWSTRUCT}
     -I${rk_aiq_SOURCE_DIR}/include/common
     -I${rk_aiq_SOURCE_DIR}/
     -I${rk_aiq_SOURCE_DIR}/include/uAPI2
@@ -67,11 +71,14 @@ add_custom_command(
 #########################################################
 add_custom_target(
     j2s_code2bin
-    COMMAND gcc ${J2S_HOST_CFLAGS} ${rk_aiq_SOURCE_DIR}/tools/iq_check/src/tobin.c -o tobin ${ISP_HW_VERSION} -DRKAIQ_HAVE_LSC_V3
+    COMMAND gcc ${J2S_HOST_CFLAGS}
+	${rk_aiq_SOURCE_DIR}/tools/iq_check/src/tobin.c -o tobin ${ISP_HW_VERSION} -DRKAIQ_HAVE_LSC_V3 ${DEFINE_USE_NEWSTRUCT}
+
 	-I${rk_aiq_BINARY_DIR}
     -I${rk_aiq_SOURCE_DIR}/include/common
     -I${rk_aiq_SOURCE_DIR}/
     -I${rk_aiq_SOURCE_DIR}/include/uAPI2
+    -I${rk_aiq_SOURCE_DIR}/include
     -I${rk_aiq_SOURCE_DIR}/include/algos
     -I${rk_aiq_SOURCE_DIR}/include/iq_parser_v2
     -I${rk_aiq_SOURCE_DIR}/include/iq_parser_v2/j2s
@@ -86,10 +93,12 @@ add_custom_target(
 #########################################################
 add_custom_target(
     j2s_generated_optim
-    COMMAND gcc ${J2S_HOST_CFLAGS} ${rk_aiq_SOURCE_DIR}/tools/iq_check/src/j2s_generated_optim.c -o j2s_generated_optim ${ISP_HW_VERSION}
+    COMMAND gcc ${J2S_HOST_CFLAGS} ${rk_aiq_SOURCE_DIR}/tools/iq_check/src/j2s_generated_optim.c -o j2s_generated_optim ${ISP_HW_VERSION} ${DEFINE_USE_NEWSTRUCT}
+
 	-I${rk_aiq_BINARY_DIR}
     -I${rk_aiq_SOURCE_DIR}/include/common
     -I${rk_aiq_SOURCE_DIR}/
+    -I${rk_aiq_SOURCE_DIR}/include
     -I${rk_aiq_SOURCE_DIR}/include/uAPI2
     -I${rk_aiq_SOURCE_DIR}/include/algos
     -I${rk_aiq_SOURCE_DIR}/include/iq_parser_v2
@@ -104,11 +113,12 @@ add_custom_target(
 #########################################################
 add_custom_target(
     j2s_parser
-	COMMAND g++ -std=gnu++11 -DJ2S_ENABLE_DESC -DCOMPILE_TEMPLATE -o dump ${J2S_SRC} ${ISP_HW_VERSION}
+	COMMAND g++ -std=gnu++11 -DJ2S_ENABLE_DESC -DCOMPILE_TEMPLATE -o dump ${J2S_SRC} ${ISP_HW_VERSION} ${DEFINE_USE_NEWSTRUCT}
     ${rk_aiq_SOURCE_DIR}/tools/iq_check/src/dump.cpp
     -I${rk_aiq_SOURCE_DIR}/include/common
     -I${rk_aiq_SOURCE_DIR}/
     -I${rk_aiq_SOURCE_DIR}/include/uAPI2
+    -I${rk_aiq_SOURCE_DIR}/include
     -I${rk_aiq_SOURCE_DIR}/include/algos
     -I${rk_aiq_SOURCE_DIR}/include/iq_parser_v2
     -I${rk_aiq_SOURCE_DIR}/include/iq_parser_v2/j2s
@@ -136,6 +146,9 @@ if (${ISP_HW_VERSION} STREQUAL "-DISP_HW_V32")
 endif ()
 if (${ISP_HW_VERSION} STREQUAL "-DISP_HW_V32_LITE")
     set(IQFILES_DIR_INTERNAL "${rk_aiq_SOURCE_DIR}/iqfiles/isp32_lite")
+endif ()
+if (${ISP_HW_VERSION} STREQUAL "-DISP_HW_V39")
+    set(IQFILES_DIR_INTERNAL "${rk_aiq_SOURCE_DIR}/iqfiles/isp39")
 endif ()
 
 add_custom_target(

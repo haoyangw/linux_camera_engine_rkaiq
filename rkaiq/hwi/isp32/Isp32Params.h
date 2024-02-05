@@ -21,6 +21,10 @@
 #include "rk_aiq_pool.h"
 #include "rkisp32-config.h"
 
+#if USE_NEWSTRUCT
+#include "rk_aiq_isp32_modules.h"
+#endif
+
 namespace RkCam {
 
 class Isp32Params : virtual public Isp3xParams {
@@ -40,16 +44,28 @@ private:
                                       rk_aiq_isp_baynr_v32_t& rawnr);
 #endif
 #if (RKAIQ_HAVE_BAYERTNR_V23 || RKAIQ_HAVE_BAYERTNR_V23_LITE)
+#ifdef USE_NEWSTRUCT
+    void convertAiqBtnrToIsp32Params(struct isp32_isp_params_cfg& isp_cfg, rk_aiq_isp_btnr_params_t* btnr_attr);
+#else
     void convertAiqTnrToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
                                     rk_aiq_isp_tnr_v32_t& tnr);
 #endif
+#endif
 #if RKAIQ_HAVE_YNR_V22
+#ifdef USE_NEWSTRUCT
+    void convertAiqYnrToIsp32Params(struct isp32_isp_params_cfg& isp_cfg, rk_aiq_isp_ynr_params_t* ynr_attr);
+#else
     void convertAiqYnrToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
                                     rk_aiq_isp_ynr_v32_t& ynr);
 #endif
+#endif
 #if (RKAIQ_HAVE_CNR_V30 || RKAIQ_HAVE_CNR_V30_LITE)
+#if USE_NEWSTRUCT
+    void convertAiqCnrToIsp32Params(struct isp32_isp_params_cfg& isp_cfg, rk_aiq_isp_cnr_params_t *attr);
+#else
     void convertAiqUvnrToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
                                      rk_aiq_isp_cnr_v32_t& uvnr);
+#endif
 #endif
 #if RKAIQ_HAVE_AWB_V32 || RKAIQ_HAVE_AWB_V32LT
     void convertAiqAwbGainToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
@@ -61,8 +77,12 @@ private:
                                     bool awb_cfg_udpate);
 #endif
 #if (RKAIQ_HAVE_SHARP_V33 || RKAIQ_HAVE_SHARP_V33_LITE)
+#ifdef USE_NEWSTRUCT
+    void convertAiqSharpToIsp32Params(struct isp32_isp_params_cfg& isp_cfg, rk_aiq_isp_sharp_params_t* sharp_attr);
+#else
     void convertAiqSharpenToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
                                         rk_aiq_isp_sharp_v32_t& sharp);
+#endif
 #endif
 #if RKAIQ_HAVE_BLC_V32
     void convertAiqBlcToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
@@ -82,16 +102,30 @@ private:
             const rk_aiq_isp_cac_v32_t& cac_cfg, bool is_multi_isp);
 #endif
 #if RKAIQ_HAVE_DEBAYER_V2 || RKAIQ_HAVE_DEBAYER_V2_LITE
+#ifdef USE_NEWSTRUCT
+    void convertAiqDmToIsp32Params(struct isp32_isp_params_cfg& isp_cfg, rk_aiq_isp_dm_params_t* dm_attr);
+#else
     void convertAiqAdebayerToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
                                          rk_aiq_isp_debayer_v32_t & debayer);
 #endif
+#endif
 #if RKAIQ_HAVE_DEHAZE_V12
+#ifdef USE_NEWSTRUCT
+    void convertAiqDehazeToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
+                                    rk_aiq_isp_dehaze_params_t* dehaze_attr);
+#else
     void convertAiqAdehazeToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
                                         const rk_aiq_isp_dehaze_v32_t& dhaze);
 #endif
+#endif
 #if RKAIQ_HAVE_DRC_V12 || RKAIQ_HAVE_DRC_V12_LITE
+#ifdef USE_NEWSTRUCT
+    void convertAiqDrcToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
+                                    rk_aiq_isp_drc_params_t* drc_attr);
+#else
     void convertAiqDrcToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
                                     rk_aiq_isp_drc_v32_t& adrc_data);
+#endif
 #endif
 #if RKAIQ_HAVE_MERGE_V12
     void convertAiqMergeToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
@@ -108,6 +142,17 @@ private:
                                       bool is_multi_isp);
 #endif
     void convertAiqExpIspDgainToIsp32Params(struct isp32_isp_params_cfg& isp_cfg, RKAiqAecExpInfo_t ae_exp);
+
+#ifdef RKAIQ_HAVE_GAMMA_V11
+    #ifdef USE_NEWSTRUCT
+    void convertAiqGammaToIsp32Params(struct isp32_isp_params_cfg& isp_cfg, rk_aiq_isp_gamma_params_t* gamma_attr);
+    #endif
+#endif
+#if RKAIQ_HAVE_DPCC_V1
+#ifdef USE_NEWSTRUCT
+    void convertAiqDpccToIsp32Params(struct isp32_isp_params_cfg& isp_cfg, rk_aiq_isp_dpcc_params_t* dpcc_attr);
+#endif
+#endif
 };
 
 }  // namespace RkCam

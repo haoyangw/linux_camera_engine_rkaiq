@@ -55,4 +55,19 @@ SofEventBuffer::get_data()
     return buf.dynamic_cast_ptr<SofEventData>();
 }
 
+AiispEventBuffer::AiispEventBuffer(SmartPtr<AiispEventData> &buf,
+                                   SmartPtr<V4l2Device> &device)
+    : BufferProxy (buf)
+{
+    ENTER_CAMHW_FUNCTION();
+    EXIT_CAMHW_FUNCTION();
+}
+
+SmartPtr<AiispEventData>
+AiispEventBuffer::get_data()
+{
+    SmartPtr<BufferData> buf = get_buffer_data ();
+    return buf.dynamic_cast_ptr<AiispEventData>();
+}
+
 } //namspace RkCam

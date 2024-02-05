@@ -74,6 +74,7 @@ cc_rkaiq_library_shared {
         "hwi/isp21",
         "hwi/isp3x",
         "hwi/isp32",
+        "hwi/isp39",
         "iq_parser",
         "iq_parser_v2",
         "uAPI",
@@ -92,6 +93,7 @@ cc_rkaiq_library_shared {
         "include/uAPI2",
         "include/ipc_server",
         "include/algos/amerge",
+		"modules",
     ],
 
     header_libs: [
@@ -116,6 +118,7 @@ cc_rkaiq_library_shared {
         "aiq_core/RkAiqResourceTranslatorV21.cpp",
         "aiq_core/RkAiqResourceTranslatorV3x.cpp",
         "aiq_core/RkAiqResourceTranslatorV32.cpp",
+        "aiq_core/RkAiqResourceTranslatorV39.cpp",
         "aiq_core/thumbnails.cpp",
 
         // ALGO_COMMON_SRC
@@ -146,6 +149,7 @@ cc_rkaiq_library_shared {
         "hwi/image_processor.cpp",
         "hwi/isp20/Isp20Evts.cpp",
         "hwi/isp20/CifScaleStream.cpp",
+        "hwi/isp20/DumpRkRaw.cpp",
 
         // // IQ_PARSER_SRC
         // "iq_parser/RkAiqCalibParser.cpp",
@@ -196,6 +200,7 @@ cc_rkaiq_library_shared {
         "ipc_server/MessageParser.cpp",
 
         "RkAiqManager.cpp",
+        "RkAiqGlobalParamsManager.cpp",
         "RkAiqCamProfiles.cpp",
     ],
 

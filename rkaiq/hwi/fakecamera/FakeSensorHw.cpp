@@ -74,6 +74,18 @@ static uint32_t rk_format_to_media_format(rk_aiq_format_t format)
     case RK_PIX_FMT_SGRBG14:
         pixelformat = MEDIA_BUS_FMT_SGRBG14_1X14;
         break;
+    case RK_PIX_FMT_SBGGR16:
+        pixelformat = MEDIA_BUS_FMT_SBGGR16_1X16;
+        break;
+    case RK_PIX_FMT_SGBRG16:
+        pixelformat = MEDIA_BUS_FMT_SGBRG16_1X16;
+        break;
+    case RK_PIX_FMT_SGRBG16:
+        pixelformat = MEDIA_BUS_FMT_SGRBG16_1X16;
+        break;
+    case RK_PIX_FMT_SRGGB16:
+        pixelformat = MEDIA_BUS_FMT_SRGGB16_1X16;
+        break;
     default:
         LOGE_CAMHW_SUBM(FAKECAM_SUBM, "%s no support format: %d\n",
                         __func__, format);
@@ -482,6 +494,7 @@ FakeSensorHw::enqueue_rawbuffer(struct rk_aiq_vbuf *vbuf, bool sync)
         exp_param_prx->data()->aecExpInfo.LinearExp.exp_sensor_params.isp_digital_gain = 1;
         exp_param_prx->data()->aecExpInfo.LinearExp.exp_real_params.digital_gain = 1.0f;
         exp_param_prx->data()->aecExpInfo.LinearExp.exp_real_params.isp_dgain = 1.0f;
+        exp_param_prx->data()->aecExpInfo.CISFeature.SNR = 0;
 
         exp_param_prx->data()->aecExpInfo.HdrExp[2].exp_sensor_params.analog_gain_code_global = vbuf->buf_info[2].exp_gain_reg;
         exp_param_prx->data()->aecExpInfo.HdrExp[2].exp_sensor_params.coarse_integration_time = vbuf->buf_info[2].exp_time_reg;

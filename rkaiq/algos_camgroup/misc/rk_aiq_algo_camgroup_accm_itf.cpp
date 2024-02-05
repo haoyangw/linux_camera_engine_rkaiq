@@ -72,6 +72,11 @@ prepare(RkAiqAlgoCom* params)
         hAccm->ccm_v2 = (CalibDbV2_Ccm_Para_V32_t*)(CALIBDBV2_GET_MODULE_PTR(
                                 (CamCalibDbV2Context_t*)(para->s_calibv2), ccm_calib_v2));
 #endif
+
+#if RKAIQ_HAVE_CCM_V3
+        hAccm->ccm_v3 = (CalibDbV2_Ccm_Para_V39_t*)(CALIBDBV2_GET_MODULE_PTR(
+                            (CamCalibDbV2Context_t*)(para->s_calibv2), ccm_calib_v2));
+#endif
     }
     AccmPrepare((accm_handle_t)(params->ctx->accm_para));
 
@@ -154,7 +159,7 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
     AccmConfig(hAccm);
     outparams->cfg_update = hAccm->isReCal_;
     for (int i = 0; i < procResParaGroup->arraySize; i++) {
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
+#if defined(ISP_HW_V39) || defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
         if (outparams->cfg_update) {
             *(procResParaGroup->camgroupParmasArray[i]->accm._ccmCfg_v2) =
                 hAccm->ccmHwConf_v2;

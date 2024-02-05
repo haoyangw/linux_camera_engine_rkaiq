@@ -28,6 +28,7 @@ RKAIQ_BEGIN_DECLARE
 #define CALIBDBV2_ZOOM_FOCUS_POSITION_NUM          32
 #define CALIBDBV2_ZOOM_FOCUS_ZOOM_MOVE_TBL_SIZE    32
 #define CALIBDBV2_AF_CORRECT_SEARCHTBL_MAX         100
+#define CALIBDBV2_MAX_MEAS_CONFIG_NUM              32
 
 typedef enum CalibDbV2_Af_SearchDir_s {
     CalibDbV2_AF_POSITIVE_SEARCH     = 0,
@@ -66,24 +67,36 @@ typedef enum CalibDbV2_PDAF_DATA_DIR_s {
     CalibDbV2_PDAF_DIR_DOWN  = 4
 } CalibDbV2_PDAF_DATA_DIR_t;
 
+typedef enum {
+    CalibDbV2_PDAF_SENSOR_TYPE1,
+    CalibDbV2_PDAF_SENSOR_TYPE2,
+    CalibDbV2_PDAF_SENSOR_TYPE3
+} CalibDbV2_PDAF_SENSOR_TYPE_t;
+
 typedef struct CalibDbV2_Af_ContrastZoom_s {
-    // M4_ARRAY_DESC("QuickFoundThersZoomIdx", "u16", M4_SIZE(1,32), M4_RANGE(0,65535), "0", M4_DIGIT(0), M4_DYNAMIC(1))
-    unsigned short          *QuickFoundThersZoomIdx;
+    // M4_ARRAY_DESC("QuickFoundThersZoomIdx", "u16", M4_SIZE(1,32), M4_RANGE(0,65535), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+    unsigned short          QuickFoundThersZoomIdx[32];
+    // M4_NUMBER_DESC("QuickFoundThersZoomIdx_len", "s32", M4_RANGE(1,32), "1", M4_DIGIT(0), M4_HIDE(0))
     int                     QuickFoundThersZoomIdx_len;
-    // M4_ARRAY_DESC("QuickFoundThers", "f32", M4_SIZE(1,32), M4_RANGE(0,1), "0.2", M4_DIGIT(3), M4_DYNAMIC(1))
-    float                   *QuickFoundThers;
+    // M4_ARRAY_DESC("QuickFoundThers", "f32", M4_SIZE(1,32), M4_RANGE(0,1), "0.2", M4_DIGIT(3), M4_DYNAMIC(0))
+    float                   QuickFoundThers[32];
+    // M4_NUMBER_DESC("QuickFoundThers_len", "s32", M4_RANGE(1,32), "1", M4_DIGIT(0), M4_HIDE(0))
     int                     QuickFoundThers_len;
-    // M4_ARRAY_DESC("SearchStepZoomIdx", "u16", M4_SIZE(1,32), M4_RANGE(0,65535), "0", M4_DIGIT(0), M4_DYNAMIC(1))
-    unsigned short          *SearchStepZoomIdx;
+    // M4_ARRAY_DESC("SearchStepZoomIdx", "u16", M4_SIZE(1,32), M4_RANGE(0,65535), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+    unsigned short          SearchStepZoomIdx[32];
+    // M4_NUMBER_DESC("SearchStepZoomIdx_len", "s32", M4_RANGE(1,32), "1", M4_DIGIT(0), M4_HIDE(0))
     int                     SearchStepZoomIdx_len;
-    // M4_ARRAY_DESC("SearchStep", "u16", M4_SIZE(1,32), M4_RANGE(0,65535), "16", M4_DIGIT(0), M4_DYNAMIC(1))
-    unsigned short          *SearchStep;
+    // M4_ARRAY_DESC("SearchStep", "u16", M4_SIZE(1,32), M4_RANGE(0,65535), "16", M4_DIGIT(0), M4_DYNAMIC(0))
+    unsigned short          SearchStep[32];
+    // M4_NUMBER_DESC("SearchStep_len", "s32", M4_RANGE(1,32), "1", M4_DIGIT(0), M4_HIDE(0))
     int                     SearchStep_len;
-    // M4_ARRAY_DESC("StopStepZoomIdx", "u16", M4_SIZE(1,32), M4_RANGE(0,65535), "0", M4_DIGIT(0), M4_DYNAMIC(1))
-    unsigned short          *StopStepZoomIdx;
+    // M4_ARRAY_DESC("StopStepZoomIdx", "u16", M4_SIZE(1,32), M4_RANGE(0,65535), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+    unsigned short          StopStepZoomIdx[32];
+    // M4_NUMBER_DESC("StopStepZoomIdx_len", "s32", M4_RANGE(1,32), "1", M4_DIGIT(0), M4_HIDE(0))
     int                     StopStepZoomIdx_len;
-    // M4_ARRAY_DESC("StopStep", "u16", M4_SIZE(1,32), M4_RANGE(0,65535), "4", M4_DIGIT(0), M4_DYNAMIC(1))
-    unsigned short          *StopStep;
+    // M4_ARRAY_DESC("StopStep", "u16", M4_SIZE(1,32), M4_RANGE(0,65535), "4", M4_DIGIT(0), M4_DYNAMIC(0))
+    unsigned short          StopStep[32];
+    // M4_NUMBER_DESC("StopStep_len", "s32", M4_RANGE(1,32), "1", M4_DIGIT(0), M4_HIDE(0))
     int                     StopStep_len;
     // M4_NUMBER_DESC("SkipHighPassZoomIdx", "u16", M4_RANGE(0, 65535), "10000", M4_DIGIT(0))
     unsigned short          SkipHighPassZoomIdx;
@@ -111,19 +124,23 @@ typedef struct CalibDbV2_Af_Contrast_s {
     short                   FullRangeTbl[3];
     // M4_ENUM_DESC("AdaptiveDir", "CalibDbV2_Af_SearchDir_t", "CalibDbV2_AF_ADAPTIVE_SEARCH")
     CalibDbV2_Af_SearchDir_t  AdaptiveDir;
-    // M4_ARRAY_DESC("AdaptRangeTbl", "u16", M4_SIZE(1,65), M4_RANGE(0,1023), "[0,8,16,24,32,40,48,56,64]", M4_DIGIT(0), M4_DYNAMIC(1))
-    unsigned short          *AdaptRangeTbl;            /**< adaptive range search table*/
+    // M4_ARRAY_DESC("AdaptRangeTbl", "u16", M4_SIZE(1,65), M4_RANGE(0,1023), "[0,8,16,24,32,40,48,56,64]", M4_DIGIT(0), M4_DYNAMIC(0))
+    unsigned short          AdaptRangeTbl[65];            /**< adaptive range search table*/
+    // M4_NUMBER_DESC("AdaptRangeTbl_len", "s32", M4_RANGE(1,65), "1", M4_DIGIT(0), M4_HIDE(0))
     int                     AdaptRangeTbl_len;
-    // M4_ARRAY_DESC("FineSearchStep", "u16", M4_SIZE(1,65), M4_RANGE(0,1023), "[4,4,4,4,4,4,4,4,4]", M4_DIGIT(0), M4_DYNAMIC(1))
-    unsigned short          *FineSearchStep;
+    // M4_ARRAY_DESC("FineSearchStep", "u16", M4_SIZE(1,65), M4_RANGE(0,1023), "[4,4,4,4,4,4,4,4,4]", M4_DIGIT(0), M4_DYNAMIC(0))
+    unsigned short          FineSearchStep[65];
+    // M4_NUMBER_DESC("FineSearchStep_len", "s32", M4_RANGE(1,65), "1", M4_DIGIT(0), M4_HIDE(0))
     int                     FineSearchStep_len;
     // M4_NUMBER_DESC("SkipCurveFitGain", "f32", M4_RANGE(0, 1000), "0", M4_DIGIT(3))
     float                   SkipCurveFitGain;
-    // M4_ARRAY_DESC("TrigThers", "f32", M4_SIZE(1,32), M4_RANGE(0,1), "0.075", M4_DIGIT(3), M4_DYNAMIC(1))
-    float                   *TrigThers;                    /**< AF trigger threshold */
+    // M4_ARRAY_DESC("TrigThers", "f32", M4_SIZE(1,32), M4_RANGE(0,1), "0.075", M4_DIGIT(3), M4_DYNAMIC(0))
+    float                   TrigThers[32];                    /**< AF trigger threshold */
+    // M4_NUMBER_DESC("TrigThers_len", "s32", M4_RANGE(1,32), "1", M4_DIGIT(0), M4_HIDE(0))
     int                     TrigThers_len;
-    // M4_ARRAY_DESC("TrigThersFv", "f32", M4_SIZE(1,32), M4_RANGE(0,100000000000), "0", M4_DIGIT(0), M4_DYNAMIC(1))
-    float                   *TrigThersFv;                    /**< AF trigger threshold */
+    // M4_ARRAY_DESC("TrigThersFv", "f32", M4_SIZE(1,32), M4_RANGE(0,100000000000), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+    float                   TrigThersFv[32];                    /**< AF trigger threshold */
+    // M4_NUMBER_DESC("TrigThersFv_len", "s32", M4_RANGE(1,32), "1", M4_DIGIT(0), M4_HIDE(0))
     int                     TrigThersFv_len;
     // M4_NUMBER_DESC("LumaTrigThers", "f32", M4_RANGE(0,1), "1", M4_DIGIT(3),M4_HIDE(0))
     float                   LumaTrigThers;
@@ -246,7 +263,8 @@ typedef struct CalibDbV2_Af_PdafIsoPara_s {
     // M4_NUMBER_DESC("roiBlkCntH", "u8", M4_RANGE(1, 10), "3", M4_DIGIT(0))
     unsigned char roiBlkCntH;
     // M4_STRUCT_LIST_DESC("fineSearchTbl", M4_SIZE(1,10), "normal_ui_style")
-    CalibDbV2_Af_Pdaf_fineSearch_t* fineSearchTbl;
+    CalibDbV2_Af_Pdaf_fineSearch_t fineSearchTbl[10];
+    // M4_NUMBER_DESC("fineSearchTbl_len", "s32", M4_RANGE(1,10), "1", M4_DIGIT(0), M4_HIDE(0))
     int fineSearchTbl_len;
 } CalibDbV2_Af_PdafIsoPara_t;
 
@@ -262,6 +280,8 @@ typedef struct CalibDbV2_Af_PdafCalibInf_s {
 } CalibDbV2_Af_PdafCalibInf_t;
 
 typedef struct CalibDbV2_Af_PdafResolution_s {
+    // M4_ENUM_DESC("pdType", "CalibDbV2_PDAF_SENSOR_TYPE_t", "CalibDbV2_PDAF_SENSOR_TYPE2")
+    CalibDbV2_PDAF_SENSOR_TYPE_t pdType;
     // M4_NUMBER_DESC("imageWidth", "u16", M4_RANGE(0, 65535), "508", M4_DIGIT(0))
     unsigned short imageWidth;
     // M4_NUMBER_DESC("imageHeight", "u16", M4_RANGE(0, 65535), "760", M4_DIGIT(0))
@@ -351,11 +371,13 @@ typedef struct CalibDbV2_Af_Pdaf_s {
     float pdStepRatio[7];
     // M4_ARRAY_DESC("pdStepDefocus", "u16", M4_SIZE(1,7), M4_RANGE(0,1023), "[32, 64, 96, 128, 160, 192, 224]", M4_DIGIT(0), M4_DYNAMIC(0))
     unsigned short pdStepDefocus[7];
-    // M4_STRUCT_LIST_DESC("pdIsoPara", M4_SIZE(1,16), "normal_ui_style")
-    CalibDbV2_Af_PdafIsoPara_t* pdIsoPara;
+    // M4_STRUCT_LIST_DESC("pdIsoPara", M4_SIZE(1,13), "normal_ui_style")
+    CalibDbV2_Af_PdafIsoPara_t pdIsoPara[CALIBDBV2_MAX_ISO_LEVEL];
+    // M4_NUMBER_DESC("pdIsoPara_len", "s32", M4_RANGE(1,16), "1", M4_DIGIT(0), M4_HIDE(0))
     int pdIsoPara_len;
     // M4_STRUCT_LIST_DESC("pdResoInf", M4_SIZE(1,16), "normal_ui_style")
-    CalibDbV2_Af_PdafResolution_t* pdResoInf;
+    CalibDbV2_Af_PdafResolution_t pdResoInf[16];
+    // M4_NUMBER_DESC("pdResoInf_len", "s32", M4_RANGE(1,16), "1", M4_DIGIT(0), M4_HIDE(0))
     int pdResoInf_len;
 } CalibDbV2_Af_Pdaf_t;
 
@@ -390,14 +412,6 @@ typedef struct CalibDbV2_Af_DefCode_s {
     unsigned char code;
 } CalibDbV2_Af_DefCode_t;
 
-typedef struct CalibDbV2_Af_FocusCode_s {
-    // M4_NUMBER_DESC("focus position", "f32", M4_RANGE(0, 1000000), "0", M4_DIGIT(3), M4_HIDE(1))
-    float pos;
-    // M4_ARRAY_DESC("focus code", "s16", M4_SIZE(1,5000), M4_RANGE(-32768,32767), "0", M4_DIGIT(0), M4_DYNAMIC(1), M4_HIDE(1))
-    short *code;
-    int code_len;
-} CalibDbV2_Af_FocusCode_t;
-
 typedef struct CalibDbV2_Af_ZoomFocusTbl_s {
     // M4_NUMBER_DESC("widemod deviate", "u32", M4_RANGE(0, 1000), "0", M4_DIGIT(0))
     int widemod_deviate;
@@ -405,32 +419,25 @@ typedef struct CalibDbV2_Af_ZoomFocusTbl_s {
     int telemod_deviate;
     // M4_NUMBER_DESC("focus backward value", "u32", M4_RANGE(0, 1000), "0", M4_DIGIT(0))
     int focus_backval;
-    // M4_ARRAY_DESC("zoom move dot", "u32", M4_SIZE(1,32), M4_RANGE(0,1000000), "0", M4_DIGIT(0), M4_DYNAMIC(1))
-    int *zoom_move_dot;
+    // M4_ARRAY_DESC("zoom move dot", "u32", M4_SIZE(1,32), M4_RANGE(0,1000000), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+    int zoom_move_dot[32];
+    // M4_NUMBER_DESC("zoom move step len", "s32", M4_RANGE(1,32), "1", M4_DIGIT(0), M4_HIDE(0))
     int zoom_move_dot_len;
-    // M4_ARRAY_DESC("zoom move step", "u32", M4_SIZE(1,32), M4_RANGE(0,1000000), "16", M4_DIGIT(0), M4_DYNAMIC(1))
-    int *zoom_move_step;
+    // M4_ARRAY_DESC("zoom move step", "u32", M4_SIZE(1,32), M4_RANGE(0,1000000), "16", M4_DIGIT(0), M4_DYNAMIC(0))
+    int zoom_move_step[32];
+    // M4_NUMBER_DESC("zoom move step len", "s32", M4_RANGE(1,32), "1", M4_DIGIT(0), M4_HIDE(0))
     int zoom_move_step_len;
-    // M4_ARRAY_DESC("focal length", "f32", M4_SIZE(1,5000), M4_RANGE(0,10000), "0", M4_DIGIT(3), M4_DYNAMIC(1), M4_HIDE(1))
-    float *focal_length;
-    int focal_length_len;
-    // M4_ARRAY_DESC("zoom code", "s16", M4_SIZE(1,5000), M4_RANGE(-32768,32767), "0", M4_DIGIT(0), M4_DYNAMIC(1), M4_HIDE(1))
-    short *zoomcode;
-    int zoomcode_len;
-    // M4_STRUCT_LIST_DESC("focus code", M4_SIZE_DYNAMIC, "normal_ui_style", "0", M4_HIDE(1))
-    CalibDbV2_Af_FocusCode_t *focuscode;
-    int focuscode_len;
-
-    // M4_ARRAY_DESC("zoom search table", "s32", M4_SIZE(1,32), M4_RANGE(-32768,32767), "0", M4_DIGIT(0), M4_DYNAMIC(1))
-    int *ZoomSearchTbl;
-    // M4_NUMBER_DESC("zoom search table number", "u32", M4_RANGE(0, 100), "0", M4_DIGIT(0))
+    // M4_ARRAY_DESC("zoom search table", "s32", M4_SIZE(1,32), M4_RANGE(-32768,32767), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+    int ZoomSearchTbl[32];
+    // M4_NUMBER_DESC("zoom search table number", "s32", M4_RANGE(1,32), "1", M4_DIGIT(0), M4_HIDE(0))
     int ZoomSearchTbl_len;
     // M4_NUMBER_DESC("zoom search reference curve", "u32", M4_RANGE(0, 32), "0", M4_DIGIT(0))
     int ZoomSearchRefCurveIdx;
     // M4_NUMBER_DESC("zoom search margin", "u32", M4_RANGE(0, 100000), "50", M4_DIGIT(0))
     int FocusSearchMargin;
-    // M4_ARRAY_DESC("zoom search plus range", "u32", M4_SIZE(1,32), M4_RANGE(0,32767), "0", M4_DIGIT(0), M4_DYNAMIC(1))
-    int *FocusSearchPlusRange;
+    // M4_ARRAY_DESC("zoom search plus range", "u32", M4_SIZE(1,32), M4_RANGE(0,32767), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+    int FocusSearchPlusRange[32];
+    // M4_NUMBER_DESC("FocusSearchPlusRange_len", "s32", M4_RANGE(1,32), "1", M4_DIGIT(0), M4_HIDE(0))
     int FocusSearchPlusRange_len;
     // M4_NUMBER_DESC("focus stage1 step", "u32", M4_RANGE(0, 100), "0", M4_DIGIT(0))
     int FocusStage1Step;
@@ -450,9 +457,11 @@ typedef struct CalibDbV2_Af_ZoomFocusTbl_s {
     // M4_NUMBER_DESC("IsZoomFocusRec", "u8", M4_RANGE(0, 1), "0", M4_DIGIT(0))
     unsigned char IsZoomFocusRec;
     // M4_STRING_DESC("ZoomInfoDir", M4_SIZE(1,1), M4_RANGE(0, 64), "/data/", M4_DYNAMIC(0))
-    char *ZoomInfoDir;
+    char ZoomInfoDir[64];
     // M4_NUMBER_DESC("zoom init Index", "u32", M4_RANGE(0, 100000), "0", M4_DIGIT(0))
     int ZoomInitIndex;
+    // M4_STRING_DESC("ZoomCurveFile", M4_SIZE(1,1), M4_RANGE(0, 64), "/data/zoomcurve.bin", M4_DYNAMIC(0))
+    char ZoomCurveFile[64];
 } CalibDbV2_Af_ZoomFocusTbl_t;
 
 typedef struct CalibDb_Af_LdgParam_s {
@@ -600,21 +609,15 @@ typedef struct CalibDbV2_AfV30_MeasCfg_s {
     float v_fv_ratio;
 } CalibDbV2_AfV30_MeasCfg_t;
 
-typedef struct CalibDbV2_AfV30_IsoMeasCfg_s {
-    // M4_NUMBER_MARK_DESC("iso", "f32", M4_RANGE(50, 204800), "50", M4_DIGIT(0), "index2", "0", M4_DYNAMIC(1))
-    float iso;
-    // M4_NUMBER_DESC("meas table index", "u32", M4_RANGE(0, 100), "0", M4_DIGIT(0))
-    int idx;
-    // M4_NUMBER_DESC("spotlight scene meas table index", "u32", M4_RANGE(0, 100), "0", M4_DIGIT(0))
-    int spotlt_scene_idx;
-} CalibDbV2_AfV30_IsoMeasCfg_t;
-
 typedef struct CalibDbV2_AfV30_ZoomMeas_s {
-    // M4_NUMBER_MARK_DESC("zoom index", "u32", M4_RANGE(0, 100000), "0", M4_DIGIT(0), "index1", "0", M4_DYNAMIC(1))
+    // M4_NUMBER_DESC("zoom index", "u32", M4_RANGE(0,100000), "0", M4_DIGIT(0), M4_HIDE(0))
     int zoom_idx;
-    // M4_STRUCT_LIST_DESC("meas iso config", M4_SIZE_DYNAMIC, "double_index_list")
-    CalibDbV2_AfV30_IsoMeasCfg_t *measiso;
-    int measiso_len;
+    // M4_ARRAY_DESC("iso", "f32", M4_SIZE(1,13), M4_RANGE(50, 10000000), "[50, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400, 204800]", M4_DIGIT(0), M4_HIDE(0))
+    float iso[CALIBDBV2_MAX_ISO_LEVEL];
+    // M4_ARRAY_DESC("meas table index", "u32", M4_SIZE(1,13), M4_RANGE(0,100), "0", M4_DIGIT(0))
+    int idx[CALIBDBV2_MAX_ISO_LEVEL];
+    // M4_ARRAY_DESC("spotlight scene meas table index", "u32", M4_SIZE(1,13), M4_RANGE(0,100), "0", M4_DIGIT(0))
+    int spotlt_scene_idx[CALIBDBV2_MAX_ISO_LEVEL];
 } CalibDbV2_AfV30_ZoomMeas_t;
 
 typedef struct CalibDbV2_AFV30_Tuning_Para_s {
@@ -654,11 +657,13 @@ typedef struct CalibDbV2_AFV30_Tuning_Para_s {
     CalibDbV2_Af_VcmCfg_t vcmcfg;
     // M4_STRUCT_DESC("zoomfocus_tbl", "normal_ui_style")
     CalibDbV2_Af_ZoomFocusTbl_t zoomfocus_tbl;
-    // M4_STRUCT_LIST_DESC("zoom meas", M4_SIZE_DYNAMIC, "double_index_list")
-    CalibDbV2_AfV30_ZoomMeas_t *zoom_meas;
+    // M4_STRUCT_LIST_DESC("zoom_meas", M4_SIZE(1,8), "normal_ui_style")
+    CalibDbV2_AfV30_ZoomMeas_t zoom_meas[8];
+    // M4_NUMBER_DESC("zoom_meas_len", "s32", M4_RANGE(1,8), "1", M4_DIGIT(0), M4_HIDE(0))
     int zoom_meas_len;
-    // M4_STRUCT_LIST_DESC("meas config table", M4_SIZE_DYNAMIC, "normal_ui_style")
-    CalibDbV2_AfV30_MeasCfg_t *meascfg_tbl;
+    // M4_STRUCT_LIST_DESC("meas config table", M4_SIZE(1,32), "normal_ui_style")
+    CalibDbV2_AfV30_MeasCfg_t meascfg_tbl[CALIBDBV2_MAX_MEAS_CONFIG_NUM];
+    // M4_NUMBER_DESC("meascfg_tbl_len", "s32", M4_RANGE(1,13), "1", M4_DIGIT(0), M4_HIDE(0))
     int meascfg_tbl_len;
 } CalibDbV2_AFV30_Tuning_Para_t;
 
@@ -670,7 +675,9 @@ typedef struct {
 typedef enum CalibDbV2_AF_DNSCL_MODE_s {
     CalibDbV2_AF_DNSCL_0 = 0,
     CalibDbV2_AF_DNSCL_1 = 1,
-    CalibDbV2_AF_DNSCL_2 = 2
+    CalibDbV2_AF_DNSCL_2 = 2,
+    CalibDbV2_AF_DNSCL_4 = 3,
+    CalibDbV2_AF_DNSCL_8 = 4
 } CalibDbV2_AF_DNSCL_MODE_t;
 
 typedef struct CalibDbV2_AfV31_MeasCfg_s {
@@ -789,11 +796,13 @@ typedef struct CalibDbV2_AFV31_Tuning_Para_s {
     CalibDbV2_Af_VcmCfg_t vcmcfg;
     // M4_STRUCT_DESC("zoomfocus_tbl", "normal_ui_style")
     CalibDbV2_Af_ZoomFocusTbl_t zoomfocus_tbl;
-    // M4_STRUCT_LIST_DESC("zoom meas", M4_SIZE_DYNAMIC, "double_index_list")
-    CalibDbV2_AfV30_ZoomMeas_t *zoom_meas;
+    // M4_STRUCT_LIST_DESC("zoom_meas", M4_SIZE(1,8), "normal_ui_style")
+    CalibDbV2_AfV30_ZoomMeas_t zoom_meas[8];
+    // M4_NUMBER_DESC("zoom_meas_len", "s32", M4_RANGE(1,8), "1", M4_DIGIT(0), M4_HIDE(0))
     int zoom_meas_len;
-    // M4_STRUCT_LIST_DESC("meas config table", M4_SIZE_DYNAMIC, "normal_ui_style")
-    CalibDbV2_AfV31_MeasCfg_t *meascfg_tbl;
+    // M4_STRUCT_LIST_DESC("meas config table", M4_SIZE(1,32), "normal_ui_style")
+    CalibDbV2_AfV31_MeasCfg_t meascfg_tbl[CALIBDBV2_MAX_MEAS_CONFIG_NUM];
+    // M4_NUMBER_DESC("meascfg_tbl_len", "s32", M4_RANGE(1,13), "1", M4_DIGIT(0), M4_HIDE(0))
     int meascfg_tbl_len;
 } CalibDbV2_AFV31_Tuning_Para_t;
 
@@ -950,11 +959,13 @@ typedef struct CalibDbV2_AFV32_Tuning_Para_s {
     CalibDbV2_Af_VcmCfg_t vcmcfg;
     // M4_STRUCT_DESC("zoomfocus_tbl", "normal_ui_style")
     CalibDbV2_Af_ZoomFocusTbl_t zoomfocus_tbl;
-    // M4_STRUCT_LIST_DESC("zoom meas", M4_SIZE_DYNAMIC, "double_index_list")
-    CalibDbV2_AfV30_ZoomMeas_t *zoom_meas;
+    // M4_STRUCT_LIST_DESC("zoom_meas", M4_SIZE(1,8), "normal_ui_style")
+    CalibDbV2_AfV30_ZoomMeas_t zoom_meas[8];
+    // M4_NUMBER_DESC("zoom_meas_len", "s32", M4_RANGE(1,8), "1", M4_DIGIT(0), M4_HIDE(0))
     int zoom_meas_len;
-    // M4_STRUCT_LIST_DESC("meas config table", M4_SIZE_DYNAMIC, "normal_ui_style")
-    CalibDbV2_AfV32_MeasCfg_t *meascfg_tbl;
+    // M4_STRUCT_LIST_DESC("meas config table", M4_SIZE(1,32), "normal_ui_style")
+    CalibDbV2_AfV32_MeasCfg_t meascfg_tbl[CALIBDBV2_MAX_MEAS_CONFIG_NUM];
+    // M4_NUMBER_DESC("meascfg_tbl_len", "s32", M4_RANGE(1,13), "1", M4_DIGIT(0), M4_HIDE(0))
     int meascfg_tbl_len;
 } CalibDbV2_AFV32_Tuning_Para_t;
 
@@ -962,6 +973,170 @@ typedef struct {
     // M4_STRUCT_DESC("TuningPara", "normal_ui_style")
     CalibDbV2_AFV32_Tuning_Para_t TuningPara;
 } CalibDbV2_AFV32_t;
+
+typedef enum CalibDbV2_AF_INPUT_SEL_e {
+    AFSEL_DPCCOUT_0  = 0,    // channel 0
+    AFSEL_DPCCOUT_1  = 1,    // channel 1
+    AFSEL_DPCCOUT_2  = 2,    // channel 2
+    AFSEL_DEBAYER_IN = 3,    // debayer in
+    AFSEL_BNR_IN     = 4,    // bnr in
+    AFSEL_YNR_IN     = 5,    // ynr in
+    AFSEL_VICAP_IN   = 6,    // vicap in
+    AFSEL_MAX
+} CalibDbV2_AF_INPUT_SEL_t;
+
+typedef struct CalibDbV2_AfV33_MeasCfg_s {
+    // M4_NUMBER_DESC("table index", "u32", M4_RANGE(0, 1000000), "0", M4_DIGIT(0))
+    unsigned int tbl_idx;
+    // M4_ENUM_DESC("input sel", "CalibDbV2_AF_INPUT_SEL_t", "AFSEL_DPCCOUT_0")
+    CalibDbV2_AF_INPUT_SEL_t input_sel;
+    // M4_NUMBER_DESC("bnr in shift", "u8", M4_RANGE(0, 15), "0", M4_DIGIT(0))
+    unsigned char bnr_in_shift;
+    // M4_ENUM_DESC("downscale mode", "CalibDbV2_AF_DNSCL_MODE_t", "CalibDbV2_AF_DNSCL_1")
+    CalibDbV2_AF_DNSCL_MODE_t dnscl_mode;
+    // M4_BOOL_DESC("bls en", "0")
+    bool bls_en;
+    // M4_NUMBER_DESC("bls offset", "s16", M4_RANGE(-256, 255), "0", M4_DIGIT(0))
+    short bls_offset;
+    // M4_BOOL_DESC("v1 max mode", "0")
+    bool v1_maxmode;
+    // M4_BOOL_DESC("v2 max mode", "0")
+    bool v2_maxmode;
+    // M4_BOOL_DESC("h1 max mode", "0")
+    bool h1_maxmode;
+    // M4_BOOL_DESC("h2 max mode", "0")
+    bool h2_maxmode;
+    // M4_BOOL_DESC("hiir left border mode", "0")
+    bool hiir_left_border_mode;
+    // M4_ARRAY_MARK_DESC("Gamma Curve", "u16", M4_SIZE(1,17),  M4_RANGE(0, 1023), "[0,45,108,179,245,344,409,459,500,567,622,676,759,833,896,962,1023]", M4_DIGIT(0), M4_DYNAMIC(0), "curve_table")
+    unsigned short gammaY[17];
+    // M4_ARRAY_DESC("gaus coe", "s16", M4_SIZE(3,3), M4_RANGE(-128, 127), "[0,64,0,0,64,0,0,0,0]", M4_DIGIT(0), M4_DYNAMIC(0))
+    short gaus_coe[9];
+    // M4_ARRAY_DESC("v1 band", "f32", M4_SIZE(1,2), M4_RANGE(0, 1), "[0.042,0.140]", M4_DIGIT(3), M4_DYNAMIC(0))
+    float v1_band[2];
+    // M4_ARRAY_DESC("vertical first iir filter", "s16", M4_SIZE(1,3), M4_RANGE(-255,255), "[-265, 686, 512]", M4_DIGIT(0), M4_DYNAMIC(0))
+    short v1_iir_coe[3];
+    // M4_ARRAY_DESC("vertical first fir filter", "s16", M4_SIZE(1,3), M4_RANGE(-2047,2047), "[-124, 0, 124]", M4_DIGIT(0), M4_DYNAMIC(0))
+    short v1_fir_coe[3];
+    // M4_ARRAY_DESC("v2 band", "f32", M4_SIZE(1,2), M4_RANGE(0, 1), "[0.055, 0.125]", M4_DIGIT(3), M4_DYNAMIC(0))
+    float v2_band[2];
+    // M4_ARRAY_DESC("vertical second iir filter", "s16", M4_SIZE(1,3), M4_RANGE(-2047,2047), "[-325, 724, 512]", M4_DIGIT(0), M4_DYNAMIC(0))
+    short v2_iir_coe[3];
+    // M4_ARRAY_DESC("vertical second fir filter", "s16", M4_SIZE(1,3), M4_RANGE(-2047,2047), "[-94, 0, 94]", M4_DIGIT(0), M4_DYNAMIC(0))
+    short v2_fir_coe[3];
+    // M4_ARRAY_DESC("h1 band", "f32", M4_SIZE(1,2), M4_RANGE(0, 1), "[0.042, 0.14]", M4_DIGIT(3), M4_DYNAMIC(0))
+    float h1_band[2];
+    // M4_ARRAY_DESC("horizontal first iir1 filter", "s16", M4_SIZE(1,6), M4_RANGE(-2047,2047), "[512, 557, -276, 460, 0, -460]", M4_DIGIT(0), M4_DYNAMIC(0))
+    short h1_iir1_coe[6];
+    // M4_ARRAY_DESC("horizontal first iir2 filter", "s16", M4_SIZE(1,6), M4_RANGE(-2047,2047), "[512, 870, -399, 37, 0, -37]", M4_DIGIT(0), M4_DYNAMIC(0))
+    short h1_iir2_coe[6];
+    // M4_ARRAY_DESC("h2 band", "f32", M4_SIZE(1,2), M4_RANGE(0, 1), "[0.055, 0.125]", M4_DIGIT(3), M4_DYNAMIC(0))
+    float h2_band[2];
+    // M4_ARRAY_DESC("horizontal second iir1 filter", "s16", M4_SIZE(1,6), M4_RANGE(-2047,2047), "[512, 648, -344, 327, 0, -327]", M4_DIGIT(0), M4_DYNAMIC(0))
+    short h2_iir1_coe[6];
+    // M4_ARRAY_DESC("horizontal second iir2 filter", "s16", M4_SIZE(1,6), M4_RANGE(-2047,2047), "[512, 854, -409, 29, 0, -29]", M4_DIGIT(0), M4_DYNAMIC(0))
+    short h2_iir2_coe[6];
+    // M4_NUMBER_DESC("ldg enable", "u8", M4_RANGE(0, 1), "0", M4_DIGIT(0))
+    unsigned char ldg_en;
+    // M4_NUMBER_DESC("vertical minluma thresh", "u8", M4_RANGE(0, 255), "64", M4_DIGIT(0))
+    unsigned char ve_ldg_lumth_l;
+    // M4_NUMBER_DESC("vertical gain for minluma", "u8", M4_RANGE(0, 255), "28", M4_DIGIT(0))
+    unsigned char ve_ldg_gain_l;
+    // M4_NUMBER_DESC("vertical slope low", "u16", M4_RANGE(0, 8191), "1286", M4_DIGIT(0))
+    unsigned short ve_ldg_gslp_l;
+    // M4_NUMBER_DESC("vertical maxluma thresh", "u8", M4_RANGE(0, 255), "185", M4_DIGIT(0))
+    unsigned char ve_ldg_lumth_h;
+    // M4_NUMBER_DESC("vertical gain for maxluma", "u8", M4_RANGE(0, 255), "8", M4_DIGIT(0))
+    unsigned char ve_ldg_gain_h;
+    // M4_NUMBER_DESC("vertical slope high", "u16", M4_RANGE(0, 8191), "1400", M4_DIGIT(0))
+    unsigned short ve_ldg_gslp_h;
+    // M4_NUMBER_DESC("horizontal minluma thresh", "u8", M4_RANGE(0, 255), "64", M4_DIGIT(0))
+    unsigned char ho_ldg_lumth_l;
+    // M4_NUMBER_DESC("horizontal gain for minluma", "u8", M4_RANGE(0, 255), "28", M4_DIGIT(0))
+    unsigned char ho_ldg_gain_l;
+    // M4_NUMBER_DESC("horizontal slope low", "u16", M4_RANGE(0, 8191), "1286", M4_DIGIT(0))
+    unsigned short ho_ldg_gslp_l;
+    // M4_NUMBER_DESC("horizontal maxluma thresh", "u8", M4_RANGE(0, 255), "185", M4_DIGIT(0))
+    unsigned char ho_ldg_lumth_h;
+    // M4_NUMBER_DESC("horizontal gain for maxluma", "u8", M4_RANGE(0, 255), "8", M4_DIGIT(0))
+    unsigned char ho_ldg_gain_h;
+    // M4_NUMBER_DESC("horizontal slope high", "u16", M4_RANGE(0, 8191), "1400", M4_DIGIT(0))
+    unsigned short ho_ldg_gslp_h;
+    // M4_NUMBER_DESC("horizontal dilate num", "u8", M4_RANGE(0, 7), "0", M4_DIGIT(0))
+    unsigned char hldg_dilate_num;
+    // M4_NUMBER_DESC("vertical fv thresh", "u16", M4_RANGE(0, 4095), "4", M4_DIGIT(0))
+    unsigned short v_fv_thresh;
+    // M4_NUMBER_DESC("vertical fv limit", "u16", M4_RANGE(0, 1023), "1023", M4_DIGIT(0))
+    unsigned short v_fv_limit;
+    // M4_NUMBER_DESC("vertical fv slope", "u16", M4_RANGE(0, 511), "256", M4_DIGIT(0))
+    unsigned short v_fv_slope;
+    // M4_NUMBER_DESC("horizontal fv thresh", "u16", M4_RANGE(0, 4095), "4", M4_DIGIT(0))
+    unsigned short h_fv_thresh;
+    // M4_NUMBER_DESC("horizontal fv limit", "u16", M4_RANGE(0, 1023), "1023", M4_DIGIT(0))
+    unsigned short h_fv_limit;
+    // M4_NUMBER_DESC("horizontal fv slope", "u16", M4_RANGE(0, 511), "256", M4_DIGIT(0))
+    unsigned short h_fv_slope;
+    // M4_NUMBER_DESC("highlight thresh", "u16", M4_RANGE(0, 1023), "912", M4_DIGIT(0))
+    unsigned short highlit_thresh;
+    // M4_NUMBER_DESC("v1fv reliable", "f32", M4_RANGE(0, 1), "0.5", M4_DIGIT(3))
+    float v1fv_reliable;
+    // M4_NUMBER_DESC("v2fv reliable", "f32", M4_RANGE(0, 1), "0.5", M4_DIGIT(3))
+    float v2fv_reliable;
+    // M4_NUMBER_DESC("vertical fv ratio", "f32", M4_RANGE(0, 1), "0.5", M4_DIGIT(3))
+    float v_fv_ratio;
+} CalibDbV2_AfV33_MeasCfg_t;
+
+typedef struct CalibDbV2_AFV33_Tuning_Para_s {
+    // M4_ENUM_DESC("mode", "CalibDbV2_AF_MODE_t", "CalibDbV2_AFMODE_CONT_PICTURE")
+    CalibDbV2_AF_MODE_t af_mode;
+    // M4_NUMBER_DESC("win_h_offs", "u16", M4_RANGE(0,2000), "0", M4_DIGIT(0),M4_HIDE(0))
+    unsigned short win_h_offs;
+    // M4_NUMBER_DESC("win_v_offs", "u16", M4_RANGE(0,2000), "0", M4_DIGIT(0),M4_HIDE(0))
+    unsigned short win_v_offs;
+    // M4_NUMBER_DESC("win_h_size", "u16", M4_RANGE(0,2000), "0", M4_DIGIT(0),M4_HIDE(0))
+    unsigned short win_h_size;
+    // M4_NUMBER_DESC("win_v_size", "u16", M4_RANGE(0,2000), "0", M4_DIGIT(0),M4_HIDE(0))
+    unsigned short win_v_size;
+    // M4_NUMBER_DESC("win_h_offs in video", "u16", M4_RANGE(0,2000), "0", M4_DIGIT(0),M4_HIDE(0))
+    unsigned short video_win_h_offs;
+    // M4_NUMBER_DESC("win_v_offs in video", "u16", M4_RANGE(0,2000), "0", M4_DIGIT(0),M4_HIDE(0))
+    unsigned short video_win_v_offs;
+    // M4_NUMBER_DESC("win_h_size in video", "u16", M4_RANGE(0,2000), "0", M4_DIGIT(0),M4_HIDE(0))
+    unsigned short video_win_h_size;
+    // M4_NUMBER_DESC("win_v_size in video", "u16", M4_RANGE(0,2000), "0", M4_DIGIT(0),M4_HIDE(0))
+    unsigned short video_win_v_size;
+    // M4_STRUCT_DESC("fixed mode", "normal_ui_style")
+    CalibDbV2_Af_DefCode_t fixed_mode;
+    // M4_STRUCT_DESC("macro mode", "normal_ui_style")
+    CalibDbV2_Af_DefCode_t macro_mode;
+    // M4_STRUCT_DESC("infinity mode", "normal_ui_style")
+    CalibDbV2_Af_DefCode_t infinity_mode;
+    // M4_STRUCT_DESC("contrast af", "normal_ui_style")
+    CalibDbV2_Af_Contrast_t contrast_af;
+    // M4_STRUCT_DESC("video contrast af", "normal_ui_style")
+    CalibDbV2_Af_Contrast_t video_contrast_af;
+    // M4_STRUCT_DESC("laser af", "normal_ui_style")
+    CalibDbV2_Af_Laser_t laser_af;
+    // M4_STRUCT_DESC("pdaf", "normal_ui_style")
+    CalibDbV2_Af_Pdaf_t pdaf;
+    // M4_STRUCT_DESC("vcmcfg", "normal_ui_style")
+    CalibDbV2_Af_VcmCfg_t vcmcfg;
+    // M4_STRUCT_DESC("zoomfocus_tbl", "normal_ui_style")
+    CalibDbV2_Af_ZoomFocusTbl_t zoomfocus_tbl;
+    // M4_STRUCT_LIST_DESC("zoom_meas", M4_SIZE(1,8), "normal_ui_style")
+    CalibDbV2_AfV30_ZoomMeas_t zoom_meas[8];
+    // M4_NUMBER_DESC("zoom_meas_len", "s32", M4_RANGE(1,8), "1", M4_DIGIT(0), M4_HIDE(0))
+    int zoom_meas_len;
+    // M4_STRUCT_LIST_DESC("meas config table", M4_SIZE(1,32), "normal_ui_style")
+    CalibDbV2_AfV33_MeasCfg_t meascfg_tbl[CALIBDBV2_MAX_MEAS_CONFIG_NUM];
+    // M4_NUMBER_DESC("meascfg_tbl_len", "s32", M4_RANGE(1,32), "1", M4_DIGIT(0), M4_HIDE(0))
+    int meascfg_tbl_len;
+} CalibDbV2_AFV33_Tuning_Para_t;
+
+typedef struct {
+    // M4_STRUCT_DESC("TuningPara", "normal_ui_style")
+    CalibDbV2_AFV33_Tuning_Para_t TuningPara;
+} CalibDbV2_AFV33_t;
 
 RKAIQ_END_DECLARE
 

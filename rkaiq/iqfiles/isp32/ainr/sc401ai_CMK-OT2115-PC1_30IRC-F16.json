@@ -8069,20 +8069,6 @@
 									"zoom_move_dot_len":	1,
 									"zoom_move_step":	[16],
 									"zoom_move_step_len":	1,
-									"focal_length":	[0],
-									"focal_length_len":	1,
-									"zoomcode":	[0],
-									"zoomcode_len":	1,
-									"focuscode":	[{
-											"pos":	0.5,
-											"code":	[0],
-											"code_len":	1
-										}, {
-											"pos":	-1,
-											"code":	[0],
-											"code_len":	1
-										}],
-									"focuscode_len":	2,
 									"ZoomSearchTbl":	[0],
 									"ZoomSearchTbl_len":	1,
 									"ZoomSearchRefCurveIdx":	0,
@@ -8098,64 +8084,14 @@
 									"searchEavg":	100,
 									"IsZoomFocusRec":	0,
 									"ZoomInfoDir":	"/userdata",
-									"ZoomInitIndex":	0
+									"ZoomInitIndex":	0,
+									"ZoomCurveFile":	"/data/zoomfocus_curve.bin"
 								},
 								"zoom_meas":	[{
 										"zoom_idx":	0,
-										"measiso":	[{
-												"iso":	50,
-												"idx":	0,
-												"spotlt_scene_idx":	0
-											}, {
-												"iso":	100,
-												"idx":	0,
-												"spotlt_scene_idx":	0
-											}, {
-												"iso":	200,
-												"idx":	0,
-												"spotlt_scene_idx":	0
-											}, {
-												"iso":	400,
-												"idx":	0,
-												"spotlt_scene_idx":	0
-											}, {
-												"iso":	800,
-												"idx":	0,
-												"spotlt_scene_idx":	0
-											}, {
-												"iso":	1600,
-												"idx":	1,
-												"spotlt_scene_idx":	1
-											}, {
-												"iso":	3200,
-												"idx":	1,
-												"spotlt_scene_idx":	1
-											}, {
-												"iso":	6400,
-												"idx":	1,
-												"spotlt_scene_idx":	1
-											}, {
-												"iso":	12800,
-												"idx":	1,
-												"spotlt_scene_idx":	1
-											}, {
-												"iso":	25600,
-												"idx":	1,
-												"spotlt_scene_idx":	1
-											}, {
-												"iso":	51200,
-												"idx":	1,
-												"spotlt_scene_idx":	1
-											}, {
-												"iso":	102400,
-												"idx":	1,
-												"spotlt_scene_idx":	1
-											}, {
-												"iso":	204800,
-												"idx":	1,
-												"spotlt_scene_idx":	1
-											}],
-										"measiso_len":	13
+										"iso":	[50, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400, 204800],
+										"idx":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+										"spotlt_scene_idx":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 									}],
 								"zoom_meas_len":	1,
 								"meascfg_tbl":	[{
@@ -16025,20 +15961,6 @@
 									"zoom_move_dot_len":	1,
 									"zoom_move_step":	[16],
 									"zoom_move_step_len":	1,
-									"focal_length":	[0],
-									"focal_length_len":	1,
-									"zoomcode":	[0],
-									"zoomcode_len":	1,
-									"focuscode":	[{
-											"pos":	0.5,
-											"code":	[0],
-											"code_len":	1
-										}, {
-											"pos":	-1,
-											"code":	[0],
-											"code_len":	1
-										}],
-									"focuscode_len":	2,
 									"ZoomSearchTbl":	[0],
 									"ZoomSearchTbl_len":	1,
 									"ZoomSearchRefCurveIdx":	0,
@@ -16054,64 +15976,14 @@
 									"searchEavg":	100,
 									"IsZoomFocusRec":	0,
 									"ZoomInfoDir":	"/userdata",
-									"ZoomInitIndex":	0
+									"ZoomInitIndex":	0,
+									"ZoomCurveFile":	"/data/zoomfocus_curve.bin"
 								},
 								"zoom_meas":	[{
 										"zoom_idx":	0,
-										"measiso":	[{
-												"iso":	50,
-												"idx":	0,
-												"spotlt_scene_idx":	0
-											}, {
-												"iso":	100,
-												"idx":	0,
-												"spotlt_scene_idx":	0
-											}, {
-												"iso":	200,
-												"idx":	0,
-												"spotlt_scene_idx":	0
-											}, {
-												"iso":	400,
-												"idx":	0,
-												"spotlt_scene_idx":	0
-											}, {
-												"iso":	800,
-												"idx":	0,
-												"spotlt_scene_idx":	0
-											}, {
-												"iso":	1600,
-												"idx":	1,
-												"spotlt_scene_idx":	1
-											}, {
-												"iso":	3200,
-												"idx":	1,
-												"spotlt_scene_idx":	1
-											}, {
-												"iso":	6400,
-												"idx":	1,
-												"spotlt_scene_idx":	1
-											}, {
-												"iso":	12800,
-												"idx":	1,
-												"spotlt_scene_idx":	1
-											}, {
-												"iso":	25600,
-												"idx":	1,
-												"spotlt_scene_idx":	1
-											}, {
-												"iso":	51200,
-												"idx":	1,
-												"spotlt_scene_idx":	1
-											}, {
-												"iso":	102400,
-												"idx":	1,
-												"spotlt_scene_idx":	1
-											}, {
-												"iso":	204800,
-												"idx":	1,
-												"spotlt_scene_idx":	1
-											}],
-										"measiso_len":	13
+										"iso":	[50, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400, 204800],
+										"idx":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+										"spotlt_scene_idx":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 									}],
 								"zoom_meas_len":	1,
 								"meascfg_tbl":	[{

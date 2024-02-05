@@ -17,7 +17,7 @@
 #include "RkAiqCamGroupHandleInt.h"
 
 namespace RkCam {
-
+#if (USE_NEWSTRUCT == 0)
 XCamReturn RkAiqCamGroupAdrcHandleInt::updateConfig(bool needSync) {
     ENTER_ANALYZER_FUNCTION();
 
@@ -48,6 +48,12 @@ XCamReturn RkAiqCamGroupAdrcHandleInt::updateConfig(bool needSync) {
         rk_aiq_uapi_adrc_v12_lite_SetAttrib(mAlgoCtx, &mCurAttV12Lite, false);
         updateAtt = false;
         sendSignal(mCurAttV12Lite.sync.sync_mode);
+#endif
+#if RKAIQ_HAVE_DRC_V20
+        mCurAttV20 = mNewAttV20;
+        rk_aiq_uapi_adrc_v20_SetAttrib(mAlgoCtx, &mCurAttV20, false);
+        updateAtt = false;
+        sendSignal(mCurAttV20.sync.sync_mode);
 #endif
     }
 
@@ -256,5 +262,55 @@ XCamReturn RkAiqCamGroupAdrcHandleInt::getAttribV12Lite(drcAttrV12Lite_t* att) {
     return ret;
 }
 #endif
+#if RKAIQ_HAVE_DRC_V20
+XCamReturn RkAiqCamGroupAdrcHandleInt::setAttribV20(const drcAttrV20_t* att) {
+    ENTER_ANALYZER_FUNCTION();
 
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    mCfgMutex.lock();
+    // TODO
+    // check if there is different between att & mCurAtt
+    // if something changed, set att to mNewAtt, and
+    // the new params will be effective later when updateConfig
+    // called by RkAiqCore
+
+    // if something changed
+    if (0 != memcmp(&mCurAttV20, att, sizeof(drcAttrV20_t))) {
+        mNewAttV20 = *att;
+        updateAtt  = true;
+        waitSignal(att->sync.sync_mode);
+    }
+
+    mCfgMutex.unlock();
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn RkAiqCamGroupAdrcHandleInt::getAttribV20(drcAttrV20_t* att) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    if (att->sync.sync_mode == RK_AIQ_UAPI_MODE_SYNC) {
+        mCfgMutex.lock();
+        rk_aiq_uapi_adrc_v20_GetAttrib(mAlgoCtx, att);
+        att->sync.done = true;
+        mCfgMutex.unlock();
+    } else {
+        if (updateAtt) {
+            memcpy(att, &mNewAttV20, sizeof(drcAttrV20_t));
+            att->sync.done = false;
+        } else {
+            rk_aiq_uapi_adrc_v20_GetAttrib(mAlgoCtx, att);
+            att->sync.sync_mode = mNewAttV20.sync.sync_mode;
+            att->sync.done      = true;
+        }
+    }
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+#endif
+#endif
 }  // namespace RkCam

@@ -25,12 +25,17 @@
 #include "rk_aiq_user_api2_abayernr_v2.h"
 #include "rk_aiq_user_api2_abayertnr_v2.h"
 #include "rk_aiq_user_api2_abayertnr_v23.h"
+#include "rk_aiq_user_api2_abayertnr_v30.h"
 #include "rk_aiq_user_api2_ablc.h"
+#include "rk_aiq_user_api2_ablc_v32.h"
 #include "rk_aiq_user_api2_accm.h"
+#include "rk_aiq_user_api2_acgc.h"
 #include "rk_aiq_user_api2_acnr_v1.h"
 #include "rk_aiq_user_api2_acnr_v2.h"
 #include "rk_aiq_user_api2_acnr_v30.h"
+#include "rk_aiq_user_api2_acnr_v31.h"
 #include "rk_aiq_user_api2_acp.h"
+#include "rk_aiq_user_api2_acsm.h"
 #include "rk_aiq_user_api2_adebayer.h"
 #include "rk_aiq_user_api2_adegamma.h"
 #include "rk_aiq_user_api2_adehaze.h"
@@ -39,26 +44,27 @@
 #include "rk_aiq_user_api2_ae.h"
 #include "rk_aiq_user_api2_af.h"
 #include "rk_aiq_user_api2_afec.h"
+#include "rk_aiq_user_api2_again_v2.h"
 #include "rk_aiq_user_api2_agamma.h"
 #include "rk_aiq_user_api2_aie.h"
 #include "rk_aiq_user_api2_aldch.h"
+#include "rk_aiq_user_api2_aldch_v21.h"
 #include "rk_aiq_user_api2_alsc.h"
 #include "rk_aiq_user_api2_amerge.h"
 #include "rk_aiq_user_api2_anr.h"
+#include "rk_aiq_user_api2_argbir.h"
 #include "rk_aiq_user_api2_asharp_v3.h"
 #include "rk_aiq_user_api2_asharp_v33.h"
 #include "rk_aiq_user_api2_asharp_v4.h"
+#include "rk_aiq_user_api2_asharp_v34.h"
 #include "rk_aiq_user_api2_atmo.h"
 #include "rk_aiq_user_api2_awb.h"
 #include "rk_aiq_user_api2_aynr_v2.h"
 #include "rk_aiq_user_api2_aynr_v22.h"
 #include "rk_aiq_user_api2_aynr_v3.h"
+#include "rk_aiq_user_api2_aynr_v24.h"
 #include "rk_aiq_user_api_common.h"
-#include "rk_aiq_user_api2_again_v2.h"
-#include "rk_aiq_user_api2_aldch_v21.h"
-#include "rk_aiq_user_api2_ablc_v32.h"
-#include "rk_aiq_user_api2_acsm.h"
-#include "rk_aiq_user_api2_acgc.h"
+#include "rk_aiq_user_api2_ayuvme_v1.h"
 
 RKAIQ_BEGIN_DECLARE
 /*
@@ -739,7 +745,7 @@ XCamReturn rk_aiq_uapi2_setAngleZ(const rk_aiq_sys_ctx_t* ctx, float angleZ);
 */
 
 XCamReturn rk_aiq_uapi2_setAcolorSwInfo(const rk_aiq_sys_ctx_t* ctx,
-                                              rk_aiq_color_info_t aColor_sw_info);
+                                        rk_aiq_color_info_t aColor_sw_info);
 
 
 

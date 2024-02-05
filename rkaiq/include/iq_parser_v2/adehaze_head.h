@@ -29,6 +29,7 @@ RKAIQ_BEGIN_DECLARE
 #define DHAZ_V11_SIGMA_LUT_NUM       17
 #define DHAZ_CTRL_DATA_STEP_MAX      13
 #define DHAZ_V12_HIST_WR_CURVE_NUM   17
+#define HIST_V14_OUTMERGE_ALPHA_NUM  17
 
 // dehaze v10
 typedef enum CtrlDataType_e {
@@ -419,6 +420,159 @@ typedef struct CalibDbV2_dehaze_v12_s {
     // M4_STRUCT_DESC("DehazeTuningPara", "normal_ui_style")
     CalibDbDehazeV12_t DehazeTuningPara;
 } CalibDbV2_dehaze_v12_t;
+
+typedef struct DehazeDataV14_s {
+    // M4_ARRAY_DESC("iso", "f32", M4_SIZE(1,13), M4_RANGE(0,10000000), "[0, 0.005, 0.01, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1]",M4_DIGIT(4), M4_DYNAMIC(0), 0)
+    float iso[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dehaze_darkCh_minThed", "u8", M4_SIZE(1,13), M4_RANGE(0,255), "[64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64]",M4_DIGIT(0), M4_DYNAMIC(0), 0)
+    uint8_t hw_dehaze_darkCh_minThed[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dehaze_darkCh_maxThed", "u8", M4_SIZE(1,13), M4_RANGE(0,255), "[192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192]",M4_DIGIT(0), M4_DYNAMIC(0), 0)
+    uint8_t hw_dehaze_darkCh_maxThed[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dehaze_lumaCount_maxThed", "u8", M4_SIZE(1,13), M4_RANGE(0,255), "[249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249]",M4_DIGIT(0), M4_DYNAMIC(0), 0)
+    uint8_t hw_dehaze_lumaCount_maxThed[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dehaze_lumaCount_minRatio", "f32", M4_SIZE(1,13), M4_RANGE(0,512), "[0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002]",M4_DIGIT(4), M4_DYNAMIC(0), 0)
+    float sw_dehaze_lumaCount_minRatio[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dehaze_darkArea_thed	", "u8", M4_SIZE(1,13), M4_RANGE(0,255), "[250, 250, 250, 250, 250, 250, 250, 250, 250 250, 250, 250, 250]",M4_DIGIT(0), M4_DYNAMIC(0), 0)
+    uint8_t hw_dehaze_darkArea_thed[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dehaze_bright_minLimit", "u8", M4_SIZE(1,13), M4_RANGE(0,255), "[180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180]",M4_DIGIT(0), M4_DYNAMIC(0), 0)
+    uint8_t hw_dehaze_bright_minLimit[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dehaze_bright_maxLimit", "u8", M4_SIZE(1,13), M4_RANGE(0,255), "[240, 240, 240, 240, 240, 240, 240, 240, 240, 240, 240, 240, 240]",M4_DIGIT(0), M4_DYNAMIC(0), 0)
+    uint8_t hw_dehaze_bright_maxLimit[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dehaze_invContrast_scale", "f32", M4_SIZE(1,13), M4_RANGE(0,1), "[0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9]",M4_DIGIT(4), M4_DYNAMIC(0), 0)
+    float sw_dehaze_invContrast_scale[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dehaze_airLight_minLimit", "u8", M4_SIZE(1,13), M4_RANGE(0,255), "[200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200]",M4_DIGIT(4), M4_DYNAMIC(0), 0)
+    uint8_t hw_dehaze_airLight_minLimit[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dehaze_airLight_maxLimit", "u8", M4_SIZE(1,13), M4_RANGE(0,255), "[250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250]",M4_DIGIT(4), M4_DYNAMIC(0), 0)
+    uint8_t hw_dehaze_airLight_maxLimit[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dehaze_airLight_scale", "u8", M4_SIZE(1,13), M4_RANGE(0,255), "[125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125]",M4_DIGIT(4), M4_DYNAMIC(0), 0)
+    uint8_t sw_dehaze_airLight_scale[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dehaze_transRatio_offset", "f32", M4_SIZE(1,13), M4_RANGE(0,1), "[0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]",M4_DIGIT(4), M4_DYNAMIC(0), 0)
+    float sw_dehaze_transRatio_offset[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dehaze_transRatio_maxLimit", "f32", M4_SIZE(1,13), M4_RANGE(0,1), "[0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8]",M4_DIGIT(4), M4_DYNAMIC(0), 0)
+    float sw_dehaze_transRatio_maxLimit[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dehaze_paramMerge_alpha", "u8", M4_SIZE(1,13), M4_RANGE(0,255), "[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]",M4_DIGIT(0), M4_DYNAMIC(0), 0)
+    uint8_t sw_dehaze_paramMerge_alpha[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dehaze_userInvContrast", "f32", M4_SIZE(1,13), M4_RANGE(0,1), "[0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8]",M4_DIGIT(4), M4_DYNAMIC(0), 0)
+    float sw_dehaze_userInvContrast[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dehaze_userAirLight", "u8", M4_SIZE(1,13), M4_RANGE(0,255), "[210, 210, 210, 210, 210, 210, 210, 210, 210, 210, 210, 210, 210]",M4_DIGIT(4), M4_DYNAMIC(0), 0)
+    uint8_t hw_dehaze_userAirLight[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("sw_dehaze_userTransRatio", "f32", M4_SIZE(1,13), M4_RANGE(0,1), "[0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]",M4_DIGIT(4), M4_DYNAMIC(0), 0)
+    float sw_dehaze_userTransRatio[DHAZ_CTRL_DATA_STEP_MAX];
+} DehazeDataV14_t;
+
+typedef struct Dehaze_Setting_V14_s {
+    // M4_BOOL_DESC("en", "1")
+    bool en;
+    // M4_BOOL_DESC("hw_dehaze_luma_mode", "1")
+    bool hw_dehaze_luma_mode;
+    // M4_NUMBER_DESC("sw_dhaz_invContrastTflt_invSgm", "f32", M4_RANGE(0,256), "8.0", M4_DIGIT(4))
+    float sw_dhaz_invContrastTflt_invSgm;
+    // M4_NUMBER_DESC("sw_dhaz_airLightTflt_invSgm", "f32", M4_RANGE(4,1024), "120.0", M4_DIGIT(4))
+    float sw_dhaz_airLightTflt_invSgm;
+    // M4_NUMBER_DESC("sw_dhaz_transRatioTflt_invSgm", "f32", M4_RANGE(0.0004,1), "0.0100", M4_DIGIT(4))
+    float sw_dhaz_transRatioTflt_invSgm;
+    // M4_ARRAY_TABLE_DESC("hw_dehaze_params", "array_table_ui", "none")
+    DehazeDataV14_t hw_dehaze_params;
+} Dehaze_Setting_V14_t;
+
+typedef struct EnhanceDataV14_s {
+    // M4_NUMBER_MARK_DESC("iso", "f32", M4_RANGE(50,1000000000), "0", M4_DIGIT(4), "index1")
+    float iso;
+    // M4_ARRAY_MARK_DESC("hw_enhance_loLumaConvert_val", "f32", M4_SIZE(1,17),  M4_RANGE(0, 1023), "[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1023]", M4_DIGIT(0), M4_DYNAMIC(0), 0)
+    float hw_enhance_loLumaConvert_val[DHAZ_ENHANCE_CURVE_KNOTS_NUM];
+    // M4_ARRAY_MARK_DESC("sw_enhance_luma2strg_val", "f32", M4_SIZE(1,17),  M4_RANGE(0, 16), "[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]", M4_DIGIT(2), M4_DYNAMIC(0), 0)
+    float sw_enhance_luma2strg_val[DHAZ_ENHANCE_CURVE_KNOTS_NUM];
+    // M4_NUMBER_DESC("sw_enhance_contrast_strg", "f32", M4_RANGE(0,16), "1", M4_DIGIT(4))
+    float sw_enhance_contrast_strg;
+    // M4_NUMBER_DESC("enhance_chroma", "f32", M4_RANGE(0,16), "1", M4_DIGIT(4))
+    float sw_enhance_saturate_strg;
+} EnhanceDataV14_t;
+
+typedef struct Enhance_Setting_V14_s {
+    // M4_BOOL_DESC("en", "1")
+    bool en;
+    // M4_BOOL_DESC("hw_enhance_cProtect_en", "0")
+    bool hw_enhance_cProtect_en;
+    // M4_BOOL_DESC("hw_enhance_luma2strg_en", "0")
+    bool hw_enhance_luma2strg_en;
+    // M4_STRUCT_LIST_DESC("hw_enhance_params", M4_SIZE(1,13), "normal_ui_style")
+    EnhanceDataV14_t hw_enhance_params[DHAZ_CTRL_DATA_STEP_MAX];
+} Enhance_Setting_V14_t;
+
+typedef struct HistDataV14_s {
+    // M4_NUMBER_MARK_DESC("iso", "f32", M4_RANGE(50,1000000000), "0", M4_DIGIT(4), "index1")
+    float iso;
+    // M4_ARRAY_DESC("sw_hist_mapUserSet", "f32", M4_SIZE(1,1), M4_RANGE(0,32), "2",M4_DIGIT(4), M4_DYNAMIC(0), 0)
+    float sw_hist_mapUserSet;
+    // M4_ARRAY_DESC("hw_histc_noiseCount_offset", "u8", M4_SIZE(1,1), M4_RANGE(0,255), "64",M4_DIGIT(4), M4_DYNAMIC(0), 0)
+    uint8_t hw_histc_noiseCount_offset;
+    // M4_ARRAY_DESC("sw_histc_noiseCount_scale", "f32", M4_SIZE(1,1), M4_RANGE(0,8), "2",M4_DIGIT(4), M4_DYNAMIC(0), 0)
+    float sw_histc_noiseCount_scale;
+    // M4_ARRAY_DESC("sw_histc_countWgt_minLimit", "f32", M4_SIZE(1,1), M4_RANGE(0,2), "0.015",M4_DIGIT(4), M4_DYNAMIC(0), 0)
+    float sw_histc_countWgt_minLimit;
+    // M4_ARRAY_DESC("sw_hist_mapCount_scale", "f32", M4_SIZE(1,1), M4_RANGE(0,32), "0.09",M4_DIGIT(4), M4_DYNAMIC(0), 0)
+    float sw_hist_mapCount_scale;
+    // M4_ARRAY_DESC("sw_hist_mapMerge_alpha", "f32", M4_SIZE(1,1), M4_RANGE(0,32), "2",M4_DIGIT(4), M4_DYNAMIC(0), 0)
+    float sw_hist_mapMerge_alpha;
+    // M4_ARRAY_MARK_DESC("sw_dehaze_outputMerge_alpha", "f32", M4_SIZE(1,17),  M4_RANGE(0, 16), "[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]", M4_DIGIT(2), M4_DYNAMIC(0), 0)
+    float sw_dehaze_outputMerge_alpha[HIST_V14_OUTMERGE_ALPHA_NUM];
+} HistDataV14_t;
+
+typedef struct Hist_setting_V14_s {
+    // M4_BOOL_DESC("en", "1")
+    bool en;
+    // M4_NUMBER_DESC("sw_hist_MapTflt_invSigma", "f32", M4_RANGE(1,255), "6.0", M4_DIGIT(0))
+    float sw_hist_MapTflt_invSigma;
+    // M4_NUMBER_DESC("hw_hist_imgMap_mode", "u8", M4_RANGE(0,1), "0", M4_DIGIT(0))
+    uint8_t hw_hist_imgMap_mode;
+    // M4_NUMBER_DESC("hw_histc_blocks_cols", "u8", M4_RANGE(4,10), "4", M4_DIGIT(0))
+    uint8_t hw_histc_blocks_cols;
+    // M4_NUMBER_DESC("hw_histc_blocks_rows", "u8", M4_RANGE(4,8), "5", M4_DIGIT(0))
+    uint8_t hw_histc_blocks_rows;
+    // M4_STRUCT_LIST_DESC("hw_hist_params", M4_SIZE(1,13), "normal_ui_style")
+    HistDataV14_t hw_hist_params[DHAZ_CTRL_DATA_STEP_MAX];
+} Hist_setting_V14_t;
+
+typedef struct commom_setting_V14_s {
+    // M4_ARRAY_DESC("iso", "f32", M4_SIZE(1,13), M4_RANGE(0,10000000), "50.0",M4_DIGIT(4), M4_DYNAMIC(0), 0)
+    float iso[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("hw_dehaze_user_gainFuse", "f32", M4_SIZE(1,13), M4_RANGE(0,1), "[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]",M4_DIGIT(3), M4_DYNAMIC(0), 0)
+    float hw_dehaze_user_gainFuse[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("hw_contrast_thumbFlt_curWgt", "f32", M4_SIZE(1,13), M4_RANGE(0,1), "[0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]",M4_DIGIT(4), M4_DYNAMIC(0), 0)
+    float hw_contrast_thumbFlt_curWgt[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("hw_contrast_thumbMerge_wgt", "f32", M4_SIZE(1,13), M4_RANGE(0,1), "[0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]",M4_DIGIT(4), M4_DYNAMIC(0), 0)
+    float hw_contrast_thumbMerge_wgt[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("hw_contrast_preThumbFlt_invRsgm", "f32", M4_SIZE(1,13), M4_RANGE(0,1), "[0.14, 0.14, 0.14, 0.14, 0.14, 0.14, 0.14, 0.14, 0.14, 0.14, 0.14, 0.14, 0.14]",M4_DIGIT(4), M4_DYNAMIC(0), 0)
+    float hw_contrast_preThumbFlt_invRsgm[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("hw_contrast_curThumbFlt_invRsgm", "f32", M4_SIZE(1,13), M4_RANGE(0,1), "[0.14, 0.14, 0.14, 0.14, 0.14, 0.14, 0.14, 0.14, 0.14, 0.14, 0.14, 0.14, 0.14]",M4_DIGIT(4), M4_DYNAMIC(0), 0)
+    float hw_contrast_curThumbFlt_invRsgm[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("hw_contrast_ThumbFlt_invVsigma", "f32", M4_SIZE(1,13), M4_RANGE(0,1), "[0.14, 0.14, 0.14, 0.14, 0.14, 0.14, 0.14, 0.14, 0.14, 0.14, 0.14, 0.14, 0.14]",M4_DIGIT(4), M4_DYNAMIC(0), 0)
+    float hw_contrast_ThumbFlt_invVsigma[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("sw_contrast_paramTflt_curWgt", "u16", M4_SIZE(1,13), M4_RANGE(1,31), "[8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]",M4_DIGIT(0), M4_DYNAMI,0)
+    uint16_t sw_contrast_paramTflt_curWgt[DHAZ_CTRL_DATA_STEP_MAX];
+    // M4_ARRAY_DESC("sw_contrast_thumbTflt_curWgt", "u16", M4_SIZE(1,13), M4_RANGE(1,16), "[8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]",M4_DIGIT(0), M4_DYNAMI,0)
+    uint16_t sw_contrast_thumbTflt_curWgt[DHAZ_CTRL_DATA_STEP_MAX];
+} commom_setting_V14_t;
+
+typedef struct CalibDbDehazeV14_s {
+    // M4_BOOL_DESC("hw_dehaze_en", "1")
+    bool hw_dehaze_en;
+    // M4_NUMBER_DESC("sw_dehaze_byPass_thred", "f32", M4_RANGE(0,1), "0", M4_DIGIT(4))
+    float sw_dehaze_byPass_thred;
+    // M4_STRUCT_DESC("hw_commom_setting", "normal_ui_style")
+    commom_setting_V14_t hw_commom_setting;
+    // M4_STRUCT_DESC("hw_dehaze_setting", "normal_ui_style")
+    Dehaze_Setting_V14_t hw_dehaze_setting;
+    // M4_STRUCT_DESC("hw_enhance_setting", "normal_ui_style")
+    Enhance_Setting_V14_t hw_enhance_setting;
+    // M4_STRUCT_DESC("hw_hist_setting", "normal_ui_style")
+    Hist_setting_V14_t hw_hist_setting;
+} CalibDbDehazeV14_t;
+
+typedef struct CalibDbV2_dehaze_v14_s {
+    // M4_STRUCT_DESC("DehazeTuningPara", "normal_ui_style")
+    CalibDbDehazeV14_t DehazeTuningPara;
+} CalibDbV2_dehaze_v14_t;
 
 RKAIQ_END_DECLARE
 

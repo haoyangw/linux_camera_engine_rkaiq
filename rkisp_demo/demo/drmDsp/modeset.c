@@ -93,7 +93,7 @@ int initialize_screens(struct sp_dev* dev) {
     }
 
     /* XXX: Hardcoding the format here... :| */
-    cr->scanout = create_sp_bo(dev, m->hdisplay, m->vdisplay,
+     cr->scanout = create_sp_bo(dev, m->hdisplay, m->vdisplay,
                                24, 32, DRM_FORMAT_XRGB8888, 0);
     if (!cr->scanout) {
       printf("failed to create new scanout bo\n");
