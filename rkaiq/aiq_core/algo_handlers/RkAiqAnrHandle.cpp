@@ -355,15 +355,15 @@ XCamReturn RkAiqAnrHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPar
         RkAiqAlgoProcResAnr* anr_rk = (RkAiqAlgoProcResAnr*)anr_com;
         LOGD_ANR("oyyf: %s:%d output isp param start\n", __FUNCTION__, __LINE__);
 
-        rk_aiq_isp_rawnr_params_v20_t* rawnr_params = params->mRawnrParams->data().ptr();
+        rk_aiq_isp_rawnr_params_t* rawnr_params = params->mRawnrParams->data().ptr();
         rawnr_params->update_mask |= RKAIQ_ISPP_NR_ID;
         memcpy(&rawnr_params->result, &anr_rk->stAnrProcResult.stBayernrFix,
                sizeof(rk_aiq_isp_rawnr_t));
 
-        rk_aiq_isp_gain_params_v20_t* gain_params = params->mGainParams->data().ptr();
+        rk_aiq_isp_gain_params_t* gain_params = params->mGainParams->data().ptr();
         memcpy(&gain_params->result, &anr_rk->stAnrProcResult.stGainFix, sizeof(rk_aiq_isp_gain_t));
 
-        rk_aiq_isp_motion_params_v20_t* motion_params = params->mMotionParams->data().ptr();
+        rk_aiq_isp_motion_params_t* motion_params = params->mMotionParams->data().ptr();
         memcpy(&motion_params->result, &anr_rk->stAnrProcResult.stMotion,
                sizeof(anr_rk->stAnrProcResult.stMotion));
 
@@ -371,14 +371,14 @@ XCamReturn RkAiqAnrHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPar
 
         LOGD_ANR("oyyf: %s:%d output ispp param start\n", __FUNCTION__, __LINE__);
 
-        rk_aiq_isp_ynr_params_v20_t* ynr_params = params->mYnrParams->data().ptr();
+        rk_aiq_isp_ynr_params_t* ynr_params = params->mYnrParams->data().ptr();
         memcpy(&ynr_params->result, &anr_rk->stAnrProcResult.stYnrFix, sizeof(RKAnr_Ynr_Fix_t));
 
-        rk_aiq_isp_uvnr_params_v20_t* uvnr_params = params->mUvnrParams->data().ptr();
+        rk_aiq_isp_uvnr_params_t* uvnr_params = params->mUvnrParams->data().ptr();
         uvnr_params->update_mask |= RKAIQ_ISPP_NR_ID;
         memcpy(&uvnr_params->result, &anr_rk->stAnrProcResult.stUvnrFix, sizeof(RKAnr_Uvnr_Fix_t));
 
-        rk_aiq_isp_tnr_params_v20_t* tnr_params = params->mTnrParams->data().ptr();
+        rk_aiq_isp_tnr_params_t* tnr_params = params->mTnrParams->data().ptr();
         memcpy(&tnr_params->result, &anr_rk->stAnrProcResult.stMfnrFix, sizeof(RKAnr_Mfnr_Fix_t));
         LOGD_ANR("oyyf: %s:%d output ispp param end \n", __FUNCTION__, __LINE__);
 

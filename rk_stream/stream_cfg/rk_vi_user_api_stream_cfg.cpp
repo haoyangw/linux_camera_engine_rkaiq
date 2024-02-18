@@ -53,16 +53,25 @@ void rkrawstream_uapi_deinit(rkraw_vi_ctx_t *ctx)
             ctx->_mIspCapUnit->stop();
         if(ctx->_mRawProcUnit)
             ctx->_mRawProcUnit->stop();
-        if(ctx->_mIspCapUnit)
+        if(ctx->_mIspCapUnit) {
             delete ctx->_mIspCapUnit;
-        if(ctx->_mRawCapUnit)
+            ctx->_mIspCapUnit = NULL;
+        }
+        if(ctx->_mRawCapUnit) {
             delete ctx->_mRawCapUnit;
-        if(ctx->_mRawProcUnit)
+            ctx->_mRawCapUnit = NULL;
+        }
+        if(ctx->_mRawProcUnit) {
             delete ctx->_mRawProcUnit;
-        if(ctx->_mMediaInfo)
+            ctx->_mRawProcUnit = NULL;
+        }
+        if(ctx->_mMediaInfo) {
             delete ctx->_mMediaInfo;
+            ctx->_mMediaInfo = NULL;
+        }
     }
     delete ctx;
+    ctx = NULL;
 }
 
 int rkrawstream_uapi_parase_rkraw2(uint8_t *rawdata, rkrawstream_rkraw2_t *rkraw2)
@@ -110,9 +119,11 @@ int rkrawstream_vicap_prepare(rkraw_vi_ctx_t* ctx, rkraw_vi_prepare_params_t *p)
         __func__, p->width, p->height, p->pix_fmt, p->hdr_mode,
         p->mem_mode, p->buf_memory_type, p->buf_cnt);
 	int ret = 0;
-    ctx->_mRawCapUnit->set_working_mode(p->hdr_mode);
-    ctx->_mRawCapUnit->set_sensor_mode(RK_AIQ_WORKING_MODE_NORMAL);
+    ctx->_mRawCapUnit->set_sensor_mode(p->hdr_mode);
     ctx->_mRawCapUnit->set_sensor_format(p->width, p->height, p->pix_fmt);
+    ctx->_mRawCapUnit->set_working_mode(p->hdr_mode);
+    if (!ctx->s_full_info->linked_to_isp && !ctx->fake_sns_mode)
+        ctx->_mRawCapUnit->prepare_cif_mipi();
     ctx->_mRawCapUnit->set_tx_format(p->width, p->height, p->pix_fmt, p->mem_mode);
     ctx->_mRawCapUnit->prepare(p->buf_memory_type, p->buf_cnt);
 	return ret;

@@ -30,6 +30,7 @@ RKAIQ_BEGIN_DECLARE
 #define CCM_PROFILES_NUM_MAX    ( 5 )
 #define CCM_RESOLUTIONS_NUM_MAX ( 4 )
 #define CALIBDB_ISO_NUM         ( 9 )
+#define CCM_YALP_ISO_STEP_MAX   ( 13 )
 
 /*****************************************************************************/
 /**
@@ -38,14 +39,30 @@ RKAIQ_BEGIN_DECLARE
 /*****************************************************************************/
 
 typedef struct CalibDbV2_Ccm_Gain_Sat_Curve_s {
-    // M4_ARRAY_DESC("gains", "f32", M4_SIZE(1,4), M4_RANGE(0,256), "[4,8,16,32]", M4_DIGIT(0), M4_DYNAMIC(0))
+    // M4_ARRAY_DESC("gains", "f32", M4_SIZE(1,4), M4_RANGE(0,4096), "[4,8,16,32]", M4_DIGIT(0), M4_DYNAMIC(0))
     float gains[4];
     // M4_ARRAY_DESC("sat", "f32", M4_SIZE(1,4), M4_RANGE(0,100), "[100,100,90,50]", M4_DIGIT(1), M4_DYNAMIC(0))
     float sat[4];
 } CalibDbV2_Ccm_Gain_Sat_Curve_t;
 
+typedef struct CalibDbV2_Ccm_Gain_Yalp_s {
+    // M4_NUMBER_DESC("iso", "f32", M4_RANGE(50, 204800.0), "50", M4_DIGIT(0))
+    float iso;
+    // M4_ARRAY_DESC("y alpha curve", "f32", M4_SIZE(1,17), M4_RANGE(0,1024), "1024", M4_DIGIT(0), M4_DYNAMIC(0))
+    float y_alpha_curve[17];
+} CalibDbV2_Ccm_Gain_Yalp_t;
+
+typedef struct CalibDbV2_Ccm_Gain_Yalp_Asym_s {
+    // M4_NUMBER_DESC("iso", "f32", M4_RANGE(50, 204800.0), "50", M4_DIGIT(0))
+    float iso;
+    // M4_ARRAY_DESC("left y alpha curve", "f32", M4_SIZE(1,9), M4_RANGE(0,1024), "1024", M4_DIGIT(0), M4_DYNAMIC(0))
+    float y_alpha_lcurve[9];
+    // M4_ARRAY_DESC("right y alpha curve", "f32", M4_SIZE(1,9), M4_RANGE(0,1024), "1024", M4_DIGIT(0), M4_DYNAMIC(0))
+    float y_alpha_rcurve[9];
+} CalibDbV2_Ccm_Gain_Yalp_Asym_t;
+
 typedef struct CalibDbV2_Ccm_Gain_Scale_s {
-    // M4_ARRAY_DESC("gain", "f32", M4_SIZE(1,9), M4_RANGE(0,256), "[1,2,4,8,16,32,64,128,256]", M4_DIGIT(0), M4_DYNAMIC(0))
+    // M4_ARRAY_DESC("gain", "f32", M4_SIZE(1,9), M4_RANGE(0,4096), "[1,2,4,8,16,32,64,128,256]", M4_DIGIT(0), M4_DYNAMIC(0))
     float gain[CALIBDB_ISO_NUM];
     // M4_ARRAY_DESC("scale", "f32", M4_SIZE(1,9), M4_RANGE(0,1), "[1.00,0.80,0.80,0.90,1.00,1.00,1.00,1.00,1.00]", M4_DIGIT(2), M4_DYNAMIC(0))
     float scale[CALIBDB_ISO_NUM];
@@ -83,8 +100,8 @@ typedef struct CalibDbV2_Ccm_Luma_Ccm_s {
     float rgb2y_para[3];
     // M4_NUMBER_DESC("bound pos bit", "f32", M4_RANGE(4, 10), "8", M4_DIGIT(0))
     float low_bound_pos_bit;  // low & high y alpha adjust
-    // M4_ARRAY_DESC("y alpha curve", "f32", M4_SIZE(1,17), M4_RANGE(0,1024), "[0,64,128,192,256,320,384,448,512,576,640,704,768,832,896,960,1024]", M4_DIGIT(0), M4_DYNAMIC(0))
-    float y_alpha_curve[17];
+    // M4_STRUCT_LIST_DESC("gain yalp curve",  M4_SIZE_DYNAMIC, "normal_ui_style")
+    CalibDbV2_Ccm_Gain_Yalp_t gain_yalp_curve[CCM_YALP_ISO_STEP_MAX];
     // M4_ARRAY_TABLE_DESC("gain alphaScale curve", "array_table_ui", M4_INDEX_DEFAULT)
     CalibDbV2_Ccm_Gain_Scale_t gain_alphaScale_curve;
 } CalibDbV2_Ccm_Luma_Ccm_t;
@@ -94,8 +111,8 @@ typedef struct CalibDbV2_Ccm_Alp_Sym_Para_s {
     bool highy_adj_en;
     // M4_NUMBER_DESC("bound pos bit", "f32", M4_RANGE(4, 10), "10", M4_DIGIT(0))
     float bound_pos_bit;  // y alpha adjust
-    // M4_ARRAY_DESC("y alpha curve", "f32", M4_SIZE(1,17), M4_RANGE(0,1024), "1024", M4_DIGIT(0), M4_DYNAMIC(0))
-    float y_alpha_curve[17];
+    // M4_STRUCT_LIST_DESC("gain yalp curve",  M4_SIZE_DYNAMIC, "normal_ui_style")
+    CalibDbV2_Ccm_Gain_Yalp_t gain_yalp_curve[CCM_YALP_ISO_STEP_MAX];
 } CalibDbV2_Ccm_Alp_Sym_Para_t;
 
 typedef struct CalibDbV2_Ccm_Alp_Asym_Para_s {
@@ -103,10 +120,8 @@ typedef struct CalibDbV2_Ccm_Alp_Asym_Para_s {
     float bound_pos_bit;  // low y alpha adjust
     // M4_NUMBER_DESC("right bound pos bit", "f32", M4_RANGE(3, 11), "10", M4_DIGIT(0))
     float right_pos_bit;  // high y alpha adjust
-    // M4_ARRAY_DESC("left y alpha curve", "f32", M4_SIZE(1,9), M4_RANGE(0,1024), "1024", M4_DIGIT(0), M4_DYNAMIC(0))
-    float y_alpha_left_curve[9];
-    // M4_ARRAY_DESC("right y alpha curve", "f32", M4_SIZE(1,9), M4_RANGE(0,1024), "1024", M4_DIGIT(0), M4_DYNAMIC(0))
-    float y_alpha_right_curve[9];
+    // M4_STRUCT_LIST_DESC("gain yalp curve",  M4_SIZE_DYNAMIC, "normal_ui_style")
+    CalibDbV2_Ccm_Gain_Yalp_Asym_t gain_yalp_curve[CCM_YALP_ISO_STEP_MAX];
 } CalibDbV2_Ccm_Alp_Asym_Para_t;
 
 typedef struct CalibDbV2_Ccm_Luma_Ccm_V2_s {
@@ -156,7 +171,7 @@ typedef struct CalibDbV2_Ccm_Manual_Para_s {
 } CalibDbV2_Ccm_Manual_Para_t;
 
 typedef struct CalibDbV2_Ccm_Control_Para_s {
-    // M4_BOOL_DESC("enable", "0")
+    // M4_BOOL_DESC("enable", "1")
     bool enable;
     // M4_NUMBER_DESC("wbgain tolerance", "f32", M4_RANGE(0.0, 1), "0.1", M4_DIGIT(4))
     float wbgain_tolerance;
@@ -165,17 +180,17 @@ typedef struct CalibDbV2_Ccm_Control_Para_s {
 } CalibDbV2_Ccm_Control_Para_t;
 
 typedef struct CalibDbV2_Ccm_Enh_para_s {
-    // M4_ARRAY_DESC("gains", "f32", M4_SIZE(1,9), M4_RANGE(0,256), "1", M4_DIGIT(0), M4_DYNAMIC(0))
+    // M4_ARRAY_DESC("gains", "f32", M4_SIZE(1,9), M4_RANGE(0,4096), "1", M4_DIGIT(0), M4_DYNAMIC(0))
     float gains[9];
-    // M4_ARRAY_DESC("enable", "u8", M4_SIZE(1,9),  M4_RANGE(0, 1), "0", M4_DIGIT(0), M4_DYNAMIC(0))
-    unsigned short enh_adj_en[9];
     // M4_ARRAY_DESC("Enhance ratio max", "f32", M4_SIZE(1,9), M4_RANGE(0, 8), "0", M4_DIGIT(1), M4_DYNAMIC(0))
     float enh_rat_max[9];
 } CalibDbV2_Ccm_Enh_para_t;
 
 typedef struct CalibDbV2_Ccm_Enhance_Para_s {
-    // M4_ARRAY_TABLE_DESC("Enhance ctrl", "array_table_ui", M4_INDEX_DEFAULT)
-    CalibDbV2_Ccm_Enh_para_t enh_ctl;
+    // M4_BOOL_DESC("enable", "0")
+    bool enh_adj_en;
+    // M4_ARRAY_TABLE_DESC("Enhance rat", "array_table_ui", M4_INDEX_DEFAULT)
+    CalibDbV2_Ccm_Enh_para_t enh_rat;
     // M4_ARRAY_DESC("Enhance RGB2Y para", "u8", M4_SIZE(1,3), M4_RANGE(0,128), "[38 75 15]", M4_DIGIT(0), M4_DYNAMIC(0))
     unsigned char enh_rgb2y_para[3];
 } CalibDbV2_Ccm_Enhance_Para_t;

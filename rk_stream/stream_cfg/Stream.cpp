@@ -281,7 +281,7 @@ RKStream::~RKStream()
 XCamReturn
 RKStream::start()
 {
-    XCamReturn ret;
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
     if (!_dev->is_activated())
         ret = _dev->start(_dev_prepared);
     _poll_thread->start();

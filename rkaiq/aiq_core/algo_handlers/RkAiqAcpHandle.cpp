@@ -223,7 +223,7 @@ XCamReturn RkAiqAcpHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPar
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
     RkAiqAlgoProcResAcp* acp_com = (RkAiqAlgoProcResAcp*)mProcOutParam;
-    rk_aiq_isp_cp_params_v20_t* cp_param = params->mCpParams->data().ptr();
+    rk_aiq_isp_cp_params_t* cp_param = params->mCpParams->data().ptr();
 
     if (sharedCom->init) {
         cp_param->frame_id = 0;

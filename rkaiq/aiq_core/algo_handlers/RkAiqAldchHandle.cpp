@@ -103,11 +103,7 @@ XCamReturn RkAiqAldchHandleInt::processing() {
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
-#if (RKAIQ_HAVE_LDCH_V21)
-    aldch_proc_res_int->ldch_result = &shared->fullParams->mLdchV32Params->data()->result;
-#else
     aldch_proc_res_int->ldch_result = &shared->fullParams->mLdchParams->data()->result;
-#endif
 
     ret = RkAiqHandle::processing();
     if (ret) {
@@ -353,10 +349,10 @@ XCamReturn RkAiqAldchHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullP
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 #if (RKAIQ_HAVE_LDCH_V21)
     RkAiqAlgoProcResAldchV21* aldch_com         = (RkAiqAlgoProcResAldchV21*)mProcOutParam;
-    rk_aiq_isp_ldch_params_v32_t* ldch_param    = params->mLdchV32Params->data().ptr();
+    rk_aiq_isp_ldch_params_t* ldch_param    = params->mLdchParams->data().ptr();
 #else
     RkAiqAlgoProcResAldch* aldch_com         = (RkAiqAlgoProcResAldch*)mProcOutParam;
-    rk_aiq_isp_ldch_params_v20_t* ldch_param = params->mLdchParams->data().ptr();
+    rk_aiq_isp_ldch_params_t* ldch_param = params->mLdchParams->data().ptr();
 #endif
 
     if (!aldch_com) {
@@ -376,25 +372,12 @@ XCamReturn RkAiqAldchHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullP
         ldch_param->sync_flag = mSyncFlag;
         // copy from algo result
         // set as the latest result
-#if (RKAIQ_HAVE_LDCH_V21)
-        cur_params->mLdchV32Params = params->mLdchV32Params;
-#else
         cur_params->mLdchParams = params->mLdchParams;
-#endif
         ldch_param->is_update = true;
         LOGD_ALDCH("[%d] params from algo", mSyncFlag);
     } else if (mSyncFlag != ldch_param->sync_flag) {
         ldch_param->sync_flag = mSyncFlag;
         // copy from latest result
-#if (RKAIQ_HAVE_LDCH_V21)
-        if (cur_params->mLdchV32Params.ptr()) {
-            ldch_param->is_update = true;
-            ldch_param->result = cur_params->mLdchV32Params->data()->result;
-        } else {
-            LOGE_ALDCH("no latest params !");
-            ldch_param->is_update = false;
-        }
-#else
         if (cur_params->mLdchParams.ptr()) {
             ldch_param->is_update = true;
             ldch_param->result = cur_params->mLdchParams->data()->result;
@@ -402,7 +385,6 @@ XCamReturn RkAiqAldchHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullP
             LOGE_ALDCH("no latest params !");
             ldch_param->is_update = false;
         }
-#endif
         LOGD_ALDCH("[%d] params from latest [%d]", shared->frameId, mSyncFlag);
     } else {
         // do nothing, result in buf needn't update

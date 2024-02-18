@@ -147,7 +147,7 @@ XCamReturn RkAiqAgainHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullP
         RkAiqAlgoProcResAgain* again_rk = (RkAiqAlgoProcResAgain*)again_com;
 
         if (params->mGainParams.ptr()) {
-            rk_aiq_isp_gain_params_v20_t* gain_param = params->mGainParams->data().ptr();
+            rk_aiq_isp_gain_params_t* gain_param = params->mGainParams->data().ptr();
             if (sharedCom->init) {
                 gain_param->frame_id = 0;
             } else {

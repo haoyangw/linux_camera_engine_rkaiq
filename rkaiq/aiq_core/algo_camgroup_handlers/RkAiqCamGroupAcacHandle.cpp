@@ -17,7 +17,7 @@
 
 namespace RkCam {
 
-#if RKAIQ_HAVE_CAC_V03 || RKAIQ_HAVE_CAC_V10 || RKAIQ_HAVE_CAC_V11
+#if RKAIQ_HAVE_CAC
 
 XCamReturn RkAiqCamGroupAcacHandleInt::updateConfig(bool needSync) {
     ENTER_ANALYZER_FUNCTION();

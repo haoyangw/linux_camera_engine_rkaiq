@@ -21,10 +21,6 @@
 #include <stdint.h>
 #include "rk_aiq_offline_raw.h"
 
-#ifdef __ANDROID__
-#include <functional>
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -109,14 +105,9 @@ typedef struct {
 
 typedef struct rkraw_vi_ctx_s rkraw_vi_ctx_t;
 
-#ifdef __ANDROID__
-typedef std::function<void(rkrawstream_readback_cb_param_t *param)> rkrawstream_readback_cb_t;
-typedef std::function<int(rkrawstream_vicap_cb_param_t *param)> rkrawstream_vicap_cb_t;
-#else
 typedef void (*rkrawstream_readback_cb_t)(rkrawstream_readback_cb_param_t *param);
 typedef int (*rkrawstream_vicap_cb_t)(rkrawstream_vicap_cb_param_t *param);
 typedef int (*rkrawstream_isp_cb_t)(rkrawstream_isp_cb_param_t *param);
-#endif
 
 /*!
  * \brief initialze rkrawstream user api

@@ -464,7 +464,7 @@ XCamReturn RkAiqAdrcHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPa
     if (!this->getAlgoId()) {
         RkAiqAlgoProcResAdrc* ahdr_rk = (RkAiqAlgoProcResAdrc*)adrc_com;
 
-        rk_aiq_isp_drc_params_v21_t* drc_param = params->mDrcParams->data().ptr();
+        rk_aiq_isp_drc_params_t* drc_param = params->mDrcParams->data().ptr();
         if (sharedCom->init) {
             drc_param->frame_id = 0;
         } else {

@@ -144,6 +144,8 @@ static void init_engine(struct rkaiq_media_info *media_info)
 
     media_info->aiq_ctx = rk_aiq_uapi2_sysctl_init(media_info->sensor_entity_name,
                                                   IQ_PATH, NULL, NULL);
+    /* 3A server has listened stream events already */
+    rk_aiq_uapi2_sysctl_setListenStrmStatus(media_info->aiq_ctx, false);
     if (has_mul_cam)
         rk_aiq_uapi2_sysctl_setMulCamConc(media_info->aiq_ctx, 1);
 
@@ -288,10 +290,10 @@ void *engine_thread(void *arg)
     subscrible_stream_event(media_info, isp_fd, true);
 
     for (;;) {
-        start_engine(media_info);
         DBG("%s: wait stream start event...\n", media_info->mdev_path);
         wait_stream_event(isp_fd, CIFISP_V4L2_EVENT_STREAM_START, -1);
         DBG("%s: wait stream start event success ...\n", media_info->mdev_path);
+        start_engine(media_info);
 
         DBG("%s: wait stream stop event...\n", media_info->mdev_path);
         wait_stream_event(isp_fd, CIFISP_V4L2_EVENT_STREAM_STOP, -1);

@@ -972,6 +972,7 @@ XCamReturn RkAiqAeHandleInt::prepare() {
     ae_config_int->RawWidth  = sharedCom->snsDes.isp_acq_width;
     ae_config_int->RawHeight = sharedCom->snsDes.isp_acq_height;
     ae_config_int->nr_switch = sharedCom->snsDes.nr_switch;
+    ae_config_int->dcg_ratio = sharedCom->snsDes.dcg_ratio;
 
     RkAiqAlgoDescription* des = (RkAiqAlgoDescription*)mDes;
     ret                       = des->prepare(mConfig);
@@ -1292,8 +1293,8 @@ XCamReturn RkAiqAeHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPara
     RkAiqAlgoProcResAe* ae_proc                 = (RkAiqAlgoProcResAe*)mProcOutParam;
     RkAiqAlgoPostResAe* ae_post                 = (RkAiqAlgoPostResAe*)mPostOutParam;
 
-    rk_aiq_isp_aec_params_v20_t* aec_param   = params->mAecParams->data().ptr();
-    rk_aiq_isp_hist_params_v20_t* hist_param = params->mHistParams->data().ptr();
+    rk_aiq_isp_aec_params_t* aec_param   = params->mAecParams->data().ptr();
+    rk_aiq_isp_hist_params_t* hist_param = params->mHistParams->data().ptr();
     rk_aiq_exposure_params_wrapper_t* exp_param = params->mExposureParams->data().ptr();
     rk_aiq_iris_params_wrapper_t* iris_param    = params->mIrisParams->data().ptr();
 

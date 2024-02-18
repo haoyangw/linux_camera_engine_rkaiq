@@ -260,7 +260,7 @@ XCamReturn RkAiqAbayer2dnrV2HandleInt::processing() {
 
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
-    arawnr_proc_res_int->stArawnrProcResult.st2DFix = &shared->fullParams->mBaynrV3xParams->data()->result;
+    arawnr_proc_res_int->stArawnrProcResult.st2DFix = &shared->fullParams->mBaynrParams->data()->result;
 
     ret = RkAiqHandle::processing();
     if (ret) {
@@ -321,7 +321,7 @@ XCamReturn RkAiqAbayer2dnrV2HandleInt::genIspResult(RkAiqFullParams* params,
 
     if (!this->getAlgoId()) {
         LOGD_ANR("oyyf: %s:%d output isp param start\n", __FUNCTION__, __LINE__);
-        rk_aiq_isp_baynr_params_v3x_t* rawnr_param = params->mBaynrV3xParams->data().ptr();
+        rk_aiq_isp_baynr_params_t* rawnr_param = params->mBaynrParams->data().ptr();
         if (sharedCom->init) {
             rawnr_param->frame_id = 0;
         } else {
@@ -333,14 +333,14 @@ XCamReturn RkAiqAbayer2dnrV2HandleInt::genIspResult(RkAiqFullParams* params,
             rawnr_param->sync_flag = mSyncFlag;
             // copy from algo result
             // set as the latest result
-            cur_params->mBaynrV3xParams = params->mBaynrV3xParams;
+            cur_params->mBaynrParams = params->mBaynrParams;
             rawnr_param->is_update = true;
             LOGD_ANR("[%d] params from algo", mSyncFlag);
         } else if (mSyncFlag != rawnr_param->sync_flag) {
             rawnr_param->sync_flag = mSyncFlag;
             // copy from latest result
-            if (cur_params->mBaynrV3xParams.ptr()) {
-                rawnr_param->result = cur_params->mBaynrV3xParams->data()->result;
+            if (cur_params->mBaynrParams.ptr()) {
+                rawnr_param->result = cur_params->mBaynrParams->data()->result;
                 rawnr_param->is_update = true;
             } else {
                 LOGE_ANR("no latest params !");

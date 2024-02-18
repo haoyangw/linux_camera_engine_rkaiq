@@ -31,8 +31,10 @@ public:
     void fixedAwbOveflowToIsp3xParams(void* isp_cfg_p, bool is_dual_isp);
 protected:
     virtual bool convert3aResultsToIspCfg(SmartPtr<cam3aResult> &result, void* isp_cfg_p, bool is_multi_isp) override;
+#if RKAIQ_HAVE_GAIN_V2
     template <class T>
     void convertAiqGainToIsp3xParams(T& isp_cfg, rk_aiq_isp_gain_v3x_t& gain);
+#endif
 #if RKAIQ_HAVE_GAMMA_V11
     template <class T>
     void convertAiqAgammaToIsp3xParams(T& isp_cfg, const rk_aiq_isp_goc_v3x_t& gamma_out_cfg);

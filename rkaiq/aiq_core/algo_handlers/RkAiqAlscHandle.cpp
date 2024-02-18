@@ -365,7 +365,7 @@ XCamReturn RkAiqAlscHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPa
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
     RkAiqAlgoProcResAlsc* alsc_com              = (RkAiqAlgoProcResAlsc*)mProcOutParam;
-    rk_aiq_isp_lsc_params_v20_t* lsc_param      = params->mLscParams->data().ptr();
+    rk_aiq_isp_lsc_params_t* lsc_param      = params->mLscParams->data().ptr();
 
     if (!alsc_com) {
         LOGD_ANALYZER("no alsc result");

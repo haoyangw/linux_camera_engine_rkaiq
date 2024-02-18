@@ -81,7 +81,7 @@ XCamReturn RkAiqAcacV11HandleInt::processing() {
     auto* shared = (RkAiqCore::RkAiqAlgosGroupShared_t*)getGroupShared();
     if (!shared) return XCAM_RETURN_BYPASS;
 
-    acac_proc_res_int->config = shared->fullParams->mCacV32Params->data()->result.cfg;
+    acac_proc_res_int->config = shared->fullParams->mCacParams->data()->result.cfg;
 
     RKAiqAecExpInfo_t* aeCurExp = &shared->curExp;
     acac_proc_int->hdr_ratio = 1;
@@ -260,7 +260,7 @@ XCamReturn RkAiqAcacV11HandleInt::genIspResult(RkAiqFullParams* params,
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
     RkAiqAlgoProcResAcac* cac_com               = (RkAiqAlgoProcResAcac*)mProcOutParam;
 
-    rk_aiq_isp_cac_params_v32_t* cac_param = params->mCacV32Params->data().ptr();
+    rk_aiq_isp_cac_params_t* cac_param = params->mCacParams->data().ptr();
 
     if (!this->getAlgoId()) {
         RkAiqAlgoProcResAcac* cac_rk = (RkAiqAlgoProcResAcac*)cac_com;
@@ -276,14 +276,14 @@ XCamReturn RkAiqAcacV11HandleInt::genIspResult(RkAiqFullParams* params,
             cac_param->sync_flag = mSyncFlag;
             // copy from algo result
             // set as the latest result
-            cur_params->mCacV32Params = params->mCacV32Params;
+            cur_params->mCacParams = params->mCacParams;
             cac_param->is_update = true;
             LOGD_ACAC("[%d] params from algo", mSyncFlag);
         } else if (mSyncFlag != cac_param->sync_flag) {
             cac_param->sync_flag = mSyncFlag;
             // copy from latest result
-            if (cur_params->mCacV32Params.ptr()) {
-                cac_param->result = cur_params->mCacV32Params->data()->result;
+            if (cur_params->mCacParams.ptr()) {
+                cac_param->result = cur_params->mCacParams->data()->result;
                 cac_param->is_update = true;
             } else {
                 LOGE_ACAC("no latest params !");

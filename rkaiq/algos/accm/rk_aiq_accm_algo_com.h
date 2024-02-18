@@ -24,6 +24,9 @@
 #include "RkAiqCalibDbTypesV2.h"
 #include "RkAiqCalibDbV2Helper.h"
 
+#ifndef CCM_CURVE_DOT_NUM_HALF
+#define CCM_CURVE_DOT_NUM_HALF (CCM_CURVE_DOT_NUM_V2>>1)
+#endif
 
 RKAIQ_BEGIN_DECLARE
 
@@ -61,6 +64,25 @@ XCamReturn pCcmMatrixAll_init(const CalibDbV2_Ccm_Accm_Cof_Para_t*   aCcmCof,
                               int                                    matrixAll_len,
                               const CalibDbV2_Ccm_Matrix_Para_t*     pCcmMatrixAll[][CCM_PROFILES_NUM_MAX]);
 
+XCamReturn YAlpSymAutoCfg(const int isoNum,
+                              const CalibDbV2_Ccm_Gain_Yalp_t* alpTbl,
+                              float lastscl,
+                              int lastTidx,
+                              const float iso,
+                              const bool update,
+                              float* alp,
+                              bool *update_flag
+                              );
+
+XCamReturn YAlpAsymAutoCfg(const int isoNum,
+                              const CalibDbV2_Ccm_Gain_Yalp_Asym_t* alpTbl,
+                              float lastscl,
+                              int lastTidx,
+                              const float iso,
+                              const bool update,
+                              float* alp,
+                              bool *update_flag
+                              );
 
 
 RKAIQ_END_DECLARE

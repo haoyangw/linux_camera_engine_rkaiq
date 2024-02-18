@@ -210,30 +210,31 @@ XCamReturn AccmAutoConfig(accm_handle_t hAccm) {
                 Saturationadjust(fScale, saturation_level, hAccm->accmRest.undampedCcmMatrix);
                 LOGD_ACCM("Adjust ccm by sat: %d, undampedCcmMatrix[0]: %f", hAccm->isReCal_, hAccm->accmRest.undampedCcmMatrix[0]);
             }
-
-            if (!hAccm->invarMode) {
-                ConfigHwbyCalib(hAccm->ccm_v2, &hAccm->ccmHwConf_v2);
-            }
-            if (hAccm->ccm_v2->lumaCCM.asym_enable) {
-                int mid = CCM_CURVE_DOT_NUM_V2 >> 1;
-                for (int i = 0; i < mid; i++) {
-                    hAccm->ccmHwConf_v2.alp_y[i] =
-                        hAccm->accmRest.fScale *
-                        hAccm->ccm_v2->lumaCCM.y_alp_asym.y_alpha_left_curve[i];
-                    hAccm->ccmHwConf_v2.alp_y[mid + i] =
-                        hAccm->accmRest.fScale *
-                        hAccm->ccm_v2->lumaCCM.y_alp_asym.y_alpha_right_curve[i];
-                }
-            } else {
-                for (int i = 0; i < CCM_CURVE_DOT_NUM; i++) {  // set to ic  to do bit check
-                    hAccm->ccmHwConf_v2.alp_y[i] =
-                        hAccm->accmRest.fScale *
-                        hAccm->ccm_v2->lumaCCM.y_alp_sym.y_alpha_curve[i];
-                }
-            }
             updUndampMat = true;
-            updateYAlp   = true;
         }
+        if (!hAccm->invarMode) {
+            ConfigHwbyCalib(hAccm->ccm_v2, &hAccm->ccmHwConf_v2);
+            updateYAlp = true;
+        }
+
+        float iso = sensorGain * 50;
+        bool yalp_flag = false;
+        if (hAccm->ccm_v2->lumaCCM.asym_enable) {
+            int mid = CCM_CURVE_DOT_NUM_V2 >> 1;
+            YAlpAsymAutoCfg(CCM_YALP_ISO_STEP_MAX, hAccm->ccm_v2->lumaCCM.y_alp_asym.gain_yalp_curve,
+                            hAccm->accmRest.yalp_tbl_info.scl,
+                            hAccm->accmRest.yalp_tbl_info.tbl_idx,
+                            iso,
+                            (!hAccm->invarMode || hAccm->calib_update),
+                            hAccm->ccmHwConf_v2.alp_y, &yalp_flag);
+        } else {
+            YAlpSymAutoCfg(CCM_YALP_ISO_STEP_MAX, hAccm->ccm_v2->lumaCCM.y_alp_sym.gain_yalp_curve,
+                            hAccm->accmRest.yalp_tbl_info.scl,
+                            hAccm->accmRest.yalp_tbl_info.tbl_idx,
+                            iso, (!hAccm->invarMode || hAccm->calib_update), hAccm->ccmHwConf_v2.alp_y, &yalp_flag);
+        }
+        updateYAlp = updateYAlp || yalp_flag;
+
     }
     // 7) . Damping
     float dampCoef = (pCcm->damp_enable && hAccm->count > 1 && hAccm->invarMode > 0) ? hAccm->accmSwInfo.awbIIRDampCoef : 0;
@@ -250,16 +251,18 @@ XCamReturn AccmAutoConfig(accm_handle_t hAccm) {
     }
 
     if (hAccm->update || (!hAccm->invarMode)) {
-        unsigned short enh_adj_en = 0;
         float enh_rat_max = 0;
-        interpolation(hAccm->ccm_v2->enhCCM.enh_ctl.gains, hAccm->ccm_v2->enhCCM.enh_ctl.enh_adj_en, 9,
-                    sensorGain, &enh_adj_en);
-        if (enh_adj_en) {
-            interpolation(hAccm->ccm_v2->enhCCM.enh_ctl.gains, hAccm->ccm_v2->enhCCM.enh_ctl.enh_rat_max, 9,
-                            sensorGain, &enh_rat_max);
+        if (hAccm->ccm_v2->enhCCM.enh_adj_en) {
+            interpolation(hAccm->ccm_v2->enhCCM.enh_rat.gains, hAccm->ccm_v2->enhCCM.enh_rat.enh_rat_max, 9,
+                          sensorGain, &enh_rat_max);
         }
-        updateEnh = (enh_adj_en != hAccm->ccmHwConf_v2.enh_adj_en) ||
+        updateEnh = (hAccm->ccm_v2->enhCCM.enh_adj_en != hAccm->ccmHwConf_v2.enh_adj_en) ||
                     fabs(enh_rat_max - hAccm->ccmHwConf_v2.enh_rat_max) > DIVMIN;
+
+        if (updateEnh) {
+            hAccm->ccmHwConf_v2.enh_adj_en = hAccm->ccm_v2->enhCCM.enh_adj_en;
+            hAccm->ccmHwConf_v2.enh_rat_max = enh_rat_max;
+        }
     }
     hAccm->isReCal_ = hAccm->isReCal_ || updateMat || updateYAlp || updateEnh;
 
@@ -358,20 +361,20 @@ XCamReturn ConfigbyCalib(accm_handle_t hAccm) {
     if (hAccm->ccm_v2->lumaCCM.asym_enable) {
         int mid                          = CCM_CURVE_DOT_NUM_V2 >> 1;
         for (int i = 0; i < mid; i++) {
-            hAccm->ccmHwConf_v2.alp_y[i] = hAccm->ccm_v2->lumaCCM.y_alp_asym.y_alpha_left_curve[i];
+            hAccm->ccmHwConf_v2.alp_y[i] = hAccm->ccm_v2->lumaCCM.y_alp_asym.gain_yalp_curve[0].y_alpha_lcurve[i];
             hAccm->ccmHwConf_v2.alp_y[mid + i] =
-                hAccm->ccm_v2->lumaCCM.y_alp_asym.y_alpha_right_curve[i];
+                hAccm->ccm_v2->lumaCCM.y_alp_asym.gain_yalp_curve[0].y_alpha_rcurve[i];
         }
     } else {
         hAccm->ccmHwConf_v2.highy_adj_en = hAccm->ccm_v2->lumaCCM.y_alp_sym.highy_adj_en;
         hAccm->ccmHwConf_v2.bound_bit    = hAccm->ccm_v2->lumaCCM.y_alp_sym.bound_pos_bit;
         hAccm->ccmHwConf_v2.right_bit    = hAccm->ccmHwConf_v2.bound_bit;
-        memcpy(hAccm->ccmHwConf_v2.alp_y, hAccm->ccm_v2->lumaCCM.y_alp_sym.y_alpha_curve,
-               sizeof(hAccm->ccm_v2->lumaCCM.y_alp_sym.y_alpha_curve));
+        memcpy(hAccm->ccmHwConf_v2.alp_y, hAccm->ccm_v2->lumaCCM.y_alp_sym.gain_yalp_curve[0].y_alpha_curve,
+               sizeof(hAccm->ccm_v2->lumaCCM.y_alp_sym.gain_yalp_curve[0].y_alpha_curve));
     }
 
-    hAccm->ccmHwConf_v2.enh_adj_en  = hAccm->ccm_v2->enhCCM.enh_ctl.enh_adj_en[0];
-    hAccm->ccmHwConf_v2.enh_rat_max = hAccm->ccm_v2->enhCCM.enh_ctl.enh_rat_max[0];
+    hAccm->ccmHwConf_v2.enh_adj_en  = hAccm->ccm_v2->enhCCM.enh_adj_en;
+    hAccm->ccmHwConf_v2.enh_rat_max = hAccm->ccm_v2->enhCCM.enh_rat.enh_rat_max[0];
 
     hAccm->accmSwInfo.ccmConverged = false;
     hAccm->calib_update            = true;

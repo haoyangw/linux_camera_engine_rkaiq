@@ -347,7 +347,7 @@ XCamReturn RkAiqAgicHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPa
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
     RkAiqAlgoProcResAgic* agic_com              = (RkAiqAlgoProcResAgic*)mProcOutParam;
-    rk_aiq_isp_gic_params_v20_t* gic_param = params->mGicParams->data().ptr();
+    rk_aiq_isp_gic_params_t* gic_param = params->mGicParams->data().ptr();
 
     if (!agic_com) {
         LOGD_ANALYZER("no agic result");

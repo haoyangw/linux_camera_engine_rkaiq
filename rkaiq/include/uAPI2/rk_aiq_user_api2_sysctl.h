@@ -558,8 +558,18 @@ void rk_aiq_uapi2_sysctl_resume(rk_aiq_sys_ctx_t* sys_ctx);
 
 XCamReturn
 rk_aiq_uapi2_sysctl_getAinrParams(const rk_aiq_sys_ctx_t* sys_ctx, rk_ainr_param* para);
+
 XCamReturn
 rk_aiq_uapi2_sysctl_setUserOtpInfo(rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_user_otp_info_t otp_info);
+
+/**
+ * @brief set if aiq listens the stream status
+ *
+ * \param[in] sys_ctx             the context returned by \ref rk_aiq_uapi2_sysctl_init
+ * \note default val is true, and if aiq is running in ISP Server mode, shoud be set to false
+ */
+void
+rk_aiq_uapi2_sysctl_setListenStrmStatus(rk_aiq_sys_ctx_t* sys_ctx, bool isListen);
 
 RKAIQ_END_DECLARE
 

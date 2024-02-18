@@ -361,6 +361,13 @@ typedef struct Aec_Sensor_nr_switch_s {
     uint32_t div_coeff;
 } Aec_Sensor_nr_switch_t;
 
+typedef struct Aec_Sensor_dcg_ratio_s {
+    bool valid;
+    uint32_t integer;
+    uint32_t decimal;
+    uint32_t div_coeff;
+} Aec_Sensor_dcg_ratio_t;
+
 typedef struct Aec_AeRange_s {
     float                   Min;
     float                   Max;
@@ -461,6 +468,7 @@ typedef struct AecConfig_s {
     float                         PixelClockFreqMHZ;
     float                         PixelPeriodsPerLine;
     Aec_Sensor_nr_switch_t        nr_switch;
+    Aec_Sensor_dcg_ratio_t        dcg_ratio;
 
     /*continue to use some old params to keep the same with AecConfig_t*/
     AecDampingMode_t              DampingMode;              /**< damping mode */

@@ -196,8 +196,8 @@ void AdrcV12ClipStAutoParams(AdrcContext_t* pAdrcCtx) {
 /******************************************************************************
  * CalibrateDrcGainYV12()
  *****************************************************************************/
-void CalibrateDrcGainYV12(DrcProcRes_t* para, float DrcGain, bool obEnable, float predgain,
-                          float alpha) {
+void CalibrateDrcGainYV12(DrcProcRes_t* para, float DrcGain, float alpha, bool OB_enable,
+                          float predgain) {
     LOG1_ATMO("%s:Enter!\n", __FUNCTION__);
 
     float tmp = 0.0f;
@@ -207,11 +207,10 @@ void CalibrateDrcGainYV12(DrcProcRes_t* para, float DrcGain, bool obEnable, floa
                                  0.0625f, 0.0352f, 0.0156f, 0.0039f, 0.0f};
 
     for (int i = 0; i < DRC_V12_Y_NUM; ++i) {
-        tmp = 1 - alpha * luma[i];
-        if (obEnable)
-            tmp = 1024.0f * pow(DrcGain * predgain, tmp);
+        if (OB_enable)
+            tmp = 1024.0f * pow(DrcGain, 1 - alpha * luma[i]) * pow(predgain, -alpha * luma[i]);
         else
-            tmp = 1024.0f * pow(DrcGain, tmp);
+            tmp = 1024.0f * pow(DrcGain, 1 - alpha * luma[i]);
         para->Drc_v12.gain_y[i] = (unsigned short)(tmp);
     }
 
@@ -393,44 +392,44 @@ void AdrcGetTuningProcResV12(AdrcContext_t* pAdrcCtx, RkAiqAdrcProcResult_t* pAd
     pAdrcProcRes->DrcProcRes.Drc_v12.gas_t =
         (unsigned short)(SHIFT11BIT(pAdrcCtx->NextData.dynParams.Drc_v12.gas_t) + 0.5);
     pAdrcProcRes->DrcProcRes.Drc_v12.gas_t =
-        LIMIT_VALUE_UNSIGNED(pAdrcProcRes->DrcProcRes.Drc_v12.gas_t, INT13BITMAX);
+        LIMIT_VALUE_UNSIGNED(pAdrcProcRes->DrcProcRes.Drc_v12.gas_t, BIT_13_MAX);
     pAdrcProcRes->DrcProcRes.Drc_v12.position =
         (unsigned short)(SHIFT8BIT(pAdrcCtx->NextData.dynParams.Drc_v12.Clip) + 0.5f);
     pAdrcProcRes->DrcProcRes.Drc_v12.hpdetail_ratio = LIMIT_VALUE_UNSIGNED(
-        pAdrcCtx->NextData.dynParams.Drc_v12.LoLitContrast * INT12BITMAX, INT12BITMAX);
+        pAdrcCtx->NextData.dynParams.Drc_v12.LoLitContrast * BIT_12_MAX, BIT_12_MAX);
     pAdrcProcRes->DrcProcRes.Drc_v12.lpdetail_ratio = LIMIT_VALUE_UNSIGNED(
-        pAdrcCtx->NextData.dynParams.Drc_v12.GlobalContrast * INT12BITMAX, INT12BITMAX);
-    pAdrcProcRes->DrcProcRes.Drc_v12.bilat_wt_off = LIMIT_VALUE_UNSIGNED(
-        pAdrcCtx->NextData.dynParams.Drc_v12.MotionStr * INT8BITMAX, INT8BITMAX);
+        pAdrcCtx->NextData.dynParams.Drc_v12.GlobalContrast * BIT_12_MAX, BIT_12_MAX);
+    pAdrcProcRes->DrcProcRes.Drc_v12.bilat_wt_off =
+        LIMIT_VALUE_UNSIGNED(pAdrcCtx->NextData.dynParams.Drc_v12.MotionStr * BIT_8_MAX, BIT_8_MAX);
     pAdrcProcRes->DrcProcRes.Drc_v12.weig_maxl =
         (unsigned char)(SHIFT4BIT(pAdrcCtx->NextData.dynParams.Drc_v12.Strength) + 0.5f);
     pAdrcProcRes->DrcProcRes.Drc_v12.weig_bilat = LIMIT_VALUE_UNSIGNED(
-        pAdrcCtx->NextData.dynParams.Drc_v12.LocalWeit * (INT4BITMAX + 1), INT4BITMAX + 1);
+        pAdrcCtx->NextData.dynParams.Drc_v12.LocalWeit * (BIT_4_MAX + 1), BIT_4_MAX + 1);
     pAdrcProcRes->DrcProcRes.Drc_v12.enable_soft_thd =
         pAdrcCtx->NextData.dynParams.Drc_v12.LocalAutoEnable;
     pAdrcProcRes->DrcProcRes.Drc_v12.bilat_soft_thd = LIMIT_VALUE_UNSIGNED(
-        pAdrcCtx->NextData.dynParams.Drc_v12.LocalAutoWeit * INT14BITMAX, INT14BITMAX);
+        pAdrcCtx->NextData.dynParams.Drc_v12.LocalAutoWeit * BIT_14_MAX, BIT_14_MAX);
     pAdrcProcRes->DrcProcRes.Drc_v12.bilat_soft_thd =
-        LIMIT_VALUE_UNSIGNED(pAdrcProcRes->DrcProcRes.Drc_v12.bilat_soft_thd, INT14BITMAX);
+        LIMIT_VALUE_UNSIGNED(pAdrcProcRes->DrcProcRes.Drc_v12.bilat_soft_thd, BIT_14_MAX);
     // get sw_drc_gain_y
     CalibrateDrcGainYV12(&pAdrcProcRes->DrcProcRes, pAdrcCtx->NextData.dynParams.Drc_v12.DrcGain,
+                         pAdrcCtx->NextData.dynParams.Drc_v12.Alpha,
                          pAdrcCtx->ablcV32_proc_res.blc_ob_enable,
-                         pAdrcCtx->ablcV32_proc_res.isp_ob_predgain,
-                         pAdrcCtx->NextData.dynParams.Drc_v12.Alpha);
+                         pAdrcCtx->ablcV32_proc_res.isp_ob_predgain);
 
     pAdrcProcRes->DrcProcRes.Drc_v12.gas_l0 = (unsigned char)pAdrcCtx->NextData.staticParams.gas_l0;
     pAdrcProcRes->DrcProcRes.Drc_v12.gas_l1 = (unsigned char)pAdrcCtx->NextData.staticParams.gas_l1;
     pAdrcProcRes->DrcProcRes.Drc_v12.gas_l2 = (unsigned char)pAdrcCtx->NextData.staticParams.gas_l2;
     pAdrcProcRes->DrcProcRes.Drc_v12.gas_l3 = (unsigned char)pAdrcCtx->NextData.staticParams.gas_l3;
     pAdrcProcRes->DrcProcRes.Drc_v12.weicur_pix =
-        LIMIT_VALUE_UNSIGNED(pAdrcCtx->NextData.staticParams.curPixWeit * INT8BITMAX, INT8BITMAX);
+        LIMIT_VALUE_UNSIGNED(pAdrcCtx->NextData.staticParams.curPixWeit * BIT_8_MAX, BIT_8_MAX);
     pAdrcProcRes->DrcProcRes.Drc_v12.weipre_frame =
-        LIMIT_VALUE_UNSIGNED(pAdrcCtx->NextData.staticParams.preFrameWeit * INT8BITMAX, INT8BITMAX);
+        LIMIT_VALUE_UNSIGNED(pAdrcCtx->NextData.staticParams.preFrameWeit * BIT_8_MAX, BIT_8_MAX);
 
     pAdrcProcRes->DrcProcRes.Drc_v12.force_sgm_inv0 =
         (unsigned short)(SHIFT13BIT(pAdrcCtx->NextData.staticParams.Range_force_sgm) + 0.5f);
     pAdrcProcRes->DrcProcRes.Drc_v12.edge_scl =
-        LIMIT_VALUE_UNSIGNED(pAdrcCtx->NextData.staticParams.Edge_Weit * INT8BITMAX, INT8BITMAX);
+        LIMIT_VALUE_UNSIGNED(pAdrcCtx->NextData.staticParams.Edge_Weit * BIT_8_MAX, BIT_8_MAX);
     pAdrcProcRes->DrcProcRes.Drc_v12.motion_scl = SW_DRC_MOTION_SCL_FIX;
     pAdrcProcRes->DrcProcRes.Drc_v12.space_sgm_inv1 =
         (unsigned short)(pAdrcCtx->NextData.staticParams.Space_sgm_cur);

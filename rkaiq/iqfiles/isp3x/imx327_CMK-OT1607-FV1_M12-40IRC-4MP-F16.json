@@ -218,7 +218,7 @@
 									"InitIspDGainValue":	1,
 									"InitPIrisGainValue":	512,
 									"InitDCIrisDutyValue":	100,
-									"InitHDCIrisTargetValue": 0
+									"InitHDCIrisTargetValue":	0
 								},
 								"Route":	{
 									"TimeDot":	[0, 0.01, 0.01, 0.02, 0.03, 0.03],
@@ -283,7 +283,7 @@
 									"InitIspDGainValue":	[1, 1, 1],
 									"InitPIrisGainValue":	512,
 									"InitDCIrisDutyValue":	100,
-									"InitHDCIrisTargetValue": 0
+									"InitHDCIrisTargetValue":	0
 								},
 								"Route":	{
 									"Frm0TimeDot":	[0, 0.003, 0.003, 0.003, 0.003, 0.003],
@@ -370,12 +370,12 @@
 								"ManualAttr":	{
 									"PIrisGainValue":	1,
 									"DCIrisHoldValue":	30,
-									"HDCIrisTargetValue": 0
+									"HDCIrisTargetValue":	0
 								},
 								"InitAttr":	{
 									"PIrisGainValue":	512,
 									"DCIrisHoldValue":	100,
-									"HDCIrisTargetValue": 0
+									"HDCIrisTargetValue":	0
 								},
 								"PIrisAttr":	{
 									"TotalStep":	81,
@@ -399,9 +399,9 @@
 									"MinTarget":	0,
 									"MaxTarget":	500,
 									"ZoomTargetDot":	[0, 33, 75, 91, 95, 97, 98, 100, 101, 102, 103, 104],
-									"ZoomDot":		[1709, 975, 653, 464, 334, 239, 165, 102, 57, 15, -28, -70],
+									"ZoomDot":	[1709, 975, 653, 464, 334, 239, 165, 102, 57, 15, -28, -70],
 									"IrisTargetDot":	[0, 5, 10, 15, 20, 25, 30, 35, 40, 45],
-									"GainDot":		[512, 409, 402, 394, 384, 376, 370, 362, 354, 347],
+									"GainDot":	[512, 409, 402, 394, 384, 376, 370, 362, 354, 347],
 									"ZoomTargetDot_len":	12,
 									"IrisTargetDot_len":	10
 								}
@@ -906,30 +906,43 @@
 								"weightForNightGainCalc_len":	4,
 								"singleColorProces":	{
 									"enable":	1,
+									"mode":	"AWB_SGC_CALL_INITIAL",
 									"colorBlock":	[{
 											"index":	15,
 											"meanC":	24.9298,
-											"meanH":	40.1105
+											"meanH":	40.1105,
+											"ct":	[2000, 5000, 6500],
+											"disTh":	[900, 900, 900]
 										}, {
 											"index":	13,
 											"meanC":	25.9446,
-											"meanH":	-70.0917
+											"meanH":	-70.0917,
+											"ct":	[2000, 5000, 6500],
+											"disTh":	[900, 900, 900]
 										}, {
 											"index":	5,
 											"meanC":	12.9021,
-											"meanH":	-65.9844
+											"meanH":	-65.9844,
+											"ct":	[2000, 5000, 6500],
+											"disTh":	[900, 900, 900]
 										}, {
 											"index":	10,
 											"meanC":	12.2567,
-											"meanH":	-44.4133
+											"meanH":	-44.4133,
+											"ct":	[2000, 5000, 6500],
+											"disTh":	[900, 900, 900]
 										}, {
 											"index":	14,
 											"meanC":	15.251,
-											"meanH":	159.265
+											"meanH":	159.265,
+											"ct":	[2000, 5000, 6500],
+											"disTh":	[900, 900, 900]
 										}, {
 											"index":	16,
 											"meanC":	31.0475,
-											"meanH":	94.9178
+											"meanH":	94.9178,
+											"ct":	[2000, 5000, 6500],
+											"disTh":	[900, 900, 900]
 										}],
 									"colorBlock_len":	6,
 									"lsUsedForEstimation":	[{
@@ -946,7 +959,24 @@
 											"BGain":	2.60334
 										}],
 									"lsUsedForEstimation_len":	3,
-									"alpha":	0.9
+									"illuEstListSize":	10,
+									"alpha":	0.9,
+									"wgtClrGradX":	[50, 100, 150, 200, 300, 600],
+									"wgtClrGradY":	[1, 1, 0.5, 0.5, 0.2, 0],
+									"wgtDisX":	[200, 400, 900, 1200, 2000, 3000],
+									"wgtDisCt":	[2000, 5000, 6500],
+									"wgtDisHCtY":	[1, 1, 1, 0, 0, 0],
+									"wgtDisMCtY":	[1, 1, 1, 0, 0, 0],
+									"wgtDisLCtY":	[1, 1, 1, 0, 0, 0],
+									"wgtLvX":	[0, 32, 64, 128, 256, 2048, 4096, 8192],
+									"wgtLvY":	[0, 0.5, 1, 1, 1, 1, 1, 1],
+									"wgtWpNumthX":	[20, 100, 500, 1000, 2000, 2000],
+									"wgtWpNumthY":	[1, 1, 0.5, 0.1, 0, 0],
+									"illuMchPrt":	-1,
+									"useSgcResth":	0.6,
+									"updateDpWbgnTh":	2000,
+									"updateDpWbgnTh2":	0.8,
+									"updateEstWbgnTh":	2000
 								},
 								"lineRgBg":	[-0.877717, -0.479179, -2.75292],
 								"lineRgProjCCT":	[1, -0.000241257, 0.638007],
@@ -971,30 +1001,20 @@
 								"enable":	1,
 								"BLC_Data":	{
 									"ISO":	[50, 100, 200, 400, 800, 1600, 3200, 10000, 12800, 25600, 51200, 102400, 204800],
-									"ISO_len":	13,
 									"R_Channel":	[238.75, 247, 247, 247, 247, 247, 247, 247, 247, 247, 247, 247, 247],
-									"R_Channel_len":	13,
 									"Gr_Channel":	[238.75, 247, 247, 247, 247, 247, 247, 247, 247, 247, 247, 247, 247],
-									"Gr_Channel_len":	13,
 									"Gb_Channel":	[238.875, 247, 247, 247, 247, 247, 247, 247, 247, 247, 247, 247, 247],
-									"Gb_Channel_len":	13,
-									"B_Channel":	[238.875, 247, 247, 247, 247, 247, 247, 247, 247, 247, 247, 247, 247],
-									"B_Channel_len":	13
+									"B_Channel":	[238.875, 247, 247, 247, 247, 247, 247, 247, 247, 247, 247, 247, 247]
 								}
 							},
 							"Blc1TuningPara":	{
 								"enable":	0,
 								"BLC_Data":	{
 									"ISO":	[50, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400, 204800],
-									"ISO_len":	13,
 									"R_Channel":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-									"R_Channel_len":	13,
 									"Gr_Channel":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-									"Gr_Channel_len":	13,
 									"Gb_Channel":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-									"Gb_Channel_len":	13,
-									"B_Channel":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-									"B_Channel_len":	13
+									"B_Channel":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 								}
 							}
 						},
@@ -1007,7 +1027,46 @@
 							"lumaCCM":	{
 								"rgb2y_para":	[38, 75, 15],
 								"low_bound_pos_bit":	8,
-								"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024],
+								"gain_yalp_curve":	[{
+									"iso":	50,
+									"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+								}, {
+									"iso":	100,
+									"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+								}, {
+									"iso":	200,
+									"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+								}, {
+									"iso":	400,
+									"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+								}, {
+									"iso":	800,
+									"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+								}, {
+									"iso":	1600,
+									"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+								}, {
+									"iso":	3200,
+									"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+								}, {
+									"iso":	6400,
+									"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+								}, {
+									"iso":	12800,
+									"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+								}, {
+									"iso":	25600,
+									"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+								}, {
+									"iso":	51200,
+									"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+								}, {
+									"iso":	102400,
+									"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+								}, {
+									"iso":	204800,
+									"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+								}],
 								"gain_alphaScale_curve":	{
 									"gain":	[1, 2, 4, 8, 16, 32, 64, 128, 256],
 									"scale":	[1, 0.8, 0.8, 0.9, 1, 1, 1, 1, 1]
@@ -6156,7 +6215,7 @@
 											"pdConfdRatio0":	1,
 											"pdConfdRatio1":	1,
 											"pdConfdRatio2":	1,
-											"pdConfdRatio3":	0,
+											"pdConfdRatio3":	1,
 											"pdConfdThresh":	0.4,
 											"convergedInfPdThresh":	12,
 											"convergedMacPdThresh":	12,
@@ -6183,7 +6242,7 @@
 											"pdConfdRatio0":	1,
 											"pdConfdRatio1":	1,
 											"pdConfdRatio2":	1,
-											"pdConfdRatio3":	0,
+											"pdConfdRatio3":	1,
 											"pdConfdThresh":	0.4,
 											"convergedInfPdThresh":	12,
 											"convergedMacPdThresh":	12,

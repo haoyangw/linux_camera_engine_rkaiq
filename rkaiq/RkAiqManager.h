@@ -156,7 +156,7 @@ public:
     void setAiqCalibDb(const CamCalibDbContext_t* calibDb);
 #endif
     void setAiqCalibDb(const CamCalibDbV2Context_t* calibDb);
-    void unsetTuningCalibDb();
+    void unsetTuningCalibDb(bool isNeedFreeCalib);
 #if defined(ISP_HW_V20)
     void setLumaAnalyzer(SmartPtr<RkLumaCore> analyzer);
 #endif
@@ -244,6 +244,7 @@ private:
 #endif
     CamCalibDbV2Context_t* mCalibDbV2;
     CamCalibDbV2Context_t* tuningCalib;
+    bool mNeedFreeCalib;
     rk_aiq_working_mode_t mWorkingMode;
     rk_aiq_working_mode_t mOldWkModeForGray;
     bool mWkSwitching;

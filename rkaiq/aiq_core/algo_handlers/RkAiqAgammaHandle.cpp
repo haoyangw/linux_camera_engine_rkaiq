@@ -315,7 +315,7 @@ XCamReturn RkAiqAgammaHandleInt::genIspResult(RkAiqFullParams* params,
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
     RkAiqAlgoProcResAgamma* agamma_com = (RkAiqAlgoProcResAgamma*)mProcOutParam;
-    rk_aiq_isp_agamma_params_v20_t* agamma_param = params->mAgammaParams->data().ptr();
+    rk_aiq_isp_agamma_params_t* agamma_param = params->mAgammaParams->data().ptr();
 
     if (!agamma_com) {
         LOGD_ANALYZER("no agamma result");

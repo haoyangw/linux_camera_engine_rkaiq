@@ -566,44 +566,16 @@ protected:
 
     // TODO: change full params to list
     // V21 differential modules
-    SmartPtr<RkAiqIspAwbParamsPoolV21>     mAiqIspAwbV21ParamsPool;
-    SmartPtr<RkAiqIspDrcParamsPool>        mAiqIspDrcParamsPool;
-    SmartPtr<RkAiqIspBlcParamsPoolV21>     mAiqIspBlcV21ParamsPool;
-    SmartPtr<RkAiqIspBaynrParamsPoolV21>   mAiqIspBaynrV21ParamsPool;
-    SmartPtr<RkAiqIspBa3dParamsPoolV21>    mAiqIspBa3dV21ParamsPool;
-    SmartPtr<RkAiqIspYnrParamsPoolV21>     mAiqIspYnrV21ParamsPool;
-    SmartPtr<RkAiqIspCnrParamsPoolV21>     mAiqIspCnrV21ParamsPool;
-    SmartPtr<RkAiqIspSharpenParamsPoolV21> mAiqIspSharpenV21ParamsPool;
+    SmartPtr<RkAiqIspDrcParamsPool>         mAiqIspDrcParamsPool;
+    SmartPtr<RkAiqIspBaynrParamsPool>       mAiqIspBaynrParamsPool;
+    SmartPtr<RkAiqIspBa3dParamsPool>        mAiqIspBa3dParamsPool;
+    SmartPtr<RkAiqIspCnrParamsPool>         mAiqIspCnrParamsPool;
 
     // V30
-    SmartPtr<RkAiqIspAwbParamsPoolV3x>         mAiqIspAwbV3xParamsPool;
-    SmartPtr<RkAiqIspAfParamsPoolV3x>          mAiqIspAfV3xParamsPool;
-    SmartPtr<RkAiqIspCacParamsPoolV3x>         mAiqIspCacV3xParamsPool;
-    SmartPtr<RkAiqIspGainParamsPoolV3x>        mAiqIspGainV3xParamsPool;
-    SmartPtr<RkAiqIspBaynrParamsPoolV3x>       mAiqIspBaynrV3xParamsPool;
-    SmartPtr<RkAiqIspBa3dParamsPoolV3x>        mAiqIspBa3dV3xParamsPool;
-    SmartPtr<RkAiqIspYnrParamsPoolV3x>         mAiqIspYnrV3xParamsPool;
-    SmartPtr<RkAiqIspCnrParamsPoolV3x>         mAiqIspCnrV3xParamsPool;
-    SmartPtr<RkAiqIspSharpenParamsPoolV3x>     mAiqIspSharpenV3xParamsPool;
-    SmartPtr<RkAiqIspTnrParamsPoolV3x>         mAiqIspTnrV3xParamsPool;
-
+#if RKAIQ_HAVE_CAC
+    SmartPtr<RkAiqIspCacParamsPool>         mAiqIspCacParamsPool;
+#endif
     // V32
-    SmartPtr<RkAiqIspBlcParamsPoolV32>      mAiqIspBlcV32ParamsPool;
-    SmartPtr<RkAiqIspBaynrParamsPoolV32>    mAiqIspBaynrV32ParamsPool;
-    SmartPtr<RkAiqIspCacParamsPoolV32>      mAiqIspCacV32ParamsPool;
-    SmartPtr<RkAiqIspDebayerParamsPoolV32>  mAiqIspDebayerV32ParamsPool;
-    SmartPtr<RkAiqIspCcmParamsPoolV32>      mAiqIspCcmV32ParamsPool;
-    SmartPtr<RkAiqIspLdchParamsPoolV32>     mAiqIspLdchV32ParamsPool;
-    SmartPtr<RkAiqIspYnrParamsPoolV32>      mAiqIspYnrV32ParamsPool;
-    SmartPtr<RkAiqIspCnrParamsPoolV32>      mAiqIspCnrV32ParamsPool;
-    SmartPtr<RkAiqIspSharpParamsPoolV32>    mAiqIspSharpV32ParamsPool;
-    SmartPtr<RkAiqIspAwbParamsPoolV32>      mAiqIspAwbV32ParamsPool;
-    SmartPtr<RkAiqIspAfParamsPoolV32>       mAiqIspAfV32ParamsPool;
-    SmartPtr<RkAiqIspTnrParamsPoolV32>      mAiqIspTnrV32ParamsPool;
-    SmartPtr<RkAiqIspAwbGainParamsPoolV32>  mAiqIspAwbGainV32ParamsPool;
-
-    SmartPtr<RkAiqIspAfParamsPoolV32Lite>   mAiqIspAfV32LiteParamsPool;
-
     SmartPtr<RkAiqIspAfdParamsPool>         mAiqIspAfdParamsPool;
 
 #endif

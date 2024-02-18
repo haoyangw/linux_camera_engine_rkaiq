@@ -145,10 +145,12 @@ protected:
                                     const rk_aiq_awb_stat_cfg_v200_t& awb_meas,
                                     bool awb_cfg_udpate);
 #endif
+#if RKAIQ_HAVE_AWB_V20
     template<class T>
     void convertAiqAwbGainToIsp20Params(T& isp_cfg,
                                         const rk_aiq_wb_gain_t& awb_gain, const rk_aiq_isp_blc_t &blc,
                                         bool awb_gain_update);
+#endif
 #if RKAIQ_HAVE_MERGE_V10
     template<class T>
     void convertAiqMergeToIsp20Params(T& isp_cfg,
@@ -170,15 +172,17 @@ protected:
     template<class T>
     void convertAiqAdegammaToIsp20Params(T& isp_cfg,
                                          const AdegammaProcRes_t& degamma_cfg);
+#if RKAIQ_HAVE_DEBAYER_V1
     template<class T>
-    void convertAiqAdemosaicToIsp20Params(T& isp_cfg, rk_aiq_isp_debayer_t &demosaic);
-
+    void convertAiqAdemosaicToIsp20Params(T& isp_cfg, rk_aiq_isp_debayer_t& demosaic);
+#endif
     template<class T>
     void convertAiqLscToIsp20Params(T& isp_cfg,
                                     const rk_aiq_lsc_cfg_t& lsc);
+#if ISP_HW_V20
     template<class T>
-    void convertAiqBlcToIsp20Params(T& isp_cfg, rk_aiq_isp_blc_t &blc);
-
+    void convertAiqBlcToIsp20Params(T& isp_cfg, rk_aiq_isp_blc_t& blc);
+#endif
     template<class T>
     void convertAiqDpccToIsp20Params(T& isp_cfg, rk_aiq_isp_dpcc_t &dpcc);
 #if RKAIQ_HAVE_CCM_V1
@@ -224,12 +228,16 @@ protected:
     void convertAiqAfToIsp20Params(T& isp_cfg,
                                    const rk_aiq_isp_af_meas_t& af_data, bool af_cfg_udpate);
 #endif
+#if RKAIQ_HAVE_GAIN_V1
     template<class T>
     void convertAiqGainToIsp20Params(T& isp_cfg,
                                      rk_aiq_isp_gain_t& gain);
+#endif
+#if RKAIQ_HAVE_LDCH_V10
     template<class T>
     void convertAiqAldchToIsp20Params(T& isp_cfg,
                                       const rk_aiq_isp_ldch_t& ldch_cfg);
+#endif
     template<typename T>
     void convertAiqFecToIsp20Params(T& pp_cfg,
                                     rk_aiq_isp_fec_t& fec);

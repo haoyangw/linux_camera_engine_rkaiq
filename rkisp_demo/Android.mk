@@ -132,4 +132,3 @@ LOCAL_PROPRIETARY_MODULE := true
 LOCAL_SHARED_LIBRARIES += libutils libcutils liblog
 LOCAL_MODULE:= rkaiq_demo
 include $(BUILD_EXECUTABLE)
-

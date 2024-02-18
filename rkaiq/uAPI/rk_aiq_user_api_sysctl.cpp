@@ -1436,13 +1436,19 @@ extern RkAiqAlgoDescription g_RkIspAlgoDescAtmo;
 
 static void _print_versions()
 {
-    printf("\n"
+    LOGK("\n"
          "************************** VERSION INFOS **************************\n"
          "version release date: %s\n"
-         "         AIQ:       %s\n"
+         "         AIQ:       %s\n\n"
+         "git logs:\n%s\n"
          "************************ VERSION INFOS END ************************\n"
          , RK_AIQ_RELEASE_DATE
          , RK_AIQ_VERSION
+#ifdef GITLOGS
+        , GITLOGS
+#else
+        , "null"
+#endif
         );
 }
 
@@ -1857,8 +1863,10 @@ rk_aiq_uapi_sysctl_tuning(const rk_aiq_sys_ctx_t* sys_ctx, char* param)
         for (auto cam_ctx : grp_ctx->cam_ctxs_array) {
             if (cam_ctx) {
                 // Avoid double free
-                if (crt_cam_index > 0) {
-                    cam_ctx->_rkAiqManager->unsetTuningCalibDb();
+                if (crt_cam_index == (grp_ctx->cam_ctxs_num - 1)) {
+                    cam_ctx->_rkAiqManager->unsetTuningCalibDb(true);
+                } else {
+                    cam_ctx->_rkAiqManager->unsetTuningCalibDb(false);
                 }
                 ret = cam_ctx->_rkAiqManager->calibTuning(tuning_calib.calib,
                         tuning_calib.ModuleNames);

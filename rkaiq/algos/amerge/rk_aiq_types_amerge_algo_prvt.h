@@ -40,8 +40,6 @@
 #define MOVE_COEF_DEFAULT (0)
 #define NORMALIZE_MAX         (1.0)
 #define NORMALIZE_MIN         (0.0)
-#define SHIFT2BIT(A)          (A * 4.0)
-#define SHIFT3BIT(A)          (A * 8.0)
 #define SHIFT4BIT(A)          (A * 16.0)
 #define SHIFT6BIT(A)          (A * 64.0)
 #define SHIFT7BIT(A)          (A * 128.0)
@@ -54,17 +52,21 @@
 #define SHIFT14BIT(A)         (A * 16383.0)
 #define SHIFT15BIT(A)         (A * 32767.0)
 #define BIT_MIN               (0)
+#define BIT_4_MAX             (15)
 #define BIT_8_MAX             (255)
 #define BIT_10_MAX            (1023)
+#define BIT_12_MAX            (4095)
+#define BIT_13_MAX            (8191)
 #define BIT_14_MAX            (16383)
 #define RATIO_DEFAULT         (1.0f)
+#define AE_RATIO_MAX          (256)
+#define AE_RATIO_L2M_MAX      (32.0f)
 #define LONG_FRAME_MODE_RATIO (1.0f)
 #define ISP_PREDGAIN_DEFAULT  (1.0f)
 #define INIT_CALC_PARAMS_NUM  (2)
 #define LIMIT_VALUE(value, max_value, min_value) \
     (value > max_value ? max_value : value > min_value ? value : min_value)
 #define LIMIT_VALUE_UNSIGNED(value, max_value) (value > max_value ? max_value : value)
-#define LIMIT_PARA(a,b,c,d,e)      (c+(a-e)*(b-c)/(d -e))
 
 typedef enum FrameNumber_e {
     LINEAR_NUM   = 1,
@@ -74,34 +76,27 @@ typedef enum FrameNumber_e {
 } FrameNumber_t;
 /****************************************************************************/
 
-#define MAXLUMAK     (1.5)
-#define MAXLUMAB     (30)
-#define MOVECOEFMAX     (1.0)
-#define MOVECOEFMIN     (0.0)
-#define OECURVESMOOTHMAX     (200)
-#define OECURVESMOOTHMIN     (20)
-#define OECURVEOFFSETMAX     (280)
-#define OECURVEOFFSETMIN     (108)
-#define MDCURVESMOOTHMAX     (200)
-#define MDCURVESMOOTHMIN     (20)
-#define MDCURVEOFFSETMAX     (100)
-#define MDCURVEOFFSETMIN     (26)
+/********************merge params clip*******************/
+#define OECURVESMOOTHMAX            (200)
+#define OECURVESMOOTHMIN            (20)
+#define OECURVEOFFSETMAX            (280)
+#define OECURVEOFFSETMIN            (108)
+#define MDCURVESMOOTHMAX            (200)
+#define MDCURVESMOOTHMIN            (20)
+#define MDCURVEOFFSETMAX            (100)
+#define MDCURVEOFFSETMIN            (26)
 #define EACHOECURVESMOOTHMAX        (50)
-#define DAMPMAX     (1.0)
-#define DAMPMIN     (0.0)
-#define TOLERANCEMAX     (20.0)
-#define TOLERANCEMIN     (0.0)
-#define IQPARAMAX     (1)
-#define IQPARAMIN     (0)
-#define IQ_TH0_PARAMAX     (1023)
-#define IQ_TH0_PARAMIN     (0)
-#define AMERGE_MAX_IQ_DOTS (13)
-#define SW_HDRMGE_GAIN_FIX (0x40)
-#define SW_HDRMGE_GAIN_INV_FIX (0xfff)
-#define SW_HDRMGE_LM_DIF_0P9_FIX (255)
-#define SW_HDRMGE_MS_DIF_0P8_FIX (255)
-#define SHORT_MODE_COEF_MAX (0.001)
+/********************************************************/
+
+/********************merge fix params*******************/
+#define SW_HDRMGE_GAIN_FIX          (0x40)
+#define SW_HDRMGE_GAIN_INV_FIX      (0xfff)
+#define SW_HDRMGE_LM_DIF_0P9_FIX    (255)
+#define SW_HDRMGE_MS_DIF_0P8_FIX    (255)
 #define HDR_LONG_FRMAE_MODE_OECURVE (0)
+/*******************************************************/
+
+#define SHORT_MODE_COEF_MAX (0.001)
 
 typedef enum AmergeState_e {
     AMERGE_STATE_INVALID       = 0,

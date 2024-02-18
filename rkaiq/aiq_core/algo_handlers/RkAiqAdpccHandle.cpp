@@ -230,7 +230,7 @@ XCamReturn RkAiqAdpccHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullP
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
     RkAiqAlgoProcResAdpcc* adpcc_com            = (RkAiqAlgoProcResAdpcc*)mProcOutParam;
-    rk_aiq_isp_dpcc_params_v20_t* dpcc_param    = params->mDpccParams->data().ptr();
+    rk_aiq_isp_dpcc_params_t* dpcc_param    = params->mDpccParams->data().ptr();
 
     if (!adpcc_com) {
         LOGD_ANALYZER("no adpcc result");

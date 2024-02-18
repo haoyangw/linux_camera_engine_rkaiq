@@ -242,7 +242,7 @@ XCamReturn RkAiqAgainV2HandleInt::processing() {
 
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
-    again_proc_res_int->stAgainProcResult.stFix = &shared->fullParams->mGainV3xParams->data()->result;
+    again_proc_res_int->stAgainProcResult.stFix = &shared->fullParams->mGainParams->data()->result;
 #if RK_GAIN_V2_ENABLE_GAIN2DDR
     RkAiqAgainStats* xAgainStats = nullptr;
     if (shared->againStatsBuf) {
@@ -333,8 +333,8 @@ XCamReturn RkAiqAgainV2HandleInt::genIspResult(RkAiqFullParams* params,
     }
 
     if (!this->getAlgoId()) {
-        if (params->mGainV3xParams.ptr()) {
-            rk_aiq_isp_gain_params_v3x_t* gain_param = params->mGainV3xParams->data().ptr();
+        if (params->mGainParams.ptr()) {
+            rk_aiq_isp_gain_params_t* gain_param = params->mGainParams->data().ptr();
             if (sharedCom->init) {
                 gain_param->frame_id = 0;
             } else {
@@ -347,14 +347,14 @@ XCamReturn RkAiqAgainV2HandleInt::genIspResult(RkAiqFullParams* params,
                 gain_param->sync_flag = mSyncFlag;
                 // copy from algo result
                 // set as the latest result
-                cur_params->mGainV3xParams = params->mGainV3xParams;
+                cur_params->mGainParams = params->mGainParams;
                 gain_param->is_update = true;
                 LOGD_ANR("[%d] params from algo", mSyncFlag);
             } else if (mSyncFlag != gain_param->sync_flag) {
                 gain_param->sync_flag = mSyncFlag;
                 // copy from latest result
-                if (cur_params->mGainV3xParams.ptr()) {
-                    gain_param->result = cur_params->mGainV3xParams->data()->result;
+                if (cur_params->mGainParams.ptr()) {
+                    gain_param->result = cur_params->mGainParams->data()->result;
                     gain_param->is_update = true;
                 } else {
                     LOGE_ANR("no latest params !");

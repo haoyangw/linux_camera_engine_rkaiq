@@ -327,7 +327,7 @@ XCamReturn RkAiqAdebayerHandleInt::processing() {
     adebayer_proc_res_int->debayerResV1.config = &shared->fullParams->mDebayerParams->data()->result;
 #endif
 #if RKAIQ_HAVE_DEBAYER_V2 || RKAIQ_HAVE_DEBAYER_V2_LITE
-    adebayer_proc_res_int->debayerResV2.config = &shared->fullParams->mDebayerV32Params->data()->result;
+    adebayer_proc_res_int->debayerResV2.config = &shared->fullParams->mDebayerParams->data()->result;
 #endif
 
     ret = RkAiqHandle::processing();
@@ -388,12 +388,7 @@ XCamReturn RkAiqAdebayerHandleInt::genIspResult(RkAiqFullParams* params,
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
     RkAiqAlgoProcResAdebayer* adebayer_com = (RkAiqAlgoProcResAdebayer*)mProcOutParam;
 
-#if RKAIQ_HAVE_DEBAYER_V1
-    rk_aiq_isp_debayer_params_v20_t* debayer_param = params->mDebayerParams->data().ptr();
-#endif
-#if RKAIQ_HAVE_DEBAYER_V2 || RKAIQ_HAVE_DEBAYER_V2_LITE
-    rk_aiq_isp_debayer_params_v32_t* debayer_param = params->mDebayerV32Params->data().ptr();
-#endif
+    rk_aiq_isp_debayer_params_t* debayer_param = params->mDebayerParams->data().ptr();
     if (!adebayer_com) {
         LOGD_ANALYZER("no adebayer result");
         return XCAM_RETURN_NO_ERROR;
@@ -412,18 +407,12 @@ XCamReturn RkAiqAdebayerHandleInt::genIspResult(RkAiqFullParams* params,
             debayer_param->sync_flag = mSyncFlag;
             // copy from algo result
             // set as the latest result
-#if RKAIQ_HAVE_DEBAYER_V1
             cur_params->mDebayerParams = params->mDebayerParams;
-#endif
-#if RKAIQ_HAVE_DEBAYER_V2 || RKAIQ_HAVE_DEBAYER_V2_LITE
-            cur_params->mDebayerV32Params = params->mDebayerV32Params;
-#endif
             debayer_param->is_update = true;
             LOGD_ADEBAYER("[%d] params from algo", mSyncFlag);
         } else if (mSyncFlag != debayer_param->sync_flag) {
             debayer_param->sync_flag = mSyncFlag;
             // copy from latest result
-#if RKAIQ_HAVE_DEBAYER_V1
             if (cur_params->mDebayerParams.ptr()) {
                 debayer_param->result = cur_params->mDebayerParams->data()->result;
                 debayer_param->is_update = true;
@@ -431,16 +420,6 @@ XCamReturn RkAiqAdebayerHandleInt::genIspResult(RkAiqFullParams* params,
                 LOGE_ADEBAYER("no latest params !");
                 debayer_param->is_update = false;
             }
-#endif
-#if RKAIQ_HAVE_DEBAYER_V2 || RKAIQ_HAVE_DEBAYER_V2_LITE
-            if (cur_params->mDebayerV32Params.ptr()) {
-                debayer_param->result = cur_params->mDebayerV32Params->data()->result;
-                debayer_param->is_update = true;
-            } else {
-                LOGE_ADEBAYER("no latest params !");
-                debayer_param->is_update = false;
-            }
-#endif
             LOGD_ADEBAYER("[%d] params from latest [%d]", shared->frameId, mSyncFlag);
         } else {
             // do nothing, result in buf needn't update

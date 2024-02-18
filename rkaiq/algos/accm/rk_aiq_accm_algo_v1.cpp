@@ -28,14 +28,14 @@ RKAIQ_BEGIN_DECLARE
 
 void CCMV1PrintReg(const rk_aiq_ccm_cfg_t* hw_param) {
     LOG1_ACCM(
-        " CCM V1 reg values: "
-        " sw_ccm_highy_adjust_dis 0"
-        " sw_ccm_en_i %d"
-        " sw_ccm_coeff ([%f,%f,%f,%f,%f,%f,%f,%f,%f]-E)X128"
-        " sw_ccm_offset [%f,%f,%f]"
-        " sw_ccm_coeff_y [%f,%f,%f]"
-        " sw_ccm_alp_y [%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f]"
-        " sw_ccm_bound_bit %f",
+        " CCM V1 reg values: \n"
+        " sw_ccm_highy_adjust_dis 0\n"
+        " sw_ccm_en_i %d\n"
+        " sw_ccm_coeff ([%f,%f,%f,%f,%f,%f,%f,%f,%f]-E)X128\n"
+        " sw_ccm_offset [%f,%f,%f]\n"
+        " sw_ccm_coeff_y [%f,%f,%f]\n"
+        " sw_ccm_alp_y [%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f]\n"
+        " sw_ccm_bound_bit %f\n",
         hw_param->ccmEnable,
         hw_param->matrix[0], hw_param->matrix[1], hw_param->matrix[2],
         hw_param->matrix[3], hw_param->matrix[4], hw_param->matrix[5],
@@ -55,16 +55,16 @@ void CCMV1PrintDBG(const accm_context_t* accm_context) {
     const float *pMatrixDamped = accm_context->ccmHwConf.matrix;
     const float *pOffsetDamped = accm_context->ccmHwConf.offs;
 
-    LOG1_ACCM("Illu Probability Estimation Enable: %d"
-                "color_inhibition sensorGain: %f,%f,%f,%f "
-                "color_inhibition level: %f,%f,%f,%f"
-                "color_saturation sensorGain: %f,%f,%f,%f "
-                "color_saturation level: %f,%f,%f,%f"
-                "dampfactor: %f"
-                " undampedCcmMatrix: %f,%f,%f,%f,%f,%f,%f,%f,%f"
-                " undampedCcOffset: %f,%f,%f "
-                " dampedCcmMatrix: %f,%f,%f,%f,%f,%f,%f,%f,%f"
-                " dampedCcOffset:%f,%f,%f",
+    LOG1_ACCM("Illu Probability Estimation Enable: %d\n"
+                "color_inhibition sensorGain: %f,%f,%f,%f \n"
+                "color_inhibition level: %f,%f,%f,%f\n"
+                "color_saturation sensorGain: %f,%f,%f,%f \n"
+                "color_saturation level: %f,%f,%f,%f\n"
+                "dampfactor: %f\n"
+                " undampedCcmMatrix: %f,%f,%f,%f,%f,%f,%f,%f,%f\n"
+                " undampedCcOffset: %f,%f,%f \n"
+                " dampedCcmMatrix: %f,%f,%f,%f,%f,%f,%f,%f,%f\n"
+                " dampedCcOffset:%f,%f,%f\n",
                 accm_context->ccm_v1->TuningPara.illu_estim.interp_enable,
                 accm_context->mCurAtt.stAuto.color_inhibition.sensorGain[0],
                 accm_context->mCurAtt.stAuto.color_inhibition.sensorGain[1],
@@ -190,18 +190,21 @@ XCamReturn AccmAutoConfig
                 LOGD_ACCM("Adjust ccm by sat: %d, undampedCcmMatrix[0]: %f", hAccm->isReCal_, hAccm->accmRest.undampedCcmMatrix[0]);
             }
 
-            if (!hAccm->invarMode) {
-                hAccm->ccmHwConf.bound_bit = hAccm->ccm_v1->lumaCCM.low_bound_pos_bit;
-                memcpy(hAccm->ccmHwConf.rgb2y_para, hAccm->ccm_v1->lumaCCM.rgb2y_para,
-                       sizeof(hAccm->ccm_v1->lumaCCM.rgb2y_para));
-            }
-
-            for(int i = 0; i < CCM_CURVE_DOT_NUM; i++) { //set to ic  to do bit check
-                hAccm->ccmHwConf.alp_y[i] = fScale * hAccm->ccm_v1->lumaCCM.y_alpha_curve[i];
-            }
             updUndampMat = true;
-            updateYAlp   = true;
         }
+        if (!hAccm->invarMode) {
+            hAccm->ccmHwConf.bound_bit = hAccm->ccm_v1->lumaCCM.low_bound_pos_bit;
+            memcpy(hAccm->ccmHwConf.rgb2y_para, hAccm->ccm_v1->lumaCCM.rgb2y_para,
+                    sizeof(hAccm->ccm_v1->lumaCCM.rgb2y_para));
+            updateYAlp = true;
+        }
+        float iso = sensorGain * 50;
+        bool yalp_flag = false;
+        YAlpSymAutoCfg(CCM_YALP_ISO_STEP_MAX, hAccm->ccm_v1->lumaCCM.gain_yalp_curve,
+                    hAccm->accmRest.yalp_tbl_info.scl,
+                    hAccm->accmRest.yalp_tbl_info.tbl_idx,
+                    iso, (!hAccm->invarMode || hAccm->calib_update), hAccm->ccmHwConf.alp_y, &yalp_flag);
+        updateYAlp = updateYAlp || yalp_flag;
     }
     // 7) . Damping
     float dampCoef = (pCcm->damp_enable && hAccm->count > 1 && hAccm->invarMode > 0) ? hAccm->accmSwInfo.awbIIRDampCoef : 0;
@@ -305,7 +308,7 @@ XCamReturn ConfigbyCalib(accm_handle_t hAccm) {
         hAccm->ccmHwConf.bound_bit = hAccm->ccm_v1->lumaCCM.low_bound_pos_bit;
         memcpy(hAccm->ccmHwConf.rgb2y_para, hAccm->ccm_v1->lumaCCM.rgb2y_para,
                 sizeof(hAccm->ccm_v1->lumaCCM.rgb2y_para));
-        memcpy(hAccm->ccmHwConf.alp_y, hAccm->ccm_v1->lumaCCM.y_alpha_curve, sizeof(hAccm->ccmHwConf.alp_y));
+        memcpy(hAccm->ccmHwConf.alp_y, hAccm->ccm_v1->lumaCCM.gain_yalp_curve[0].y_alpha_curve, sizeof(hAccm->ccmHwConf.alp_y));
 
         hAccm->accmSwInfo.ccmConverged = false;
         hAccm->calib_update = true;

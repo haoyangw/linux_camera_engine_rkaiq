@@ -549,6 +549,25 @@ SensorHw::get_nr_switch(rk_aiq_sensor_nr_switch_t* nr_switch)
     return 0;
 }
 
+int
+SensorHw::get_dcg_ratio(rk_aiq_sensor_dcg_ratio_t* dcg_ratio)
+{
+    struct rkmodule_dcg_ratio dcg_ratio_drv;
+
+    if (io_control(RKMODULE_GET_DCG_RATIO, &dcg_ratio_drv) < 0) {
+        //LOGD_CAMHW_SUBM(SENSOR_SUBM,"failed to get sensor dcg_ratio");
+        dcg_ratio->valid = false;
+        return XCAM_RETURN_ERROR_IOCTL;
+    }
+
+    dcg_ratio->valid = true;
+    dcg_ratio->integer = dcg_ratio_drv.integer;
+    dcg_ratio->decimal = dcg_ratio_drv.decimal;
+    dcg_ratio->div_coeff = dcg_ratio_drv.div_coeff;
+
+    return 0;
+}
+
 XCamReturn
 SensorHw::get_sensor_descriptor(rk_aiq_exposure_sensor_descriptor *sns_des)
 {
@@ -576,6 +595,9 @@ SensorHw::get_sensor_descriptor(rk_aiq_exposure_sensor_descriptor *sns_des)
         return XCAM_RETURN_ERROR_IOCTL;
 
     if (get_nr_switch(&sns_des->nr_switch)) {
+        // do nothing;
+    }
+    if (get_dcg_ratio(&sns_des->dcg_ratio)) {
         // do nothing;
     }
 
@@ -626,7 +648,7 @@ SensorHw::setExposureParams(SmartPtr<RkAiqExpParamsProxy>& expPar)
         }
         if (!exp->exp_i2c_params.bValid) {
             _is_i2c_exp = false;
-            if (!mTbInfo.is_pre_aiq) {
+            if (!(mTbInfo.is_pre_aiq)) {
                 if (_working_mode == RK_AIQ_WORKING_MODE_NORMAL)
                     setLinearSensorExposure(&exp->new_ae_exp);
                 else
@@ -843,6 +865,7 @@ SensorHw::getSensorModeData(const char* sns_ent_name,
 
     //add nr_switch
     sns_des.nr_switch = sensor_desc.nr_switch;
+    sns_des.dcg_ratio = sensor_desc.dcg_ratio;
 
     sns_des.sensor_output_width = sensor_desc.sensor_output_width;
     sns_des.sensor_output_height = sensor_desc.sensor_output_height;
@@ -907,9 +930,9 @@ SensorHw::split_locked(SmartPtr<RkAiqSensorExpParamsProxy>& exp_param, uint32_t 
 
         _effecting_exp_map[max_dst_id + 1] = exp_param;
 
-        LOGD_CAMHW_SUBM(SENSOR_SUBM,"cid: %d, num_reg:%d, efid:%d, isp_dgain:%0.3f \n",
-              num_regs, mCamPhyId, max_dst_id + 1,
-              exp_param->data()->aecExpInfo.LinearExp.exp_real_params.isp_dgain);
+        LOGD_CAMHW_SUBM(SENSOR_SUBM, "cid: %d, num_reg:%d, efid:%d, isp_dgain:%0.3f \n",
+                        num_regs, mCamPhyId, max_dst_id + 1,
+                        exp_param->data()->aecExpInfo.LinearExp.exp_real_params.isp_dgain);
     } else {
         RKAiqAecExpInfo_t* exp_info = &exp_param->data()->aecExpInfo;
 

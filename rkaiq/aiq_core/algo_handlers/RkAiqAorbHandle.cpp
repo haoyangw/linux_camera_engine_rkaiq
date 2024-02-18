@@ -111,7 +111,7 @@ XCamReturn RkAiqAorbHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPa
 
     if (!this->getAlgoId()) {
         RkAiqAlgoProcResAorb* aorb_rk        = (RkAiqAlgoProcResAorb*)aorb_com;
-        rk_aiq_isp_orb_params_v20_t* orb_params = params->mOrbParams->data().ptr();
+        rk_aiq_isp_orb_params_t* orb_params = params->mOrbParams->data().ptr();
         if (orb_params != nullptr) {
             if (sharedCom->init) {
                 orb_params->frame_id = 0;

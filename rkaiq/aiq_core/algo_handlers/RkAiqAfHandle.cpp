@@ -423,13 +423,13 @@ XCamReturn RkAiqAfHandleInt::processing() {
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
 #if RKAIQ_HAVE_AF_V32_LITE || RKAIQ_ONLY_AF_STATS_V32_LITE
-    af_proc_res_int->af_isp_param_v32 = &shared->fullParams->mAfV32LiteParams->data()->result;
+    af_proc_res_int->af_isp_param_v32 = &shared->fullParams->mAfParams->data()->result;
 #endif
 #if RKAIQ_HAVE_AF_V31 || RKAIQ_ONLY_AF_STATS_V31
-    af_proc_res_int->af_isp_param_v31 = &shared->fullParams->mAfV32Params->data()->result;
+    af_proc_res_int->af_isp_param_v31 = &shared->fullParams->mAfParams->data()->result;
 #endif
 #if RKAIQ_HAVE_AF_V30 || RKAIQ_ONLY_AF_STATS_V30
-    af_proc_res_int->af_isp_param_v3x = &shared->fullParams->mAfV3xParams->data()->result;
+    af_proc_res_int->af_isp_param_v3x = &shared->fullParams->mAfParams->data()->result;
 #endif
 #if RKAIQ_HAVE_AF_V20 || RKAIQ_ONLY_AF_STATS_V20
     af_proc_res_int->af_isp_param = &shared->fullParams->mAfParams->data()->result;
@@ -550,18 +550,7 @@ XCamReturn RkAiqAfHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPara
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
     RkAiqAlgoProcResAf* af_com                  = (RkAiqAlgoProcResAf*)mProcOutParam ;
-#if RKAIQ_HAVE_AF_V32_LITE || RKAIQ_ONLY_AF_STATS_V32_LITE
-    rk_aiq_isp_af_params_v32_lite_t* af_param = params->mAfV32LiteParams->data().ptr();
-#endif
-#if RKAIQ_HAVE_AF_V31 || RKAIQ_ONLY_AF_STATS_V31
-    rk_aiq_isp_af_params_v32_t* af_param = params->mAfV32Params->data().ptr();
-#endif
-#if RKAIQ_HAVE_AF_V30 || RKAIQ_ONLY_AF_STATS_V30
-    rk_aiq_isp_af_params_v3x_t* af_param = params->mAfV3xParams->data().ptr();
-#endif
-#if RKAIQ_HAVE_AF_V20 || RKAIQ_ONLY_AF_STATS_V20
-    rk_aiq_isp_af_params_v20_t* af_param = params->mAfParams->data().ptr();
-#endif
+    rk_aiq_isp_af_params_t* af_param = params->mAfParams->data().ptr();
 
     SmartPtr<rk_aiq_focus_params_wrapper_t> focus_param = params->mFocusParams->data();
 
@@ -594,51 +583,12 @@ XCamReturn RkAiqAfHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPara
     if (af_com->af_cfg_update) {
         mAfMeasResSyncFalg = shared->frameId;
         af_param->sync_flag = mAfMeasResSyncFalg;
-#if RKAIQ_HAVE_AF_V32_LITE || RKAIQ_ONLY_AF_STATS_V32_LITE
-        cur_params->mAfV32LiteParams = params->mAfV32LiteParams;
-#endif
-#if RKAIQ_HAVE_AF_V31 || RKAIQ_ONLY_AF_STATS_V31
-        cur_params->mAfV32Params = params->mAfV32Params;
-#endif
-#if RKAIQ_HAVE_AF_V30 || RKAIQ_ONLY_AF_STATS_V30
-        cur_params->mAfV3xParams = params->mAfV3xParams;
-#endif
-#if RKAIQ_HAVE_AF_V20 || RKAIQ_ONLY_AF_STATS_V20
         cur_params->mAfParams = params->mAfParams;
-#endif
         af_param->is_update = true;
         af_com->af_cfg_update = false;
         LOGD_AF("[%d] meas params from algo", mAfMeasResSyncFalg);
     } else if (mAfMeasResSyncFalg != af_param->sync_flag) {
         af_param->sync_flag = mAfMeasResSyncFalg;
-#if RKAIQ_HAVE_AF_V32_LITE || RKAIQ_ONLY_AF_STATS_V32_LITE
-        if (cur_params->mAfV32LiteParams.ptr()) {
-            af_param->result = cur_params->mAfV32LiteParams->data()->result;
-            af_param->is_update = true;
-        } else {
-            LOGE_AF("no latest meas params !");
-            af_param->is_update = false;
-        }
-#endif
-#if RKAIQ_HAVE_AF_V31 || RKAIQ_ONLY_AF_STATS_V31
-        if (cur_params->mAfV32Params.ptr()) {
-            af_param->result = cur_params->mAfV32Params->data()->result;
-            af_param->is_update = true;
-        } else {
-            LOGE_AF("no latest meas params !");
-            af_param->is_update = false;
-        }
-#endif
-#if RKAIQ_HAVE_AF_V30 || RKAIQ_ONLY_AF_STATS_V30
-        if (cur_params->mAfV3xParams.ptr()) {
-            af_param->result = cur_params->mAfV3xParams->data()->result;
-            af_param->is_update = true;
-        } else {
-            LOGE_AF("no latest meas params !");
-            af_param->is_update = false;
-        }
-#endif
-#if RKAIQ_HAVE_AF_V20 || RKAIQ_ONLY_AF_STATS_V20
         if (cur_params->mAfParams.ptr()) {
             af_param->result = cur_params->mAfParams->data()->result;
             af_param->is_update = true;
@@ -646,7 +596,6 @@ XCamReturn RkAiqAfHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPara
             LOGE_AF("no latest meas params !");
             af_param->is_update = false;
         }
-#endif
         LOGD_AF("[%d] meas params from latest [%d]", shared->frameId, mAfMeasResSyncFalg);
     } else {
         // do nothing, result in buf needn't update

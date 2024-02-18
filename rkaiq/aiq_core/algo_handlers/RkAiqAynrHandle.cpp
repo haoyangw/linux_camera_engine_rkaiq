@@ -315,7 +315,7 @@ XCamReturn RkAiqAynrHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPa
         RkAiqAlgoProcResAynr* aynr_rk = (RkAiqAlgoProcResAynr*)aynr_com;
 
         if (params->mYnrParams.ptr()) {
-            rk_aiq_isp_ynr_params_v20_t* ynr_param = params->mYnrParams->data().ptr();
+            rk_aiq_isp_ynr_params_t* ynr_param = params->mYnrParams->data().ptr();
             LOGD_ANR("oyyf: %s:%d output ispp param start\n", __FUNCTION__, __LINE__);
 
             if (sharedCom->init) {

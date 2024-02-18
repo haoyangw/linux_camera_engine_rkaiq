@@ -73,6 +73,7 @@ public:
 	void set_working_mode(int mode);
 	void release_user_taked_buf(int dev_index);
     void set_dma_buf(int dev_index, int buf_index, int fd);
+    void prepare_cif_mipi();
     // from PollCallback
     virtual XCamReturn poll_buffer_ready (SmartPtr<VideoBuffer> &buf, int type) { return XCAM_RETURN_ERROR_FAILED; }
     virtual XCamReturn poll_buffer_failed (int64_t timestamp, const char *msg) { return XCAM_RETURN_ERROR_FAILED; }

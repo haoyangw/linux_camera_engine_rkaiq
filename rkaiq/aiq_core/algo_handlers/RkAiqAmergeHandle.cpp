@@ -377,7 +377,7 @@ XCamReturn RkAiqAmergeHandleInt::genIspResult(RkAiqFullParams* params,
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
     RkAiqAlgoProcResAmerge* amerge_com          = (RkAiqAlgoProcResAmerge*)mProcOutParam;
 
-    rk_aiq_isp_merge_params_v20_t* merge_param = params->mMergeParams->data().ptr();
+    rk_aiq_isp_merge_params_t* merge_param = params->mMergeParams->data().ptr();
 
     if (!amerge_com) {
         LOGD_ANALYZER("no amerge result");

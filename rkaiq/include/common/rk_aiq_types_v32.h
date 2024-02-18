@@ -28,6 +28,8 @@
 #include "algos/acac/rk_aiq_types_acac_algo.h"
 #include "asharpV33/rk_aiq_types_asharp_algo_v33.h"
 #include "aynrV22/rk_aiq_types_aynr_algo_v22.h"
+#include "awb/rk_aiq_types_awb_algo.h"
+#include "accm/rk_aiq_types_accm_algo.h"
 #include "rk_aiq_comm.h"
 #include "rk_aiq_mems_sensor.h"
 
@@ -53,9 +55,6 @@ typedef struct rk_aiq_isp_cac_v32_s {
 
 typedef AdebayerHwConfigV2_t rk_aiq_isp_debayer_v32_t;
 
-typedef struct rk_aiq_isp_ccm_v32_s {
-} rk_aiq_isp_ccm_v32_t;
-
 typedef RkAiqAdehazeProcResult_t rk_aiq_isp_dehaze_v32_t;
 
 typedef ldch_v21_process_result_t rk_aiq_isp_ldch_v21_t;
@@ -78,5 +77,8 @@ typedef RK_Bayertnr_Fix_V23_t rk_aiq_isp_tnr_v32_t ;
 
 typedef rk_aiq_af_algo_meas_v31_t rk_aiq_isp_af_v31_t;
 typedef rk_aiq_af_algo_meas_v32_t rk_aiq_isp_af_v32_t;
+
+typedef rk_aiq_wb_gain_v32_t rk_aiq_isp_wb_gain_v32_t;
+typedef rk_aiq_ccm_cfg_v2_t rk_aiq_isp_ccm_v32_t;
 
 #endif

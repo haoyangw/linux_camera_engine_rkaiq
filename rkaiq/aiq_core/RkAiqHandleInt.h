@@ -32,7 +32,7 @@
 #if RKAIQ_HAVE_CAC_V03
 #include "algo_handlers/RkAiqAcacV3Handle.h"
 #endif
-#if RKAIQ_HAVE_CCM_V1 || RKAIQ_HAVE_CCM_V2
+#if RKAIQ_HAVE_CCM
 #include "algo_handlers/RkAiqAccmHandle.h"
 #endif
 #if RKAIQ_HAVE_CGC_V1
@@ -47,18 +47,17 @@
 #if RKAIQ_HAVE_CSM_V1
 #include "algo_handlers/RkAiqAcsmHandle.h"
 #endif
-#if RKAIQ_HAVE_DEBAYER_V1 || RKAIQ_HAVE_DEBAYER_V2 || RKAIQ_HAVE_DEBAYER_V2_LITE
+#if RKAIQ_HAVE_DEBAYER
 #include "algo_handlers/RkAiqAdebayerHandle.h"
 #endif
 #if RKAIQ_HAVE_DEGAMMA_V1
 #include "algo_handlers/RkAiqAdegammaHandle.h"
 #endif
-#if RKAIQ_HAVE_DEHAZE_V10 || RKAIQ_HAVE_DEHAZE_V11 || RKAIQ_HAVE_DEHAZE_V11_DUO || \
-    RKAIQ_HAVE_DEHAZE_V12
+#if RKAIQ_HAVE_DEHAZE
 #include "algo_handlers/RkAiqAdehazeHandle.h"
 #endif
 #include "algo_handlers/RkAiqAdpccHandle.h"
-#if RKAIQ_HAVE_DRC_V10 || RKAIQ_HAVE_DRC_V11 || RKAIQ_HAVE_DRC_V12 || RKAIQ_HAVE_DRC_V12_LITE
+#if RKAIQ_HAVE_DRC
 #include "algo_handlers/RkAiqAdrcHandle.h"
 #endif
 #if RKAIQ_HAVE_AE_V1
@@ -71,21 +70,21 @@
 #endif
 #include "algo_handlers/RkAiqAgainHandle.h"
 #include "algo_handlers/RkAiqAgainV2Handle.h"
-#if RKAIQ_HAVE_GAMMA_V10 || RKAIQ_HAVE_GAMMA_V11
+#if RKAIQ_HAVE_GAMMA
 #include "algo_handlers/RkAiqAgammaHandle.h"
 #endif
-#if RKAIQ_HAVE_GIC_V1 || RKAIQ_HAVE_GIC_V2
+#if RKAIQ_HAVE_GIC
 #include "algo_handlers/RkAiqAgicHandle.h"
 #endif
 #if RKAIQ_HAVE_AIE_V10
 #include "algo_handlers/RkAiqAieHandle.h"
 #endif
 #include "algo_handlers/RkAiqAldchHandle.h"
-#if RKAIQ_HAVE_LSC_V1 || RKAIQ_HAVE_LSC_V2 || RKAIQ_HAVE_LSC_V3
+#if RKAIQ_HAVE_LSC
 #include "algo_handlers/RkAiqAlscHandle.h"
 #endif
 #include "algo_handlers/RkAiqAmdHandle.h"
-#if RKAIQ_HAVE_MERGE_V10 || RKAIQ_HAVE_MERGE_V11 || RKAIQ_HAVE_MERGE_V12
+#if RKAIQ_HAVE_MERGE
 #include "algo_handlers/RkAiqAmergeHandle.h"
 #endif
 #include "algo_handlers/RkAiqAmfnrHandle.h"

@@ -22,6 +22,7 @@
 #include "cJSON_Utils.h"
 #include "j2s.h"
 #include "scene/scene_manager.h"
+#include "RkAiqVersion.h"
 
 #ifndef __ANDROID__
 //#define IQ_DEBUG
@@ -376,6 +377,11 @@ CamCalibDbProj_t *RkAiqCalibDbV2::bin2calibproj(const char *binfile) {
         return NULL;
     }
 
+    ret = checkBinVersion((uint8_t*)bin_buff, bin_size);
+    if (ret < 0) {
+        LOGW("iq bin version is no current");
+    }
+
     ret = parseBinStructMap((uint8_t*)bin_buff, bin_size);
     if (ret) {
         return NULL;
@@ -392,6 +398,11 @@ CamCalibDbProj_t *RkAiqCalibDbV2::bin2calibproj(const void *bin_buff, size_t len
 
     if (!bin_buff || !len)
         return NULL;
+
+    ret = checkBinVersion((uint8_t*)bin_buff, len);
+    if (ret) {
+        LOGW("iq bin version is no current");
+    }
 
     ret = parseBinStructMap((uint8_t*)bin_buff, len);
     if (ret) {
@@ -2995,6 +3006,25 @@ void* RkAiqCalibDbV2::loadWholeFile(const char *fpath, size_t *fsize)
     close(fd);
 
     return buf;
+}
+
+int RkAiqCalibDbV2::checkBinVersion(uint8_t *data, size_t len)
+{
+    size_t tmp_len = len -  sizeof(char) * 64 - sizeof(size_t) * 2;
+    char *iq_version = (char*)(data + tmp_len);
+    if (strstr(iq_version, RK_AIQ_IQ_HEAD_VERSION_PREFIX)) {
+        if (strcmp(iq_version, RK_AIQ_IQ_HEAD_VERSION) == 0) {
+            LOGK("AIQ run with iq bin, iq bin version: %s", RK_AIQ_IQ_HEAD_VERSION);
+        } else {
+            LOGE("iq bin version no matched, iq bin version: %s current: %s", iq_version, RK_AIQ_IQ_HEAD_VERSION);
+            return -1;
+        }
+    } else {
+        LOGE("no iq bin version info, maybe use older version bin, current: %s", RK_AIQ_IQ_HEAD_VERSION);
+        return -1;
+    }
+
+    return 0;
 }
 
 int RkAiqCalibDbV2::parseBinStructMap(uint8_t *data, size_t len)

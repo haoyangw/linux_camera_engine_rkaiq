@@ -267,7 +267,7 @@ XCamReturn RkAiqAeisHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPa
         return XCAM_RETURN_NO_ERROR;
     }
 
-    rk_aiq_isp_fec_params_v20_t* fec_params = params->mFecParams->data().ptr();
+    rk_aiq_isp_fec_params_t* fec_params = params->mFecParams->data().ptr();
     if (!this->getAlgoId()) {
         RkAiqAlgoProcResAeis* aeis_rk = (RkAiqAlgoProcResAeis*)aeis_com;
         if (sharedCom->init) {

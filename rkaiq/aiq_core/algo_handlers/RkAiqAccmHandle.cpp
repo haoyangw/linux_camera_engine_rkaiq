@@ -454,7 +454,7 @@ XCamReturn RkAiqAccmHandleInt::processing() {
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
 #if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
-    if (!shared->fullParams || !shared->fullParams->mCcmV32Params.ptr()) {
+    if (!shared->fullParams || !shared->fullParams->mCcmParams.ptr()) {
 #else
     if (!shared->fullParams || !shared->fullParams->mCcmParams.ptr()) {
 #endif
@@ -463,7 +463,7 @@ XCamReturn RkAiqAccmHandleInt::processing() {
     }
 
 #if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
-    accm_proc_res_int->accm_hw_conf_v2 = &shared->fullParams->mCcmV32Params->data()->result;
+    accm_proc_res_int->accm_hw_conf_v2 = &shared->fullParams->mCcmParams->data()->result;
 #else
     accm_proc_res_int->accm_hw_conf = &shared->fullParams->mCcmParams->data()->result;
 #endif
@@ -589,11 +589,7 @@ XCamReturn RkAiqAccmHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPa
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
     RkAiqAlgoProcResAccm* accm_com = (RkAiqAlgoProcResAccm*)mProcOutParam;
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
-    rk_aiq_isp_ccm_params_v32_t* ccm_param = params->mCcmV32Params->data().ptr();
-#else
-    rk_aiq_isp_ccm_params_v20_t* ccm_param = params->mCcmParams->data().ptr();
-#endif
+    rk_aiq_isp_ccm_params_t* ccm_param = params->mCcmParams->data().ptr();
 
     if (!accm_com) {
         LOGD_ANALYZER("no accm result");
@@ -621,25 +617,12 @@ XCamReturn RkAiqAccmHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPa
         ccm_param->sync_flag = mSyncFlag;
         // copy from algo result
         // set as the latest result
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
-        cur_params->mCcmV32Params = params->mCcmV32Params;
-#else
         cur_params->mCcmParams = params->mCcmParams;
-#endif
         ccm_param->is_update = true;
         LOGD_ACCM("[%d] params from algo", mSyncFlag);
     } else if (mSyncFlag != ccm_param->sync_flag) {
         ccm_param->sync_flag = mSyncFlag;
         // copy from latest result
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
-        if (cur_params->mCcmV32Params.ptr()) {
-            ccm_param->result = cur_params->mCcmV32Params->data()->result;
-            ccm_param->is_update = true;
-        } else {
-            LOGE_ACCM("no latest params !");
-            ccm_param->is_update = false;
-        }
-#else
         if (cur_params->mCcmParams.ptr()) {
             ccm_param->result = cur_params->mCcmParams->data()->result;
             ccm_param->is_update = true;
@@ -647,7 +630,6 @@ XCamReturn RkAiqAccmHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPa
             LOGE_ACCM("no latest params !");
             ccm_param->is_update = false;
         }
-#endif
         LOGD_ACCM("[%d] params from latest [%d]", shared->frameId, mSyncFlag);
     } else {
         // do nothing, result in buf needn't update

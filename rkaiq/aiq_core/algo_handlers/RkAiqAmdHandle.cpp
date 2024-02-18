@@ -162,7 +162,7 @@ XCamReturn RkAiqAmdHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPar
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
     RkAiqAlgoProcResAmd* amd_com = &mProcResShared->result;
 
-    rk_aiq_isp_md_params_v20_t* md_param = params->mMdParams->data().ptr();
+    rk_aiq_isp_md_params_t* md_param = params->mMdParams->data().ptr();
     if (sharedCom->init) {
         md_param->frame_id = 0;
     } else {

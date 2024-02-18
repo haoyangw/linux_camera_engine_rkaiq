@@ -37,10 +37,16 @@ RkAiqResourceTranslatorV3x::RkAiqResourceTranslatorV3x() : mIsMultiIsp(false) {
     memset(&pic_rect_, 0, sizeof(RkAiqResourceTranslatorV3x::Rectangle));
     memset(&left_isp_rect_, 0, sizeof(RkAiqResourceTranslatorV3x::Rectangle));
     memset(&right_isp_rect_, 0, sizeof(RkAiqResourceTranslatorV3x::Rectangle));
+    mIspUnitedMode = RK_AIQ_ISP_UNITED_MODE_NORMAL;
 }
 
 RkAiqResourceTranslatorV3x& RkAiqResourceTranslatorV3x::SetMultiIspMode(bool isMultiIsp) {
     mIsMultiIsp = isMultiIsp;
+    return *this;
+}
+
+RkAiqResourceTranslatorV3x& RkAiqResourceTranslatorV3x::SetIspUnitedMode(RkAiqIspUnitedMode mode) {
+    mIspUnitedMode = mode;
     return *this;
 }
 
@@ -100,6 +106,10 @@ RkAiqResourceTranslatorV3x& RkAiqResourceTranslatorV3x::SetBottomRightIspRect(
 
 bool RkAiqResourceTranslatorV3x::IsMultiIspMode() const {
     return mIsMultiIsp;
+}
+
+RkAiqIspUnitedMode RkAiqResourceTranslatorV3x::GetIspUnitedMode() {
+    return mIspUnitedMode;
 }
 
 RkAiqResourceTranslatorV3x::Rectangle RkAiqResourceTranslatorV3x::GetPicInfo() {

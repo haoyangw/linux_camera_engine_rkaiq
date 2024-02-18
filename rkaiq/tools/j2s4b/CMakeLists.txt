@@ -52,6 +52,7 @@ include_directories(
     src/j2s4b
     include
     ${ROOT_PROJ_DIR}/include/iq_parser_v2/j2s/
+    ${ROOT_PROJ_DIR}
     )
 
 set(CXX_SRCS

@@ -269,7 +269,7 @@ XCamReturn RkAiqAtmoHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPa
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
     RkAiqAlgoProcResAtmo* atmo_com              = (RkAiqAlgoProcResAtmo*)mProcOutParam;
 
-    rk_aiq_isp_tmo_params_v20_t* tmo_param = params->mTmoParams->data().ptr();
+    rk_aiq_isp_tmo_params_t* tmo_param = params->mTmoParams->data().ptr();
 
     if (!atmo_com) {
         LOGD_ANALYZER("no atmo result");

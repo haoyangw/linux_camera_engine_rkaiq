@@ -29,14 +29,14 @@ namespace RkCam {
 
 class CTimer;
 class FakeSensorHw : public SensorHw {
-friend class CTimer;
+    friend class CTimer;
 public:
     explicit FakeSensorHw();
     virtual ~FakeSensorHw();
 
     virtual XCamReturn setExposureParams(SmartPtr<RkAiqExpParamsProxy>& expPar);
     virtual XCamReturn getSensorModeData(const char* sns_ent_name,
-                                 rk_aiq_exposure_sensor_descriptor& sns_des);
+                                         rk_aiq_exposure_sensor_descriptor& sns_des);
 
     virtual XCamReturn handle_sof(int64_t time, uint32_t frameid);
     virtual int get_pixel(rk_aiq_exposure_sensor_descriptor* sns_des);
@@ -58,13 +58,16 @@ public:
     XCamReturn enqueue_rawbuffer(struct rk_aiq_vbuf *vbuf, bool sync);
     virtual XCamReturn on_dqueue(int dev_idx, SmartPtr<V4l2BufferProxy> buf_proxy);
     XCamReturn register_rawdata_callback(void (*callback)(void *));
-    virtual bool is_virtual_sensor() { return true; }
+    virtual bool is_virtual_sensor() {
+        return true;
+    }
 
     bool use_rkrawstream;
 private:
     XCAM_DEAD_COPY (FakeSensorHw);
     int get_sensor_fps(float& fps);
     int get_nr_switch(rk_aiq_sensor_nr_switch_t* nr_switch);
+    int get_dcg_ratio(rk_aiq_sensor_dcg_ratio_t* dcg_ratio);
     int _width;
     int _height;
     uint32_t _fmt_code;
@@ -83,7 +86,7 @@ class CTimer
 public:
     CTimer(FakeSensorHw *dev);
     virtual ~CTimer();
-    void SetTimer(long second,long microsecond);
+    void SetTimer(long second, long microsecond);
     void StartTimer();
     void StopTimer();
 private:

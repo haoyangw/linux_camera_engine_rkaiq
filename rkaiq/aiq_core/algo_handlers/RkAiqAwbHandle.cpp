@@ -907,20 +907,16 @@ XCamReturn RkAiqAwbHandleInt::processing() {
     awb_proc_int->awb_otp = &sharedCom->snsDes.otp_awb;
 
 #if defined(ISP_HW_V30)
-    awb_proc_res_int->awb_hw1_para = &shared->fullParams->mAwbV3xParams->data()->result;
+    awb_proc_res_int->awb_hw1_para = &shared->fullParams->mAwbParams->data()->result;
 #elif defined(ISP_HW_V21)
-    awb_proc_res_int->awb_hw1_para = &shared->fullParams->mAwbV21Params->data()->result;
+    awb_proc_res_int->awb_hw1_para = &shared->fullParams->mAwbParams->data()->result;
 #elif defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
-    awb_proc_res_int->awb_hw32_para = &shared->fullParams->mAwbV32Params->data()->result;
+    awb_proc_res_int->awb_hw32_para = &shared->fullParams->mAwbParams->data()->result;
 #else
     awb_proc_res_int->awb_hw0_para = &shared->fullParams->mAwbParams->data()->result;
 #endif
 
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
-    awb_proc_res_int->awb_gain_algo = &shared->fullParams->mAwbGainV32Params->data()->result;
-#else
     awb_proc_res_int->awb_gain_algo = &shared->fullParams->mAwbGainParams->data()->result;
-#endif
 
     ret = RkAiqHandle::processing();
     if (ret < 0) {
@@ -1034,20 +1030,9 @@ XCamReturn RkAiqAwbHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPar
 
     RkAiqAlgoProcResAwb* awb_com                = (RkAiqAlgoProcResAwb*)mProcOutParam;
 
-#if defined(ISP_HW_V30)
-    rk_aiq_isp_awb_params_v3x_t* awb_param = params->mAwbV3xParams->data().ptr();
-#elif defined(ISP_HW_V21)
-    rk_aiq_isp_awb_params_v21_t* awb_param = params->mAwbV21Params->data().ptr();
-#elif defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
-    rk_aiq_isp_awb_params_v32_t* awb_param = params->mAwbV32Params->data().ptr();
-#else
-    rk_aiq_isp_awb_params_v20_t* awb_param = params->mAwbParams->data().ptr();
-#endif
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
-    rk_aiq_isp_awb_gain_params_v32_t* awb_gain_param = params->mAwbGainV32Params->data().ptr();
-#else
-    rk_aiq_isp_awb_gain_params_v20_t* awb_gain_param = params->mAwbGainParams->data().ptr();
-#endif
+
+    rk_aiq_isp_awb_params_t* awb_param = params->mAwbParams->data().ptr();
+    rk_aiq_isp_awb_gain_params_t* awb_gain_param = params->mAwbGainParams->data().ptr();
 
     if (sharedCom->init) {
         awb_gain_param->frame_id = 0;
@@ -1060,25 +1045,12 @@ XCamReturn RkAiqAwbHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPar
     if (awb_com->awb_gain_update) {
         mWbGainSyncFlag = shared->frameId;
         awb_gain_param->sync_flag = mWbGainSyncFlag;
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
-        cur_params->mAwbGainV32Params = params->mAwbGainV32Params ;
-#else
         cur_params->mAwbGainParams = params->mAwbGainParams ;
-#endif
         awb_gain_param->is_update = true;
         awb_com->awb_gain_update = false;
         LOGD_AWB("[%d] wbgain params from algo", mWbGainSyncFlag);
     } else if (mWbGainSyncFlag != awb_param->sync_flag) {
         awb_gain_param->sync_flag = mWbGainSyncFlag;
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
-        if (cur_params->mAwbGainV32Params.ptr()) {
-            awb_gain_param->is_update = true;
-            awb_gain_param->result = cur_params->mAwbGainV32Params->data()->result;
-        } else {
-            LOGE_AWB("no latest params !");
-            awb_gain_param->is_update = false;
-        }
-#else
         if (cur_params->mAwbGainParams.ptr()) {
             awb_gain_param->is_update = true;
             awb_gain_param->result = cur_params->mAwbGainParams->data()->result;
@@ -1086,7 +1058,6 @@ XCamReturn RkAiqAwbHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPar
             LOGE_AWB("no latest params !");
             awb_gain_param->is_update = false;
         }
-#endif
         LOGD_AWB("[%d] wbgain from latest [%d]", shared->frameId, mWbGainSyncFlag);
     } else {
         // do nothing, result in buf needn't update
@@ -1097,47 +1068,13 @@ XCamReturn RkAiqAwbHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPar
     if (awb_com->awb_cfg_update) {
         mWbParamSyncFlag = shared->frameId;
         awb_param->sync_flag = mWbParamSyncFlag;
-
-#if defined(ISP_HW_V30)
-        cur_params->mAwbV3xParams  = params->mAwbV3xParams;
-#elif defined(ISP_HW_V21)
-        cur_params->mAwbV21Params  = params->mAwbV21Params;
-#elif defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
-        cur_params->mAwbV32Params  = params->mAwbV32Params;
-#else
         cur_params->mAwbParams     = params->mAwbParams;
-#endif
         awb_param->is_update = true;
         awb_com->awb_cfg_update = false;
         LOGD_AWB("[%d] params from algo", mWbParamSyncFlag);
     } else if (mWbParamSyncFlag != awb_param->sync_flag) {
         awb_param->sync_flag = mWbParamSyncFlag;
         // copy from latest result
-#if defined(ISP_HW_V30)
-        if (cur_params->mAwbV3xParams.ptr()) {
-            awb_param->is_update = true;
-            awb_param->result = cur_params->mAwbV3xParams->data()->result;
-        } else {
-            LOGE_AWB("no latest params !");
-            awb_param->is_update = false;
-        }
-#elif defined(ISP_HW_V21)
-        if (cur_params->mAwbV21Params.ptr()) {
-            awb_param->is_update = true;
-            awb_param->result = cur_params->mAwbV21Params->data()->result;
-        } else {
-            LOGE_AWB("no latest params !");
-            awb_param->is_update = false;
-        }
-#elif defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
-        if (cur_params->mAwbV32Params.ptr()) {
-            awb_param->is_update = true;
-            awb_param->result = cur_params->mAwbV32Params->data()->result;
-        } else {
-            LOGE_AWB("no latest params !");
-            awb_param->is_update = false;
-        }
-#else
         if (cur_params->mAwbParams.ptr()) {
             awb_param->is_update = true;
             awb_param->result = cur_params->mAwbParams->data()->result;
@@ -1145,7 +1082,6 @@ XCamReturn RkAiqAwbHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPar
             LOGE_AWB("no latest params !");
             awb_param->is_update = false;
         }
-#endif
         LOGD_AWB("[%d] params from latest [%d]", shared->frameId, mWbParamSyncFlag);
     } else {
         awb_param->is_update = false;

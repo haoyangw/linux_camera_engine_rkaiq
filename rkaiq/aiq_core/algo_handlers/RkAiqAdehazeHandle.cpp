@@ -490,7 +490,7 @@ XCamReturn RkAiqAdehazeHandleInt::genIspResult(RkAiqFullParams* params,
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom  = &mAiqCore->mAlogsComSharedParams;
     RkAiqAlgoProcResAdhaz* adhaz_com             = (RkAiqAlgoProcResAdhaz*)mProcOutParam;
-    rk_aiq_isp_dehaze_params_v20_t* dehaze_param = params->mDehazeParams->data().ptr();
+    rk_aiq_isp_dehaze_params_t* dehaze_param = params->mDehazeParams->data().ptr();
 
     if (!adhaz_com) {
         LOGD_ANALYZER("no adhaz result");

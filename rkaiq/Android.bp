@@ -125,8 +125,6 @@ cc_rkaiq_library_shared {
         "common/mediactl/mediactl.c",
         "common/gen_mesh/genMesh.cpp",
         "common/code_to_pixel_format.cpp",
-        "common/media_buffer/media_buffer.c",
-        "common/media_buffer/media_buffer_pool.c",
 
         // HWI_SRC
         "hwi/CamHwBase.cpp",
@@ -334,6 +332,7 @@ cc_library_shared {
 
 
     srcs: [
+        "rk_stream/stream_cfg/IspStreamCapUnit.cpp",
         "rk_stream/stream_cfg/rk_vi_user_api_stream_cfg.cpp",
         "rk_stream/stream_cfg/RawStreamCapUnit.cpp",
         "rk_stream/stream_cfg/RawStreamProcUnit.cpp",

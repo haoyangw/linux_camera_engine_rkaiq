@@ -157,7 +157,7 @@ XCamReturn RkAiqAcsmHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPa
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
     RkAiqAlgoProcResAcsm* acsm_com = (RkAiqAlgoProcResAcsm*)mProcOutParam;
-    rk_aiq_isp_csm_params_v20_t* csm_param = params->mCsmParams->data().ptr();
+    rk_aiq_isp_csm_params_t* csm_param = params->mCsmParams->data().ptr();
 
     if (!acsm_com) {
         LOGD_ANALYZER("no acsm result");

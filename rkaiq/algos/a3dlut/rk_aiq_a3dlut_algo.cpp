@@ -131,11 +131,11 @@ static XCamReturn Damping(const float damp,                        /**< damping 
         /* calc. damped lut */
         for (int i = 0; i < LUT3D_LUT_WSIZE; i++) {
             pDamped->look_up_table_r[i] =
-                (unsigned short) (damp * (float) pDamped->look_up_table_r[i] + f * (float) pUndamped->look_up_table_r[i]);
+                (uint16_t) (damp * (float) pDamped->look_up_table_r[i] + f * (float) pUndamped->look_up_table_r[i]);
             pDamped->look_up_table_g[i] =
-                (unsigned short) (damp * (float) pDamped->look_up_table_g[i] + f * (float) pUndamped->look_up_table_g[i]);
+                (uint16_t) (damp * (float) pDamped->look_up_table_g[i] + f * (float) pUndamped->look_up_table_g[i]);
             pDamped->look_up_table_b[i] =
-                (unsigned short) (damp * (float) pDamped->look_up_table_b[i] + f * (float) pUndamped->look_up_table_b[i]);
+                (uint16_t) (damp * (float) pDamped->look_up_table_b[i] + f * (float) pUndamped->look_up_table_b[i]);
             lutSum[0] += pDamped->look_up_table_r[i];
             lutSum[1] += pDamped->look_up_table_g[i];
             lutSum[2] += pDamped->look_up_table_b[i];
@@ -170,9 +170,9 @@ static XCamReturn InterpLutbyAlp(const float alp,
             const uint32_t beta = 128 - alpha;
 
             for (uint32_t i = 0; i < LUT3D_LUT_WSIZE; i++) {
-                pLutB->look_up_table_r[i] = (unsigned short)(alpha * (uint32_t)pLutA->look_up_table_r[i] + beta * (uint32_t)pLut0->look_up_table_r[i]);
-                pLutB->look_up_table_g[i] = (unsigned short)(alpha * (uint32_t)pLutA->look_up_table_g[i] + beta * (uint32_t)pLut0->look_up_table_g[i]);
-                pLutB->look_up_table_b[i] = (unsigned short)(alpha * (uint32_t)pLutA->look_up_table_b[i] + beta * (uint32_t)pLut0->look_up_table_b[i]);
+                pLutB->look_up_table_r[i] = (uint16_t)((alpha * (uint32_t)pLutA->look_up_table_r[i] + beta * (uint32_t)pLut0->look_up_table_r[i])>>7);
+                pLutB->look_up_table_g[i] = (uint16_t)((alpha * (uint32_t)pLutA->look_up_table_g[i] + beta * (uint32_t)pLut0->look_up_table_g[i])>>7);
+                pLutB->look_up_table_b[i] = (uint16_t)((alpha * (uint32_t)pLutA->look_up_table_b[i] + beta * (uint32_t)pLut0->look_up_table_b[i])>>7);
             }
         }
 
@@ -209,13 +209,13 @@ static XCamReturn InterpLutbyAlpandDamp(const float alp,
 
                 /* calc. damped lut */
                 for (uint32_t i = 0; i < LUT3D_LUT_WSIZE; i++) {
-                    pLutB->look_up_table_r[i] = (unsigned short) (beta * (float) pLutA->look_up_table_r[i] +
+                    pLutB->look_up_table_r[i] = (uint16_t) (beta * (float) pLutA->look_up_table_r[i] +
                             gamma * (float) pLut0->look_up_table_r[i] +
                             f * (float) pLutB->look_up_table_r[i]);
-                    pLutB->look_up_table_g[i] = (unsigned short) (beta * (float) pLutA->look_up_table_g[i] +
+                    pLutB->look_up_table_g[i] = (uint16_t) (beta * (float) pLutA->look_up_table_g[i] +
                             gamma * (float) pLut0->look_up_table_g[i] +
                             f * (float) pLutB->look_up_table_g[i]);
-                    pLutB->look_up_table_b[i] = (unsigned short) (beta * (float) pLutA->look_up_table_b[i] +
+                    pLutB->look_up_table_b[i] = (uint16_t) (beta * (float) pLutA->look_up_table_b[i] +
                             gamma * (float) pLut0->look_up_table_b[i] +
                             f * (float) pLutB->look_up_table_b[i]);
                     lutSum[0] += pLutB->look_up_table_r[i];

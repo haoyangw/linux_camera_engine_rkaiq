@@ -266,7 +266,7 @@ XCamReturn RkAiqAynrV22HandleInt::processing() {
     aynr_proc_int->hdr_mode = sharedCom->working_mode;
     aynr_proc_int->stAblcV32_proc_res = shared->res_comb.ablcV32_proc_res;
 
-    mProcResShared->result.stAynrProcResult.stFix = &shared->fullParams->mYnrV32Params->data()->result;
+    mProcResShared->result.stAynrProcResult.stFix = &shared->fullParams->mYnrParams->data()->result;
 #ifdef DISABLE_HANDLE_ATTRIB
     mCfgMutex.lock();
 #endif
@@ -336,7 +336,7 @@ XCamReturn RkAiqAynrV22HandleInt::genIspResult(RkAiqFullParams* params,
 
     if (!this->getAlgoId()) {
         LOGD_ANR("oyyf: %s:%d output isp param start\n", __FUNCTION__, __LINE__);
-        rk_aiq_isp_ynr_params_v32_t* ynr_param = params->mYnrV32Params->data().ptr();
+        rk_aiq_isp_ynr_params_t* ynr_param = params->mYnrParams->data().ptr();
         if (sharedCom->init) {
             ynr_param->frame_id = 0;
         } else {
@@ -347,15 +347,15 @@ XCamReturn RkAiqAynrV22HandleInt::genIspResult(RkAiqFullParams* params,
             mSyncFlag = shared->frameId;
             ynr_param->sync_flag = mSyncFlag;
             // copy from algo result
-            cur_params->mYnrV32Params = params->mYnrV32Params;
+            cur_params->mYnrParams = params->mYnrParams;
             mLatestparam = aynr_rk->stAynrProcResult;
             ynr_param->is_update = true;
             LOGD_ANR("[%d] params from algo", mSyncFlag);
         } else if (mSyncFlag != ynr_param->sync_flag) {
             ynr_param->sync_flag = mSyncFlag;
             // copy from latest result
-            if (cur_params->mYnrV32Params.ptr()) {
-                ynr_param->result = cur_params->mYnrV32Params->data()->result;
+            if (cur_params->mYnrParams.ptr()) {
+                ynr_param->result = cur_params->mYnrParams->data()->result;
                 ynr_param->is_update = true;
             } else {
                 LOGE_ANR("no latest params !");

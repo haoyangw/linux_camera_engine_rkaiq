@@ -39,7 +39,7 @@ typedef struct CalibDbV2_Lut3D_Table_Para_s {
 }CalibDbV2_Lut3D_Table_Para_t;
 
 typedef struct CalibDbV2_Lut3D_Gain_Alp_s {
-    // M4_ARRAY_DESC("gain", "f32", M4_SIZE(1,9), M4_RANGE(0,256), "[1,2,4,8,16,32,64,128,256]", M4_DIGIT(0), M4_DYNAMIC(0))
+    // M4_ARRAY_DESC("gain", "f32", M4_SIZE(1,9), M4_RANGE(0,1024), "[1,2,4,8,16,32,64,128,256]", M4_DIGIT(0), M4_DYNAMIC(0))
     float                                                       gain[9];
     // M4_ARRAY_DESC("Alpha", "f32", M4_SIZE(1,9), M4_RANGE(0,1), "1.00", M4_DIGIT(2), M4_DYNAMIC(0))
     float                                                       alpha[9];

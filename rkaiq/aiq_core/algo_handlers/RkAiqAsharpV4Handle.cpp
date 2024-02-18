@@ -257,7 +257,7 @@ XCamReturn RkAiqAsharpV4HandleInt::processing() {
 
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
-    asharp_proc_res_int->stAsharpProcResult.stFix = &shared->fullParams->mSharpenV3xParams->data()->result;
+    asharp_proc_res_int->stAsharpProcResult.stFix = &shared->fullParams->mSharpenParams->data()->result;
 
     ret = RkAiqHandle::processing();
     if (ret) {
@@ -318,7 +318,7 @@ XCamReturn RkAiqAsharpV4HandleInt::genIspResult(RkAiqFullParams* params,
 
     if (!this->getAlgoId()) {
         LOGD_ANR("oyyf: %s:%d output isp param start\n", __FUNCTION__, __LINE__);
-        rk_aiq_isp_sharpen_params_v3x_t* sharp_param = params->mSharpenV3xParams->data().ptr();
+        rk_aiq_isp_sharpen_params_t* sharp_param = params->mSharpenParams->data().ptr();
         if (sharedCom->init) {
             sharp_param->frame_id = 0;
         } else {
@@ -330,14 +330,14 @@ XCamReturn RkAiqAsharpV4HandleInt::genIspResult(RkAiqFullParams* params,
             sharp_param->sync_flag = mSyncFlag;
             // copy from algo result
             // set as the latest result
-            cur_params->mSharpenV3xParams = params->mSharpenV3xParams;
+            cur_params->mSharpenParams = params->mSharpenParams;
             sharp_param->is_update = true;
             LOGD_ASHARP("[%d] params from algo", mSyncFlag);
         } else if (mSyncFlag != sharp_param->sync_flag) {
             sharp_param->sync_flag = mSyncFlag;
             // copy from latest result
-            if (cur_params->mSharpenV3xParams.ptr()) {
-                sharp_param->result = cur_params->mSharpenV3xParams->data()->result;
+            if (cur_params->mSharpenParams.ptr()) {
+                sharp_param->result = cur_params->mSharpenParams->data()->result;
                 sharp_param->is_update = true;
             } else {
                 LOGE_ASHARP("no latest params !");

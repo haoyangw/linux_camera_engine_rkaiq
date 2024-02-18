@@ -13,6 +13,7 @@
  */
 
 #include "j2s.h"
+#include "RkAiqVersion.h"
 
 using namespace RkCam;
 
@@ -1323,6 +1324,9 @@ int j2s_json_to_bin(j2s_ctx *ctx, cJSON *json, const char *name, void **ptr,
   size_t real_size = 0;
   size_t bin_size = 0;
   j2s_pool_t *j2s_pool = NULL;
+  char iq_v[64] = {};
+  FILE *ofp = NULL;
+  size_t map_len = 0;
 
   j2s_pool = (j2s_pool_t *)malloc(sizeof(j2s_pool_t));
   memset(j2s_pool, 0, sizeof(j2s_pool_t));
@@ -1368,7 +1372,50 @@ int j2s_json_to_bin(j2s_ctx *ctx, cJSON *json, const char *name, void **ptr,
 
   bin_size = j2s_pool->used + sizeof(map_index_t) * j2s_pool->map_len + sizeof(size_t) * 2;
 
-  BinMapLoader::suqeezBinMap(ofname, (uint8_t*)bin_buffer, bin_size);
+  BinMapLoader::suqeezBinMap((uint8_t*)bin_buffer, &bin_size);
+
+  current_index = ((uint8_t*)bin_buffer) + bin_size - sizeof(size_t) * 2;
+  map_start = *(size_t*)current_index;
+  map_len = *(size_t*)(current_index + sizeof(size_t));
+
+  bin_size = map_start + sizeof(map_index_t) * map_len;
+
+  if (strlen(RK_AIQ_IQ_HEAD_VERSION) > 63) {
+    printf("RK_AIQ_IQ_HEAD_VERSION: %s %d is too long\n", RK_AIQ_IQ_HEAD_VERSION, strlen(RK_AIQ_IQ_HEAD_VERSION));
+    goto error;
+  }
+  snprintf(iq_v, 64, "%s", RK_AIQ_IQ_HEAD_VERSION);
+  memcpy(current_index, iq_v, sizeof(iq_v));
+  current_index += sizeof(iq_v);
+  bin_size += sizeof(iq_v);
+  if (bin_size > MAX_IQBIN_SIZE) {
+    printf("[BIN] %s %d:iq binary too large!\n", __func__, __LINE__);
+    goto error;
+  }
+  memcpy(current_index, &map_start, sizeof(size_t));
+  current_index += sizeof(size_t);
+  bin_size += sizeof(size_t);
+  if (bin_size > MAX_IQBIN_SIZE) {
+    printf("[BIN] %s %d:iq binary too large!\n", __func__, __LINE__);
+    goto error;
+  }
+  memcpy(current_index, &map_len, sizeof(size_t));
+  current_index += sizeof(size_t);
+  bin_size += sizeof(size_t);
+  if (bin_size > MAX_IQBIN_SIZE) {
+    printf("[BIN] %s %d:iq binary too large!\n", __func__, __LINE__);
+    goto error;
+  }
+
+  ofp = fopen(ofname, "wb+");
+  if (!ofp) {
+    printf("failed to open: '%s'\n", ofname);
+    return -1;
+  }
+
+  fwrite(bin_buffer, 1, bin_size, ofp);
+  fclose(ofp);
+  ofp = NULL;
 
   free(bin_buffer);
 

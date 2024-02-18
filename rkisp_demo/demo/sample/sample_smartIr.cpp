@@ -27,35 +27,11 @@
 #include "rk_smart_ir_api.h"
 #define RK_SMART_IR_AUTO_IRLED false
 
-static void sample_smartIr_usage()
-{
-    printf("Usage : \n");
-    printf("  SmartIr API: \n");
-    printf("\t s) SmartIr:         Start SmartIr test.\n");
-    printf("\t e) SmartIr:         Exit SmartIr test.\n");
-    printf("\t c) SmartIr:         Ir wb calibration.\n");
-    printf("\n");
-    printf("\t h) SmartIr:         help.\n");
-    printf("\t q) SmartIr:         return to main sample screen.\n");
-
-    printf("\n");
-    printf("\t please press the key: ");
-
-    return;
-}
-
-void sample_print_smartIr_info(const void* arg)
-{
-    printf("enter SmartIr modult test!\n");
-}
-
 typedef struct sample_smartIr_s {
     pthread_t tid;
     bool tquit;
-    const rk_aiq_sys_ctx_t* aiq_ctx;
     bool started;
-    const char* ir_cut_v4ldev;
-    const char* ir_v4ldev;
+    const rk_aiq_sys_ctx_t* aiq_ctx;
     rk_smart_ir_ctx_t* ir_ctx;
     rk_smart_ir_params_t ir_configs;
     bool camGroup;
@@ -63,9 +39,12 @@ typedef struct sample_smartIr_s {
 
 static sample_smartIr_t g_sample_smartIr_ctx;
 
-static void enableIrCutter(bool on)
+static void ir_cutter_ctrl(bool on)
 {
     sample_smartIr_t* smartIr_ctx = &g_sample_smartIr_ctx;
+
+    const char* ir_cut_v4ldev = NULL;
+    ir_cut_v4ldev = "/dev/v4l-subdev3";
 
     struct v4l2_control control;
 
@@ -75,7 +54,7 @@ static void enableIrCutter(bool on)
     else
         control.value = 0; // ir in
 
-    int _fd = open(smartIr_ctx->ir_cut_v4ldev, O_RDWR | O_CLOEXEC);
+    int _fd = open(ir_cut_v4ldev, O_RDWR | O_CLOEXEC);
     if (_fd != -1) {
         if (ioctl(_fd, VIDIOC_S_CTRL, &control) < 0) {
             printf("failed to set ircut value %d to device!\n", control.value);
@@ -84,50 +63,15 @@ static void enableIrCutter(bool on)
     }
 }
 
-static void switch_to_day()
-{
-    // ir-cutter on
-    enableIrCutter(true);
-    // ir off
-    // switch to isp day params
-}
+#if 0
 
-static void switch_to_night()
-{
-    // switch to isp night params
-    // ir-cutter off
-    enableIrCutter(false);
-    // ir on
-}
-
-static void load_ir_configs()
-{
-    sample_smartIr_t* smartIr_ctx = &g_sample_smartIr_ctx;
-    rk_smart_ir_result_t ir_init_res;
-
-    smartIr_ctx->ir_cut_v4ldev = NULL;
-    smartIr_ctx->ir_v4ldev = NULL;
-
-    smartIr_ctx->ir_cut_v4ldev = "/dev/v4l-subdev3";
-    smartIr_ctx->ir_configs.d2n_envL_th = 0.04f;
-    smartIr_ctx->ir_configs.n2d_envL_th = 0.20f;
-    smartIr_ctx->ir_configs.rggain_base = 1.0f;
-    smartIr_ctx->ir_configs.bggain_base = 1.0f;
-    smartIr_ctx->ir_configs.awbgain_rad = 0.10f;
-    smartIr_ctx->ir_configs.awbgain_dis = 0.22f;
-    smartIr_ctx->ir_configs.switch_cnts_th = 100;
-    rk_smart_ir_config(smartIr_ctx->ir_ctx, &smartIr_ctx->ir_configs);
-    // set initial status to day
-    ir_init_res.status = RK_SMART_IR_STATUS_DAY;
-    rk_smart_ir_set_status(smartIr_ctx->ir_ctx, ir_init_res);
-    switch_to_day();
-}
-
-static void* switch_ir_thread(void* args)
+// SMARTIR_VERSION 1.0.0
+static void* switch_irled_thread(void* args)
 {
     sample_smartIr_t* smartIr_ctx = &g_sample_smartIr_ctx;
     rk_smart_ir_result_t ir_res;
     rk_aiq_isp_stats_t *stats_ref = NULL;
+    rk_smart_ir_query_info_t query_info;
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
     // auto irled
     rk_smart_ir_autoled_t auto_irled;
@@ -189,12 +133,26 @@ static void* switch_ir_thread(void* args)
                 // TODO: update irled pwm duty
             }
         }
+
         if (ir_res.status == RK_SMART_IR_STATUS_DAY) {
-            switch_to_day();
-        } else {
-            switch_to_night();
+            // 1) ir-cutter on
+            ir_cutter_ctrl(true);
+            // 2) ir-led off
+            // 3) switch to isp day params
+            rk_aiq_uapi2_sysctl_switch_scene(smartIr_ctx->aiq_ctx, "normal", "day");
+
+
+        } else if (ir_res.status == RK_SMART_IR_STATUS_NIGHT) {
+            // 1) switch to isp night params
+            rk_aiq_uapi2_sysctl_switch_scene(smartIr_ctx->aiq_ctx, "normal", "night");
+            // 2) ir-cutter off
+            ir_cutter_ctrl(false);
+            // 3) ir-led on
         }
+
         printf("SAMPLE_SMART_IR: switch to %s\n", ir_res.status == RK_SMART_IR_STATUS_DAY ? "DAY" : "Night");
+
+        rk_smart_ir_queryInfo(smartIr_ctx->ir_ctx, &query_info);
 
     }
 
@@ -205,13 +163,178 @@ static void sample_smartIr_start(const void* arg)
 {
     sample_smartIr_t* smartIr_ctx = &g_sample_smartIr_ctx;
 
+    // 1) init
     smartIr_ctx->ir_ctx = rk_smart_ir_init((rk_aiq_sys_ctx_t*)arg);
-    load_ir_configs();
 
+    // 2) load ir configs
+    smartIr_ctx->ir_configs.d2n_envL_th = 0.04f;
+    smartIr_ctx->ir_configs.n2d_envL_th = 0.20f;
+    smartIr_ctx->ir_configs.rggain_base = 1.0f;
+    smartIr_ctx->ir_configs.bggain_base = 1.0f;
+    smartIr_ctx->ir_configs.awbgain_rad = 0.10f;
+    smartIr_ctx->ir_configs.awbgain_dis = 0.22f;
+    smartIr_ctx->ir_configs.switch_cnts_th = 100;
+    rk_smart_ir_config(smartIr_ctx->ir_ctx, &smartIr_ctx->ir_configs);
+
+    // 3)  set initial status to day
+    rk_smart_ir_result_t ir_init_res;
+    ir_init_res.status = RK_SMART_IR_STATUS_DAY;
+    rk_smart_ir_set_status(smartIr_ctx->ir_ctx, ir_init_res);
+
+    // 4) create thread
     smartIr_ctx->tquit = false;
-    pthread_create(&smartIr_ctx->tid, NULL, switch_ir_thread, NULL);
+    pthread_create(&smartIr_ctx->tid, NULL, switch_irled_thread, NULL);
     smartIr_ctx->started = true;
 }
+
+#else
+
+// SMARTIR_VERSION 2.0.0
+static void* sample_smartIr_switch_thread(void* args)
+{
+    sample_smartIr_t* smartIr_ctx = &g_sample_smartIr_ctx;
+    rk_smart_ir_result_t result;
+    rk_aiq_isp_stats_t *stats_ref = NULL;
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    // cam group
+    rk_aiq_camgroup_ctx_t* camgroup_ctx = NULL;
+    rk_aiq_camgroup_camInfos_t camInfos;
+    rk_aiq_sys_ctx_t* group_ctxs[RK_AIQ_CAM_GROUP_MAX_CAMS];
+    rk_aiq_isp_stats_t* group_stats[RK_AIQ_CAM_GROUP_MAX_CAMS];
+
+    while (!smartIr_ctx->tquit) {
+
+        if (smartIr_ctx->camGroup) {
+            camgroup_ctx = (rk_aiq_camgroup_ctx_t *)smartIr_ctx->aiq_ctx;
+            ret = rk_aiq_uapi2_camgroup_getCamInfos(camgroup_ctx, &camInfos);
+            if (ret != XCAM_RETURN_NO_ERROR) {
+                printf("ret=%d, getCamInfos fail!\n", ret);
+                break;
+            }
+            for (int i = 0; i < camInfos.valid_sns_num; i++) {
+                group_ctxs[i] = rk_aiq_uapi2_camgroup_getAiqCtxBySnsNm(camgroup_ctx, camInfos.sns_ent_nm[i]);
+                if (group_ctxs[i] == NULL) {
+                    printf("getAiqCtxBySnsNm fail!\n");
+                    break;
+                }
+                ret = rk_aiq_uapi2_sysctl_get3AStatsBlk(group_ctxs[i], &group_stats[i], -1);
+                if (ret != XCAM_RETURN_NO_ERROR || group_stats[i] == NULL) {
+                    printf("ret=%d, get3AStatsBlk fail!\n", ret);
+                    break;
+                }
+            }
+            rk_smart_ir_groupRunOnce(smartIr_ctx->ir_ctx, group_stats, camInfos.valid_sns_num, &result);
+            for (int i = 0; i < camInfos.valid_sns_num; i++) {
+                rk_aiq_uapi2_sysctl_release3AStatsRef(group_ctxs[i], group_stats[i]);
+            }
+
+        } else {
+            ret = rk_aiq_uapi2_sysctl_get3AStatsBlk(smartIr_ctx->aiq_ctx, &stats_ref, -1);
+            if (ret != XCAM_RETURN_NO_ERROR || stats_ref == NULL) {
+                printf("ret=%d, get3AStatsBlk fail!\n", ret);
+                break;
+            }
+            rk_smart_ir_runOnce(smartIr_ctx->ir_ctx, stats_ref, &result);
+            rk_aiq_uapi2_sysctl_release3AStatsRef(smartIr_ctx->aiq_ctx, stats_ref);
+        }
+
+        if (result.gray_on) {
+            // 1) switch to isp night params
+            rk_aiq_uapi2_sysctl_switch_scene(smartIr_ctx->aiq_ctx, "normal", "night");
+            // 2) ir-cutter off
+            ir_cutter_ctrl(false);
+            // 3) auto ir-led, set result.fill_value
+
+        } else {
+            if (result.status == RK_SMART_IR_STATUS_DAY) {
+                // 1) ir-cutter on
+                ir_cutter_ctrl(true);
+                // 2) ir-led off
+                // 3) switch to isp day params
+                rk_aiq_uapi2_sysctl_switch_scene(smartIr_ctx->aiq_ctx, "normal", "day");
+
+            } else if (result.status == RK_SMART_IR_STATUS_NIGHT) {
+                // 1) ir-cutter on
+                ir_cutter_ctrl(true);
+                // 2) auto vis-led, set result.fill_value
+                // 3) switch to isp day params
+                rk_aiq_uapi2_sysctl_switch_scene(smartIr_ctx->aiq_ctx, "normal", "day");
+            }
+
+        }
+
+        printf("SAMPLE_SMART_IR: switch to %s\n", result.status == RK_SMART_IR_STATUS_DAY ? "DAY" : "Night");
+
+    }
+
+    return NULL;
+}
+
+static void sample_smartIr_start_irled(const void* arg)
+{
+    sample_smartIr_t* smartIr_ctx = &g_sample_smartIr_ctx;
+
+    // 1) init
+    smartIr_ctx->ir_ctx = rk_smart_ir_init((rk_aiq_sys_ctx_t*)arg);
+
+    // 2) load configs: auto switch, manual ir led
+    rk_smart_ir_attr_t attr;
+    //memset(&attr, 0, sizeof(attr));
+    rk_smart_ir_getAttr(smartIr_ctx->ir_ctx, &attr);
+    attr.init_status = RK_SMART_IR_STATUS_DAY;
+    attr.switch_mode = RK_SMART_IR_SWITCH_MODE_AUTO;
+    attr.light_mode = RK_SMART_IR_LIGHT_MODE_MANUAL;
+    attr.light_type = RK_SMART_IR_LIGHT_TYPE_IR;
+    attr.light_value = 100;
+    attr.params.d2n_envL_th = 0.04f;
+    attr.params.n2d_envL_th = 0.20f;
+    attr.params.rggain_base = 1.00f;
+    attr.params.bggain_base = 1.00f;
+    attr.params.awbgain_rad = 0.10f;
+    attr.params.awbgain_dis = 0.20f;
+    attr.params.switch_cnts_th = 50;
+    rk_smart_ir_setAttr(smartIr_ctx->ir_ctx, &attr);
+
+    // 3) create thread
+    smartIr_ctx->tquit = false;
+    pthread_create(&smartIr_ctx->tid, NULL, sample_smartIr_switch_thread, NULL);
+    smartIr_ctx->started = true;
+}
+
+static void sample_smartIr_start_visled(const void* arg)
+{
+    sample_smartIr_t* smartIr_ctx = &g_sample_smartIr_ctx;
+
+    // 1) init
+    smartIr_ctx->ir_ctx = rk_smart_ir_init((rk_aiq_sys_ctx_t*)arg);
+
+    // 2) load configs: auto switch, auto vis led
+    rk_smart_ir_attr_t attr;
+    //memset(&attr, 0, sizeof(attr));
+    rk_smart_ir_getAttr(smartIr_ctx->ir_ctx, &attr);
+    attr.init_status = RK_SMART_IR_STATUS_DAY;
+    attr.switch_mode = RK_SMART_IR_SWITCH_MODE_AUTO;
+    attr.light_mode = RK_SMART_IR_LIGHT_MODE_AUTO;
+    attr.light_type = RK_SMART_IR_LIGHT_TYPE_VIS;
+    attr.light_value = 100;
+    attr.params.d2n_envL_th = 0.04f;
+    attr.params.n2d_envL_th = 0.60f;
+    attr.params.rggain_base = 0.0f;
+    attr.params.bggain_base = 0.0f;
+    attr.params.awbgain_rad = 0.0f;
+    attr.params.awbgain_dis = 0.0f;
+    attr.params.switch_cnts_th = 50;
+    attr.en_auto_n2dth = true;
+    rk_smart_ir_setAttr(smartIr_ctx->ir_ctx, &attr);
+
+    // 3) create thread
+    smartIr_ctx->tquit = false;
+    pthread_create(&smartIr_ctx->tid, NULL, sample_smartIr_switch_thread, NULL);
+    smartIr_ctx->started = true;
+}
+
+#endif
 
 static void sample_smartIr_stop(const void* arg)
 {
@@ -233,9 +356,9 @@ static void sample_smartIr_calib(const void* arg)
 {
     const rk_aiq_sys_ctx_t* ctx = (rk_aiq_sys_ctx_t*)(arg);
 
-    // 1. make sure no visible light
-    // 2. ircutter off, ir on
-    switch_to_night();
+    // 1) make sure no visible light
+    // 2) ir-cutter off, ir-led on
+    ir_cutter_ctrl(false);
     // 3. query wb info
     float RGgain = 0.0f, BGgain = 0.0f;
     int counts = 0;
@@ -243,7 +366,7 @@ static void sample_smartIr_calib(const void* arg)
     rk_aiq_awb_stat_blk_res_v201_t* blockResult;
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
-    printf("SmartIr Calib start ...... \n");
+    printf("smartIr calib start ...... \n");
     while (counts++ < 100) {
         if (g_sample_smartIr_ctx.camGroup) {
             printf("get3AStatsBlk only support single ctx!\n");
@@ -282,7 +405,29 @@ static void sample_smartIr_calib(const void* arg)
         rk_aiq_uapi2_sysctl_release3AStatsRef(ctx, stats_ref);
 
     }
-    printf("SmartIr Calib Done ...... \n");
+    printf("smartIr calib done ...... \n");
+}
+
+static void sample_smartIr_usage()
+{
+    printf("Usage : \n");
+    printf("  SmartIr API: \n");
+    printf("\t i) SmartIr:         Start smartIr irled test.\n");
+    printf("\t v) SmartIr:         Start smartIr visled test.\n");
+    printf("\t e) SmartIr:         Exit smartIr test.\n");
+    printf("\t c) SmartIr:         Ir wb calibration.\n");
+    printf("\n");
+    printf("\t h) SmartIr:         help.\n");
+    printf("\t q) SmartIr:         return to main sample screen.\n");
+    printf("\n");
+    printf("\t please press the key: ");
+
+    return;
+}
+
+void sample_print_smartIr_info(const void* arg)
+{
+    printf("enter SmartIr modult test!\n");
 }
 
 XCamReturn sample_smartIr_module(const void* arg)
@@ -322,11 +467,14 @@ XCamReturn sample_smartIr_module(const void* arg)
             CLEAR();
             sample_smartIr_usage();
             break;
+        case 'i':
+            sample_smartIr_start_irled(ctx);
+            break;
+        case 'v':
+            sample_smartIr_start_visled(ctx);
+            break;
         case 'e':
             sample_smartIr_stop(ctx);
-            break;
-        case 's':
-            sample_smartIr_start(ctx);
             break;
         case 'c':
             sample_smartIr_calib(ctx);

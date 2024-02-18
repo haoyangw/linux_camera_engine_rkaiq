@@ -197,7 +197,7 @@ XCamReturn RkAiqAblcV32HandleInt::processing() {
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
-    mProcResShared->result.ablcV32_proc_res = &shared->fullParams->mBlcV32Params->data()->result;
+    mProcResShared->result.ablcV32_proc_res = &shared->fullParams->mBlcParams->data()->result;
 
     ret = RkAiqHandle::processing();
     if (ret < 0) {
@@ -307,7 +307,7 @@ XCamReturn RkAiqAblcV32HandleInt::genIspResult(RkAiqFullParams* params,
         return XCAM_RETURN_NO_ERROR;
     RkAiqAlgoProcResAblcV32* ablc_com             = (RkAiqAlgoProcResAblcV32*)&mProcResShared->result;
 
-    rk_aiq_isp_blc_params_v32_t* blc_param = params->mBlcV32Params->data().ptr();
+    rk_aiq_isp_blc_params_t* blc_param = params->mBlcParams->data().ptr();
 
     if (!ablc_com) {
         LOGE_ANALYZER("no ablcV32 result");
@@ -329,15 +329,15 @@ XCamReturn RkAiqAblcV32HandleInt::genIspResult(RkAiqFullParams* params,
             blc_param->sync_flag = mSyncFlag;
             // copy from algo result
             // set as the latest result
-            cur_params->mBlcV32Params = params->mBlcV32Params;
-            mLatestparam = &cur_params->mBlcV32Params->data()->result;
+            cur_params->mBlcParams = params->mBlcParams;
+            mLatestparam = &cur_params->mBlcParams->data()->result;
             blc_param->is_update = true;
             LOGD_ABLC("[%d] params from algo", mSyncFlag);
         } else if (mSyncFlag != blc_param->sync_flag) {
             blc_param->sync_flag = mSyncFlag;
             // copy from latest result
-            if (cur_params->mBlcV32Params.ptr()) {
-                blc_param->result = cur_params->mBlcV32Params->data()->result;
+            if (cur_params->mBlcParams.ptr()) {
+                blc_param->result = cur_params->mBlcParams->data()->result;
                 blc_param->is_update = true;
             } else {
                 LOGE_ABLC("no latest params !");

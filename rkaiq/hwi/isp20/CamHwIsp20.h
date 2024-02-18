@@ -197,7 +197,9 @@ public:
     XCamReturn setFastAeExp(uint32_t frameId);
 
     XCamReturn setVicapStreamMode(int mode, bool is_single_mode);
-
+    void setListenStrmEvt(bool isListen) {
+        mIsListenStrmEvt = isListen;
+    }
 private:
     using V4l2Device::start;
 
@@ -409,6 +411,9 @@ protected:
     bool _not_skip_first{true};
     uint32_t mAweekId{0};
     void* _skipped_params{NULL};
+    void* _first_awb_cfg_v32{NULL};
+    RkAiqIspUnitedMode mIspUnitedMode;
+    bool mIsListenStrmEvt{true};
 };
 
 }

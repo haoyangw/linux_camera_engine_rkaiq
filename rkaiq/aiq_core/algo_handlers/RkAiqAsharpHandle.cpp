@@ -271,12 +271,12 @@ XCamReturn RkAiqAsharpHandleInt::genIspResult(RkAiqFullParams* params,
         RkAiqAlgoProcResAsharp* asharp_rk = (RkAiqAlgoProcResAsharp*)asharp_com;
 
         LOGD_ASHARP("oyyf: %s:%d output isp param start\n", __FUNCTION__, __LINE__);
-        rk_aiq_isp_sharpen_params_v20_t* sharpen_params = params->mSharpenParams->data().ptr();
+        rk_aiq_isp_sharpen_params_t* sharpen_params = params->mSharpenParams->data().ptr();
         sharpen_params->update_mask |= RKAIQ_ISPP_SHARP_ID;
         memcpy(&sharpen_params->result, &asharp_rk->stAsharpProcResult.stSharpFix,
                sizeof(rk_aiq_isp_sharpen_t));
 
-        rk_aiq_isp_edgeflt_params_v20_t* edgeflt_params = params->mEdgefltParams->data().ptr();
+        rk_aiq_isp_edgeflt_params_t* edgeflt_params = params->mEdgefltParams->data().ptr();
         memcpy(&edgeflt_params->result, &asharp_rk->stAsharpProcResult.stEdgefltFix,
                sizeof(rk_aiq_isp_edgeflt_t));
 

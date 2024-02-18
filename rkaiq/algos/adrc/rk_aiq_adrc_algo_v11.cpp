@@ -354,7 +354,7 @@ void AdrcGetTuningProcResV11(AdrcContext_t* pAdrcCtx, RkAiqAdrcProcResult_t* pAd
 
     pAdrcProcRes->DrcProcRes.Drc_v11.bilat_wt_off =
         SW_DRC_BILAT_WT_OFF_FIX;  // LIMIT_VALUE(pAdrcCtx->NextData.dynParams.Drc_v11.MotionStr
-                                  // *INT8BITMAX, INT8BITMAX, 0);
+                                  // *BIT_8_MAX, BIT_8_MAX, 0);
     pAdrcProcRes->DrcProcRes.Drc_v11.weicur_pix =
         (unsigned char)(SHIFT8BIT(pAdrcCtx->NextData.staticParams.curPixWeit) + 0.5f);
     pAdrcProcRes->DrcProcRes.Drc_v11.weipre_frame =

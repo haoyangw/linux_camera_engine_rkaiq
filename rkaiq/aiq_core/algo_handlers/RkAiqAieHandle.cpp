@@ -225,7 +225,7 @@ XCamReturn RkAiqAieHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPar
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
     RkAiqAlgoProcResAie* aie_com = (RkAiqAlgoProcResAie*)mProcOutParam;
 
-    rk_aiq_isp_ie_params_v20_t* ie_param = params->mIeParams->data().ptr();
+    rk_aiq_isp_ie_params_t* ie_param = params->mIeParams->data().ptr();
     if (sharedCom->init) {
         ie_param->frame_id = 0;
     } else {

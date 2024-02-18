@@ -280,8 +280,6 @@ RawStreamCapUnit::set_tx_format(uint32_t width, uint32_t height, uint32_t pix_fm
 
         int bpp = pixFmt2Bpp(pf);
         int mem_mode = mode;
-        if (((w / 2 - RKMOUDLE_UNITE_EXTEND_PIXEL) * bpp / 8) & 0xf)
-            mem_mode = CSI_LVDS_MEM_WORD_HIGH_ALIGN;
         int ret1 = _dev[i]->io_control (RKCIF_CMD_SET_CSI_MEMORY_MODE, &mem_mode);
         if (ret1)
             LOGE_RKSTREAM("set RKCIF_CMD_SET_CSI_MEMORY_MODE failed !\n");
@@ -344,18 +342,10 @@ RawStreamCapUnit::set_sensor_mode(uint32_t mode)
     LOGD_RKSTREAM( "%s exit", __FUNCTION__);
 }
 
-/*
 void
 RawStreamCapUnit::prepare_cif_mipi()
 {
     LOGD_RKSTREAM( "%s enter,working_mode=0x%x", __FUNCTION__, _working_mode);
-
-    FakeV4l2Device* fake_dev = dynamic_cast<FakeV4l2Device* >(_dev[0].ptr());
-
-    if (fake_dev) {
-        LOGD_RKSTREAM("ignore fake tx");
-        return;
-    }
 
     SmartPtr<V4l2Device> tx_devs_tmp[3] =
     {
@@ -365,13 +355,13 @@ RawStreamCapUnit::prepare_cif_mipi()
     };
 
     // _mipi_tx_devs
-    if (_working_mode == RK_AIQ_WORKING_MODE_NORMAL) {
+    if (_working_mode == RKRAWSTREAM_HDR_MODE_NORMAL) {
         // use _mipi_tx_devs[0] only
         // id0 as normal
         // do nothing
         LOGD_RKSTREAM( "CIF tx: %s -> normal",
                         _dev[0]->get_device_name());
-    } else if (RK_AIQ_HDR_GET_WORKING_MODE(_working_mode) == RK_AIQ_WORKING_MODE_ISP_HDR2) {
+    } else if (_working_mode == RKRAWSTREAM_HDR_MODE_ISP_HDR2) {
         // use _mipi_tx_devs[0] and _mipi_tx_devs[1]
         // id0 as l, id1 as s
         SmartPtr<V4l2Device> tmp = tx_devs_tmp[1];
@@ -381,7 +371,7 @@ RawStreamCapUnit::prepare_cif_mipi()
                         _dev[1]->get_device_name());
         LOGD_RKSTREAM( "CIF tx: %s -> short",
                         _dev[0]->get_device_name());
-    } else if (RK_AIQ_HDR_GET_WORKING_MODE(_working_mode) == RK_AIQ_WORKING_MODE_ISP_HDR3) {
+    } else if (_working_mode == RKRAWSTREAM_HDR_MODE_ISP_HDR3) {
         // use _mipi_tx_devs[0] and _mipi_tx_devs[1]
         // id0 as l, id1 as m, id2 as s
         SmartPtr<V4l2Device> tmp = tx_devs_tmp[2];
@@ -400,12 +390,11 @@ RawStreamCapUnit::prepare_cif_mipi()
         _dev[i] = tx_devs_tmp[i];
         _dev_index[i] = i;
         _stream[i].release();
-        _stream[i] =  new RKRawStream(_dev[i], i, ISP_POLL_TX);
+        _stream[i] =  new RKRawStream(_dev[i], i, RKRAWSTREAM_POLL_VICAP);
         _stream[i]->setPollCallback(this);
     }
     LOGD_RKSTREAM( "%s exit", __FUNCTION__);
 }
-*/
 
 XCamReturn
 RawStreamCapUnit::poll_buffer_ready (SmartPtr<V4l2BufferProxy> &buf, int dev_index)
@@ -507,7 +496,7 @@ RawStreamCapUnit::sync_raw_buf
             //    LOGW_RKSTREAM( "skip frame %d", sequence_s);
             //    goto end;
             //}
-        } else if (_working_mode == RKRAWSTREAM_HDR_MODE_ISP_HDR3 &&
+        } else if (_working_mode == RKRAWSTREAM_HDR_MODE_ISP_HDR2 &&
                    buf_m.ptr() && buf_s.ptr() && sequence_m == sequence_s) {
             buf_list[ISP_MIPI_HDR_S].erase(buf_s);
             buf_list[ISP_MIPI_HDR_M].erase(buf_m);
@@ -524,6 +513,7 @@ RawStreamCapUnit::sync_raw_buf
         } else {
             LOGW_RKSTREAM( "do nothing, sequence not match l: %d, s: %d, m: %d !!!",
                             sequence_l, sequence_s, sequence_m);
+            return XCAM_RETURN_ERROR_FAILED;
         }
         return XCAM_RETURN_NO_ERROR;
     }

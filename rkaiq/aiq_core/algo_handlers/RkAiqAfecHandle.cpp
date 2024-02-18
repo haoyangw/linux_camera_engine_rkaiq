@@ -213,7 +213,7 @@ XCamReturn RkAiqAfecHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPa
         return XCAM_RETURN_NO_ERROR;
     }
 
-    rk_aiq_isp_fec_params_v20_t* fec_params = params->mFecParams->data().ptr();
+    rk_aiq_isp_fec_params_t* fec_params = params->mFecParams->data().ptr();
 
     if (fec_params->result.usage == RKAIQ_ISPP_FEC_ST_ID) {
         LOGD_ANALYZER("afec not update because EIS enabled");

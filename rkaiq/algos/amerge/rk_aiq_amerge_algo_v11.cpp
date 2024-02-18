@@ -473,7 +473,7 @@ void AmergeExpoProcessing(AmergeContext_t* pAmergeCtx, MergeExpoData_t* pExpoDat
         mergeClipValueV11(RATIO_DEFAULT / pExpoData->RatioLS, 0, 12, false);
 
     // get sw_hdrmge_gain1
-    pAmergeProcRes->Merge_v11.sw_hdrmge_gain1 = mergeClipValueV11(pExpoData->RatioLM, 8, 6, false);
+    pAmergeProcRes->Merge_v11.sw_hdrmge_gain1 = mergeClipValueV11(pExpoData->RatioLM, 5, 6, false);
     pAmergeProcRes->Merge_v11.sw_hdrmge_gain1_inv =
         mergeClipValueV11(RATIO_DEFAULT / pExpoData->RatioLM, 0, 12, false);
 

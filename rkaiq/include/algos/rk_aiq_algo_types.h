@@ -89,6 +89,7 @@ typedef struct _RkAiqAlgoConfigAe {
     int                      RawWidth;
     int                      RawHeight;
     rk_aiq_sensor_nr_switch_t nr_switch;
+    rk_aiq_sensor_dcg_ratio_t dcg_ratio;
     float        LinePeriodsPerField;
     float        PixelClockFreqMHZ;
     float        PixelPeriodsPerLine;

@@ -78,7 +78,7 @@ RkAiqCamGroupManager::RkAiqCamGroupManager()
 #if RKAIQ_HAVE_AE_V1
     mRequiredMsgsMask |= (1ULL << XCAM_MESSAGE_AEC_STATS_OK) | (1ULL << XCAM_MESSAGE_AE_PRE_RES_OK);
 #endif
-#if RKAIQ_HAVE_AWB_V20 | RKAIQ_HAVE_AWB_V21 | RKAIQ_HAVE_AWB_V32
+#if RKAIQ_HAVE_AWB
     mRequiredMsgsMask |= (1ULL << XCAM_MESSAGE_AWB_STATS_OK);
 #endif
 
@@ -512,50 +512,23 @@ RkAiqCamGroupManager::RelayAiqCoreResults(RkAiqCore* src, SmartPtr<RkAiqFullPara
     SET_TO_CAMGROUP(Drc, DRC);
     SET_TO_CAMGROUP(Agamma, AGAMMA);
     SET_TO_CAMGROUP(Merge, MERGE);
+    SET_TO_CAMGROUP(Blc, BLC);
+    SET_TO_CAMGROUP(Awb, AWB);
+    SET_TO_CAMGROUP(Baynr, RAWNR);
+    SET_TO_CAMGROUP(Ynr, YNR);
+    SET_TO_CAMGROUP(Cnr, UVNR);
+    SET_TO_CAMGROUP(Sharpen, SHARPEN);
+    SET_TO_CAMGROUP(Af, AF);
+    SET_TO_CAMGROUP(Gain, GAIN);
+    SET_TO_CAMGROUP(Ccm, CCM);
 
-    if (CHECK_ISP_HW_V21()) {
-        // ispv21
-        SET_TO_CAMGROUP(BlcV21, BLC);
-        SET_TO_CAMGROUP(AwbV21, AWB);
-        SET_TO_CAMGROUP(BaynrV21, RAWNR);
-        SET_TO_CAMGROUP(YnrV21, YNR);
-        SET_TO_CAMGROUP(CnrV21, UVNR);
-        SET_TO_CAMGROUP(SharpenV21, SHARPEN);
-        SET_TO_CAMGROUP(Af, AF);
-        SET_TO_CAMGROUP(Gain, GAIN);
-    } else if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
-        SET_TO_CAMGROUP(BlcV32, BLC);
-        SET_TO_CAMGROUP(CacV32, CAC);
-        SET_TO_CAMGROUP(DebayerV32, DEBAYER);
-        SET_TO_CAMGROUP(CcmV32, CCM);
-        SET_TO_CAMGROUP(LdchV32, LDCH);
-        SET_TO_CAMGROUP(BaynrV32, RAWNR);
-        SET_TO_CAMGROUP(YnrV32, YNR);
-        SET_TO_CAMGROUP(CnrV32, UVNR);
-        SET_TO_CAMGROUP(SharpV32, SHARPEN);
-        SET_TO_CAMGROUP(AwbV32, AWB);
-        SET_TO_CAMGROUP(AfV32, AF);
-        SET_TO_CAMGROUP(TnrV32, TNR);
-        SET_TO_CAMGROUP(AwbGainV32, AWBGAIN);
-        SET_TO_CAMGROUP(GainV3x, GAIN);
-    } else {
-        // ispv3x
-        SET_TO_CAMGROUP(BlcV21, BLC);
-        SET_TO_CAMGROUP(AwbV3x, AWB);
-        SET_TO_CAMGROUP(AfV3x, AF);
-        SET_TO_CAMGROUP(BaynrV3x, RAWNR);
-        SET_TO_CAMGROUP(YnrV3x, YNR);
-        SET_TO_CAMGROUP(CnrV3x, UVNR);
-        SET_TO_CAMGROUP(SharpenV3x, SHARPEN);
-        SET_TO_CAMGROUP(CacV3x, CAC);
-        SET_TO_CAMGROUP(GainV3x, GAIN);
-        SET_TO_CAMGROUP(TnrV3x, TNR);
-    }
-    if (CHECK_ISP_HW_V32()) {
-        SET_TO_CAMGROUP(CcmV32, CCM);
-    } else {
-        SET_TO_CAMGROUP(Ccm, CCM);
-    }
+#if RKAIQ_HAVE_BAYERTNR
+    SET_TO_CAMGROUP(Tnr, TNR);
+#endif
+#if RKAIQ_HAVE_CAC
+    SET_TO_CAMGROUP(Cac, CAC);
+#endif
+
 }
 
 XCamReturn
@@ -656,7 +629,7 @@ RkAiqCamGroupManager::newAlgoHandle(RkAiqAlgoDesComm* algo, int hw_ver)
 
     NEW_ALGO_HANDLE(Alsc, ALSC);
     NEW_ALGO_HANDLE(Adpcc, ADPCC);
-#if defined(ISP_HW_V30) || defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
+#if RKAIQ_HAVE_GAIN
     NEW_ALGO_HANDLE(AgainV2, AGAIN);
 #endif
     /* TODO: new the handle of other algo modules */
@@ -1043,20 +1016,20 @@ RkAiqCamGroupManager::reProcess(rk_aiq_groupcam_result_t* gc_res)
                 RET_FAILED();
             scam_3a_res->aec._aeHistMeasParams = &aiqParams->mHistParams->data()->result;
 
-            if (CHECK_ISP_HW_V21()) {
-                if (!aiqParams->mAwbV21Params.ptr())
+#if RKAIQ_HAVE_AWB_V21
+                if (!aiqParams->mAwbParams.ptr())
                     RET_FAILED();
-                scam_3a_res->awb._awbCfgV201 = &aiqParams->mAwbV21Params->data()->result;
-            } else if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
-                if (!aiqParams->mAwbV32Params.ptr())
+                scam_3a_res->awb._awbCfgV201 = &aiqParams->mAwbParams->data()->result;
+#elif RKAIQ_HAVE_AWB_V32 || RKAIQ_HAVE_AWB_V32LT
+                if (!aiqParams->mAwbParams.ptr())
                     RET_FAILED();
-                scam_3a_res->awb._awbCfgV32 = &aiqParams->mAwbV32Params->data()->result;
-            } else {
-                if (!aiqParams->mAwbV3xParams.ptr())
+                scam_3a_res->awb._awbCfgV32 = &aiqParams->mAwbParams->data()->result;
+#else
+                if (!aiqParams->mAwbParams.ptr())
                     RET_FAILED();
-                scam_3a_res->awb._awbCfgV3x = &aiqParams->mAwbV3xParams->data()->result;
-            }
-
+                scam_3a_res->awb._awbCfgV3x = &aiqParams->mAwbParams->data()->result;
+#endif
+                
             if (!aiqParams->mDehazeParams.ptr())
                 RET_FAILED();
 
@@ -1073,16 +1046,17 @@ RkAiqCamGroupManager::reProcess(rk_aiq_groupcam_result_t* gc_res)
             if (!aiqParams->mDrcParams.ptr())
                 RET_FAILED();
             scam_3a_res->_adrcConfig = &aiqParams->mDrcParams->data()->result;
-            if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
-                if (!aiqParams->mAwbGainV32Params.ptr()) {
+
+#if RKAIQ_HAVE_AWB_V32 || RKAIQ_HAVE_AWB_V32LT
+                if (!aiqParams->mAwbGainParams.ptr()) {
                     RET_FAILED();
                 }
-                scam_3a_res->awb._awbGainV32Params = &aiqParams->mAwbGainV32Params->data()->result;
-            } else {
+                scam_3a_res->awb._awbGainV32Params = &aiqParams->mAwbGainParams->data()->result;
+#else
                 if (!aiqParams->mAwbGainParams.ptr())
                     RET_FAILED();
                 scam_3a_res->awb._awbGainParams = &aiqParams->mAwbGainParams->data()->result;
-            }
+#endif
 
             if (!aiqParams->mLscParams.ptr())
                 RET_FAILED();
@@ -1092,101 +1066,102 @@ RkAiqCamGroupManager::reProcess(rk_aiq_groupcam_result_t* gc_res)
                 RET_FAILED();
             scam_3a_res->_dpccConfig = &aiqParams->mDpccParams->data()->result;
 
-            if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
-                if (!aiqParams->mCcmV32Params.ptr())
+#if RKAIQ_HAVE_CCM_V2
+                if (!aiqParams->mCcmParams.ptr())
                     RET_FAILED();
-                scam_3a_res->accm._ccmCfg_v2 = &aiqParams->mCcmV32Params->data()->result;
-            } else {
+                scam_3a_res->accm._ccmCfg_v2 = &aiqParams->mCcmParams->data()->result;
+#else
                 if (!aiqParams->mCcmParams.ptr())
                     RET_FAILED();
                 scam_3a_res->accm._ccmCfg = &aiqParams->mCcmParams->data()->result;
-            }
+#endif
 
             if (!aiqParams->mLut3dParams.ptr())
                 RET_FAILED();
             scam_3a_res->_lut3dCfg = &aiqParams->mLut3dParams->data()->result;
-            if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
-                if (!aiqParams->mBlcV32Params.ptr())
-                    RET_FAILED();
-                scam_3a_res->ablc._blcConfig_v32 = &aiqParams->mBlcV32Params->data()->result;
-            } else {
-                if (!aiqParams->mBlcV21Params.ptr())
-                    RET_FAILED();
-                scam_3a_res->ablc._blcConfig = &aiqParams->mBlcV21Params->data()->result;
-            }
 
-            if (CHECK_ISP_HW_V21()) {
-                if (!aiqParams->mYnrV21Params.ptr())
+#if RKAIQ_HAVE_BLC_V32
+            if (!aiqParams->mBlcParams.ptr())
                     RET_FAILED();
-                scam_3a_res->aynr._aynr_procRes_v2 = &aiqParams->mYnrV21Params->data()->result;
-            } else if (CHECK_ISP_HW_V30()) {
-                if (!aiqParams->mYnrV3xParams.ptr())
+                scam_3a_res->ablc._blcConfig_v32 = &aiqParams->mBlcParams->data()->result;
+#else
+                if (!aiqParams->mBlcParams.ptr())
                     RET_FAILED();
-                scam_3a_res->aynr._aynr_procRes_v3._stFix = &aiqParams->mYnrV3xParams->data()->result;
-            } else if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
-                if (!aiqParams->mYnrV32Params.ptr())
-                    RET_FAILED();
-                scam_3a_res->aynr._aynr_procRes_v22 = &aiqParams->mYnrV32Params->data()->result;
-            }
+                scam_3a_res->ablc._blcConfig = &aiqParams->mBlcParams->data()->result;
+#endif
 
-            if (CHECK_ISP_HW_V21()) {
-                if (!aiqParams->mCnrV21Params.ptr())
+#if RKAIQ_HAVE_YNR_V2
+                if (!aiqParams->mYnrParams.ptr())
                     RET_FAILED();
-                scam_3a_res->acnr._acnr_procRes_v1 = &aiqParams->mCnrV21Params->data()->result;
-            } else if (CHECK_ISP_HW_V30()) {
-                if (!aiqParams->mCnrV3xParams.ptr())
+                scam_3a_res->aynr._aynr_procRes_v2 = &aiqParams->mYnrParams->data()->result;
+#elif RKAIQ_HAVE_YNR_V3
+                if (!aiqParams->mYnrParams.ptr())
                     RET_FAILED();
-                scam_3a_res->acnr._acnr_procRes_v2 = &aiqParams->mCnrV3xParams->data()->result;
-            } else if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
-                if (!aiqParams->mCnrV32Params.ptr())
+                scam_3a_res->aynr._aynr_procRes_v3._stFix = &aiqParams->mYnrParams->data()->result;
+#elif RKAIQ_HAVE_YNR_V22
+                if (!aiqParams->mYnrParams.ptr())
                     RET_FAILED();
-                scam_3a_res->acnr._acnr_procRes_v30 = &aiqParams->mCnrV32Params->data()->result;
-            }
+                scam_3a_res->aynr._aynr_procRes_v22 = &aiqParams->mYnrParams->data()->result;
+#endif
 
-            if (CHECK_ISP_HW_V21()) {
-                if (!aiqParams->mSharpenV21Params.ptr())
+#if RKAIQ_HAVE_CNR_V1
+                if (!aiqParams->mCnrParams.ptr())
                     RET_FAILED();
-                scam_3a_res->asharp._asharp_procRes_v3 = &aiqParams->mSharpenV21Params->data()->result;
-            } else if (CHECK_ISP_HW_V30()) {
-                if (!aiqParams->mSharpenV3xParams.ptr())
+                scam_3a_res->acnr._acnr_procRes_v1 = &aiqParams->mCnrParams->data()->result;
+#elif RKAIQ_HAVE_CNR_V2
+                if (!aiqParams->mCnrParams.ptr())
                     RET_FAILED();
-                scam_3a_res->asharp._asharp_procRes_v4 = &aiqParams->mSharpenV3xParams->data()->result;
-            } else if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
-                if (!aiqParams->mSharpV32Params.ptr())
+                scam_3a_res->acnr._acnr_procRes_v2 = &aiqParams->mCnrParams->data()->result;
+#elif RKAIQ_HAVE_CNR_V30 || RKAIQ_HAVE_CNR_V30_LITE
+                if (!aiqParams->mCnrParams.ptr())
                     RET_FAILED();
-                scam_3a_res->asharp._asharp_procRes_v33 = &aiqParams->mSharpV32Params->data()->result;
-            }
+                scam_3a_res->acnr._acnr_procRes_v30 = &aiqParams->mCnrParams->data()->result;
+#endif
+
+#if RKAIQ_HAVE_SHARP_V3
+                if (!aiqParams->mSharpenParams.ptr())
+                    RET_FAILED();
+                scam_3a_res->asharp._asharp_procRes_v3 = &aiqParams->mSharpenParams->data()->result;
+#elif RKAIQ_HAVE_SHARP_V4
+                if (!aiqParams->mSharpenParams.ptr())
+                    RET_FAILED();
+                scam_3a_res->asharp._asharp_procRes_v4 = &aiqParams->mSharpenParams->data()->result;
+#elif RKAIQ_HAVE_SHARP_V33 || RKAIQ_HAVE_SHARP_V33_LITE
+                if (!aiqParams->mSharpenParams.ptr())
+                    RET_FAILED();
+                scam_3a_res->asharp._asharp_procRes_v33 = &aiqParams->mSharpenParams->data()->result;
+#endif
 
 
-            if (CHECK_ISP_HW_V21()) {
-                if (!aiqParams->mBaynrV21Params.ptr())
+#if RKAIQ_HAVE_BAYERNR_V2
+                if (!aiqParams->mBaynrParams.ptr())
                     RET_FAILED();
-                scam_3a_res->abayernr._abayernr_procRes_v1 = &aiqParams->mBaynrV21Params->data()->result;
-            } else if (CHECK_ISP_HW_V30()) {
-                if (!aiqParams->mBaynrV3xParams.ptr())
+                scam_3a_res->abayernr._abayernr_procRes_v1 = &aiqParams->mBaynrParams->data()->result;
+#elif RKAIQ_HAVE_BAYER2DNR_V2
+                if (!aiqParams->mBaynrParams.ptr())
                     RET_FAILED();
-                scam_3a_res->abayernr._abayer2dnr_procRes_v2 = &aiqParams->mBaynrV3xParams->data()->result;
-            } else if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
-                if (!aiqParams->mBaynrV32Params.ptr())
+                scam_3a_res->abayernr._abayer2dnr_procRes_v2 = &aiqParams->mBaynrParams->data()->result;
+#elif RKAIQ_HAVE_BAYER2DNR_V23
+                if (!aiqParams->mBaynrParams.ptr())
                     RET_FAILED();
-                scam_3a_res->abayernr._abayer2dnr_procRes_v23 = &aiqParams->mBaynrV32Params->data()->result;
-            }
+                scam_3a_res->abayernr._abayer2dnr_procRes_v23 = &aiqParams->mBaynrParams->data()->result;
+#endif
 
-            if (CHECK_ISP_HW_V30()) {
-                if (!aiqParams->mTnrV3xParams.ptr())
+#if RKAIQ_HAVE_BAYERTNR_V2
+                if (!aiqParams->mTnrParams.ptr())
                     RET_FAILED();
-                scam_3a_res->abayertnr._abayertnr_procRes_v2 = &aiqParams->mTnrV3xParams->data()->result;
-            } else if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
-                if (!aiqParams->mTnrV32Params.ptr())
+                scam_3a_res->abayertnr._abayertnr_procRes_v2 = &aiqParams->mTnrParams->data()->result;
+#elif RKAIQ_HAVE_BAYERTNR_V23 || RKAIQ_HAVE_BAYERTNR_V23_LITE
+                if (!aiqParams->mTnrParams.ptr())
                     RET_FAILED();
-                scam_3a_res->abayertnr._abayertnr_procRes_v23 = &aiqParams->mTnrV32Params->data()->result;
-            }
+                scam_3a_res->abayertnr._abayertnr_procRes_v23 = &aiqParams->mTnrParams->data()->result;
+#endif
 
-            if (CHECK_ISP_HW_V30() || CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
-                if (!aiqParams->mGainV3xParams.ptr())
+#if RKAIQ_HAVE_GAIN
+                if (!aiqParams->mGainParams.ptr())
                     RET_FAILED();
-                scam_3a_res->again._again_procRes_v2 = &aiqParams->mGainV3xParams->data()->result;
-            }
+                scam_3a_res->again._again_procRes_v2 = &aiqParams->mGainParams->data()->result;
+#endif
 
             // copy otp info
             RkAiqManager* aiqManager = mBindAiqsMap[i];
@@ -1673,62 +1648,32 @@ RkAiqCamGroupManager::syncSingleCamResultWithMaster(rk_aiq_groupcam_result_t* gc
         SYNC_WITH_MASTER(Cp, ACP);
         SYNC_WITH_MASTER(Ie, AIE);
         SYNC_WITH_MASTER(Lsc, ALSC);
+        SYNC_WITH_MASTER(Ynr, AYNR);
+        SYNC_WITH_MASTER(Sharpen, ASHARP);
+        SYNC_WITH_MASTER(Ccm, ACCM);
 
-        if (CHECK_ISP_HW_V20()) {
-            SYNC_WITH_MASTER(Tnr, AMFNR);
-            SYNC_WITH_MASTER(Ynr, AYNR);
-            SYNC_WITH_MASTER(Uvnr, ACNR);
-            SYNC_WITH_MASTER(Sharpen, ASHARP);
-            // SYNC_WITH_MASTER(Edgeflt, AEDGEFLT);
-            SYNC_WITH_MASTER(Fec, AFEC);
-            SYNC_WITH_MASTER(Orb, AORB);
-            SYNC_WITH_MASTER(Tmo, ATMO);
-            SYNC_WITH_MASTER(Rawnr, ARAWNR);
-            SYNC_WITH_MASTER(Fec, AFEC);
-        }
+#if defined(ISP_HW_V20)
+        SYNC_WITH_MASTER(Uvnr, ACNR);
+        // SYNC_WITH_MASTER(Edgeflt, AEDGEFLT);
+        SYNC_WITH_MASTER(Orb, AORB);
+        SYNC_WITH_MASTER(Tmo, ATMO);
+        SYNC_WITH_MASTER(Rawnr, ARAWNR);
+        SYNC_WITH_MASTER(Fec, AFEC);
+#else
+        SYNC_WITH_MASTER(Baynr, ARAWNR);
+        SYNC_WITH_MASTER(Cnr, ACNR);
+        SYNC_WITH_MASTER(Drc, ADRC);
+#endif
 
-        // ispv21
-        if (CHECK_ISP_HW_V21()) {
-            SYNC_WITH_MASTER(Drc, ADRC);
-            SYNC_WITH_MASTER(AwbV21, AWB);
-            SYNC_WITH_MASTER(YnrV21, AYNR);
-            SYNC_WITH_MASTER(CnrV21, ACNR);
-            SYNC_WITH_MASTER(SharpenV21, ASHARP);
-            SYNC_WITH_MASTER(BaynrV21, ARAWNR);
-        }
-
-        // ispv3x
-        if (CHECK_ISP_HW_V3X()) {
-            SYNC_WITH_MASTER(Drc, ADRC);
-            SYNC_WITH_MASTER(AwbV3x, AWB);
-            SYNC_WITH_MASTER(BlcV21, ABLC);
-            SYNC_WITH_MASTER(AfV3x, AF);
-            SYNC_WITH_MASTER(BaynrV3x, ARAWNR);
-            SYNC_WITH_MASTER(YnrV3x, AYNR);
-            SYNC_WITH_MASTER(CnrV3x, ACNR);
-            SYNC_WITH_MASTER(SharpenV3x, ASHARP);
-            SYNC_WITH_MASTER(CacV3x, ACAC);
-            SYNC_WITH_MASTER(GainV3x, AGAIN);
-            SYNC_WITH_MASTER(TnrV3x, AMFNR);
-            SYNC_WITH_MASTER(Fec, AFEC);
-        }
-
-        if (CHECK_ISP_HW_V32() || CHECK_ISP_HW_V32_LITE()) {
-            SYNC_WITH_MASTER(BlcV32, ABLC);
-            SYNC_WITH_MASTER(CacV32, ACAC);
-            SYNC_WITH_MASTER(DebayerV32, ADEBAYER);
-            SYNC_WITH_MASTER(CcmV32, ACCM);
-            SYNC_WITH_MASTER(BaynrV32, ARAWNR);
-            SYNC_WITH_MASTER(YnrV32, AYNR);
-            SYNC_WITH_MASTER(CnrV32, ACNR);
-            SYNC_WITH_MASTER(SharpV32, ASHARP);
-            SYNC_WITH_MASTER(AwbV32, AWB);
-            SYNC_WITH_MASTER(TnrV32, AMFNR);
-            SYNC_WITH_MASTER(GainV3x, AGAIN);
-            SYNC_WITH_MASTER(CcmV32, ACCM);
-        } else {
-            SYNC_WITH_MASTER(Ccm, ACCM);
-        }
+#if RKAIQ_HAVE_BAYERTNR
+        SYNC_WITH_MASTER(Tnr, AMFNR);
+#endif
+#if RKAIQ_HAVE_GAIN
+        SYNC_WITH_MASTER(Gain, AGAIN);
+#endif
+#if RKAIQ_HAVE_CAC
+        SYNC_WITH_MASTER(Cac, ACAC);
+#endif
     }
 
     return XCAM_RETURN_NO_ERROR;

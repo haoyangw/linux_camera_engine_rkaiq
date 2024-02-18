@@ -320,7 +320,7 @@ XCamReturn RkAiqArawnrHandleInt::genIspResult(RkAiqFullParams* params,
     if (!this->getAlgoId()) {
         RkAiqAlgoProcResArawnr* arawnr_rk = (RkAiqAlgoProcResArawnr*)arawnr_com;
         if (params->mRawnrParams.ptr()) {
-            rk_aiq_isp_rawnr_params_v20_t* rawnr_param = params->mRawnrParams->data().ptr();
+            rk_aiq_isp_rawnr_params_t* rawnr_param = params->mRawnrParams->data().ptr();
             LOGD_ANR("oyyf: %s:%d output isp param start\n", __FUNCTION__, __LINE__);
             if (sharedCom->init) {
                 rawnr_param->frame_id = 0;

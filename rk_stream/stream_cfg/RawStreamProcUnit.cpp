@@ -403,8 +403,12 @@ RawStreamProcUnit::set_rx_format(uint32_t width, uint32_t height, uint32_t pix_f
 
         int bpp = pixFmt2Bpp(format.fmt.pix.pixelformat);
         int mem_mode = mode;
-        if (((w / 2 - RKMOUDLE_UNITE_EXTEND_PIXEL) * bpp / 8) & 0xf)
+        if (is_multi_isp_mode  && mem_mode == CSI_MEM_COMPACT &&
+            (((w / 2 - RKMOUDLE_UNITE_EXTEND_PIXEL) * bpp / 8) & 0xf)) {
             mem_mode = CSI_MEM_WORD_BIG_ALIGN;
+            LOGE_RKSTREAM("ISP is running on rkisp-unite mode, width %d does not meet the 256 alignment,"
+                          "force set raw mem_mode to CSI_MEM_WORD_BIG_ALIGN", w);
+        }
         int ret1 = _dev[i]->io_control (RKISP_CMD_SET_CSI_MEMORY_MODE, &mem_mode);
         if (ret1)
             LOGE_RKSTREAM("set CSI_MEM_WORD_LITTLE_ALIGN failed !\n");
@@ -721,6 +725,46 @@ RawStreamProcUnit::_send_sync_buf(rkrawstream_rkraw2_t *rkraw2)
         sbuf_s->_seq = _offline_seq;
         if (rkraw2->_rawfmt.frame_id != 0) {
             sbuf_s->_seq = rkraw2->_rawfmt.frame_id;
+        }
+    }
+
+    if (_mipi_dev_max > 0) {
+        if(rkraw2->plane[1].mode == 0){
+            sbuf_m->_userptr = (uint8_t *)rkraw2->plane[1].addr;
+            sbuf_m->_fd = rkraw2->plane[1].fd;
+            sbuf_m->_index = rkraw2->plane[1].idx;
+            sbuf_m->_seq = rkraw2->_rawfmt.frame_id;
+            sbuf_m->_ts = rkraw2->plane[1].timestamp;
+        } else {
+            //memcpy(_rawbuffer[0], (uint8_t *)rkraw2->plane[0].addr, rkraw2->plane[0].size);
+            //sbuf_s->_userptr = _rawbuffer[0];
+            sbuf_m->_userptr = (uint8_t *)rkraw2->plane[1].addr;
+            sbuf_m->_size = (uint32_t)rkraw2->plane[1].size;
+            sbuf_m->_index = _offline_index;
+            sbuf_m->_seq = _offline_seq;
+            if (rkraw2->_rawfmt.frame_id != 0) {
+                sbuf_m->_seq = rkraw2->_rawfmt.frame_id;
+            }
+        }
+    }
+
+    if (_mipi_dev_max > 1) {
+        if(rkraw2->plane[2].mode == 0){
+            sbuf_l->_userptr = (uint8_t *)rkraw2->plane[2].addr;
+            sbuf_l->_fd = rkraw2->plane[2].fd;
+            sbuf_l->_index = rkraw2->plane[2].idx;
+            sbuf_l->_seq = rkraw2->_rawfmt.frame_id;
+            sbuf_l->_ts = rkraw2->plane[2].timestamp;
+        } else {
+            //memcpy(_rawbuffer[0], (uint8_t *)rkraw2->plane[0].addr, rkraw2->plane[0].size);
+            //sbuf_s->_userptr = _rawbuffer[0];
+            sbuf_l->_userptr = (uint8_t *)rkraw2->plane[2].addr;
+            sbuf_l->_size = (uint32_t)rkraw2->plane[2].size;
+            sbuf_l->_index = _offline_index;
+            sbuf_l->_seq = _offline_seq;
+            if (rkraw2->_rawfmt.frame_id != 0) {
+                sbuf_l->_seq = rkraw2->_rawfmt.frame_id;
+            }
         }
     }
 

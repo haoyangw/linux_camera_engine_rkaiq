@@ -153,7 +153,8 @@ processing
 
     if (pAdebayerProcParams->com.u.proc.is_bw_sensor) {
         pAdebayerCtx->config.enable = 0;
-        pAdebayerCtx->config.updatecfg = true;
+        if (pAdebayerProcParams->com.u.proc.init)
+            pAdebayerCtx->config.updatecfg = true;
     } else {
         //get ISO from curExp
         RKAiqAecExpInfo_t *curExp = pAdebayerProcParams->com.u.proc.curExp;
@@ -194,17 +195,20 @@ processing
 
         if (pAdebayerCtx->config.updatecfg) {
             AdebayerProcess(pAdebayerCtx, iso);
+        }
+    }
+
+    if (pAdebayerCtx->config.updatecfg) {
 #if RKAIQ_HAVE_DEBAYER_V1
-            AdebayerGetProcResult(pAdebayerCtx, &pAdebayerProcResParams->debayerResV1);
+        AdebayerGetProcResult(pAdebayerCtx, &pAdebayerProcResParams->debayerResV1);
 #endif
 
 #if RKAIQ_HAVE_DEBAYER_V2 || RKAIQ_HAVE_DEBAYER_V2_LITE
-            AdebayerGetProcResult(pAdebayerCtx, &pAdebayerProcResParams->debayerResV2);
+        AdebayerGetProcResult(pAdebayerCtx, &pAdebayerProcResParams->debayerResV2);
 #endif
-            outparams->cfg_update = true;
-        } else {
-            outparams->cfg_update = false;
-        }
+        outparams->cfg_update = true;
+    } else {
+        outparams->cfg_update = false;
     }
 
     LOGV_ADEBAYER("%s: (exit)\n", __FUNCTION__ );

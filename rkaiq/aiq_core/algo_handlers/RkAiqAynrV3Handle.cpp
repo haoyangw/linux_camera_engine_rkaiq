@@ -276,7 +276,7 @@ XCamReturn RkAiqAynrV3HandleInt::processing() {
     aynr_proc_int->iso      = sharedCom->iso;
     aynr_proc_int->hdr_mode = sharedCom->working_mode;
 
-    mProcResShared->result.stAynrProcResult.stFix = &shared->fullParams->mYnrV3xParams->data()->result;
+    mProcResShared->result.stAynrProcResult.stFix = &shared->fullParams->mYnrParams->data()->result;
 #ifdef DISABLE_HANDLE_ATTRIB
     mCfgMutex.lock();
 #endif
@@ -330,7 +330,7 @@ XCamReturn RkAiqAynrV3HandleInt::genIspResult(RkAiqFullParams* params,
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
     if (!mProcResShared.ptr()) {
-        params->mYnrV3xParams = cur_params->mYnrV3xParams;
+        params->mYnrParams = cur_params->mYnrParams;
         return ret;
     }
     RkAiqAlgoProcResAynrV3* aynr_rk = (RkAiqAlgoProcResAynrV3*)&mProcResShared->result;
@@ -342,7 +342,7 @@ XCamReturn RkAiqAynrV3HandleInt::genIspResult(RkAiqFullParams* params,
 
     if (!this->getAlgoId()) {
         LOGD_ANR("oyyf: %s:%d output isp param start\n", __FUNCTION__, __LINE__);
-        rk_aiq_isp_ynr_params_v3x_t* ynr_param = params->mYnrV3xParams->data().ptr();
+        rk_aiq_isp_ynr_params_t* ynr_param = params->mYnrParams->data().ptr();
         if (sharedCom->init) {
             ynr_param->frame_id = 0;
         } else {
@@ -353,15 +353,15 @@ XCamReturn RkAiqAynrV3HandleInt::genIspResult(RkAiqFullParams* params,
             mSyncFlag = shared->frameId;
             ynr_param->sync_flag = mSyncFlag;
             // copy from algo result
-            cur_params->mYnrV3xParams = params->mYnrV3xParams;
+            cur_params->mYnrParams = params->mYnrParams;
             mLatestparam = aynr_rk->stAynrProcResult;
             ynr_param->is_update = true;
             LOGD_ANR("[%d] params from algo", mSyncFlag);
         } else if (mSyncFlag != ynr_param->sync_flag) {
             ynr_param->sync_flag = mSyncFlag;
             // copy from latest result
-            if (cur_params->mYnrV3xParams.ptr()) {
-                ynr_param->result = cur_params->mYnrV3xParams->data()->result;
+            if (cur_params->mYnrParams.ptr()) {
+                ynr_param->result = cur_params->mYnrParams->data()->result;
                 ynr_param->is_update = true;
             } else {
                 LOGE_ANR("no latest params !");

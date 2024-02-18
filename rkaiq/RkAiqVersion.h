@@ -751,10 +751,19 @@
  *   - fix some bugs of rk3562 8k
  *   - fix ae may be not running on all platform introduced in v5.0x3.0
  *   - fix aiq_core state error when aiq stop
+ * v5.0x5.0
+ * - update kernel headers
+ *   - https://10.10.10.29/c/rk/kernel/+/198712/2
+ * - split to 2 or 4 grids according to resolution on rk3562
+ * - API rk_aiq_uapi2_sysctl_preInit_tb_info is no longer needed for AOV or TB
+ * - add some members for awb in iq json, rtt should be updated along with it
+ * - fix some AIQ crash bugs when tuning
  */
 
-#define RK_AIQ_VERSION_REAL_V "v5.0x4.1"
-#define RK_AIQ_RELEASE_DATE "2023-10-23"
+#define RK_AIQ_VERSION_REAL_V "v5.0x5.0"
+#define RK_AIQ_RELEASE_DATE "2024-2-18"
+
+#define RK_AIQ_IQ_HEAD_VERSION_REAL_V "v1.0.0"
 
 /******* DO NOT EDIT THE FOLLOWINGS ***********/
 
@@ -762,5 +771,10 @@
 #define RK_AIQ_VERSION \
     RK_AIQ_VERSION_HEAD\
     RK_AIQ_VERSION_REAL_V
+
+#define RK_AIQ_IQ_HEAD_VERSION_PREFIX "IQBIN Version: "
+#define RK_AIQ_IQ_HEAD_VERSION \
+    RK_AIQ_IQ_HEAD_VERSION_PREFIX\
+    RK_AIQ_IQ_HEAD_VERSION_REAL_V
 
 #endif

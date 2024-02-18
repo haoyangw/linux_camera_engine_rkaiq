@@ -138,6 +138,7 @@ public:
     static void *loadWholeFile(const char *fpath, size_t *fsize);
     static int parseBinStructMap(uint8_t *data, size_t len);
     static int restoreBinStructMap(uint8_t *data, size_t len, uint8_t *restore_ptr);
+    static int checkBinVersion(uint8_t *data, size_t len);
 
 private:
     static std::map<std::string, CamCalibDbProj_t *> mCalibDbsMap;

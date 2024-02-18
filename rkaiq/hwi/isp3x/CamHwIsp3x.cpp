@@ -66,14 +66,14 @@ CamHwIsp3x::updateEffParams(void* params, void* ori_params) {
 
     if (getParamsForEffMap(effFrmId)) {
         if (mAwbParams) {
-            RkAiqIspAwbParamsProxyV3x* awbParams =
-                dynamic_cast<RkAiqIspAwbParamsProxyV3x*>(mAwbParams);
+            RkAiqIspAwbParamsProxy* awbParams =
+                dynamic_cast<RkAiqIspAwbParamsProxy*>(mAwbParams);
             _effecting_ispparam_map[effFrmId]->data()->result.awb_cfg_v3x = awbParams->data()->result;
         }
 
         if (mBlcResult) {
-            RkAiqIspBlcParamsProxyV21* blcParams =
-                dynamic_cast<RkAiqIspBlcParamsProxyV21*>(mBlcResult);
+            RkAiqIspBlcParamsProxy* blcParams =
+                dynamic_cast<RkAiqIspBlcParamsProxy*>(mBlcResult);
             _effecting_ispparam_map[effFrmId]->data()->result.blc_cfg = blcParams->data()->result;
         }
 

@@ -66,6 +66,9 @@ class RkAiqResourceTranslatorV32 : public RkAiqResourceTranslatorV3x {
                                              SmartPtr<RkAiqAfStatsProxy>& to);
 #endif
 
+    XCamReturn translateMultiAecStatsVertialV32Lite(SmartPtr<RkAiqAecStatsProxy> top,
+        SmartPtr<RkAiqAecStatsProxy>& bot, SmartPtr<RkAiqAecStatsProxy>& to);
+
  private:
     XCAM_DEAD_COPY(RkAiqResourceTranslatorV32);
 

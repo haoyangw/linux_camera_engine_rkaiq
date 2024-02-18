@@ -185,9 +185,6 @@ static XCamReturn AmergeProcess(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* o
             // get motion coef
             pAmergeGrpCtx->NextData.CtrlData.MoveCoef = MOVE_COEF_DEFAULT;
 
-            // get bypass_tuning_process
-            bypass_tuning_process = AmergeByPassProcessing(pAmergeGrpCtx);
-
             // expo para process
             pAmergeGrpCtx->NextData.CtrlData.ExpoData.SGain =
                 pAmergeGrpParams->camgroupParmasArray[0]
@@ -263,18 +260,28 @@ static XCamReturn AmergeProcess(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* o
                     pAmergeGrpParams->camgroupParmasArray[0]
                         ->aec._effAecExpInfo.HdrExp[2]
                         .exp_real_params.integration_time);
-        if (pAmergeGrpCtx->NextData.CtrlData.ExpoData.SExpo > FLT_EPSILON)
+        if (pAmergeGrpCtx->NextData.CtrlData.ExpoData.SExpo > FLT_EPSILON) {
             pAmergeGrpCtx->NextData.CtrlData.ExpoData.RatioLS =
                 pAmergeGrpCtx->NextData.CtrlData.ExpoData.LExpo /
                 pAmergeGrpCtx->NextData.CtrlData.ExpoData.SExpo;
-        else
+            if (pAmergeGrpCtx->NextData.CtrlData.ExpoData.RatioLS < RATIO_DEFAULT) {
+                LOGE_AMERGE("%s: Next RatioLS:%f is less than 1.0x, clip to 1.0x!!!\n",
+                            __FUNCTION__, pAmergeGrpCtx->NextData.CtrlData.ExpoData.RatioLS);
+                pAmergeGrpCtx->NextData.CtrlData.ExpoData.RatioLS = RATIO_DEFAULT;
+            }
+        } else
             LOGE_AMERGE("%s(%d): Short frame for merge expo sync is ERROR!!!\n", __FUNCTION__,
                         __LINE__);
-        if (pAmergeGrpCtx->NextData.CtrlData.ExpoData.MExpo > FLT_EPSILON)
+        if (pAmergeGrpCtx->NextData.CtrlData.ExpoData.MExpo > FLT_EPSILON) {
             pAmergeGrpCtx->NextData.CtrlData.ExpoData.RatioLM =
                 pAmergeGrpCtx->NextData.CtrlData.ExpoData.LExpo /
                 pAmergeGrpCtx->NextData.CtrlData.ExpoData.MExpo;
-        else
+            if (pAmergeGrpCtx->NextData.CtrlData.ExpoData.RatioLM < RATIO_DEFAULT) {
+                LOGE_AMERGE("%s: Next RatioLM:%f is less than 1.0x, clip to 1.0x!!!\n",
+                            __FUNCTION__, pAmergeGrpCtx->NextData.CtrlData.ExpoData.RatioLM);
+                pAmergeGrpCtx->NextData.CtrlData.ExpoData.RatioLM = RATIO_DEFAULT;
+            }
+        } else
             LOGE_AMERGE("%s(%d): Middle frame for merge expo sync is ERROR!!!\n", __FUNCTION__,
                         __LINE__);
         //clip for long frame mode
@@ -282,16 +289,30 @@ static XCamReturn AmergeProcess(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* o
             pAmergeGrpCtx->NextData.CtrlData.ExpoData.RatioLS = LONG_FRAME_MODE_RATIO;
             pAmergeGrpCtx->NextData.CtrlData.ExpoData.RatioLM = LONG_FRAME_MODE_RATIO;
         }
+        // clip L2M_ratio to 32x
+        if (pAmergeGrpCtx->NextData.CtrlData.ExpoData.RatioLM > AE_RATIO_L2M_MAX) {
+            LOGE_AMERGE("%s: Next L2M_ratio:%f out of range, clip to 32.0x!!!\n", __FUNCTION__,
+                        pAmergeGrpCtx->NextData.CtrlData.ExpoData.RatioLM);
+            pAmergeGrpCtx->NextData.CtrlData.ExpoData.RatioLM = AE_RATIO_L2M_MAX;
+        }
+        // clip L2S_ratio
+        if (pAmergeGrpCtx->NextData.CtrlData.ExpoData.RatioLS > AE_RATIO_MAX) {
+            LOGE_AMERGE("%s: Next RatioLS:%f out of range, clip to 256.0x!!!\n", __FUNCTION__,
+                        pAmergeGrpCtx->NextData.CtrlData.ExpoData.RatioLS);
+            pAmergeGrpCtx->NextData.CtrlData.ExpoData.RatioLS = AE_RATIO_MAX;
+        }
 
-        if (pAmergeGrpCtx->NextData.CtrlData.ExpoData.RatioLS >= RATIO_DEFAULT &&
-            pAmergeGrpCtx->NextData.CtrlData.ExpoData.RatioLM >= RATIO_DEFAULT) {
-            if (pAmergeGrpCtx->FrameID <= INIT_CALC_PARAMS_NUM)
-                bypass_expo_process = false;
-            else if (pAmergeGrpCtx->ifReCalcStAuto || pAmergeGrpCtx->ifReCalcStManual)
-                bypass_expo_process = false;
-            else if (!pAmergeGrpCtx->CurrData.CtrlData.ExpoData.LongFrmMode !=
-                     !pAmergeGrpCtx->NextData.CtrlData.ExpoData.LongFrmMode)
-                bypass_expo_process = false;
+        // get bypass_tuning_process
+        bypass_tuning_process = AmergeByPassProcessing(pAmergeGrpCtx);
+
+        // get bypass_expo_process
+        if (pAmergeGrpCtx->FrameID <= INIT_CALC_PARAMS_NUM)
+            bypass_expo_process = false;
+        else if (pAmergeGrpCtx->ifReCalcStAuto || pAmergeGrpCtx->ifReCalcStManual)
+            bypass_expo_process = false;
+        else if (!pAmergeGrpCtx->CurrData.CtrlData.ExpoData.LongFrmMode !=
+                 !pAmergeGrpCtx->NextData.CtrlData.ExpoData.LongFrmMode)
+            bypass_expo_process = false;
 #if RKAIQ_HAVE_MERGE_V10
             else if ((pAmergeGrpCtx->CurrData.CtrlData.ExpoData.RatioLS -
                       pAmergeGrpCtx->NextData.CtrlData.ExpoData.RatioLS) > FLT_EPSILON ||
@@ -324,12 +345,6 @@ static XCamReturn AmergeProcess(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* o
 #endif
             else
                 bypass_expo_process = true;
-        } else {
-            LOGE_AMERGE("%s(%d): AE RatioLS:%f RatioLM:%f for drc expo sync is under one!!!\n",
-                        __FUNCTION__, __LINE__, pAmergeGrpCtx->NextData.CtrlData.ExpoData.RatioLS,
-                        pAmergeGrpCtx->NextData.CtrlData.ExpoData.RatioLM);
-            bypass_expo_process = true;
-        }
 
         // get tuning para process
         if (!bypass_expo_process || !bypass_tuning_process)

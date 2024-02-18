@@ -51,8 +51,10 @@ private:
     void convertAiqUvnrToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
                                      rk_aiq_isp_cnr_v32_t& uvnr);
 #endif
+#if RKAIQ_HAVE_AWB_V32 || RKAIQ_HAVE_AWB_V32LT
     void convertAiqAwbGainToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
                                         const rk_aiq_wb_gain_v32_t& awb_gain,  bool awb_gain_update);
+#endif
 #if RKAIQ_HAVE_AWB_V32
     void convertAiqAwbToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
                                     const rk_aiq_isp_awb_meas_cfg_v32_t& awb_meas,
@@ -62,9 +64,10 @@ private:
     void convertAiqSharpenToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
                                         rk_aiq_isp_sharp_v32_t& sharp);
 #endif
+#if RKAIQ_HAVE_BLC_V32
     void convertAiqBlcToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
                                     rk_aiq_isp_blc_v32_t& blc);
-
+#endif
 #if RKAIQ_HAVE_AF_V31 || RKAIQ_ONLY_AF_STATS_V31
     void convertAiqAfToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
                                    const rk_aiq_isp_af_v31_t& af_data, bool af_cfg_udpate);
@@ -98,10 +101,12 @@ private:
     void convertAiqCcmToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
                                     const rk_aiq_ccm_cfg_v2_t& ccm);
 #endif
+#if RKAIQ_HAVE_LDCH_V21
     void convertAiqAldchToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
                                       struct isp32_isp_params_cfg& isp_cfg_right,
                                       const rk_aiq_isp_ldch_v21_t& ldch_cfg,
                                       bool is_multi_isp);
+#endif
     void convertAiqExpIspDgainToIsp32Params(struct isp32_isp_params_cfg& isp_cfg, RKAiqAecExpInfo_t ae_exp);
 };
 

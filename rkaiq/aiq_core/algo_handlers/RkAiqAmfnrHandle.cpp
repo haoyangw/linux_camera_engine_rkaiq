@@ -328,7 +328,7 @@ XCamReturn RkAiqAmfnrHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullP
     if (!this->getAlgoId()) {
         RkAiqAlgoProcResAmfnr* amfnr_rk = (RkAiqAlgoProcResAmfnr*)amfnr_com;
         if (params->mTnrParams.ptr()) {
-            rk_aiq_isp_tnr_params_v20_t* tnr_param = params->mTnrParams->data().ptr();
+            rk_aiq_isp_tnr_params_t* tnr_param = params->mTnrParams->data().ptr();
             LOGD_ANR("oyyf: %s:%d output ispp param start\n", __FUNCTION__, __LINE__);
 
             if (sharedCom->init) {

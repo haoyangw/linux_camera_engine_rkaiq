@@ -125,7 +125,7 @@ XCamReturn RkAiqAwdrHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPa
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
     RkAiqAlgoProcResAwdr* awdr_com = (RkAiqAlgoProcResAwdr*)mProcOutParam;
-    rk_aiq_isp_wdr_params_v20_t* wdr_param = params->mWdrParams->data().ptr();
+    rk_aiq_isp_wdr_params_t* wdr_param = params->mWdrParams->data().ptr();
 
     if (sharedCom->init) {
         wdr_param->frame_id = 0;

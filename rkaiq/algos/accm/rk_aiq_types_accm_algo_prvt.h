@@ -41,6 +41,11 @@ typedef struct {
 } accmCof_initlen_info_t;
 
 typedef struct {
+    float scl;
+    uint8_t tbl_idx;
+} yalp_tbl_info_t;
+
+typedef struct {
     unsigned int name_len;
     unsigned int illu_len;
 } matrixall_initlen_info_t;
@@ -68,6 +73,7 @@ typedef struct accm_rest_s {
     ccm_3ares_info_t res3a_info;
     int illuNum;
     ccm_calib_initlen_info_t ccm_calib_initlen_info;
+    yalp_tbl_info_t yalp_tbl_info;
 } accm_rest_t;
 
 typedef struct illu_node_s {

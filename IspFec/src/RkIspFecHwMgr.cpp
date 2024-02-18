@@ -51,6 +51,7 @@ RkIspFecHwMgr::RkIspFecHwMgr()
 
     for (int i = 0; i < mFecVdNum; i++) {
         mFecHw[i] = new RkIspFecHw(mFecVdPath[i]);
+        mIsFecHwWking[i] = false;
     }
     printf("I: %s constructor done !\n", __FUNCTION__);
 }

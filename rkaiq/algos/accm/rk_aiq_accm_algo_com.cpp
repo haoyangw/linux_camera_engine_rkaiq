@@ -820,7 +820,7 @@ XCamReturn selectCCM(const CalibDbV2_Ccm_Accm_Cof_Para_t aCcmCof[],
             hAccm->calib_update ||
             (dominateIlluProfileIdx != hAccm->accmRest.dominateIlluProfileIdx) ||
             (fabs(fSaturation - hAccm->accmRest.fSaturation) > DIVMIN);
-    LOGD_ACCM("pickCCMprof = graymode chg (%d) || calib_update (%d) || dominateIlluProfileIdx: %d->%d || fSaturation: %f->%f\n",
+    LOGD_ACCM("pickCCMprof update: %d = calib_update (%d) || dominateIlluProfileIdx: %d->%d || fSaturation: %f->%f\n",
             flag0, hAccm->calib_update, hAccm->accmRest.dominateIlluProfileIdx, dominateIlluProfileIdx,
             hAccm->accmRest.fSaturation, fSaturation);
 
@@ -867,6 +867,8 @@ XCamReturn selectCCM(const CalibDbV2_Ccm_Accm_Cof_Para_t aCcmCof[],
         }
         strcpy(hAccm->accmRest.CcmProf1Name, pCcmProfile1->name);
         strcpy(hAccm->accmRest.CcmProf2Name, pCcmProfile2->name);
+        LOGD_ACCM("select matrix Prof1: %s\n", pCcmProfile1->name);
+        LOGD_ACCM("select matrix Prof2: %s\n", pCcmProfile2->name);
     }
 
     return (ret);
@@ -901,6 +903,114 @@ bool JudgeCcmRes3aConverge
     }
 
     return (gain_upd || wbgain_upd);
+}
+
+XCamReturn YAlpSymAutoCfg(const int isoNum,
+                              const CalibDbV2_Ccm_Gain_Yalp_t* alpTbl,
+                              float lastscl,
+                              int lastTidx,
+                              const float iso,
+                              const bool update,
+                              float* alp,
+                              bool *update_flag
+                              ) {
+    if (alpTbl == NULL || alp == NULL) {
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+    float k = 0;
+    int ii = 0;
+    *update_flag = false;
+    if (iso < alpTbl[0].iso) {
+        k = 0;
+        ii = 1;
+    } else if (iso > alpTbl[isoNum - 1].iso) {
+        k = 1;
+        ii = isoNum - 1;
+    } else {
+        for(ii = 0; ii < isoNum; ii++) {
+            if (iso < alpTbl[ii].iso)
+                break;
+        }
+        if (ii == isoNum) ii = ii - 1;
+        if (alpTbl[ii].iso- alpTbl[ii - 1].iso < DIVMIN) {
+            LOGE_ACCM("check yalp-gains[%d])\n", ii);
+            return XCAM_RETURN_ERROR_PARAM;
+        }
+        k = (iso - alpTbl[ii - 1].iso) / (alpTbl[ii].iso - alpTbl[ii - 1].iso);
+    }
+
+    if (fabs(k - lastscl) > 0.01 || (ii != lastTidx) || update) {
+        float alp_tmp[CCM_CURVE_DOT_NUM] = {0};
+        float diff = 0;
+        for (int i = 0; i < CCM_CURVE_DOT_NUM; i++) {
+            alp_tmp[i] = floorf(k * alpTbl[ii].y_alpha_curve[i] + (1 - k) * alpTbl[ii-1].y_alpha_curve[i] + 0.5);
+            diff += fabs(alp_tmp[i] - alp[i]);
+        }
+        if (diff > 1) {
+            memcpy(alp, alp_tmp, sizeof(alp_tmp));
+            LOGD_ACCM("%s: scl = %f -> %f, idx = %d -> %d\n", __FUNCTION__, lastscl, k, lastTidx, ii);
+            lastscl = k;
+            lastTidx = ii;
+            *update_flag = true;
+        }
+    }
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn YAlpAsymAutoCfg(const int isoNum,
+                              const CalibDbV2_Ccm_Gain_Yalp_Asym_t* alpTbl,
+                              float lastscl,
+                              int lastTidx,
+                              const float iso,
+                              const bool update,
+                              float* alp,
+                              bool *update_flag
+                              ) {
+    if (alpTbl == NULL || alp == NULL) {
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+    float k = 0;
+    int ii = 1;
+    *update_flag = false;
+    if (iso <= alpTbl[0].iso) {
+        k = 0;
+        ii = 1;
+    } else if (iso > alpTbl[isoNum - 1].iso) {
+        k = 1;
+        ii = isoNum - 1;
+    } else {
+        for(ii = 1; ii < isoNum; ii++) {
+            if (iso < alpTbl[ii].iso)
+                break;
+        }
+        if (ii == isoNum) ii = ii - 1;
+        if (fabs(alpTbl[ii].iso - alpTbl[ii - 1].iso) < DIVMIN) {
+            LOGE_ACCM("check yalp-gains[%d])\n", ii);
+            return XCAM_RETURN_ERROR_PARAM;
+        }
+        k = (iso - alpTbl[ii - 1].iso) / (alpTbl[ii].iso - alpTbl[ii - 1].iso);
+    }
+
+    if (fabs(k - lastscl) > 0.01 || (ii != lastTidx) || update) {
+        float alp_tmp[CCM_CURVE_DOT_NUM_V2] = {0};
+        float diff = 0;
+        for (int i = 0; i < CCM_CURVE_DOT_NUM_HALF; i++) {
+            alp_tmp[i] = floorf(k * alpTbl[ii].y_alpha_lcurve[i] + (1 - k) * alpTbl[ii-1].y_alpha_lcurve[i] + 0.5);
+            diff += fabs(alp_tmp[i] - alp[i]);
+        }
+        for (int i = 0; i < CCM_CURVE_DOT_NUM_HALF; i++) {
+            alp_tmp[i + CCM_CURVE_DOT_NUM_HALF] = floorf(k * alpTbl[ii].y_alpha_rcurve[i] + (1 - k) * alpTbl[ii-1].y_alpha_rcurve[i] + 0.5);
+            diff += fabs(alp_tmp[i + CCM_CURVE_DOT_NUM_HALF] - alp[i + CCM_CURVE_DOT_NUM_HALF]);
+        }
+        if (diff > 1) {
+            memcpy(alp, alp_tmp, sizeof(alp_tmp));
+            LOGD_ACCM("%s: scl = %f -> %f, idx = %d -> %d\n", __FUNCTION__, lastscl, k, lastTidx, ii);
+            lastscl = k;
+            lastTidx = ii;
+            *update_flag = true;
+        }
+    }
+    return XCAM_RETURN_NO_ERROR;
 }
 
 RKAIQ_END_DECLARE

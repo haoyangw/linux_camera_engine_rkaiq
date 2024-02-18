@@ -933,30 +933,43 @@
 								"weightForNightGainCalc_len":	4,
 								"singleColorProces":	{
 									"enable":	1,
+									"mode":	"AWB_SGC_CALL_INITIAL",
 									"colorBlock":	[{
 											"index":	15,
 											"meanC":	32.778255,
-											"meanH":	39.475368
+											"meanH":	39.475368,
+											"ct":	[2000, 5000, 6500],
+											"disTh":	[900, 900, 900]
 										}, {
 											"index":	13,
 											"meanC":	27.820618,
-											"meanH":	-73.161354
+											"meanH":	-73.161354,
+											"ct":	[2000, 5000, 6500],
+											"disTh":	[900, 900, 900]
 										}, {
 											"index":	5,
 											"meanC":	14.598369,
-											"meanH":	-71.64621
+											"meanH":	-71.64621,
+											"ct":	[2000, 5000, 6500],
+											"disTh":	[900, 900, 900]
 										}, {
 											"index":	10,
 											"meanC":	12.562324,
-											"meanH":	-47.15778
+											"meanH":	-47.15778,
+											"ct":	[2000, 5000, 6500],
+											"disTh":	[900, 900, 900]
 										}, {
 											"index":	14,
 											"meanC":	18.513672,
-											"meanH":	155.987839
+											"meanH":	155.987839,
+											"ct":	[2000, 5000, 6500],
+											"disTh":	[900, 900, 900]
 										}, {
 											"index":	16,
 											"meanC":	32.60371,
-											"meanH":	91.266197
+											"meanH":	91.266197,
+											"ct":	[2000, 5000, 6500],
+											"disTh":	[900, 900, 900]
 										}],
 									"colorBlock_len":	6,
 									"lsUsedForEstimation":	[{
@@ -973,7 +986,24 @@
 											"BGain":	2.111661
 										}],
 									"lsUsedForEstimation_len":	3,
-									"alpha":	0.9
+									"illuEstListSize":	10,
+									"alpha":	0.9,
+									"wgtClrGradX":	[50, 100, 150, 200, 300, 600],
+									"wgtClrGradY":	[1, 1, 0.5, 0.5, 0.2, 0],
+									"wgtDisX":	[200, 400, 900, 1200, 2000, 3000],
+									"wgtDisCt":	[2000, 5000, 6500],
+									"wgtDisHCtY":	[1, 1, 1, 0, 0, 0],
+									"wgtDisMCtY":	[1, 1, 1, 0, 0, 0],
+									"wgtDisLCtY":	[1, 1, 1, 0, 0, 0],
+									"wgtLvX":	[0, 32, 64, 128, 256, 2048, 4096, 8192],
+									"wgtLvY":	[0, 0.5, 1, 1, 1, 1, 1, 1],
+									"wgtWpNumthX":	[20, 100, 500, 1000, 2000, 2000],
+									"wgtWpNumthY":	[1, 1, 0.5, 0.1, 0, 0],
+									"illuMchPrt":	-1,
+									"useSgcResth":	0.6,
+									"updateDpWbgnTh":	2000,
+									"updateDpWbgnTh2":	0.8,
+									"updateEstWbgnTh":	2000
 								},
 								"lineRgBg":	[-0.869, -0.4948, -2.8937],
 								"lineRgProjCCT":	[1, -0.0003, 0.5034],
@@ -1038,13 +1068,103 @@
 								"y_alp_sym":	{
 									"highy_adj_en":	1,
 									"bound_pos_bit":	8,
-									"y_alpha_curve":	[256, 256, 256, 512, 512, 512, 512, 512, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+									"gain_yalp_curve":	[{
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}]
 								},
 								"y_alp_asym":	{
 									"bound_pos_bit":	8,
 									"right_pos_bit":	8,
-									"y_alpha_left_curve":	[0, 128, 256, 384, 512, 640, 768, 896, 1024],
-									"y_alpha_right_curve":	[1024, 896, 768, 640, 512, 384, 256, 128, 0]
+									"gain_yalp_curve":	[{
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}]
 								},
 								"gain_alphaScale_curve":	{
 									"gain":	[1, 2, 4, 8, 16, 32, 64, 128, 256],
@@ -1052,10 +1172,10 @@
 								}
 							},
 							"enhCCM":	{
-								"enh_ctl":	{
-									"gains":	[1, 2, 4, 8, 16, 64, 128, 512, 850],
-									"enh_adj_en":	[1, 1, 1, 1, 1, 1, 1, 1, 1],
-									"enh_rat_max":	[1.3, 1.3, 1.3, 1.3, 1.5, 1.5, 1.5, 1.3, 1.1]
+								"enh_adj_en":	0,
+								"enh_rat":	{
+									"gains":	[1, 1, 1, 1, 1, 1, 1, 1, 1],
+									"enh_rat_max":	[0, 0, 0, 0, 0, 0, 0, 0, 0]
 								},
 								"enh_rgb2y_para":	[38, 75, 15]
 							},
@@ -8581,7 +8701,8 @@
 									"InitGainValue":	1,
 									"InitIspDGainValue":	1,
 									"InitPIrisGainValue":	512,
-									"InitDCIrisDutyValue":	100
+									"InitDCIrisDutyValue":	100,
+									"InitHDCIrisTargetValue":	0
 								},
 								"Route":	{
 									"TimeDot":	[0, 0.01, 0.01, 0.02, 0.03, 0.04],
@@ -8645,7 +8766,8 @@
 									"InitGainValue":	[1, 1, 1],
 									"InitIspDGainValue":	[1, 1, 1],
 									"InitPIrisGainValue":	512,
-									"InitDCIrisDutyValue":	100
+									"InitDCIrisDutyValue":	100,
+									"InitHDCIrisTargetValue":	1023
 								},
 								"Route":	{
 									"Frm0TimeDot":	[0, 0.003, 0.003, 0.003, 0.003, 0.003],
@@ -8731,11 +8853,13 @@
 								"ManualEn":	0,
 								"ManualAttr":	{
 									"PIrisGainValue":	1,
-									"DCIrisHoldValue":	30
+									"DCIrisHoldValue":	30,
+									"HDCIrisTargetValue":	1023
 								},
 								"InitAttr":	{
 									"PIrisGainValue":	512,
-									"DCIrisHoldValue":	100
+									"DCIrisHoldValue":	100,
+									"HDCIrisTargetValue":	1023
 								},
 								"PIrisAttr":	{
 									"TotalStep":	81,
@@ -8751,6 +8875,19 @@
 									"MaxPwmDuty":	100,
 									"OpenPwmDuty":	40,
 									"ClosePwmDuty":	22
+								},
+								"HDCIrisAttr":	{
+									"DampOver":	0.15,
+									"DampUnder":	0.45,
+									"ZeroIsMax":	0,
+									"MinTarget":	0,
+									"MaxTarget":	1023,
+									"ZoomTargetDot":	[0],
+									"ZoomDot":	[0],
+									"IrisTargetDot":	[0],
+									"GainDot":	[0],
+									"ZoomTargetDot_len":	1,
+									"IrisTargetDot_len":	1
 								}
 							},
 							"SyncTest":	{
@@ -9308,30 +9445,43 @@
 								"weightForNightGainCalc_len":	4,
 								"singleColorProces":	{
 									"enable":	1,
+									"mode":	"AWB_SGC_CALL_INITIAL",
 									"colorBlock":	[{
 											"index":	15,
 											"meanC":	28.387762,
-											"meanH":	28.819174
+											"meanH":	28.819174,
+											"ct":	[2000, 5000, 6500],
+											"disTh":	[900, 900, 900]
 										}, {
 											"index":	13,
 											"meanC":	24.734674,
-											"meanH":	-73.800453
+											"meanH":	-73.800453,
+											"ct":	[2000, 5000, 6500],
+											"disTh":	[900, 900, 900]
 										}, {
 											"index":	5,
 											"meanC":	10.343015,
-											"meanH":	-64.851051
+											"meanH":	-64.851051,
+											"ct":	[2000, 5000, 6500],
+											"disTh":	[900, 900, 900]
 										}, {
 											"index":	10,
 											"meanC":	11.844829,
-											"meanH":	-35.953342
+											"meanH":	-35.953342,
+											"ct":	[2000, 5000, 6500],
+											"disTh":	[900, 900, 900]
 										}, {
 											"index":	14,
 											"meanC":	20.559069,
-											"meanH":	149.038742
+											"meanH":	149.038742,
+											"ct":	[2000, 5000, 6500],
+											"disTh":	[900, 900, 900]
 										}, {
 											"index":	16,
 											"meanC":	28.240438,
-											"meanH":	91.499084
+											"meanH":	91.499084,
+											"ct":	[2000, 5000, 6500],
+											"disTh":	[900, 900, 900]
 										}],
 									"colorBlock_len":	6,
 									"lsUsedForEstimation":	[{
@@ -9348,7 +9498,24 @@
 											"BGain":	1.670135
 										}],
 									"lsUsedForEstimation_len":	3,
-									"alpha":	0.9
+									"illuEstListSize":	10,
+									"alpha":	0.9,
+									"wgtClrGradX":	[50, 100, 150, 200, 300, 600],
+									"wgtClrGradY":	[1, 1, 0.5, 0.5, 0.2, 0],
+									"wgtDisX":	[200, 400, 900, 1200, 2000, 3000],
+									"wgtDisCt":	[2000, 5000, 6500],
+									"wgtDisHCtY":	[1, 1, 1, 0, 0, 0],
+									"wgtDisMCtY":	[1, 1, 1, 0, 0, 0],
+									"wgtDisLCtY":	[1, 1, 1, 0, 0, 0],
+									"wgtLvX":	[0, 32, 64, 128, 256, 2048, 4096, 8192],
+									"wgtLvY":	[0, 0.5, 1, 1, 1, 1, 1, 1],
+									"wgtWpNumthX":	[20, 100, 500, 1000, 2000, 2000],
+									"wgtWpNumthY":	[1, 1, 0.5, 0.1, 0, 0],
+									"illuMchPrt":	-1,
+									"useSgcResth":	0.6,
+									"updateDpWbgnTh":	2000,
+									"updateDpWbgnTh2":	0.8,
+									"updateEstWbgnTh":	2000
 								},
 								"lineRgBg":	[-0.8263, -0.5633, -2.1854],
 								"lineRgProjCCT":	[1, -0.0002, 0.4225],
@@ -9360,6 +9527,14 @@
 								"wbGainOffset":	{
 									"enable":	0,
 									"offset":	[0, 0, 0, 0]
+								},
+								"avaSiteRec":	{
+									"enable":	1,
+									"frameNum":	3,
+									"fullFileName":	"/tmp/avaSiteInfo",
+									"avaEnable":	1,
+									"wbgainTh":	0.2,
+									"lvValueTh":	2
 								}
 							}
 						},
@@ -9368,41 +9543,28 @@
 								"enable":	1,
 								"BLC_Data":	{
 									"ISO":	[50, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400, 204800],
-									"ISO_len":	13,
 									"R_Channel":	[256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256],
-									"R_Channel_len":	13,
 									"Gr_Channel":	[256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256],
-									"Gr_Channel_len":	13,
 									"Gb_Channel":	[256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256],
-									"Gb_Channel_len":	13,
-									"B_Channel":	[256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256],
-									"B_Channel_len":	13
+									"B_Channel":	[256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256]
 								}
 							},
 							"Blc1TuningPara":	{
 								"enable":	0,
 								"BLC_Data":	{
 									"ISO":	[50, 100, 200, 400, 800, 1600, 3200, 10000, 12800, 25600, 51200, 102400, 204800],
-									"ISO_len":	13,
 									"R_Channel":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-									"R_Channel_len":	13,
 									"Gr_Channel":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-									"Gr_Channel_len":	13,
 									"Gb_Channel":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-									"Gb_Channel_len":	13,
-									"B_Channel":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-									"B_Channel_len":	13
+									"B_Channel":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 								}
 							},
 							"BlcObPara":	{
 								"enable":	1,
 								"BLC_OB_Data":	{
 									"ISO":	[50, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400, 204800],
-									"ISO_len":	13,
 									"isp_ob_Offset":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-									"isp_ob_Offset_len":	13,
-									"isp_ob_preDgain":	[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-									"isp_ob_preDgain_len":	13
+									"isp_ob_preDgain":	[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 								}
 							}
 						},
@@ -9418,13 +9580,103 @@
 								"y_alp_sym":	{
 									"highy_adj_en":	1,
 									"bound_pos_bit":	8,
-									"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+									"gain_yalp_curve":	[{
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_curve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}]
 								},
 								"y_alp_asym":	{
 									"bound_pos_bit":	8,
 									"right_pos_bit":	8,
-									"y_alpha_left_curve":	[0, 128, 256, 384, 512, 640, 768, 896, 1024],
-									"y_alpha_right_curve":	[1024, 896, 768, 640, 512, 384, 256, 128, 0]
+									"gain_yalp_curve":	[{
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}, {
+											"iso":	50,
+											"y_alpha_lcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
+											"y_alpha_rcurve":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024]
+										}]
 								},
 								"gain_alphaScale_curve":	{
 									"gain":	[1, 2, 4, 8, 16, 32, 64, 128, 256],
@@ -9432,16 +9684,12 @@
 								}
 							},
 							"enhCCM":	{
-								"enh_ctl":	{
-									"gains":	[1, 2, 4, 8, 16, 128, 255, 512, 850],
-									"enh_adj_en":	[0, 0, 0, 0, 0, 0, 0, 0, 0],
-									"enh_rat_max":	[1, 1, 1, 1, 1, 1, 1, 1, 1]
+								"enh_adj_en":	0,
+								"enh_rat":	{
+									"gains":	[1, 1, 1, 1, 1, 1, 1, 1, 1],
+									"enh_rat_max":	[0, 0, 0, 0, 0, 0, 0, 0, 0]
 								},
 								"enh_rgb2y_para":	[38, 75, 15]
-							},
-							"manualPara":	{
-								"ccMatrix":	[1, 0, 0, 0, 1, 0, 0, 0, 1],
-								"ccOffsets":	[0, 0, 0]
 							},
 							"TuningPara":	{
 								"damp_enable":	1,
@@ -14232,6 +14480,7 @@
 							"Version":	"V33",
 							"TuningPara":	{
 								"enable":	1,
+								"sharp_ratio_seperate_en":	0,
 								"kernel_sigma_enable":	0,
 								"Center_Mode":	0,
 								"Setting":	[{
@@ -14245,6 +14494,8 @@
 												"pbf_add":	0,
 												"gaus_ratio":	0,
 												"sharp_ratio":	8,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	0.5,
 												"bf_ratio":	0.4,
 												"bf_add":	0,
@@ -14266,13 +14517,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.1621, 0.0983, 0.0596, 0.0219, 0.0133, 0.003],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	1,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}, {
 												"iso":	100,
@@ -14282,6 +14539,8 @@
 												"pbf_add":	0,
 												"gaus_ratio":	0,
 												"sharp_ratio":	8,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	0.5,
 												"bf_ratio":	0.3,
 												"bf_add":	0,
@@ -14303,13 +14562,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.1621, 0.0983, 0.0596, 0.0219, 0.0133, 0.003],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	1,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}, {
 												"iso":	200,
@@ -14319,6 +14584,8 @@
 												"pbf_add":	0,
 												"gaus_ratio":	0,
 												"sharp_ratio":	8,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	0.3,
 												"bf_ratio":	0.3,
 												"bf_add":	0,
@@ -14340,13 +14607,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.1621, 0.0983, 0.0596, 0.0219, 0.0133, 0.003],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	1,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}, {
 												"iso":	400,
@@ -14356,6 +14629,8 @@
 												"pbf_add":	0,
 												"gaus_ratio":	0,
 												"sharp_ratio":	7,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	0.3,
 												"bf_ratio":	0.3,
 												"bf_add":	0,
@@ -14367,7 +14642,7 @@
 												"enhance_bit":	3,
 												"noiseclip_mode":	1,
 												"noise_sigma_clip":	2,
-												"gain_adj_sharp_strength":	[1.5, 1.3, 1.2, 1, 0.8, 0.7, 0.6, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+												"gain_adj_sharp_strength":	[1.5, 1.3, 1.2, 1, 0.8, 0.7, 0.6, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
 												"dis_adj_sharp_strength":	[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 												"luma_para":	{
 													"luma_point":	[0, 64, 128, 256, 384, 640, 896, 1024],
@@ -14377,13 +14652,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	1,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}, {
 												"iso":	800,
@@ -14393,6 +14674,8 @@
 												"pbf_add":	0,
 												"gaus_ratio":	0,
 												"sharp_ratio":	6,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	0.3,
 												"bf_ratio":	0.4,
 												"bf_add":	0,
@@ -14414,13 +14697,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.1621, 0.0983, 0.0596, 0.0219, 0.0133, 0.003],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	1,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}, {
 												"iso":	1600,
@@ -14430,6 +14719,8 @@
 												"pbf_add":	0,
 												"gaus_ratio":	0.3,
 												"sharp_ratio":	4,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	0.4,
 												"bf_ratio":	0.4,
 												"bf_add":	0,
@@ -14451,13 +14742,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.1621, 0.0983, 0.0596, 0.0219, 0.0133, 0.003],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	1,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}, {
 												"iso":	3200,
@@ -14467,6 +14764,8 @@
 												"pbf_add":	0,
 												"gaus_ratio":	0.4,
 												"sharp_ratio":	2,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	0.4,
 												"bf_ratio":	0,
 												"bf_add":	0,
@@ -14488,13 +14787,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.1621, 0.0983, 0.0596, 0.0219, 0.0133, 0.003],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	1,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}, {
 												"iso":	6400,
@@ -14504,6 +14809,8 @@
 												"pbf_add":	0,
 												"gaus_ratio":	0.5,
 												"sharp_ratio":	2,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	5,
 												"bf_ratio":	0.7,
 												"bf_add":	0,
@@ -14525,13 +14832,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.1621, 0.0983, 0.0596, 0.0219, 0.0133, 0.003],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	1,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}, {
 												"iso":	12800,
@@ -14541,6 +14854,8 @@
 												"pbf_add":	0,
 												"gaus_ratio":	0.7,
 												"sharp_ratio":	1,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	0.5,
 												"bf_ratio":	0.2,
 												"bf_add":	0,
@@ -14562,13 +14877,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.1621, 0.0983, 0.0596, 0.0219, 0.0133, 0.003],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	1,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}, {
 												"iso":	25600,
@@ -14578,6 +14899,8 @@
 												"pbf_add":	0,
 												"gaus_ratio":	0.8,
 												"sharp_ratio":	0,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	0.6,
 												"bf_ratio":	0.6,
 												"bf_add":	0,
@@ -14599,13 +14922,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.1621, 0.0983, 0.0596, 0.0219, 0.0133, 0.003],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	1,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}, {
 												"iso":	51200,
@@ -14615,6 +14944,8 @@
 												"pbf_add":	0,
 												"gaus_ratio":	0.8,
 												"sharp_ratio":	0,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	0.5,
 												"bf_ratio":	0.8,
 												"bf_add":	0,
@@ -14636,13 +14967,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.1621, 0.0983, 0.0596, 0.0219, 0.0133, 0.003],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	1,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}, {
 												"iso":	102400,
@@ -14652,6 +14989,8 @@
 												"pbf_add":	1,
 												"gaus_ratio":	0.4,
 												"sharp_ratio":	3,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	4,
 												"bf_ratio":	0.8,
 												"bf_add":	32,
@@ -14673,13 +15012,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	2,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}, {
 												"iso":	204800,
@@ -14689,6 +15034,8 @@
 												"pbf_add":	1,
 												"gaus_ratio":	0.4,
 												"sharp_ratio":	8,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	4,
 												"bf_ratio":	1,
 												"bf_add":	32,
@@ -14710,13 +15057,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	2,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}],
 										"Tuning_ISO_len":	13
@@ -14731,6 +15084,8 @@
 												"pbf_add":	0,
 												"gaus_ratio":	0,
 												"sharp_ratio":	8,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	0.5,
 												"bf_ratio":	0.4,
 												"bf_add":	0,
@@ -14752,13 +15107,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.1621, 0.0983, 0.0596, 0.0219, 0.0133, 0.003],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	1,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}, {
 												"iso":	100,
@@ -14768,6 +15129,8 @@
 												"pbf_add":	0,
 												"gaus_ratio":	0,
 												"sharp_ratio":	8,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	0.5,
 												"bf_ratio":	0.3,
 												"bf_add":	0,
@@ -14789,13 +15152,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.1621, 0.0983, 0.0596, 0.0219, 0.0133, 0.003],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	1,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}, {
 												"iso":	200,
@@ -14805,6 +15174,8 @@
 												"pbf_add":	0,
 												"gaus_ratio":	0,
 												"sharp_ratio":	8,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	0.3,
 												"bf_ratio":	0.3,
 												"bf_add":	0,
@@ -14826,13 +15197,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.1621, 0.0983, 0.0596, 0.0219, 0.0133, 0.003],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	1,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}, {
 												"iso":	400,
@@ -14842,6 +15219,8 @@
 												"pbf_add":	0,
 												"gaus_ratio":	0,
 												"sharp_ratio":	8,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	0.3,
 												"bf_ratio":	0.3,
 												"bf_add":	0,
@@ -14863,13 +15242,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	1,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}, {
 												"iso":	800,
@@ -14879,6 +15264,8 @@
 												"pbf_add":	0,
 												"gaus_ratio":	0,
 												"sharp_ratio":	8,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	0.3,
 												"bf_ratio":	0.4,
 												"bf_add":	0,
@@ -14900,13 +15287,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.1621, 0.0983, 0.0596, 0.0219, 0.0133, 0.003],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	1,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}, {
 												"iso":	1600,
@@ -14916,6 +15309,8 @@
 												"pbf_add":	0,
 												"gaus_ratio":	0.3,
 												"sharp_ratio":	8,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	0.4,
 												"bf_ratio":	0.4,
 												"bf_add":	0,
@@ -14937,13 +15332,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.1621, 0.0983, 0.0596, 0.0219, 0.0133, 0.003],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	1,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}, {
 												"iso":	3200,
@@ -14953,6 +15354,8 @@
 												"pbf_add":	0,
 												"gaus_ratio":	0.4,
 												"sharp_ratio":	7,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	0.4,
 												"bf_ratio":	0,
 												"bf_add":	0,
@@ -14974,13 +15377,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.1621, 0.0983, 0.0596, 0.0219, 0.0133, 0.003],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	1,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}, {
 												"iso":	6400,
@@ -14990,6 +15399,8 @@
 												"pbf_add":	0,
 												"gaus_ratio":	0.5,
 												"sharp_ratio":	6,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	5,
 												"bf_ratio":	0.7,
 												"bf_add":	0,
@@ -15011,13 +15422,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.1621, 0.0983, 0.0596, 0.0219, 0.0133, 0.003],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	1,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}, {
 												"iso":	12800,
@@ -15027,6 +15444,8 @@
 												"pbf_add":	0,
 												"gaus_ratio":	0.7,
 												"sharp_ratio":	5,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	0.5,
 												"bf_ratio":	0.2,
 												"bf_add":	0,
@@ -15048,13 +15467,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.1621, 0.0983, 0.0596, 0.0219, 0.0133, 0.003],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	1,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}, {
 												"iso":	25600,
@@ -15064,6 +15489,8 @@
 												"pbf_add":	0,
 												"gaus_ratio":	0.8,
 												"sharp_ratio":	3,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	0.6,
 												"bf_ratio":	0.6,
 												"bf_add":	0,
@@ -15085,13 +15512,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.1621, 0.0983, 0.0596, 0.0219, 0.0133, 0.003],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	1,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}, {
 												"iso":	51200,
@@ -15101,6 +15534,8 @@
 												"pbf_add":	0,
 												"gaus_ratio":	0.8,
 												"sharp_ratio":	3,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	0.5,
 												"bf_ratio":	0.8,
 												"bf_add":	0,
@@ -15122,13 +15557,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.1621, 0.0983, 0.0596, 0.0219, 0.0133, 0.003],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	1,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}, {
 												"iso":	102400,
@@ -15138,6 +15579,8 @@
 												"pbf_add":	1,
 												"gaus_ratio":	0.4,
 												"sharp_ratio":	3,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	4,
 												"bf_ratio":	0.8,
 												"bf_add":	32,
@@ -15159,13 +15602,19 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	2,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}, {
 												"iso":	204800,
@@ -15175,6 +15624,8 @@
 												"pbf_add":	1,
 												"gaus_ratio":	0.4,
 												"sharp_ratio":	8,
+												"sharp_ratio_0":	4,
+												"sharp_ratio_1":	4,
 												"bf_gain":	4,
 												"bf_ratio":	1,
 												"bf_add":	32,
@@ -15196,18 +15647,177 @@
 												"kernel_para":	{
 													"prefilter_coeff":	[0.2042, 0.1238, 0.0751],
 													"GaussianFilter_coeff":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
-													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751]
+													"hfBilateralFilter_coeff":	[0.2042, 0.1238, 0.0751],
+													"GaussianFilter_coeff_0":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232],
+													"GaussianFilter_coeff_1":	[0.0632, 0.0558, 0.0492, 0.0383, 0.0338, 0.0232]
 												},
 												"kernel_sigma":	{
 													"prefilter_sigma":	1,
 													"hfBilateralFilter_sigma":	1,
 													"GaussianFilter_sigma":	2,
-													"GaussianFilter_radius":	2
+													"GaussianFilter_radius":	2,
+													"GaussianFilter_sigma_0":	1,
+													"GaussianFilter_sigma_1":	1,
+													"GaussianFilter_radius_0":	2,
+													"GaussianFilter_radius_1":	2
 												}
 											}],
 										"Tuning_ISO_len":	13
 									}],
 								"Setting_len":	2
+							}
+						},
+						"ainr_v1":	{
+							"Version":	"V33",
+							"TuningPara":	{
+								"enable":	0,
+								"gain_max":	1,
+								"gain_tab_len":	13,
+								"tuning_visual_flag":	0,
+								"dynamicSw":	[60, 68],
+								"luma_point":	[0, 16, 64, 128, 196, 256],
+								"Tuning_ISO":	[{
+										"iso":	50,
+										"gain":	1,
+										"sigma":	2,
+										"shade":	0,
+										"sharp":	1,
+										"min_luma":	0,
+										"sat_scale":	1,
+										"dark_contrast":	0,
+										"ai_ratio":	0,
+										"mot_thresh":	5,
+										"static_thresh":	10,
+										"mot_nr_stren":	0,
+										"luma_sigma":	[3, 3, 3, 3, 3, 3]
+									}, {
+										"iso":	100,
+										"gain":	1,
+										"sigma":	2,
+										"shade":	0,
+										"sharp":	1,
+										"min_luma":	0,
+										"sat_scale":	1,
+										"dark_contrast":	0,
+										"ai_ratio":	0,
+										"mot_thresh":	5,
+										"static_thresh":	10,
+										"mot_nr_stren":	0,
+										"luma_sigma":	[3, 3, 3, 3, 3, 3]
+									}, {
+										"iso":	200,
+										"gain":	1,
+										"sigma":	2,
+										"shade":	0,
+										"sharp":	1,
+										"min_luma":	0,
+										"sat_scale":	1,
+										"dark_contrast":	0,
+										"ai_ratio":	0,
+										"mot_thresh":	5,
+										"static_thresh":	10,
+										"mot_nr_stren":	0,
+										"luma_sigma":	[3, 3, 3, 3, 3, 3]
+									}, {
+										"iso":	400,
+										"gain":	1,
+										"sigma":	2,
+										"shade":	0,
+										"sharp":	1,
+										"min_luma":	0,
+										"sat_scale":	1,
+										"dark_contrast":	0,
+										"ai_ratio":	0,
+										"mot_thresh":	5,
+										"static_thresh":	10,
+										"mot_nr_stren":	0,
+										"luma_sigma":	[3, 3, 3, 3, 3, 3]
+									}, {
+										"iso":	800,
+										"gain":	1,
+										"sigma":	2,
+										"shade":	0,
+										"sharp":	1,
+										"min_luma":	0,
+										"sat_scale":	1,
+										"dark_contrast":	0,
+										"ai_ratio":	0,
+										"mot_thresh":	5,
+										"static_thresh":	10,
+										"mot_nr_stren":	0,
+										"luma_sigma":	[3, 3, 3, 3, 3, 3]
+									}, {
+										"iso":	1600,
+										"gain":	1,
+										"sigma":	2,
+										"shade":	0,
+										"sharp":	1,
+										"min_luma":	0,
+										"sat_scale":	1,
+										"dark_contrast":	0,
+										"ai_ratio":	0,
+										"mot_thresh":	5,
+										"static_thresh":	10,
+										"mot_nr_stren":	0,
+										"luma_sigma":	[3, 3, 3, 3, 3, 3]
+									}, {
+										"iso":	3200,
+										"gain":	1,
+										"sigma":	2,
+										"shade":	0,
+										"sharp":	1,
+										"min_luma":	0,
+										"sat_scale":	1,
+										"dark_contrast":	0,
+										"ai_ratio":	0,
+										"mot_thresh":	5,
+										"static_thresh":	10,
+										"mot_nr_stren":	0,
+										"luma_sigma":	[3, 3, 3, 3, 3, 3]
+									}, {
+										"iso":	6400,
+										"gain":	128,
+										"sigma":	15.91,
+										"shade":	0,
+										"sharp":	0.36,
+										"min_luma":	0,
+										"sat_scale":	1,
+										"dark_contrast":	0,
+										"ai_ratio":	0,
+										"mot_thresh":	5,
+										"static_thresh":	10,
+										"mot_nr_stren":	0,
+										"luma_sigma":	[3, 3, 3, 3, 3, 3]
+									}, {
+										"iso":	12800,
+										"gain":	256,
+										"sigma":	2,
+										"shade":	0,
+										"sharp":	1,
+										"min_luma":	0,
+										"sat_scale":	1,
+										"dark_contrast":	0,
+										"ai_ratio":	0,
+										"mot_thresh":	5,
+										"static_thresh":	10,
+										"mot_nr_stren":	0,
+										"luma_sigma":	[3, 3, 3, 3, 3, 3]
+									}, {
+										"iso":	25600,
+										"gain":	1,
+										"sigma":	2,
+										"shade":	0,
+										"sharp":	1,
+										"min_luma":	0,
+										"sat_scale":	1,
+										"dark_contrast":	0,
+										"ai_ratio":	0,
+										"mot_thresh":	5,
+										"static_thresh":	10,
+										"mot_nr_stren":	0,
+										"luma_sigma":	[3, 3, 3, 3, 3, 3]
+									}],
+								"Tuning_ISO_len":	10
 							}
 						},
 						"cac_v11":	{
@@ -15626,74 +16236,6 @@
 									"enable":	0,
 									"vcmDot":	[0, 16, 32, 40, 48, 56, 64],
 									"distanceDot":	[0.2, 0.24, 0.34, 0.4, 0.66, 1, 3]
-								},
-								"pdaf":	{
-									"enable":	0,
-									"pdVsCdDebug":	0,
-									"pdDumpDebug":	0,
-									"pdDumpMaxFrm":	300,
-									"pdDataBit":	10,
-									"pdBlkLevel":	64,
-									"pdSearchRadius":	3,
-									"pdMirrorInCalib":	1,
-									"pdVsImgoutMirror":	1,
-									"pdLRInDiffLine":	0,
-									"pdWidth":	508,
-									"pdHeight":	760,
-									"pdVerBinning":	0,
-									"pdFrmInValid":	1,
-									"pdDgainValid":	0,
-									"pdGainMapNormEn":	0,
-									"pdConfdMode":	0,
-									"pdNoiseSn":	0.207,
-									"pdNoiseRn":	[0.14, 2.8],
-									"pdNoisePn":	0.25,
-									"pdSatValRatio":	0.92,
-									"pdSatCntRatio":	0.06,
-									"pdDiscardRegionEn":	0,
-									"pdLessTextureRatio":	0.25,
-									"pdTargetOffset":	0,
-									"pdCalibInf":	{
-										"pdGainMapW":	32,
-										"pdGainMapH":	32,
-										"pdDccMapW":	32,
-										"pdDccMapH":	32
-									},
-									"pdConfdMwinFactor":	3,
-									"pdCenterMinFv":	0,
-									"pdCenterMinRatio":	0,
-									"pdHighlightRatio":	0.1,
-									"pdStepRatio":	[1, 1, 1, 0.9, 0.8, 0.7, 0.7],
-									"pdStepDefocus":	[32, 64, 96, 128, 160, 192, 224],
-									"pdIsoPara":	[{
-											"iso":	50,
-											"pdConfdRatio0":	1,
-											"pdConfdRatio1":	1,
-											"pdConfdRatio2":	1,
-											"pdConfdRatio3":	1,
-											"pdConfdThresh":	0.4,
-											"convergedInfPdThresh":	12,
-											"convergedMacPdThresh":	12,
-											"defocusInfPdThresh":	12,
-											"defocusMacPdThresh":	12,
-											"stablePdRatio":	0.125,
-											"stablePdOffset":	8,
-											"stableCntRatio":	1.5,
-											"noconfCntThresh":	4,
-											"roiBlkCntW":	3,
-											"roiBlkCntH":	3,
-											"fineSearchTbl":	[{
-													"confidence":	0.5,
-													"range":	0,
-													"stepPos":	1
-												}, {
-													"confidence":	0,
-													"range":	4,
-													"stepPos":	1
-												}],
-											"fineSearchTbl_len":	2
-										}],
-									"pdIsoPara_len":	1
 								},
 								"vcmcfg":	{
 									"max_logical_pos":	64,
