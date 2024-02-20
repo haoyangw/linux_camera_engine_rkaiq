@@ -236,6 +236,23 @@ int BinMapLoader::suqeezBinMapOne() {
   return -1;
 }
 
+int BinMapLoader::deinitBinStructMap(uint8_t *data, size_t len)
+{
+    size_t map_len = *(size_t *)(data + (len - sizeof(size_t)));
+    size_t map_offset = *(size_t *)(data + (len - sizeof(size_t) * 2));
+    size_t map_index = 0;
+    map_index_t *map_addr = NULL;
+
+    map_addr = (map_index_t *)(data + map_offset);
+    for (map_index = 0; map_index < map_len; map_index++) {
+        map_index_t tmap = (map_addr[map_index]);
+        void** dst_obj_addr = (void**)(data + (size_t)tmap.dst_offset);
+        *dst_obj_addr = NULL;
+    }
+
+    return 0;
+}
+
 int BinMapLoader::suqeezBinMap(const char *fpath, uint8_t *buffer,
                                size_t buffer_len) {
   int ret = -1;
@@ -263,6 +280,7 @@ int BinMapLoader::suqeezBinMap(const char *fpath, uint8_t *buffer,
     inp_size = final_size;
 
     if (ret != 0) {
+      loader->deinitBinStructMap(inp_buff, inp_size);
       loader->saveFile(fpath, out_buff, final_size);
     }
     delete loader;

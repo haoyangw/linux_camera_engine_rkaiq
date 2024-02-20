@@ -47,6 +47,7 @@ public:
 
   void *loadWholeFile(const char *fpath, size_t *fsize);
   int loadFile(const char *filename);
+  int deinitBinStructMap(uint8_t *data, size_t len);
 
 private:
   uint8_t *struct_buffer;
