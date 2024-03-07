@@ -169,7 +169,7 @@ XCamReturn RkAiqCamGroupAynrV22HandleInt::getInfo(rk_aiq_ynr_info_v22_t *pInfo) 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
     if(pInfo->sync.sync_mode == RK_AIQ_UAPI_MODE_SYNC) {
-        mCfgMutex.unlock();
+        mCfgMutex.lock();
         rk_aiq_uapi_aynrV22_GetInfo(mAlgoCtx, pInfo);
         pInfo->sync.done = true;
         mCfgMutex.unlock();

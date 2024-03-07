@@ -278,7 +278,6 @@ XCamReturn RkAiqAeHandleInt::getExpSwAttr(Uapi_ExpSwAttrV2_t* pExpSwAttrV2) {
         }
     }
 #endif
-    mCfgMutex.unlock();
 
     EXIT_ANALYZER_FUNCTION();
     return ret;

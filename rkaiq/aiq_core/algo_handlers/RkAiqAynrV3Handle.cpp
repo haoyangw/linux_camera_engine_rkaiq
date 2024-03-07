@@ -166,7 +166,7 @@ XCamReturn RkAiqAynrV3HandleInt::getStrength(rk_aiq_ynr_strength_v3_t *pStrength
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
 #ifdef DISABLE_HANDLE_ATTRIB
-    mCfgMutex.unlock();
+    mCfgMutex.lock();
     rk_aiq_uapi_aynrV3_GetLumaSFStrength(mAlgoCtx, pStrength);
     mCfgMutex.unlock();
 #else
@@ -196,7 +196,7 @@ XCamReturn RkAiqAynrV3HandleInt::getInfo(rk_aiq_ynr_info_v3_t *pInfo) {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
     if(pInfo->sync.sync_mode == RK_AIQ_UAPI_MODE_SYNC) {
-        mCfgMutex.unlock();
+        mCfgMutex.lock();
         rk_aiq_uapi_aynrV3_GetInfo(mAlgoCtx, pInfo);
         pInfo->sync.done = true;
         mCfgMutex.unlock();
