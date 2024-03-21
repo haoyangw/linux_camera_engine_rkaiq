@@ -134,6 +134,8 @@ int rkaiq_get_media_info(struct rkaiq_media_info *media_info)
     strcpy(media_info->sensor_entity_name, sensor_name);
 
     media_device_unref (device);
+    if (strstr(sensor_name, "Fake"))
+        return -EINVAL;
 
     return ret;
 }
