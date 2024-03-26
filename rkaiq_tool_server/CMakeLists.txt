@@ -129,6 +129,7 @@ include_directories(${RKAIQ_PROJECT_DIR}/include/algos/aynrV22)
 include_directories(${RKAIQ_PROJECT_DIR}/include/algos/acnrV30)
 include_directories(${RKAIQ_PROJECT_DIR}/include/algos/asharpV33)
 include_directories(${RKAIQ_PROJECT_DIR}/include/algos/ablcV32)
+include_directories(${RKAIQ_PROJECT_DIR}/include/isp)
 include_directories(${RKAIQ_PROJECT_DIR}/build/linux/output/arm)
 
 #include_directories(${RKAIQ_PROJECT_DIR}/build/linux/output/arm/installed/include/rkaiq)
