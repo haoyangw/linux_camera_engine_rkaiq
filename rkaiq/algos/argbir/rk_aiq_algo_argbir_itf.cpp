@@ -188,8 +188,8 @@ static XCamReturn processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
         __func__);
 
     // output ProcRes
-    outparams->cfg_update =
-        !bypass_tuning_params || pArgbirCtx->ifReCalcStAuto || pArgbirCtx->ifReCalcStManual;
+    outparams->cfg_update = !bypass_tuning_params || pArgbirCtx->ifReCalcStAuto ||
+                            pArgbirCtx->ifReCalcStManual || inparams->u.proc.init;
     if (pArgbirCtx->ifReCalcStAuto) pArgbirCtx->ifReCalcStAuto = false;
     if (pArgbirCtx->ifReCalcStManual) pArgbirCtx->ifReCalcStManual = false;
 

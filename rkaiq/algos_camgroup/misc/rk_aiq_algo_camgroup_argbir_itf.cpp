@@ -191,9 +191,10 @@ static XCamReturn processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
         pArgbirGrpCtx->ifReCalcStManual;
     // output ProcRes
     for (int i = 1; i < pAdrcGrpProcRes->arraySize; i++) {
-        IS_UPDATE_MEM((pAdrcGrpProcRes->camgroupParmasArray[i]->_aRgbirConfig), pAdrcGrpParams->_offset_is_update) =
+        IS_UPDATE_MEM((pAdrcGrpProcRes->camgroupParmasArray[i]->_aRgbirConfig),
+                      pAdrcGrpParams->_offset_is_update) =
             !bypass_tuning_params || pArgbirGrpCtx->ifReCalcStAuto ||
-            pArgbirGrpCtx->ifReCalcStManual;
+            pArgbirGrpCtx->ifReCalcStManual || inparams->u.proc.init;
         pAdrcGrpProcRes->camgroupParmasArray[i]->_aRgbirConfig->bRgbirEn =
             pAdrcGrpProcRes->camgroupParmasArray[0]->_aRgbirConfig->bRgbirEn;
         pAdrcGrpProcRes->camgroupParmasArray[i]->_aRgbirConfig->RgbirProcRes =
