@@ -77,6 +77,7 @@ SET(RK_AIQ_INCLUDE_DIR
         ${RK_AIQ_INSTALLED_DIR}/rkaiq/uAPI2
         ${RK_AIQ_INSTALLED_DIR}/rkaiq/xcore/
         ${RK_AIQ_INSTALLED_DIR}/rkaiq/algos/
+        ${RK_AIQ_INSTALLED_DIR}/rkaiq/isp
         ${RK_AIQ_INSTALLED_DIR}/rkaiq/common/
         ${RK_AIQ_INSTALLED_DIR}/rkaiq/iq_parser/
         ${RK_AIQ_INSTALLED_DIR}/rkaiq/iq_parser_v2/
