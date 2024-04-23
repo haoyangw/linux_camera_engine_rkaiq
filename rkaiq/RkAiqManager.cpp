@@ -555,9 +555,27 @@ RkAiqManager::hwResCb(SmartPtr<VideoBuffer>& hwres)
         seq = hwres.dynamic_cast_ptr<VideoBuffer>()->get_sequence();
         Isp20StatsBuffer* buf = hwres.get_cast_ptr<Isp20StatsBuffer>();
         SmartPtr<CamHwIsp20> mCamHwIsp20 = mCamHw.dynamic_cast_ptr<CamHwIsp20>();
-        struct rkisp32_isp_stat_buffer* stats;
 
-        stats = (struct rkisp32_isp_stat_buffer*)(buf->get_v4l2_userptr());
+#if defined(ISP_HW_V21)
+        struct rkisp_isp21_stat_buffer* stats =
+            (struct rkisp_isp21_stat_buffer*)(buf->get_v4l2_userptr());
+#elif defined(ISP_HW_V30)
+        struct rkisp3x_isp_stat_buffer* stats =
+            (struct rkisp3x_isp_stat_buffer*)(buf->get_v4l2_userptr());
+#elif defined(ISP_HW_V32)
+        struct rkisp32_isp_stat_buffer* stats =
+            (struct rkisp32_isp_stat_buffer*)(buf->get_v4l2_userptr());
+#elif defined(ISP_HW_V32_LITE)
+        struct rkisp32_lite_stat_buffer* stats =
+            (struct rkisp32_lite_stat_buffer*)(buf->get_v4l2_userptr());
+#elif defined(ISP_HW_V39)
+        struct rkisp39_stat_buffer* stats =
+            (struct rkisp39_stat_buffer*)(buf->get_v4l2_userptr());
+#else
+#error "wrong isp hw version !"
+        void * stats = NULL;
+#endif
+
         if (stats == NULL) {
             LOGE("fail to get stats ,ignore\n");
             return XCAM_RETURN_BYPASS;
@@ -582,7 +600,7 @@ RkAiqManager::hwResCb(SmartPtr<VideoBuffer>& hwres)
                                                 seq, V4L2_EVENT_FRAME_SYNC,
                                                 tp.tv_sec * 1000 * 1000 * 1000 + tp.tv_nsec);
             mRkAiqAnalyzer->pushEvts(hw_evt);
-            LOGD("stats meas is special, buf frame id %d", seq);
+            LOGI_ANALYZER("stats meas is special, buf frame id %d", seq);
         } else if (seq == mLastAweekId) {
             return ret;
         } else if (mTbInfo.is_fastboot && !mTBStatsCnt && seq) {

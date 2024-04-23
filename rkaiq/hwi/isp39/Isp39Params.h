@@ -148,6 +148,10 @@ private:
     void convertAiqDpccToIsp39Params(struct isp39_isp_params_cfg& isp_cfg, rk_aiq_isp_dpcc_params_t* dpcc_attr);
 #endif
 #endif
+#if RKAIQ_HAVE_GIC_V2
+void convertAiqAgicToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
+                                 const rk_aiq_isp_gic_v21_t& agic);
+#endif
 };
 
 }  // namespace RkCam

@@ -194,6 +194,7 @@ protected:
     SmartPtr<V4l2SubDevice> mLensDev;
     SmartPtr<V4l2SubDevice> mIrcutDev;
     SmartPtr<V4l2Device> mIspSpDev;
+    SmartPtr<V4l2SubDevice> mVicapItfDev;
 #ifndef RK_SIMULATOR_HW
     SmartPtr<FlashLightHw> mFlashLight;
     SmartPtr<FlashLightHw> mFlashLightIr;

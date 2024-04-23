@@ -269,6 +269,7 @@ protected:
     volatile bool _is_exit;
     bool _linked_to_isp;
     bool _linked_to_1608;
+    bool _linked_to_serdes;
 #if defined(ISP_HW_V20)
     struct rkispp_params_cfg _full_active_ispp_params;
     uint32_t _ispp_module_init_ens;

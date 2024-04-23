@@ -141,7 +141,7 @@
 										"ManualGainEn":	1,
 										"ManualIspDgainEn":	1,
 										"TimeValue":	0.01,
-										"GainValue":	4095,
+										"GainValue":	16,
 										"IspDGainValue":	1
 									},
 									"HdrAE":	{
@@ -1096,13 +1096,103 @@
 								"y_alp_sym":	{
 									"highy_adj_en":	0,
 									"bound_pos_bit":	8,
-									"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+									"gain_yalp_curve":	[{
+											"iso":	50,
+											"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+										}, {
+											"iso":	100,
+											"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+										}, {
+											"iso":	200,
+											"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+										}, {
+											"iso":	400,
+											"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+										}, {
+											"iso":	800,
+											"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+										}, {
+											"iso":	1600,
+											"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+										}, {
+											"iso":	3200,
+											"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+										}, {
+											"iso":	6400,
+											"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+										}, {
+											"iso":	12800,
+											"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+										}, {
+											"iso":	25600,
+											"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+										}, {
+											"iso":	51200,
+											"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+										}, {
+											"iso":	102400,
+											"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+										}, {
+											"iso":	204800,
+											"y_alpha_curve":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]
+										}]
 								},
 								"y_alp_asym":	{
 									"bound_pos_bit":	8,
 									"right_pos_bit":	8,
-									"y_alpha_left_curve":	[0, 128, 256, 384, 512, 640, 768, 896, 1024],
-									"y_alpha_right_curve":	[1024, 896, 768, 640, 512, 384, 256, 128, 0]
+									"gain_yalp_curve":	[{
+											"iso":	50,
+											"y_alpha_lcurve":	[512, 512, 512, 512, 512, 640, 768, 896, 1024],
+											"y_alpha_rcurve":	[1024, 896, 768, 640, 512, 512, 512, 512, 512]
+										}, {
+											"iso":	100,
+											"y_alpha_lcurve":	[512, 512, 512, 512, 512, 640, 768, 896, 1024],
+											"y_alpha_rcurve":	[1024, 896, 768, 640, 512, 512, 512, 512, 512]
+										}, {
+											"iso":	200,
+											"y_alpha_lcurve":	[512, 512, 512, 512, 512, 640, 768, 896, 1024],
+											"y_alpha_rcurve":	[1024, 896, 768, 640, 512, 512, 512, 512, 512]
+										}, {
+											"iso":	400,
+											"y_alpha_lcurve":	[512, 512, 512, 512, 512, 640, 768, 896, 1024],
+											"y_alpha_rcurve":	[1024, 896, 768, 640, 512, 512, 512, 512, 512]
+										}, {
+											"iso":	800,
+											"y_alpha_lcurve":	[512, 512, 512, 512, 512, 640, 768, 896, 1024],
+											"y_alpha_rcurve":	[1024, 896, 768, 640, 512, 512, 512, 512, 512]
+										}, {
+											"iso":	1600,
+											"y_alpha_lcurve":	[512, 512, 512, 512, 512, 640, 768, 896, 1024],
+											"y_alpha_rcurve":	[1024, 896, 768, 640, 512, 512, 512, 512, 512]
+										}, {
+											"iso":	3200,
+											"y_alpha_lcurve":	[512, 512, 512, 512, 512, 640, 768, 896, 1024],
+											"y_alpha_rcurve":	[1024, 896, 768, 640, 512, 512, 512, 512, 512]
+										}, {
+											"iso":	6400,
+											"y_alpha_lcurve":	[512, 512, 512, 512, 512, 640, 768, 896, 1024],
+											"y_alpha_rcurve":	[1024, 896, 768, 640, 512, 512, 512, 512, 512]
+										}, {
+											"iso":	12800,
+											"y_alpha_lcurve":	[512, 512, 512, 512, 512, 640, 768, 896, 1024],
+											"y_alpha_rcurve":	[1024, 896, 768, 640, 512, 512, 512, 512, 512]
+										}, {
+											"iso":	25600,
+											"y_alpha_lcurve":	[512, 512, 512, 512, 512, 640, 768, 896, 1024],
+											"y_alpha_rcurve":	[1024, 896, 768, 640, 512, 512, 512, 512, 512]
+										}, {
+											"iso":	51200,
+											"y_alpha_lcurve":	[512, 512, 512, 512, 512, 640, 768, 896, 1024],
+											"y_alpha_rcurve":	[1024, 896, 768, 640, 512, 512, 512, 512, 512]
+										}, {
+											"iso":	102400,
+											"y_alpha_lcurve":	[512, 512, 512, 512, 512, 640, 768, 896, 1024],
+											"y_alpha_rcurve":	[1024, 896, 768, 640, 512, 512, 512, 512, 512]
+										}, {
+											"iso":	204800,
+											"y_alpha_lcurve":	[512, 512, 512, 512, 512, 640, 768, 896, 1024],
+											"y_alpha_rcurve":	[1024, 896, 768, 640, 512, 512, 512, 512, 512]
+										}]
 								},
 								"gain_alphaScale_curve":	{
 									"gain":	[1, 2, 4, 8, 16, 32, 64, 128, 256],
@@ -1110,9 +1200,9 @@
 								}
 							},
 							"enhCCM":	{
-								"enh_ctl":	{
+								"enh_adj_en":	0,
+								"enh_rat":	{
 									"gains":	[1, 2, 4, 8, 16, 128, 255, 512, 850],
-									"enh_adj_en":	[1, 0, 0, 0, 0, 0, 0, 0, 0],
 									"enh_rat_max":	[1, 1, 1, 1, 1, 1, 1, 1, 1]
 								},
 								"enh_rgb2y_para":	[38, 75, 15]
@@ -1647,55 +1737,55 @@
 											"hw_enhance_loLumaConvert_val":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1023],
 											"sw_enhance_luma2strg_val":	[1.2, 1.2, 1.3, 1.3, 1.4, 1.4, 1.4, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5],
 											"sw_enhance_contrast_strg":	1.5,
-											"sw_enhance_saturate_strg":	1.2
+											"sw_enhance_saturate_strg":	1.0
 										}, {
 											"iso":	100,
 											"hw_enhance_loLumaConvert_val":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1023],
 											"sw_enhance_luma2strg_val":	[1.2, 1.2, 1.3, 1.3, 1.4, 1.4, 1.4, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5],
 											"sw_enhance_contrast_strg":	1.5,
-											"sw_enhance_saturate_strg":	1.2
+											"sw_enhance_saturate_strg":	1.0
 										}, {
 											"iso":	200,
 											"hw_enhance_loLumaConvert_val":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1023],
 											"sw_enhance_luma2strg_val":	[1.2, 1.2, 1.25, 1.3, 1.3, 1.4, 1.4, 1.4, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5],
 											"sw_enhance_contrast_strg":	1.5,
-											"sw_enhance_saturate_strg":	1.2
+											"sw_enhance_saturate_strg":	1.0
 										}, {
 											"iso":	400,
 											"hw_enhance_loLumaConvert_val":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1023],
 											"sw_enhance_luma2strg_val":	[1.2, 1.2, 1.2, 1.3, 1.35, 1.4, 1.4, 1.45, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5],
 											"sw_enhance_contrast_strg":	1.5,
-											"sw_enhance_saturate_strg":	1.2
+											"sw_enhance_saturate_strg":	1.0
 										}, {
 											"iso":	800,
 											"hw_enhance_loLumaConvert_val":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1023],
 											"sw_enhance_luma2strg_val":	[1.2, 1.2, 1.2, 1.2, 1.3, 1.4, 1.4, 1.4, 1.4, 1.5, 1.5, 1.5, 1.5, 1.6, 1.6, 1.6, 1.6],
 											"sw_enhance_contrast_strg":	1.5,
-											"sw_enhance_saturate_strg":	1.2
+											"sw_enhance_saturate_strg":	1.0
 										}, {
 											"iso":	1600,
 											"hw_enhance_loLumaConvert_val":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1023],
 											"sw_enhance_luma2strg_val":	[1.2, 1.2, 1.2, 1.2, 1.3, 1.3, 1.3, 1.4, 1.4, 1.4, 1.5, 1.5, 1.5, 1.6, 1.6, 1.6, 1.6],
 											"sw_enhance_contrast_strg":	1.5,
-											"sw_enhance_saturate_strg":	1.2
+											"sw_enhance_saturate_strg":	1.0
 										}, {
 											"iso":	3200,
 											"hw_enhance_loLumaConvert_val":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1023],
 											"sw_enhance_luma2strg_val":	[1.1, 1.1, 1.1, 1.2, 1.2, 1.3, 1.3, 1.4, 1.4, 1.4, 1.5, 1.5, 1.5, 1.6, 1.6, 1.6, 1.6],
 											"sw_enhance_contrast_strg":	1.5,
-											"sw_enhance_saturate_strg":	1.2
+											"sw_enhance_saturate_strg":	1.0
 										}, {
 											"iso":	6400,
 											"hw_enhance_loLumaConvert_val":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1023],
 											"sw_enhance_luma2strg_val":	[1, 1.1, 1.1, 1.2, 1.2, 1.2, 1.3, 1.3, 1.4, 1.4, 1.5, 1.5, 1.5, 1.6, 1.6, 1.6, 1.6],
 											"sw_enhance_contrast_strg":	1.5,
-											"sw_enhance_saturate_strg":	1.2
+											"sw_enhance_saturate_strg":	1.0
 										}, {
 											"iso":	12800,
 											"hw_enhance_loLumaConvert_val":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1023],
 											"sw_enhance_luma2strg_val":	[1, 1, 1.1, 1.1, 1.2, 1.2, 1.3, 1.3, 1.4, 1.4, 1.5, 1.5, 1.5, 1.6, 1.6, 1.6, 1.6],
 											"sw_enhance_contrast_strg":	1.4,
-											"sw_enhance_saturate_strg":	1.2
+											"sw_enhance_saturate_strg":	1.0
 										}, {
 											"iso":	25600,
 											"hw_enhance_loLumaConvert_val":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1023],
@@ -1706,19 +1796,19 @@
 											"iso":	51200,
 											"hw_enhance_loLumaConvert_val":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1023],
 											"sw_enhance_luma2strg_val":	[1, 1, 1, 1, 1.1, 1.1, 1.1, 1.2, 1.3, 1.3, 1.4, 1.4, 1.5, 1.5, 1.6, 1.6, 1.6],
-											"sw_enhance_contrast_strg":	1.2,
+											"sw_enhance_contrast_strg":	1.0,
 											"sw_enhance_saturate_strg":	1
 										}, {
 											"iso":	102400,
 											"hw_enhance_loLumaConvert_val":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1023],
 											"sw_enhance_luma2strg_val":	[1, 1, 1, 1, 1, 1, 1, 1.1, 1.1, 1.1, 1.2, 1.3, 1.3, 1.4, 1.4, 1.4, 1.4],
-											"sw_enhance_contrast_strg":	1.05,
+											"sw_enhance_contrast_strg":	1.0,
 											"sw_enhance_saturate_strg":	1
 										}, {
 											"iso":	204800,
 											"hw_enhance_loLumaConvert_val":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1023],
 											"sw_enhance_luma2strg_val":	[1, 1, 1, 1, 1, 1, 1, 1, 1, 1.1, 1.2, 1.2, 1.2, 1.3, 1.3, 1.4, 1.4],
-											"sw_enhance_contrast_strg":	1.2,
+											"sw_enhance_contrast_strg":	1.0,
 											"sw_enhance_saturate_strg":	1
 										}]
 								},
@@ -9690,15 +9780,15 @@
 									"FullDir":	"CalibDbV2_AF_ADAPTIVE_SEARCH",
 									"FullRangeTbl":	[0, 4, 64],
 									"AdaptiveDir":	"CalibDbV2_AF_ADAPTIVE_SEARCH",
-									"AdaptRangeTbl":	[0, 8, 16, 24, 32, 40, 48, 56, 64],
-									"AdaptRangeTbl_len":	9,
-									"FineSearchStep":	[4, 4, 4, 4, 4, 4, 4, 4, 4],
-									"FineSearchStep_len":	9,
+									"AdaptRangeTbl":	[0, 8, 16, 24, 32, 40, 48, 56, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64],
+									"AdaptRangeTbl_len":	65,
+									"FineSearchStep":	[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+									"FineSearchStep_len":	65,
 									"SkipCurveFitGain":	1,
-									"TrigThers":	[0.075],
-									"TrigThers_len":	1,
-									"TrigThersFv":	[0],
-									"TrigThersFv_len":	1,
+									"TrigThers":	[0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075, 0.075],
+									"TrigThers_len":	32,
+									"TrigThersFv":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+									"TrigThersFv_len":	32,
 									"LumaTrigThers":	0.05,
 									"ExpTrigThers":	0.03,
 									"ChangedFrames":	10,
@@ -9727,18 +9817,18 @@
 									"PointLightLumaTh":	3000,
 									"PointLightCntTh":	300,
 									"ZoomCfg":	{
-										"QuickFoundThersZoomIdx":	[0],
-										"QuickFoundThersZoomIdx_len":	1,
-										"QuickFoundThers":	[0],
-										"QuickFoundThers_len":	1,
-										"SearchStepZoomIdx":	[0],
-										"SearchStepZoomIdx_len":	1,
-										"SearchStep":	[0],
-										"SearchStep_len":	1,
-										"StopStepZoomIdx":	[0],
-										"StopStepZoomIdx_len":	1,
-										"StopStep":	[0],
-										"StopStep_len":	1,
+										"QuickFoundThersZoomIdx":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+										"QuickFoundThersZoomIdx_len":	32,
+										"QuickFoundThers":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+										"QuickFoundThers_len":	32,
+										"SearchStepZoomIdx":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+										"SearchStepZoomIdx_len":	32,
+										"SearchStep":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+										"SearchStep_len":	32,
+										"StopStepZoomIdx":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+										"StopStepZoomIdx_len":	32,
+										"StopStep":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+										"StopStep_len":	32,
 										"SkipHighPassZoomIdx":	0,
 										"SkipHighPassGain":	0,
 										"SwitchDirZoomIdx":	1000,
@@ -9753,15 +9843,15 @@
 									"FullDir":	"CalibDbV2_AF_ADAPTIVE_SEARCH",
 									"FullRangeTbl":	[0, 4, 64],
 									"AdaptiveDir":	"CalibDbV2_AF_ADAPTIVE_SEARCH",
-									"AdaptRangeTbl":	[0, 8, 16, 24, 32, 40, 48, 56, 64],
-									"AdaptRangeTbl_len":	9,
-									"FineSearchStep":	[4, 4, 4, 4, 4, 4, 4, 4, 4],
-									"FineSearchStep_len":	9,
+									"AdaptRangeTbl":	[0, 8, 16, 24, 32, 40, 48, 56, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64],
+									"AdaptRangeTbl_len":	65,
+									"FineSearchStep":	[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+									"FineSearchStep_len":	65,
 									"SkipCurveFitGain":	1,
-									"TrigThers":	[0.15],
-									"TrigThers_len":	1,
-									"TrigThersFv":	[0],
-									"TrigThersFv_len":	1,
+									"TrigThers":	[0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15],
+									"TrigThers_len":	32,
+									"TrigThersFv":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+									"TrigThersFv_len":	32,
 									"LumaTrigThers":	1,
 									"ExpTrigThers":	1,
 									"ChangedFrames":	10,
@@ -9790,18 +9880,18 @@
 									"PointLightLumaTh":	912,
 									"PointLightCntTh":	20,
 									"ZoomCfg":	{
-										"QuickFoundThersZoomIdx":	[0],
-										"QuickFoundThersZoomIdx_len":	1,
-										"QuickFoundThers":	[0],
-										"QuickFoundThers_len":	1,
-										"SearchStepZoomIdx":	[0],
-										"SearchStepZoomIdx_len":	1,
-										"SearchStep":	[0],
-										"SearchStep_len":	1,
-										"StopStepZoomIdx":	[0],
-										"StopStepZoomIdx_len":	1,
-										"StopStep":	[0],
-										"StopStep_len":	1,
+										"QuickFoundThersZoomIdx":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+										"QuickFoundThersZoomIdx_len":	32,
+										"QuickFoundThers":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+										"QuickFoundThers_len":	32,
+										"SearchStepZoomIdx":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+										"SearchStepZoomIdx_len":	32,
+										"SearchStep":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+										"SearchStep_len":	32,
+										"StopStepZoomIdx":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+										"StopStepZoomIdx_len":	32,
+										"StopStep":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+										"StopStep_len":	32,
 										"SkipHighPassZoomIdx":	0,
 										"SkipHighPassGain":	0,
 										"SwitchDirZoomIdx":	1000,
@@ -9941,20 +10031,6 @@
 									"zoom_move_dot_len":	32,
 									"zoom_move_step":	[16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16],
 									"zoom_move_step_len":	32,
-									"focal_length":	[0],
-									"focal_length_len":	1,
-									"zoomcode":	[0],
-									"zoomcode_len":	1,
-									"focuscode":	[{
-											"pos":	0.5,
-											"code":	[0],
-											"code_len":	1
-										}, {
-											"pos":	-1,
-											"code":	[0],
-											"code_len":	1
-										}],
-									"focuscode_len":	2,
 									"ZoomSearchTbl":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 									"ZoomSearchTbl_len":	32,
 									"ZoomSearchRefCurveIdx":	0,
@@ -9970,64 +10046,14 @@
 									"searchEavg":	100,
 									"IsZoomFocusRec":	0,
 									"ZoomInfoDir":	"/userdata",
-									"ZoomInitIndex":	0
+									"ZoomInitIndex":	0,
+									"ZoomCurveFile":	"/data/zoomcurve.bin"
 								},
 								"zoom_meas":	[{
 										"zoom_idx":	0,
-										"measiso":	[{
-												"iso":	50,
-												"idx":	0,
-												"spotlt_scene_idx":	0
-											}, {
-												"iso":	100,
-												"idx":	0,
-												"spotlt_scene_idx":	0
-											}, {
-												"iso":	200,
-												"idx":	0,
-												"spotlt_scene_idx":	0
-											}, {
-												"iso":	400,
-												"idx":	0,
-												"spotlt_scene_idx":	0
-											}, {
-												"iso":	800,
-												"idx":	0,
-												"spotlt_scene_idx":	0
-											}, {
-												"iso":	1600,
-												"idx":	0,
-												"spotlt_scene_idx":	0
-											}, {
-												"iso":	3200,
-												"idx":	0,
-												"spotlt_scene_idx":	0
-											}, {
-												"iso":	6400,
-												"idx":	0,
-												"spotlt_scene_idx":	0
-											}, {
-												"iso":	12800,
-												"idx":	0,
-												"spotlt_scene_idx":	0
-											}, {
-												"iso":	25600,
-												"idx":	0,
-												"spotlt_scene_idx":	0
-											}, {
-												"iso":	51200,
-												"idx":	0,
-												"spotlt_scene_idx":	0
-											}, {
-												"iso":	102400,
-												"idx":	0,
-												"spotlt_scene_idx":	0
-											}, {
-												"iso":	204800,
-												"idx":	0,
-												"spotlt_scene_idx":	0
-											}],
-										"measiso_len":	13
+										"iso":	[50, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400, 204800],
+										"idx":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+										"spotlt_scene_idx":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 									}],
 								"zoom_meas_len":	1,
 								"meascfg_tbl":	[{
@@ -10604,6 +10630,18 @@
 										"Tuning_ISO_len":	13
 									}],
 								"Setting_len":	2
+							}
+						},
+						"ldc":	{
+							"param":	{
+								"ldch_en":	0,
+								"ldcv_en":	0,
+								"ldch_meshfile":	"default_meshfile",
+								"ldcv_meshfile":	"default_meshfile",
+								"correct_level":	255,
+								"correct_level_max":	255,
+								"light_center":	[0, 0],
+								"coefficient":	[0, 0, 0, 0]
 							}
 						}
 					}

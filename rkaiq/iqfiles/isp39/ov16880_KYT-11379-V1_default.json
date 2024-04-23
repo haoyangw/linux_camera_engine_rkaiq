@@ -233,7 +233,7 @@
 								"DySetpoint":	{
 									"ExpLevel":	[0, 0.1, 0.3, 0.5, 1.5, 2],
 									"ExpLevel_len":	6,
-									"DySetpoint":	[32, 30, 30, 30, 30, 28],
+									"DySetpoint":	[35, 35, 32, 30, 30, 30],
 									"DySetpoint_len":	6
 								},
 								"BackLightCtrl":	{
@@ -1074,7 +1074,7 @@
 						},
 						"ccm_calib_v2":	{
 							"control":	{
-								"enable":	0,
+								"enable":	1,
 								"wbgain_tolerance":	0,
 								"gain_tolerance":	0.2
 							},
@@ -1725,43 +1725,43 @@
 											"hw_enhance_loLumaConvert_val":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1023],
 											"sw_enhance_luma2strg_val":	[1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.6, 1.6, 1.6, 1.7, 1.7, 1.7, 1.7, 1.8, 1.8, 1.8, 1.8],
 											"sw_enhance_contrast_strg":	1.5,
-											"sw_enhance_saturate_strg":	1.2
+											"sw_enhance_saturate_strg":	1.0
 										}, {
 											"iso":	100,
 											"hw_enhance_loLumaConvert_val":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1023],
 											"sw_enhance_luma2strg_val":	[1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.6, 1.6, 1.6, 1.7, 1.7, 1.7, 1.7, 1.8, 1.8, 1.8, 1.8],
 											"sw_enhance_contrast_strg":	1.5,
-											"sw_enhance_saturate_strg":	1.2
+											"sw_enhance_saturate_strg":	1.0
 										}, {
 											"iso":	200,
 											"hw_enhance_loLumaConvert_val":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1023],
 											"sw_enhance_luma2strg_val":	[1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.6, 1.6, 1.6, 1.7, 1.7, 1.7, 1.7, 1.8, 1.8, 1.8, 1.8],
 											"sw_enhance_contrast_strg":	1.5,
-											"sw_enhance_saturate_strg":	1.2
+											"sw_enhance_saturate_strg":	1.0
 										}, {
 											"iso":	400,
 											"hw_enhance_loLumaConvert_val":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1023],
 											"sw_enhance_luma2strg_val":	[1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.6, 1.6, 1.6, 1.7, 1.7, 1.7, 1.7, 1.8, 1.8, 1.8, 1.8],
 											"sw_enhance_contrast_strg":	1.5,
-											"sw_enhance_saturate_strg":	1.2
+											"sw_enhance_saturate_strg":	1.0
 										}, {
 											"iso":	800,
 											"hw_enhance_loLumaConvert_val":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1023],
 											"sw_enhance_luma2strg_val":	[1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.6, 1.6, 1.6, 1.7, 1.7, 1.7, 1.7, 1.8, 1.8, 1.8, 1.8],
 											"sw_enhance_contrast_strg":	1.5,
-											"sw_enhance_saturate_strg":	1.2
+											"sw_enhance_saturate_strg":	1.0
 										}, {
 											"iso":	1600,
 											"hw_enhance_loLumaConvert_val":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1023],
 											"sw_enhance_luma2strg_val":	[1.2, 1.2, 1.2, 1.2, 1.3, 1.3, 1.3, 1.4, 1.4, 1.4, 1.5, 1.5, 1.6, 1.6, 1.6, 1.6, 1.6],
 											"sw_enhance_contrast_strg":	1.5,
-											"sw_enhance_saturate_strg":	1.1
+											"sw_enhance_saturate_strg":	1.0
 										}, {
 											"iso":	3200,
 											"hw_enhance_loLumaConvert_val":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1023],
 											"sw_enhance_luma2strg_val":	[1, 1, 1, 1, 1, 1, 1.2, 1.4, 1.6, 1.6, 1.6, 1.6, 1.6, 1.6, 1.6, 1.6, 1.6],
 											"sw_enhance_contrast_strg":	1.5,
-											"sw_enhance_saturate_strg":	1.1
+											"sw_enhance_saturate_strg":	1.0
 										}, {
 											"iso":	6400,
 											"hw_enhance_loLumaConvert_val":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1023],
@@ -5926,7 +5926,7 @@
 												"sw_ynr_loSpnrDistHstrg_scale":	0.0625,
 												"lumaPara":	{
 													"sw_ynr_luma2loStrg_lumaPoint":	[0, 32, 64, 128, 192, 256],
-													"sw_ynr_luma2loStrg_val":	[1, 1, 1, 1, 1, 1]
+													"sw_ynr_luma2loStrg_val":	[1.5, 1.5, 1.3, 1, 1, 1]
 												},
 												"sw_ynr_radius2strg_val":	[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 												"sw_ynr_loSpnrGain2Strg_val":	[1, 1, 1, 1, 1, 1, 1, 1, 1]
@@ -5958,7 +5958,7 @@
 												"sw_ynr_dsIIRinitWgt_scale":	0.06,
 												"sw_ynr_dsFiltLocalGain_alpha":	0.3,
 												"sw_ynr_preFilt_strg":	1.5,
-												"sw_ynr_loSpnr_wgt":	0.75,
+												"sw_ynr_loSpnr_wgt":	0.8,
 												"sw_ynr_loSpnr_centerWgt":	0.2,
 												"sw_ynr_loSpnr_strg":	1,
 												"sw_ynr_loSpnrDistVstrg_scale":	0.0625,
@@ -7863,13 +7863,13 @@
 												"hw_sharp_localGain_bypass":	0,
 												"sw_sharp_preBifilt_scale":	1,
 												"sw_sharp_preBifilt_offset":	0,
-												"sw_sharp_preBifilt_alpha":	0.7,
+												"sw_sharp_preBifilt_alpha":	0.8,
 												"sw_sharp_guideFilt_alpha":	0,
 												"sw_sharp_imgLpf0_strg":	5,
 												"sw_sharp_imgLpf1_strg":	3,
 												"hw_sharp_baseImg_sel":	0,
 												"hw_sharp_clipIdx_sel":	0,
-												"sw_sharp_detailBifilt_scale":	0.5,
+												"sw_sharp_detailBifilt_scale":	0.7,
 												"sw_sharp_detailBifilt_offset":	0,
 												"sw_sharp_detailBifilt_alpha":	0.5,
 												"sw_sharp_global_gain":	1,
@@ -7882,7 +7882,7 @@
 												"hw_sharp_noise_maxLimit":	0,
 												"hw_sharp_noiseClip_sel":	8,
 												"sw_sharp_noise_strg":	1,
-												"sw_sharp_texReserve_strg":	1,
+												"sw_sharp_texReserve_strg":	0.8,
 												"hw_sharp_tex2wgt_en":	0,
 												"hw_sharp_tex2wgt_val":	[1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023],
 												"hw_sharp_detail2strg_val":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],
@@ -7931,7 +7931,7 @@
 												"hw_sharp_noise_maxLimit":	0,
 												"hw_sharp_noiseClip_sel":	8,
 												"sw_sharp_noise_strg":	1,
-												"sw_sharp_texReserve_strg":	0.7,
+												"sw_sharp_texReserve_strg":	0.6,
 												"hw_sharp_tex2wgt_en":	0,
 												"hw_sharp_tex2wgt_val":	[1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023],
 												"hw_sharp_detail2strg_val":	[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024],

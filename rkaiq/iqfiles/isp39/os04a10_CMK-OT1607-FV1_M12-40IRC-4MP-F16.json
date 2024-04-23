@@ -1742,7 +1742,7 @@
 											"iso":	50,
 											"hw_enhance_loLumaConvert_val":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1023],
 											"sw_enhance_luma2strg_val":	[1.2, 1.2, 1.2, 1.2, 1.3, 1.3, 1.3, 1.4, 1.4, 1.4, 1.4, 1.5, 1.5, 1.5, 1.6, 1.6, 1.6],
-											"sw_enhance_contrast_strg":	0.4444,
+											"sw_enhance_contrast_strg":	1.3,
 											"sw_enhance_saturate_strg":	1.2
 										}, {
 											"iso":	100,
@@ -11528,7 +11528,7 @@
 											"iso":	50,
 											"hw_enhance_loLumaConvert_val":	[0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1023],
 											"sw_enhance_luma2strg_val":	[1.2, 1.2, 1.2, 1.2, 1.3, 1.3, 1.3, 1.4, 1.4, 1.4, 1.4, 1.5, 1.5, 1.5, 1.6, 1.6, 1.6],
-											"sw_enhance_contrast_strg":	0.4444,
+											"sw_enhance_contrast_strg":	1.3,
 											"sw_enhance_saturate_strg":	1.2
 										}, {
 											"iso":	100,
@@ -19676,6 +19676,18 @@
 										"Tuning_ISO_len":	13
 									}],
 								"Setting_len":	2
+							}
+						},
+						"ldc":	{
+							"param":	{
+								"ldch_en":	0,
+								"ldcv_en":	0,
+								"ldch_meshfile":	"default_meshfile",
+								"ldcv_meshfile":	"default_meshfile",
+								"correct_level":	255,
+								"correct_level_max":	255,
+								"light_center":	[0, 0],
+								"coefficient":	[0, 0, 0, 0]
 							}
 						}
 					}

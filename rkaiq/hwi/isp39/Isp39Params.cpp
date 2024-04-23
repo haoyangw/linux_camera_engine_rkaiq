@@ -2637,6 +2637,48 @@ void Isp39Params::convertAiqDpccToIsp39Params(struct isp39_isp_params_cfg& isp_c
 #endif
 #endif
 
+#if RKAIQ_HAVE_GIC_V2
+void Isp39Params::convertAiqAgicToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
+        const rk_aiq_isp_gic_v21_t& agic)
+{
+    bool enable = agic.gic_en;
+    if (enable) {
+        isp_cfg.module_en_update |= 1LL << RK_ISP2X_GIC_ID;
+        isp_cfg.module_ens |= 1LL << RK_ISP2X_GIC_ID;
+        isp_cfg.module_cfg_update |= 1LL << RK_ISP2X_GIC_ID;
+    } else {
+        isp_cfg.module_en_update |= 1LL << RK_ISP2X_GIC_ID;
+        isp_cfg.module_ens &= ~(1LL << RK_ISP2X_GIC_ID);
+        isp_cfg.module_cfg_update &= ~(1LL << RK_ISP2X_GIC_ID);
+    }
+
+    isp_cfg.others.gic_cfg.bypass_en          = 0;
+    isp_cfg.others.gic_cfg.regmingradthrdark2 = agic.ProcResV21.regmingradthrdark2;
+    isp_cfg.others.gic_cfg.regmingradthrdark1 = agic.ProcResV21.regmingradthrdark1;
+    isp_cfg.others.gic_cfg.regminbusythre     = agic.ProcResV21.regminbusythre;
+    isp_cfg.others.gic_cfg.regdarkthre        = agic.ProcResV21.regdarkthre;
+
+    isp_cfg.others.gic_cfg.regmaxcorvboth        = agic.ProcResV21.regmaxcorvboth;
+    isp_cfg.others.gic_cfg.regdarktthrehi        = agic.ProcResV21.regdarktthrehi;
+    isp_cfg.others.gic_cfg.regkgrad2dark         = agic.ProcResV21.regkgrad2dark;
+    isp_cfg.others.gic_cfg.regkgrad1dark         = agic.ProcResV21.regkgrad1dark;
+    isp_cfg.others.gic_cfg.regstrengthglobal_fix = agic.ProcResV21.regstrengthglobal_fix;
+    isp_cfg.others.gic_cfg.regdarkthrestep       = agic.ProcResV21.regdarkthrestep;
+    isp_cfg.others.gic_cfg.regkgrad2             = agic.ProcResV21.regkgrad2;
+    isp_cfg.others.gic_cfg.regkgrad1             = agic.ProcResV21.regkgrad1;
+    isp_cfg.others.gic_cfg.reggbthre             = agic.ProcResV21.reggbthre;
+
+    isp_cfg.others.gic_cfg.regmaxcorv     = agic.ProcResV21.regmaxcorv;
+    isp_cfg.others.gic_cfg.regmingradthr2 = agic.ProcResV21.regmingradthr2;
+    isp_cfg.others.gic_cfg.regmingradthr1 = agic.ProcResV21.regmingradthr1;
+    isp_cfg.others.gic_cfg.gr_ratio       = agic.ProcResV21.gr_ratio;
+    isp_cfg.others.gic_cfg.noise_scale    = agic.ProcResV21.noise_scale;
+    isp_cfg.others.gic_cfg.noise_base     = agic.ProcResV21.noise_base;
+    isp_cfg.others.gic_cfg.diff_clip      = agic.ProcResV21.diff_clip;
+    for (int i = 0; i < 15; i++) isp_cfg.others.gic_cfg.sigma_y[i] = agic.ProcResV21.sigma_y[i];
+}
+#endif
+
 bool Isp39Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult>& result, void* isp_cfg_p, bool is_multi_isp) {
     struct isp39_isp_params_cfg& isp_cfg       = *(struct isp39_isp_params_cfg*)isp_cfg_p;
 
@@ -2678,7 +2720,7 @@ bool Isp39Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult>& result, void* 
 #if RKAIQ_HAVE_GIC_V2
         RkAiqIspGicParamsProxy* params =
             result.get_cast_ptr<RkAiqIspGicParamsProxy>();
-        if (params) convertAiqAgicToIsp21Params(isp_cfg, params->data()->result);
+        if (params) convertAiqAgicToIsp39Params(isp_cfg, params->data()->result);
 #endif
     }
     break;
@@ -2935,6 +2977,7 @@ bool Isp39Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult>& result, void* 
 #endif
     }
     break;
+
     default:
         LOGE("unknown param type: 0x%x!", type);
         return false;

@@ -65,6 +65,7 @@ CamHwIsp20::CamHwIsp20()
     , _is_exit(false)
     , _linked_to_isp(false)
     , _linked_to_1608(false)
+    , _linked_to_serdes(false)
 #if defined(ISP_HW_V20)
     , _ispp_module_init_ens(0)
 #endif
@@ -230,6 +231,14 @@ static XCamReturn get_sensor_caps(rk_sensor_full_info_t *sensor_info) {
     }
     if (fie.index == 0) {
         LOGW_CAMHW_SUBM(ISP20HW_SUBM, "@%s %s: Enum sensor frame interval failed", __FUNCTION__, sensor_info->device_name.c_str());
+    }
+    struct rkmodule_capture_info cap_info;
+    memset(&cap_info, 0, sizeof(cap_info));
+    if (vdev.io_control(RKMODULE_GET_CAPTURE_MODE, &cap_info) == 0) {
+        if (cap_info.mode == RKMODULE_MULTI_CH_TO_MULTI_ISP) {
+            sensor_info->linked_to_serdes = true;
+            LOGK_CAMHW("%s is used as serdes", sensor_info->sensor_name.c_str());
+        }
     }
     vdev.close();
 
@@ -685,7 +694,12 @@ get_isp_subdevs(struct media_device *device, const char *devpath, rk_aiq_isp_t* 
         entity = media_get_entity_by_name(device, linked_entity_name_strs[i], strlen(linked_entity_name_strs[i]));
         if (entity) {
             strncpy(isp_info[index].linked_vicap[vicap_idx], entity->info.name, sizeof(isp_info[index].linked_vicap[vicap_idx]));
-            isp_info[index].linked_sensor = true;
+
+            entity_name = media_entity_get_devname (entity);
+            if(entity_name) {
+                strncpy(isp_info[index].linked_vicap_sd_path, entity_name, sizeof(isp_info[index].linked_vicap_sd_path));
+            }
+
             if (vicap_idx++ >= MAX_ISP_LINKED_VICAP_CNT) {
                 break;
             }
@@ -1196,6 +1210,11 @@ CamHwIsp20::initCamHwInfos()
                     // FIXME: Just support isp3x(rk3588-8/9camera).
                     for (int vi_idx = 0; vi_idx < MAX_ISP_LINKED_VICAP_CNT; vi_idx++) {
                         if (strlen(isp_info->linked_vicap[vi_idx]) > 0) {
+                            if (!CamHwIsp20::rk1608_share_inf.reference_mipi_cif)
+                                break;
+
+                            if (strcmp(CamHwIsp20::rk1608_share_inf.reference_mipi_cif->model_str, isp_info->linked_vicap[vi_idx]) != 0)
+                                continue;
                             strcpy(CamHwIsp20::rk1608_share_inf.reference_name, isp_info->linked_vicap[vi_idx]);
                             s_full_info->cif_info = CamHwIsp20::rk1608_share_inf.reference_mipi_cif;
                             info->_is_1608_sensor = true;
@@ -1289,6 +1308,9 @@ media_unref:
              * Determine which isp that vipCap is linked
              */
             for (i = 0; i < MAX_CAM_NUM; i++) {
+                if (s_full_info->linked_to_serdes)
+                    break;
+
                 rk_aiq_isp_t* isp_info = &CamHwIsp20::mIspHwInfos.isp_info[i];
 
                 for (int vicap_idx = 0; vicap_idx < MAX_ISP_LINKED_VICAP_CNT; vicap_idx++) {
@@ -1313,6 +1335,29 @@ media_unref:
                                         CamHwIsp20::mCamHwInfos[s_full_info->sensor_name]->sensor_info.binded_strm_media_idx,
                                         s_full_info->ispp_info ? s_full_info->ispp_info->media_dev_path : "null");
                         CamHwIsp20::mIspHwInfos.isp_info[i].linked_sensor = true;
+                    }
+                }
+            }
+
+            if (s_full_info->linked_to_serdes) {
+                std::unordered_map<std::string, SmartPtr<rk_sensor_full_info_t>>::iterator isp_iter;
+                for(isp_iter = CamHwIsp20::mSensorHwInfos.begin(); \
+                    isp_iter != CamHwIsp20::mSensorHwInfos.end(); isp_iter++) {
+                    SmartPtr<rk_sensor_full_info_t> tmp_sinfo = isp_iter->second;
+
+                    if (!tmp_sinfo->isp_info)
+                        continue;
+
+                    // serdes mode, just support one vicap link to isp
+                    if (!tmp_sinfo->linked_to_1608 && tmp_sinfo->isp_info->linked_sensor &&
+                        strcmp(tmp_sinfo->isp_info->linked_vicap[0], s_full_info->cif_info->model_str) == 0) {
+                        tmp_sinfo->cif_info = s_full_info->cif_info;
+                        tmp_sinfo->dvp_itf  = s_full_info->dvp_itf;
+                        tmp_sinfo->linked_to_serdes = s_full_info->linked_to_serdes;
+                        CamHwIsp20::mCamHwInfos[s_full_info->sensor_name]->is_multi_isp_mode =
+                            tmp_sinfo->isp_info->is_multi_isp_mode;
+                        CamHwIsp20::mCamHwInfos[s_full_info->sensor_name]
+                        ->multi_isp_extended_pixel = mMultiIspExtendedPixel;
                     }
                 }
             }
@@ -1523,6 +1568,19 @@ CamHwIsp20::init(const char* sns_ent_name)
         CamHwIsp20::rk1608_share_inf.en_sns_num++;
     }
 
+    // serdes sensor
+    if (s_info->linked_to_serdes) {
+        _linked_to_isp = false;
+        _linked_to_1608 = false;
+        _linked_to_serdes = true;
+        if (!use_rkrawstream)
+            LOGK_CAMHW("linked to serdes, force to use_rkrawstream");
+        if (mIsListenStrmEvt)
+            LOGK_CAMHW("linked to serdes, set mIsListenStrmEvt to false");
+        use_rkrawstream = true;
+        mIsListenStrmEvt = false;
+    }
+
     mIspCoreDev = new V4l2SubDevice(s_info->isp_info->isp_dev_path);
     mIspCoreDev->open();
 
@@ -1557,7 +1615,7 @@ CamHwIsp20::init(const char* sns_ent_name)
         mIrcutDev->open();
     }
 
-    if (!_linked_to_isp) {
+    if (!_linked_to_isp && !_linked_to_serdes) {
         if (strlen(s_info->cif_info->mipi_csi2_sd_path) > 0) {
             _cif_csi2_sd = new V4l2SubDevice (s_info->cif_info->mipi_csi2_sd_path);
         } else if (strlen(s_info->cif_info->lvds_sd_path) > 0) {
@@ -1568,6 +1626,13 @@ CamHwIsp20::init(const char* sns_ent_name)
             LOGW_CAMHW_SUBM(ISP20HW_SUBM, "_cif_csi2_sd is null! \n");
         }
         _cif_csi2_sd->open();
+    } else if (_linked_to_serdes) {
+        if (strlen(s_info->isp_info->linked_vicap_sd_path) > 0) {
+            mVicapItfDev = new V4l2SubDevice (s_info->isp_info->linked_vicap_sd_path);
+        } else {
+            LOGW_CAMHW_SUBM(ISP20HW_SUBM, "mVicapItfDev is null! \n");
+        }
+        mVicapItfDev->open();
     }
 
 #if defined(ISP_HW_V20)
@@ -1634,7 +1699,7 @@ CamHwIsp20::init(const char* sns_ent_name)
         mRawProcUnit->setCamPhyId(mCamPhyId);
     }
     //cif scale
-    if (!_linked_to_isp && !_linked_to_1608) {
+    if (!_linked_to_isp && !_linked_to_1608 && !_linked_to_serdes) {
         if (strlen(s_info->cif_info->mipi_scl0))
             mCifScaleStream = new CifSclStream();
     }
@@ -2752,9 +2817,11 @@ CamHwIsp20::prepare(uint32_t width, uint32_t height, int mode, int t_delay, int 
 
     //sof event
     if (!mIspSofStream.ptr()) {
-        if (_linked_to_isp)
+        if (_linked_to_isp) {
             mIspSofStream = new RKSofEventStream(mIspCoreDev, ISP_POLL_SOF);
-        else
+        } else if (_linked_to_serdes) {
+            mIspSofStream = new RKSofEventStream(mVicapItfDev, ISP_POLL_SOF);
+        } else
             mIspSofStream = new RKSofEventStream(_cif_csi2_sd, ISP_POLL_SOF, _linked_to_1608);
         mIspSofStream->setPollCallback (this);
     }
@@ -3791,7 +3858,7 @@ CamHwIsp20::getSensorModeData(const char* sns_ent_name,
         sns_des.compr_bit = isp_info.compr_bit;
     }
 
-    if (use_rkrawstream) {
+    if (use_rkrawstream && mRawStreamInfo.mode == RK_ISP_RKRAWSTREAM_MODE_OFFLINE) {
         sns_des.sensor_output_width = mRawStreamInfo.width;
         sns_des.sensor_output_height = mRawStreamInfo.height;
         sns_des.isp_acq_width = sns_des.sensor_output_width;

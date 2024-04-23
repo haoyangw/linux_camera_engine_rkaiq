@@ -67,7 +67,9 @@ typedef rk_aiq_isp_params_t<rk_aiq_isp_dpcc_t>          rk_aiq_isp_dpcc_params_t
 typedef rk_aiq_isp_params_t<rk_aiq_isp_tmo_t>           rk_aiq_isp_tmo_params_t;
 typedef rk_aiq_isp_params_t<rk_aiq_isp_lsc_t>           rk_aiq_isp_lsc_params_t;
 typedef rk_aiq_isp_params_t<rk_aiq_isp_rawnr_t>         rk_aiq_isp_rawnr_params_t;
+#ifndef USE_NEWSTRUCT
 typedef rk_aiq_isp_params_t<rk_aiq_isp_gic_t>           rk_aiq_isp_gic_params_t;
+#endif
 typedef rk_aiq_isp_params_t<rk_aiq_isp_lut3d_t>         rk_aiq_isp_lut3d_params_t;
 typedef rk_aiq_isp_params_t<rk_aiq_isp_degamma_t>       rk_aiq_isp_adegamma_params_t;
 typedef rk_aiq_isp_params_t<rk_aiq_isp_wdr_t>           rk_aiq_isp_wdr_params_t;
@@ -487,6 +489,7 @@ typedef struct {
     char mipi_luma_path[DEV_PATH_LEN];
     char mipi_dphy_rx_path[DEV_PATH_LEN];
     char linked_vicap[MAX_ISP_LINKED_VICAP_CNT][DEV_PATH_LEN];
+    char linked_vicap_sd_path[DEV_PATH_LEN];
     char pdaf_path[DEV_PATH_LEN];
 } rk_aiq_isp_t;
 
@@ -605,6 +608,7 @@ typedef struct {
     rk_aiq_ispp_t *ispp_info;
     bool linked_to_isp;
     bool linked_to_1608;
+    bool linked_to_serdes;
     bool dvp_itf;
     struct rkmodule_inf mod_info;
 } rk_sensor_full_info_t;

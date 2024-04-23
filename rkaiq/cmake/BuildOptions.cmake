@@ -21,6 +21,7 @@ set(RKAIQ_NEWSTRUCT_TEST     FALSE CACHE INTERNAL "Build rkaiq with new structs"
 
 if (RKAIQ_TARGET_SOC STREQUAL "rk3576")
     set(RKAIQ_ISP_VERSION        "39"  CACHE INTERNAL "ISP hardware version 39"     FORCE)
+    # set(RKAIQ_NEWSTRUCT_TEST     TRUE)
 elseif (RKAIQ_TARGET_SOC STREQUAL "rk3562")
     set(RKAIQ_ISP_VERSION        "32_lite"  CACHE INTERNAL "ISP hardware version 32 lite"     FORCE)
 elseif (RKAIQ_TARGET_SOC STREQUAL "rv1106")
