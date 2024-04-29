@@ -5529,6 +5529,14 @@ CamHwIsp20::handleIsp3aReslut(cam3aResultList& list)
         LOGD_CAMHW_SUBM(ISP20HW_SUBM, "hdr-debug: %s: first set ispparams\n",
                         __func__);
         if (!mIspParamsDev->is_activated()) {
+
+            if (!mIspStatsDev->is_activated()) {
+                ret = mIspStatsDev->start();
+                if (ret < 0) {
+                    LOGE_CAMHW_SUBM(ISP20HW_SUBM, "prepare isp stats dev err: %d\n", ret);
+                }
+            }
+
             ret = mIspParamsDev->start();
             if (ret < 0) {
                 LOGE_CAMHW_SUBM(ISP20HW_SUBM, "prepare isp params dev err: %d\n", ret);
