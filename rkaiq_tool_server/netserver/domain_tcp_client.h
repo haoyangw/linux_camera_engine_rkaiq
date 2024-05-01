@@ -19,6 +19,7 @@
 
 #define SERVER_PORT 5543
 #define UNIX_DOMAIN "/tmp/UNIX.domain0"
+#define MAXPACKETSIZE 2048
 
 using namespace std;
 

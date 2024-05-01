@@ -278,12 +278,13 @@ void RKAiqMedia::GetIspSubDevs(int id, struct media_device* device, const char* 
         }
         else
         {
-            if (g_capture_dev_name.length() == 0 && g_stream_dev_name.length() == 0 && (g_width > format.width || g_height > format.height))
-            {
-                g_width = format.width;
-                g_height = format.height;
-                LOG_ERROR("fixup width %d height %d\n", g_width, g_height);
-            }
+            ;
+            // if (g_capture_dev_name.length() == 0 && g_stream_dev_name.length() == 0 && (g_width > format.width || g_height > format.height))
+            // {
+            //     g_width = format.width;
+            //     g_height = format.height;
+            //     LOG_ERROR("fixup width %d height %d\n", g_width, g_height);
+            // }
         }
     }
 

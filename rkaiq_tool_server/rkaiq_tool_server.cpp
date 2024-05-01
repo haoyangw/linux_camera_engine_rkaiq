@@ -38,10 +38,9 @@
 #endif
 #define LOG_TAG "aiqtool"
 
-DomainTCPClient g_tcpClient;
+DomainTCPClient g_domainTcpClient;
 string g_linuxSocketDomainPath = "/tmp/UNIX.domain0";
 
-struct ucred* g_aiqCred = nullptr;
 std::atomic_bool quit{false};
 std::atomic<int> g_app_run_mode(APP_RUN_STATUS_INIT);
 int g_width = 1920;
@@ -313,7 +312,7 @@ static std::string string_format(const std::string fmt_str, ...)
 int main(int argc, char** argv)
 {
     int ret = -1;
-    LOG_ERROR("#### 20240111_150236 ####\n");
+    LOG_ERROR("#### 20240429_153335 ####\n");
     struct sigaction sa;
     sa.sa_handler = signal_handle;
     assert(sigaction(SIGPIPE, NULL, NULL) != -1);
@@ -481,7 +480,7 @@ int main(int argc, char** argv)
         }
     }
 
-    if (g_tcpClient.Setup(g_linuxSocketDomainPath) == false)
+    if (g_domainTcpClient.Setup(g_linuxSocketDomainPath) == false)
     {
         LOG_INFO("#### ToolServer connect AIQ failed, path=%s ####\n", g_linuxSocketDomainPath.c_str());
     }
@@ -557,7 +556,7 @@ int main(int argc, char** argv)
         }
     }
 
-    if (g_tcpClient.Setup(g_linuxSocketDomainPath.c_str()) == false)
+    if (g_domainTcpClient.Setup(g_linuxSocketDomainPath.c_str()) == false)
     {
         LOG_INFO("#### ToolServer connect AIQ failed, path=%s ####\n", g_linuxSocketDomainPath.c_str());
     }
@@ -602,12 +601,6 @@ int main(int argc, char** argv)
     }
 
     newTcpServer.Close();
-
-    if (g_aiqCred != nullptr)
-    {
-        delete g_aiqCred;
-        g_aiqCred = nullptr;
-    }
 
     // if (g_rtsp_en)
     // {

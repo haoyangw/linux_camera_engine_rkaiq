@@ -44,7 +44,7 @@ extern std::string g_capture_dev_name;
 extern int g_compactModeFlag;
 extern std::string g_capture_cache_dir;
 extern uint g_lastCapturedSequense;
-extern DomainTCPClient g_tcpClient;
+extern DomainTCPClient g_domainTcpClient;
 extern uint32_t g_mmapNumber;
 
 extern int g_offlineRAWCaptureYUVStepCounter;
@@ -60,6 +60,7 @@ extern std::condition_variable g_offlineRawEnqueued;
 extern std::mutex g_yuvCapturedMutex;
 extern std::unique_lock<std::mutex> g_yuvCapturedLock;
 extern std::condition_variable g_yuvCaptured;
+extern int ConnectAiq();
 
 static uint16_t capture_check_sum;
 static int capture_status = READY;
@@ -77,9 +78,56 @@ static struct capture_info cap_info_hdr3_2;
 static struct capture_info cap_info_hdr3_3;
 
 static std::timed_mutex get3AStatsMtx;
+extern unsigned int GetCRC32(unsigned char* buf, unsigned int len);
 
 #define FMT_NUM_PLANES 1
 #define CLEAR(x) memset(&(x), 0, sizeof(x))
+
+#pragma pack(1)
+typedef struct RkAiqSocketData
+{
+    char magic[2] = {'R', 'K'};
+    unsigned char packetSize[4];
+    int commandID;
+    int commandResult;
+    unsigned int dataSize;
+    char* data;
+    unsigned int dataHash;
+} RkAiqSocketData;
+
+typedef struct RkAiqSocketDataV2_Write
+{
+    uint8_t magic[4]; // = { 'R', 0xAA, 0xFF, 'K' };
+    int32_t cmd_id;
+    int32_t cmd_ret;
+    uint32_t sequence;
+    uint32_t payload_size;
+    uint32_t packet_size;
+    uint8_t* data;
+    uint32_t data_hash; // different offset in data stream
+} RkAiqSocketDataV2_Write;
+
+typedef struct RkAiqSocketDataV2_Receive
+{
+    uint8_t magic[4]; // = { 'R', 0xAA, 0xFF, 'K' };
+    int32_t cmd_id;
+    int32_t cmd_ret;
+    uint32_t sequence;
+    uint32_t payload_size;
+    uint32_t packet_size;
+    uint8_t note[128];
+    uint8_t* data;
+    uint32_t data_hash; // different offset in data stream
+} RkAiqSocketDataV2_Receive;
+
+typedef struct JsonWriteAnswer
+{
+    uint16_t writeErrorCode;
+    uint16_t aiqErrorCode;
+    uint32_t aiqErrorDataLen;
+    uint32_t aiqErrorDataCrc;
+} JsonWriteAnswer;
+#pragma pack()
 
 struct YuvCaptureBuffer
 {
@@ -285,6 +333,87 @@ static void DoAnswer2(int sockfd, CommandData_t* cmd, int cmd_id, uint16_t check
     cmd->dat[0] = result;
     cmd->dat[1] = check_sum & 0xFF;
     cmd->dat[2] = (check_sum >> 8) & 0xFF;
+    cmd->checkSum = 0;
+    for (int i = 0; i < cmd->datLen; i++)
+    {
+        cmd->checkSum += cmd->dat[i];
+    }
+
+    memcpy(send_data, cmd, sizeof(CommandData_t));
+    send(sockfd, send_data, sizeof(CommandData_t), 0);
+}
+
+static void DoAiqJsonWriteAnswer(int sockfd, CommandData_t* cmd, int cmd_id, JsonWriteAnswer answer)
+{
+    char send_data[MAXPACKETSIZE];
+    strncpy((char*)cmd->RKID, RKID_ISP_ON, sizeof(cmd->RKID));
+    cmd->cmdType = CMD_TYPE_JSON_WRITE;
+    cmd->cmdID = cmd_id;
+    strncpy((char*)cmd->version, RKAIQ_TOOL_VERSION, sizeof(cmd->version));
+    cmd->datLen = sizeof(JsonWriteAnswer);
+    memset(cmd->dat, 0, cmd->datLen);
+    memcpy(cmd->dat, &answer, cmd->datLen);
+
+    cmd->checkSum = 0;
+    for (int i = 0; i < cmd->datLen; i++)
+    {
+        cmd->checkSum += cmd->dat[i];
+    }
+
+    memcpy(send_data, cmd, sizeof(CommandData_t));
+    send(sockfd, send_data, sizeof(CommandData_t), 0);
+}
+
+static void DoAiqJsonReadAnswer1(int sockfd, CommandData_t* cmd, int cmd_id, int ret_status)
+{
+    char send_data[MAXPACKETSIZE];
+    strncpy((char*)cmd->RKID, RKID_ISP_ON, sizeof(cmd->RKID));
+    cmd->cmdType = CMD_TYPE_JSON_READ;
+    cmd->cmdID = cmd_id;
+    strncpy((char*)cmd->version, RKAIQ_TOOL_VERSION, sizeof(cmd->version));
+    cmd->datLen = 4;
+    memset(cmd->dat, 0, sizeof(cmd->dat));
+    cmd->dat[0] = ret_status;
+    cmd->checkSum = 0;
+    for (int i = 0; i < cmd->datLen; i++)
+    {
+        cmd->checkSum += cmd->dat[i];
+    }
+
+    memcpy(send_data, cmd, sizeof(CommandData_t));
+    send(sockfd, send_data, sizeof(CommandData_t), 0);
+}
+
+static void DoAiqJsonReadAnswer2(int sockfd, CommandData_t* cmd, int cmd_id, int ret_status)
+{
+    char send_data[MAXPACKETSIZE];
+    strncpy((char*)cmd->RKID, RKID_ISP_ON, sizeof(cmd->RKID));
+    cmd->cmdType = CMD_TYPE_JSON_READ;
+    cmd->cmdID = cmd_id;
+    strncpy((char*)cmd->version, RKAIQ_TOOL_VERSION, sizeof(cmd->version));
+    cmd->datLen = 4;
+    memset(cmd->dat, 0, sizeof(cmd->dat));
+    cmd->dat[0] = ret_status;
+    cmd->checkSum = 0;
+    for (int i = 0; i < cmd->datLen; i++)
+    {
+        cmd->checkSum += cmd->dat[i];
+    }
+
+    memcpy(send_data, cmd, sizeof(CommandData_t));
+    send(sockfd, send_data, sizeof(CommandData_t), 0);
+}
+
+static void DoAiqJsonReadAnswer3(int sockfd, CommandData_t* cmd, int cmd_id, int ret_status)
+{
+    char send_data[MAXPACKETSIZE];
+    strncpy((char*)cmd->RKID, RKID_ISP_ON, sizeof(cmd->RKID));
+    cmd->cmdType = CMD_TYPE_JSON_READ;
+    cmd->cmdID = cmd_id;
+    strncpy((char*)cmd->version, RKAIQ_TOOL_VERSION, sizeof(cmd->version));
+    cmd->datLen = 4;
+    memset(cmd->dat, 0, sizeof(cmd->dat));
+    cmd->dat[0] = ret_status;
     cmd->checkSum = 0;
     for (int i = 0; i < cmd->datLen; i++)
     {
@@ -1519,22 +1648,24 @@ static void OnlineRawCaptureCallBackNoHDR(int socket, int index, void* buffer, i
 
 static void OnlineRawCaptureCallBackHDRX2_1(int socket, int index, void* buffer, int size)
 {
+    if (g_mmapNumber > 2 && cap_info_hdr2_1.ispStatsList.size() == 0)
+    {
+        usleep(1000 * 50);
+        LOG_DEBUG("online raw capture,ispstats list empty.\n");
+        return;
+    }
     static uint32_t lastSavedSequence = 0;
-    LOG_DEBUG("OnlineRawCaptureCallBackHDRX2_1 size %d\n", size);
     if (g_sensorHdrMode == HDR_X2)
     {
         LOG_DEBUG("OnlineRawCaptureCallBackHDRX2_1 HDRX2_1\n");
 
         int width = cap_info_hdr2_1.width;
         int height = cap_info_hdr2_1.height;
-        LOG_DEBUG("cap_info_hdr2_1.width %d\n", cap_info_hdr2_1.width);
-        LOG_DEBUG("cap_info_hdr2_1.height %d\n", cap_info_hdr2_1.height);
-        LOG_DEBUG("cap_info_hdr2_1.sequence %u\n", cap_info_hdr2_1.sequence);
 
         if (g_sensorHdrMode == NO_HDR && size > (width * height * 2))
         {
             // SendMessageToPC(socket, "OnlineRawCaptureCallBackHDRX2_1 size error");
-            LOG_ERROR("OnlineRawCaptureCallBackHDRX2_1 size error\n");
+            LOG_ERROR("OnlineRawCaptureCallBackHDRX2_1 size error. size:%d. width:%d, height:%d\n", size, width, height);
             return;
         }
 
@@ -1543,34 +1674,32 @@ static void OnlineRawCaptureCallBackHDRX2_1(int socket, int index, void* buffer,
             LOG_ERROR("cap_info_hdr2_1.sequence == 0\n");
             return;
         }
+
         if (g_mmapNumber > 2)
         {
-            LOG_DEBUG("cap_info_hdr2_1.sequence:%u\n", cap_info_hdr2_1.sequence);
-            LOG_DEBUG("cap_info_hdr2_1.ispStatsList.back().frameID:%u\n", cap_info_hdr2_1.ispStatsList.back().frameID);
-            LOG_DEBUG("cap_info_hdr2_1.ispStatsList.size():%u\n", cap_info_hdr2_1.ispStatsList.size());
-            while (cap_info_hdr2_1.sequence > cap_info_hdr2_1.ispStatsList.back().frameID)
+            // LOG_DEBUG("cap_info_hdr2_1.sequence:%u\n", cap_info_hdr2_1.sequence);
+            // LOG_DEBUG("cap_info_hdr2_1.ispStatsList.back().frameID:%u\n", cap_info_hdr2_1.ispStatsList.back().frameID);
+            // LOG_DEBUG("cap_info_hdr2_1.ispStatsList.size():%u\n", cap_info_hdr2_1.ispStatsList.size());
+            while (cap_info_hdr2_1.sequence > cap_info_hdr2_1.ispStatsList.back().frameID && cap_info_hdr2_1.ispStatsList.back().frameID != 0)
             {
                 LOG_DEBUG("cap_info_hdr2_1.sequence > cap_info_hdr2_1.ispStatsList.back().frameID, wait.\n");
-
                 usleep(1000 * 5);
                 continue;
             }
 
             for (vector<rk_aiq_isp_tool_stats_t>::iterator it = cap_info_hdr2_1.ispStatsList.begin(); it != cap_info_hdr2_1.ispStatsList.end(); it++)
             {
-                if (cap_info_hdr2_1.sequence == (*it).frameID)
+                // LOG_DEBUG("(*it).frameID / cap_info_hdr2_1.sequence:%d/%d\n", (*it).frameID, cap_info_hdr2_1.sequence);
+                if (cap_info_hdr2_1.sequence == (*it).frameID || cap_info_hdr2_1.ispStatsList.back().frameID == 0)
                 {
                     if (!get3AStatsMtx.try_lock_for(std::chrono::milliseconds(2000)))
                     {
                         LOG_DEBUG("get 3a lock fail 1\n");
                         assert(NULL);
                     }
-                    LOG_INFO("cap_info_hdr2_1.ispStatsList[x].frameID:%u\n", (*it).frameID);
-                    rk_aiq_isp_tool_stats_t expInfo;
-                    memcpy((void*)&expInfo, (void*)&(*it), sizeof(rk_aiq_isp_tool_stats_t));
+                    rk_aiq_isp_tool_stats_t expInfo = *it;
                     expInfo.frameID = cap_info_hdr2_1.sequence;
                     get3AStatsMtx.unlock();
-
                     // HexDump((unsigned char*)&expInfo, sizeof(rk_aiq_isp_tool_stats_t));
                     for (int i = 0; i < 3; i++)
                     {
@@ -1585,17 +1714,15 @@ static void OnlineRawCaptureCallBackHDRX2_1(int socket, int index, void* buffer,
 
                     if (g_usingCaptureCacheFlag == 1)
                     {
-
                         if (0 != access(g_capture_cache_dir.c_str(), 0))
                         {
-                            if (g_usingCaptureCacheFlag == 1 && mkdir(g_capture_cache_dir.c_str(), 0777) != 0)
+                            if (mkdir(g_capture_cache_dir.c_str(), 0777) != 0)
                             {
                                 LOG_ERROR("Create folder %s failed.\n", g_capture_cache_dir.c_str());
                                 return;
                             }
                         }
 
-                        LOG_DEBUG("DoCaptureCallBack size %d, sequence:%u\n", size, cap_info_hdr2_1.sequence);
                         uint32_t seq = cap_info_hdr2_1.sequence;
                         LOG_DEBUG("%s | DoCaptureCallBack start save file. sequence:%u\n", GetTime().c_str(), seq);
                         string targetFileName = g_capture_cache_dir + "/" + to_string(cap_info_hdr2_1.sequence) + "-2_2.raw";
@@ -1603,6 +1730,20 @@ static void OnlineRawCaptureCallBackHDRX2_1(int socket, int index, void* buffer,
 
                         size_t totalSize = size + sizeof(rk_aiq_isp_tool_stats_t);
                         std::vector<char> tempBuffer(totalSize);
+                        // Check available disk space
+                        // std::string tmpStr = GetFirstDirectory(g_capture_cache_dir.c_str());
+                        LOG_DEBUG("capture cache dir:%s\n", g_capture_cache_dir.c_str());
+                        struct statfs diskInfo;
+                        statfs(g_capture_cache_dir.c_str(), &diskInfo);
+                        unsigned long long blocksize = diskInfo.f_bsize;
+                        unsigned long long availableDisk = diskInfo.f_bavail * blocksize;
+                        if (totalSize * 2 > availableDisk)
+                        {
+                            LOG_DEBUG("totalSize/availableDisk:%zu/%llu\n", totalSize, availableDisk);
+                            LOG_ERROR("Insufficient disk space\n");
+                            return;
+                        }
+
                         if (!tempBuffer.empty())
                         {
                             memcpy(tempBuffer.data(), buffer, size);
@@ -1621,13 +1762,25 @@ static void OnlineRawCaptureCallBackHDRX2_1(int socket, int index, void* buffer,
                         LOG_DEBUG("%s | DoCaptureCallBack end save file. sequence:%u\n", GetTime().c_str(), seq);
                         lastSavedSequence = seq;
 
-                        LOG_DEBUG("SendRawDataWithExpInfo\n");
-                        // SendRawDataWithExpInfo(socket, index, buffer, size, &expInfo,
-                        // sizeof(rk_aiq_isp_tool_stats_t));
+                        if (cap_info_hdr2_1.ispStatsList.back().frameID != 0)
+                        {
+                            LOG_DEBUG("SendRawDataWithExpInfo\n");
+                        }
+                        else
+                        {
+                            LOG_DEBUG("SendRawData with ExpInfo 0\n");
+                        }
                     }
                     else
                     {
-                        LOG_DEBUG("SendRawDataWithExpInfo\n");
+                        if (cap_info_hdr2_1.ispStatsList.back().frameID != 0)
+                        {
+                            LOG_DEBUG("SendRawDataWithExpInfo\n");
+                        }
+                        else
+                        {
+                            LOG_DEBUG("SendRawData with ExpInfo 0\n");
+                        }
                         SendRawDataWithExpInfo(socket, index, buffer, size, &expInfo, sizeof(rk_aiq_isp_tool_stats_t));
                     }
                     break;
@@ -1641,18 +1794,33 @@ static void OnlineRawCaptureCallBackHDRX2_1(int socket, int index, void* buffer,
         }
         else
         {
-
-            LOG_DEBUG("DoCaptureCallBack size %d, sequence:%u\n", size, cap_info_hdr2_1.sequence);
-
-            uint seq = cap_info_hdr2_1.sequence;
-            LOG_DEBUG("%s | DoCaptureCallBack start save file. sequence:%u\n", GetTime().c_str(), seq);
-            string targetFileName = g_capture_cache_dir + "/" + to_string(cap_info_hdr2_1.sequence) + "-2_2.raw";
-            LOG_ERROR("Capture image :%s\n", targetFileName.c_str());
+            LOG_DEBUG("%s | DoCaptureCallBack size %d, sequence:%u\n", GetTime().c_str(), size, cap_info_hdr2_1.sequence);
 
             if (g_usingCaptureCacheFlag == 1)
             {
+                uint seq = cap_info_hdr2_1.sequence;
+                LOG_DEBUG("%s | DoCaptureCallBack start save file. sequence:%u\n", GetTime().c_str(), seq);
+                string targetFileName = g_capture_cache_dir + "/" + to_string(cap_info_hdr2_1.sequence) + "-2_2.raw";
+                LOG_ERROR("Capture image :%s\n", targetFileName.c_str());
+
                 size_t totalSize = size + sizeof(rk_aiq_isp_tool_stats_t);
                 std::vector<char> tempBuffer(totalSize);
+
+                // Check available disk space
+                // std::string tmpStr = GetFirstDirectory(g_capture_cache_dir.c_str());
+                LOG_DEBUG("capture cache dir:%s\n", g_capture_cache_dir.c_str());
+                struct statfs diskInfo;
+                statfs(g_capture_cache_dir.c_str(), &diskInfo);
+                unsigned long long blocksize = diskInfo.f_bsize;
+                unsigned long long availableDisk = diskInfo.f_bavail * blocksize;
+                if (totalSize * 2 > availableDisk)
+                {
+                    LOG_DEBUG("totalSize/availableDisk:%zu/%llu\n", totalSize, availableDisk);
+                    LOG_ERROR("Insufficient disk space\n");
+                    capture_frames_index = capture_frames;
+                    return;
+                }
+
                 if (!tempBuffer.empty())
                 {
                     rk_aiq_isp_tool_stats_t expInfo;
@@ -1735,6 +1903,22 @@ static void OnlineRawCaptureCallBackHDRX2_2(int socket, int index, void* buffer,
 
             size_t totalSize = size;
             std::vector<char> tempBuffer(totalSize);
+
+            // Check available disk space
+            // std::string tmpStr = GetFirstDirectory(g_capture_cache_dir.c_str());
+            LOG_DEBUG("capture cache dir:%s\n", g_capture_cache_dir.c_str());
+            struct statfs diskInfo;
+            statfs(g_capture_cache_dir.c_str(), &diskInfo);
+            unsigned long long blocksize = diskInfo.f_bsize;
+            unsigned long long availableDisk = diskInfo.f_bavail * blocksize;
+            if (totalSize * 2 > availableDisk)
+            {
+                LOG_DEBUG("totalSize/availableDisk:%zu/%llu\n", totalSize, availableDisk);
+                LOG_ERROR("Insufficient disk space\n");
+                capture_frames_index = capture_frames;
+                return;
+            }
+
             if (!tempBuffer.empty())
             {
                 memcpy(tempBuffer.data(), buffer, size);
@@ -3720,6 +3904,90 @@ static void SetOnlineRawSensorPara(int sockfd, CommandData_t* recv_cmd, CommandD
     send(sockfd, send_data, sizeof(CommandData_t), 0);
 }
 
+int Send(int sockfd, char* buffer, int size)
+{
+    int ret = -1;
+    int sendOffset = 0;
+    auto stopSendTimer = std::chrono::high_resolution_clock::now();
+    while (true)
+    {
+        int sendSize = send(sockfd, buffer + sendOffset, size, 0);
+        if (sendSize > 0)
+        {
+            stopSendTimer = std::chrono::high_resolution_clock::now();
+            sendOffset += sendSize;
+        }
+        else if (sendSize <= 0)
+        {
+            if (errno != EAGAIN)
+            {
+                LOG_DEBUG("errno != EAGAIN skip close sockfd\n");
+                // close(sockfd);
+                break;
+            }
+            else
+            {
+                auto now = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double, std::milli> waitTime = now - stopSendTimer;
+                if (std::chrono::duration<double, std::milli>(waitTime) > std::chrono::duration<double, std::milli>(200))
+                {
+                    break;
+                }
+            }
+        }
+        if (sendOffset >= size)
+        {
+            LOG_DEBUG("tcp send to pc finish. send/size: %d/%d\n", sendOffset, size);
+            ret = sendOffset;
+            break;
+        }
+    }
+    return ret;
+}
+
+int Receive(int sockfd, char* buffer, int size)
+{
+    int ret = -1;
+    int receiveOffset = 0;
+    auto stopReceiveTimer = std::chrono::high_resolution_clock::now();
+    while (true)
+    {
+        int recvSize = recv(sockfd, buffer + receiveOffset, size, 0);
+        if (recvSize > 0)
+        {
+            stopReceiveTimer = std::chrono::high_resolution_clock::now();
+            receiveOffset += recvSize;
+        }
+        else if (recvSize <= 0)
+        {
+            if (errno != EAGAIN)
+            {
+                LOG_DEBUG("errno != EAGAIN, skip close sockfd\n");
+                // close(sockfd);
+                break;
+            }
+            else
+            {
+                auto now = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double, std::milli> waitTime = now - stopReceiveTimer;
+                if (std::chrono::duration<double, std::milli>(waitTime) > std::chrono::duration<double, std::milli>(50))
+                {
+                    ret = receiveOffset;
+                    break;
+                }
+            }
+        }
+        if (receiveOffset >= size)
+        {
+            LOG_DEBUG("tcp recv finish. receive/size: %d/%d\n", receiveOffset, size);
+            ret = receiveOffset;
+            break;
+        }
+    }
+
+    return ret;
+}
+
 void RKAiqOLProtocol::HandlerOnLineMessage(int sockfd, char* buffer, int size)
 {
     CommandData_t* common_cmd = (CommandData_t*)buffer;
@@ -3734,6 +4002,650 @@ void RKAiqOLProtocol::HandlerOnLineMessage(int sockfd, char* buffer, int size)
 
     switch (common_cmd->cmdType)
     {
+        case CMD_TYPE_JSON_WRITE: {
+            printf("CMD_TYPE_JSON_WRITE\n");
+            JsonRW_Dat_t* dat = (JsonRW_Dat_t*)common_cmd->dat;
+            uint32_t uuid = dat->UUID;
+            uint32_t jsonDataLen = dat->jsonDataLen;
+            uint32_t crc = dat->crc32;
+            uint16_t camID = dat->CamID;
+            // LOG_DEBUG("uuid: %d, jsonDataLen: %d, crc: %d, camID: %d\n", uuid, jsonDataLen, crc, camID);
+            //
+            char* tmpBuffer = (char*)malloc(jsonDataLen);
+            if (tmpBuffer == NULL)
+            {
+                LOG_ERROR("Receive json data from pc malloc failed\n");
+                free(tmpBuffer);
+                tmpBuffer = NULL;
+
+                LOG_DEBUG("prepare annswer pc\n");
+                JsonReadAns_Dat_t readAnserDat;
+                readAnserDat.readErrorCode = MSG_READ_UNKNOWN_ERROR;
+                readAnserDat.aiqErrorCode = IPC_RET_OK;
+                memset(&send_cmd, 0, sizeof(CommandData_t));
+                strncpy((char*)send_cmd.RKID, RKID_ISP_ON, sizeof(send_cmd.RKID));
+                send_cmd.cmdType = CMD_TYPE_JSON_WRITE;
+                strncpy((char*)send_cmd.version, RKAIQ_TOOL_VERSION, sizeof(send_cmd.version));
+                send_cmd.datLen = sizeof(readAnserDat);
+                memcpy(send_cmd.dat, &readAnserDat, send_cmd.datLen);
+
+                send_cmd.checkSum = 0;
+                for (int i = 0; i < send_cmd.datLen; i++)
+                {
+                    send_cmd.checkSum += send_cmd.dat[i];
+                }
+                send(sockfd, (void*)&send_cmd, sizeof(CommandData_t), 0);
+                LOG_DEBUG("answer pc\n");
+                return;
+            }
+            int ret = Receive(sockfd, tmpBuffer, jsonDataLen);
+            if (ret < 0)
+            {
+                LOG_ERROR("Receive json data from pc failed\n");
+                JsonWriteAnswer answer;
+                answer.writeErrorCode = 0x00E1;
+                DoAiqJsonWriteAnswer(sockfd, &send_cmd, common_cmd->cmdID, answer);
+                free(tmpBuffer);
+                tmpBuffer = NULL;
+
+                LOG_DEBUG("prepare annswer pc\n");
+                JsonReadAns_Dat_t readAnserDat;
+                readAnserDat.readErrorCode = MSG_READ_JSON_NOT_COMPLETE;
+                readAnserDat.aiqErrorCode = IPC_RET_OK;
+                memset(&send_cmd, 0, sizeof(CommandData_t));
+                strncpy((char*)send_cmd.RKID, RKID_ISP_ON, sizeof(send_cmd.RKID));
+                send_cmd.cmdType = CMD_TYPE_JSON_WRITE;
+                strncpy((char*)send_cmd.version, RKAIQ_TOOL_VERSION, sizeof(send_cmd.version));
+                send_cmd.datLen = sizeof(readAnserDat);
+                memcpy(send_cmd.dat, &readAnserDat, send_cmd.datLen);
+
+                send_cmd.checkSum = 0;
+                for (int i = 0; i < send_cmd.datLen; i++)
+                {
+                    send_cmd.checkSum += send_cmd.dat[i];
+                }
+                send(sockfd, (void*)&send_cmd, sizeof(CommandData_t), 0);
+                LOG_DEBUG("answer pc\n");
+                return;
+            }
+
+            // aiq交互write
+            // typedef struct RkAiqSocketDataV2_Write
+            // {
+            //     uint8_t magic[4]; // = { 'R', 0xAA, 0xFF, 'K' };
+            //     int32_t cmd_id;
+            //     int32_t cmd_ret;
+            //     uint32_t sequence;
+            //     uint32_t payload_size;
+            //     uint32_t packet_size;
+            //     uint8_t* data;
+            //     uint32_t data_hash;
+            // } RkAiqSocketDataV2_Write;
+            uint32_t offset = 0;
+            uint32_t dataToSendSize = jsonDataLen + sizeof(RkAiqSocketDataV2_Write) - sizeof(uint8_t*);
+            uint8_t* dataToSend = (unsigned char*)malloc(dataToSendSize);
+            if (dataToSend == NULL)
+            {
+                LOG_ERROR("malloc failed\n");
+                free(dataToSend);
+                dataToSend = NULL;
+
+                LOG_DEBUG("prepare annswer pc\n");
+                JsonReadAns_Dat_t readAnserDat;
+                readAnserDat.readErrorCode = MSG_READ_UNKNOWN_ERROR;
+                readAnserDat.aiqErrorCode = IPC_RET_OK;
+                memset(&send_cmd, 0, sizeof(CommandData_t));
+                strncpy((char*)send_cmd.RKID, RKID_ISP_ON, sizeof(send_cmd.RKID));
+                send_cmd.cmdType = CMD_TYPE_JSON_WRITE;
+                strncpy((char*)send_cmd.version, RKAIQ_TOOL_VERSION, sizeof(send_cmd.version));
+                send_cmd.datLen = sizeof(readAnserDat);
+                memcpy(send_cmd.dat, &readAnserDat, send_cmd.datLen);
+
+                send_cmd.checkSum = 0;
+                for (int i = 0; i < send_cmd.datLen; i++)
+                {
+                    send_cmd.checkSum += send_cmd.dat[i];
+                }
+                send(sockfd, (void*)&send_cmd, sizeof(CommandData_t), 0);
+                LOG_DEBUG("answer pc\n");
+                return;
+            }
+            RkAiqSocketDataV2_Write tempData;
+            tempData.magic[0] = 'R';
+            tempData.magic[1] = 0xAA;
+            tempData.magic[2] = 0xFF;
+            tempData.magic[3] = 'K';
+            tempData.cmd_id = 0;
+            tempData.cmd_ret = 0;
+            tempData.sequence = 0;
+            tempData.payload_size = jsonDataLen;
+            tempData.packet_size = dataToSendSize;
+            memcpy(dataToSend + offset, &tempData, sizeof(RkAiqSocketDataV2_Write) - sizeof(uint8_t*) - sizeof(uint32_t));
+
+            offset += sizeof(RkAiqSocketDataV2_Write) - sizeof(uint8_t*) - sizeof(uint32_t);
+            // json
+            memcpy(dataToSend + offset, tmpBuffer, jsonDataLen);
+            // data hash 好像没有实际使用
+            uint32_t check_sum = 0;
+            for (int i = 0; i < jsonDataLen; i++)
+            {
+                check_sum += tmpBuffer[i];
+            }
+            offset += jsonDataLen;
+            memcpy(dataToSend + offset, &check_sum, sizeof(uint32_t));
+
+            ret = Send(g_domainTcpClient.sock, (char*)dataToSend, dataToSendSize);
+
+            free(dataToSend);
+            dataToSend = NULL;
+            if (ret < 0 && errno != EINTR)
+            {
+                if (ConnectAiq() < 0)
+                {
+                    g_domainTcpClient.Close();
+                    LOG_ERROR("########################################################\n");
+                    LOG_ERROR("#### Forward to AIQ failed! please check AIQ status.####\n");
+                    LOG_ERROR("########################################################\n\n");
+                    close(sockfd);
+                    free(tmpBuffer);
+                    tmpBuffer = NULL;
+
+                    LOG_DEBUG("prepare annswer pc\n");
+                    JsonReadAns_Dat_t readAnserDat;
+                    readAnserDat.readErrorCode = MSG_READ_AIQ_NOT_CONNECTED;
+                    readAnserDat.aiqErrorCode = IPC_RET_OK;
+                    memset(&send_cmd, 0, sizeof(CommandData_t));
+                    strncpy((char*)send_cmd.RKID, RKID_ISP_ON, sizeof(send_cmd.RKID));
+                    send_cmd.cmdType = CMD_TYPE_JSON_WRITE;
+                    strncpy((char*)send_cmd.version, RKAIQ_TOOL_VERSION, sizeof(send_cmd.version));
+                    send_cmd.datLen = sizeof(readAnserDat);
+                    memcpy(send_cmd.dat, &readAnserDat, send_cmd.datLen);
+
+                    send_cmd.checkSum = 0;
+                    for (int i = 0; i < send_cmd.datLen; i++)
+                    {
+                        send_cmd.checkSum += send_cmd.dat[i];
+                    }
+                    send(sockfd, (void*)&send_cmd, sizeof(CommandData_t), 0);
+                    LOG_DEBUG("answer pc\n");
+                    return;
+                }
+                else
+                {
+                    LOG_ERROR("########################################################\n");
+                    LOG_ERROR("#### Forward to AIQ failed! Auto reconnect success.####\n");
+                    LOG_ERROR("########################################################\n\n");
+                    Send(g_domainTcpClient.sock, tmpBuffer, jsonDataLen);
+                }
+            }
+
+            free(tmpBuffer);
+            tmpBuffer = NULL;
+
+            // 从aiq收返回的数据
+            LOG_DEBUG("begin to receive from aiq\n");
+            RkAiqSocketDataV2_Receive rkAiqSocketDataV2_Receive;
+            int firstPackReceived = 0;
+            firstPackReceived = Receive(g_domainTcpClient.sock, (char*)&rkAiqSocketDataV2_Receive, sizeof(RkAiqSocketDataV2_Receive) - sizeof(uint8_t*) - sizeof(uint32_t));
+            if (firstPackReceived <= 0)
+            {
+                LOG_ERROR("first pack receive failed\n");
+                LOG_DEBUG("prepare annswer pc\n");
+                JsonReadAns_Dat_t readAnserDat;
+                readAnserDat.readErrorCode = MSG_READ_JSON_NOT_COMPLETE;
+                readAnserDat.aiqErrorCode = IPC_RET_OK;
+                memset(&send_cmd, 0, sizeof(CommandData_t));
+                strncpy((char*)send_cmd.RKID, RKID_ISP_ON, sizeof(send_cmd.RKID));
+                send_cmd.cmdType = CMD_TYPE_JSON_WRITE;
+                strncpy((char*)send_cmd.version, RKAIQ_TOOL_VERSION, sizeof(send_cmd.version));
+                send_cmd.datLen = sizeof(readAnserDat);
+                memcpy(send_cmd.dat, &readAnserDat, send_cmd.datLen);
+
+                send_cmd.checkSum = 0;
+                for (int i = 0; i < send_cmd.datLen; i++)
+                {
+                    send_cmd.checkSum += send_cmd.dat[i];
+                }
+                send(sockfd, (void*)&send_cmd, sizeof(CommandData_t), 0);
+                LOG_DEBUG("answer pc\n");
+                return;
+            }
+
+            if (rkAiqSocketDataV2_Receive.magic[0] != 'R' || rkAiqSocketDataV2_Receive.magic[1] != 0xAA || rkAiqSocketDataV2_Receive.magic[2] != 0xFF || rkAiqSocketDataV2_Receive.magic[3] != 'K')
+            {
+                LOG_ERROR("get magic failed\n");
+                LOG_DEBUG("prepare annswer pc\n");
+                JsonReadAns_Dat_t readAnserDat;
+                readAnserDat.readErrorCode = MSG_READ_JSON_NOT_COMPLETE;
+                readAnserDat.aiqErrorCode = IPC_RET_OK;
+                memset(&send_cmd, 0, sizeof(CommandData_t));
+                strncpy((char*)send_cmd.RKID, RKID_ISP_ON, sizeof(send_cmd.RKID));
+                send_cmd.cmdType = CMD_TYPE_JSON_WRITE;
+                strncpy((char*)send_cmd.version, RKAIQ_TOOL_VERSION, sizeof(send_cmd.version));
+                send_cmd.datLen = sizeof(readAnserDat);
+                memcpy(send_cmd.dat, &readAnserDat, send_cmd.datLen);
+
+                send_cmd.checkSum = 0;
+                for (int i = 0; i < send_cmd.datLen; i++)
+                {
+                    send_cmd.checkSum += send_cmd.dat[i];
+                }
+                send(sockfd, (void*)&send_cmd, sizeof(CommandData_t), 0);
+                LOG_DEBUG("answer pc\n");
+                return;
+            }
+
+            int readTotalSize = rkAiqSocketDataV2_Receive.packet_size;
+            if (readTotalSize <= 0)
+            {
+                LOG_ERROR("get readTotalSize failed\n");
+                LOG_DEBUG("prepare annswer pc\n");
+                JsonReadAns_Dat_t readAnserDat;
+                readAnserDat.readErrorCode = MSG_READ_JSON_NOT_COMPLETE;
+                readAnserDat.aiqErrorCode = IPC_RET_OK;
+                memset(&send_cmd, 0, sizeof(CommandData_t));
+                strncpy((char*)send_cmd.RKID, RKID_ISP_ON, sizeof(send_cmd.RKID));
+                send_cmd.cmdType = CMD_TYPE_JSON_WRITE;
+                strncpy((char*)send_cmd.version, RKAIQ_TOOL_VERSION, sizeof(send_cmd.version));
+                send_cmd.datLen = sizeof(readAnserDat);
+                memcpy(send_cmd.dat, &readAnserDat, send_cmd.datLen);
+
+                send_cmd.checkSum = 0;
+                for (int i = 0; i < send_cmd.datLen; i++)
+                {
+                    send_cmd.checkSum += send_cmd.dat[i];
+                }
+                send(sockfd, (void*)&send_cmd, sizeof(CommandData_t), 0);
+                LOG_DEBUG("answer pc\n");
+                return;
+            }
+
+            int readOffset = 0;
+            char* readTotalBuffer = (char*)malloc(readTotalSize);
+            memcpy(readTotalBuffer, &rkAiqSocketDataV2_Receive, firstPackReceived);
+            readOffset += firstPackReceived;
+            while (readOffset < readTotalSize)
+            {
+                int recvCount = recv(g_domainTcpClient.sock, readTotalBuffer + readOffset, readTotalSize - readOffset, 0);
+                if (recvCount <= 0)
+                {
+                    break;
+                }
+                readOffset += recvCount;
+                if (readOffset + 1 >= readTotalSize)
+                {
+                    break;
+                }
+            }
+
+            //从aiq获取的数据解析校验
+            uint8_t magic[4] = {0};
+            memcpy(&magic, ((RkAiqSocketDataV2_Receive*)readTotalBuffer)->magic, 4);
+            int32_t cmd_id = ((RkAiqSocketDataV2_Receive*)readTotalBuffer)->cmd_id;
+            int32_t cmd_ret = ((RkAiqSocketDataV2_Receive*)readTotalBuffer)->cmd_ret;
+            uint32_t sequence = ((RkAiqSocketDataV2_Receive*)readTotalBuffer)->sequence;
+            // uint32_t payload_size = ((RkAiqSocketDataV2_Receive*)readTotalBuffer)->payload_size;
+            // uint32_t packet_size = ((RkAiqSocketDataV2_Receive*)readTotalBuffer)->packet_size;
+            uint8_t aiqRetNote[128];
+            memcpy(aiqRetNote, ((RkAiqSocketDataV2_Receive*)readTotalBuffer)->note, 128);
+            if (magic[0] != 'R' || magic[1] != 0xAA || magic[2] != 0xFF || magic[3] != 'K')
+            {
+                LOG_ERROR("get magic failed\n");
+                free(readTotalBuffer);
+                readTotalBuffer = NULL;
+                LOG_DEBUG("prepare annswer pc\n");
+                JsonReadAns_Dat_t readAnserDat;
+                readAnserDat.readErrorCode = MSG_READ_JSON_NOT_COMPLETE;
+                readAnserDat.aiqErrorCode = IPC_RET_OK;
+                memset(&send_cmd, 0, sizeof(CommandData_t));
+                strncpy((char*)send_cmd.RKID, RKID_ISP_ON, sizeof(send_cmd.RKID));
+                send_cmd.cmdType = CMD_TYPE_JSON_WRITE;
+                strncpy((char*)send_cmd.version, RKAIQ_TOOL_VERSION, sizeof(send_cmd.version));
+                send_cmd.datLen = sizeof(readAnserDat);
+                memcpy(send_cmd.dat, &readAnserDat, send_cmd.datLen);
+
+                send_cmd.checkSum = 0;
+                for (int i = 0; i < send_cmd.datLen; i++)
+                {
+                    send_cmd.checkSum += send_cmd.dat[i];
+                }
+                send(sockfd, (void*)&send_cmd, sizeof(CommandData_t), 0);
+                LOG_DEBUG("answer pc\n");
+                return;
+            }
+            LOG_DEBUG("cmd_id:%d, cmd_ret:0x%X, sequence:%u\n", cmd_id, cmd_ret, sequence);
+
+            // 发回给PC的反馈
+            JsonWriteAnswer answer;
+            answer.writeErrorCode = 0x00E0; // test return value, always success
+            answer.aiqErrorCode = cmd_ret;  // aiq return value
+            answer.aiqErrorDataLen = 128;
+            uint32_t aiqErrorDataCrc = GetCRC32((unsigned char*)aiqRetNote, 128);
+            answer.aiqErrorDataCrc = aiqErrorDataCrc;
+            //
+            DoAiqJsonWriteAnswer(sockfd, &send_cmd, common_cmd->cmdID, answer);
+            LOG_DEBUG("Answer pc\n");
+            usleep(1000 * 20);
+            // send aiq note
+            send(sockfd, aiqRetNote, 128, 0);
+            LOG_DEBUG("Answer pc aiq note\n");
+        }
+        break;
+        case CMD_TYPE_JSON_READ: {
+            printf("CMD_TYPE_JSON_READ\n");
+            JsonRW_Dat_t* dat = (JsonRW_Dat_t*)common_cmd->dat;
+            uint32_t uuid = dat->UUID;
+            uint32_t jsonDataLen = dat->jsonDataLen;
+            uint32_t crc = dat->crc32;
+            uint16_t camID = dat->CamID;
+            //
+            char* jsonDataBuffer = (char*)malloc(jsonDataLen);
+            if (jsonDataBuffer == NULL)
+            {
+                LOG_ERROR("Receive json data from pc malloc failed\n");
+                free(jsonDataBuffer);
+                jsonDataBuffer = NULL;
+
+                LOG_DEBUG("prepare annswer pc\n");
+                JsonReadAns_Dat_t readAnserDat;
+                readAnserDat.readErrorCode = MSG_READ_UNKNOWN_ERROR;
+                readAnserDat.aiqErrorCode = IPC_RET_OK;
+                memset(&send_cmd, 0, sizeof(CommandData_t));
+                strncpy((char*)send_cmd.RKID, RKID_ISP_ON, sizeof(send_cmd.RKID));
+                send_cmd.cmdType = CMD_TYPE_JSON_READ;
+                strncpy((char*)send_cmd.version, RKAIQ_TOOL_VERSION, sizeof(send_cmd.version));
+                send_cmd.datLen = sizeof(readAnserDat);
+                memcpy(send_cmd.dat, &readAnserDat, send_cmd.datLen);
+
+                send_cmd.checkSum = 0;
+                for (int i = 0; i < send_cmd.datLen; i++)
+                {
+                    send_cmd.checkSum += send_cmd.dat[i];
+                }
+                send(sockfd, (void*)&send_cmd, sizeof(CommandData_t), 0);
+                LOG_DEBUG("answer pc\n");
+                return;
+            }
+            int ret = Receive(sockfd, jsonDataBuffer, jsonDataLen);
+            if (ret < 0)
+            {
+                LOG_ERROR("Receive json data from pc failed\n");
+                DoAiqJsonReadAnswer1(sockfd, &send_cmd, common_cmd->cmdID, ret);
+                free(jsonDataBuffer);
+                jsonDataBuffer = NULL;
+
+                LOG_DEBUG("prepare annswer pc\n");
+                JsonReadAns_Dat_t readAnserDat;
+                readAnserDat.readErrorCode = MSG_READ_JSON_NOT_COMPLETE;
+                readAnserDat.aiqErrorCode = IPC_RET_OK;
+                memset(&send_cmd, 0, sizeof(CommandData_t));
+                strncpy((char*)send_cmd.RKID, RKID_ISP_ON, sizeof(send_cmd.RKID));
+                send_cmd.cmdType = CMD_TYPE_JSON_READ;
+                strncpy((char*)send_cmd.version, RKAIQ_TOOL_VERSION, sizeof(send_cmd.version));
+                send_cmd.datLen = sizeof(readAnserDat);
+                memcpy(send_cmd.dat, &readAnserDat, send_cmd.datLen);
+
+                send_cmd.checkSum = 0;
+                for (int i = 0; i < send_cmd.datLen; i++)
+                {
+                    send_cmd.checkSum += send_cmd.dat[i];
+                }
+                send(sockfd, (void*)&send_cmd, sizeof(CommandData_t), 0);
+                LOG_DEBUG("answer pc\n");
+                return;
+            }
+            // aiq交互read
+            //组包
+            size_t offset = 0;
+            size_t dataToSendSize = jsonDataLen + sizeof(RkAiqSocketDataV2_Write) - sizeof(uint8_t*);
+            uint8_t* dataToSend = (unsigned char*)malloc(dataToSendSize);
+            if (dataToSend == NULL)
+            {
+                LOG_ERROR("malloc failed\n");
+                free(dataToSend);
+                dataToSend = NULL;
+
+                LOG_DEBUG("prepare annswer pc\n");
+                JsonReadAns_Dat_t readAnserDat;
+                readAnserDat.readErrorCode = MSG_READ_UNKNOWN_ERROR;
+                readAnserDat.aiqErrorCode = IPC_RET_OK;
+                memset(&send_cmd, 0, sizeof(CommandData_t));
+                strncpy((char*)send_cmd.RKID, RKID_ISP_ON, sizeof(send_cmd.RKID));
+                send_cmd.cmdType = CMD_TYPE_JSON_READ;
+                strncpy((char*)send_cmd.version, RKAIQ_TOOL_VERSION, sizeof(send_cmd.version));
+                send_cmd.datLen = sizeof(readAnserDat);
+                memcpy(send_cmd.dat, &readAnserDat, send_cmd.datLen);
+
+                send_cmd.checkSum = 0;
+                for (int i = 0; i < send_cmd.datLen; i++)
+                {
+                    send_cmd.checkSum += send_cmd.dat[i];
+                }
+                send(sockfd, (void*)&send_cmd, sizeof(CommandData_t), 0);
+                LOG_DEBUG("answer pc\n");
+                return;
+            }
+            RkAiqSocketDataV2_Write tempData;
+            tempData.magic[0] = 'R';
+            tempData.magic[1] = 0xAA;
+            tempData.magic[2] = 0xFF;
+            tempData.magic[3] = 'K';
+            tempData.cmd_id = 1;
+            tempData.cmd_ret = 1;
+            tempData.sequence = 1;
+            tempData.payload_size = jsonDataLen;
+            tempData.packet_size = dataToSendSize;
+            memcpy(dataToSend + offset, &tempData, sizeof(RkAiqSocketDataV2_Write) - sizeof(uint8_t*) - sizeof(uint32_t));
+            offset += sizeof(RkAiqSocketDataV2_Write) - sizeof(uint8_t*) - sizeof(uint32_t);
+            // json
+            memcpy(dataToSend + offset, jsonDataBuffer, jsonDataLen);
+            // data hash 好像没有实际使用
+            offset += jsonDataLen;
+            memcpy(dataToSend + offset, &tempData.data_hash, sizeof(uint32_t));
+
+            ret = Send(g_domainTcpClient.sock, (char*)dataToSend, dataToSendSize);
+
+            free(jsonDataBuffer);
+            jsonDataBuffer = NULL;
+
+            /*
+            // typedef struct RkAiqSocketDataV2_Receive
+            // {
+            //     uint8_t magic[4]; // = { 'R', 0xAA, 0xFF, 'K' };
+            //     int32_t cmd_id;
+            //     int32_t cmd_ret;
+            //     uint32_t sequence;
+            //     uint32_t payload_size;
+            //     uint32_t packet_size;
+            //     uint8_t note[128];
+            //     uint8_t* data;
+            //     uint32_t data_hash;
+            // } RkAiqSocketDataV2;
+            */
+            //从aiq收数据，收完再转发给PC
+            RkAiqSocketDataV2_Receive rkAiqSocketDataV2_Receive;
+            int firstPackReceived = 0;
+            firstPackReceived = Receive(g_domainTcpClient.sock, (char*)&rkAiqSocketDataV2_Receive, sizeof(RkAiqSocketDataV2_Receive) - sizeof(uint8_t*) - sizeof(uint32_t));
+            if (firstPackReceived <= 0)
+            {
+                LOG_ERROR("first pack receive failed\n");
+
+                LOG_DEBUG("prepare annswer pc\n");
+                JsonReadAns_Dat_t readAnserDat;
+                readAnserDat.readErrorCode = MSG_READ_AIQ_ERROR;
+                readAnserDat.aiqErrorCode = IPC_RET_OK;
+                memset(&send_cmd, 0, sizeof(CommandData_t));
+                strncpy((char*)send_cmd.RKID, RKID_ISP_ON, sizeof(send_cmd.RKID));
+                send_cmd.cmdType = CMD_TYPE_JSON_READ;
+                strncpy((char*)send_cmd.version, RKAIQ_TOOL_VERSION, sizeof(send_cmd.version));
+                send_cmd.datLen = sizeof(readAnserDat);
+                memcpy(send_cmd.dat, &readAnserDat, send_cmd.datLen);
+
+                send_cmd.checkSum = 0;
+                for (int i = 0; i < send_cmd.datLen; i++)
+                {
+                    send_cmd.checkSum += send_cmd.dat[i];
+                }
+                send(sockfd, (void*)&send_cmd, sizeof(CommandData_t), 0);
+                LOG_DEBUG("answer pc\n");
+                return;
+            }
+
+            if (rkAiqSocketDataV2_Receive.magic[0] != 'R' || rkAiqSocketDataV2_Receive.magic[1] != 0xAA || rkAiqSocketDataV2_Receive.magic[2] != 0xFF || rkAiqSocketDataV2_Receive.magic[3] != 'K')
+            {
+                LOG_ERROR("get magic failed\n");
+                LOG_DEBUG("prepare annswer pc\n");
+                JsonReadAns_Dat_t readAnserDat;
+                readAnserDat.readErrorCode = MSG_READ_JSON_NOT_COMPLETE;
+                readAnserDat.aiqErrorCode = IPC_RET_OK;
+                memset(&send_cmd, 0, sizeof(CommandData_t));
+                strncpy((char*)send_cmd.RKID, RKID_ISP_ON, sizeof(send_cmd.RKID));
+                send_cmd.cmdType = CMD_TYPE_JSON_READ;
+                strncpy((char*)send_cmd.version, RKAIQ_TOOL_VERSION, sizeof(send_cmd.version));
+                send_cmd.datLen = sizeof(readAnserDat);
+                memcpy(send_cmd.dat, &readAnserDat, send_cmd.datLen);
+
+                send_cmd.checkSum = 0;
+                for (int i = 0; i < send_cmd.datLen; i++)
+                {
+                    send_cmd.checkSum += send_cmd.dat[i];
+                }
+                send(sockfd, (void*)&send_cmd, sizeof(CommandData_t), 0);
+                LOG_DEBUG("answer pc\n");
+                return;
+            }
+
+            int readTotalSize = rkAiqSocketDataV2_Receive.packet_size;
+            if (readTotalSize <= 0)
+            {
+                LOG_ERROR("get readTotalSize failed\n");
+                LOG_DEBUG("prepare annswer pc\n");
+                JsonReadAns_Dat_t readAnserDat;
+                readAnserDat.readErrorCode = MSG_READ_JSON_NOT_COMPLETE;
+                readAnserDat.aiqErrorCode = IPC_RET_OK;
+                memset(&send_cmd, 0, sizeof(CommandData_t));
+                strncpy((char*)send_cmd.RKID, RKID_ISP_ON, sizeof(send_cmd.RKID));
+                send_cmd.cmdType = CMD_TYPE_JSON_READ;
+                strncpy((char*)send_cmd.version, RKAIQ_TOOL_VERSION, sizeof(send_cmd.version));
+                send_cmd.datLen = sizeof(readAnserDat);
+                memcpy(send_cmd.dat, &readAnserDat, send_cmd.datLen);
+
+                send_cmd.checkSum = 0;
+                for (int i = 0; i < send_cmd.datLen; i++)
+                {
+                    send_cmd.checkSum += send_cmd.dat[i];
+                }
+                send(sockfd, (void*)&send_cmd, sizeof(CommandData_t), 0);
+                LOG_DEBUG("answer pc\n");
+                return;
+            }
+
+            int readOffset = 0;
+            char* readTotalBuffer = (char*)malloc(readTotalSize);
+            memcpy(readTotalBuffer, &rkAiqSocketDataV2_Receive, firstPackReceived);
+            readOffset += firstPackReceived;
+            while (readOffset < readTotalSize)
+            {
+                int recvCount = recv(g_domainTcpClient.sock, readTotalBuffer + readOffset, readTotalSize - readOffset, 0);
+                if (recvCount <= 0)
+                {
+                    break;
+                }
+                readOffset += recvCount;
+                if (readOffset + 1 >= readTotalSize)
+                {
+                    break;
+                }
+            }
+
+            //从aiq获取的数据解析校验
+            uint8_t magic[4] = {0};
+            memcpy(&magic, ((RkAiqSocketDataV2_Receive*)readTotalBuffer)->magic, 4);
+            int32_t cmd_id = ((RkAiqSocketDataV2_Receive*)readTotalBuffer)->cmd_id;
+            int32_t cmd_ret = ((RkAiqSocketDataV2_Receive*)readTotalBuffer)->cmd_ret;
+            uint32_t sequence = ((RkAiqSocketDataV2_Receive*)readTotalBuffer)->sequence;
+            uint32_t payload_size = ((RkAiqSocketDataV2_Receive*)readTotalBuffer)->payload_size;
+            uint32_t packet_size = ((RkAiqSocketDataV2_Receive*)readTotalBuffer)->packet_size;
+            uint8_t aiqRetNote[128];
+            memcpy(aiqRetNote, ((RkAiqSocketDataV2_Receive*)readTotalBuffer)->note, 128);
+            if (magic[0] != 'R' || magic[1] != 0xAA || magic[2] != 0xFF || magic[3] != 'K')
+            {
+                LOG_ERROR("get magic failed\n");
+                free(readTotalBuffer);
+                readTotalBuffer = NULL;
+
+                LOG_DEBUG("prepare annswer pc\n");
+                JsonReadAns_Dat_t readAnserDat;
+                readAnserDat.readErrorCode = MSG_READ_JSON_NOT_COMPLETE;
+                readAnserDat.aiqErrorCode = IPC_RET_OK;
+                memset(&send_cmd, 0, sizeof(CommandData_t));
+                strncpy((char*)send_cmd.RKID, RKID_ISP_ON, sizeof(send_cmd.RKID));
+                send_cmd.cmdType = CMD_TYPE_JSON_READ;
+                strncpy((char*)send_cmd.version, RKAIQ_TOOL_VERSION, sizeof(send_cmd.version));
+                send_cmd.datLen = sizeof(readAnserDat);
+                memcpy(send_cmd.dat, &readAnserDat, send_cmd.datLen);
+
+                send_cmd.checkSum = 0;
+                for (int i = 0; i < send_cmd.datLen; i++)
+                {
+                    send_cmd.checkSum += send_cmd.dat[i];
+                }
+                send(sockfd, (void*)&send_cmd, sizeof(CommandData_t), 0);
+                LOG_DEBUG("answer pc\n");
+                return;
+            }
+            else
+            {
+                LOG_DEBUG("get magic success\n");
+            }
+            uint32_t data_hash = *(uint32_t*)(&readTotalBuffer[readTotalSize - sizeof(uint32_t)]);
+            LOG_DEBUG("cmd_id:%d, cmd_ret:%d, sequence:%d, payload_size:%d, packet_size:%d, data_hash:%d\n", cmd_id, cmd_ret, sequence, payload_size, packet_size, data_hash);
+
+            //计算数据crc32, 包括json和aiq note
+            uint8_t* dataToCrc = (uint8_t*)malloc(payload_size + 128);
+            memcpy(dataToCrc, readTotalBuffer + firstPackReceived, payload_size);
+            memcpy(dataToCrc + payload_size, aiqRetNote, 128);
+            uint32_t crc32 = GetCRC32(dataToCrc, payload_size + 128);
+            free(dataToCrc);
+            dataToCrc = NULL;
+
+            LOG_DEBUG("crc32:%u ,data_hash:%u\n", crc32, data_hash);
+
+            // toolserver与pc交互，answer
+            LOG_DEBUG("prepare annswer pc 1\n");
+            JsonReadAns_Dat_t readAnserDat;
+            readAnserDat.readErrorCode = 0x00E0;
+            readAnserDat.aiqErrorCode = cmd_ret;
+            readAnserDat.jsonDataLen = payload_size;
+            readAnserDat.crc32 = crc32; // checksum
+            //
+            memset(&send_cmd, 0, sizeof(CommandData_t));
+            strncpy((char*)send_cmd.RKID, RKID_ISP_ON, sizeof(send_cmd.RKID));
+            send_cmd.cmdType = CMD_TYPE_JSON_READ;
+            strncpy((char*)send_cmd.version, RKAIQ_TOOL_VERSION, sizeof(send_cmd.version));
+            send_cmd.datLen = sizeof(readAnserDat);
+            memcpy(send_cmd.dat, &readAnserDat, send_cmd.datLen);
+
+            send_cmd.checkSum = 0;
+            for (int i = 0; i < send_cmd.datLen; i++)
+            {
+                send_cmd.checkSum += send_cmd.dat[i];
+            }
+            send(sockfd, (void*)&send_cmd, sizeof(CommandData_t), 0);
+            LOG_DEBUG("answer pc 1\n");
+
+            usleep(1000 * 20);
+            ret = Send(sockfd, (char*)(readTotalBuffer + firstPackReceived), payload_size);
+            LOG_DEBUG("answer pc 2\n");
+            usleep(1000 * 20);
+
+            ret = Send(sockfd, (char*)(readTotalBuffer + firstPackReceived - 128), 128);
+            LOG_DEBUG("answer pc 3, aiq note\n");
+
+            free(readTotalBuffer);
+            readTotalBuffer = NULL;
+        }
+        break;
         case CMD_TYPE_STREAMING: {
             RKAiqProtocol::DoChangeAppMode(APP_RUN_STATUS_TUNRING);
             if (common_cmd->cmdID == 0xffff)
@@ -3822,7 +4734,7 @@ void RKAiqOLProtocol::HandlerOnLineMessage(int sockfd, char* buffer, int size)
                         return;
                     }
                     bool nodeFindedFlag = false;
-                    vector<string> targetNodeList = {"/proc/rkisp0-vir0", "/proc/rkisp0-vir1", "/proc/rkisp0-vir2", "/proc/rkisp1-vir0", "/proc/rkisp1-vir1", "/proc/rkisp1-vir2", "/proc/rkisp-vir0", "/proc/rkisp-unite", "/proc/rkisp-vir0", "/proc/rkisp-vir1"};
+                    vector<string> targetNodeList = {"/proc/rkisp*"};
                     for (string tmpStr : targetNodeList)
                     {
                         char result[2048] = {0};

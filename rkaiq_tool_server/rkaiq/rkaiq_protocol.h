@@ -33,6 +33,8 @@ class RKAiqProtocol
     static void HandlerI2CTransferProcess(int sockfd, char* buffer, int size);
     static int MessageForward(int sockfd, char* buffer, int size);
     static int doMessageForward(int sockfd);
+    static int doWriteAiqData(int sockfd, char* buffer, int size);
+    static int doReadAiqData(int sockfd, char* buffer, int size);
     static int offlineRawProcess(int sockfd);
     static void KillApp();
     static int StartApp();

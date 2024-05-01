@@ -12,8 +12,6 @@
 #endif
 #define LOG_TAG "aiqtool"
 
-extern struct ucred* g_aiqCred;
-
 #ifdef __ANDROID__
     #define ANDROID_RESERVED_SOCKET_PREFIX "/dev/socket/"
 
@@ -58,11 +56,6 @@ DomainTCPClient::~DomainTCPClient()
 
 void DomainTCPClient::Close()
 {
-    if (g_aiqCred)
-    {
-        delete g_aiqCred;
-        g_aiqCred = nullptr;
-    }
     if (sock > 0)
     {
         close(sock);
@@ -104,21 +97,6 @@ bool DomainTCPClient::Setup(string domainPath)
         return false;
     }
 
-    if (g_aiqCred == nullptr)
-    {
-        g_aiqCred = new ucred();
-    }
-    socklen_t len = sizeof(struct ucred);
-    if (getsockopt(sock, SOL_SOCKET, SO_PEERCRED, (void*)g_aiqCred, &len) == -1)
-    {
-        // close(sock);
-        // sock = -1;
-        LOG_ERROR("getsockopt peer credentials not supported");
-    }
-    else
-    {
-        LOG_DEBUG("Credentials from SO_PEERCRED: pid=%ld, euid=%ld, egid=%ld\n", (long)g_aiqCred->pid, (long)g_aiqCred->uid, (long)g_aiqCred->gid);
-    }
     return true;
 }
 

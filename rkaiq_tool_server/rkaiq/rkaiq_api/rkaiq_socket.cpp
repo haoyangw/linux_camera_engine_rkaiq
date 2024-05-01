@@ -1,4 +1,4 @@
-#include "rkaiq_socket.h"
+﻿#include "rkaiq_socket.h"
 
 #include <time.h>
 
@@ -14,7 +14,7 @@
 
 #define MAX_PACKET_SIZE 8192
 
-extern DomainTCPClient g_tcpClient;
+extern DomainTCPClient g_domainTcpClient;
 extern int g_app_run_mode;
 extern string g_linuxSocketDomainPath;
 
@@ -124,10 +124,10 @@ static void HexDump(const unsigned char* data, size_t size)
 
 int ConnectAiq()
 {
-    if (g_tcpClient.Setup(g_linuxSocketDomainPath.c_str()) == false)
+    if (g_domainTcpClient.Setup(g_linuxSocketDomainPath.c_str()) == false)
     {
         LOG_INFO("domain connect failed\n");
-        g_tcpClient.Close();
+        g_domainTcpClient.Close();
         return -1;
     }
     else
@@ -178,12 +178,12 @@ int RkAiqSocketClientINETSend(int commandID, void* data, unsigned int dataSize)
     // LOG_DEBUG("INET send: packetSize %d\n", packetSize);
     // LOG_DEBUG("INET send: dataSize %d\n", dataSize);
 
-    int ret = g_tcpClient.Send(dataToSend, packetSize);
+    int ret = g_domainTcpClient.Send(dataToSend, packetSize);
     if (ret < 0 && (errno != EAGAIN && errno != EINTR))
     {
         if (ConnectAiq() < 0)
         {
-            g_tcpClient.Close();
+            g_domainTcpClient.Close();
             g_app_run_mode = -1; // APP_RUN_STATUS_INIT = -1
             LOG_ERROR("########################################################\n");
             LOG_ERROR("#### Forward to AIQ failed! please check AIQ status.####\n");
@@ -209,14 +209,14 @@ int RkAiqSocketClientINETSend(int commandID, void* data, unsigned int dataSize)
     // // receive data
     // RkAiqSocketData retPacket;
     // memset((void*)&retPacket, 0, sizeof(RkAiqSocketData));
-    // g_tcpClient.Receive((char*)&retPacket, sizeof(RkAiqSocketData));
+    // g_domainTcpClient.Receive((char*)&retPacket, sizeof(RkAiqSocketData));
 
     // LOG_DEBUG("############# inet return data ###################\n");
     // HexDump((unsigned char*)&retPacket, sizeof(RkAiqSocketData));
     // if (memcmp(retPacket.magic, "RK", 2) != 0)
     // {
     //     LOG_DEBUG("INET send: return value maigc check failed,return\n");
-    //     g_tcpClient.Receive(MAX_PACKET_SIZE);
+    //     g_domainTcpClient.Receive(MAX_PACKET_SIZE);
     //     return 1;
     // }
 
@@ -262,12 +262,12 @@ int RkAiqSocketClientINETReceive(int commandID, void* data, unsigned int dataSiz
 
     // LOG_DEBUG("INET receive 1: dataHash %08x\n", packetData.dataHash);
 
-    int ret = g_tcpClient.Send(dataToSend, packetSize);
+    int ret = g_domainTcpClient.Send(dataToSend, packetSize);
     if (ret < 0 && (errno != EAGAIN && errno != EINTR))
     {
         if (ConnectAiq() < 0)
         {
-            g_tcpClient.Close();
+            g_domainTcpClient.Close();
             g_app_run_mode = -1; // APP_RUN_STATUS_INIT = -1
             LOG_ERROR("########################################################\n");
             LOG_ERROR("#### Forward to AIQ failed! please check AIQ status.####\n");
@@ -295,12 +295,12 @@ int RkAiqSocketClientINETReceive(int commandID, void* data, unsigned int dataSiz
 
     // receive data
     char tmpStr[6] = {};
-    g_tcpClient.Receive(tmpStr, 6);
+    g_domainTcpClient.Receive(tmpStr, 6);
     // LOG_DEBUG("INET receive : magic & header received\n");
     if (tmpStr[0] != 'R' || tmpStr[1] != 'K')
     {
         // LOG_DEBUG("INET receive : packet magic check failed. return\n");
-        g_tcpClient.Receive(MAX_PACKET_SIZE);
+        g_domainTcpClient.Receive(NULL, MAX_PACKET_SIZE);
         return 1;
     }
     // LOG_DEBUG("INET receive : packet magic check pass.\n");
@@ -344,14 +344,14 @@ int RkAiqSocketClientINETReceive(int commandID, void* data, unsigned int dataSiz
         {
             targetSize = remain_size;
         }
-        recv_size = g_tcpClient.Receive(&receivedPacket[offset], targetSize);
+        recv_size = g_domainTcpClient.Receive(&receivedPacket[offset], targetSize);
         remain_size = remain_size - recv_size;
     }
     // LOG_DEBUG("INET receive: receive success, need check data\n");
 
     // hexdump(receivedPacket, packetSize);
 
-    // g_tcpClient.Send(receivedPacket, packetSize); //for debug use
+    // g_domainTcpClient.Send(receivedPacket, packetSize); //for debug use
 
     // parse data
     RkAiqSocketData receivedData;

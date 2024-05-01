@@ -42,7 +42,7 @@ typedef enum
 } cmdType;
 
 #define MAXPACKETSIZE 2048
-#define RKAIQ_TOOL_VERSION "v0.0.1"
+#define RKAIQ_TOOL_VERSION "v2.0.0"
 #define RKAIQ_J2S_PROCESS_VERSION "v1.0.0"
 #define RKAIQ_I2C_PROCESS_VERSION "v1.0.0"
 
@@ -72,6 +72,22 @@ typedef struct CommandData_s
     uint8_t dat[48];
     uint16_t checkSum;
 } CommandData_t;
+
+typedef struct JsonRW_Dat_s
+{
+    uint32_t UUID;
+    uint32_t jsonDataLen;
+    uint32_t crc32;
+    uint16_t CamID;
+} JsonRW_Dat_t;
+
+typedef struct JsonReadAns_Dat_s
+{
+    uint16_t readErrorCode;
+    uint16_t aiqErrorCode;
+    uint32_t jsonDataLen;
+    uint32_t crc32;
+} JsonReadAns_Dat_t;
 #pragma pack()
 
 typedef enum
@@ -80,6 +96,8 @@ typedef enum
     CMD_TYPE_UAPI_GET = 0x01,
     CMD_TYPE_CAPTURE = 0x02,
     CMD_TYPE_DUMP_RAW = 0x03,
+    CMD_TYPE_JSON_WRITE = 0x10,
+    CMD_TYPE_JSON_READ = 0x11,
     CMD_TYPE_STATUS = 0x80,
     CMD_TYPE_STREAMING = 0xff,
 } FuncType_e;
@@ -134,6 +152,36 @@ typedef enum
     RKISP_FORMAT_YUYV,
     RKISP_FORMAT_FBC0,
 } RkispFmt_e;
+
+typedef enum
+{
+    MSG_READ_NO_ERROR = 0x00E0,
+    MSG_READ_JSON_NOT_COMPLETE,
+    MSG_READ_CRC_FAILED,
+    MSG_READ_AIQ_NOT_CONNECTED,
+    MSG_READ_CAM_CHANNEL_NOT_CONNECTED,
+    MSG_READ_AIQ_ERROR,
+    MSG_READ_UNKNOWN_ERROR
+} ReadErrorCode_e;
+
+typedef enum
+{
+    MSG_WRITE_NO_ERROR = 0x00E0,
+    MSG_WRITE_JSON_NOT_COMPLETE,
+    MSG_WRITE_CRC_FAILED,
+    MSG_WRITE_AIQ_NOT_CONNECTED,
+    MSG_WRITE_CAM_CHANNEL_NOT_CONNECTED,
+    MSG_WRITE_AIQ_ERROR,
+    MSG_WRITE_UNKNOWN_ERROR
+} WriteErrorCode_e;
+
+typedef enum
+{
+    IPC_RET_OK = 0xFF00,
+    IPC_RET_JSON_ERROR = 0xFF01,
+    IPC_RET_UAPI_ERROR = 0xFF02,
+    IPC_RET_AIQ_ERROR = 0xFF03,
+} WriteAiqErrorCode_e;
 
 #define RKCIF_CMD_GET_CSI_MEMORY_MODE _IOR('V', BASE_VIDIOC_PRIVATE + 0, int)
 #define RKCIF_CMD_SET_CSI_MEMORY_MODE _IOW('V', BASE_VIDIOC_PRIVATE + 1, int)

@@ -40,8 +40,7 @@ extern int g_sendSpecificFrame;
 extern int g_offlineRawSourceFileNumber;
 
 extern uint32_t g_offlineFrameRate;
-extern DomainTCPClient g_tcpClient;
-extern struct ucred* g_aiqCred;
+extern DomainTCPClient g_domainTcpClient;
 extern std::string iqfile;
 extern std::string g_sensor_name;
 extern std::string g_offline_raw_dir;
@@ -354,44 +353,11 @@ int WaitProcessExit(const char* process, int sec)
 
 void RKAiqProtocol::KillApp()
 {
-#ifdef __ANDROID__
-    if (g_allow_killapp)
-    {
-        unlink(LOCAL_SOCKET_PATH);
-        property_set("ctrl.stop", "cameraserver");
-        property_set("ctrl.stop", "vendor.camera-provider-2-4");
-        property_set("ctrl.stop", "vendor.camera-provider-2-4-ext");
-        system("stop cameraserver");
-        system("stop vendor.camera-provider-2-4");
-        system("stop vendor.camera-provider-2-4-ext");
-    }
-#else
-    if (g_allow_killapp)
-    {
-        if (g_aiqCred != nullptr)
-        {
-            kill(g_aiqCred->pid, SIGTERM);
-            delete g_aiqCred;
-            g_aiqCred = nullptr;
-        }
-    }
-#endif
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 }
 
 int RKAiqProtocol::StartApp()
 {
-    int ret = -1;
-#ifdef __ANDROID__
-    if (g_allow_killapp)
-    {
-        property_set("ctrl.start", "cameraserver");
-        system("start cameraserver");
-        system("start vendor.camera-provider-2-4");
-        system("start vendor.camera-provider-2-4-ext");
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-#endif
     return 0;
 }
 
@@ -910,7 +876,7 @@ void RKAiqProtocol::HandlerReceiveFile(int sockfd, char* buffer, int size)
                 std::string filePath = g_offline_raw_dir + "/" + raw_file;
                 LOG_INFO("process raw : %s \n", filePath.c_str());
 
-                g_tcpClient.m_inetSocketOperationMtx.try_lock_for(std::chrono::seconds(2));
+                g_domainTcpClient.m_inetSocketOperationMtx.try_lock_for(std::chrono::seconds(2));
                 if (RkAiqSocketClientINETSend(ENUM_ID_SYSCTL_ENQUEUERKRAWFILE, (void*)filePath.c_str(), (unsigned int)filePath.length() + 1) != 0)
                 {
                     LOG_ERROR("########################################################\n");
@@ -921,7 +887,7 @@ void RKAiqProtocol::HandlerReceiveFile(int sockfd, char* buffer, int size)
                 else
                 {
                     char tmp[2048];
-                    g_tcpClient.Receive(tmp, sizeof(tmp));
+                    g_domainTcpClient.Receive(tmp, sizeof(tmp));
                 }
 
                 uint32_t frameInterval = 1000 / g_offlineFrameRate;
@@ -940,7 +906,7 @@ void RKAiqProtocol::HandlerReceiveFile(int sockfd, char* buffer, int size)
 
                 SendMessageToPC(sockfd, (char*)"ENQUEUERKRAWFILE#&#^Success#&#^Success");
                 usleep(1000 * 50);
-                g_tcpClient.m_inetSocketOperationMtx.unlock();
+                g_domainTcpClient.m_inetSocketOperationMtx.unlock();
             }
         }
         std::lock_guard<std::mutex> lk(mutex_);
@@ -1085,7 +1051,7 @@ void RKAiqProtocol::HandlerGetAWBParaFileProcess(int sockfd, char* buffer, int s
     else
     {
         char tmp[256];
-        g_tcpClient.Receive(tmp, sizeof(tmp));
+        g_domainTcpClient.Receive(tmp, sizeof(tmp));
     }
     usleep(1000 * 500);
     system("ls -l /tmp/awb*");
@@ -1724,10 +1690,10 @@ void RKAiqProtocol::HandlerTCPMessage(int sockfd, char* buffer, int size)
     if (strcmp((char*)common_cmd->RKID, TAG_PC_TO_DEVICE) == 0)
     {
         char result[2048] = {0};
-        std::string pattern{"Isp online"};
+        std::string pattern{"Output"};
         std::regex re(pattern);
         std::smatch results;
-        ExecuteCMD("cat /proc/rkisp0-vir0", result);
+        ExecuteCMD("cat /proc/rkisp*", result);
         std::string srcStr = result;
         // LOG_INFO("#### srcStr:%s\n", srcStr.c_str());
         if (std::regex_search(srcStr, results, re)) // finded
@@ -1781,7 +1747,7 @@ int RKAiqProtocol::doMessageForward(int sockfd)
     while (is_recv_running)
     {
         char recv_buffer[MAXPACKETSIZE] = {0};
-        int recv_len = g_tcpClient.Receive(recv_buffer, MAXPACKETSIZE);
+        int recv_len = g_domainTcpClient.Receive(recv_buffer, MAXPACKETSIZE);
         // if (recv_len != -1)
         // {
         //     LOG_DEBUG("recv_len:%d\n", recv_len);
@@ -1803,7 +1769,7 @@ int RKAiqProtocol::doMessageForward(int sockfd)
                 close(sockfd);
                 std::lock_guard<std::mutex> lk(mutex_);
                 is_recv_running = false;
-                g_tcpClient.m_inetSocketOperationMtx.unlock();
+                g_domainTcpClient.m_inetSocketOperationMtx.unlock();
                 return -1;
             }
         }
@@ -1811,11 +1777,11 @@ int RKAiqProtocol::doMessageForward(int sockfd)
         {
             if (errno != EAGAIN)
             {
-                g_tcpClient.Close();
+                g_domainTcpClient.Close();
                 close(sockfd);
                 std::lock_guard<std::mutex> lk(mutex_);
                 is_recv_running = false;
-                g_tcpClient.m_inetSocketOperationMtx.unlock();
+                g_domainTcpClient.m_inetSocketOperationMtx.unlock();
                 return -1;
             }
             else
@@ -1834,7 +1800,92 @@ int RKAiqProtocol::doMessageForward(int sockfd)
 
     std::lock_guard<std::mutex> lk(mutex_);
     is_recv_running = false;
-    g_tcpClient.m_inetSocketOperationMtx.unlock();
+    g_domainTcpClient.m_inetSocketOperationMtx.unlock();
+    return 0;
+}
+
+int RKAiqProtocol::doWriteAiqData(int sockfd, char* buffer, int size)
+{
+    std::lock_guard<std::mutex> lk(mutex_);
+    // HexDump((unsigned char*)buffer, size);
+    int ret = g_domainTcpClient.Send((char*)buffer, size);
+    if (ret < 0 && errno != EINTR)
+    {
+        if (ConnectAiq() < 0)
+        {
+            g_domainTcpClient.Close();
+            g_app_run_mode = APP_RUN_STATUS_INIT;
+            LOG_ERROR("########################################################\n");
+            LOG_ERROR("#### Forward to AIQ failed! please check AIQ status.####\n");
+            LOG_ERROR("########################################################\n\n");
+            close(sockfd);
+            is_recv_running = false;
+            return -1;
+        }
+        else
+        {
+            LOG_ERROR("########################################################\n");
+            LOG_ERROR("#### Forward to AIQ failed! Auto reconnect success.####\n");
+            LOG_ERROR("########################################################\n\n");
+            g_domainTcpClient.Send((char*)buffer, size);
+        }
+    }
+    return 0;
+}
+
+int RKAiqProtocol::doReadAiqData(int sockfd, char* buffer, int size)
+{
+    if (buffer == NULL)
+    {
+        LOG_DEBUG("buffer is null,stop read aiq data.\n");
+        return -1;
+    }
+
+    auto stopReceiveTimer = std::chrono::high_resolution_clock::now();
+    is_recv_running = true;
+    int recv_len = 0;
+    int targetLen = size;
+    while (is_recv_running)
+    {
+        recv_len = g_domainTcpClient.Receive(buffer + recv_len, targetLen);
+        if (recv_len > 0)
+        {
+            stopReceiveTimer = std::chrono::high_resolution_clock::now();
+            targetLen -= recv_len;
+            if (targetLen <= 0)
+            {
+                LOG_DEBUG("do read aiq data target len finish.\n");
+                break;
+            }
+        }
+        else if (recv_len <= 0)
+        {
+            if (errno != EAGAIN)
+            {
+                g_domainTcpClient.Close();
+                close(sockfd);
+                std::lock_guard<std::mutex> lk(mutex_);
+                is_recv_running = false;
+                g_domainTcpClient.m_inetSocketOperationMtx.unlock();
+                return -1;
+            }
+            else
+            {
+                auto now = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double, std::milli> waitTime = now - stopReceiveTimer;
+                if (std::chrono::duration<double, std::milli>(waitTime) > std::chrono::duration<double, std::milli>(100))
+                {
+                    LOG_DEBUG("receive OK %f\n", waitTime.count());
+                    std::lock_guard<std::mutex> lk(mutex_);
+                    is_recv_running = false;
+                }
+            }
+        }
+    }
+
+    std::lock_guard<std::mutex> lk(mutex_);
+    is_recv_running = false;
+    g_domainTcpClient.m_inetSocketOperationMtx.unlock();
     return 0;
 }
 
@@ -1936,7 +1987,7 @@ int RKAiqProtocol::offlineRawProcess(int sockfd)
                 g_offlineRAWCaptureYUVStepCounter = 1;
                 continue;
             }
-            g_tcpClient.m_inetSocketOperationMtx.try_lock_for(std::chrono::seconds(2));
+            g_domainTcpClient.m_inetSocketOperationMtx.try_lock_for(std::chrono::seconds(2));
             if (RkAiqSocketClientINETSend(ENUM_ID_SYSCTL_ENQUEUERKRAWFILE, (void*)filePath.c_str(), (unsigned int)filePath.length() + 1) != 0)
             {
                 LOG_ERROR("########################################################\n");
@@ -1947,9 +1998,9 @@ int RKAiqProtocol::offlineRawProcess(int sockfd)
             else
             {
                 char tmp[2048];
-                g_tcpClient.Receive(tmp, sizeof(tmp));
+                g_domainTcpClient.Receive(tmp, sizeof(tmp));
             }
-            g_tcpClient.m_inetSocketOperationMtx.unlock();
+            g_domainTcpClient.m_inetSocketOperationMtx.unlock();
             g_offlineRawEnqueued.notify_one();
 
             //
@@ -1971,12 +2022,12 @@ int RKAiqProtocol::MessageForward(int sockfd, char* buffer, int size)
 {
     std::lock_guard<std::mutex> lk(mutex_);
     // HexDump((unsigned char*)buffer, size);
-    int ret = g_tcpClient.Send((char*)buffer, size);
+    int ret = g_domainTcpClient.Send((char*)buffer, size);
     if (ret < 0 && errno != EINTR)
     {
         if (ConnectAiq() < 0)
         {
-            g_tcpClient.Close();
+            g_domainTcpClient.Close();
             g_app_run_mode = APP_RUN_STATUS_INIT;
             LOG_ERROR("########################################################\n");
             LOG_ERROR("#### Forward to AIQ failed! please check AIQ status.####\n");
@@ -1990,7 +2041,7 @@ int RKAiqProtocol::MessageForward(int sockfd, char* buffer, int size)
             LOG_ERROR("########################################################\n");
             LOG_ERROR("#### Forward to AIQ failed! Auto reconnect success.####\n");
             LOG_ERROR("########################################################\n\n");
-            g_tcpClient.Send((char*)buffer, size);
+            g_domainTcpClient.Send((char*)buffer, size);
         }
     }
 
@@ -1998,7 +2049,7 @@ int RKAiqProtocol::MessageForward(int sockfd, char* buffer, int size)
   if (forward_thread && forward_thread->joinable()) forward_thread->join();
 #endif
 
-    if (g_tcpClient.m_inetSocketOperationMtx.try_lock_for(std::chrono::milliseconds(1)))
+    if (g_domainTcpClient.m_inetSocketOperationMtx.try_lock_for(std::chrono::milliseconds(1)))
     {
         forward_thread = std::unique_ptr<std::thread>(new std::thread(&RKAiqProtocol::doMessageForward, sockfd));
         forward_thread->detach();
