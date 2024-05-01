@@ -26,9 +26,9 @@ namespace easymedia
     // T must be the final class type exposed to user
     DECLARE_REFLECTOR(Flow)
 
-#define DEFINE_FLOW_FACTORY(REAL_PRODUCT, FINAL_EXPOSE_PRODUCT)                                                        \
-    DEFINE_MEDIA_CHILD_FACTORY(REAL_PRODUCT, REAL_PRODUCT::GetFlowName(), FINAL_EXPOSE_PRODUCT, Flow)                  \
-    DEFINE_MEDIA_CHILD_FACTORY_EXTRA(REAL_PRODUCT)                                                                     \
+#define DEFINE_FLOW_FACTORY(REAL_PRODUCT, FINAL_EXPOSE_PRODUCT)                                                                                                                                                                                                                                            \
+    DEFINE_MEDIA_CHILD_FACTORY(REAL_PRODUCT, REAL_PRODUCT::GetFlowName(), FINAL_EXPOSE_PRODUCT, Flow)                                                                                                                                                                                                      \
+    DEFINE_MEDIA_CHILD_FACTORY_EXTRA(REAL_PRODUCT)                                                                                                                                                                                                                                                         \
     DEFINE_MEDIA_NEW_PRODUCT_BY(REAL_PRODUCT, FINAL_EXPOSE_PRODUCT, GetError() < 0)
 
     class MediaBuffer;
@@ -57,12 +57,9 @@ namespace easymedia
     // TODO: outputs ret, outslot index, outslot queue model
     using FunctionProcess = std::add_pointer<bool(Flow* f, MediaBufferVector& input_vector)>::type;
     template <int in_index, int out_index> bool void_transaction(Flow* f, MediaBufferVector& input_vector);
-    using LinkVideoHandler = std::add_pointer<void(unsigned char* buffer, unsigned int buffer_size,
-                                                   int64_t present_time, int nat_type)>::type;
-    using LinkAudioHandler =
-        std::add_pointer<void(unsigned char* buffer, unsigned int buffer_size, int64_t present_time)>::type;
-    using LinkCaptureHandler =
-        std::add_pointer<void(unsigned char* buffer, unsigned int buffer_size, int type, uint32_t sequence)>::type;
+    using LinkVideoHandler = std::add_pointer<void(unsigned char* buffer, unsigned int buffer_size, int64_t present_time, int nat_type)>::type;
+    using LinkAudioHandler = std::add_pointer<void(unsigned char* buffer, unsigned int buffer_size, int64_t present_time)>::type;
+    using LinkCaptureHandler = std::add_pointer<void(unsigned char* buffer, unsigned int buffer_size, int type, uint32_t sequence)>::type;
     using PlayVideoHandler = std::add_pointer<void(Flow* f)>::type;
     using PlayAudioHandler = std::add_pointer<void(Flow* f)>::type;
     using CallBackHandler = std::add_pointer<void>::type;
@@ -319,8 +316,7 @@ namespace easymedia
         bool SetAsSource(const std::vector<int>& output_slots, FunctionProcess f, const std::string& mark);
         bool InstallSlotMap(SlotMap& map, const std::string& mark, int exp_process_time);
         bool SetOutput(const std::shared_ptr<MediaBuffer>& output, int out_slot_index);
-        bool ParseWrapFlowParams(const char* param, std::map<std::string, std::string>& flow_params,
-                                 std::list<std::string>& sub_param_list);
+        bool ParseWrapFlowParams(const char* param, std::map<std::string, std::string>& flow_params, std::list<std::string>& sub_param_list);
         // As sub threads may call the variable of child class,
         // we should define this for child class when it deconstruct.
         void StopAllThread();

@@ -62,7 +62,8 @@ extern std::shared_ptr<RKAiqToolManager> rkaiq_manager;
 #define RKID_I2C_TRANSFER_PROC "I2CFUNC"
 
 #pragma pack(1)
-typedef struct CommandData_s {
+typedef struct CommandData_s
+{
     uint8_t RKID[8];
     uint16_t cmdType;
     uint16_t cmdID;
@@ -165,7 +166,8 @@ enum cif_csi_lvds_memory
  * The sequence of pattern00~03 is the same as the output of sensor bayer
  */
 
-struct bayer_blc {
+struct bayer_blc
+{
     uint8_t pattern00;
     uint8_t pattern01;
     uint8_t pattern02;

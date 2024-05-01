@@ -25,7 +25,8 @@ namespace easymedia
     MppEncRcQuality GetMPPRCQuality(const char* quality);
     MppEncRcMode GetMPPRCMode(const char* rc_mode);
 
-    struct MPPContext {
+    struct MPPContext
+    {
         MPPContext();
         ~MPPContext();
         MppCtx ctx;

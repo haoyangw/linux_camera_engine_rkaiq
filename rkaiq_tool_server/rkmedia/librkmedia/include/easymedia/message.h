@@ -30,14 +30,16 @@ namespace easymedia
         }
         ~EventParam()
         {
-            if (params_) {
+            if (params_)
+            {
                 free(params_);
                 params_ = nullptr;
             }
         }
         int SetParams(void* params, int size)
         {
-            if (params_) {
+            if (params_)
+            {
                 free(params_);
             }
             params_ = params;

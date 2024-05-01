@@ -60,7 +60,8 @@
 #include <openssl/base.h>
 
 #if defined(__cplusplus)
-extern "C" {
+extern "C"
+{
 #endif
 
 #if defined(__cplusplus) || (defined(_MSC_VER) && !defined(__clang__))

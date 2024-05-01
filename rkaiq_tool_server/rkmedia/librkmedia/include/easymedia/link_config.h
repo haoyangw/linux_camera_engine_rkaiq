@@ -17,34 +17,39 @@ namespace easymedia
         LINK_NNDATA
     };
 
-    typedef struct linkvideo {
+    typedef struct linkvideo
+    {
         void* buffer_ptr;
         unsigned int buffer_size;
         time_t timestamp;
         int nat_type;
     } linkvideo_s;
 
-    typedef struct linkaudio {
+    typedef struct linkaudio
+    {
         void* buffer_ptr;
         unsigned int buffer_size;
         time_t timestamp;
     } linkaudio_s;
 
-    typedef struct linkpicture {
+    typedef struct linkpicture
+    {
         void* buffer_ptr;
         unsigned int buffer_size;
         int type;
         const char* id;
     } linkpicture_s;
 
-    typedef struct linknndata {
+    typedef struct linknndata
+    {
         int size;
         time_t timestamp;
         const char* nn_model_name;
         RknnResult* rknn_result;
     } linknndata_s;
 
-    typedef struct linkcommon {
+    typedef struct linkcommon
+    {
         int linktype;
         union {
             linkvideo_s video;

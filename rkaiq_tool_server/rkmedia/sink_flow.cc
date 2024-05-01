@@ -34,7 +34,8 @@ namespace easymedia
     SinkFlow::SinkFlow(const char* param)
     {
         std::map<std::string, std::string> params;
-        if (!parse_media_param_map(param, params)) {
+        if (!parse_media_param_map(param, params))
+        {
             SetError(-EINVAL);
             return;
         }
@@ -47,14 +48,16 @@ namespace easymedia
         sm.input_slots.push_back(0);
         if (sm.thread_model == Model::NONE)
             sm.thread_model = !params[KEY_FPS].empty() ? Model::ASYNCATOMIC : Model::ASYNCCOMMON;
-        if (sm.mode_when_full == InputMode::NONE) {
+        if (sm.mode_when_full == InputMode::NONE)
+        {
             sm.mode_when_full = InputMode::DROPCURRENT;
         }
 
         sm.input_maxcachenum.push_back(0);
         sm.process = process_buffer;
 
-        if (!InstallSlotMap(sm, "SinkFlow", 0)) {
+        if (!InstallSlotMap(sm, "SinkFlow", 0))
+        {
             LOG("Fail to InstallSlotMap for SinkFlow\n");
             return;
         }
@@ -73,13 +76,15 @@ namespace easymedia
     {
         SinkFlow* flow = static_cast<SinkFlow*>(f);
         auto& buffer = input_vector[0];
-        if (!buffer && !flow) {
+        if (!buffer && !flow)
+        {
             return true;
         }
 
         LOG("SinkFlow process_buffer \n");
 
-        if (flow->link_type_ == LINK_VIDEO) {
+        if (flow->link_type_ == LINK_VIDEO)
+        {
             auto link_handler = flow->GetVideoHandler();
             if (link_handler)
                 link_handler((unsigned char*)buffer->GetPtr(), buffer->GetValidSize(), 0, 0);

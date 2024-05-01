@@ -13,7 +13,8 @@
 #define TAG_OL_DEVICE_TO_PC RKID_ISP_ON
 
 #pragma pack(1)
-typedef struct Capture_Yuv_Params_s {
+typedef struct Capture_Yuv_Params_s
+{
     uint32_t gain;
     uint32_t time;
     uint8_t fmt;
@@ -22,7 +23,8 @@ typedef struct Capture_Yuv_Params_s {
 #pragma pack()
 
 #pragma pack(1)
-typedef struct Sensor_Yuv_Params_s {
+typedef struct Sensor_Yuv_Params_s
+{
     uint8_t data_id;
     uint16_t width;
     uint16_t height;
@@ -31,7 +33,8 @@ typedef struct Sensor_Yuv_Params_s {
 #pragma pack()
 
 #pragma pack(1)
-typedef struct Sensor_Online_Raw_Params_s {
+typedef struct Sensor_Online_Raw_Params_s
+{
     uint8_t data_id;
     uint16_t width;
     uint16_t height;

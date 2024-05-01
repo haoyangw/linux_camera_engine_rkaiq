@@ -30,7 +30,8 @@
     #include <log/log.h>
 #endif
 
-struct media_entity {
+struct media_entity
+{
     struct media_device* media;
     struct media_entity_desc info;
     struct media_pad* pads;
@@ -42,7 +43,8 @@ struct media_entity {
     int fd;
 };
 
-struct media_device {
+struct media_device
+{
     int fd;
     int refcount;
     char* devnode;
@@ -54,7 +56,8 @@ struct media_device {
     void (*debug_handler)(void*, ...);
     void* debug_priv;
 
-    struct {
+    struct
+    {
         struct media_entity* v4l;
         struct media_entity* fb;
         struct media_entity* alsa;
@@ -67,9 +70,10 @@ struct media_device {
 #else
     #define __BI_FILENAME__ (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
 
-    #define media_dbg(media, format, ...)                                                                              \
-        do {                                                                                                           \
-            ALOGD("%s:%d - " format "", __BI_FILENAME__, __LINE__, ##__VA_ARGS__);                                     \
+    #define media_dbg(media, format, ...)                                                                                                                                                                                                                                                                  \
+        do                                                                                                                                                                                                                                                                                                 \
+        {                                                                                                                                                                                                                                                                                                  \
+            ALOGD("%s:%d - " format "", __BI_FILENAME__, __LINE__, ##__VA_ARGS__);                                                                                                                                                                                                                         \
         } while (0)
 
 #endif

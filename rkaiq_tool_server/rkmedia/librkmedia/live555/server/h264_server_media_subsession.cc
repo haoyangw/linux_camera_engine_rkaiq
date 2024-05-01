@@ -17,16 +17,15 @@ namespace easymedia
         return new H264ServerMediaSubsession(env, wisInput);
     }
 
-    H264ServerMediaSubsession::H264ServerMediaSubsession(UsageEnvironment& env, Live555MediaInput& mediaInput)
-        : OnDemandServerMediaSubsession(env, True /*reuse the first source*/), fMediaInput(mediaInput),
-          fEstimatedKbps(1000), fDoneFlag(0), fDummyRTPSink(NULL), fGetSdpCount(10), fAuxSDPLine(NULL)
+    H264ServerMediaSubsession::H264ServerMediaSubsession(UsageEnvironment& env, Live555MediaInput& mediaInput) : OnDemandServerMediaSubsession(env, True /*reuse the first source*/), fMediaInput(mediaInput), fEstimatedKbps(1000), fDoneFlag(0), fDummyRTPSink(NULL), fGetSdpCount(10), fAuxSDPLine(NULL)
     {
     }
 
     H264ServerMediaSubsession::~H264ServerMediaSubsession()
     {
         LOG_FILE_FUNC_LINE();
-        if (fAuxSDPLine != NULL) {
+        if (fAuxSDPLine != NULL)
+        {
             delete[] fAuxSDPLine;
             fAuxSDPLine = NULL;
         }
@@ -35,20 +34,17 @@ namespace easymedia
     // std::mutex H264ServerMediaSubsession::kMutex;
     // std::list<unsigned int> H264ServerMediaSubsession::kSessionIdList;
 
-    void H264ServerMediaSubsession::startStream(
-        unsigned clientSessionId, void* streamToken, TaskFunc* rtcpRRHandler, void* rtcpRRHandlerClientData,
-        unsigned short& rtpSeqNum, unsigned& rtpTimestamp,
-        ServerRequestAlternativeByteHandler* serverRequestAlternativeByteHandler,
-        void* serverRequestAlternativeByteHandlerClientData)
+    void H264ServerMediaSubsession::startStream(unsigned clientSessionId, void* streamToken, TaskFunc* rtcpRRHandler, void* rtcpRRHandlerClientData, unsigned short& rtpSeqNum, unsigned& rtpTimestamp, ServerRequestAlternativeByteHandler* serverRequestAlternativeByteHandler,
+                                                void* serverRequestAlternativeByteHandlerClientData)
     {
-        OnDemandServerMediaSubsession::startStream(clientSessionId, streamToken, rtcpRRHandler, rtcpRRHandlerClientData,
-                                                   rtpSeqNum, rtpTimestamp, serverRequestAlternativeByteHandler,
-                                                   serverRequestAlternativeByteHandlerClientData);
+        OnDemandServerMediaSubsession::startStream(clientSessionId, streamToken, rtcpRRHandler, rtcpRRHandlerClientData, rtpSeqNum, rtpTimestamp, serverRequestAlternativeByteHandler, serverRequestAlternativeByteHandlerClientData);
         // kMutex.lock();
-        if (fMediaInput.GetStartVideoStreamCallback() != NULL) {
+        if (fMediaInput.GetStartVideoStreamCallback() != NULL)
+        {
             fMediaInput.GetStartVideoStreamCallback()();
         }
-        if (kSessionIdList.empty()) {
+        if (kSessionIdList.empty())
+        {
             fMediaInput.Start(envir());
         }
         LOG("%s:%s:%p - clientSessionId: 0x%08x\n", __FILE__, __func__, this, clientSessionId);
@@ -60,7 +56,8 @@ namespace easymedia
         // kMutex.lock();
         LOG("%s - clientSessionId: 0x%08x\n", __func__, clientSessionId);
         kSessionIdList.remove(clientSessionId);
-        if (kSessionIdList.empty()) {
+        if (kSessionIdList.empty())
+        {
             fMediaInput.Stop(envir());
         }
         // kMutex.unlock();
@@ -94,25 +91,32 @@ namespace easymedia
         nextTask() = NULL;
 
         char const* dasl;
-        if (fAuxSDPLine != NULL) {
+        if (fAuxSDPLine != NULL)
+        {
             // Signal the event loop that we're done:
             setDoneFlag();
-        } else if (fDummyRTPSink != NULL && (dasl = fDummyRTPSink->auxSDPLine()) != NULL) {
+        }
+        else if (fDummyRTPSink != NULL && (dasl = fDummyRTPSink->auxSDPLine()) != NULL)
+        {
             fAuxSDPLine = strDup(dasl);
             fDummyRTPSink = NULL;
 
             // Signal the event loop that we're done:
             setDoneFlag();
-        } else if (!fDoneFlag) {
-            if (fGetSdpCount-- < 0) {
+        }
+        else if (!fDoneFlag)
+        {
+            if (fGetSdpCount-- < 0)
+            {
                 setDoneFlag();
                 LOG("%s:%s:%p: get sdp time out.\n", __FILE__, __func__, this);
-            } else {
+            }
+            else
+            {
                 // try again after a brief delay:
                 int uSecsToDelay = 100000; // 100 ms
                 LOG_FILE_FUNC_LINE();
-                nextTask() =
-                    envir().taskScheduler().scheduleDelayedTask(uSecsToDelay, (TaskFunc*)checkForAuxSDPLine, this);
+                nextTask() = envir().taskScheduler().scheduleDelayedTask(uSecsToDelay, (TaskFunc*)checkForAuxSDPLine, this);
             }
         }
     }
@@ -123,12 +127,15 @@ namespace easymedia
         // until we start reading the Buffer.  This means that "rtpSink"s
         // "auxSDPLine()" will be NULL initially, and we need to start reading
         // data from our buffer until this changes.
-        if (fAuxSDPLine != NULL) {
+        if (fAuxSDPLine != NULL)
+        {
             return fAuxSDPLine;
         }
-        if (fDummyRTPSink == NULL) {
+        if (fDummyRTPSink == NULL)
+        {
             // force I framed
-            if (fMediaInput.GetStartVideoStreamCallback() != NULL) {
+            if (fMediaInput.GetStartVideoStreamCallback() != NULL)
+            {
                 fMediaInput.GetStartVideoStreamCallback()();
             }
             fDummyRTPSink = rtpSink;
@@ -144,21 +151,21 @@ namespace easymedia
     {
         LOG("%s:%s:%p - clientSessionId: 0x%08x\n", __FILE__, __func__, this, clientSessionId);
         estBitrate = fMediaInput.getMaxIdrSize();
-        if (estBitrate < fEstimatedKbps) {
+        if (estBitrate < fEstimatedKbps)
+        {
             estBitrate = fEstimatedKbps;
         }
 
         // Create a framer for the Video Elementary Stream:
-        FramedSource* source =
-            H264VideoStreamDiscreteFramer::createNew(envir(), fMediaInput.videoSource(CODEC_TYPE_H264));
+        FramedSource* source = H264VideoStreamDiscreteFramer::createNew(envir(), fMediaInput.videoSource(CODEC_TYPE_H264));
         LOG("h264 framedsource : %p, estBitrate = %u \n", source, estBitrate);
         return source;
     }
 
-    RTPSink* H264ServerMediaSubsession::createNewRTPSink(Groupsock* rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic,
-                                                         FramedSource* inputSource)
+    RTPSink* H264ServerMediaSubsession::createNewRTPSink(Groupsock* rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic, FramedSource* inputSource)
     {
-        if (!inputSource) {
+        if (!inputSource)
+        {
             LOG("inputSource is not ready, can not create new rtp sink\n");
             return NULL;
         }

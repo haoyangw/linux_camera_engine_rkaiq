@@ -50,9 +50,7 @@
 #define RKMODULE_CAMERA_BT656_CHANNEL_1 BIT(3)
 #define RKMODULE_CAMERA_BT656_CHANNEL_2 BIT(4)
 #define RKMODULE_CAMERA_BT656_CHANNEL_3 BIT(5)
-#define RKMODULE_CAMERA_BT656_CHANNELS                                                                                 \
-    (RKMODULE_CAMERA_BT656_CHANNEL_0 | RKMODULE_CAMERA_BT656_CHANNEL_1 | RKMODULE_CAMERA_BT656_CHANNEL_2 |             \
-     RKMODULE_CAMERA_BT656_CHANNEL_3)
+#define RKMODULE_CAMERA_BT656_CHANNELS (RKMODULE_CAMERA_BT656_CHANNEL_0 | RKMODULE_CAMERA_BT656_CHANNEL_1 | RKMODULE_CAMERA_BT656_CHANNEL_2 | RKMODULE_CAMERA_BT656_CHANNEL_3)
 
 #define RKMODULE_GET_MODULE_INFO _IOR('V', BASE_VIDIOC_PRIVATE + 0, struct rkmodule_inf)
 
@@ -104,7 +102,8 @@
  * struct rkmodule_base_inf - module base information
  *
  */
-struct rkmodule_base_inf {
+struct rkmodule_base_inf
+{
     char sensor[RKMODULE_NAME_LEN];
     char module[RKMODULE_NAME_LEN];
     char lens[RKMODULE_NAME_LEN];
@@ -114,7 +113,8 @@ struct rkmodule_base_inf {
  * struct rkmodule_fac_inf - module factory information
  *
  */
-struct rkmodule_fac_inf {
+struct rkmodule_fac_inf
+{
     __u32 flag;
 
     char module[RKMODULE_NAME_LEN];
@@ -128,7 +128,8 @@ struct rkmodule_fac_inf {
  * struct rkmodule_awb_inf - module awb information
  *
  */
-struct rkmodule_awb_inf {
+struct rkmodule_awb_inf
+{
     __u32 flag;
 
     __u32 r_value;
@@ -146,7 +147,8 @@ struct rkmodule_awb_inf {
  * struct rkmodule_lsc_inf - module lsc information
  *
  */
-struct rkmodule_lsc_inf {
+struct rkmodule_lsc_inf
+{
     __u32 flag;
 
     __u16 lsc_w;
@@ -176,7 +178,8 @@ enum rkmodele_af_otp_dir
 /**
  * struct rkmodule_af_otp - module af otp in one direction
  */
-struct rkmodule_af_otp {
+struct rkmodule_af_otp
+{
     __u32 vcm_start;
     __u32 vcm_end;
     __u32 vcm_dir;
@@ -186,7 +189,8 @@ struct rkmodule_af_otp {
  * struct rkmodule_af_inf - module af information
  *
  */
-struct rkmodule_af_inf {
+struct rkmodule_af_inf
+{
     __u32 flag;
     __u32 dir_cnt;
     struct rkmodule_af_otp af_otp[RKMODULE_AF_OTP_MAX_LEN];
@@ -196,7 +200,8 @@ struct rkmodule_af_inf {
  * struct rkmodule_pdaf_inf - module pdaf information
  *
  */
-struct rkmodule_pdaf_inf {
+struct rkmodule_pdaf_inf
+{
     __u32 flag;
 
     __u32 gainmap_width;
@@ -213,7 +218,8 @@ struct rkmodule_pdaf_inf {
  * struct rkmodule_otp_module_inf - otp module info
  *
  */
-struct rkmodule_otp_module_inf {
+struct rkmodule_otp_module_inf
+{
     __u32 flag;
     __u8 vendor[8];
     __u32 module_id;
@@ -235,7 +241,8 @@ struct rkmodule_otp_module_inf {
  * struct rkmodule_inf - module information
  *
  */
-struct rkmodule_inf {
+struct rkmodule_inf
+{
     struct rkmodule_base_inf base;
     struct rkmodule_fac_inf fac;
     struct rkmodule_awb_inf awb;
@@ -249,7 +256,8 @@ struct rkmodule_inf {
  * struct rkmodule_awb_inf - module awb information
  *
  */
-struct rkmodule_awb_cfg {
+struct rkmodule_awb_cfg
+{
     __u32 enable;
     __u32 golden_r_value;
     __u32 golden_b_value;
@@ -261,7 +269,8 @@ struct rkmodule_awb_cfg {
  * struct rkmodule_af_cfg
  *
  */
-struct rkmodule_af_cfg {
+struct rkmodule_af_cfg
+{
     __u32 enable;
     __u32 vcm_start;
     __u32 vcm_end;
@@ -272,7 +281,8 @@ struct rkmodule_af_cfg {
  * struct rkmodule_lsc_cfg
  *
  */
-struct rkmodule_lsc_cfg {
+struct rkmodule_lsc_cfg
+{
     __u32 enable;
 } __attribute__((packed));
 
@@ -308,21 +318,25 @@ enum hdr_esp_mode
  *     efpix: identification code of Effective line
  *     obpix: identification code of OB line
  */
-struct rkmodule_hdr_esp {
+struct rkmodule_hdr_esp
+{
     enum hdr_esp_mode mode;
     union {
-        struct {
+        struct
+        {
             __u32 padnum;
             __u32 padpix;
         } lcnt;
-        struct {
+        struct
+        {
             __u32 efpix;
             __u32 obpix;
         } idcd;
     } val;
 };
 
-struct rkmodule_hdr_cfg {
+struct rkmodule_hdr_cfg
+{
     __u32 hdr_mode;
     struct rkmodule_hdr_esp esp;
 } __attribute__((packed));
@@ -331,7 +345,8 @@ struct rkmodule_hdr_cfg {
  * sav: start of active video codes
  * eav: end of active video codes
  */
-struct rkmodule_sync_code {
+struct rkmodule_sync_code
+{
     __u16 sav;
     __u16 eav;
 };
@@ -360,7 +375,8 @@ enum rkmodule_lvds_mode
  * act: valid line sync code
  * blk: invalid line sync code
  */
-struct rkmodule_lvds_frm_sync_code {
+struct rkmodule_lvds_frm_sync_code
+{
     struct rkmodule_sync_code act;
     struct rkmodule_sync_code blk;
 };
@@ -369,7 +385,8 @@ struct rkmodule_lvds_frm_sync_code {
  * odd_sync_code: sync code of odd frame id for lvds of sony sensor
  * even_sync_code: sync code of even frame id for lvds of sony sensor
  */
-struct rkmodule_lvds_frame_sync_code {
+struct rkmodule_lvds_frame_sync_code
+{
     struct rkmodule_lvds_frm_sync_code odd_sync_code;
     struct rkmodule_lvds_frm_sync_code even_sync_code;
 };
@@ -393,7 +410,8 @@ enum rkmodule_lvds_sync_code_group
  *  index == LVDS_CODE_GRP_SHOR:
  *    sync code for short long frame of hdr mode
  */
-struct rkmodule_lvds_cfg {
+struct rkmodule_lvds_cfg
+{
     enum rkmodule_lvds_mode mode;
     struct rkmodule_lvds_frame_sync_code frm_sync_code[LVDS_CODE_GRP_MAX];
 } __attribute__((packed));
@@ -406,7 +424,8 @@ struct rkmodule_lvds_cfg {
  * cur_multiple_dpcc: the strength of multiple dpcc;
  * total_dpcc: the max strength;
  */
-struct rkmodule_dpcc_cfg {
+struct rkmodule_dpcc_cfg
+{
     __u32 enable;
     __u32 cur_single_dpcc;
     __u32 cur_multiple_dpcc;
@@ -420,7 +439,8 @@ struct rkmodule_dpcc_cfg {
  * down_thres: threshold of nr change from high gain to low gain;
  * div_coeff: Coefficients converted from float to int
  */
-struct rkmodule_nr_switch_threshold {
+struct rkmodule_nr_switch_threshold
+{
     __u32 direct;
     __u32 up_thres;
     __u32 down_thres;
@@ -441,7 +461,8 @@ enum rkmodule_bt656_intf_type
  * struct rkmodule_vc_fmt_info - virtual channels fmt info
  *
  */
-struct rkmodule_vc_fmt_info {
+struct rkmodule_vc_fmt_info
+{
     __u32 width[RKMODULE_MAX_VC_CH];
     __u32 height[RKMODULE_MAX_VC_CH];
     __u32 fps[RKMODULE_MAX_VC_CH];
@@ -452,7 +473,8 @@ struct rkmodule_vc_fmt_info {
  * detect_status: hotplug status
  *     bit 0~3 means channels id, value : 0 -> plug out, 1 -> plug in.
  */
-struct rkmodule_vc_hotplug_info {
+struct rkmodule_vc_hotplug_info
+{
     __u8 detect_status;
 } __attribute__((packed));
 
@@ -481,24 +503,28 @@ enum rkmodule_reset_src
     RKCIF_RESET_SRC_ERR_APP,
 };
 
-struct rkmodule_vicap_reset_info {
+struct rkmodule_vicap_reset_info
+{
     __u32 is_reset;
     enum rkmodule_reset_src src;
 } __attribute__((packed));
 
-struct rkmodule_bt656_mbus_info {
+struct rkmodule_bt656_mbus_info
+{
     __u32 flags;
     __u32 id_en_bits;
 } __attribute__((packed));
 
 /* DCG ratio (float) = integer + decimal / div_coeff */
-struct rkmodule_dcg_ratio {
+struct rkmodule_dcg_ratio
+{
     __u32 integer;
     __u32 decimal;
     __u32 div_coeff;
 };
 
-struct rkmodule_channel_info {
+struct rkmodule_channel_info
+{
     __u32 index;
     __u32 vc;
     __u32 width;

@@ -18,12 +18,15 @@ namespace easymedia
     Demuxer::Demuxer(const char* param) : total_time(0.0f)
     {
         std::map<std::string, std::string> params;
-        if (!parse_media_param_map(param, params)) {
+        if (!parse_media_param_map(param, params))
+        {
             return;
         }
-        for (auto& p : params) {
+        for (auto& p : params)
+        {
             const std::string& key = p.first;
-            if (key == KEY_PATH) {
+            if (key == KEY_PATH)
+            {
                 path = p.second;
             }
         }

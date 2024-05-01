@@ -60,7 +60,8 @@
 #include <openssl/base.h>
 
 #if defined(__cplusplus)
-extern "C" {
+extern "C"
+{
 #endif
 
 // MD5.
@@ -71,31 +72,32 @@ extern "C" {
 // MD5_DIGEST_LENGTH is the length of an MD5 digest.
 #define MD5_DIGEST_LENGTH 16
 
-// MD5_Init initialises |md5| and returns one.
-OPENSSL_EXPORT int MD5_Init(MD5_CTX* md5);
+    // MD5_Init initialises |md5| and returns one.
+    OPENSSL_EXPORT int MD5_Init(MD5_CTX* md5);
 
-// MD5_Update adds |len| bytes from |data| to |md5| and returns one.
-OPENSSL_EXPORT int MD5_Update(MD5_CTX* md5, const void* data, size_t len);
+    // MD5_Update adds |len| bytes from |data| to |md5| and returns one.
+    OPENSSL_EXPORT int MD5_Update(MD5_CTX* md5, const void* data, size_t len);
 
-// MD5_Final adds the final padding to |md5| and writes the resulting digest to
-// |out|, which must have at least |MD5_DIGEST_LENGTH| bytes of space. It
-// returns one.
-OPENSSL_EXPORT int MD5_Final(uint8_t out[MD5_DIGEST_LENGTH], MD5_CTX* md5);
+    // MD5_Final adds the final padding to |md5| and writes the resulting digest to
+    // |out|, which must have at least |MD5_DIGEST_LENGTH| bytes of space. It
+    // returns one.
+    OPENSSL_EXPORT int MD5_Final(uint8_t out[MD5_DIGEST_LENGTH], MD5_CTX* md5);
 
-// MD5 writes the digest of |len| bytes from |data| to |out| and returns |out|.
-// There must be at least |MD5_DIGEST_LENGTH| bytes of space in |out|.
-OPENSSL_EXPORT uint8_t* MD5(const uint8_t* data, size_t len, uint8_t out[MD5_DIGEST_LENGTH]);
+    // MD5 writes the digest of |len| bytes from |data| to |out| and returns |out|.
+    // There must be at least |MD5_DIGEST_LENGTH| bytes of space in |out|.
+    OPENSSL_EXPORT uint8_t* MD5(const uint8_t* data, size_t len, uint8_t out[MD5_DIGEST_LENGTH]);
 
-// MD5_Transform is a low-level function that performs a single, MD5 block
-// transformation using the state from |md5| and 64 bytes from |block|.
-OPENSSL_EXPORT void MD5_Transform(MD5_CTX* md5, const uint8_t block[MD5_CBLOCK]);
+    // MD5_Transform is a low-level function that performs a single, MD5 block
+    // transformation using the state from |md5| and 64 bytes from |block|.
+    OPENSSL_EXPORT void MD5_Transform(MD5_CTX* md5, const uint8_t block[MD5_CBLOCK]);
 
-struct md5_state_st {
-    uint32_t h[4];
-    uint32_t Nl, Nh;
-    uint8_t data[MD5_CBLOCK];
-    unsigned num;
-};
+    struct md5_state_st
+    {
+        uint32_t h[4];
+        uint32_t Nl, Nh;
+        uint8_t data[MD5_CBLOCK];
+        unsigned num;
+    };
 
 #if defined(__cplusplus)
 } // extern C

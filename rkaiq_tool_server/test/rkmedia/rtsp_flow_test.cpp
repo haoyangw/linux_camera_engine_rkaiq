@@ -17,8 +17,7 @@ static void sigterm_handler(int sig)
     quit = true;
 }
 
-void deinit_2688p(std::shared_ptr<easymedia::Flow>& video_cap_flow, std::shared_ptr<easymedia::Flow>& video_enc_flow,
-                  std::shared_ptr<easymedia::Flow>& video_rtsp_flow)
+void deinit_2688p(std::shared_ptr<easymedia::Flow>& video_cap_flow, std::shared_ptr<easymedia::Flow>& video_enc_flow, std::shared_ptr<easymedia::Flow>& video_rtsp_flow)
 {
     video_cap_flow->RemoveDownFlow(video_enc_flow);
     video_enc_flow->RemoveDownFlow(video_rtsp_flow);
@@ -32,8 +31,7 @@ void deinit_2688p(std::shared_ptr<easymedia::Flow>& video_cap_flow, std::shared_
 
 std::string video_path;
 
-void init_2688p(std::shared_ptr<easymedia::Flow>& video_cap_flow, std::shared_ptr<easymedia::Flow>& video_enc_flow,
-                std::shared_ptr<easymedia::Flow>& video_rtsp_flow)
+void init_2688p(std::shared_ptr<easymedia::Flow>& video_cap_flow, std::shared_ptr<easymedia::Flow>& video_enc_flow, std::shared_ptr<easymedia::Flow>& video_rtsp_flow)
 {
     int width = 2688;
     int height = 1520;
@@ -42,7 +40,8 @@ void init_2688p(std::shared_ptr<easymedia::Flow>& video_cap_flow, std::shared_pt
     std::string enc_type = VIDEO_H264;
 
     const char* video_dev = "rkispp_m_bypass";
-    if (!video_path.empty()) {
+    if (!video_path.empty())
+    {
         video_dev = video_path.c_str();
     }
 
@@ -58,7 +57,8 @@ void init_2688p(std::shared_ptr<easymedia::Flow>& video_cap_flow, std::shared_pt
 
 int main(int argc, char** argv)
 {
-    if (argc == 2) {
+    if (argc == 2)
+    {
         video_path = argv[1];
     }
 
@@ -67,7 +67,8 @@ int main(int argc, char** argv)
     std::shared_ptr<easymedia::Flow> video_enc_flow;
     std::shared_ptr<easymedia::Flow> video_rtsp_flow;
     init_2688p(video_cap_flow, video_enc_flow, video_rtsp_flow);
-    while (!quit) {
+    while (!quit)
+    {
         easymedia::msleep(1000);
     }
     deinit_2688p(video_cap_flow, video_enc_flow, video_rtsp_flow);

@@ -19,14 +19,16 @@ typedef enum
     MSG_FLOW_EVENT_ERROR_UNKNOW = MSG_ERROR_MASK,
 } MessageId;
 
-typedef struct {
+typedef struct
+{
     unsigned short x;
     unsigned short y;
     unsigned short w;
     unsigned short h;
 } MoveDetecInfo;
 
-typedef struct {
+typedef struct
+{
     unsigned short info_cnt;
     unsigned short ori_width;
     unsigned short ori_height;
@@ -35,7 +37,8 @@ typedef struct {
     MoveDetecInfo data[4096];
 } MoveDetectEvent;
 
-typedef struct {
+typedef struct
+{
     unsigned short x;
     unsigned short y;
     unsigned short w;
@@ -43,7 +46,8 @@ typedef struct {
     unsigned short occlusion;
 } OcclusionDetecInfo;
 
-typedef struct {
+typedef struct
+{
     unsigned short info_cnt;
     unsigned short img_width;
     unsigned short img_height;

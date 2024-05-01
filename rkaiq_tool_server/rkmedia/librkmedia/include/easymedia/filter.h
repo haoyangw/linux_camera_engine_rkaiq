@@ -21,9 +21,9 @@ namespace easymedia
     // T must be the final class type exposed to user
     DECLARE_REFLECTOR(Filter)
 
-#define DEFINE_FILTER_FACTORY(REAL_PRODUCT, FINAL_EXPOSE_PRODUCT)                                                      \
-    DEFINE_MEDIA_CHILD_FACTORY(REAL_PRODUCT, REAL_PRODUCT::GetFilterName(), FINAL_EXPOSE_PRODUCT, Filter)              \
-    DEFINE_MEDIA_CHILD_FACTORY_EXTRA(REAL_PRODUCT)                                                                     \
+#define DEFINE_FILTER_FACTORY(REAL_PRODUCT, FINAL_EXPOSE_PRODUCT)                                                                                                                                                                                                                                          \
+    DEFINE_MEDIA_CHILD_FACTORY(REAL_PRODUCT, REAL_PRODUCT::GetFilterName(), FINAL_EXPOSE_PRODUCT, Filter)                                                                                                                                                                                                  \
+    DEFINE_MEDIA_CHILD_FACTORY_EXTRA(REAL_PRODUCT)                                                                                                                                                                                                                                                         \
     DEFINE_MEDIA_NEW_PRODUCT_BY(REAL_PRODUCT, Filter, GetError() < 0)
 
 #define DEFINE_COMMON_FILTER_FACTORY(REAL_PRODUCT) DEFINE_FILTER_FACTORY(REAL_PRODUCT, Filter)

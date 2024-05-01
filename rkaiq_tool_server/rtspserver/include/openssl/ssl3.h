@@ -121,7 +121,8 @@
 #include <openssl/type_check.h>
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 // These are kept to support clients that negotiates higher protocol versions
@@ -220,13 +221,13 @@ extern "C" {
     #endif
 #endif
 
-// This is the maximum MAC (digest) size used by the SSL library. Currently
-// maximum of 20 is used by SHA1, but we reserve for future extension for
-// 512-bit hashes.
+    // This is the maximum MAC (digest) size used by the SSL library. Currently
+    // maximum of 20 is used by SHA1, but we reserve for future extension for
+    // 512-bit hashes.
 
 #define SSL3_RT_MAX_MD_SIZE 64
 
-// Maximum block size used in all ciphersuites. Currently 16 for AES.
+    // Maximum block size used in all ciphersuites. Currently 16 for AES.
 
 #define SSL_RT_MAX_CIPHER_BLOCK_SIZE 16
 
@@ -249,8 +250,7 @@ extern "C" {
 // nonces, so it includes both the AEAD overhead as well as the nonce.
 #define SSL3_RT_SEND_MAX_ENCRYPTED_OVERHEAD (EVP_AEAD_MAX_OVERHEAD + EVP_AEAD_MAX_NONCE_LENGTH)
 
-OPENSSL_STATIC_ASSERT(SSL3_RT_MAX_ENCRYPTED_OVERHEAD >= SSL3_RT_SEND_MAX_ENCRYPTED_OVERHEAD,
-                      "max overheads are inconsistent");
+    OPENSSL_STATIC_ASSERT(SSL3_RT_MAX_ENCRYPTED_OVERHEAD >= SSL3_RT_SEND_MAX_ENCRYPTED_OVERHEAD, "max overheads are inconsistent");
 
 // SSL3_RT_MAX_COMPRESSED_LENGTH is an alias for
 // |SSL3_RT_MAX_PLAIN_LENGTH|. Compression is gone, so don't include the

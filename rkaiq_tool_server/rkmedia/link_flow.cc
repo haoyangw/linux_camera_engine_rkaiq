@@ -35,7 +35,8 @@ namespace easymedia
     LinkFlow::LinkFlow(const char* param)
     {
         std::map<std::string, std::string> params;
-        if (!parse_media_param_map(param, params)) {
+        if (!parse_media_param_map(param, params))
+        {
             SetError(-EINVAL);
             return;
         }
@@ -52,7 +53,8 @@ namespace easymedia
         sm.input_maxcachenum.push_back(0);
         sm.process = process_buffer;
 
-        if (!InstallSlotMap(sm, "LinkFLow", 0)) {
+        if (!InstallSlotMap(sm, "LinkFLow", 0))
+        {
             LOG("Fail to InstallSlotMap for LinkFLow\n");
             return;
         }
@@ -68,15 +70,17 @@ namespace easymedia
     {
         LinkFlow* flow = static_cast<LinkFlow*>(f);
         auto& buffer = input_vector[0];
-        if (!buffer || !flow) {
+        if (!buffer || !flow)
+        {
             return false;
         }
 
-        if (flow->enable > 0) {
+        if (flow->enable > 0)
+        {
             auto link_handler = flow->GetCaptureHandler();
-            if (link_handler) {
-                link_handler((unsigned char*)buffer->GetPtr(), buffer->GetValidSize(), flow->socket_fd,
-                             buffer->GetFrameSequenceNumber());
+            if (link_handler)
+            {
+                link_handler((unsigned char*)buffer->GetPtr(), buffer->GetValidSize(), flow->socket_fd, buffer->GetFrameSequenceNumber());
                 flow->enable--;
             }
         }
@@ -94,7 +98,8 @@ namespace easymedia
         va_end(ap);
         assert(value);
 
-        switch (request) {
+        switch (request)
+        {
             case kSocket_fd:
                 socket_fd = value;
                 break;

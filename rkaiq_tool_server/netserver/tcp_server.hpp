@@ -22,7 +22,8 @@ template <uint16_t BUFFER_SIZE = AS_DEFAULT_BUFFER_SIZE> class NewTCPServer : pu
     void Bind(const char* address, uint16_t port, FDR_ON_ERROR)
     {
         int status = inet_pton(AF_INET, address, &this->address.sin_addr);
-        switch (status) {
+        switch (status)
+        {
             case -1:
                 onError(errno, "Invalid address. Address type not supported.");
                 return;
@@ -36,7 +37,8 @@ template <uint16_t BUFFER_SIZE = AS_DEFAULT_BUFFER_SIZE> class NewTCPServer : pu
         this->address.sin_family = AF_INET;
         this->address.sin_port = htons(port);
 
-        if (::bind(this->sock, (const sockaddr*)&this->address, sizeof(this->address)) == -1) {
+        if (::bind(this->sock, (const sockaddr*)&this->address, sizeof(this->address)) == -1)
+        {
             onError(errno, "Cannot bind the socket.");
             return;
         }
@@ -50,7 +52,8 @@ template <uint16_t BUFFER_SIZE = AS_DEFAULT_BUFFER_SIZE> class NewTCPServer : pu
     // Start listening incoming connections.
     void Listen(FDR_ON_ERROR)
     {
-        if (listen(this->sock, 20) == -1) {
+        if (listen(this->sock, 20) == -1)
+        {
             onError(errno, "Error: Server can't listen the socket.");
             return;
         }
@@ -66,9 +69,11 @@ template <uint16_t BUFFER_SIZE = AS_DEFAULT_BUFFER_SIZE> class NewTCPServer : pu
         socklen_t newSocketInfoLength = sizeof(newSocketInfo);
 
         int newSocketFileDescriptor = -1;
-        while (true) {
+        while (true)
+        {
             newSocketFileDescriptor = accept(server->sock, (sockaddr*)&newSocketInfo, &newSocketInfoLength);
-            if (newSocketFileDescriptor == -1) {
+            if (newSocketFileDescriptor == -1)
+            {
                 if (errno == EBADF || errno == EINVAL)
                     return;
 

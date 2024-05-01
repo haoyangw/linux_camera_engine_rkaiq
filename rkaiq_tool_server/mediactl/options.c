@@ -105,25 +105,29 @@ static void usage(const char* argv0)
     printf("\tdenominator     Frame interval denominator\n");
     printf("\tv4l2-field      One of the following:\n");
 
-    for (i = V4L2_FIELD_ANY; i <= V4L2_FIELD_INTERLACED_BT; i++) {
+    for (i = V4L2_FIELD_ANY; i <= V4L2_FIELD_INTERLACED_BT; i++)
+    {
         printf("\t                %s\n", v4l2_subdev_field_to_string(i));
     }
 
     printf("\tv4l2-colorspace One of the following:\n");
 
-    for (i = V4L2_COLORSPACE_DEFAULT; i <= V4L2_COLORSPACE_DCI_P3; i++) {
+    for (i = V4L2_COLORSPACE_DEFAULT; i <= V4L2_COLORSPACE_DCI_P3; i++)
+    {
         printf("\t                %s\n", v4l2_subdev_colorspace_to_string(i));
     }
 
     printf("\tv4l2-xfer-func  One of the following:\n");
 
-    for (i = V4L2_XFER_FUNC_DEFAULT; i <= V4L2_XFER_FUNC_SMPTE2084; i++) {
+    for (i = V4L2_XFER_FUNC_DEFAULT; i <= V4L2_XFER_FUNC_SMPTE2084; i++)
+    {
         printf("\t                %s\n", v4l2_subdev_xfer_func_to_string(i));
     }
 
     printf("\tv4l2-quant      One of the following:\n");
 
-    for (i = V4L2_QUANTIZATION_DEFAULT; i <= V4L2_QUANTIZATION_LIM_RANGE; i++) {
+    for (i = V4L2_QUANTIZATION_DEFAULT; i <= V4L2_QUANTIZATION_LIM_RANGE; i++)
+    {
         printf("\t                %s\n", v4l2_subdev_quantization_to_string(i));
     }
 }
@@ -159,15 +163,18 @@ static void list_known_mbus_formats(void)
     unsigned int ncodes;
     const unsigned int* code = v4l2_subdev_pixelcode_list(&ncodes);
 
-    while (ncodes--) {
+    while (ncodes--)
+    {
         const char* str = v4l2_subdev_pixelcode_to_string(*code);
         int spaces = 30 - (int)strlen(str);
 
-        if (*code == 0) {
+        if (*code == 0)
+        {
             break;
         }
 
-        if (spaces < 0) {
+        if (spaces < 0)
+        {
             spaces = 0;
         }
 
@@ -183,36 +190,43 @@ static const char* make_devname(const char* device)
     struct dirent* ep;
     DIR* dp;
 
-    if (!access(device, F_OK)) {
+    if (!access(device, F_OK))
+    {
         return device;
     }
 
-    if (device[0] >= '0' && device[0] <= '9' && strlen(device) <= 3) {
+    if (device[0] >= '0' && device[0] <= '9' && strlen(device) <= 3)
+    {
         snprintf(newdev, sizeof(newdev), "/dev/media%s", device);
         return newdev;
     }
 
     dp = opendir("/dev");
-    if (dp == NULL) {
+    if (dp == NULL)
+    {
         return device;
     }
 
-    while ((ep = readdir(dp))) {
+    while ((ep = readdir(dp)))
+    {
         const char* name = ep->d_name;
 
-        if (!memcmp(name, "media", 5) && isdigit(name[5])) {
+        if (!memcmp(name, "media", 5) && isdigit(name[5]))
+        {
             struct media_device_info mdi;
             int ret;
             int fd;
 
             snprintf(newdev, sizeof(newdev), "/dev/%s", name);
             fd = open(newdev, O_RDWR);
-            if (fd < 0) {
+            if (fd < 0)
+            {
                 continue;
             }
             ret = ioctl(fd, MEDIA_IOC_DEVICE_INFO, &mdi);
             close(fd);
-            if (!ret && !strcmp(device, mdi.bus_info)) {
+            if (!ret && !strcmp(device, mdi.bus_info))
+            {
                 closedir(dp);
                 return newdev;
             }
@@ -226,14 +240,17 @@ int parse_cmdline(int argc, char** argv)
 {
     int opt;
 
-    if (argc == 1) {
+    if (argc == 1)
+    {
         usage(argv[0]);
         return 1;
     }
 
     /* parse options */
-    while ((opt = getopt_long(argc, argv, "d:e:f:hil:prvV:", opts, NULL)) != -1) {
-        switch (opt) {
+    while ((opt = getopt_long(argc, argv, "d:e:f:hil:prvV:", opts, NULL)) != -1)
+    {
+        switch (opt)
+        {
             case 'd':
                 media_opts.devname = make_devname(optarg);
                 break;

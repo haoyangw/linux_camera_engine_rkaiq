@@ -23,8 +23,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 
 #if defined(__WIN32__) || defined(_WIN32) || defined(_WIN32_WCE)
     /* Windows */
-    #if defined(WINNT) || defined(_WINNT) || defined(__BORLANDC__) || defined(__MINGW32__) || defined(_WIN32_WCE) ||   \
-        defined(_MSC_VER)
+    #if defined(WINNT) || defined(_WINNT) || defined(__BORLANDC__) || defined(__MINGW32__) || defined(_WIN32_WCE) || defined(_MSC_VER)
         #define _MSWSOCK_
         #include <winsock2.h>
         #include <ws2tcpip.h>
@@ -70,8 +69,7 @@ typedef unsigned char u_int8_t;
     // For "uintptr_t" and "intptr_t", we assume that if they're not already
     // defined, then this must be
     // an old, 32-bit version of Windows:
-    #if !defined(_MSC_STDINT_H_) && !defined(_UINTPTR_T_DEFINED) && !defined(_UINTPTR_T_DECLARED) &&                   \
-        !defined(_UINTPTR_T)
+    #if !defined(_MSC_STDINT_H_) && !defined(_UINTPTR_T_DEFINED) && !defined(_UINTPTR_T_DECLARED) && !defined(_UINTPTR_T)
 typedef unsigned uintptr_t;
     #endif
     #if !defined(_MSC_STDINT_H_) && !defined(_INTPTR_T_DEFINED) && !defined(_INTPTR_T_DECLARED) && !defined(_INTPTR_T)

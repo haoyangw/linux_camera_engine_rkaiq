@@ -17,25 +17,25 @@ namespace easymedia
         // static const MppFrameFormat invalid_mpp_fmt =
         // static_cast<MppFrameFormat>(-1);
         static_assert(PIX_FMT_YUV420P == 0, "The index should greater than 0\n");
-        static MppFrameFormat mpp_fmts[PIX_FMT_NB] = {
-            [PIX_FMT_YUV420P] = MPP_FMT_YUV420P,
-            [PIX_FMT_NV12] = MPP_FMT_YUV420SP,
-            [PIX_FMT_NV21] = MPP_FMT_YUV420SP_VU,
-            [PIX_FMT_YUV422P] = MPP_FMT_YUV422P,
-            [PIX_FMT_NV16] = MPP_FMT_YUV422SP,
-            [PIX_FMT_NV61] = MPP_FMT_YUV422SP_VU,
-            [PIX_FMT_YUYV422] = MPP_FMT_YUV422_YUYV,
-            [PIX_FMT_UYVY422] = MPP_FMT_YUV422_UYVY,
-            [PIX_FMT_RGB332] = (MppFrameFormat)-1,
-            [PIX_FMT_RGB565] = MPP_FMT_RGB565,
-            [PIX_FMT_BGR565] = MPP_FMT_BGR565,
-            [PIX_FMT_RGB888] = MPP_FMT_RGB888,
-            [PIX_FMT_BGR888] = MPP_FMT_BGR888,
-            [PIX_FMT_ARGB8888] = MPP_FMT_ARGB8888,
-            [PIX_FMT_ABGR8888] = MPP_FMT_ABGR8888,
-            [PIX_FMT_FBC0] = (MppFrameFormat)(MPP_FMT_YUV420SP | MPP_FRAME_FBC_AFBC_V1),
-            [PIX_FMT_FBC2] = (MppFrameFormat)(MPP_FMT_YUV422SP | MPP_FRAME_FBC_AFBC_V1)};
-        if (fmt >= 0 && fmt < PIX_FMT_NB) {
+        static MppFrameFormat mpp_fmts[PIX_FMT_NB] = {[PIX_FMT_YUV420P] = MPP_FMT_YUV420P,
+                                                      [PIX_FMT_NV12] = MPP_FMT_YUV420SP,
+                                                      [PIX_FMT_NV21] = MPP_FMT_YUV420SP_VU,
+                                                      [PIX_FMT_YUV422P] = MPP_FMT_YUV422P,
+                                                      [PIX_FMT_NV16] = MPP_FMT_YUV422SP,
+                                                      [PIX_FMT_NV61] = MPP_FMT_YUV422SP_VU,
+                                                      [PIX_FMT_YUYV422] = MPP_FMT_YUV422_YUYV,
+                                                      [PIX_FMT_UYVY422] = MPP_FMT_YUV422_UYVY,
+                                                      [PIX_FMT_RGB332] = (MppFrameFormat)-1,
+                                                      [PIX_FMT_RGB565] = MPP_FMT_RGB565,
+                                                      [PIX_FMT_BGR565] = MPP_FMT_BGR565,
+                                                      [PIX_FMT_RGB888] = MPP_FMT_RGB888,
+                                                      [PIX_FMT_BGR888] = MPP_FMT_BGR888,
+                                                      [PIX_FMT_ARGB8888] = MPP_FMT_ARGB8888,
+                                                      [PIX_FMT_ABGR8888] = MPP_FMT_ABGR8888,
+                                                      [PIX_FMT_FBC0] = (MppFrameFormat)(MPP_FMT_YUV420SP | MPP_FRAME_FBC_AFBC_V1),
+                                                      [PIX_FMT_FBC2] = (MppFrameFormat)(MPP_FMT_YUV422SP | MPP_FRAME_FBC_AFBC_V1)};
+        if (fmt >= 0 && fmt < PIX_FMT_NB)
+        {
             return mpp_fmts[fmt];
         }
         return (MppFrameFormat)-1;
@@ -43,7 +43,8 @@ namespace easymedia
 
     PixelFormat ConvertToPixFmt(const MppFrameFormat& mfmt)
     {
-        switch (mfmt) {
+        switch (mfmt)
+        {
             case MPP_FMT_YUV420P:
                 return PIX_FMT_YUV420P;
             case MPP_FMT_YUV420SP:
@@ -110,32 +111,38 @@ namespace easymedia
 
     MppCodingType GetMPPCodingType(const std::string& data_type)
     {
-        if (data_type == VIDEO_H264) {
+        if (data_type == VIDEO_H264)
+        {
             return MPP_VIDEO_CodingAVC;
-        } else if (data_type == VIDEO_H265) {
+        }
+        else if (data_type == VIDEO_H265)
+        {
             return MPP_VIDEO_CodingHEVC;
-        } else if (data_type == VIDEO_MJPEG) {
+        }
+        else if (data_type == VIDEO_MJPEG)
+        {
             return MPP_VIDEO_CodingMJPEG;
-        } else if (data_type == IMAGE_JPEG) {
+        }
+        else if (data_type == IMAGE_JPEG)
+        {
             return MPP_VIDEO_CodingMJPEG;
         }
         LOG("mpp decoder TODO for %s\n", data_type.c_str());
         return MPP_VIDEO_CodingUnused;
     }
 
-    static MppEncRcQuality mpp_rc_qualitys[] = {
-        MPP_ENC_RC_QUALITY_WORST, MPP_ENC_RC_QUALITY_WORSE, MPP_ENC_RC_QUALITY_MEDIUM, MPP_ENC_RC_QUALITY_BETTER,
-        MPP_ENC_RC_QUALITY_BEST,  MPP_ENC_RC_QUALITY_CQP,   MPP_ENC_RC_QUALITY_AQ_ONLY};
+    static MppEncRcQuality mpp_rc_qualitys[] = {MPP_ENC_RC_QUALITY_WORST, MPP_ENC_RC_QUALITY_WORSE, MPP_ENC_RC_QUALITY_MEDIUM, MPP_ENC_RC_QUALITY_BETTER, MPP_ENC_RC_QUALITY_BEST, MPP_ENC_RC_QUALITY_CQP, MPP_ENC_RC_QUALITY_AQ_ONLY};
 
     MppEncRcQuality GetMPPRCQuality(const char* quality)
     {
-        static_assert(ARRAY_ELEMS(rc_quality_strings) == ARRAY_ELEMS(mpp_rc_qualitys),
-                      "rc quality strings miss match mpp rc quality enum");
-        if (!quality) {
+        static_assert(ARRAY_ELEMS(rc_quality_strings) == ARRAY_ELEMS(mpp_rc_qualitys), "rc quality strings miss match mpp rc quality enum");
+        if (!quality)
+        {
             return MPP_ENC_RC_QUALITY_BUTT;
         }
         for (size_t i = 0; i < ARRAY_ELEMS(rc_quality_strings); i++)
-            if (!strcasecmp(quality, rc_quality_strings[i])) {
+            if (!strcasecmp(quality, rc_quality_strings[i]))
+            {
                 return mpp_rc_qualitys[i];
             }
 
@@ -146,13 +153,14 @@ namespace easymedia
 
     MppEncRcMode GetMPPRCMode(const char* rc_mode)
     {
-        static_assert(ARRAY_ELEMS(rc_mode_strings) == ARRAY_ELEMS(mpp_rc_modes),
-                      "rc mode strings miss match mpp rc mode enum");
-        if (!rc_mode) {
+        static_assert(ARRAY_ELEMS(rc_mode_strings) == ARRAY_ELEMS(mpp_rc_modes), "rc mode strings miss match mpp rc mode enum");
+        if (!rc_mode)
+        {
             return MPP_ENC_RC_MODE_BUTT;
         }
         for (size_t i = 0; i < ARRAY_ELEMS(rc_mode_strings); i++)
-            if (!strcasecmp(rc_mode, rc_mode_strings[i])) {
+            if (!strcasecmp(rc_mode, rc_mode_strings[i]))
+            {
                 return mpp_rc_modes[i];
             }
 
@@ -164,13 +172,15 @@ namespace easymedia
     }
     MPPContext::~MPPContext()
     {
-        if (mpi) {
+        if (mpi)
+        {
             mpi->reset(ctx);
             mpp_destroy(ctx);
             ctx = NULL;
             LOG("mpp destroy ctx done\n");
         }
-        if (frame_group) {
+        if (frame_group)
+        {
             mpp_buffer_group_put(frame_group);
             frame_group = NULL;
             LOG("mpp buffer group free done\n");
@@ -184,7 +194,8 @@ namespace easymedia
         void* ptr = mb->GetPtr();
         size_t size = mb->GetValidSize();
 
-        if (fd >= 0) {
+        if (fd >= 0)
+        {
             MppBufferInfo info;
 
             memset(&info, 0, sizeof(info));
@@ -194,20 +205,26 @@ namespace easymedia
             info.ptr = ptr;
 
             ret = mpp_buffer_import(&buffer, &info);
-            if (ret) {
+            if (ret)
+            {
                 LOG("import input picture buffer failed\n");
                 goto fail;
             }
-        } else {
-            if (frame_size == 0) {
+        }
+        else
+        {
+            if (frame_size == 0)
+            {
                 return MPP_OK;
             }
-            if (size == 0) {
+            if (size == 0)
+            {
                 size = frame_size;
                 assert(frame_size > 0);
             }
             ret = mpp_buffer_get(NULL, &buffer, size);
-            if (ret) {
+            if (ret)
+            {
                 LOG("allocate output stream buffer failed\n");
                 goto fail;
             }
@@ -216,7 +233,8 @@ namespace easymedia
         return MPP_OK;
 
     fail:
-        if (buffer) {
+        if (buffer)
+        {
             mpp_buffer_put(buffer);
             buffer = nullptr;
         }
@@ -227,14 +245,16 @@ namespace easymedia
     {
         size_t size = mb->GetValidSize();
         MPP_RET ret = init_mpp_buffer(buffer, mb, size);
-        if (ret) {
+        if (ret)
+        {
             return ret;
         }
         int fd = mb->GetFD();
         void* ptr = mb->GetPtr();
         // As init_mpp_buffer is a no time-consuming function and do not memcpy
         // content to a virtual buffer, do memcpy here.
-        if (fd < 0 && ptr) {
+        if (fd < 0 && ptr)
+        {
             // !!time-consuming operation
             // LOGD("extra time-consuming memcpy to mpp, size=%d!\n", size);
             memcpy(mpp_buffer_get_ptr(buffer), ptr, size);
@@ -256,7 +276,8 @@ namespace easymedia
         memset(&lt_ref, 0, sizeof(lt_ref));
         memset(&st_ref, 0, sizeof(st_ref));
 
-        switch (gop_mode) {
+        switch (gop_mode)
+        {
             case GOP_MODE_TSVC4: {
                 // tsvc4
                 //      /-> P1      /-> P3        /-> P5      /-> P7
@@ -331,7 +352,8 @@ namespace easymedia
                 st_ref[8].ref_mode = REF_TO_TEMPORAL_LAYER;
                 st_ref[8].ref_arg = 0;
                 st_ref[8].repeat = 0;
-            } break;
+            }
+            break;
             case GOP_MODE_TSVC3: {
                 // tsvc3
                 //     /-> P1      /-> P3
@@ -373,7 +395,8 @@ namespace easymedia
                 st_ref[4].ref_mode = REF_TO_TEMPORAL_LAYER;
                 st_ref[4].ref_arg = 0;
                 st_ref[4].repeat = 0;
-            } break;
+            }
+            break;
             case GOP_MODE_TSVC2: {
                 // tsvc2
                 //   /-> P1
@@ -401,7 +424,8 @@ namespace easymedia
                 st_ref[2].ref_mode = REF_TO_PREV_REF_FRM;
                 st_ref[2].ref_arg = 0;
                 st_ref[2].repeat = 0;
-            } break;
+            }
+            break;
             case GOP_MODE_SMARTP: {
                 // smartp: M = vi_len - 2; N = gop_size.
                 //   /-> E0 -> E1...-> EM   /-> E0 -> E1...-> EM       /-> E0 -> E1...-> EM
@@ -440,10 +464,12 @@ namespace easymedia
                 st_ref[2].ref_mode = REF_TO_PREV_INTRA;
                 st_ref[2].ref_arg = 0;
                 st_ref[2].repeat = 0;
-            } break;
+            }
+            break;
             default: {
                 LOG("ERROR: MPP: unsupport gop mode %d\n", gop_mode);
-            } break;
+            }
+            break;
         }
 
 #if 0
@@ -464,14 +490,17 @@ namespace easymedia
         }
 #endif
 
-        if (lt_cnt || st_cnt) {
+        if (lt_cnt || st_cnt)
+        {
             ret = mpp_enc_ref_cfg_set_cfg_cnt(ref, lt_cnt, st_cnt);
 
-            if (lt_cnt) {
+            if (lt_cnt)
+            {
                 ret = mpp_enc_ref_cfg_add_lt_cfg(ref, lt_cnt, lt_ref);
             }
 
-            if (st_cnt) {
+            if (st_cnt)
+            {
                 ret = mpp_enc_ref_cfg_add_st_cfg(ref, st_cnt, st_ref);
             }
 

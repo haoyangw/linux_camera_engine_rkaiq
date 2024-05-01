@@ -13,8 +13,7 @@ namespace easymedia
         return new MP2ServerMediaSubsession(env, wisInput);
     }
 
-    MP2ServerMediaSubsession::MP2ServerMediaSubsession(UsageEnvironment& env, Live555MediaInput& mediaInput)
-        : OnDemandServerMediaSubsession(env, True /*reuse the first source*/), fMediaInput(mediaInput)
+    MP2ServerMediaSubsession::MP2ServerMediaSubsession(UsageEnvironment& env, Live555MediaInput& mediaInput) : OnDemandServerMediaSubsession(env, True /*reuse the first source*/), fMediaInput(mediaInput)
     {
     }
 
@@ -30,11 +29,10 @@ namespace easymedia
         return fMediaInput.audioSource();
     }
 
-    RTPSink* MP2ServerMediaSubsession::createNewRTPSink(Groupsock* rtpGroupsock,
-                                                        unsigned char /*rtpPayloadTypeIfDynamic*/,
-                                                        FramedSource* inputSource)
+    RTPSink* MP2ServerMediaSubsession::createNewRTPSink(Groupsock* rtpGroupsock, unsigned char /*rtpPayloadTypeIfDynamic*/, FramedSource* inputSource)
     {
-        if (!inputSource) {
+        if (!inputSource)
+        {
             LOG("inputSource is not ready, can not create new rtp sink\n");
             return NULL;
         }
@@ -45,20 +43,17 @@ namespace easymedia
     }
 
     // std::mutex MP2ServerMediaSubsession::kMutex;
-    void MP2ServerMediaSubsession::startStream(unsigned clientSessionId, void* streamToken, TaskFunc* rtcpRRHandler,
-                                               void* rtcpRRHandlerClientData, unsigned short& rtpSeqNum,
-                                               unsigned& rtpTimestamp,
-                                               ServerRequestAlternativeByteHandler* serverRequestAlternativeByteHandler,
+    void MP2ServerMediaSubsession::startStream(unsigned clientSessionId, void* streamToken, TaskFunc* rtcpRRHandler, void* rtcpRRHandlerClientData, unsigned short& rtpSeqNum, unsigned& rtpTimestamp, ServerRequestAlternativeByteHandler* serverRequestAlternativeByteHandler,
                                                void* serverRequestAlternativeByteHandlerClientData)
     {
-        OnDemandServerMediaSubsession::startStream(clientSessionId, streamToken, rtcpRRHandler, rtcpRRHandlerClientData,
-                                                   rtpSeqNum, rtpTimestamp, serverRequestAlternativeByteHandler,
-                                                   serverRequestAlternativeByteHandlerClientData);
+        OnDemandServerMediaSubsession::startStream(clientSessionId, streamToken, rtcpRRHandler, rtcpRRHandlerClientData, rtpSeqNum, rtpTimestamp, serverRequestAlternativeByteHandler, serverRequestAlternativeByteHandlerClientData);
         // kMutex.lock();
-        if (kSessionIdList.empty()) {
+        if (kSessionIdList.empty())
+        {
             fMediaInput.Start(envir());
         }
-        if (fMediaInput.GetStartAudioStreamCallback() != NULL) {
+        if (fMediaInput.GetStartAudioStreamCallback() != NULL)
+        {
             fMediaInput.GetStartAudioStreamCallback()();
         }
         LOG("%s - clientSessionId: 0x%08x\n", __func__, clientSessionId);
@@ -70,7 +65,8 @@ namespace easymedia
         // kMutex.lock();
         LOG("%s - clientSessionId: 0x%08x\n", __func__, clientSessionId);
         kSessionIdList.remove(clientSessionId);
-        if (kSessionIdList.empty()) {
+        if (kSessionIdList.empty())
+        {
             fMediaInput.Stop(envir());
         }
         // kMutex.unlock();

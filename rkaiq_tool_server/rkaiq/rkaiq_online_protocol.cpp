@@ -81,7 +81,8 @@ static std::timed_mutex get3AStatsMtx;
 #define FMT_NUM_PLANES 1
 #define CLEAR(x) memset(&(x), 0, sizeof(x))
 
-struct YuvCaptureBuffer {
+struct YuvCaptureBuffer
+{
     void* start;
     size_t length;
 };
@@ -89,9 +90,12 @@ struct YuvCaptureBuffer {
 static std::string GetFirstDirectory(const std::string& path)
 {
     size_t pos = path.find('/', 1);
-    if (pos != std::string::npos) {
+    if (pos != std::string::npos)
+    {
         return path.substr(0, pos);
-    } else {
+    }
+    else
+    {
         return path;
     }
 }
@@ -101,14 +105,18 @@ static int strcmp_natural(const char* a, const char* b)
     if (!a || !b)
         return a ? 1 : b ? -1 : 0;
 
-    if (isdigit(*a) && isdigit(*b)) {
+    if (isdigit(*a) && isdigit(*b))
+    {
         char* remainderA;
         char* remainderB;
         long valA = strtol(a, &remainderA, 10);
         long valB = strtol(b, &remainderB, 10);
-        if (valA != valB) {
+        if (valA != valB)
+        {
             return valA - valB;
-        } else {
+        }
+        else
+        {
             std::ptrdiff_t lengthA = remainderA - a;
             std::ptrdiff_t lengthB = remainderB - b;
             if (lengthA != lengthB)
@@ -121,7 +129,8 @@ static int strcmp_natural(const char* a, const char* b)
     if (isdigit(*a) || isdigit(*b))
         return isdigit(*a) ? -1 : 1;
 
-    while (*a && *b) {
+    while (*a && *b)
+    {
         if (isdigit(*a) || isdigit(*b))
             return strcmp_natural(a, b);
         if (*a != *b)
@@ -147,7 +156,8 @@ static std::string string_format(const std::string fmt_str, ...)
     int final_n, n = ((int)fmt_str.size()) * 2;
     std::unique_ptr<char[]> formatted;
     va_list ap;
-    while (1) {
+    while (1)
+    {
         formatted.reset(new char[n]);
         strcpy(&formatted[0], fmt_str.c_str());
         va_start(ap, fmt_str);
@@ -168,9 +178,9 @@ static string GetTime()
     struct timeval time;
     gettimeofday(&time, NULL);
     tm_t = localtime(&time.tv_sec);
-    if (NULL != tm_t) {
-        timeString = string_format("%04d-%02d-%02d %02d:%02d:%02d.%03ld", tm_t->tm_year + 1900, tm_t->tm_mon + 1,
-                                   tm_t->tm_mday, tm_t->tm_hour, tm_t->tm_min, tm_t->tm_sec, time.tv_usec / 1000);
+    if (NULL != tm_t)
+    {
+        timeString = string_format("%04d-%02d-%02d %02d:%02d:%02d.%03ld", tm_t->tm_year + 1900, tm_t->tm_mon + 1, tm_t->tm_mday, tm_t->tm_hour, tm_t->tm_min, tm_t->tm_sec, time.tv_usec / 1000);
     }
 
     return timeString;
@@ -181,23 +191,33 @@ static void HexDump(const unsigned char* data, size_t size)
     printf("####\n");
     int i;
     size_t offset = 0;
-    while (offset < size) {
+    while (offset < size)
+    {
         printf("%04x  ", offset);
-        for (i = 0; i < 16; i++) {
-            if (i % 8 == 0) {
+        for (i = 0; i < 16; i++)
+        {
+            if (i % 8 == 0)
+            {
                 putchar(' ');
             }
-            if (offset + i < size) {
+            if (offset + i < size)
+            {
                 printf("%02x ", data[offset + i]);
-            } else {
+            }
+            else
+            {
                 printf("   ");
             }
         }
         printf("   ");
-        for (i = 0; i < 16 && offset + i < size; i++) {
-            if (isprint(data[offset + i])) {
+        for (i = 0; i < 16 && offset + i < size; i++)
+        {
+            if (isprint(data[offset + i]))
+            {
                 printf("%c", data[offset + i]);
-            } else {
+            }
+            else
+            {
                 putchar('.');
             }
         }
@@ -215,7 +235,8 @@ static void write_to_file(std::string filename, void* buffer, std::size_t size)
 
 static void SendMessageToPC(int sockfd, char* data, unsigned long long dataSize = 0)
 {
-    if (dataSize == 0) {
+    if (dataSize == 0)
+    {
         dataSize = strlen(data);
     }
     unsigned long long packetSize = strlen("#&#^ToolServerMsg#&#^") + strlen("#&#^@`#`@`#`") + dataSize;
@@ -243,7 +264,8 @@ static void DoAnswer(int sockfd, CommandData_t* cmd, int cmd_id, int ret_status)
     memset(cmd->dat, 0, sizeof(cmd->dat));
     cmd->dat[0] = ret_status;
     cmd->checkSum = 0;
-    for (int i = 0; i < cmd->datLen; i++) {
+    for (int i = 0; i < cmd->datLen; i++)
+    {
         cmd->checkSum += cmd->dat[i];
     }
 
@@ -264,7 +286,8 @@ static void DoAnswer2(int sockfd, CommandData_t* cmd, int cmd_id, uint16_t check
     cmd->dat[1] = check_sum & 0xFF;
     cmd->dat[2] = (check_sum >> 8) & 0xFF;
     cmd->checkSum = 0;
-    for (int i = 0; i < cmd->datLen; i++) {
+    for (int i = 0; i < cmd->datLen; i++)
+    {
         cmd->checkSum += cmd->dat[i];
     }
 
@@ -279,18 +302,24 @@ static int DoCheckSum(int sockfd, uint16_t check_sum)
     int param_size = sizeof(CommandData_t);
     int remain_size = param_size;
     int try_count = 3;
-    while (remain_size > 0) {
+    while (remain_size > 0)
+    {
         int offset = param_size - remain_size;
         recv_size = recv(sockfd, recv_data + offset, remain_size, 0);
-        if (recv_size < 0) {
-            if (errno == EAGAIN) {
+        if (recv_size < 0)
+        {
+            if (errno == EAGAIN)
+            {
                 LOG_DEBUG("recv size %zu, do try again, count %d\n", recv_size, try_count);
                 try_count--;
-                if (try_count < 0) {
+                if (try_count < 0)
+                {
                     break;
                 }
                 continue;
-            } else {
+            }
+            else
+            {
                 // SendMessageToPC(sockfd, "Error socket recv failed");
                 LOG_ERROR("Error socket recv failed %d\n", errno);
             }
@@ -305,7 +334,8 @@ static int DoCheckSum(int sockfd, uint16_t check_sum)
     recv_check_sum += (cmd->dat[1] & 0xff) << 8;
     LOG_DEBUG("check_sum local: 0x%x pc: 0x%x\n", check_sum, recv_check_sum);
 
-    if (check_sum != recv_check_sum) {
+    if (check_sum != recv_check_sum)
+    {
         LOG_DEBUG("check_sum fail!\n");
         return -1;
     }
@@ -320,7 +350,8 @@ static void OnLineSet(int sockfd, CommandData_t* cmd, uint16_t& check_sum, uint3
 
     LOG_DEBUG("expect recv param_size 0x%x\n", param_size);
     char* param = (char*)malloc(param_size);
-    while (remain_size > 0) {
+    while (remain_size > 0)
+    {
         int offset = param_size - remain_size;
         recv_size = recv(sockfd, param + offset, remain_size, 0);
         remain_size = remain_size - recv_size;
@@ -328,7 +359,8 @@ static void OnLineSet(int sockfd, CommandData_t* cmd, uint16_t& check_sum, uint3
 
     LOG_DEBUG("recv ready\n");
 
-    for (int i = 0; i < param_size; i++) {
+    for (int i = 0; i < param_size; i++)
+    {
         check_sum += param[i];
     }
 
@@ -339,7 +371,8 @@ static void OnLineSet(int sockfd, CommandData_t* cmd, uint16_t& check_sum, uint3
         result = rkaiq_manager->IoCtrl(cmd->cmdID, param, param_size);
     }
 #endif
-    if (param != NULL) {
+    if (param != NULL)
+    {
         free(param);
     }
 }
@@ -366,20 +399,23 @@ static int OnLineGet(int sockfd, CommandData_t* cmd)
   }
 #endif
 
-    while (remain_size > 0) {
+    while (remain_size > 0)
+    {
         int offset = param_size - remain_size;
         send_size = send(sockfd, param + offset, remain_size, 0);
         remain_size = param_size - send_size;
     }
 
     uint16_t check_sum = 0;
-    for (int i = 0; i < param_size; i++) {
+    for (int i = 0; i < param_size; i++)
+    {
         check_sum += param[i];
     }
 
     ret = DoCheckSum(sockfd, check_sum);
 
-    if (param != NULL) {
+    if (param != NULL)
+    {
         free(param);
         param = NULL;
     }
@@ -403,10 +439,14 @@ static void SendYuvData(int socket, int index, void* buffer, int size)
     // capture_check_sum = check_sum;
 
     buf = (char*)buffer;
-    while (total > 0) {
-        if (total < packet_len) {
+    while (total > 0)
+    {
+        if (total < packet_len)
+        {
             send_size = total;
-        } else {
+        }
+        else
+        {
             send_size = packet_len;
         }
         ret_val = send(socket, buf, send_size, 0);
@@ -426,14 +466,18 @@ static void SendYuvDataResult(int sockfd, CommandData_t* cmd, CommandData_t* rec
     cmd->datLen = 2;
     memset(cmd->dat, 0, sizeof(cmd->dat));
     cmd->dat[0] = 0x04;
-    if (capture_check_sum == *checksum) {
+    if (capture_check_sum == *checksum)
+    {
         cmd->dat[1] = RES_SUCCESS;
-    } else {
+    }
+    else
+    {
         cmd->dat[1] = RES_FAILED;
     }
     cmd->checkSum = 0;
     capture_check_sum = 0;
-    for (int i = 0; i < cmd->datLen; i++) {
+    for (int i = 0; i < cmd->datLen; i++)
+    {
         cmd->checkSum += cmd->dat[i];
     }
 
@@ -452,14 +496,18 @@ static void SendOnlineRawDataResult(int sockfd, CommandData_t* cmd, CommandData_
     cmd->datLen = 2;
     memset(cmd->dat, 0, sizeof(cmd->dat));
     cmd->dat[0] = 0x04;
-    if (capture_check_sum == *checksum) {
+    if (capture_check_sum == *checksum)
+    {
         cmd->dat[1] = RES_SUCCESS;
-    } else {
+    }
+    else
+    {
         cmd->dat[1] = RES_FAILED;
     }
     cmd->checkSum = 0;
     capture_check_sum = 0;
-    for (int i = 0; i < cmd->datLen; i++) {
+    for (int i = 0; i < cmd->datLen; i++)
+    {
         cmd->checkSum += cmd->dat[i];
     }
 
@@ -493,16 +541,21 @@ static void ExecuteCMD(const char* cmd, char* result)
     FILE* ptr;
     strcpy(ps, cmd);
     strcat(ps, " 2>&1"); // Redirect stderr to stdout
-    if ((ptr = popen(ps, "r")) != NULL) {
-        while (fgets(buf_ps, 1024, ptr) != NULL) {
+    if ((ptr = popen(ps, "r")) != NULL)
+    {
+        while (fgets(buf_ps, 1024, ptr) != NULL)
+        {
             strcat(result, buf_ps);
-            if (strlen(result) > 1024) {
+            if (strlen(result) > 1024)
+            {
                 break;
             }
         }
         pclose(ptr);
         ptr = NULL;
-    } else {
+    }
+    else
+    {
         printf("popen %s error\n", ps);
     }
 }
@@ -511,18 +564,23 @@ static int DoCaptureYuv(int sockfd)
 {
     LOG_DEBUG("DoCaptureYuv begin\n");
     g_inCaptureYUVProcess = 1;
-    if (g_startOfflineRawFlag == 1) {
-        if (g_offlineRAWCaptureYUVStepCounter != 0) {
+    if (g_startOfflineRawFlag == 1)
+    {
+        if (g_offlineRAWCaptureYUVStepCounter != 0)
+        {
             g_offlineRAWCaptureYUVStepCounter = 0;
             usleep(1000 * 200);
-        } else {
+        }
+        else
+        {
             printf("#### offlineRawEnqueue wait begin ####\n");
             g_offlineRawEnqueued.wait(g_offlineRawEnqueuedLock);
             printf("#### offlineRawEnqueue wait end ####\n");
         }
     }
 
-    if (capture_frames_index == 0) {
+    if (capture_frames_index == 0)
+    {
         char tmpPath[100] = {0};
         getcwd(tmpPath, 100);
         string currentDir = tmpPath;
@@ -533,43 +591,55 @@ static int DoCaptureYuv(int sockfd)
     bool videoDevNodeFindedFlag = false;
     char cmdResStr[128] = {0};
     memset(captureDevNode, 0, sizeof(captureDevNode));
-    if (g_stream_dev_name.length() > 0) {
+    if (g_stream_dev_name.length() > 0)
+    {
         videoDevNodeFindedFlag = true;
         memcpy(captureDevNode, g_stream_dev_name.c_str(), g_stream_dev_name.length());
         LOG_INFO("DoCaptureYuv,using specific dev node:%s\n", captureDevNode);
-    } else {
+    }
+    else
+    {
         LOG_INFO("DoCaptureYuv,using rkisp_iqtool node.\n");
-        if (videoDevNodeFindedFlag == false) {
+        if (videoDevNodeFindedFlag == false)
+        {
             memset(cmdResStr, 0, sizeof(cmdResStr));
             ExecuteCMD("media-ctl -d /dev/media0 -e rkisp_iqtool", cmdResStr);
-            if (strstr(cmdResStr, "/dev/video") != NULL) {
+            if (strstr(cmdResStr, "/dev/video") != NULL)
+            {
                 videoDevNodeFindedFlag = true;
                 memcpy(captureDevNode, cmdResStr, sizeof(cmdResStr));
             }
         }
-        if (videoDevNodeFindedFlag == false) {
+        if (videoDevNodeFindedFlag == false)
+        {
             memset(cmdResStr, 0, sizeof(cmdResStr));
             ExecuteCMD("media-ctl -d /dev/media1 -e rkisp_iqtool", cmdResStr);
-            if (strstr(cmdResStr, "/dev/video") != NULL) {
+            if (strstr(cmdResStr, "/dev/video") != NULL)
+            {
                 videoDevNodeFindedFlag = true;
                 memcpy(captureDevNode, cmdResStr, sizeof(cmdResStr));
             }
         }
-        if (videoDevNodeFindedFlag == false) {
+        if (videoDevNodeFindedFlag == false)
+        {
             memset(cmdResStr, 0, sizeof(cmdResStr));
             ExecuteCMD("media-ctl -d /dev/media2 -e rkisp_iqtool", cmdResStr);
-            if (strstr(cmdResStr, "/dev/video") != NULL) {
+            if (strstr(cmdResStr, "/dev/video") != NULL)
+            {
                 videoDevNodeFindedFlag = true;
                 memcpy(captureDevNode, cmdResStr, sizeof(cmdResStr));
             }
         }
     }
 
-    if (videoDevNodeFindedFlag == false) {
+    if (videoDevNodeFindedFlag == false)
+    {
         // SendMessageToPC(sockfd, "Video capture device node not found");
         LOG_ERROR("Video capture device node not found.\n");
         return 1;
-    } else {
+    }
+    else
+    {
         captureDevNode[strcspn(captureDevNode, "\n")] = '\0';
         LOG_DEBUG("Video capture device node:%s\n", captureDevNode);
     }
@@ -579,14 +649,16 @@ static int DoCaptureYuv(int sockfd)
     struct v4l2_format capFmt;
 
     int fd = open(captureDevNode, O_RDWR, 0);
-    if (-1 == fd) {
+    if (-1 == fd)
+    {
         // SendMessageToPC(sockfd, "Open captureDevNode failed");
         LOG_ERROR("Cannot open '%s': %d, %s\n", captureDevNode, errno, strerror(errno));
         return -1;
     }
 
 #ifdef RKISP_CMD_SET_IQTOOL_CONN_ID
-    if (g_stream_dev_index == 0) {
+    if (g_stream_dev_index == 0)
+    {
         int tmpVal = 0;
         if (xioctl(fd, RKISP_CMD_SET_IQTOOL_CONN_ID, &tmpVal) < 0) // 0:mp 1:sp
         {
@@ -594,7 +666,9 @@ static int DoCaptureYuv(int sockfd)
             LOG_ERROR("Failed to ioctl(RKISP_CMD_SET_IQTOOL_CONN_ID)\n");
             return -1;
         }
-    } else if (g_stream_dev_index == 1) {
+    }
+    else if (g_stream_dev_index == 1)
+    {
         int tmpVal = 1;
         if (xioctl(fd, RKISP_CMD_SET_IQTOOL_CONN_ID, &tmpVal) < 0) // 0:mp 1:sp
         {
@@ -606,7 +680,8 @@ static int DoCaptureYuv(int sockfd)
 #endif
     //
     CLEAR(capCapability);
-    if (xioctl(fd, VIDIOC_QUERYCAP, &capCapability) < 0) {
+    if (xioctl(fd, VIDIOC_QUERYCAP, &capCapability) < 0)
+    {
         // SendMessageToPC(sockfd, "VIDIOC_QUERYCAP failed");
         LOG_ERROR("Failed to ioctl(VIDIOC_QUERYCAP)\n");
         return -1;
@@ -631,12 +706,14 @@ static int DoCaptureYuv(int sockfd)
     capFmt.fmt.pix.width = g_width;
     capFmt.fmt.pix.height = g_height;
     capFmt.fmt.pix.pixelformat = V4L2_PIX_FMT_NV12;
-    if (xioctl(fd, VIDIOC_S_FMT, &capFmt) < 0) {
+    if (xioctl(fd, VIDIOC_S_FMT, &capFmt) < 0)
+    {
         // SendMessageToPC(sockfd, "VIDIOC_S_FMT failed");
         LOG_ERROR("Failed to ioctl(VIDIOC_S_FMT)\n");
         return -1;
     }
-    if (xioctl(fd, VIDIOC_G_FMT, &capFmt) < 0) {
+    if (xioctl(fd, VIDIOC_G_FMT, &capFmt) < 0)
+    {
         // SendMessageToPC(sockfd, "VIDIOC_G_FMT failed");
         LOG_ERROR("Failed to ioctl(VIDIOC_G_FMT)\n");
         return -1;
@@ -651,23 +728,28 @@ static int DoCaptureYuv(int sockfd)
     req.count = g_mmapNumber; // memory map buffer count
     req.type = (v4l2_buf_type)capFmt.type;
     req.memory = V4L2_MEMORY_MMAP;
-    if (xioctl(fd, VIDIOC_REQBUFS, &req) < 0) {
+    if (xioctl(fd, VIDIOC_REQBUFS, &req) < 0)
+    {
         // SendMessageToPC(sockfd, "VIDIOC_REQBUFS failed");
         LOG_ERROR("Failed to ioctl(VIDIOC_REQBUFS)\n");
         return -1;
     }
-    if (req.count < 2) {
+    if (req.count < 2)
+    {
         // SendMessageToPC(sockfd, "Insufficient buffer memory");
         LOG_ERROR("Insufficient buffer memory\n");
         return -1;
-    } else {
+    }
+    else
+    {
         LOG_INFO("YUV capture using %u buffers\n", req.count);
     }
     //
 
     struct YuvCaptureBuffer* buffers = (YuvCaptureBuffer*)calloc(req.count, sizeof(*buffers));
     unsigned int n_buffers = 0;
-    for (n_buffers = 0; n_buffers < req.count; ++n_buffers) {
+    for (n_buffers = 0; n_buffers < req.count; ++n_buffers)
+    {
         struct v4l2_buffer buf;
         struct v4l2_plane planes[FMT_NUM_PLANES];
         CLEAR(buf);
@@ -675,30 +757,36 @@ static int DoCaptureYuv(int sockfd)
         buf.type = (v4l2_buf_type)capFmt.type;
         buf.memory = V4L2_MEMORY_MMAP;
         buf.index = n_buffers;
-        if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE == capFmt.type) {
+        if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE == capFmt.type)
+        {
             buf.m.planes = planes;
             buf.length = FMT_NUM_PLANES;
         }
-        if (-1 == xioctl(fd, VIDIOC_QUERYBUF, &buf)) {
+        if (-1 == xioctl(fd, VIDIOC_QUERYBUF, &buf))
+        {
             // SendMessageToPC(sockfd, "VIDIOC_QUERYBUF failed");
             LOG_ERROR("VIDIOC_QUERYBUF error\n");
         }
-        if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE == capFmt.type) {
+        if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE == capFmt.type)
+        {
             buffers[n_buffers].length = buf.m.planes[0].length;
-            buffers[n_buffers].start = mmap(NULL, buf.m.planes[0].length, PROT_READ | PROT_WRITE, MAP_SHARED, fd,
-                                            buf.m.planes[0].m.mem_offset);
-        } else {
+            buffers[n_buffers].start = mmap(NULL, buf.m.planes[0].length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, buf.m.planes[0].m.mem_offset);
+        }
+        else
+        {
             buffers[n_buffers].length = buf.length;
             buffers[n_buffers].start = mmap(NULL, buf.length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, buf.m.offset);
         }
 
-        if (MAP_FAILED == buffers[n_buffers].start) {
+        if (MAP_FAILED == buffers[n_buffers].start)
+        {
             // SendMessageToPC(sockfd, "memory map failed");
             LOG_ERROR("memory map failed\n");
         }
     }
 
-    for (uint i = 0; i < n_buffers; ++i) {
+    for (uint i = 0; i < n_buffers; ++i)
+    {
         struct v4l2_buffer buf;
         struct v4l2_plane planes[FMT_NUM_PLANES];
         CLEAR(buf);
@@ -706,59 +794,72 @@ static int DoCaptureYuv(int sockfd)
         buf.type = (v4l2_buf_type)capFmt.type;
         buf.memory = V4L2_MEMORY_MMAP;
         buf.index = i;
-        if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE == (v4l2_buf_type)capFmt.type) {
+        if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE == (v4l2_buf_type)capFmt.type)
+        {
             buf.m.planes = planes;
             buf.length = FMT_NUM_PLANES;
         }
-        if (-1 == xioctl(fd, VIDIOC_QBUF, &buf)) {
+        if (-1 == xioctl(fd, VIDIOC_QBUF, &buf))
+        {
             // SendMessageToPC(sockfd, "VIDIOC_QBUF failed");
             LOG_ERROR("VIDIOC_QBUF failed\n");
         }
     }
 
-    if (-1 == xioctl(fd, VIDIOC_STREAMON, &capFmt.type)) {
+    if (-1 == xioctl(fd, VIDIOC_STREAMON, &capFmt.type))
+    {
         // SendMessageToPC(sockfd, "VIDIOC_STREAMON failed");
         LOG_ERROR("VIDIOC_STREAMON failed\n");
         return -1;
     }
 
     std::vector<std::thread> threads;
-    if (g_usingCaptureCacheFlag == 1) {
+    if (g_usingCaptureCacheFlag == 1)
+    {
         threads.push_back(std::thread([=]() {
             LOG_DEBUG("DoCapture send yuv file process. start\n");
             LOG_DEBUG("g_startOfflineRawFlag:%d\n", g_startOfflineRawFlag);
             LOG_DEBUG("g_offlineRAWCaptureYUVStepCounter:%d\n", g_offlineRAWCaptureYUVStepCounter);
-            while (capture_frames_index < capture_frames) {
+            while (capture_frames_index < capture_frames)
+            {
             START_SEND_YUV:
                 printf("capture_frames_index/capture_frames:%d/%d\n", capture_frames_index, capture_frames);
-                if (capture_frames_index >= capture_frames) {
+                if (capture_frames_index >= capture_frames)
+                {
                     break;
                 }
                 usleep(1000 * 500);
-                if (g_startOfflineRawFlag == 1 && g_offlineRAWCaptureYUVStepCounter == 2) {
+                if (g_startOfflineRawFlag == 1 && g_offlineRAWCaptureYUVStepCounter == 2)
+                {
                     printf("############## send yuv wait.\n");
                     usleep(1000 * 500);
                 }
                 static std::vector<std::string> yuv_files;
                 DIR* dir = opendir(g_capture_cache_dir.c_str());
                 struct dirent* dir_ent = NULL;
-                if (dir) {
+                if (dir)
+                {
                     yuv_files.clear();
-                    while ((dir_ent = readdir(dir))) {
-                        if (dir_ent->d_type == DT_REG) {
+                    while ((dir_ent = readdir(dir)))
+                    {
+                        if (dir_ent->d_type == DT_REG)
+                        {
                             // is yuv file
-                            if (strstr(dir_ent->d_name, ".yuv")) {
+                            if (strstr(dir_ent->d_name, ".yuv"))
+                            {
                                 yuv_files.push_back(dir_ent->d_name);
                             }
                         }
                     }
                     closedir(dir);
                 }
-                if (yuv_files.size() == 0) {
+                if (yuv_files.size() == 0)
+                {
                     LOG_INFO("No yuv files in %s\n", g_capture_cache_dir.c_str());
                     goto START_SEND_YUV;
                 }
-                while (yuv_files.size() > 0) {
+                while (yuv_files.size() > 0)
+                {
                     // for (auto tmp : yuv_files)
                     // {
                     //     LOG_DEBUG("yuv_file:%s\n", tmp.c_str());
@@ -769,7 +870,8 @@ static int DoCaptureYuv(int sockfd)
 
                     std::sort(yuv_files.begin(), yuv_files.end(), natural_more);
                     string tmpyuvFile = yuv_files.back();
-                    while (tmpyuvFile != "") {
+                    while (tmpyuvFile != "")
+                    {
                         string fileFullpath = string_format("%s/%s", g_capture_cache_dir.c_str(), tmpyuvFile.c_str());
                         LOG_DEBUG("yuv CAPTURED:%s\n", fileFullpath.c_str());
 
@@ -778,7 +880,8 @@ static int DoCaptureYuv(int sockfd)
                         long fsize = ftell(f);
                         fseek(f, 0, SEEK_SET);
                         LOG_DEBUG("yuv CAPTURED size:%ld\n", fsize);
-                        if (fsize > 0) {
+                        if (fsize > 0)
+                        {
                             char* yuvData = (char*)malloc(fsize);
                             fread(yuvData, fsize, 1, f);
 
@@ -793,31 +896,42 @@ static int DoCaptureYuv(int sockfd)
                             yuv_files.pop_back();
                             usleep(1000 * 100);
 
-                            if (yuv_files.size() == 0) {
+                            if (yuv_files.size() == 0)
+                            {
                                 DIR* dir = opendir(g_capture_cache_dir.c_str());
                                 struct dirent* dir_ent = NULL;
-                                if (dir) {
+                                if (dir)
+                                {
                                     yuv_files.clear();
-                                    while ((dir_ent = readdir(dir))) {
-                                        if (dir_ent->d_type == DT_REG) {
+                                    while ((dir_ent = readdir(dir)))
+                                    {
+                                        if (dir_ent->d_type == DT_REG)
+                                        {
                                             // is yuv file
-                                            if (strstr(dir_ent->d_name, ".yuv")) {
+                                            if (strstr(dir_ent->d_name, ".yuv"))
+                                            {
                                                 yuv_files.push_back(dir_ent->d_name);
                                             }
                                         }
                                     }
                                     closedir(dir);
-                                    if (yuv_files.size() > 0) {
+                                    if (yuv_files.size() > 0)
+                                    {
                                         std::sort(yuv_files.begin(), yuv_files.end(), natural_more);
                                     }
                                 }
                             }
-                            if (yuv_files.size() > 0) {
+                            if (yuv_files.size() > 0)
+                            {
                                 tmpyuvFile = yuv_files.back();
-                            } else {
+                            }
+                            else
+                            {
                                 tmpyuvFile = "";
                             }
-                        } else {
+                        }
+                        else
+                        {
                             LOG_DEBUG("yuv CAPTURED size < 0\n");
                         }
                         fclose(f);
@@ -831,7 +945,8 @@ static int DoCaptureYuv(int sockfd)
     threads.push_back(std::thread([=]() {
         LOG_INFO("YUV capture process begin\n");
         static uint32_t virtual_sequence = 0;
-        while (1) {
+        while (1)
+        {
             fd_set fds;
             struct timeval tv;
             FD_ZERO(&fds);
@@ -841,12 +956,15 @@ static int DoCaptureYuv(int sockfd)
             tv.tv_sec = 2;
             tv.tv_usec = 0;
             int ret = select(fd + 1, &fds, NULL, NULL, &tv);
-            if (-1 == ret) {
+            if (-1 == ret)
+            {
                 if (EINTR == errno)
                     continue;
                 // SendMessageToPC(sockfd, "select dev failed");
                 LOG_ERROR("select failed\n");
-            } else if (0 == ret) {
+            }
+            else if (0 == ret)
+            {
                 fprintf(stderr, "select timeout\n");
                 // SendMessageToPC(sockfd, "select dev timeout");
                 LOG_ERROR("select timeout\n");
@@ -856,15 +974,18 @@ static int DoCaptureYuv(int sockfd)
             }
 
             //
-            if (g_usingCaptureCacheFlag == 1 && 0 != access(g_capture_cache_dir.c_str(), 0)) {
-                if (mkdir(g_capture_cache_dir.c_str(), 0777) != 0) {
+            if (g_usingCaptureCacheFlag == 1 && 0 != access(g_capture_cache_dir.c_str(), 0))
+            {
+                if (mkdir(g_capture_cache_dir.c_str(), 0777) != 0)
+                {
                     LOG_ERROR("Create folder %s failed.\n", g_capture_cache_dir.c_str());
                     return;
                 }
             }
 
             virtual_sequence = 0;
-            while (capture_frames_index < capture_frames) {
+            while (capture_frames_index < capture_frames)
+            {
                 struct v4l2_buffer buf;
                 struct v4l2_plane planes[FMT_NUM_PLANES];
                 CLEAR(buf);
@@ -872,11 +993,13 @@ static int DoCaptureYuv(int sockfd)
                 buf.type = (v4l2_buf_type)capFmt.type;
                 buf.memory = V4L2_MEMORY_MMAP;
                 buf.index = capture_frames_index;
-                if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE == (v4l2_buf_type)capFmt.type) {
+                if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE == (v4l2_buf_type)capFmt.type)
+                {
                     buf.m.planes = planes;
                     buf.length = FMT_NUM_PLANES;
                 }
-                if (-1 == xioctl(fd, VIDIOC_DQBUF, &buf)) {
+                if (-1 == xioctl(fd, VIDIOC_DQBUF, &buf))
+                {
                     // SendMessageToPC(sockfd, "VIDIOC_DQBUF failed");
                     LOG_ERROR("VIDIOC_DQBUF failed\n");
                 }
@@ -886,8 +1009,10 @@ static int DoCaptureYuv(int sockfd)
                 // LOG_INFO("virtual_sequence:%u\n", virtual_sequence);
                 // LOG_INFO("capture_frames_index:%u\n", capture_frames_index);
 
-                if (g_sendSpecificFrame == 0 || (g_sendSpecificFrame != 0 && virtual_sequence >= g_sendSpecificFrame)) {
-                    if (g_usingCaptureCacheFlag == 1) {
+                if (g_sendSpecificFrame == 0 || (g_sendSpecificFrame != 0 && virtual_sequence >= g_sendSpecificFrame))
+                {
+                    if (g_usingCaptureCacheFlag == 1)
+                    {
                         // Check available disk space
                         // std::string tmpStr = GetFirstDirectory(g_capture_cache_dir.c_str());
                         LOG_DEBUG("capture cache dir:%s\n", g_capture_cache_dir.c_str());
@@ -895,7 +1020,8 @@ static int DoCaptureYuv(int sockfd)
                         statfs(g_capture_cache_dir.c_str(), &diskInfo);
                         unsigned long long blocksize = diskInfo.f_bsize;
                         unsigned long long availableDisk = diskInfo.f_bavail * blocksize;
-                        if (file_length * 2 > availableDisk) {
+                        if (file_length * 2 > availableDisk)
+                        {
                             LOG_DEBUG("file_length/availableDisk:%u/%llu\n", file_length, availableDisk);
                             LOG_ERROR("Insufficient disk space\n");
                             capture_frames_index = capture_frames;
@@ -907,17 +1033,22 @@ static int DoCaptureYuv(int sockfd)
 
                         size_t totalSize = file_length;
                         FILE* f = fopen(targetFileName.c_str(), "wb");
-                        if (f) {
+                        if (f)
+                        {
                             fwrite(buffers[buf.index].start, 1, totalSize, f);
                             fclose(f);
                             g_yuvCaptured.notify_one();
-                        } else {
+                        }
+                        else
+                        {
                             LOG_DEBUG("Failed to open file %s, return\n", targetFileName.c_str());
                             return;
                         }
                         LOG_DEBUG("%s | DoCaptureYuv end save file. sequence:%u\n", GetTime().c_str(), buf.sequence);
                         capture_frames_index++;
-                    } else {
+                    }
+                    else
+                    {
                         // LOG_DEBUG("%s | DoCaptureYuv end send data. sequence:%u\n", GetTime().c_str(), buf.sequence);
                         LOG_DEBUG("DoCaptureYuv end send data. sequence:%u\n", buf.sequence);
                         SendYuvData(sockfd, buf.sequence, buffers[buf.index].start, file_length);
@@ -925,7 +1056,8 @@ static int DoCaptureYuv(int sockfd)
                     }
                 }
 
-                if (-1 == xioctl(fd, VIDIOC_QBUF, &buf)) {
+                if (-1 == xioctl(fd, VIDIOC_QBUF, &buf))
+                {
                     LOG_ERROR("VIDIOC_QBUF failed\n");
                 }
 
@@ -939,8 +1071,10 @@ static int DoCaptureYuv(int sockfd)
         }
 
         // unmap
-        for (uint i = 0; i < n_buffers; ++i) {
-            if (-1 == munmap(buffers[i].start, buffers[i].length)) {
+        for (uint i = 0; i < n_buffers; ++i)
+        {
+            if (-1 == munmap(buffers[i].start, buffers[i].length))
+            {
                 LOG_ERROR("munmap error\n");
             }
         }
@@ -950,7 +1084,8 @@ static int DoCaptureYuv(int sockfd)
         LOG_INFO("YUV capture process end\n");
     }));
 
-    for (auto& thread : threads) {
+    for (auto& thread : threads)
+    {
         thread.join();
     }
     g_inCaptureYUVProcess = 0;
@@ -961,12 +1096,14 @@ static int DoCaptureYuv(int sockfd)
 
 static void RawCaptureDeinit(struct capture_info* cap_info)
 {
-    if (cap_info->subdev_fd > 0) {
+    if (cap_info->subdev_fd > 0)
+    {
         device_close(cap_info->subdev_fd);
         cap_info->subdev_fd = -1;
         LOG_DEBUG("device_close(cap_info.subdev_fd)\n");
     }
-    if (cap_info->dev_fd > 0) {
+    if (cap_info->dev_fd > 0)
+    {
         device_close(cap_info->dev_fd);
         cap_info->dev_fd = -1;
         LOG_DEBUG("device_close(cap_info.dev_fd)\n");
@@ -975,7 +1112,8 @@ static void RawCaptureDeinit(struct capture_info* cap_info)
 
 static void DumpCapinfo()
 {
-    if (g_sensorHdrMode == NO_HDR) {
+    if (g_sensorHdrMode == NO_HDR)
+    {
         LOG_INFO("DumpCapinfo NO_HDR: \n");
         LOG_INFO("    dev_name ------------- %s\n", cap_info.dev_name);
         LOG_INFO("    dev_fd --------------- %d\n", cap_info.dev_fd);
@@ -986,8 +1124,11 @@ static void DumpCapinfo()
         LOG_INFO("    capture_buf_type ----- %d\n", cap_info.capture_buf_type);
         LOG_INFO("    out_file ------------- %s\n", cap_info.out_file);
         LOG_INFO("    frame_count ---------- %d\n", cap_info.frame_count);
-    } else if (g_sensorHdrMode == HDR_X2) {
-        if (g_capture_dev_name.length() == 0) {
+    }
+    else if (g_sensorHdrMode == HDR_X2)
+    {
+        if (g_capture_dev_name.length() == 0)
+        {
             LOG_INFO("DumpCapinfo HDR_X2: \n");
             LOG_INFO("    dev_name ------------- %s\n", cap_info_hdr2_1.dev_name);
             LOG_INFO("    dev_fd --------------- %d\n", cap_info_hdr2_1.dev_fd);
@@ -1008,7 +1149,9 @@ static void DumpCapinfo()
             LOG_INFO("    capture_buf_type ----- %d\n", cap_info_hdr2_2.capture_buf_type);
             LOG_INFO("    out_file ------------- %s\n", cap_info_hdr2_2.out_file);
             LOG_INFO("    frame_count ---------- %d\n", cap_info_hdr2_2.frame_count);
-        } else {
+        }
+        else
+        {
             LOG_INFO("DumpCapinfo HDR_X2 read back mode: \n");
             LOG_INFO("    dev_name ------------- %s\n", cap_info_hdr2_1.dev_name);
             LOG_INFO("    dev_fd --------------- %d\n", cap_info_hdr2_1.dev_fd);
@@ -1030,7 +1173,9 @@ static void DumpCapinfo()
             LOG_INFO("    out_file ------------- %s\n", cap_info_hdr2_2.out_file);
             LOG_INFO("    frame_count ---------- %d\n", cap_info_hdr2_2.frame_count);
         }
-    } else if (g_sensorHdrMode == HDR_X3) {
+    }
+    else if (g_sensorHdrMode == HDR_X3)
+    {
         LOG_INFO("DumpCapinfo HDR_X3: \n");
         LOG_INFO("    dev_name ------------- %s\n", cap_info_hdr3_1.dev_name);
         LOG_INFO("    dev_fd --------------- %d\n", cap_info_hdr3_1.dev_fd);
@@ -1075,10 +1220,14 @@ static void SendRawData(int socket, int index, void* buffer, int size)
     int ret_val;
     uint16_t check_sum = 0;
     buf = (char*)buffer;
-    while (total > 0) {
-        if (total < packet_len) {
+    while (total > 0)
+    {
+        if (total < packet_len)
+        {
             send_size = total;
-        } else {
+        }
+        else
+        {
             send_size = packet_len;
         }
         ret_val = send(socket, buf, send_size, 0);
@@ -1087,7 +1236,8 @@ static void SendRawData(int socket, int index, void* buffer, int size)
     }
 
     buf = (char*)buffer;
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++)
+    {
         check_sum += buf[i];
     }
 
@@ -1095,8 +1245,7 @@ static void SendRawData(int socket, int index, void* buffer, int size)
     LOG_DEBUG("SendRawData size:%d, sequence:%u\n", size, cap_info.sequence);
 }
 
-static void SendRawDataWithExpInfo(int socket, int index, void* buffer, int size, rk_aiq_isp_tool_stats_t* expInfo,
-                                   int expInfoSize)
+static void SendRawDataWithExpInfo(int socket, int index, void* buffer, int size, rk_aiq_isp_tool_stats_t* expInfo, int expInfoSize)
 {
     assert(buffer);
 
@@ -1107,10 +1256,14 @@ static void SendRawDataWithExpInfo(int socket, int index, void* buffer, int size
     int ret_val = 0;
     uint16_t check_sum = 0;
     buf = (char*)buffer;
-    while (total > 0) {
-        if (total < packet_len) {
+    while (total > 0)
+    {
+        if (total < packet_len)
+        {
             send_size = total;
-        } else {
+        }
+        else
+        {
             send_size = packet_len;
         }
         ret_val = send(socket, buf, send_size, 0);
@@ -1123,10 +1276,14 @@ static void SendRawDataWithExpInfo(int socket, int index, void* buffer, int size
     send_size = 0;
     ret_val = 0;
     buf = (char*)expInfo;
-    while (total > 0) {
-        if (total < packet_len) {
+    while (total > 0)
+    {
+        if (total < packet_len)
+        {
             send_size = total;
-        } else {
+        }
+        else
+        {
             send_size = packet_len;
         }
         ret_val = send(socket, buf, send_size, 0);
@@ -1135,11 +1292,13 @@ static void SendRawDataWithExpInfo(int socket, int index, void* buffer, int size
     }
 
     buf = (char*)buffer;
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++)
+    {
         check_sum += buf[i];
     }
     buf = (char*)expInfo;
-    for (int i = 0; i < expInfoSize; i++) {
+    for (int i = 0; i < expInfoSize; i++)
+    {
         check_sum += buf[i];
     }
 
@@ -1149,44 +1308,51 @@ static void SendRawDataWithExpInfo(int socket, int index, void* buffer, int size
 
 static void OnlineRawCaptureCallBackNoHDR(int socket, int index, void* buffer, int size)
 {
-    if (g_mmapNumber > 2 && cap_info.ispStatsList.size() == 0) {
+    if (g_mmapNumber > 2 && cap_info.ispStatsList.size() == 0)
+    {
         usleep(1000 * 50);
         LOG_DEBUG("online raw capture,ispstats list empty.\n");
         return;
     }
     static uint32_t lastSavedSequence = 0;
-    if (g_sensorHdrMode == NO_HDR) {
+    if (g_sensorHdrMode == NO_HDR)
+    {
         LOG_DEBUG("OnlineRawCaptureCallBackNoHDR NO_HDR\n");
         int width = cap_info.width;
         int height = cap_info.height;
 
-        if (g_sensorHdrMode == NO_HDR && size > (width * height * 2)) {
+        if (g_sensorHdrMode == NO_HDR && size > (width * height * 2))
+        {
             // SendMessageToPC(socket, "OnlineRawCaptureCallBackNoHDR size error");
             LOG_ERROR("OnlineRawCaptureCallBackNoHDR size error. size:%d. width:%d, height:%d\n", size, width, height);
             return;
         }
 
-        if (cap_info.sequence == 0) {
+        if (cap_info.sequence == 0)
+        {
             LOG_ERROR("cap_info.sequence == 0\n");
             return;
         }
 
-        if (g_mmapNumber > 2) {
+        if (g_mmapNumber > 2)
+        {
             // LOG_DEBUG("cap_info.sequence:%u\n", cap_info.sequence);
             // LOG_DEBUG("cap_info.ispStatsList.back().frameID:%u\n", cap_info.ispStatsList.back().frameID);
             // LOG_DEBUG("cap_info.ispStatsList.size():%u\n", cap_info.ispStatsList.size());
-            while (cap_info.sequence > cap_info.ispStatsList.back().frameID &&
-                   cap_info.ispStatsList.back().frameID != 0) {
+            while (cap_info.sequence > cap_info.ispStatsList.back().frameID && cap_info.ispStatsList.back().frameID != 0)
+            {
                 LOG_DEBUG("cap_info.sequence > cap_info.ispStatsList.back().frameID, wait.\n");
                 usleep(1000 * 5);
                 continue;
             }
 
-            for (vector<rk_aiq_isp_tool_stats_t>::iterator it = cap_info.ispStatsList.begin();
-                 it != cap_info.ispStatsList.end(); it++) {
+            for (vector<rk_aiq_isp_tool_stats_t>::iterator it = cap_info.ispStatsList.begin(); it != cap_info.ispStatsList.end(); it++)
+            {
                 // LOG_DEBUG("(*it).frameID / cap_info.sequence:%d/%d\n", (*it).frameID, cap_info.sequence);
-                if (cap_info.sequence == (*it).frameID || cap_info.ispStatsList.back().frameID == 0) {
-                    if (!get3AStatsMtx.try_lock_for(std::chrono::milliseconds(2000))) {
+                if (cap_info.sequence == (*it).frameID || cap_info.ispStatsList.back().frameID == 0)
+                {
+                    if (!get3AStatsMtx.try_lock_for(std::chrono::milliseconds(2000)))
+                    {
                         LOG_DEBUG("get 3a lock fail 1\n");
                         assert(NULL);
                     }
@@ -1202,9 +1368,12 @@ static void OnlineRawCaptureCallBackNoHDR(int socket, int index, void* buffer, i
                     // LOG_INFO("expRealParams.dcg_mode:%d\n", expInfo.linearExp.exp_real_params.dcg_mode);
                     // LOG_INFO("expRealParams.longfrm_mode:%d\n", expInfo.linearExp.exp_real_params.longfrm_mode);
 
-                    if (g_usingCaptureCacheFlag == 1) {
-                        if (0 != access(g_capture_cache_dir.c_str(), 0)) {
-                            if (mkdir(g_capture_cache_dir.c_str(), 0777) != 0) {
+                    if (g_usingCaptureCacheFlag == 1)
+                    {
+                        if (0 != access(g_capture_cache_dir.c_str(), 0))
+                        {
+                            if (mkdir(g_capture_cache_dir.c_str(), 0777) != 0)
+                            {
                                 LOG_ERROR("Create folder %s failed.\n", g_capture_cache_dir.c_str());
                                 return;
                             }
@@ -1224,54 +1393,69 @@ static void OnlineRawCaptureCallBackNoHDR(int socket, int index, void* buffer, i
                         statfs(g_capture_cache_dir.c_str(), &diskInfo);
                         unsigned long long blocksize = diskInfo.f_bsize;
                         unsigned long long availableDisk = diskInfo.f_bavail * blocksize;
-                        if (totalSize * 2 > availableDisk) {
+                        if (totalSize * 2 > availableDisk)
+                        {
                             LOG_DEBUG("totalSize/availableDisk:%zu/%llu\n", totalSize, availableDisk);
                             LOG_ERROR("Insufficient disk space\n");
                             return;
                         }
 
-                        if (!tempBuffer.empty()) {
+                        if (!tempBuffer.empty())
+                        {
                             memcpy(tempBuffer.data(), buffer, size);
                             memcpy(tempBuffer.data() + size, &expInfo, sizeof(rk_aiq_isp_tool_stats_t));
                             LOG_DEBUG("write file begin:%s\n", GetTime().c_str());
-                            std::future<void> result(std::async(std::launch::async, write_to_file,
-                                                                targetFileName.c_str(), tempBuffer.data(), totalSize));
+                            std::future<void> result(std::async(std::launch::async, write_to_file, targetFileName.c_str(), tempBuffer.data(), totalSize));
                             // result.wait();
                             LOG_DEBUG("write file end:%s\n", GetTime().c_str());
                             LOG_ERROR("Capture image save to :%s\n", targetFileName.c_str());
-                        } else {
+                        }
+                        else
+                        {
                             LOG_DEBUG("Failed to allocate memory for tempBuffer, return\n");
                             return;
                         }
                         LOG_DEBUG("%s | DoCaptureCallBack end save file. sequence:%u\n", GetTime().c_str(), seq);
                         lastSavedSequence = seq;
 
-                        if (cap_info.ispStatsList.back().frameID != 0) {
+                        if (cap_info.ispStatsList.back().frameID != 0)
+                        {
                             LOG_DEBUG("SendRawDataWithExpInfo\n");
-                        } else {
+                        }
+                        else
+                        {
                             LOG_DEBUG("SendRawData with ExpInfo 0\n");
                         }
                         capture_frames_index++;
-                    } else {
-                        if (cap_info.ispStatsList.back().frameID != 0) {
+                    }
+                    else
+                    {
+                        if (cap_info.ispStatsList.back().frameID != 0)
+                        {
                             LOG_DEBUG("SendRawDataWithExpInfo\n");
-                        } else {
+                        }
+                        else
+                        {
                             LOG_DEBUG("SendRawData with ExpInfo 0\n");
                         }
                         SendRawDataWithExpInfo(socket, index, buffer, size, &expInfo, sizeof(rk_aiq_isp_tool_stats_t));
                         capture_frames_index++;
                     }
                     break;
-                } else {
-                    if (lastSavedSequence != 0 && cap_info.sequence > (*it).frameID &&
-                        lastSavedSequence > (*it).frameID)
+                }
+                else
+                {
+                    if (lastSavedSequence != 0 && cap_info.sequence > (*it).frameID && lastSavedSequence > (*it).frameID)
                         it = cap_info.ispStatsList.erase(it);
                 }
             }
-        } else {
+        }
+        else
+        {
             LOG_DEBUG("%s | DoCaptureCallBack size %d, sequence:%u\n", GetTime().c_str(), size, cap_info.sequence);
 
-            if (g_usingCaptureCacheFlag == 1) {
+            if (g_usingCaptureCacheFlag == 1)
+            {
                 uint seq = cap_info.sequence;
                 LOG_DEBUG("%s | DoCaptureCallBack start save file. sequence:%u\n", GetTime().c_str(), seq);
                 string targetFileName = g_capture_cache_dir + "/" + to_string(cap_info.sequence) + ".raw";
@@ -1287,25 +1471,28 @@ static void OnlineRawCaptureCallBackNoHDR(int socket, int index, void* buffer, i
                 statfs(g_capture_cache_dir.c_str(), &diskInfo);
                 unsigned long long blocksize = diskInfo.f_bsize;
                 unsigned long long availableDisk = diskInfo.f_bavail * blocksize;
-                if (totalSize * 2 > availableDisk) {
+                if (totalSize * 2 > availableDisk)
+                {
                     LOG_DEBUG("totalSize/availableDisk:%zu/%llu\n", totalSize, availableDisk);
                     LOG_ERROR("Insufficient disk space\n");
                     capture_frames_index = capture_frames;
                     return;
                 }
 
-                if (!tempBuffer.empty()) {
+                if (!tempBuffer.empty())
+                {
                     rk_aiq_isp_tool_stats_t expInfo;
                     memset(&expInfo, 0, sizeof(rk_aiq_isp_tool_stats_t));
                     memcpy(tempBuffer.data(), buffer, size);
                     memcpy(tempBuffer.data() + size, &expInfo, sizeof(rk_aiq_isp_tool_stats_t));
                     LOG_DEBUG("write file begin:%s\n", GetTime().c_str());
-                    std::future<void> result(std::async(std::launch::async, write_to_file, targetFileName.c_str(),
-                                                        tempBuffer.data(), totalSize));
+                    std::future<void> result(std::async(std::launch::async, write_to_file, targetFileName.c_str(), tempBuffer.data(), totalSize));
                     // result.wait();
                     LOG_DEBUG("write file end:%s\n", GetTime().c_str());
                     LOG_ERROR("Capture image save to :%s\n", targetFileName.c_str());
-                } else {
+                }
+                else
+                {
                     LOG_DEBUG("Failed to allocate memory for tempBuffer, return\n");
                     return;
                 }
@@ -1313,7 +1500,9 @@ static void OnlineRawCaptureCallBackNoHDR(int socket, int index, void* buffer, i
                 LOG_DEBUG("%s | DoCaptureCallBack end save file. sequence:%u\n", GetTime().c_str(), seq);
                 LOG_DEBUG("SendRawData NOExpInfo\n");
                 capture_frames_index++;
-            } else {
+            }
+            else
+            {
                 size_t totalSize = size + sizeof(rk_aiq_isp_tool_stats_t);
                 std::vector<char> tempBuffer(totalSize);
                 rk_aiq_isp_tool_stats_t expInfo;
@@ -1332,7 +1521,8 @@ static void OnlineRawCaptureCallBackHDRX2_1(int socket, int index, void* buffer,
 {
     static uint32_t lastSavedSequence = 0;
     LOG_DEBUG("OnlineRawCaptureCallBackHDRX2_1 size %d\n", size);
-    if (g_sensorHdrMode == HDR_X2) {
+    if (g_sensorHdrMode == HDR_X2)
+    {
         LOG_DEBUG("OnlineRawCaptureCallBackHDRX2_1 HDRX2_1\n");
 
         int width = cap_info_hdr2_1.width;
@@ -1341,31 +1531,37 @@ static void OnlineRawCaptureCallBackHDRX2_1(int socket, int index, void* buffer,
         LOG_DEBUG("cap_info_hdr2_1.height %d\n", cap_info_hdr2_1.height);
         LOG_DEBUG("cap_info_hdr2_1.sequence %u\n", cap_info_hdr2_1.sequence);
 
-        if (g_sensorHdrMode == NO_HDR && size > (width * height * 2)) {
+        if (g_sensorHdrMode == NO_HDR && size > (width * height * 2))
+        {
             // SendMessageToPC(socket, "OnlineRawCaptureCallBackHDRX2_1 size error");
             LOG_ERROR("OnlineRawCaptureCallBackHDRX2_1 size error\n");
             return;
         }
 
-        if (cap_info_hdr2_1.sequence == 0) {
+        if (cap_info_hdr2_1.sequence == 0)
+        {
             LOG_ERROR("cap_info_hdr2_1.sequence == 0\n");
             return;
         }
-        if (g_mmapNumber > 2) {
+        if (g_mmapNumber > 2)
+        {
             LOG_DEBUG("cap_info_hdr2_1.sequence:%u\n", cap_info_hdr2_1.sequence);
             LOG_DEBUG("cap_info_hdr2_1.ispStatsList.back().frameID:%u\n", cap_info_hdr2_1.ispStatsList.back().frameID);
             LOG_DEBUG("cap_info_hdr2_1.ispStatsList.size():%u\n", cap_info_hdr2_1.ispStatsList.size());
-            while (cap_info_hdr2_1.sequence > cap_info_hdr2_1.ispStatsList.back().frameID) {
+            while (cap_info_hdr2_1.sequence > cap_info_hdr2_1.ispStatsList.back().frameID)
+            {
                 LOG_DEBUG("cap_info_hdr2_1.sequence > cap_info_hdr2_1.ispStatsList.back().frameID, wait.\n");
 
                 usleep(1000 * 5);
                 continue;
             }
 
-            for (vector<rk_aiq_isp_tool_stats_t>::iterator it = cap_info_hdr2_1.ispStatsList.begin();
-                 it != cap_info_hdr2_1.ispStatsList.end(); it++) {
-                if (cap_info_hdr2_1.sequence == (*it).frameID) {
-                    if (!get3AStatsMtx.try_lock_for(std::chrono::milliseconds(2000))) {
+            for (vector<rk_aiq_isp_tool_stats_t>::iterator it = cap_info_hdr2_1.ispStatsList.begin(); it != cap_info_hdr2_1.ispStatsList.end(); it++)
+            {
+                if (cap_info_hdr2_1.sequence == (*it).frameID)
+                {
+                    if (!get3AStatsMtx.try_lock_for(std::chrono::milliseconds(2000)))
+                    {
                         LOG_DEBUG("get 3a lock fail 1\n");
                         assert(NULL);
                     }
@@ -1376,26 +1572,24 @@ static void OnlineRawCaptureCallBackHDRX2_1(int socket, int index, void* buffer,
                     get3AStatsMtx.unlock();
 
                     // HexDump((unsigned char*)&expInfo, sizeof(rk_aiq_isp_tool_stats_t));
-                    for (int i = 0; i < 3; i++) {
-                        LOG_INFO("hdrExp[%d].expRealParams.integration_time:%f\n", i,
-                                 expInfo.hdrExp[i].exp_real_params.integration_time);
-                        LOG_INFO("hdrExp[%d].expRealParams.analog_gain:%f\n", i,
-                                 expInfo.hdrExp[i].exp_real_params.analog_gain);
-                        LOG_INFO("hdrExp[%d].expRealParams.digital_gain:%f\n", i,
-                                 expInfo.hdrExp[i].exp_real_params.digital_gain);
-                        LOG_INFO("hdrExp[%d].expRealParams.isp_dgain:%f\n", i,
-                                 expInfo.hdrExp[i].exp_real_params.isp_dgain);
+                    for (int i = 0; i < 3; i++)
+                    {
+                        LOG_INFO("hdrExp[%d].expRealParams.integration_time:%f\n", i, expInfo.hdrExp[i].exp_real_params.integration_time);
+                        LOG_INFO("hdrExp[%d].expRealParams.analog_gain:%f\n", i, expInfo.hdrExp[i].exp_real_params.analog_gain);
+                        LOG_INFO("hdrExp[%d].expRealParams.digital_gain:%f\n", i, expInfo.hdrExp[i].exp_real_params.digital_gain);
+                        LOG_INFO("hdrExp[%d].expRealParams.isp_dgain:%f\n", i, expInfo.hdrExp[i].exp_real_params.isp_dgain);
                         LOG_INFO("hdrExp[%d].expRealParams.iso:%d\n", i, expInfo.hdrExp[i].exp_real_params.iso);
-                        LOG_INFO("hdrExp[%d].expRealParams.dcg_mode:%d\n", i,
-                                 expInfo.hdrExp[i].exp_real_params.dcg_mode);
-                        LOG_INFO("hdrExp[%d].expRealParams.longfrm_mode:%d\n", i,
-                                 expInfo.hdrExp[i].exp_real_params.longfrm_mode);
+                        LOG_INFO("hdrExp[%d].expRealParams.dcg_mode:%d\n", i, expInfo.hdrExp[i].exp_real_params.dcg_mode);
+                        LOG_INFO("hdrExp[%d].expRealParams.longfrm_mode:%d\n", i, expInfo.hdrExp[i].exp_real_params.longfrm_mode);
                     }
 
-                    if (g_usingCaptureCacheFlag == 1) {
+                    if (g_usingCaptureCacheFlag == 1)
+                    {
 
-                        if (0 != access(g_capture_cache_dir.c_str(), 0)) {
-                            if (g_usingCaptureCacheFlag == 1 && mkdir(g_capture_cache_dir.c_str(), 0777) != 0) {
+                        if (0 != access(g_capture_cache_dir.c_str(), 0))
+                        {
+                            if (g_usingCaptureCacheFlag == 1 && mkdir(g_capture_cache_dir.c_str(), 0777) != 0)
+                            {
                                 LOG_ERROR("Create folder %s failed.\n", g_capture_cache_dir.c_str());
                                 return;
                             }
@@ -1404,22 +1598,23 @@ static void OnlineRawCaptureCallBackHDRX2_1(int socket, int index, void* buffer,
                         LOG_DEBUG("DoCaptureCallBack size %d, sequence:%u\n", size, cap_info_hdr2_1.sequence);
                         uint32_t seq = cap_info_hdr2_1.sequence;
                         LOG_DEBUG("%s | DoCaptureCallBack start save file. sequence:%u\n", GetTime().c_str(), seq);
-                        string targetFileName =
-                            g_capture_cache_dir + "/" + to_string(cap_info_hdr2_1.sequence) + "-2_2.raw";
+                        string targetFileName = g_capture_cache_dir + "/" + to_string(cap_info_hdr2_1.sequence) + "-2_2.raw";
                         LOG_ERROR("Capture image :%s\n", targetFileName.c_str());
 
                         size_t totalSize = size + sizeof(rk_aiq_isp_tool_stats_t);
                         std::vector<char> tempBuffer(totalSize);
-                        if (!tempBuffer.empty()) {
+                        if (!tempBuffer.empty())
+                        {
                             memcpy(tempBuffer.data(), buffer, size);
                             memcpy(tempBuffer.data() + size, &expInfo, sizeof(rk_aiq_isp_tool_stats_t));
                             LOG_DEBUG("write file begin:%s\n", GetTime().c_str());
-                            std::future<void> result(std::async(std::launch::async, write_to_file,
-                                                                targetFileName.c_str(), tempBuffer.data(), totalSize));
+                            std::future<void> result(std::async(std::launch::async, write_to_file, targetFileName.c_str(), tempBuffer.data(), totalSize));
                             // result.wait();
                             LOG_DEBUG("write file end:%s\n", GetTime().c_str());
                             LOG_ERROR("Capture image save to :%s\n", targetFileName.c_str());
-                        } else {
+                        }
+                        else
+                        {
                             LOG_DEBUG("Failed to allocate memory for tempBuffer, return\n");
                             return;
                         }
@@ -1429,18 +1624,23 @@ static void OnlineRawCaptureCallBackHDRX2_1(int socket, int index, void* buffer,
                         LOG_DEBUG("SendRawDataWithExpInfo\n");
                         // SendRawDataWithExpInfo(socket, index, buffer, size, &expInfo,
                         // sizeof(rk_aiq_isp_tool_stats_t));
-                    } else {
+                    }
+                    else
+                    {
                         LOG_DEBUG("SendRawDataWithExpInfo\n");
                         SendRawDataWithExpInfo(socket, index, buffer, size, &expInfo, sizeof(rk_aiq_isp_tool_stats_t));
                     }
                     break;
-                } else {
-                    if (lastSavedSequence != 0 && cap_info_hdr2_1.sequence > (*it).frameID &&
-                        lastSavedSequence > (*it).frameID)
+                }
+                else
+                {
+                    if (lastSavedSequence != 0 && cap_info_hdr2_1.sequence > (*it).frameID && lastSavedSequence > (*it).frameID)
                         it = cap_info_hdr2_1.ispStatsList.erase(it);
                 }
             }
-        } else {
+        }
+        else
+        {
 
             LOG_DEBUG("DoCaptureCallBack size %d, sequence:%u\n", size, cap_info_hdr2_1.sequence);
 
@@ -1449,28 +1649,33 @@ static void OnlineRawCaptureCallBackHDRX2_1(int socket, int index, void* buffer,
             string targetFileName = g_capture_cache_dir + "/" + to_string(cap_info_hdr2_1.sequence) + "-2_2.raw";
             LOG_ERROR("Capture image :%s\n", targetFileName.c_str());
 
-            if (g_usingCaptureCacheFlag == 1) {
+            if (g_usingCaptureCacheFlag == 1)
+            {
                 size_t totalSize = size + sizeof(rk_aiq_isp_tool_stats_t);
                 std::vector<char> tempBuffer(totalSize);
-                if (!tempBuffer.empty()) {
+                if (!tempBuffer.empty())
+                {
                     rk_aiq_isp_tool_stats_t expInfo;
                     memset(&expInfo, 0, sizeof(rk_aiq_isp_tool_stats_t));
                     memcpy(tempBuffer.data(), buffer, size);
                     memcpy(tempBuffer.data() + size, &expInfo, sizeof(rk_aiq_isp_tool_stats_t));
                     LOG_DEBUG("write file begin:%s\n", GetTime().c_str());
-                    std::future<void> result(std::async(std::launch::async, write_to_file, targetFileName.c_str(),
-                                                        tempBuffer.data(), totalSize));
+                    std::future<void> result(std::async(std::launch::async, write_to_file, targetFileName.c_str(), tempBuffer.data(), totalSize));
                     // result.wait();
                     LOG_DEBUG("write file end:%s\n", GetTime().c_str());
                     LOG_ERROR("Capture image save to :%s\n", targetFileName.c_str());
-                } else {
+                }
+                else
+                {
                     LOG_DEBUG("Failed to allocate memory for tempBuffer, return\n");
                     return;
                 }
 
                 LOG_DEBUG("%s | DoCaptureCallBack end save file. sequence:%u\n", GetTime().c_str(), seq);
                 LOG_DEBUG("SendRawData NOExpInfo\n");
-            } else {
+            }
+            else
+            {
                 size_t totalSize = size + sizeof(rk_aiq_isp_tool_stats_t);
                 std::vector<char> tempBuffer(totalSize);
                 rk_aiq_isp_tool_stats_t expInfo;
@@ -1488,7 +1693,8 @@ static void OnlineRawCaptureCallBackHDRX2_1(int socket, int index, void* buffer,
 static void OnlineRawCaptureCallBackHDRX2_2(int socket, int index, void* buffer, int size)
 {
     LOG_DEBUG("OnlineRawCaptureCallBackHDRX2_2 size %d\n", size);
-    if (g_sensorHdrMode == HDR_X2) {
+    if (g_sensorHdrMode == HDR_X2)
+    {
         LOG_DEBUG("OnlineRawCaptureCallBackHDRX2_2 HDRX2_2\n");
 
         int width = cap_info_hdr2_2.width;
@@ -1497,20 +1703,25 @@ static void OnlineRawCaptureCallBackHDRX2_2(int socket, int index, void* buffer,
         LOG_DEBUG("cap_info_hdr2_2.height %d\n", cap_info_hdr2_2.height);
         LOG_DEBUG("cap_info_hdr2_2.sequence %u\n", cap_info_hdr2_2.sequence);
 
-        if (g_sensorHdrMode == NO_HDR && size > (width * height * 2)) {
+        if (g_sensorHdrMode == NO_HDR && size > (width * height * 2))
+        {
             // SendMessageToPC(socket, "OnlineRawCaptureCallBackHDRX2_2 size error");
             LOG_ERROR("OnlineRawCaptureCallBackHDRX2_2 size error\n");
             return;
         }
 
-        if (cap_info_hdr2_2.sequence == 0) {
+        if (cap_info_hdr2_2.sequence == 0)
+        {
             LOG_ERROR("cap_info_hdr2_2.sequence == 0\n");
             return;
         }
 
-        if (g_usingCaptureCacheFlag == 1) {
-            if (0 != access(g_capture_cache_dir.c_str(), 0)) {
-                if (g_usingCaptureCacheFlag == 1 && mkdir(g_capture_cache_dir.c_str(), 0777) != 0) {
+        if (g_usingCaptureCacheFlag == 1)
+        {
+            if (0 != access(g_capture_cache_dir.c_str(), 0))
+            {
+                if (g_usingCaptureCacheFlag == 1 && mkdir(g_capture_cache_dir.c_str(), 0777) != 0)
+                {
                     LOG_ERROR("Create folder %s failed.\n", g_capture_cache_dir.c_str());
                     return;
                 }
@@ -1524,22 +1735,26 @@ static void OnlineRawCaptureCallBackHDRX2_2(int socket, int index, void* buffer,
 
             size_t totalSize = size;
             std::vector<char> tempBuffer(totalSize);
-            if (!tempBuffer.empty()) {
+            if (!tempBuffer.empty())
+            {
                 memcpy(tempBuffer.data(), buffer, size);
                 LOG_DEBUG("write file begin:%s\n", GetTime().c_str());
-                std::future<void> result(std::async(std::launch::async, write_to_file, targetFileName.c_str(),
-                                                    tempBuffer.data(), totalSize));
+                std::future<void> result(std::async(std::launch::async, write_to_file, targetFileName.c_str(), tempBuffer.data(), totalSize));
                 // result.wait();
                 LOG_DEBUG("write file end:%s\n", GetTime().c_str());
                 LOG_ERROR("Capture image save to :%s\n", targetFileName.c_str());
-            } else {
+            }
+            else
+            {
                 LOG_DEBUG("Failed to allocate memory for tempBuffer, return\n");
                 return;
             }
             LOG_DEBUG("%s | DoCaptureCallBack end save file. sequence:%u\n", GetTime().c_str(), seq);
             LOG_DEBUG("SendRawData NOExpInfo\n");
             capture_frames_index++;
-        } else {
+        }
+        else
+        {
             LOG_DEBUG("SendRawData NOExpInfo\n");
             SendRawData(socket, index, buffer, size);
             capture_frames_index++;
@@ -1550,7 +1765,8 @@ static void OnlineRawCaptureCallBackHDRX2_2(int socket, int index, void* buffer,
 static void OnlineRawCaptureCallBackHDRX3_1(int socket, int index, void* buffer, int size)
 {
     LOG_DEBUG("OnlineRawCaptureCallBackHDRX3_1 size %d\n", size);
-    if (g_sensorHdrMode == HDR_X2) {
+    if (g_sensorHdrMode == HDR_X2)
+    {
         LOG_DEBUG("OnlineRawCaptureCallBackHDRX3_1 HDRX3_1\n");
 
         int width = cap_info_hdr3_1.width;
@@ -1559,17 +1775,20 @@ static void OnlineRawCaptureCallBackHDRX3_1(int socket, int index, void* buffer,
         LOG_DEBUG("cap_info_hdr3_1.height %d\n", cap_info_hdr3_1.height);
         LOG_DEBUG("cap_info_hdr3_1.sequence %u\n", cap_info_hdr3_1.sequence);
 
-        if (g_sensorHdrMode == NO_HDR && size > (width * height * 2)) {
+        if (g_sensorHdrMode == NO_HDR && size > (width * height * 2))
+        {
             // SendMessageToPC(socket, "OnlineRawCaptureCallBackHDRX3_1 size error");
             LOG_ERROR("OnlineRawCaptureCallBackHDRX3_1 size error\n");
             return;
         }
 
-        if (cap_info_hdr3_1.sequence == 0) {
+        if (cap_info_hdr3_1.sequence == 0)
+        {
             LOG_ERROR("cap_info_hdr3_1.sequence == 0\n");
             return;
         }
-        if (g_mmapNumber > 2) {
+        if (g_mmapNumber > 2)
+        {
             LOG_DEBUG("HDRX3_1 sequence match process begin.\n");
             // while (cap_info_hdr3_1.ispStatsList.size() == 0 || cap_info_hdr3_1.sequence >
             // cap_info_hdr3_1.ispStatsList.back().frameID)
@@ -1607,10 +1826,12 @@ static void OnlineRawCaptureCallBackHDRX3_1(int socket, int index, void* buffer,
             LOG_DEBUG("cap_info_hdr3_1.sequence:%u\n", cap_info_hdr3_1.sequence);
             LOG_DEBUG("cap_info_hdr3_1.ispStatsList.back().frameID:%u\n", cap_info_hdr3_1.ispStatsList.back().frameID);
 
-            for (vector<rk_aiq_isp_tool_stats_t>::iterator it = cap_info_hdr3_1.ispStatsList.begin();
-                 it != cap_info_hdr3_1.ispStatsList.end(); it++) {
-                if (cap_info_hdr3_1.sequence == (*it).frameID) {
-                    if (!get3AStatsMtx.try_lock_for(std::chrono::milliseconds(2000))) {
+            for (vector<rk_aiq_isp_tool_stats_t>::iterator it = cap_info_hdr3_1.ispStatsList.begin(); it != cap_info_hdr3_1.ispStatsList.end(); it++)
+            {
+                if (cap_info_hdr3_1.sequence == (*it).frameID)
+                {
+                    if (!get3AStatsMtx.try_lock_for(std::chrono::milliseconds(2000)))
+                    {
                         LOG_DEBUG("get 3a lock fail 1\n");
                         assert(NULL);
                     }
@@ -1621,24 +1842,21 @@ static void OnlineRawCaptureCallBackHDRX3_1(int socket, int index, void* buffer,
                     get3AStatsMtx.unlock();
 
                     HexDump((unsigned char*)&expInfo, sizeof(rk_aiq_isp_tool_stats_t));
-                    for (int i = 0; i < 3; i++) {
-                        LOG_INFO("hdrExp[%d].expRealParams.integration_time:%f\n", i,
-                                 expInfo.hdrExp[i].exp_real_params.integration_time);
-                        LOG_INFO("hdrExp[%d].expRealParams.analog_gain:%f\n", i,
-                                 expInfo.hdrExp[i].exp_real_params.analog_gain);
-                        LOG_INFO("hdrExp[%d].expRealParams.digital_gain:%f\n", i,
-                                 expInfo.hdrExp[i].exp_real_params.digital_gain);
-                        LOG_INFO("hdrExp[%d].expRealParams.isp_dgain:%f\n", i,
-                                 expInfo.hdrExp[i].exp_real_params.isp_dgain);
+                    for (int i = 0; i < 3; i++)
+                    {
+                        LOG_INFO("hdrExp[%d].expRealParams.integration_time:%f\n", i, expInfo.hdrExp[i].exp_real_params.integration_time);
+                        LOG_INFO("hdrExp[%d].expRealParams.analog_gain:%f\n", i, expInfo.hdrExp[i].exp_real_params.analog_gain);
+                        LOG_INFO("hdrExp[%d].expRealParams.digital_gain:%f\n", i, expInfo.hdrExp[i].exp_real_params.digital_gain);
+                        LOG_INFO("hdrExp[%d].expRealParams.isp_dgain:%f\n", i, expInfo.hdrExp[i].exp_real_params.isp_dgain);
                         LOG_INFO("hdrExp[%d].expRealParams.iso:%d\n", i, expInfo.hdrExp[i].exp_real_params.iso);
-                        LOG_INFO("hdrExp[%d].expRealParams.dcg_mode:%d\n", i,
-                                 expInfo.hdrExp[i].exp_real_params.dcg_mode);
-                        LOG_INFO("hdrExp[%d].expRealParams.longfrm_mode:%d\n", i,
-                                 expInfo.hdrExp[i].exp_real_params.longfrm_mode);
+                        LOG_INFO("hdrExp[%d].expRealParams.dcg_mode:%d\n", i, expInfo.hdrExp[i].exp_real_params.dcg_mode);
+                        LOG_INFO("hdrExp[%d].expRealParams.longfrm_mode:%d\n", i, expInfo.hdrExp[i].exp_real_params.longfrm_mode);
                     }
 
-                    if (g_usingCaptureCacheFlag == 1 && 0 != access(g_capture_cache_dir.c_str(), 0)) {
-                        if (mkdir(g_capture_cache_dir.c_str(), 0777) != 0) {
+                    if (g_usingCaptureCacheFlag == 1 && 0 != access(g_capture_cache_dir.c_str(), 0))
+                    {
+                        if (mkdir(g_capture_cache_dir.c_str(), 0777) != 0)
+                        {
                             LOG_ERROR("Create folder %s failed.\n", g_capture_cache_dir.c_str());
                             return;
                         }
@@ -1647,18 +1865,20 @@ static void OnlineRawCaptureCallBackHDRX3_1(int socket, int index, void* buffer,
                     LOG_DEBUG("DoCaptureCallBack size %d, sequence:%u\n", size, cap_info_hdr3_1.sequence);
                     uint seq = cap_info_hdr3_1.sequence;
                     LOG_DEBUG("%s | DoCaptureCallBack start save file. sequence:%u\n", GetTime().c_str(), seq);
-                    string targetFileName =
-                        g_capture_cache_dir + "/" + to_string(cap_info_hdr3_1.sequence) + "-3_1.raw";
+                    string targetFileName = g_capture_cache_dir + "/" + to_string(cap_info_hdr3_1.sequence) + "-3_1.raw";
                     LOG_ERROR("Capture image :%s\n", targetFileName.c_str());
 
                     FILE* fWrite = fopen(targetFileName.c_str(), "w");
-                    if (fWrite != NULL) {
+                    if (fWrite != NULL)
+                    {
                         fwrite(buffer, size, 1, fWrite);
                         fwrite(&expInfo, sizeof(rk_aiq_isp_tool_stats_t), 1, fWrite);
                         fflush(fWrite);
                         LOG_ERROR("Capture image save to :%s\n", targetFileName.c_str());
                         fclose(fWrite);
-                    } else {
+                    }
+                    else
+                    {
                         LOG_DEBUG("DoCaptureCallBack failed to create file %s, return\n", targetFileName.c_str());
                         fclose(fWrite);
                         return;
@@ -1670,9 +1890,13 @@ static void OnlineRawCaptureCallBackHDRX3_1(int socket, int index, void* buffer,
                     break;
                 }
             }
-        } else {
-            if (g_usingCaptureCacheFlag == 1 && 0 != access(g_capture_cache_dir.c_str(), 0)) {
-                if (mkdir(g_capture_cache_dir.c_str(), 0777) != 0) {
+        }
+        else
+        {
+            if (g_usingCaptureCacheFlag == 1 && 0 != access(g_capture_cache_dir.c_str(), 0))
+            {
+                if (mkdir(g_capture_cache_dir.c_str(), 0777) != 0)
+                {
                     LOG_ERROR("Create folder %s failed.\n", g_capture_cache_dir.c_str());
                     return;
                 }
@@ -1685,14 +1909,17 @@ static void OnlineRawCaptureCallBackHDRX3_1(int socket, int index, void* buffer,
             LOG_ERROR("Capture image :%s\n", targetFileName.c_str());
 
             FILE* fWrite = fopen(targetFileName.c_str(), "w");
-            if (fWrite != NULL) {
+            if (fWrite != NULL)
+            {
                 rk_aiq_isp_tool_stats_t expInfo;
                 fwrite(buffer, size, 1, fWrite);
                 fwrite(&expInfo, sizeof(rk_aiq_isp_tool_stats_t), 1, fWrite);
                 fflush(fWrite);
                 LOG_ERROR("Capture image save to :%s\n", targetFileName.c_str());
                 fclose(fWrite);
-            } else {
+            }
+            else
+            {
                 LOG_DEBUG("DoCaptureCallBack failed to create file %s, return\n", targetFileName.c_str());
                 fclose(fWrite);
                 return;
@@ -1707,7 +1934,8 @@ static void OnlineRawCaptureCallBackHDRX3_1(int socket, int index, void* buffer,
 static void OnlineRawCaptureCallBackHDRX3_2(int socket, int index, void* buffer, int size)
 {
     LOG_DEBUG("OnlineRawCaptureCallBackHDRX3_2 size %d\n", size);
-    if (g_sensorHdrMode == HDR_X2) {
+    if (g_sensorHdrMode == HDR_X2)
+    {
         LOG_DEBUG("OnlineRawCaptureCallBackHDRX3_2 HDRX3_2\n");
 
         int width = cap_info_hdr3_2.width;
@@ -1716,20 +1944,24 @@ static void OnlineRawCaptureCallBackHDRX3_2(int socket, int index, void* buffer,
         LOG_DEBUG("cap_info_hdr3_2.height %d\n", cap_info_hdr3_2.height);
         LOG_DEBUG("cap_info_hdr3_2.sequence %u\n", cap_info_hdr3_2.sequence);
 
-        if (g_sensorHdrMode == NO_HDR && size > (width * height * 2)) {
+        if (g_sensorHdrMode == NO_HDR && size > (width * height * 2))
+        {
             // SendMessageToPC(socket, "OnlineRawCaptureCallBackHDRX3_2 size error");
             LOG_ERROR("OnlineRawCaptureCallBackHDRX3_2 size error\n");
             return;
         }
 
-        if (cap_info_hdr3_2.sequence == 0) {
+        if (cap_info_hdr3_2.sequence == 0)
+        {
             LOG_ERROR("cap_info_hdr3_2.sequence == 0\n");
             return;
         }
 
         {
-            if (g_usingCaptureCacheFlag == 1 && 0 != access(g_capture_cache_dir.c_str(), 0)) {
-                if (mkdir(g_capture_cache_dir.c_str(), 0777) != 0) {
+            if (g_usingCaptureCacheFlag == 1 && 0 != access(g_capture_cache_dir.c_str(), 0))
+            {
+                if (mkdir(g_capture_cache_dir.c_str(), 0777) != 0)
+                {
                     LOG_ERROR("Create folder %s failed.\n", g_capture_cache_dir.c_str());
                     return;
                 }
@@ -1742,12 +1974,15 @@ static void OnlineRawCaptureCallBackHDRX3_2(int socket, int index, void* buffer,
             LOG_ERROR("Capture image :%s\n", targetFileName.c_str());
 
             FILE* fWrite = fopen(targetFileName.c_str(), "w");
-            if (fWrite != NULL) {
+            if (fWrite != NULL)
+            {
                 fwrite(buffer, size, 1, fWrite);
                 fflush(fWrite);
                 LOG_ERROR("Capture image save to :%s\n", targetFileName.c_str());
                 fclose(fWrite);
-            } else {
+            }
+            else
+            {
                 LOG_DEBUG("DoCaptureCallBack failed to create file %s, return\n", targetFileName.c_str());
                 fclose(fWrite);
                 return;
@@ -1762,7 +1997,8 @@ static void OnlineRawCaptureCallBackHDRX3_2(int socket, int index, void* buffer,
 static void OnlineRawCaptureCallBackHDRX3_3(int socket, int index, void* buffer, int size)
 {
     LOG_DEBUG("OnlineRawCaptureCallBackHDRX3_3 size %d\n", size);
-    if (g_sensorHdrMode == HDR_X2) {
+    if (g_sensorHdrMode == HDR_X2)
+    {
         LOG_DEBUG("OnlineRawCaptureCallBackHDRX3_3 HDRX3_3\n");
 
         int width = cap_info_hdr3_3.width;
@@ -1771,20 +2007,24 @@ static void OnlineRawCaptureCallBackHDRX3_3(int socket, int index, void* buffer,
         LOG_DEBUG("cap_info_hdr3_3.height %d\n", cap_info_hdr3_3.height);
         LOG_DEBUG("cap_info_hdr3_3.sequence %u\n", cap_info_hdr3_3.sequence);
 
-        if (g_sensorHdrMode == NO_HDR && size > (width * height * 2)) {
+        if (g_sensorHdrMode == NO_HDR && size > (width * height * 2))
+        {
             // SendMessageToPC(socket, "OnlineRawCaptureCallBackHDRX3_3 size error");
             LOG_ERROR("OnlineRawCaptureCallBackHDRX3_3 size error\n");
             return;
         }
 
-        if (cap_info_hdr3_3.sequence == 0) {
+        if (cap_info_hdr3_3.sequence == 0)
+        {
             LOG_ERROR("cap_info_hdr3_3.sequence == 0\n");
             return;
         }
 
         {
-            if (g_usingCaptureCacheFlag == 1 && 0 != access(g_capture_cache_dir.c_str(), 0)) {
-                if (mkdir(g_capture_cache_dir.c_str(), 0777) != 0) {
+            if (g_usingCaptureCacheFlag == 1 && 0 != access(g_capture_cache_dir.c_str(), 0))
+            {
+                if (mkdir(g_capture_cache_dir.c_str(), 0777) != 0)
+                {
                     LOG_ERROR("Create folder %s failed.\n", g_capture_cache_dir.c_str());
                     return;
                 }
@@ -1797,12 +2037,15 @@ static void OnlineRawCaptureCallBackHDRX3_3(int socket, int index, void* buffer,
             LOG_ERROR("Capture image :%s\n", targetFileName.c_str());
 
             FILE* fWrite = fopen(targetFileName.c_str(), "w");
-            if (fWrite != NULL) {
+            if (fWrite != NULL)
+            {
                 fwrite(buffer, size, 1, fWrite);
                 fflush(fWrite);
                 LOG_ERROR("Capture image save to :%s\n", targetFileName.c_str());
                 fclose(fWrite);
-            } else {
+            }
+            else
+            {
                 LOG_DEBUG("DoCaptureCallBack failed to create file %s, return\n", targetFileName.c_str());
                 fclose(fWrite);
                 return;
@@ -1815,16 +2058,20 @@ static void OnlineRawCaptureCallBackHDRX3_3(int socket, int index, void* buffer,
 
 static int DoCaptureOnlineRaw(int sockfd)
 {
-    if (capture_frames_index >= capture_frames) {
+    if (capture_frames_index >= capture_frames)
+    {
         LOG_DEBUG("DoCaptureOnlineRaw done. %d/%d return.\n", capture_frames_index, capture_frames);
         return 0;
     }
 
     DumpCapinfo();
 
-    if (g_sensorHdrMode == NO_HDR) {
+    if (g_sensorHdrMode == NO_HDR)
+    {
         start_capturing(&cap_info);
-    } else if (g_sensorHdrMode == HDR_X2) {
+    }
+    else if (g_sensorHdrMode == HDR_X2)
+    {
         std::vector<std::thread> captureThreads;
         captureThreads.push_back(std::thread([&]() {
             start_capturing(&cap_info_hdr2_1);
@@ -1833,10 +2080,13 @@ static int DoCaptureOnlineRaw(int sockfd)
         captureThreads.push_back(std::thread([&]() {
             start_capturing(&cap_info_hdr2_2);
         }));
-        for (auto& thread : captureThreads) {
+        for (auto& thread : captureThreads)
+        {
             thread.join();
         }
-    } else if (g_sensorHdrMode == HDR_X3) {
+    }
+    else if (g_sensorHdrMode == HDR_X3)
+    {
         std::vector<std::thread> captureThreads;
         captureThreads.push_back(std::thread([&]() {
             start_capturing(&cap_info_hdr3_1);
@@ -1849,12 +2099,14 @@ static int DoCaptureOnlineRaw(int sockfd)
         captureThreads.push_back(std::thread([&]() {
             start_capturing(&cap_info_hdr3_3);
         }));
-        for (auto& thread : captureThreads) {
+        for (auto& thread : captureThreads)
+        {
             thread.join();
         }
     }
 
-    if (capture_frames_index == 0) {
+    if (capture_frames_index == 0)
+    {
         char tmpPath[100] = {0};
         getcwd(tmpPath, 100);
         string currentDir = tmpPath;
@@ -1866,12 +2118,15 @@ static int DoCaptureOnlineRaw(int sockfd)
     std::vector<std::thread> threads;
     threads.push_back(std::thread([&]() {
         LOG_DEBUG("get 3A stats begin\n");
-        while (1) {
-            if (capture_frames_index >= capture_frames) {
+        while (1)
+        {
+            if (capture_frames_index >= capture_frames)
+            {
                 printf("capture_frames_index/capture_frames:%u/%u", capture_frames_index, capture_frames);
                 break;
             }
-            if (g_mmapNumber <= 2) {
+            if (g_mmapNumber <= 2)
+            {
                 usleep(1000 * 100);
                 break;
             }
@@ -1879,11 +2134,13 @@ static int DoCaptureOnlineRaw(int sockfd)
             static uint32_t lastFrameID = 0;
             rk_aiq_isp_tool_stats_t attr;
             memset(&attr, 0, sizeof(rk_aiq_isp_tool_stats_t));
-            if (RkAiqSocketClientINETReceive(ENUM_ID_AIQ_UAPI_SYSCTL_GETTOOLSERVER3ASTATSBLK, (void*)&attr,
-                                             sizeof(rk_aiq_isp_tool_stats_t)) == 0) {
-                if (lastFrameID != attr.frameID) {
+            if (RkAiqSocketClientINETReceive(ENUM_ID_AIQ_UAPI_SYSCTL_GETTOOLSERVER3ASTATSBLK, (void*)&attr, sizeof(rk_aiq_isp_tool_stats_t)) == 0)
+            {
+                if (lastFrameID != attr.frameID)
+                {
                     lastFrameID = attr.frameID;
-                    if (!get3AStatsMtx.try_lock_for(std::chrono::milliseconds(2000))) {
+                    if (!get3AStatsMtx.try_lock_for(std::chrono::milliseconds(2000)))
+                    {
                         LOG_DEBUG("get 3a lock fail 4\n");
                         assert(NULL);
                     }
@@ -1892,10 +2149,13 @@ static int DoCaptureOnlineRaw(int sockfd)
                     cap_info_hdr2_1.ispStatsList.push_back(attr);
                     get3AStatsMtx.unlock();
                 }
-            } else {
+            }
+            else
+            {
                 attr.frameID = 0;
                 lastFrameID = attr.frameID;
-                if (!get3AStatsMtx.try_lock_for(std::chrono::milliseconds(2000))) {
+                if (!get3AStatsMtx.try_lock_for(std::chrono::milliseconds(2000)))
+                {
                     LOG_DEBUG("get 3a lock fail 4.1\n");
                     assert(NULL);
                 }
@@ -1912,15 +2172,22 @@ static int DoCaptureOnlineRaw(int sockfd)
     usleep(1000 * 100);
 
     int skip_frame = 2;
-    if (capture_frames_index == 0) {
-        for (int i = 0; i < skip_frame; i++) {
-            if (g_sensorHdrMode == NO_HDR) {
+    if (capture_frames_index == 0)
+    {
+        for (int i = 0; i < skip_frame; i++)
+        {
+            if (g_sensorHdrMode == NO_HDR)
+            {
                 read_frame(sockfd, capture_frames_index, &cap_info, nullptr);
-            } else if (g_sensorHdrMode == HDR_X2) {
+            }
+            else if (g_sensorHdrMode == HDR_X2)
+            {
                 read_frame(sockfd, capture_frames_index, &cap_info_hdr2_2, nullptr); // short frame
                 usleep(1000 * 2);
                 read_frame(sockfd, capture_frames_index, &cap_info_hdr2_1, nullptr); // long frame
-            } else if (g_sensorHdrMode == HDR_X3) {
+            }
+            else if (g_sensorHdrMode == HDR_X3)
+            {
                 read_frame(sockfd, capture_frames_index, &cap_info_hdr3_1, nullptr); // long frame
                 usleep(1000 * 2);
                 read_frame(sockfd, capture_frames_index, &cap_info_hdr3_2, nullptr); // mid frame
@@ -1933,16 +2200,22 @@ static int DoCaptureOnlineRaw(int sockfd)
 
     threads.push_back(std::thread([&, sockfd]() {
         LOG_DEBUG("read_frame begin\n");
-        while (capture_frames_index < capture_frames) {
-            if (g_sensorHdrMode == NO_HDR) {
+        while (capture_frames_index < capture_frames)
+        {
+            if (g_sensorHdrMode == NO_HDR)
+            {
                 read_frame(sockfd, capture_frames_index, &cap_info, OnlineRawCaptureCallBackNoHDR);
-            } else if (g_sensorHdrMode == HDR_X2) {
+            }
+            else if (g_sensorHdrMode == HDR_X2)
+            {
                 read_frame(sockfd, capture_frames_index, &cap_info_hdr2_2,
                            OnlineRawCaptureCallBackHDRX2_2); // short frame
                 usleep(1000 * 2);
                 read_frame(sockfd, capture_frames_index, &cap_info_hdr2_1,
                            OnlineRawCaptureCallBackHDRX2_1); // long frame
-            } else if (g_sensorHdrMode == HDR_X3) {
+            }
+            else if (g_sensorHdrMode == HDR_X3)
+            {
                 read_frame(sockfd, capture_frames_index, &cap_info_hdr3_1,
                            OnlineRawCaptureCallBackHDRX3_1); // long frame
                 usleep(1000 * 2);
@@ -1957,15 +2230,18 @@ static int DoCaptureOnlineRaw(int sockfd)
         LOG_DEBUG("read_frame end\n");
     }));
 
-    if (g_usingCaptureCacheFlag == 1) {
+    if (g_usingCaptureCacheFlag == 1)
+    {
         usleep(1000 * 500);
 
         threads.push_back(std::thread([=]() {
             LOG_DEBUG("DoCapture send raw file process. start\n");
             static std::vector<std::string> raw_files;
             int startCapFlag = 1;
-            while (startCapFlag == 1 || (capture_frames_index < capture_frames && raw_files.size() > 0)) {
-                for (auto tmp : raw_files) {
+            while (startCapFlag == 1 || (capture_frames_index < capture_frames && raw_files.size() > 0))
+            {
+                for (auto tmp : raw_files)
+                {
                     LOG_DEBUG("raw_file:%s\n", tmp.c_str());
                 }
                 startCapFlag = 0;
@@ -1976,30 +2252,37 @@ static int DoCaptureOnlineRaw(int sockfd)
                 usleep(1000 * 200);
                 DIR* dir = opendir(g_capture_cache_dir.c_str());
                 struct dirent* dir_ent = NULL;
-                if (dir) {
+                if (dir)
+                {
                     raw_files.clear();
-                    while ((dir_ent = readdir(dir))) {
-                        if (dir_ent->d_type == DT_REG) {
+                    while ((dir_ent = readdir(dir)))
+                    {
+                        if (dir_ent->d_type == DT_REG)
+                        {
                             // is raw file
-                            if (strstr(dir_ent->d_name, ".raw")) {
+                            if (strstr(dir_ent->d_name, ".raw"))
+                            {
                                 raw_files.push_back(dir_ent->d_name);
                             }
                             // is raw file
-                            if (strstr(dir_ent->d_name, ".rkraw")) {
+                            if (strstr(dir_ent->d_name, ".rkraw"))
+                            {
                                 raw_files.push_back(dir_ent->d_name);
                             }
                         }
                     }
                     closedir(dir);
                 }
-                if (raw_files.size() == 0) {
+                if (raw_files.size() == 0)
+                {
                     LOG_INFO("No raw files in %s\n", g_capture_cache_dir.c_str());
                     return;
                 }
 
                 std::sort(raw_files.begin(), raw_files.end(), natural_more);
                 string tmpRawFile = raw_files.back();
-                while (tmpRawFile != "") {
+                while (tmpRawFile != "")
+                {
                     string fileFullpath = string_format("%s/%s", g_capture_cache_dir.c_str(), tmpRawFile.c_str());
                     LOG_DEBUG("RAW CAPTURED:%s\n", fileFullpath.c_str());
 
@@ -2008,7 +2291,8 @@ static int DoCaptureOnlineRaw(int sockfd)
                     long fsize = ftell(f);
                     fseek(f, 0, SEEK_SET);
                     LOG_DEBUG("RAW CAPTURED size:%ld\n", fsize);
-                    if (fsize > 0) {
+                    if (fsize > 0)
+                    {
                         char* rawData = (char*)malloc(fsize);
                         fread(rawData, fsize, 1, f);
 
@@ -2023,69 +2307,92 @@ static int DoCaptureOnlineRaw(int sockfd)
                         system(tmpCmd.c_str());
                         raw_files.pop_back();
 
-                        if (raw_files.size() == 0) {
+                        if (raw_files.size() == 0)
+                        {
                             usleep(1000 * 200);
                             DIR* dir = opendir(g_capture_cache_dir.c_str());
                             struct dirent* dir_ent = NULL;
-                            if (dir) {
+                            if (dir)
+                            {
                                 raw_files.clear();
-                                while ((dir_ent = readdir(dir))) {
-                                    if (dir_ent->d_type == DT_REG) {
+                                while ((dir_ent = readdir(dir)))
+                                {
+                                    if (dir_ent->d_type == DT_REG)
+                                    {
                                         // is raw file
-                                        if (strstr(dir_ent->d_name, ".raw")) {
+                                        if (strstr(dir_ent->d_name, ".raw"))
+                                        {
                                             raw_files.push_back(dir_ent->d_name);
                                         }
                                         // is raw file
-                                        if (strstr(dir_ent->d_name, ".rkraw")) {
+                                        if (strstr(dir_ent->d_name, ".rkraw"))
+                                        {
                                             raw_files.push_back(dir_ent->d_name);
                                         }
                                     }
                                 }
                                 closedir(dir);
-                                if (raw_files.size() > 0) {
+                                if (raw_files.size() > 0)
+                                {
                                     std::sort(raw_files.begin(), raw_files.end(), natural_more);
                                 }
                             }
                         }
-                        if (raw_files.size() > 0) {
+                        if (raw_files.size() > 0)
+                        {
                             tmpRawFile = raw_files.back();
-                        } else {
+                        }
+                        else
+                        {
                             tmpRawFile = "";
                         }
-                    } else {
+                    }
+                    else
+                    {
                         LOG_DEBUG("RAW CAPTURED size < 0, remove\n");
                         int result = std::remove(fileFullpath.c_str());
-                        if (result != 0) {
+                        if (result != 0)
+                        {
                             LOG_DEBUG("remove file %s failed\n", fileFullpath);
                         }
                         raw_files.pop_back();
-                        if (raw_files.size() == 0) {
+                        if (raw_files.size() == 0)
+                        {
                             usleep(1000 * 200);
                             DIR* dir = opendir(g_capture_cache_dir.c_str());
                             struct dirent* dir_ent = NULL;
-                            if (dir) {
+                            if (dir)
+                            {
                                 raw_files.clear();
-                                while ((dir_ent = readdir(dir))) {
-                                    if (dir_ent->d_type == DT_REG) {
+                                while ((dir_ent = readdir(dir)))
+                                {
+                                    if (dir_ent->d_type == DT_REG)
+                                    {
                                         // is raw file
-                                        if (strstr(dir_ent->d_name, ".raw")) {
+                                        if (strstr(dir_ent->d_name, ".raw"))
+                                        {
                                             raw_files.push_back(dir_ent->d_name);
                                         }
                                         // is raw file
-                                        if (strstr(dir_ent->d_name, ".rkraw")) {
+                                        if (strstr(dir_ent->d_name, ".rkraw"))
+                                        {
                                             raw_files.push_back(dir_ent->d_name);
                                         }
                                     }
                                 }
                                 closedir(dir);
-                                if (raw_files.size() > 0) {
+                                if (raw_files.size() > 0)
+                                {
                                     std::sort(raw_files.begin(), raw_files.end(), natural_more);
                                 }
                             }
                         }
-                        if (raw_files.size() > 0) {
+                        if (raw_files.size() > 0)
+                        {
                             tmpRawFile = raw_files.back();
-                        } else {
+                        }
+                        else
+                        {
                             tmpRawFile = "";
                         }
                     }
@@ -2098,12 +2405,14 @@ static int DoCaptureOnlineRaw(int sockfd)
         }));
     }
 
-    for (auto& thread : threads) {
+    for (auto& thread : threads)
+    {
         thread.join();
     }
 
     //
-    if (!get3AStatsMtx.try_lock_for(std::chrono::milliseconds(2000))) {
+    if (!get3AStatsMtx.try_lock_for(std::chrono::milliseconds(2000)))
+    {
         LOG_DEBUG("get 3a lock fail 2\n");
         assert(NULL);
     }
@@ -2111,11 +2420,14 @@ static int DoCaptureOnlineRaw(int sockfd)
     cap_info_hdr2_1.ispStatsList.clear();
     get3AStatsMtx.unlock();
 
-    if (g_sensorHdrMode == NO_HDR) {
+    if (g_sensorHdrMode == NO_HDR)
+    {
         stop_capturing(&cap_info);
         uninit_device(&cap_info);
         RawCaptureDeinit(&cap_info);
-    } else if (g_sensorHdrMode == HDR_X2) {
+    }
+    else if (g_sensorHdrMode == HDR_X2)
+    {
         stop_capturing(&cap_info_hdr2_1);
         uninit_device(&cap_info_hdr2_1);
         RawCaptureDeinit(&cap_info_hdr2_1);
@@ -2123,7 +2435,9 @@ static int DoCaptureOnlineRaw(int sockfd)
         stop_capturing(&cap_info_hdr2_2);
         uninit_device(&cap_info_hdr2_2);
         RawCaptureDeinit(&cap_info_hdr2_2);
-    } else if (g_sensorHdrMode == HDR_X3) {
+    }
+    else if (g_sensorHdrMode == HDR_X3)
+    {
         stop_capturing(&cap_info_hdr3_1);
         uninit_device(&cap_info_hdr3_1);
         RawCaptureDeinit(&cap_info_hdr3_1);
@@ -2138,16 +2452,23 @@ static int DoCaptureOnlineRaw(int sockfd)
     }
 
     //
-    if (g_compactModeFlag == 0 && g_sensorHdrMode == NO_HDR && g_sensorMemoryMode != -1) {
+    if (g_compactModeFlag == 0 && g_sensorHdrMode == NO_HDR && g_sensorMemoryMode != -1)
+    {
         int fd = open(cap_info.dev_name, O_RDWR, 0);
         LOG_INFO("fd: %d\n", fd);
-        if (fd < 0) {
+        if (fd < 0)
+        {
             LOG_ERROR("Open dev %s failed.\n", cap_info.dev_name);
-        } else {
+        }
+        else
+        {
             int ret = ioctl(fd, RKCIF_CMD_SET_CSI_MEMORY_MODE, &g_sensorMemoryMode); // set to origional mode
-            if (ret > 0) {
+            if (ret > 0)
+            {
                 LOG_ERROR("set cif node %s compact mode failed.\n", cap_info.dev_name);
-            } else {
+            }
+            else
+            {
                 LOG_ERROR("set cif node %s compact mode success.\n", cap_info.dev_name);
             }
         }
@@ -2155,7 +2476,8 @@ static int DoCaptureOnlineRaw(int sockfd)
         // recover sync mode for dual camera
         int sensorfd = open(cap_info.sd_path.device_name, O_RDWR, 0);
         int ret = ioctl(sensorfd, RKMODULE_SET_SYNC_MODE, &g_sensorSyncMode); // recover sync mode
-        if (ret > 0) {
+        if (ret > 0)
+        {
             LOG_ERROR("set cif node %s sync mode failed.\n", cap_info.dev_name);
         }
         close(sensorfd);
@@ -2175,7 +2497,8 @@ static void ReplyStatus(int sockfd, CommandData_t* cmd, int ret_status)
     cmd->dat[0] = DATA_ID_CAPTURE_RAW_STATUS; // ProcessID
     cmd->dat[1] = ret_status;
     cmd->checkSum = 0;
-    for (int i = 0; i < cmd->datLen; i++) {
+    for (int i = 0; i < cmd->datLen; i++)
+    {
         cmd->checkSum += cmd->dat[i];
     }
 
@@ -2194,7 +2517,8 @@ static void ReplyOnlineRawStatus(int sockfd, CommandData_t* cmd, int ret_status)
     cmd->dat[0] = DATA_ID_CAPTURE_ONLINE_RAW_STATUS; // ProcessID
     cmd->dat[1] = ret_status;
     cmd->checkSum = 0;
-    for (int i = 0; i < cmd->datLen; i++) {
+    for (int i = 0; i < cmd->datLen; i++)
+    {
         cmd->checkSum += cmd->dat[i];
     }
 
@@ -2208,90 +2532,117 @@ static void ReplySensorPara(int sockfd, CommandData_t* cmd)
     bool videoDevNodeFindedFlag = false;
     memset(captureDevNode, 0, sizeof(captureDevNode));
 
-    if (g_stream_dev_index == -1) {
-        if (g_stream_dev_name.length() > 0) {
+    if (g_stream_dev_index == -1)
+    {
+        if (g_stream_dev_name.length() > 0)
+        {
             videoDevNodeFindedFlag = true;
             memcpy(captureDevNode, g_stream_dev_name.c_str(), g_stream_dev_name.length());
             LOG_INFO("DoCaptureYuv,using specific dev node:%s\n", captureDevNode);
-        } else {
-            if (videoDevNodeFindedFlag == false) {
+        }
+        else
+        {
+            if (videoDevNodeFindedFlag == false)
+            {
                 memset(cmdResStr, 0, sizeof(cmdResStr));
                 ExecuteCMD("media-ctl -d /dev/media0 -e rkisp_mainpath", cmdResStr);
-                if (strstr(cmdResStr, "/dev/video") != NULL) {
+                if (strstr(cmdResStr, "/dev/video") != NULL)
+                {
                     videoDevNodeFindedFlag = true;
                     memcpy(captureDevNode, cmdResStr, strlen(cmdResStr) + 1);
                 }
             }
 
-            if (videoDevNodeFindedFlag == false) {
+            if (videoDevNodeFindedFlag == false)
+            {
                 memset(cmdResStr, 0, sizeof(cmdResStr));
                 ExecuteCMD("media-ctl -d /dev/media1 -e rkisp_mainpath", cmdResStr);
-                if (strstr(cmdResStr, "/dev/video") != NULL) {
+                if (strstr(cmdResStr, "/dev/video") != NULL)
+                {
                     videoDevNodeFindedFlag = true;
                     memcpy(captureDevNode, cmdResStr, strlen(cmdResStr) + 1);
                 }
             }
 
-            if (videoDevNodeFindedFlag == false) {
+            if (videoDevNodeFindedFlag == false)
+            {
                 memset(cmdResStr, 0, sizeof(cmdResStr));
                 ExecuteCMD("media-ctl -d /dev/media2 -e rkisp_mainpath", cmdResStr);
-                if (strstr(cmdResStr, "/dev/video") != NULL) {
+                if (strstr(cmdResStr, "/dev/video") != NULL)
+                {
                     videoDevNodeFindedFlag = true;
                     memcpy(captureDevNode, cmdResStr, strlen(cmdResStr) + 1);
                 }
             }
         }
-    } else {
-        if (g_stream_dev_index == 0) {
-            if (videoDevNodeFindedFlag == false) {
+    }
+    else
+    {
+        if (g_stream_dev_index == 0)
+        {
+            if (videoDevNodeFindedFlag == false)
+            {
                 memset(cmdResStr, 0, sizeof(cmdResStr));
                 ExecuteCMD("media-ctl -d /dev/media0 -e rkisp_mainpath", cmdResStr);
-                if (strstr(cmdResStr, "/dev/video") != NULL) {
+                if (strstr(cmdResStr, "/dev/video") != NULL)
+                {
                     videoDevNodeFindedFlag = true;
                     memcpy(captureDevNode, cmdResStr, strlen(cmdResStr) + 1);
                 }
             }
 
-            if (videoDevNodeFindedFlag == false) {
+            if (videoDevNodeFindedFlag == false)
+            {
                 memset(cmdResStr, 0, sizeof(cmdResStr));
                 ExecuteCMD("media-ctl -d /dev/media1 -e rkisp_mainpath", cmdResStr);
-                if (strstr(cmdResStr, "/dev/video") != NULL) {
+                if (strstr(cmdResStr, "/dev/video") != NULL)
+                {
                     videoDevNodeFindedFlag = true;
                     memcpy(captureDevNode, cmdResStr, strlen(cmdResStr) + 1);
                 }
             }
 
-            if (videoDevNodeFindedFlag == false) {
+            if (videoDevNodeFindedFlag == false)
+            {
                 memset(cmdResStr, 0, sizeof(cmdResStr));
                 ExecuteCMD("media-ctl -d /dev/media2 -e rkisp_mainpath", cmdResStr);
-                if (strstr(cmdResStr, "/dev/video") != NULL) {
+                if (strstr(cmdResStr, "/dev/video") != NULL)
+                {
                     videoDevNodeFindedFlag = true;
                     memcpy(captureDevNode, cmdResStr, strlen(cmdResStr) + 1);
                 }
             }
-        } else if (g_stream_dev_index == 1) {
-            if (videoDevNodeFindedFlag == false) {
+        }
+        else if (g_stream_dev_index == 1)
+        {
+            if (videoDevNodeFindedFlag == false)
+            {
                 memset(cmdResStr, 0, sizeof(cmdResStr));
                 ExecuteCMD("media-ctl -d /dev/media0 -e rkisp_selfpath", cmdResStr);
-                if (strstr(cmdResStr, "/dev/video") != NULL) {
+                if (strstr(cmdResStr, "/dev/video") != NULL)
+                {
                     videoDevNodeFindedFlag = true;
                     memcpy(captureDevNode, cmdResStr, strlen(cmdResStr) + 1);
                 }
             }
 
-            if (videoDevNodeFindedFlag == false) {
+            if (videoDevNodeFindedFlag == false)
+            {
                 memset(cmdResStr, 0, sizeof(cmdResStr));
                 ExecuteCMD("media-ctl -d /dev/media1 -e rkisp_selfpath", cmdResStr);
-                if (strstr(cmdResStr, "/dev/video") != NULL) {
+                if (strstr(cmdResStr, "/dev/video") != NULL)
+                {
                     videoDevNodeFindedFlag = true;
                     memcpy(captureDevNode, cmdResStr, strlen(cmdResStr) + 1);
                 }
             }
 
-            if (videoDevNodeFindedFlag == false) {
+            if (videoDevNodeFindedFlag == false)
+            {
                 memset(cmdResStr, 0, sizeof(cmdResStr));
                 ExecuteCMD("media-ctl -d /dev/media2 -e rkisp_selfpath", cmdResStr);
-                if (strstr(cmdResStr, "/dev/video") != NULL) {
+                if (strstr(cmdResStr, "/dev/video") != NULL)
+                {
                     videoDevNodeFindedFlag = true;
                     memcpy(captureDevNode, cmdResStr, strlen(cmdResStr) + 1);
                 }
@@ -2299,15 +2650,19 @@ static void ReplySensorPara(int sockfd, CommandData_t* cmd)
         }
     }
 
-    if (videoDevNodeFindedFlag == false) {
+    if (videoDevNodeFindedFlag == false)
+    {
         // SendMessageToPC(sockfd, "Video capture device node not found");
         LOG_ERROR("Video capture device node not found.\n");
         return;
-    } else {
+    }
+    else
+    {
         captureDevNode[strcspn(captureDevNode, "\n")] = '\0';
         LOG_DEBUG("Video capture device node:%s\n", captureDevNode);
     }
-    if (strlen(captureDevNode) == 0) {
+    if (strlen(captureDevNode) == 0)
+    {
         // SendMessageToPC(sockfd, "Video capture device node not found");
         LOG_ERROR("Video capture device node not found.\n");
         return;
@@ -2317,7 +2672,8 @@ static void ReplySensorPara(int sockfd, CommandData_t* cmd)
     memset(tmpCmd, 0, sizeof(tmpCmd));
     sprintf(tmpCmd, "v4l2-ctl -d %s --set-fmt-video=width=%d,height=%d", captureDevNode, g_width, g_height);
     memset(cmdResStr, 0, sizeof(cmdResStr));
-    if (g_stream_dev_index == -1) {
+    if (g_stream_dev_index == -1)
+    {
         ExecuteCMD(tmpCmd, cmdResStr);
     }
 
@@ -2337,14 +2693,18 @@ static void ReplySensorPara(int sockfd, CommandData_t* cmd)
     assert(results.length() >= 2);
     string width = results.str(1);
     string height = results.str(2);
-    if (g_stream_dev_name.length() == 0) {
+    if (g_stream_dev_name.length() == 0)
+    {
         g_width = atoi(width.c_str());
         g_height = atoi(height.c_str());
     }
-    if (g_width == 0 || g_height == 0) {
+    if (g_width == 0 || g_height == 0)
+    {
         // SendMessageToPC(sockfd, "get output resolution failed");
         LOG_ERROR("Captrure YUV, get output resolution failed.\n");
-    } else {
+    }
+    else
+    {
         LOG_ERROR("Captrure YUV, get resolution %d x %d\n", g_width, g_height);
     }
     // get pixel format
@@ -2354,10 +2714,13 @@ static void ReplySensorPara(int sockfd, CommandData_t* cmd)
     std::regex_search(srcStr, results, rePixelStrPattern);
     assert(results.length() >= 2);
     string pixelFormat = results.str(1);
-    if (pixelFormat.length() == 0) {
+    if (pixelFormat.length() == 0)
+    {
         // SendMessageToPC(sockfd, "get pixel format failed");
         LOG_ERROR("Captrure YUV, get pixel format failed.\n");
-    } else {
+    }
+    else
+    {
         LOG_ERROR("Captrure YUV, get pixel format:%s.\n", pixelFormat.c_str());
     }
 
@@ -2371,14 +2734,18 @@ static void ReplySensorPara(int sockfd, CommandData_t* cmd)
     param->data_id = DATA_ID_CAPTURE_YUV_GET_PARAM;
     param->width = g_width;
     param->height = g_height;
-    if (pixelFormat == "YUYV") {
+    if (pixelFormat == "YUYV")
+    {
         param->format = RKISP_FORMAT_YUYV;
-    } else {
+    }
+    else
+    {
         param->format = RKISP_FORMAT_NV12;
     }
 
     cmd->checkSum = 0;
-    for (int i = 0; i < cmd->datLen; i++) {
+    for (int i = 0; i < cmd->datLen; i++)
+    {
         cmd->checkSum += cmd->dat[i];
     }
 
@@ -2409,14 +2776,18 @@ static void GetSensorHDRMode()
     string width = results.str(1);
     string height = results.str(2);
 
-    if (g_capture_dev_name.length() == 0) {
+    if (g_capture_dev_name.length() == 0)
+    {
         g_width = atoi(width.c_str());
         g_height = atoi(height.c_str());
     }
 
-    if (g_width == 0 || g_height == 0) {
+    if (g_width == 0 || g_height == 0)
+    {
         LOG_ERROR("Captrure online raw, get output resolution failed.\n");
-    } else {
+    }
+    else
+    {
         LOG_ERROR("Captrure online raw, get resolution %d x %d\n", g_width, g_height);
     }
 
@@ -2427,37 +2798,52 @@ static void GetSensorHDRMode()
     std::regex_search(srcStr, results, rePixelStrPattern);
     assert(results.length() >= 2);
     string pixelFormat = results.str(1);
-    if (pixelFormat.length() == 0) {
+    if (pixelFormat.length() == 0)
+    {
         LOG_ERROR("Captrure online raw, get pixel format failed.\n");
-    } else {
+    }
+    else
+    {
         LOG_ERROR("Captrure online raw, get pixel format:%s.\n", pixelFormat.c_str());
     }
 
     media_info_t mi = rkaiq_media->GetMediaInfoT(g_device_id);
     //
-    if (mi.cif.linked_sensor) {
+    if (mi.cif.linked_sensor)
+    {
         strcpy(cap_info.sd_path.device_name, mi.cif.sensor_subdev_path.c_str());
-    } else if (mi.dvp.linked_sensor) {
+    }
+    else if (mi.dvp.linked_sensor)
+    {
         strcpy(cap_info.sd_path.device_name, mi.dvp.sensor_subdev_path.c_str());
-    } else {
+    }
+    else
+    {
         strcpy(cap_info.sd_path.device_name, mi.isp.sensor_subdev_path.c_str());
     }
 
     int fd = device_open(cap_info.sd_path.device_name);
     LOG_DEBUG("sensor subdev path: %s\n", cap_info.sd_path.device_name);
     LOG_DEBUG("cap_info.subdev_fd: %d\n", fd);
-    if (fd < 0) {
+    if (fd < 0)
+    {
         LOG_ERROR("Open %s failed.\n", cap_info.sd_path.device_name);
-    } else {
+    }
+    else
+    {
         rkmodule_hdr_cfg hdrCfg;
         int ret = ioctl(fd, RKMODULE_GET_HDR_CFG, &hdrCfg);
-        if (ret > 0) {
+        if (ret > 0)
+        {
             g_sensorHdrMode = NO_HDR;
             LOG_ERROR("Get sensor hdr mode failed, use default, No HDR\n");
-        } else {
+        }
+        else
+        {
             g_sensorHdrMode = hdrCfg.hdr_mode;
             LOG_INFO("Get sensor hdr mode:%u\n", g_sensorHdrMode);
-            if (g_sensorHdrMode != HDR_X2 && g_sensorHdrMode != HDR_X3) {
+            if (g_sensorHdrMode != HDR_X2 && g_sensorHdrMode != HDR_X3)
+            {
                 g_sensorHdrMode = NO_HDR;
                 LOG_INFO("sensor hdr mode not in HDRx2 or HDRx3,set to no HDR:%u\n", g_sensorHdrMode);
             }
@@ -2466,8 +2852,10 @@ static void GetSensorHDRMode()
     close(fd);
     //
     //
-    if (g_sensorHdrMode == NO_HDR) {
-        if (mi.cif.linked_sensor) {
+    if (g_sensorHdrMode == NO_HDR)
+    {
+        if (mi.cif.linked_sensor)
+        {
             cap_info.link = link_to_vicap;
             strcpy(cap_info.sd_path.device_name, mi.cif.sensor_subdev_path.c_str());
             if (g_capture_dev_name.length() == 0)
@@ -2475,12 +2863,16 @@ static void GetSensorHDRMode()
             else if (g_capture_dev_name.length() > 0)
                 strcpy(cap_info.cif_path.cif_video_path, g_capture_dev_name.c_str());
             cap_info.dev_name = cap_info.cif_path.cif_video_path;
-        } else if (mi.dvp.linked_sensor) {
+        }
+        else if (mi.dvp.linked_sensor)
+        {
             cap_info.link = link_to_dvp;
             strcpy(cap_info.sd_path.device_name, mi.dvp.sensor_subdev_path.c_str());
             strcpy(cap_info.cif_path.cif_video_path, mi.dvp.dvp_id0.c_str());
             cap_info.dev_name = cap_info.cif_path.cif_video_path;
-        } else {
+        }
+        else
+        {
             cap_info.link = link_to_isp;
             strcpy(cap_info.sd_path.device_name, mi.isp.sensor_subdev_path.c_str());
             strcpy(cap_info.vd_path.isp_main_path, mi.isp.main_path.c_str());
@@ -2488,9 +2880,12 @@ static void GetSensorHDRMode()
         }
         strcpy(cap_info.vd_path.media_dev_path, mi.isp.media_dev_path.c_str());
         strcpy(cap_info.vd_path.isp_sd_path, mi.isp.isp_dev_path.c_str());
-        if (mi.lens.module_lens_dev_name.length()) {
+        if (mi.lens.module_lens_dev_name.length())
+        {
             strcpy(cap_info.lens_path.lens_device_name, mi.lens.module_lens_dev_name.c_str());
-        } else {
+        }
+        else
+        {
             cap_info.lens_path.lens_device_name[0] = '\0';
         }
         cap_info.dev_fd = -1;
@@ -2508,8 +2903,11 @@ static void GetSensorHDRMode()
         cap_info.width = g_width;
         // cap_info.format = v4l2_fourcc('B', 'G', '1', '2');
         LOG_DEBUG("get ResW: %d  ResH: %d\n", cap_info.width, cap_info.height);
-    } else if (g_sensorHdrMode == HDR_X2) {
-        if (mi.cif.linked_sensor) {
+    }
+    else if (g_sensorHdrMode == HDR_X2)
+    {
+        if (mi.cif.linked_sensor)
+        {
             cap_info_hdr2_1.link = link_to_vicap;
             strcpy(cap_info_hdr2_1.sd_path.device_name, mi.cif.sensor_subdev_path.c_str());
             if (g_capture_dev_name.length() == 0)
@@ -2517,12 +2915,16 @@ static void GetSensorHDRMode()
             else if (g_capture_dev_name.length() > 0)
                 strcpy(cap_info_hdr2_1.cif_path.cif_video_path, g_capture_dev_name.c_str());
             cap_info_hdr2_1.dev_name = cap_info_hdr2_1.cif_path.cif_video_path;
-        } else if (mi.dvp.linked_sensor) {
+        }
+        else if (mi.dvp.linked_sensor)
+        {
             cap_info_hdr2_1.link = link_to_dvp;
             strcpy(cap_info_hdr2_1.sd_path.device_name, mi.dvp.sensor_subdev_path.c_str());
             strcpy(cap_info_hdr2_1.cif_path.cif_video_path, mi.dvp.dvp_id0.c_str());
             cap_info_hdr2_1.dev_name = cap_info_hdr2_1.cif_path.cif_video_path;
-        } else {
+        }
+        else
+        {
             cap_info_hdr2_1.link = link_to_isp;
             strcpy(cap_info_hdr2_1.sd_path.device_name, mi.isp.sensor_subdev_path.c_str());
             strcpy(cap_info_hdr2_1.vd_path.isp_main_path, mi.isp.main_path.c_str());
@@ -2530,9 +2932,12 @@ static void GetSensorHDRMode()
         }
         strcpy(cap_info_hdr2_1.vd_path.media_dev_path, mi.isp.media_dev_path.c_str());
         strcpy(cap_info_hdr2_1.vd_path.isp_sd_path, mi.isp.isp_dev_path.c_str());
-        if (mi.lens.module_lens_dev_name.length()) {
+        if (mi.lens.module_lens_dev_name.length())
+        {
             strcpy(cap_info_hdr2_1.lens_path.lens_device_name, mi.lens.module_lens_dev_name.c_str());
-        } else {
+        }
+        else
+        {
             cap_info_hdr2_1.lens_path.lens_device_name[0] = '\0';
         }
         cap_info_hdr2_1.dev_fd = -1;
@@ -2553,13 +2958,15 @@ static void GetSensorHDRMode()
 
         //
         //
-        if (mi.cif.linked_sensor) {
+        if (mi.cif.linked_sensor)
+        {
             cap_info_hdr2_2.link = link_to_vicap;
             strcpy(cap_info_hdr2_2.sd_path.device_name, mi.cif.sensor_subdev_path.c_str());
 
             if (g_capture_dev_name.length() == 0)
                 strcpy(cap_info_hdr2_2.cif_path.cif_video_path, mi.cif.mipi_id1.c_str());
-            else if (g_capture_dev_name.length() > 0) {
+            else if (g_capture_dev_name.length() > 0)
+            {
                 std::string pattern{"/dev/video(.*)"};
                 std::regex re(pattern);
                 std::smatch results;
@@ -2572,18 +2979,24 @@ static void GetSensorHDRMode()
                     char buff[100];
                     snprintf(buff, sizeof(buff), "%s%d", "/dev/video", devNodeNum);
                     captureDevNodeStr = buff;
-                } else {
+                }
+                else
+                {
                     LOG_DEBUG("#### not finded\n");
                 }
                 strcpy(cap_info_hdr2_2.cif_path.cif_video_path, captureDevNodeStr.c_str());
             }
             cap_info_hdr2_2.dev_name = cap_info_hdr2_2.cif_path.cif_video_path;
-        } else if (mi.dvp.linked_sensor) {
+        }
+        else if (mi.dvp.linked_sensor)
+        {
             cap_info_hdr2_2.link = link_to_dvp;
             strcpy(cap_info_hdr2_2.sd_path.device_name, mi.dvp.sensor_subdev_path.c_str());
             strcpy(cap_info_hdr2_2.cif_path.cif_video_path, mi.dvp.dvp_id1.c_str());
             cap_info_hdr2_2.dev_name = cap_info_hdr2_2.cif_path.cif_video_path;
-        } else {
+        }
+        else
+        {
             cap_info_hdr2_2.link = link_to_isp;
             strcpy(cap_info_hdr2_2.sd_path.device_name, mi.isp.sensor_subdev_path.c_str());
             strcpy(cap_info_hdr2_2.vd_path.isp_main_path, mi.isp.main_path.c_str());
@@ -2591,9 +3004,12 @@ static void GetSensorHDRMode()
         }
         strcpy(cap_info_hdr2_2.vd_path.media_dev_path, mi.isp.media_dev_path.c_str());
         strcpy(cap_info_hdr2_2.vd_path.isp_sd_path, mi.isp.isp_dev_path.c_str());
-        if (mi.lens.module_lens_dev_name.length()) {
+        if (mi.lens.module_lens_dev_name.length())
+        {
             strcpy(cap_info_hdr2_2.lens_path.lens_device_name, mi.lens.module_lens_dev_name.c_str());
-        } else {
+        }
+        else
+        {
             cap_info_hdr2_2.lens_path.lens_device_name[0] = '\0';
         }
         cap_info_hdr2_2.dev_fd = -1;
@@ -2611,8 +3027,11 @@ static void GetSensorHDRMode()
         cap_info_hdr2_2.width = g_width;
         // cap_info_hdr2_2.format = v4l2_fourcc('B', 'G', '1', '2');
         LOG_DEBUG("get ResW: %d  ResH: %d\n", cap_info_hdr2_2.width, cap_info_hdr2_2.height);
-    } else if (g_sensorHdrMode == HDR_X3) {
-        if (mi.cif.linked_sensor) {
+    }
+    else if (g_sensorHdrMode == HDR_X3)
+    {
+        if (mi.cif.linked_sensor)
+        {
             cap_info_hdr3_1.link = link_to_vicap;
             strcpy(cap_info_hdr3_1.sd_path.device_name, mi.cif.sensor_subdev_path.c_str());
             if (g_capture_dev_name.length() == 0)
@@ -2620,12 +3039,16 @@ static void GetSensorHDRMode()
             else if (g_capture_dev_name.length() > 0)
                 strcpy(cap_info_hdr3_1.cif_path.cif_video_path, g_capture_dev_name.c_str());
             cap_info_hdr3_1.dev_name = cap_info_hdr3_1.cif_path.cif_video_path;
-        } else if (mi.dvp.linked_sensor) {
+        }
+        else if (mi.dvp.linked_sensor)
+        {
             cap_info_hdr3_1.link = link_to_dvp;
             strcpy(cap_info_hdr3_1.sd_path.device_name, mi.dvp.sensor_subdev_path.c_str());
             strcpy(cap_info_hdr3_1.cif_path.cif_video_path, mi.dvp.dvp_id0.c_str());
             cap_info_hdr3_1.dev_name = cap_info_hdr3_1.cif_path.cif_video_path;
-        } else {
+        }
+        else
+        {
             cap_info_hdr3_1.link = link_to_isp;
             strcpy(cap_info_hdr3_1.sd_path.device_name, mi.isp.sensor_subdev_path.c_str());
             strcpy(cap_info_hdr3_1.vd_path.isp_main_path, mi.isp.main_path.c_str());
@@ -2633,9 +3056,12 @@ static void GetSensorHDRMode()
         }
         strcpy(cap_info_hdr3_1.vd_path.media_dev_path, mi.isp.media_dev_path.c_str());
         strcpy(cap_info_hdr3_1.vd_path.isp_sd_path, mi.isp.isp_dev_path.c_str());
-        if (mi.lens.module_lens_dev_name.length()) {
+        if (mi.lens.module_lens_dev_name.length())
+        {
             strcpy(cap_info_hdr3_1.lens_path.lens_device_name, mi.lens.module_lens_dev_name.c_str());
-        } else {
+        }
+        else
+        {
             cap_info_hdr3_1.lens_path.lens_device_name[0] = '\0';
         }
         cap_info_hdr3_1.dev_fd = -1;
@@ -2655,17 +3081,22 @@ static void GetSensorHDRMode()
 
         //
         //
-        if (mi.cif.linked_sensor) {
+        if (mi.cif.linked_sensor)
+        {
             cap_info_hdr3_2.link = link_to_vicap;
             strcpy(cap_info_hdr3_2.sd_path.device_name, mi.cif.sensor_subdev_path.c_str());
             strcpy(cap_info_hdr3_2.cif_path.cif_video_path, mi.cif.mipi_id1.c_str());
             cap_info_hdr3_2.dev_name = cap_info_hdr3_2.cif_path.cif_video_path;
-        } else if (mi.dvp.linked_sensor) {
+        }
+        else if (mi.dvp.linked_sensor)
+        {
             cap_info_hdr3_2.link = link_to_dvp;
             strcpy(cap_info_hdr3_2.sd_path.device_name, mi.dvp.sensor_subdev_path.c_str());
             strcpy(cap_info_hdr3_2.cif_path.cif_video_path, mi.dvp.dvp_id1.c_str());
             cap_info_hdr3_2.dev_name = cap_info_hdr3_2.cif_path.cif_video_path;
-        } else {
+        }
+        else
+        {
             cap_info_hdr3_2.link = link_to_isp;
             strcpy(cap_info_hdr3_2.sd_path.device_name, mi.isp.sensor_subdev_path.c_str());
             strcpy(cap_info_hdr3_2.vd_path.isp_main_path, mi.isp.main_path.c_str());
@@ -2673,9 +3104,12 @@ static void GetSensorHDRMode()
         }
         strcpy(cap_info_hdr3_2.vd_path.media_dev_path, mi.isp.media_dev_path.c_str());
         strcpy(cap_info_hdr3_2.vd_path.isp_sd_path, mi.isp.isp_dev_path.c_str());
-        if (mi.lens.module_lens_dev_name.length()) {
+        if (mi.lens.module_lens_dev_name.length())
+        {
             strcpy(cap_info_hdr3_2.lens_path.lens_device_name, mi.lens.module_lens_dev_name.c_str());
-        } else {
+        }
+        else
+        {
             cap_info_hdr3_2.lens_path.lens_device_name[0] = '\0';
         }
         cap_info_hdr3_2.dev_fd = -1;
@@ -2695,17 +3129,22 @@ static void GetSensorHDRMode()
 
         //
         //
-        if (mi.cif.linked_sensor) {
+        if (mi.cif.linked_sensor)
+        {
             cap_info_hdr3_3.link = link_to_vicap;
             strcpy(cap_info_hdr3_3.sd_path.device_name, mi.cif.sensor_subdev_path.c_str());
             strcpy(cap_info_hdr3_3.cif_path.cif_video_path, mi.cif.mipi_id2.c_str());
             cap_info_hdr3_3.dev_name = cap_info_hdr3_3.cif_path.cif_video_path;
-        } else if (mi.dvp.linked_sensor) {
+        }
+        else if (mi.dvp.linked_sensor)
+        {
             cap_info_hdr3_3.link = link_to_dvp;
             strcpy(cap_info_hdr3_3.sd_path.device_name, mi.dvp.sensor_subdev_path.c_str());
             strcpy(cap_info_hdr3_3.cif_path.cif_video_path, mi.dvp.dvp_id2.c_str());
             cap_info_hdr3_3.dev_name = cap_info_hdr3_3.cif_path.cif_video_path;
-        } else {
+        }
+        else
+        {
             cap_info_hdr3_3.link = link_to_isp;
             strcpy(cap_info_hdr3_3.sd_path.device_name, mi.isp.sensor_subdev_path.c_str());
             strcpy(cap_info_hdr3_3.vd_path.isp_main_path, mi.isp.main_path.c_str());
@@ -2713,9 +3152,12 @@ static void GetSensorHDRMode()
         }
         strcpy(cap_info_hdr3_3.vd_path.media_dev_path, mi.isp.media_dev_path.c_str());
         strcpy(cap_info_hdr3_3.vd_path.isp_sd_path, mi.isp.isp_dev_path.c_str());
-        if (mi.lens.module_lens_dev_name.length()) {
+        if (mi.lens.module_lens_dev_name.length())
+        {
             strcpy(cap_info_hdr3_3.lens_path.lens_device_name, mi.lens.module_lens_dev_name.c_str());
-        } else {
+        }
+        else
+        {
             cap_info_hdr3_3.lens_path.lens_device_name[0] = '\0';
         }
         cap_info_hdr3_3.dev_fd = -1;
@@ -2753,7 +3195,8 @@ static void InitOnlineRawCapture(struct capture_info* cap_info)
 
     memset(&ctrl, 0, sizeof(ctrl));
     ctrl.id = V4L2_CID_HBLANK;
-    if (device_getblank(cap_info->subdev_fd, &ctrl) < 0) {
+    if (device_getblank(cap_info->subdev_fd, &ctrl) < 0)
+    {
         goto end;
     }
     hblank = ctrl.minimum;
@@ -2761,7 +3204,8 @@ static void InitOnlineRawCapture(struct capture_info* cap_info)
 
     memset(&ctrl, 0, sizeof(ctrl));
     ctrl.id = V4L2_CID_VBLANK;
-    if (device_getblank(cap_info->subdev_fd, &ctrl) < 0) {
+    if (device_getblank(cap_info->subdev_fd, &ctrl) < 0)
+    {
         goto end;
     }
     vblank = ctrl.minimum;
@@ -2770,7 +3214,8 @@ static void InitOnlineRawCapture(struct capture_info* cap_info)
     memset(&fmt, 0, sizeof(fmt));
     fmt.pad = 0;
     fmt.which = V4L2_SUBDEV_FORMAT_ACTIVE;
-    if (device_getsubdevformat(cap_info->subdev_fd, &fmt) < 0) {
+    if (device_getsubdevformat(cap_info->subdev_fd, &fmt) < 0)
+    {
         goto end;
     }
     vts = vblank + fmt.format.height;
@@ -2781,43 +3226,46 @@ static void InitOnlineRawCapture(struct capture_info* cap_info)
     cap_info->sd_path.width = fmt.format.width;
     cap_info->sd_path.height = fmt.format.height;
 
-    LOG_DEBUG("get sensor code: %d  bits: %d, cap_info->format:  %d\n", cap_info->sd_path.sen_fmt,
-              cap_info->sd_path.bits, cap_info->format);
+    LOG_DEBUG("get sensor code: %d  bits: %d, cap_info->format:  %d\n", cap_info->sd_path.sen_fmt, cap_info->sd_path.bits, cap_info->format);
 
     /* set isp subdev fmt to bayer raw*/
-    if (cap_info->link == link_to_isp) {
-        ret = rkisp_set_ispsd_fmt(cap_info, fmt.format.width, fmt.format.height, fmt.format.code, cap_info->width,
-                                  cap_info->height, fmt.format.code);
+    if (cap_info->link == link_to_isp)
+    {
+        ret = rkisp_set_ispsd_fmt(cap_info, fmt.format.width, fmt.format.height, fmt.format.code, cap_info->width, cap_info->height, fmt.format.code);
         endianness = 1;
         LOG_DEBUG("rkisp_set_ispsd_fmt: %d endianness = %d\n", ret, endianness);
 
-        if (ret) {
-            LOG_ERROR("subdev choose the best fit fmt: %dx%d, 0x%08x\n", fmt.format.width, fmt.format.height,
-                      fmt.format.code);
+        if (ret)
+        {
+            LOG_ERROR("subdev choose the best fit fmt: %dx%d, 0x%08x\n", fmt.format.width, fmt.format.height, fmt.format.code);
             goto end;
         }
     }
 
     memset(&finterval, 0, sizeof(finterval));
     finterval.pad = 0;
-    if (device_getsensorfps(cap_info->subdev_fd, &finterval) < 0) {
+    if (device_getsensorfps(cap_info->subdev_fd, &finterval) < 0)
+    {
         goto end;
     }
     fps = (float)(finterval.interval.denominator) / finterval.interval.numerator;
     LOG_DEBUG("get fps: %f\n", fps);
 
-    if (cap_info->subdev_fd > 0) {
+    if (cap_info->subdev_fd > 0)
+    {
         device_close(cap_info->subdev_fd);
         cap_info->subdev_fd = -1;
     }
-    if (cap_info->dev_fd > 0) {
+    if (cap_info->dev_fd > 0)
+    {
         device_close(cap_info->dev_fd);
         cap_info->dev_fd = -1;
     }
     return;
 
 end:
-    if (cap_info->subdev_fd > 0) {
+    if (cap_info->subdev_fd > 0)
+    {
         device_close(cap_info->subdev_fd);
         cap_info->subdev_fd = -1;
     }
@@ -2829,65 +3277,87 @@ static void ReplyOnlineRawSensorPara(int sockfd, CommandData_t* cmd)
     bool videoDevNodeFindedFlag = false;
     memset(captureDevNode, 0, sizeof(captureDevNode));
 
-    if (videoDevNodeFindedFlag == false) {
-        if (g_capture_dev_name.length() == 0) {
-            if (g_device_id == 0) {
+    if (videoDevNodeFindedFlag == false)
+    {
+        if (g_capture_dev_name.length() == 0)
+        {
+            if (g_device_id == 0)
+            {
                 memset(cmdResStr, 0, sizeof(cmdResStr));
                 ExecuteCMD("media-ctl -d /dev/media0 -e stream_cif_mipi_id0", cmdResStr);
-                if (strstr(cmdResStr, "/dev/video") != NULL) {
-                    videoDevNodeFindedFlag = true;
-                    memcpy(captureDevNode, cmdResStr, strlen(cmdResStr) + 1);
-                }
-            } else if (g_device_id == 1) {
-                memset(cmdResStr, 0, sizeof(cmdResStr));
-                ExecuteCMD("media-ctl -d /dev/media1 -e stream_cif_mipi_id0", cmdResStr);
-                if (strstr(cmdResStr, "/dev/video") != NULL) {
-                    videoDevNodeFindedFlag = true;
-                    memcpy(captureDevNode, cmdResStr, strlen(cmdResStr) + 1);
-                }
-            } else {
-                memset(cmdResStr, 0, sizeof(cmdResStr));
-                ExecuteCMD("media-ctl -d /dev/media0 -e stream_cif_mipi_id0", cmdResStr);
-                if (strstr(cmdResStr, "/dev/video") != NULL) {
+                if (strstr(cmdResStr, "/dev/video") != NULL)
+                {
                     videoDevNodeFindedFlag = true;
                     memcpy(captureDevNode, cmdResStr, strlen(cmdResStr) + 1);
                 }
             }
-        } else {
+            else if (g_device_id == 1)
+            {
+                memset(cmdResStr, 0, sizeof(cmdResStr));
+                ExecuteCMD("media-ctl -d /dev/media1 -e stream_cif_mipi_id0", cmdResStr);
+                if (strstr(cmdResStr, "/dev/video") != NULL)
+                {
+                    videoDevNodeFindedFlag = true;
+                    memcpy(captureDevNode, cmdResStr, strlen(cmdResStr) + 1);
+                }
+            }
+            else
+            {
+                memset(cmdResStr, 0, sizeof(cmdResStr));
+                ExecuteCMD("media-ctl -d /dev/media0 -e stream_cif_mipi_id0", cmdResStr);
+                if (strstr(cmdResStr, "/dev/video") != NULL)
+                {
+                    videoDevNodeFindedFlag = true;
+                    memcpy(captureDevNode, cmdResStr, strlen(cmdResStr) + 1);
+                }
+            }
+        }
+        else
+        {
             videoDevNodeFindedFlag = true;
             memcpy(captureDevNode, g_capture_dev_name.c_str(), g_capture_dev_name.length());
         }
     }
 
-    if (videoDevNodeFindedFlag == false) {
+    if (videoDevNodeFindedFlag == false)
+    {
         // SendMessageToPC(sockfd, "Video capture device node not found");
         LOG_ERROR("Video capture device node not found.\n");
         return;
-    } else {
+    }
+    else
+    {
         captureDevNode[strcspn(captureDevNode, "\n")] = '\0';
         LOG_DEBUG("Video capture device node:%s\n", captureDevNode);
     }
-    if (strlen(captureDevNode) == 0) {
+    if (strlen(captureDevNode) == 0)
+    {
         // SendMessageToPC(sockfd, "Video capture device node not found");
         LOG_ERROR("Video capture device node not found.\n");
         return;
     }
 
-    if (g_compactModeFlag == 0) {
+    if (g_compactModeFlag == 0)
+    {
         int fd = open(cap_info.dev_name, O_RDWR, 0);
         LOG_INFO("fd: %d\n", fd);
-        if (fd < 0) {
+        if (fd < 0)
+        {
             LOG_ERROR("Open dev %s failed.\n", cap_info.dev_name);
-        } else {
+        }
+        else
+        {
             int ret = ioctl(fd, RKCIF_CMD_GET_CSI_MEMORY_MODE, &g_sensorMemoryMode); // get original memory mode
-            if (ret > 0) {
+            if (ret > 0)
+            {
                 LOG_ERROR("get cif node %s memory mode failed.\n", cap_info.dev_name);
             }
 
             //
             int value = CSI_LVDS_MEM_WORD_LOW_ALIGN;
             ret = ioctl(fd, RKCIF_CMD_SET_CSI_MEMORY_MODE, &value); // set to no compact
-            if (ret > 0) {
+            if (ret > 0)
+            {
                 LOG_ERROR("set cif node %s compact mode failed.\n", cap_info.dev_name);
             }
         }
@@ -2895,24 +3365,31 @@ static void ReplyOnlineRawSensorPara(int sockfd, CommandData_t* cmd)
         // set sync mode to no sync for dual camera
         int sensorfd = open(cap_info.sd_path.device_name, O_RDWR, 0);
         int ret = ioctl(sensorfd, RKMODULE_GET_SYNC_MODE, &g_sensorSyncMode);
-        if (ret > 0) {
+        if (ret > 0)
+        {
             LOG_ERROR("get cif node %s sync mode failed.\n", cap_info.dev_name);
         }
         int value = NO_SYNC_MODE;
         ret = ioctl(sensorfd, RKMODULE_SET_SYNC_MODE, &value); // set to no sync
-        if (ret > 0) {
+        if (ret > 0)
+        {
             LOG_ERROR("set cif node %s sync mode failed.\n", cap_info.dev_name);
         }
         close(sensorfd);
     }
 
     //
-    if (g_sensorHdrMode == NO_HDR) {
+    if (g_sensorHdrMode == NO_HDR)
+    {
         InitOnlineRawCapture(&cap_info);
-    } else if (g_sensorHdrMode == HDR_X2) {
+    }
+    else if (g_sensorHdrMode == HDR_X2)
+    {
         InitOnlineRawCapture(&cap_info_hdr2_1);
         InitOnlineRawCapture(&cap_info_hdr2_2);
-    } else if (g_sensorHdrMode == HDR_X3) {
+    }
+    else if (g_sensorHdrMode == HDR_X3)
+    {
         InitOnlineRawCapture(&cap_info_hdr3_1);
         InitOnlineRawCapture(&cap_info_hdr3_2);
         InitOnlineRawCapture(&cap_info_hdr3_3);
@@ -2929,45 +3406,66 @@ static void ReplyOnlineRawSensorPara(int sockfd, CommandData_t* cmd)
     param->width = g_width;
     param->height = g_height;
 
-    if (g_sensorHdrMode == NO_HDR) {
+    if (g_sensorHdrMode == NO_HDR)
+    {
         param->bits = cap_info.sd_path.bits;
-    } else if (g_sensorHdrMode == HDR_X2) {
+    }
+    else if (g_sensorHdrMode == HDR_X2)
+    {
         param->bits = cap_info_hdr2_1.sd_path.bits;
-    } else if (g_sensorHdrMode == HDR_X3) {
+    }
+    else if (g_sensorHdrMode == HDR_X3)
+    {
         param->bits = cap_info_hdr3_1.sd_path.bits;
     }
 
     uint16_t sensorFormat;
     // set capture image data format
-    if (g_sensorHdrMode == NO_HDR) {
+    if (g_sensorHdrMode == NO_HDR)
+    {
         sensorFormat = PROC_ID_CAPTURE_RAW_NON_COMPACT_LINEAR;
         LOG_INFO("NO_HDR | sensorFormat:%d\n", sensorFormat);
-    } else if (g_sensorHdrMode == HDR_X2) {
+    }
+    else if (g_sensorHdrMode == HDR_X2)
+    {
         sensorFormat = PROC_ID_CAPTURE_RAW_COMPACT_HDR2_ALIGN256;
         LOG_INFO("HDR_X2 | sensorFormat:%d\n", sensorFormat);
-    } else if (g_sensorHdrMode == HDR_X3) {
+    }
+    else if (g_sensorHdrMode == HDR_X3)
+    {
         sensorFormat = PROC_ID_CAPTURE_RAW_COMPACT_HDR3_ALIGN256;
         LOG_INFO("HDR_X3 | sensorFormat:%d\n", sensorFormat);
-    } else {
+    }
+    else
+    {
         LOG_ERROR("Get sensor hdr mode failed, hdr mode:%u, use default.No HDR\n", g_sensorHdrMode);
         sensorFormat = PROC_ID_CAPTURE_RAW_NON_COMPACT_LINEAR;
         LOG_INFO("NO_HDR | sensorFormat:%d\n", sensorFormat);
     }
 
-    if (g_capture_dev_name.length() > 0) {
-        if (g_sensorHdrMode == HDR_X2) {
+    if (g_capture_dev_name.length() > 0)
+    {
+        if (g_sensorHdrMode == HDR_X2)
+        {
             param->sensorImageFormat = PROC_ID_CAPTURE_RAW_COMPACT_HDR2_ALIGN256;
-        } else if (g_compactModeFlag == 1) {
+        }
+        else if (g_compactModeFlag == 1)
+        {
             param->sensorImageFormat = PROC_ID_CAPTURE_RAW_COMPACT_LINEAR_ALIGN256;
-        } else {
+        }
+        else
+        {
             param->sensorImageFormat = sensorFormat;
         }
-    } else {
+    }
+    else
+    {
         param->sensorImageFormat = sensorFormat;
     }
 
     cmd->checkSum = 0;
-    for (int i = 0; i < cmd->datLen; i++) {
+    for (int i = 0; i < cmd->datLen; i++)
+    {
         cmd->checkSum += cmd->dat[i];
     }
 
@@ -2998,7 +3496,8 @@ static void SetSensorPara(int sockfd, CommandData_t* recv_cmd, CommandData_t* cm
     cmd->dat[0] = DATA_ID_CAPTURE_RAW_SET_PARAM;
     cmd->dat[1] = RES_SUCCESS;
     cmd->checkSum = 0;
-    for (int i = 0; i < cmd->datLen; i++) {
+    for (int i = 0; i < cmd->datLen; i++)
+    {
         cmd->checkSum += cmd->dat[i];
     }
     memcpy(send_data, cmd, sizeof(CommandData_t));
@@ -3009,8 +3508,10 @@ static void SetOnlineRawSensorPara(int sockfd, CommandData_t* recv_cmd, CommandD
 {
     media_info_t mi = rkaiq_media->GetMediaInfoT(g_device_id);
 
-    if (g_sensorHdrMode == NO_HDR) {
-        if (mi.cif.linked_sensor) {
+    if (g_sensorHdrMode == NO_HDR)
+    {
+        if (mi.cif.linked_sensor)
+        {
             cap_info.link = link_to_vicap;
             strcpy(cap_info.sd_path.device_name, mi.cif.sensor_subdev_path.c_str());
             if (g_capture_dev_name.length() == 0)
@@ -3018,12 +3519,16 @@ static void SetOnlineRawSensorPara(int sockfd, CommandData_t* recv_cmd, CommandD
             else if (g_capture_dev_name.length() > 0)
                 strcpy(cap_info.cif_path.cif_video_path, g_capture_dev_name.c_str());
             cap_info.dev_name = cap_info.cif_path.cif_video_path;
-        } else if (mi.dvp.linked_sensor) {
+        }
+        else if (mi.dvp.linked_sensor)
+        {
             cap_info.link = link_to_dvp;
             strcpy(cap_info.sd_path.device_name, mi.dvp.sensor_subdev_path.c_str());
             strcpy(cap_info.cif_path.cif_video_path, mi.dvp.dvp_id0.c_str());
             cap_info.dev_name = cap_info.cif_path.cif_video_path;
-        } else {
+        }
+        else
+        {
             cap_info.link = link_to_isp;
             strcpy(cap_info.sd_path.device_name, mi.isp.sensor_subdev_path.c_str());
             strcpy(cap_info.vd_path.isp_main_path, mi.isp.main_path.c_str());
@@ -3031,8 +3536,11 @@ static void SetOnlineRawSensorPara(int sockfd, CommandData_t* recv_cmd, CommandD
         }
         cap_info.io = IO_METHOD_MMAP;
         init_device(&cap_info);
-    } else if (g_sensorHdrMode == HDR_X2) {
-        if (mi.cif.linked_sensor) {
+    }
+    else if (g_sensorHdrMode == HDR_X2)
+    {
+        if (mi.cif.linked_sensor)
+        {
             cap_info_hdr2_1.link = link_to_vicap;
             strcpy(cap_info_hdr2_1.sd_path.device_name, mi.cif.sensor_subdev_path.c_str());
             if (g_capture_dev_name.length() == 0)
@@ -3040,12 +3548,16 @@ static void SetOnlineRawSensorPara(int sockfd, CommandData_t* recv_cmd, CommandD
             else if (g_capture_dev_name.length() > 0)
                 strcpy(cap_info_hdr2_1.cif_path.cif_video_path, g_capture_dev_name.c_str());
             cap_info_hdr2_1.dev_name = cap_info_hdr2_1.cif_path.cif_video_path;
-        } else if (mi.dvp.linked_sensor) {
+        }
+        else if (mi.dvp.linked_sensor)
+        {
             cap_info_hdr2_1.link = link_to_dvp;
             strcpy(cap_info_hdr2_1.sd_path.device_name, mi.dvp.sensor_subdev_path.c_str());
             strcpy(cap_info_hdr2_1.cif_path.cif_video_path, mi.dvp.dvp_id0.c_str());
             cap_info_hdr2_1.dev_name = cap_info_hdr2_1.cif_path.cif_video_path;
-        } else {
+        }
+        else
+        {
             cap_info_hdr2_1.link = link_to_isp;
             strcpy(cap_info_hdr2_1.sd_path.device_name, mi.isp.sensor_subdev_path.c_str());
             strcpy(cap_info_hdr2_1.vd_path.isp_main_path, mi.isp.main_path.c_str());
@@ -3054,13 +3566,15 @@ static void SetOnlineRawSensorPara(int sockfd, CommandData_t* recv_cmd, CommandD
         cap_info_hdr2_1.io = IO_METHOD_MMAP;
         init_device(&cap_info_hdr2_1);
 
-        if (mi.cif.linked_sensor) {
+        if (mi.cif.linked_sensor)
+        {
             cap_info_hdr2_2.link = link_to_vicap;
             strcpy(cap_info_hdr2_2.sd_path.device_name, mi.cif.sensor_subdev_path.c_str());
 
             if (g_capture_dev_name.length() == 0)
                 strcpy(cap_info_hdr2_2.cif_path.cif_video_path, mi.cif.mipi_id1.c_str());
-            else if (g_capture_dev_name.length() > 0) {
+            else if (g_capture_dev_name.length() > 0)
+            {
                 std::string pattern{"/dev/video(.*)"};
                 std::regex re(pattern);
                 std::smatch results;
@@ -3073,18 +3587,24 @@ static void SetOnlineRawSensorPara(int sockfd, CommandData_t* recv_cmd, CommandD
                     char buff[100];
                     snprintf(buff, sizeof(buff), "%s%d", "/dev/video", devNodeNum);
                     captureDevNodeStr = buff;
-                } else {
+                }
+                else
+                {
                     LOG_DEBUG("#### not finded\n");
                 }
                 strcpy(cap_info_hdr2_2.cif_path.cif_video_path, captureDevNodeStr.c_str());
             }
             cap_info_hdr2_2.dev_name = cap_info_hdr2_2.cif_path.cif_video_path;
-        } else if (mi.dvp.linked_sensor) {
+        }
+        else if (mi.dvp.linked_sensor)
+        {
             cap_info_hdr2_2.link = link_to_dvp;
             strcpy(cap_info_hdr2_2.sd_path.device_name, mi.dvp.sensor_subdev_path.c_str());
             strcpy(cap_info_hdr2_2.cif_path.cif_video_path, mi.dvp.dvp_id1.c_str());
             cap_info_hdr2_2.dev_name = cap_info_hdr2_2.cif_path.cif_video_path;
-        } else {
+        }
+        else
+        {
             cap_info_hdr2_2.link = link_to_isp;
             strcpy(cap_info_hdr2_2.sd_path.device_name, mi.isp.sensor_subdev_path.c_str());
             strcpy(cap_info_hdr2_2.vd_path.isp_main_path, mi.isp.main_path.c_str());
@@ -3092,8 +3612,11 @@ static void SetOnlineRawSensorPara(int sockfd, CommandData_t* recv_cmd, CommandD
         }
         cap_info_hdr2_2.io = IO_METHOD_MMAP;
         init_device(&cap_info_hdr2_2);
-    } else if (g_sensorHdrMode == HDR_X3) {
-        if (mi.cif.linked_sensor) {
+    }
+    else if (g_sensorHdrMode == HDR_X3)
+    {
+        if (mi.cif.linked_sensor)
+        {
             cap_info_hdr3_1.link = link_to_vicap;
             strcpy(cap_info_hdr3_1.sd_path.device_name, mi.cif.sensor_subdev_path.c_str());
             if (g_capture_dev_name.length() == 0)
@@ -3101,12 +3624,16 @@ static void SetOnlineRawSensorPara(int sockfd, CommandData_t* recv_cmd, CommandD
             else if (g_capture_dev_name.length() > 0)
                 strcpy(cap_info_hdr3_1.cif_path.cif_video_path, g_capture_dev_name.c_str());
             cap_info_hdr3_1.dev_name = cap_info_hdr3_1.cif_path.cif_video_path;
-        } else if (mi.dvp.linked_sensor) {
+        }
+        else if (mi.dvp.linked_sensor)
+        {
             cap_info_hdr3_1.link = link_to_dvp;
             strcpy(cap_info_hdr3_1.sd_path.device_name, mi.dvp.sensor_subdev_path.c_str());
             strcpy(cap_info_hdr3_1.cif_path.cif_video_path, mi.dvp.dvp_id0.c_str());
             cap_info_hdr3_1.dev_name = cap_info_hdr3_1.cif_path.cif_video_path;
-        } else {
+        }
+        else
+        {
             cap_info_hdr3_1.link = link_to_isp;
             strcpy(cap_info_hdr3_1.sd_path.device_name, mi.isp.sensor_subdev_path.c_str());
             strcpy(cap_info_hdr3_1.vd_path.isp_main_path, mi.isp.main_path.c_str());
@@ -3115,17 +3642,22 @@ static void SetOnlineRawSensorPara(int sockfd, CommandData_t* recv_cmd, CommandD
         cap_info_hdr3_1.io = IO_METHOD_MMAP;
         init_device(&cap_info_hdr3_1);
 
-        if (mi.cif.linked_sensor) {
+        if (mi.cif.linked_sensor)
+        {
             cap_info_hdr3_2.link = link_to_vicap;
             strcpy(cap_info_hdr3_2.sd_path.device_name, mi.cif.sensor_subdev_path.c_str());
             strcpy(cap_info_hdr3_2.cif_path.cif_video_path, mi.cif.mipi_id1.c_str());
             cap_info_hdr3_2.dev_name = cap_info_hdr3_2.cif_path.cif_video_path;
-        } else if (mi.dvp.linked_sensor) {
+        }
+        else if (mi.dvp.linked_sensor)
+        {
             cap_info_hdr3_2.link = link_to_dvp;
             strcpy(cap_info_hdr3_2.sd_path.device_name, mi.dvp.sensor_subdev_path.c_str());
             strcpy(cap_info_hdr3_2.cif_path.cif_video_path, mi.dvp.dvp_id1.c_str());
             cap_info_hdr3_2.dev_name = cap_info_hdr3_2.cif_path.cif_video_path;
-        } else {
+        }
+        else
+        {
             cap_info_hdr3_2.link = link_to_isp;
             strcpy(cap_info_hdr3_2.sd_path.device_name, mi.isp.sensor_subdev_path.c_str());
             strcpy(cap_info_hdr3_2.vd_path.isp_main_path, mi.isp.main_path.c_str());
@@ -3134,17 +3666,22 @@ static void SetOnlineRawSensorPara(int sockfd, CommandData_t* recv_cmd, CommandD
         cap_info_hdr3_2.io = IO_METHOD_MMAP;
         init_device(&cap_info_hdr3_2);
 
-        if (mi.cif.linked_sensor) {
+        if (mi.cif.linked_sensor)
+        {
             cap_info_hdr3_3.link = link_to_vicap;
             strcpy(cap_info_hdr3_3.sd_path.device_name, mi.cif.sensor_subdev_path.c_str());
             strcpy(cap_info_hdr3_3.cif_path.cif_video_path, mi.cif.mipi_id2.c_str());
             cap_info_hdr3_3.dev_name = cap_info_hdr3_3.cif_path.cif_video_path;
-        } else if (mi.dvp.linked_sensor) {
+        }
+        else if (mi.dvp.linked_sensor)
+        {
             cap_info_hdr3_3.link = link_to_dvp;
             strcpy(cap_info_hdr3_3.sd_path.device_name, mi.dvp.sensor_subdev_path.c_str());
             strcpy(cap_info_hdr3_3.cif_path.cif_video_path, mi.dvp.dvp_id2.c_str());
             cap_info_hdr3_3.dev_name = cap_info_hdr3_3.cif_path.cif_video_path;
-        } else {
+        }
+        else
+        {
             cap_info_hdr3_3.link = link_to_isp;
             strcpy(cap_info_hdr3_3.sd_path.device_name, mi.isp.sensor_subdev_path.c_str());
             strcpy(cap_info_hdr3_3.vd_path.isp_main_path, mi.isp.main_path.c_str());
@@ -3175,7 +3712,8 @@ static void SetOnlineRawSensorPara(int sockfd, CommandData_t* recv_cmd, CommandD
     cmd->dat[0] = DATA_ID_CAPTURE_ONLINE_RAW_SET_PARAM;
     cmd->dat[1] = RES_SUCCESS;
     cmd->checkSum = 0;
-    for (int i = 0; i < cmd->datLen; i++) {
+    for (int i = 0; i < cmd->datLen; i++)
+    {
         cmd->checkSum += cmd->dat[i];
     }
     memcpy(send_data, cmd, sizeof(CommandData_t));
@@ -3188,86 +3726,105 @@ void RKAiqOLProtocol::HandlerOnLineMessage(int sockfd, char* buffer, int size)
     CommandData_t send_cmd;
     int ret_val, ret;
 
-    if (strcmp((char*)common_cmd->RKID, TAG_OL_PC_TO_DEVICE) != 0) {
+    if (strcmp((char*)common_cmd->RKID, TAG_OL_PC_TO_DEVICE) != 0)
+    {
         LOG_DEBUG("RKID: Unknown\n");
         return;
     }
 
-    switch (common_cmd->cmdType) {
+    switch (common_cmd->cmdType)
+    {
         case CMD_TYPE_STREAMING: {
             RKAiqProtocol::DoChangeAppMode(APP_RUN_STATUS_TUNRING);
-            if (common_cmd->cmdID == 0xffff) {
+            if (common_cmd->cmdID == 0xffff)
+            {
                 uint16_t check_sum;
                 uint32_t result;
                 DoAnswer(sockfd, &send_cmd, common_cmd->cmdID, READY);
                 OnLineSet(sockfd, common_cmd, check_sum, result);
                 DoAnswer2(sockfd, &send_cmd, common_cmd->cmdID, check_sum, result ? RES_FAILED : RES_SUCCESS);
             }
-        } break;
+        }
+        break;
         case CMD_TYPE_STATUS: {
             DoAnswer(sockfd, &send_cmd, common_cmd->cmdID, READY);
-        } break;
+        }
+        break;
         case CMD_TYPE_UAPI_SET: {
             uint16_t check_sum;
             uint32_t result;
             DoAnswer(sockfd, &send_cmd, common_cmd->cmdID, READY);
             OnLineSet(sockfd, common_cmd, check_sum, result);
             DoAnswer2(sockfd, &send_cmd, common_cmd->cmdID, check_sum, result ? RES_FAILED : RES_SUCCESS);
-        } break;
+        }
+        break;
         case CMD_TYPE_UAPI_GET: {
             ret = OnLineGet(sockfd, common_cmd);
-            if (ret == 0) {
+            if (ret == 0)
+            {
                 DoAnswer(sockfd, &send_cmd, common_cmd->cmdID, RES_SUCCESS);
-            } else {
+            }
+            else
+            {
                 DoAnswer(sockfd, &send_cmd, common_cmd->cmdID, RES_FAILED);
             }
-        } break;
+        }
+        break;
         case CMD_TYPE_CAPTURE: {
             char* datBuf = (char*)(common_cmd->dat);
-            switch (datBuf[0]) {
+            switch (datBuf[0])
+            {
                 // online yuv
                 case DATA_ID_CAPTURE_YUV_STATUS: {
-                    if (capture_status == BUSY) {
+                    if (capture_status == BUSY)
+                    {
                         LOG_DEBUG("Capture in process.\n");
                         return;
                     }
-                    if (access("/tmp/aiq_offline.ini", F_OK) == 0 || access("/mnt/vendor/aiq_offline.ini", F_OK) == 0) {
-                        while (g_startOfflineRawFlag == 0) {
+                    if (access("/tmp/aiq_offline.ini", F_OK) == 0 || access("/mnt/vendor/aiq_offline.ini", F_OK) == 0)
+                    {
+                        while (g_startOfflineRawFlag == 0)
+                        {
                             usleep(1 * 1000);
                         }
                     }
                     ReplyStatus(sockfd, &send_cmd, READY);
-                } break;
+                }
+                break;
                 case DATA_ID_CAPTURE_YUV_GET_PARAM: {
                     ReplySensorPara(sockfd, &send_cmd);
-                } break;
+                }
+                break;
                 case DATA_ID_CAPTURE_YUV_SET_PARAM: {
                     SetSensorPara(sockfd, common_cmd, &send_cmd);
-                } break;
+                }
+                break;
                 case DATA_ID_CAPTURE_YUV_START: {
-                    if (capture_status != BUSY && capture_frames_index < capture_frames) {
+                    if (capture_status != BUSY && capture_frames_index < capture_frames)
+                    {
                         capture_status = BUSY;
                         DoCaptureYuv(sockfd);
                         capture_status = READY;
                     }
-                } break;
+                }
+                break;
                 case DATA_ID_CAPTURE_YUV_CHECKSUM: {
                     LOG_DEBUG("DATA_ID_CAPTURE_YUV_CHECKSUM SKIP\n");
                     // SendYuvDataResult(sockfd, &send_cmd, common_cmd);
-                } break;
+                }
+                break;
 
                 // online raw
                 case DATA_ID_CAPTURE_ONLINE_RAW_STATUS: {
-                    if (capture_status == BUSY) {
+                    if (capture_status == BUSY)
+                    {
                         LOG_DEBUG("Capture in process.\n");
                         return;
                     }
                     bool nodeFindedFlag = false;
-                    vector<string> targetNodeList = {"/proc/rkisp0-vir0", "/proc/rkisp0-vir1", "/proc/rkisp0-vir2",
-                                                     "/proc/rkisp1-vir0", "/proc/rkisp1-vir1", "/proc/rkisp1-vir2",
-                                                     "/proc/rkisp-vir0",  "/proc/rkisp-unite", "/proc/rkisp-vir0",
-                                                     "/proc/rkisp-vir1"};
-                    for (string tmpStr : targetNodeList) {
+                    vector<string> targetNodeList = {"/proc/rkisp0-vir0", "/proc/rkisp0-vir1", "/proc/rkisp0-vir2", "/proc/rkisp1-vir0", "/proc/rkisp1-vir1", "/proc/rkisp1-vir2", "/proc/rkisp-vir0", "/proc/rkisp-unite", "/proc/rkisp-vir0", "/proc/rkisp-vir1"};
+                    for (string tmpStr : targetNodeList)
+                    {
                         char result[2048] = {0};
                         std::string pattern{"Isp online"};
                         std::string pattern2{"Output.*frameloss"};
@@ -3291,39 +3848,48 @@ void RKAiqOLProtocol::HandlerOnLineMessage(int sockfd, char* buffer, int size)
                             break;
                         }
                     }
-                    if (nodeFindedFlag == false) {
+                    if (nodeFindedFlag == false)
+                    {
                         LOG_DEBUG("Isp not online, online raw capture not available\n");
                         return;
                     }
 
-                    if (capture_status == READY) {
+                    if (capture_status == READY)
+                    {
                         ReplyOnlineRawStatus(sockfd, &send_cmd, READY);
                         GetSensorHDRMode();
                     }
-                } break;
+                }
+                break;
                 case DATA_ID_CAPTURE_ONLINE_RAW_GET_PARAM: {
                     ReplyOnlineRawSensorPara(sockfd, &send_cmd);
-                } break;
+                }
+                break;
                 case DATA_ID_CAPTURE_ONLINE_RAW_SET_PARAM: {
                     SetOnlineRawSensorPara(sockfd, common_cmd, &send_cmd);
-                } break;
+                }
+                break;
                 case DATA_ID_CAPTURE_ONLINE_RAW_START: {
                     capture_status = BUSY;
                     LOG_DEBUG("DoCaptureOnlineRaw begin\n");
                     DoCaptureOnlineRaw(sockfd);
                     LOG_DEBUG("DoCaptureOnlineRaw end\n");
                     capture_status = READY;
-                } break;
+                }
+                break;
                 case DATA_ID_CAPTURE_ONLINE_RAW_CHECKSUM: {
                     LOG_DEBUG("DATA_ID_CAPTURE_ONLINE_RAW_CHECKSUM SKIP\n");
                     // SendYuvDataResult(sockfd, &send_cmd, common_cmd);
-                } break;
+                }
+                break;
                 default:
                     break;
             }
-        } break;
+        }
+        break;
         default: {
             LOG_INFO("cmdID: unknown\n");
-        } break;
+        }
+        break;
     }
 }

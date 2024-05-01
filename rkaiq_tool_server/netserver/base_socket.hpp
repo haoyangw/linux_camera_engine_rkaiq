@@ -14,14 +14,14 @@
 #include <functional>
 #include <cerrno>
 
-#define FDR_UNUSED(expr)                                                                                               \
-    {                                                                                                                  \
-        (void)(expr);                                                                                                  \
+#define FDR_UNUSED(expr)                                                                                                                                                                                                                                                                                   \
+    {                                                                                                                                                                                                                                                                                                      \
+        (void)(expr);                                                                                                                                                                                                                                                                                      \
     }
-#define FDR_ON_ERROR                                                                                                   \
-    std::function<void(int, std::string)> onError = [](int errorCode, std::string errorMessage) {                      \
-        FDR_UNUSED(errorCode);                                                                                         \
-        FDR_UNUSED(errorMessage)                                                                                       \
+#define FDR_ON_ERROR                                                                                                                                                                                                                                                                                       \
+    std::function<void(int, std::string)> onError = [](int errorCode, std::string errorMessage) {                                                                                                                                                                                                          \
+        FDR_UNUSED(errorCode);                                                                                                                                                                                                                                                                             \
+        FDR_UNUSED(errorMessage)                                                                                                                                                                                                                                                                           \
     }
 
 #ifndef AS_DEFAULT_BUFFER_SIZE
@@ -69,13 +69,17 @@ class BaseSocket
 
     BaseSocket(FDR_ON_ERROR, SocketType sockType = TCP, int socketId = -1)
     {
-        if (socketId == -1) {
+        if (socketId == -1)
+        {
             this->sock = socket(AF_INET, sockType, 0);
 
-            if (this->sock == -1) {
+            if (this->sock == -1)
+            {
                 onError(errno, "Socket creating error.");
             }
-        } else {
+        }
+        else
+        {
             this->sock = socketId;
             printf("Socket creating success, socketId:%d\n", socketId);
         }

@@ -116,12 +116,14 @@ typedef enum VPU_API_CMD
     VPU_API_ENC_SET_BASE_LAYER_PID,
 } VPU_API_CMD;
 
-typedef struct {
+typedef struct
+{
     RK_U32 TimeLow;
     RK_U32 TimeHigh;
 } TIME_STAMP;
 
-typedef struct {
+typedef struct
+{
     RK_U32 CodecType;
     RK_U32 ImgWidth;
     RK_U32 ImgHeight;
@@ -130,14 +132,16 @@ typedef struct {
     RK_U32 BufSize;
 } VPU_GENERIC;
 
-typedef struct VPUMem {
+typedef struct VPUMem
+{
     RK_U32 phy_addr;
     RK_U32* vir_addr;
     RK_U32 size;
     RK_U32* offset;
 } VPUMemLinear_t;
 
-typedef struct tVPU_FRAME {
+typedef struct tVPU_FRAME
+{
     RK_U32 FrameBusAddr[2]; // 0: Y address; 1: UV address;
     RK_U32 FrameWidth;      // buffer horizontal stride
     RK_U32 FrameHeight;     // buffer vertical   stride
@@ -155,9 +159,11 @@ typedef struct tVPU_FRAME {
     VPUMemLinear_t vpumem;
     struct tVPU_FRAME* next_frame;
     union {
-        struct {
+        struct
+        {
             RK_U32 Res0[2];
-            struct {
+            struct
+            {
                 RK_U32 ColorPrimaries : 8;
                 RK_U32 ColorTransfer : 8;
                 RK_U32 ColorCoeffs : 8;
@@ -172,7 +178,8 @@ typedef struct tVPU_FRAME {
     };
 } VPU_FRAME;
 
-typedef struct VideoPacket {
+typedef struct VideoPacket
+{
     RK_S64 pts; /* with unit of us*/
     RK_S64 dts; /* with unit of us*/
     RK_U8* data;
@@ -181,14 +188,16 @@ typedef struct VideoPacket {
     RK_U32 nFlags;
 } VideoPacket_t;
 
-typedef struct DecoderOut {
+typedef struct DecoderOut
+{
     RK_U8* data;
     RK_U32 size;
     RK_S64 timeUs;
     RK_S32 nFlags;
 } DecoderOut_t;
 
-typedef struct ParserOut {
+typedef struct ParserOut
+{
     RK_U8* data;
     RK_U32 size;
     RK_S64 timeUs;
@@ -197,7 +206,8 @@ typedef struct ParserOut {
     RK_U32 height;
 } ParserOut_t;
 
-typedef struct EncInputStream {
+typedef struct EncInputStream
+{
     RK_U8* buf;
     RK_S32 size;
     RK_U32 bufPhyAddr;
@@ -205,7 +215,8 @@ typedef struct EncInputStream {
     RK_U32 nFlags;
 } EncInputStream_t;
 
-typedef struct EncoderOut {
+typedef struct EncoderOut
+{
     RK_U8* data;
     RK_S32 size;
     RK_S64 timeUs;
@@ -241,10 +252,9 @@ typedef enum OMX_RK_VIDEO_CODINGTYPE
     OMX_RK_VIDEO_CodingFLV1,             /**< Sorenson H.263 */
     OMX_RK_VIDEO_CodingDIVX3,            /**< DIVX3 */
     OMX_RK_VIDEO_CodingVP6,
-    OMX_RK_VIDEO_CodingHEVC, /**< H.265/HEVC */
-    OMX_RK_VIDEO_CodingAVS,  /**< AVS+ */
-    OMX_RK_VIDEO_CodingKhronosExtensions =
-        0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
+    OMX_RK_VIDEO_CodingHEVC,                           /**< H.265/HEVC */
+    OMX_RK_VIDEO_CodingAVS,                            /**< AVS+ */
+    OMX_RK_VIDEO_CodingKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
     OMX_RK_VIDEO_CodingVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
     OMX_RK_VIDEO_CodingMax = 0x7FFFFFFF
 } OMX_RK_VIDEO_CODINGTYPE;
@@ -279,7 +289,8 @@ typedef enum VPU_FRAME_ERR
 
 } VPU_FRAME_ERR;
 
-typedef struct EncParameter {
+typedef struct EncParameter
+{
     RK_S32 width;
     RK_S32 height;
     RK_S32 rc_mode; /* 0 - CQP mode; 1 - CBR mode; 2 - FIXQP mode*/
@@ -296,14 +307,16 @@ typedef struct EncParameter {
     RK_S32 reserved[3];
 } EncParameter_t;
 
-typedef struct COLORASPECTS {
+typedef struct COLORASPECTS
+{
     RK_S32 range;
     RK_S32 colorprim;
     RK_S32 colortrc;
     RK_S32 color;
 } COLORASPECTS;
 
-typedef struct EXtraCfg {
+typedef struct EXtraCfg
+{
     RK_S32 vc1extra_size;
     RK_S32 vp6codeid;
     RK_S32 tsformat;
@@ -318,7 +331,8 @@ typedef struct EXtraCfg {
 /**
  * @brief vpu function interface
  */
-typedef struct VpuCodecContext {
+typedef struct VpuCodecContext
+{
     void* vpuApiObj;
 
     CODEC_TYPE codecType;
@@ -411,19 +425,20 @@ typedef struct VpuCodecContext {
 
 /* allocated vpu codec context */
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-/**
- * @brief open context of vpu
- * @param ctx pointer of vpu codec context
- */
-RK_S32 vpu_open_context(struct VpuCodecContext** ctx);
-/**
- * @brief close context of vpu
- * @param ctx pointer of vpu codec context
- */
-RK_S32 vpu_close_context(struct VpuCodecContext** ctx);
+    /**
+     * @brief open context of vpu
+     * @param ctx pointer of vpu codec context
+     */
+    RK_S32 vpu_open_context(struct VpuCodecContext** ctx);
+    /**
+     * @brief close context of vpu
+     * @param ctx pointer of vpu codec context
+     */
+    RK_S32 vpu_close_context(struct VpuCodecContext** ctx);
 
 #ifdef __cplusplus
 }
@@ -432,48 +447,50 @@ RK_S32 vpu_close_context(struct VpuCodecContext** ctx);
 /*
  * vpu_mem api
  */
-#define vpu_display_mem_pool_FIELDS                                                                                    \
-    RK_S32 (*commit_hdl)(vpu_display_mem_pool * p, RK_S32 hdl, RK_S32 size);                                           \
-    void* (*get_free)(vpu_display_mem_pool * p);                                                                       \
-    RK_S32 (*inc_used)(vpu_display_mem_pool * p, void* hdl);                                                           \
-    RK_S32 (*put_used)(vpu_display_mem_pool * p, void* hdl);                                                           \
-    RK_S32 (*reset)(vpu_display_mem_pool * p);                                                                         \
-    RK_S32 (*get_unused_num)(vpu_display_mem_pool * p);                                                                \
-    RK_S32 buff_size;                                                                                                  \
-    float version;                                                                                                     \
+#define vpu_display_mem_pool_FIELDS                                                                                                                                                                                                                                                                        \
+    RK_S32 (*commit_hdl)(vpu_display_mem_pool * p, RK_S32 hdl, RK_S32 size);                                                                                                                                                                                                                               \
+    void* (*get_free)(vpu_display_mem_pool * p);                                                                                                                                                                                                                                                           \
+    RK_S32 (*inc_used)(vpu_display_mem_pool * p, void* hdl);                                                                                                                                                                                                                                               \
+    RK_S32 (*put_used)(vpu_display_mem_pool * p, void* hdl);                                                                                                                                                                                                                                               \
+    RK_S32 (*reset)(vpu_display_mem_pool * p);                                                                                                                                                                                                                                                             \
+    RK_S32 (*get_unused_num)(vpu_display_mem_pool * p);                                                                                                                                                                                                                                                    \
+    RK_S32 buff_size;                                                                                                                                                                                                                                                                                      \
+    float version;                                                                                                                                                                                                                                                                                         \
     RK_S32 res[18];
 
 typedef struct vpu_display_mem_pool vpu_display_mem_pool;
 
-struct vpu_display_mem_pool {
+struct vpu_display_mem_pool
+{
     vpu_display_mem_pool_FIELDS
 };
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-/*
- * vpu memory handle interface
- */
-RK_S32 VPUMemJudgeIommu(void);
-RK_S32 VPUMallocLinear(VPUMemLinear_t* p, RK_U32 size);
-RK_S32 VPUFreeLinear(VPUMemLinear_t* p);
-RK_S32 VPUMemDuplicate(VPUMemLinear_t* dst, VPUMemLinear_t* src);
-RK_S32 VPUMemLink(VPUMemLinear_t* p);
-RK_S32 VPUMemFlush(VPUMemLinear_t* p);
-RK_S32 VPUMemClean(VPUMemLinear_t* p);
-RK_S32 VPUMemInvalidate(VPUMemLinear_t* p);
-RK_S32 VPUMemGetFD(VPUMemLinear_t* p);
-RK_S32 VPUMallocLinearFromRender(VPUMemLinear_t* p, RK_U32 size, void* ctx);
+    /*
+     * vpu memory handle interface
+     */
+    RK_S32 VPUMemJudgeIommu(void);
+    RK_S32 VPUMallocLinear(VPUMemLinear_t* p, RK_U32 size);
+    RK_S32 VPUFreeLinear(VPUMemLinear_t* p);
+    RK_S32 VPUMemDuplicate(VPUMemLinear_t* dst, VPUMemLinear_t* src);
+    RK_S32 VPUMemLink(VPUMemLinear_t* p);
+    RK_S32 VPUMemFlush(VPUMemLinear_t* p);
+    RK_S32 VPUMemClean(VPUMemLinear_t* p);
+    RK_S32 VPUMemInvalidate(VPUMemLinear_t* p);
+    RK_S32 VPUMemGetFD(VPUMemLinear_t* p);
+    RK_S32 VPUMallocLinearFromRender(VPUMemLinear_t* p, RK_U32 size, void* ctx);
 
-/*
- * vpu memory allocator and manager interface
- */
-vpu_display_mem_pool* open_vpu_memory_pool(void);
-void close_vpu_memory_pool(vpu_display_mem_pool* p);
-int create_vpu_memory_pool_allocator(vpu_display_mem_pool** ipool, int num, int size);
-void release_vpu_memory_pool_allocator(vpu_display_mem_pool* ipool);
+    /*
+     * vpu memory allocator and manager interface
+     */
+    vpu_display_mem_pool* open_vpu_memory_pool(void);
+    void close_vpu_memory_pool(vpu_display_mem_pool* p);
+    int create_vpu_memory_pool_allocator(vpu_display_mem_pool** ipool, int num, int size);
+    void release_vpu_memory_pool_allocator(vpu_display_mem_pool* ipool);
 
 #ifdef __cplusplus
 }

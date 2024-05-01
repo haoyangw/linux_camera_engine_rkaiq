@@ -15,10 +15,8 @@
 #include "easymedia/stream.h"
 #include "easymedia/utils.h"
 
-std::shared_ptr<easymedia::Flow> create_video_capture_flow(std::string input_path, std::string pixel_format,
-                                                           int video_width, int video_height);
-std::shared_ptr<easymedia::Flow> create_video_enc_flow(std::string pixel_format, std::string video_enc_type,
-                                                       int video_width, int video_height, int video_fps);
+std::shared_ptr<easymedia::Flow> create_video_capture_flow(std::string input_path, std::string pixel_format, int video_width, int video_height);
+std::shared_ptr<easymedia::Flow> create_video_enc_flow(std::string pixel_format, std::string video_enc_type, int video_width, int video_height, int video_fps);
 std::shared_ptr<easymedia::Flow> create_rtsp_server_flow(std::string channel_name, std::string media_type);
 
 void deinit_rtsp();

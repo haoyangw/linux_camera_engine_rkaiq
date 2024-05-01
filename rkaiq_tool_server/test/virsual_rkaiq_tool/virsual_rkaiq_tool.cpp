@@ -7,7 +7,8 @@
 #define MAX_BUFFER_SIZE 8192
 
 #pragma pack(1)
-typedef struct Common_Cmd_s {
+typedef struct Common_Cmd_s
+{
     uint8_t RKID[8];
     uint16_t cmdType;
     uint16_t cmdID;
@@ -33,7 +34,8 @@ static void ICMD_CheckStatus(Common_Cmd_t* cmd)
     memset(cmd->dat, 0, sizeof(cmd->dat));
     cmd->dat[0] = 0x80;
     cmd->checkSum = 0;
-    for (int i = 0; i < cmd->datLen; i++) {
+    for (int i = 0; i < cmd->datLen; i++)
+    {
         cmd->checkSum += cmd->dat[i];
     }
 }
@@ -48,7 +50,8 @@ static void ICMD_GetVideoDevStatus(Common_Cmd_t* cmd)
     cmd->dat[0] = 0x00;
     cmd->dat[1] = 0x80;
     cmd->checkSum = 0;
-    for (int i = 0; i < cmd->datLen; i++) {
+    for (int i = 0; i < cmd->datLen; i++)
+    {
         cmd->checkSum += cmd->dat[i];
     }
 }
@@ -63,7 +66,8 @@ static void ICMD_GetPclkHtsVts(Common_Cmd_t* cmd)
     cmd->dat[0] = 0x01;
     cmd->dat[1] = 0x00;
     cmd->checkSum = 0;
-    for (int i = 0; i < cmd->datLen; i++) {
+    for (int i = 0; i < cmd->datLen; i++)
+    {
         cmd->checkSum += cmd->dat[i];
     }
 }
@@ -83,7 +87,8 @@ static void ICMD_GetSetParam(Common_Cmd_t* cmd)
     cmd->dat[7] = capture_count;
     cmd->dat[8] = capture_mode;
     cmd->checkSum = 0;
-    for (int i = 0; i < cmd->datLen; i++) {
+    for (int i = 0; i < cmd->datLen; i++)
+    {
         cmd->checkSum += cmd->dat[i];
     }
 }
@@ -98,7 +103,8 @@ static void ICMD_DoCapture(Common_Cmd_t* cmd)
     cmd->dat[0] = 0x03;
     cmd->dat[1] = 0x80;
     cmd->checkSum = 0;
-    for (int i = 0; i < cmd->datLen; i++) {
+    for (int i = 0; i < cmd->datLen; i++)
+    {
         cmd->checkSum += cmd->dat[i];
     }
 }
@@ -113,7 +119,8 @@ static void ICMD_DoSumCheck(Common_Cmd_t* cmd)
     cmd->dat[0] = 0x04;
     cmd->dat[1] = 0x00;
     cmd->checkSum = 0;
-    for (int i = 0; i < cmd->datLen; i++) {
+    for (int i = 0; i < cmd->datLen; i++)
+    {
         cmd->checkSum += cmd->dat[i];
     }
 }
@@ -127,7 +134,8 @@ static void ICMD_GetAppStatus(Common_Cmd_t* cmd)
     memset(cmd->dat, 0, sizeof(cmd->dat));
     cmd->dat[0] = 0x80;
     cmd->checkSum = 0;
-    for (int i = 0; i < cmd->datLen; i++) {
+    for (int i = 0; i < cmd->datLen; i++)
+    {
         cmd->checkSum += cmd->dat[i];
     }
 }
@@ -141,7 +149,8 @@ static void ICMD_SetAppStatus(Common_Cmd_t* cmd)
     memset(cmd->dat, 0, sizeof(cmd->dat));
     cmd->dat[0] = 0x80;
     cmd->checkSum = 0;
-    for (int i = 0; i < cmd->datLen; i++) {
+    for (int i = 0; i < cmd->datLen; i++)
+    {
         cmd->checkSum += cmd->dat[i];
     }
 }
@@ -149,16 +158,20 @@ static void ICMD_SetAppStatus(Common_Cmd_t* cmd)
 void DumpCommand(char* buff)
 {
     Common_Cmd_t* common_cmd = (Common_Cmd_t*)buff;
-    for (int i = 0; i < common_cmd->datLen; i++) {
+    for (int i = 0; i < common_cmd->datLen; i++)
+    {
         fprintf(stderr, "data[%d]: 0x%x\n", i, common_cmd->dat[i]);
     }
 
     char rkid[9];
     memcpy(rkid, common_cmd->RKID, 8);
     rkid[8] = '\0';
-    if (strcmp("RKISP-AS", rkid) == 0) {
+    if (strcmp("RKISP-AS", rkid) == 0)
+    {
         fprintf(stderr, "common_cmd RKID: %s\n", common_cmd->RKID);
-    } else {
+    }
+    else
+    {
         fprintf(stderr, "unknown command RKID\n");
     }
 }
@@ -244,7 +257,8 @@ void CMD_DoCapture(TCPClient& tcpClient)
     memcpy(send_data, &send_cmd, sizeof(Common_Cmd_s));
     tcpClient.Send(send_data, sizeof(Common_Cmd_s));
     int ret_val = tcpClient.Receive(send_data, MAX_BUFFER_SIZE);
-    while (sizeof(Common_Cmd_s) == MAX_BUFFER_SIZE) {
+    while (sizeof(Common_Cmd_s) == MAX_BUFFER_SIZE)
+    {
         tcpClient.Receive(send_data, MAX_BUFFER_SIZE);
     }
 }
@@ -273,7 +287,8 @@ void CMD_CaptureRaw(TCPClient& tcpClient)
 
 int main(int argc, char* argv[])
 {
-    if (argc < 3) {
+    if (argc < 3)
+    {
         fprintf(stderr, "Usage: ./%s ip msg_id\n", argv[0]);
         return 0;
     }
@@ -285,7 +300,8 @@ int main(int argc, char* argv[])
     tcpClient.Setup(argv[1], SERVER_PORT);
     msg_id = atoi(argv[2]);
 
-    if (argc == 5) {
+    if (argc == 5)
+    {
         capture_mode = atoi(argv[3]);
         capture_count = atoi(argv[4]);
     }
@@ -294,7 +310,8 @@ int main(int argc, char* argv[])
     Common_Cmd_t send_cmd;
     char send_data[MAX_BUFFER_SIZE];
 
-    switch (msg_id) {
+    switch (msg_id)
+    {
         case CHECK_DEVICE_STATUS:
             CMD_CheckStatus(tcpClient);
             break;

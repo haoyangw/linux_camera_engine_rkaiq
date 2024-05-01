@@ -40,8 +40,7 @@ namespace easymedia
 
         virtual bool Init() = 0;
         // sync call, input and output must be valid
-        virtual int Process(const std::shared_ptr<MediaBuffer>& input, std::shared_ptr<MediaBuffer>& output,
-                            std::shared_ptr<MediaBuffer> extra_output = nullptr) = 0;
+        virtual int Process(const std::shared_ptr<MediaBuffer>& input, std::shared_ptr<MediaBuffer>& output, std::shared_ptr<MediaBuffer> extra_output = nullptr) = 0;
 
         // some codec may output many buffers with one input.
         // sync or async safe call, depends on specific codec.
@@ -55,10 +54,8 @@ namespace easymedia
 
     _API const uint8_t* find_nalu_startcode(const uint8_t* p, const uint8_t* end);
     // must be h264 data
-    _API std::list<std::shared_ptr<MediaBuffer>> split_h264_separate(const uint8_t* buffer, size_t length,
-                                                                     int64_t timestamp);
-    _API std::list<std::shared_ptr<MediaBuffer>> split_h265_separate(const uint8_t* buffer, size_t length,
-                                                                     int64_t timestamp);
+    _API std::list<std::shared_ptr<MediaBuffer>> split_h264_separate(const uint8_t* buffer, size_t length, int64_t timestamp);
+    _API std::list<std::shared_ptr<MediaBuffer>> split_h265_separate(const uint8_t* buffer, size_t length, int64_t timestamp);
     _API void* GetVpsFromBuffer(std::shared_ptr<MediaBuffer>& mb, int& size, CodecType c_type);
     _API void* GetSpsFromBuffer(std::shared_ptr<MediaBuffer>& mb, int& size, CodecType c_type);
     _API void* GetPpsFromBuffer(std::shared_ptr<MediaBuffer>& mb, int& size, CodecType c_type);

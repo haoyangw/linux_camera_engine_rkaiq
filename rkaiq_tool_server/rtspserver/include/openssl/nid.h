@@ -62,21 +62,22 @@
 #include <openssl/base.h>
 
 #if defined(__cplusplus)
-extern "C" {
+extern "C"
+{
 #endif
 
-/* The nid library provides numbered values for ASN.1 object identifiers and
- * other symbols. These values are used by other libraries to identify
- * cryptographic primitives.
- *
- * A separate objects library, obj.h, provides functions for converting between
- * nids and object identifiers. However it depends on large internal tables with
- * the encodings of every nid defined. Consumers concerned with binary size
- * should instead embed the encodings of the few consumed OIDs and compare
- * against those.
- *
- * These values should not be used outside of a single process; they are not
- * stable identifiers. */
+    /* The nid library provides numbered values for ASN.1 object identifiers and
+     * other symbols. These values are used by other libraries to identify
+     * cryptographic primitives.
+     *
+     * A separate objects library, obj.h, provides functions for converting between
+     * nids and object identifiers. However it depends on large internal tables with
+     * the encodings of every nid defined. Consumers concerned with binary size
+     * should instead embed the encodings of the few consumed OIDs and compare
+     * against those.
+     *
+     * These values should not be used outside of a single process; they are not
+     * stable identifiers. */
 
 #define SN_undef "UNDEF"
 #define LN_undef "undefined"

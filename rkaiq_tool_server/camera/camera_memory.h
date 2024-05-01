@@ -44,14 +44,16 @@ enum sensor_link
     link_to_dvp,
 };
 
-struct buffer {
+struct buffer
+{
     void* start;
     size_t length;
     int socket;
     unsigned short checksum;
 };
 
-struct isp_t {
+struct isp_t
+{
     char media_dev_path[DEV_PATH_LEN];
     char isp_main_path[DEV_PATH_LEN];
     char isp_sd_path[DEV_PATH_LEN];
@@ -60,14 +62,16 @@ struct isp_t {
     __u32 sd_fmt;
 };
 
-struct vicap_t {
+struct vicap_t
+{
     char cif_video_path[DEV_PATH_LEN];
     int width;
     int height;
     __u32 sd_fmt;
 };
 
-struct sensor_t {
+struct sensor_t
+{
     char device_name[DEV_PATH_LEN];
     char sensor_name[DEV_PATH_LEN];
     int width;
@@ -76,12 +80,14 @@ struct sensor_t {
     __u32 sen_fmt;
 };
 
-struct lens_t {
+struct lens_t
+{
     char lens_device_name[DEV_PATH_LEN];
 };
 
 #pragma pack(1)
-typedef struct RkToolExpToolParam_s {
+typedef struct RkToolExpToolParam_s
+{
     float integration_time;
     float analog_gain;
     float digital_gain;
@@ -91,19 +97,22 @@ typedef struct RkToolExpToolParam_s {
     int longfrm_mode;
 } RkToolExpRealParam_t;
 
-typedef struct RkToolExpSensorParam_s {
+typedef struct RkToolExpSensorParam_s
+{
     uint32_t fine_integration_time;
     uint32_t coarse_integration_time;
     uint32_t analog_gain_code_global;
     uint32_t digital_gain_global;
     uint32_t isp_digital_gain;
 } RkToolExpSensorParam_t;
-typedef struct RkToolExpParam_s {
+typedef struct RkToolExpParam_s
+{
     RkToolExpRealParam_t exp_real_params;     // real value
     RkToolExpSensorParam_t exp_sensor_params; // reg value
 } RkToolExpParam_t;
 
-typedef struct rk_aiq_isp_tool_stats_s {
+typedef struct rk_aiq_isp_tool_stats_s
+{
     uint16_t version; // 0x0100 = v1.0
     uint32_t frameID;
     RkToolExpParam_t linearExp; // from RKAiqAecStats_t::ae_exp.LinearExp.exp_real_params
@@ -112,7 +121,8 @@ typedef struct rk_aiq_isp_tool_stats_s {
 } rk_aiq_isp_tool_stats_t;
 #pragma pack()
 
-struct capture_info {
+struct capture_info
+{
     const char* dev_name;
     int dev_fd;
     int subdev_fd;

@@ -21,9 +21,9 @@ namespace easymedia
     // T must be the final class type exposed to user
     DECLARE_REFLECTOR(Encoder)
 
-    #define DEFINE_ENCODER_FACTORY(REAL_PRODUCT, FINAL_EXPOSE_PRODUCT)                                                 \
-        DEFINE_MEDIA_CHILD_FACTORY(REAL_PRODUCT, REAL_PRODUCT::GetCodecName(), FINAL_EXPOSE_PRODUCT, Encoder)          \
-        DEFINE_MEDIA_CHILD_FACTORY_EXTRA(REAL_PRODUCT)                                                                 \
+    #define DEFINE_ENCODER_FACTORY(REAL_PRODUCT, FINAL_EXPOSE_PRODUCT)                                                                                                                                                                                                                                     \
+        DEFINE_MEDIA_CHILD_FACTORY(REAL_PRODUCT, REAL_PRODUCT::GetCodecName(), FINAL_EXPOSE_PRODUCT, Encoder)                                                                                                                                                                                              \
+        DEFINE_MEDIA_CHILD_FACTORY_EXTRA(REAL_PRODUCT)                                                                                                                                                                                                                                                     \
         DEFINE_MEDIA_NEW_PRODUCT_BY(REAL_PRODUCT, Encoder, Init() != true)
 
     class Encoder : public Codec
@@ -39,16 +39,19 @@ namespace easymedia
       public:
         ParameterBuffer(size_t st = sizeof(int)) : size(st), ptr(nullptr)
         {
-            if (sizeof(int) != st && st != 0) {
+            if (sizeof(int) != st && st != 0)
+            {
                 ptr = malloc(st);
-                if (!ptr) {
+                if (!ptr)
+                {
                     size = 0;
                 }
             }
         }
         ~ParameterBuffer()
         {
-            if (ptr) {
+            if (ptr)
+            {
                 free(ptr);
             }
         }
@@ -70,7 +73,8 @@ namespace easymedia
         }
         void SetPtr(void* data, size_t data_len)
         {
-            if (ptr && ptr != data) {
+            if (ptr && ptr != data)
+            {
                 free(ptr);
             }
             ptr = data;

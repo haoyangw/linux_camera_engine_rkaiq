@@ -153,7 +153,8 @@
 #include <openssl/base.h>
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #define TLS1_AD_END_OF_EARLY_DATA 1
@@ -254,7 +255,7 @@ extern "C" {
 #define TLSEXT_ECPOINTFORMAT_uncompressed 0
 #define TLSEXT_ECPOINTFORMAT_ansiX962_compressed_prime 1
 
-// Signature and hash algorithms from RFC 5246
+    // Signature and hash algorithms from RFC 5246
 
 #define TLSEXT_signature_anonymous 0
 #define TLSEXT_signature_rsa 1
@@ -298,7 +299,7 @@ extern "C" {
 #define TLS1_CK_DHE_DSS_EXPORT1024_WITH_RC4_56_SHA 0x03000065
 #define TLS1_CK_DHE_DSS_WITH_RC4_128_SHA 0x03000066
 
-// AES ciphersuites from RFC3268
+    // AES ciphersuites from RFC3268
 
 #define TLS1_CK_RSA_WITH_AES_128_SHA 0x0300002F
 #define TLS1_CK_DH_DSS_WITH_AES_128_SHA 0x03000030
@@ -411,7 +412,7 @@ extern "C" {
 #define TLS1_CK_SRP_SHA_RSA_WITH_AES_256_CBC_SHA 0x0300C021
 #define TLS1_CK_SRP_SHA_DSS_WITH_AES_256_CBC_SHA 0x0300C022
 
-// ECDH HMAC based ciphersuites from RFC5289
+    // ECDH HMAC based ciphersuites from RFC5289
 
 #define TLS1_CK_ECDHE_ECDSA_WITH_AES_128_SHA256 0x0300C023
 #define TLS1_CK_ECDHE_ECDSA_WITH_AES_256_SHA384 0x0300C024
@@ -576,7 +577,7 @@ extern "C" {
 #define TLS1_TXT_ADH_WITH_AES_128_GCM_SHA256 "ADH-AES128-GCM-SHA256"
 #define TLS1_TXT_ADH_WITH_AES_256_GCM_SHA384 "ADH-AES256-GCM-SHA384"
 
-// ECDH HMAC based ciphersuites from RFC5289
+    // ECDH HMAC based ciphersuites from RFC5289
 
 #define TLS1_TXT_ECDHE_ECDSA_WITH_AES_128_SHA256 "ECDHE-ECDSA-AES128-SHA256"
 #define TLS1_TXT_ECDHE_ECDSA_WITH_AES_256_SHA384 "ECDHE-ECDSA-AES256-SHA384"

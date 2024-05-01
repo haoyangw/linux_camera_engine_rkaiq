@@ -6,8 +6,7 @@
 class H264LiveVideoServerMediaSubsession : public OnDemandServerMediaSubsession
 {
   public:
-    static H264LiveVideoServerMediaSubsession* createNew(UsageEnvironment& env, Boolean reuseFirstSource,
-                                                         void* listener);
+    static H264LiveVideoServerMediaSubsession* createNew(UsageEnvironment& env, Boolean reuseFirstSource, void* listener);
 
     // Used to implement "getAuxSDPLine()":
     void checkForAuxSDPLine1();
@@ -26,8 +25,7 @@ class H264LiveVideoServerMediaSubsession : public OnDemandServerMediaSubsession
   protected: // redefined virtual functions
     virtual char const* getAuxSDPLine(RTPSink* rtpSink, FramedSource* inputSource);
     virtual FramedSource* createNewStreamSource(unsigned clientSessionId, unsigned& estBitrate);
-    virtual RTPSink* createNewRTPSink(Groupsock* rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic,
-                                      FramedSource* inputSource);
+    virtual RTPSink* createNewRTPSink(Groupsock* rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic, FramedSource* inputSource);
 
   private:
     char* fAuxSDPLine;

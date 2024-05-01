@@ -19,7 +19,8 @@
 using RknnCallBack = std::add_pointer<void(void* handler, int type, void* ptr, int size)>::type;
 using RknnHandler = std::add_pointer<void*>::type;
 
-typedef struct Rect {
+typedef struct Rect
+{
     int left;
     int top;
     int right;
@@ -35,14 +36,16 @@ typedef enum
 
 /* recognize_type: -1, Unknow; register_type: -1, register repeaded, -99
  * register failed */
-typedef struct {
+typedef struct
+{
     FaceRegType type;
     int user_id;
     float similarity;
     char pic_path[RKNN_PICTURE_PATH_LEN];
 } FaceReg;
 
-typedef struct {
+typedef struct
+{
 #ifdef USE_ROCKFACE
     rockface_det_t base;
     rockface_attribute_t attr;
@@ -56,13 +59,15 @@ typedef struct {
     FaceReg face_reg;
 } FaceInfo;
 
-typedef struct {
+typedef struct
+{
 #ifdef USE_ROCKX
     rockx_face_landmark_t object;
 #endif
 } LandmarkInfo;
 
-typedef struct {
+typedef struct
+{
 #ifdef USE_ROCKFACE
     rockface_det_t base;
 #endif
@@ -71,7 +76,8 @@ typedef struct {
 #endif
 } BodyInfo;
 
-typedef struct {
+typedef struct
+{
 #ifdef USE_ROCKX
     rockx_keypoints_t object;
 #endif
@@ -97,7 +103,8 @@ typedef enum
     NNRESULT_TYPE_FACE_REG,
 } RknnResultType;
 
-typedef struct {
+typedef struct
+{
     int img_w;
     int img_h;
     int64_t timeval;

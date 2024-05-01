@@ -23,7 +23,8 @@ namespace easymedia
     void VideoEncoder::RequestChange(uint32_t change, std::shared_ptr<ParameterBuffer> value)
     {
         change_mtx.lock();
-        if (change_list.size() > VIDEO_ENC_CHANGE_MAX) {
+        if (change_list.size() > VIDEO_ENC_CHANGE_MAX)
+        {
             LOG("WARN: Video Encoder: change list reached max cnt:%d. Drop front!\n", VIDEO_ENC_CHANGE_MAX);
             change_list.pop_front();
         }
@@ -42,7 +43,8 @@ namespace easymedia
     std::pair<uint32_t, std::shared_ptr<ParameterBuffer>> VideoEncoder::PeekChange()
     {
         std::lock_guard<std::mutex> _lg(change_mtx);
-        if (change_list.empty()) {
+        if (change_list.empty())
+        {
             static auto empty = std::pair<uint32_t, std::shared_ptr<ParameterBuffer>>(0, nullptr);
             return empty;
         }

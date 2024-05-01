@@ -35,8 +35,7 @@ namespace easymedia
         int rotate;
     };
 
-    int rga_blit(std::shared_ptr<ImageBuffer> src, std::shared_ptr<ImageBuffer> dst, ImageRect* src_rect = nullptr,
-                 ImageRect* dst_rect = nullptr, int rotate = 0);
+    int rga_blit(std::shared_ptr<ImageBuffer> src, std::shared_ptr<ImageBuffer> dst, ImageRect* src_rect = nullptr, ImageRect* dst_rect = nullptr, int rotate = 0);
 
 } // namespace easymedia
 

@@ -37,16 +37,11 @@ namespace easymedia
         // special flags
         static const uint32_t kBuildinLibvorbisenc = (1 << 16);
 
-        MediaBuffer()
-            : ptr(nullptr), size(0), fd(-1), valid_size(0), type(Type::None), user_flag(0), ustimestamp(0), eof(false),
-              tsvc_level(-1)
+        MediaBuffer() : ptr(nullptr), size(0), fd(-1), valid_size(0), type(Type::None), user_flag(0), ustimestamp(0), eof(false), tsvc_level(-1)
         {
         }
         // Set userdata and delete function if you want free resource when destrut.
-        MediaBuffer(void* buffer_ptr, size_t buffer_size, int buffer_fd = -1, void* user_data = nullptr,
-                    DeleteFun df = nullptr)
-            : ptr(buffer_ptr), size(buffer_size), fd(buffer_fd), valid_size(0), type(Type::None), user_flag(0),
-              ustimestamp(0), eof(false), tsvc_level(-1)
+        MediaBuffer(void* buffer_ptr, size_t buffer_size, int buffer_fd = -1, void* user_data = nullptr, DeleteFun df = nullptr) : ptr(buffer_ptr), size(buffer_size), fd(buffer_fd), valid_size(0), type(Type::None), user_flag(0), ustimestamp(0), eof(false), tsvc_level(-1)
         {
             SetUserData(user_data, df);
         }
@@ -150,12 +145,17 @@ namespace easymedia
 
         void SetUserData(void* user_data, DeleteFun df)
         {
-            if (user_data) {
-                if (df) {
+            if (user_data)
+            {
+                if (df)
+                {
                     userdata.reset(user_data, df);
-                } else
+                }
+                else
                     userdata.reset(user_data, [](void*) {}); // do nothing when delete
-            } else {
+            }
+            else
+            {
                 userdata.reset();
             }
         }
@@ -199,10 +199,13 @@ namespace easymedia
 
         void SetRelatedSPtr(const std::shared_ptr<void>& rdata, int index = -1)
         {
-            if (index < 0) {
+            if (index < 0)
+            {
                 related_sptrs.push_back(rdata);
                 return;
-            } else if (index >= (int)related_sptrs.size()) {
+            }
+            else if (index >= (int)related_sptrs.size())
+            {
                 related_sptrs.resize(index + 1);
             }
             related_sptrs[index] = rdata;
@@ -319,7 +322,8 @@ namespace easymedia
             SetType(Type::Image);
             // if set a valid info, set valid size
             size_t s = CalPixFmtSize(info);
-            if (s > 0) {
+            if (s > 0)
+            {
                 SetValidSize(s);
             }
         }
@@ -371,9 +375,7 @@ namespace easymedia
         {
         }
         // Set userdata and delete function if you want free resource when destrut.
-        MediaGroupBuffer(void* buffer_ptr, size_t buffer_size, int buffer_fd = -1, void* user_data = nullptr,
-                         DeleteFun df = nullptr)
-            : pool(nullptr), ptr(buffer_ptr), size(buffer_size), fd(buffer_fd)
+        MediaGroupBuffer(void* buffer_ptr, size_t buffer_size, int buffer_fd = -1, void* user_data = nullptr, DeleteFun df = nullptr) : pool(nullptr), ptr(buffer_ptr), size(buffer_size), fd(buffer_fd)
         {
             SetUserData(user_data, df);
         }
@@ -381,12 +383,17 @@ namespace easymedia
 
         void SetUserData(void* user_data, DeleteFun df)
         {
-            if (user_data) {
-                if (df) {
+            if (user_data)
+            {
+                if (df)
+                {
                     userdata.reset(user_data, df);
-                } else
+                }
+                else
                     userdata.reset(user_data, [](void*) {}); // do nothing when delete
-            } else {
+            }
+            else
+            {
                 userdata.reset();
             }
         }

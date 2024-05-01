@@ -4,16 +4,12 @@
 #include "H264LiveVideoServerMediaSubsession.h"
 #include "H264LiveVideoSource.h"
 
-H264LiveVideoServerMediaSubsession* H264LiveVideoServerMediaSubsession::createNew(UsageEnvironment& env,
-                                                                                  Boolean reuseFirstSource,
-                                                                                  void* listener)
+H264LiveVideoServerMediaSubsession* H264LiveVideoServerMediaSubsession::createNew(UsageEnvironment& env, Boolean reuseFirstSource, void* listener)
 {
     return new H264LiveVideoServerMediaSubsession(env, reuseFirstSource, listener);
 }
 
-H264LiveVideoServerMediaSubsession::H264LiveVideoServerMediaSubsession(UsageEnvironment& env, Boolean reuseFirstSource,
-                                                                       void* listener)
-    : OnDemandServerMediaSubsession(env, reuseFirstSource), fAuxSDPLine(NULL), fDoneFlag(0), fDummyRTPSink(NULL)
+H264LiveVideoServerMediaSubsession::H264LiveVideoServerMediaSubsession(UsageEnvironment& env, Boolean reuseFirstSource, void* listener) : OnDemandServerMediaSubsession(env, reuseFirstSource), fAuxSDPLine(NULL), fDoneFlag(0), fDummyRTPSink(NULL)
 {
     fListener = listener;
 }
@@ -45,16 +41,21 @@ static void checkForAuxSDPLine(void* clientData)
 void H264LiveVideoServerMediaSubsession::checkForAuxSDPLine1()
 {
     char const* dasl;
-    if (fAuxSDPLine != NULL) {
+    if (fAuxSDPLine != NULL)
+    {
         // Signal the event loop that we're done:
         setDoneFlag();
-    } else if (fDummyRTPSink != NULL && (dasl = fDummyRTPSink->auxSDPLine()) != NULL) {
+    }
+    else if (fDummyRTPSink != NULL && (dasl = fDummyRTPSink->auxSDPLine()) != NULL)
+    {
         fAuxSDPLine = strDup(dasl);
         fDummyRTPSink = NULL;
 
         // Signal the event loop that we're done:
         setDoneFlag();
-    } else if (!fDoneFlag) {
+    }
+    else if (!fDoneFlag)
+    {
         // try again after a brief delay:
         int uSecsToDelay = 100;
         nextTask() = envir().taskScheduler().scheduleDelayedTask(uSecsToDelay, (TaskFunc*)checkForAuxSDPLine, this);
@@ -66,7 +67,8 @@ char const* H264LiveVideoServerMediaSubsession::getAuxSDPLine(RTPSink* rtpSink, 
     if (fAuxSDPLine != NULL)
         return fAuxSDPLine; // it's already been set up (for a previous client)
 
-    if (fDummyRTPSink == NULL) {
+    if (fDummyRTPSink == NULL)
+    {
         fDummyRTPSink = rtpSink;
 
         // Start reading the file:
@@ -93,9 +95,7 @@ FramedSource* H264LiveVideoServerMediaSubsession::createNewStreamSource(unsigned
     return H264VideoStreamFramer::createNew(envir(), liveSource);
 }
 
-RTPSink* H264LiveVideoServerMediaSubsession::createNewRTPSink(Groupsock* rtpGroupsock,
-                                                              unsigned char rtpPayloadTypeIfDynamic,
-                                                              FramedSource* /*inputSource*/)
+RTPSink* H264LiveVideoServerMediaSubsession::createNewRTPSink(Groupsock* rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic, FramedSource* /*inputSource*/)
 {
     // setVideoRTPSinkBufferSize
     OutPacketBuffer::maxSize = 1920 * 1088 * 2;

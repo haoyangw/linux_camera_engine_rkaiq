@@ -15,7 +15,8 @@ class RtspServer
     RtspServer();
     ~RtspServer();
 
-    typedef struct {
+    typedef struct
+    {
         char dev_name[64];    // camera v4l2 device name
         int width;            // camera v4l2 vfmt width
         int height;           // camera v4l2 vfmt height

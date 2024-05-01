@@ -33,13 +33,17 @@ void H264LiveVideoSource::doGetNextFrame()
     RtspServer* server = (RtspServer*)fListener;
 
     server->onDoGetNextFrame(&outBuf);
-    if (outBuf.getData()) {
+    if (outBuf.getData())
+    {
 
         fFrameSize = outBuf.getSize();
-        if (fFrameSize > fMaxSize) {
+        if (fFrameSize > fMaxSize)
+        {
             fNumTruncatedBytes = fFrameSize - fMaxSize;
             fNumTruncatedBytes = fFrameSize - fMaxSize;
-        } else {
+        }
+        else
+        {
             fNumTruncatedBytes = 0;
         }
 

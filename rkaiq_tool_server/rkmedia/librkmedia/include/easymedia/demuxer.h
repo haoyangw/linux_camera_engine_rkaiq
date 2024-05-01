@@ -20,9 +20,9 @@ namespace easymedia
     // T must be the final class type exposed to user
     DECLARE_REFLECTOR(Demuxer)
 
-#define DEFINE_DEMUXER_FACTORY(REAL_PRODUCT, FINAL_EXPOSE_PRODUCT)                                                     \
-    DEFINE_MEDIA_CHILD_FACTORY(REAL_PRODUCT, REAL_PRODUCT::GetDemuxName(), FINAL_EXPOSE_PRODUCT, Demuxer)              \
-    DEFINE_MEDIA_CHILD_FACTORY_EXTRA(REAL_PRODUCT)                                                                     \
+#define DEFINE_DEMUXER_FACTORY(REAL_PRODUCT, FINAL_EXPOSE_PRODUCT)                                                                                                                                                                                                                                         \
+    DEFINE_MEDIA_CHILD_FACTORY(REAL_PRODUCT, REAL_PRODUCT::GetDemuxName(), FINAL_EXPOSE_PRODUCT, Demuxer)                                                                                                                                                                                                  \
+    DEFINE_MEDIA_CHILD_FACTORY_EXTRA(REAL_PRODUCT)                                                                                                                                                                                                                                                         \
     DEFINE_MEDIA_NEW_PRODUCT_BY(REAL_PRODUCT, FINAL_EXPOSE_PRODUCT, GetError() < 0)
 
     class MediaBuffer;

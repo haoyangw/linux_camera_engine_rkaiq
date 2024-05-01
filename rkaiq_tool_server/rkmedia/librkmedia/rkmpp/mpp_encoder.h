@@ -24,8 +24,7 @@ namespace easymedia
         virtual bool Init() override;
 
         // sync encode the raw input buffer to output buffer
-        virtual int Process(const std::shared_ptr<MediaBuffer>& input, std::shared_ptr<MediaBuffer>& output,
-                            std::shared_ptr<MediaBuffer> extra_output) override;
+        virtual int Process(const std::shared_ptr<MediaBuffer>& input, std::shared_ptr<MediaBuffer>& output, std::shared_ptr<MediaBuffer> extra_output) override;
 
         virtual int SendInput(const std::shared_ptr<MediaBuffer>&) override;
         virtual std::shared_ptr<MediaBuffer> FetchOutput() override;
@@ -69,8 +68,7 @@ namespace easymedia
         // Control before encoding.
         int EncodeControl(int cmd, void* param);
 
-        virtual int PrepareMppFrame(const std::shared_ptr<MediaBuffer>& input, std::shared_ptr<MediaBuffer>& mdinfo,
-                                    MppFrame& frame);
+        virtual int PrepareMppFrame(const std::shared_ptr<MediaBuffer>& input, std::shared_ptr<MediaBuffer>& mdinfo, MppFrame& frame);
         virtual int PrepareMppPacket(std::shared_ptr<MediaBuffer>& output, MppPacket& packet);
         virtual int PrepareMppExtraBuffer(std::shared_ptr<MediaBuffer> extra_output, MppBuffer& buffer);
         int Process(MppFrame frame, MppPacket& packet, MppBuffer& mv_buf);

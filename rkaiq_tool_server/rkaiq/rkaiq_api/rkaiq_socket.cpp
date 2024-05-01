@@ -19,7 +19,8 @@ extern int g_app_run_mode;
 extern string g_linuxSocketDomainPath;
 
 #pragma pack(1)
-typedef struct RkAiqSocketData {
+typedef struct RkAiqSocketData
+{
     char magic[2] = {'R', 'K'};
     unsigned char packetSize[4];
     int commandID;
@@ -29,7 +30,8 @@ typedef struct RkAiqSocketData {
     unsigned int dataHash;
 } RkAiqSocketData;
 
-typedef struct RkAiqSocketDataV2 {
+typedef struct RkAiqSocketDataV2
+{
     uint8_t magic[4]; // = { 'R', 0xAA, 0xFF, 'K' };
     int32_t cmd_id;
     int32_t cmd_ret;
@@ -49,7 +51,8 @@ unsigned int MurMurHash(const void* key, int len)
     unsigned int h = seed ^ len;
     // Mix 4 bytes at a time into the hash
     const unsigned char* data = (const unsigned char*)key;
-    while (len >= 4) {
+    while (len >= 4)
+    {
         unsigned int k = *(unsigned int*)data;
         k *= m;
         k ^= k >> r;
@@ -60,7 +63,8 @@ unsigned int MurMurHash(const void* key, int len)
         len -= 4;
     }
     // Handle the last few bytes of the input array
-    switch (len) {
+    switch (len)
+    {
         case 3:
             h ^= data[2] << 16;
         case 2:
@@ -82,23 +86,33 @@ static void HexDump(const unsigned char* data, size_t size)
     printf("####\n");
     int i;
     size_t offset = 0;
-    while (offset < size) {
+    while (offset < size)
+    {
         printf("%04x  ", offset);
-        for (i = 0; i < 16; i++) {
-            if (i % 8 == 0) {
+        for (i = 0; i < 16; i++)
+        {
+            if (i % 8 == 0)
+            {
                 putchar(' ');
             }
-            if (offset + i < size) {
+            if (offset + i < size)
+            {
                 printf("%02x ", data[offset + i]);
-            } else {
+            }
+            else
+            {
                 printf("   ");
             }
         }
         printf("   ");
-        for (i = 0; i < 16 && offset + i < size; i++) {
-            if (isprint(data[offset + i])) {
+        for (i = 0; i < 16 && offset + i < size; i++)
+        {
+            if (isprint(data[offset + i]))
+            {
                 printf("%c", data[offset + i]);
-            } else {
+            }
+            else
+            {
                 putchar('.');
             }
         }
@@ -110,11 +124,14 @@ static void HexDump(const unsigned char* data, size_t size)
 
 int ConnectAiq()
 {
-    if (g_tcpClient.Setup(g_linuxSocketDomainPath.c_str()) == false) {
+    if (g_tcpClient.Setup(g_linuxSocketDomainPath.c_str()) == false)
+    {
         LOG_INFO("domain connect failed\n");
         g_tcpClient.Close();
         return -1;
-    } else {
+    }
+    else
+    {
         LOG_INFO("#### Socket connect AIQ success ####\n");
     }
     return 0;
@@ -162,15 +179,19 @@ int RkAiqSocketClientINETSend(int commandID, void* data, unsigned int dataSize)
     // LOG_DEBUG("INET send: dataSize %d\n", dataSize);
 
     int ret = g_tcpClient.Send(dataToSend, packetSize);
-    if (ret < 0 && (errno != EAGAIN && errno != EINTR)) {
-        if (ConnectAiq() < 0) {
+    if (ret < 0 && (errno != EAGAIN && errno != EINTR))
+    {
+        if (ConnectAiq() < 0)
+        {
             g_tcpClient.Close();
             g_app_run_mode = -1; // APP_RUN_STATUS_INIT = -1
             LOG_ERROR("########################################################\n");
             LOG_ERROR("#### Forward to AIQ failed! please check AIQ status.####\n");
             LOG_ERROR("########################################################\n\n");
             return 1;
-        } else {
+        }
+        else
+        {
             LOG_ERROR("########################################################\n");
             LOG_ERROR("#### Forward to AIQ failed! Auto reconnect success.####\n");
             LOG_ERROR("########################################################\n\n");
@@ -242,26 +263,32 @@ int RkAiqSocketClientINETReceive(int commandID, void* data, unsigned int dataSiz
     // LOG_DEBUG("INET receive 1: dataHash %08x\n", packetData.dataHash);
 
     int ret = g_tcpClient.Send(dataToSend, packetSize);
-    if (ret < 0 && (errno != EAGAIN && errno != EINTR)) {
-        if (ConnectAiq() < 0) {
+    if (ret < 0 && (errno != EAGAIN && errno != EINTR))
+    {
+        if (ConnectAiq() < 0)
+        {
             g_tcpClient.Close();
             g_app_run_mode = -1; // APP_RUN_STATUS_INIT = -1
             LOG_ERROR("########################################################\n");
             LOG_ERROR("#### Forward to AIQ failed! please check AIQ status.####\n");
             LOG_ERROR("########################################################\n\n");
             return 1;
-        } else {
+        }
+        else
+        {
             LOG_ERROR("########################################################\n");
             LOG_ERROR("#### Forward to AIQ failed! Auto reconnect success.####\n");
             LOG_ERROR("########################################################\n\n");
         }
     }
 
-    if (packetData.data != NULL) {
+    if (packetData.data != NULL)
+    {
         free(packetData.data);
         packetData.data = NULL;
     }
-    if (dataToSend != NULL) {
+    if (dataToSend != NULL)
+    {
         free(dataToSend);
         dataToSend = NULL;
     }
@@ -270,18 +297,19 @@ int RkAiqSocketClientINETReceive(int commandID, void* data, unsigned int dataSiz
     char tmpStr[6] = {};
     g_tcpClient.Receive(tmpStr, 6);
     // LOG_DEBUG("INET receive : magic & header received\n");
-    if (tmpStr[0] != 'R' || tmpStr[1] != 'K') {
+    if (tmpStr[0] != 'R' || tmpStr[1] != 'K')
+    {
         // LOG_DEBUG("INET receive : packet magic check failed. return\n");
         g_tcpClient.Receive(MAX_PACKET_SIZE);
         return 1;
     }
     // LOG_DEBUG("INET receive : packet magic check pass.\n");
 
-    packetSize =
-        (tmpStr[2] & 0xff) | ((tmpStr[3] & 0xff) << 8) | ((tmpStr[4] & 0xff) << 16) | ((tmpStr[5] & 0xff) << 24);
+    packetSize = (tmpStr[2] & 0xff) | ((tmpStr[3] & 0xff) << 8) | ((tmpStr[4] & 0xff) << 16) | ((tmpStr[5] & 0xff) << 24);
     // LOG_DEBUG("INET receive : packetSize:%u\n", packetSize);
     // LOG_DEBUG("INET receive : dataSize:%u\n", dataSize);
-    if (packetSize <= 0 || packetSize - dataSize > 200) {
+    if (packetSize <= 0 || packetSize - dataSize > 200)
+    {
         printf("INET no data received or packetSize error, return.\n");
         return 1;
     }
@@ -297,18 +325,23 @@ int RkAiqSocketClientINETReceive(int commandID, void* data, unsigned int dataSiz
     struct timespec currentTime = {0, 0};
     clock_gettime(CLOCK_REALTIME, &startTime);
     // printf("INET get, start receive:%ld\n", startTime.tv_sec);
-    while (remain_size > 0) {
+    while (remain_size > 0)
+    {
         clock_gettime(CLOCK_REALTIME, &currentTime);
-        if (currentTime.tv_sec - startTime.tv_sec >= 2) {
+        if (currentTime.tv_sec - startTime.tv_sec >= 2)
+        {
             LOG_DEBUG("INET receive: receive data timeout, return\n");
             return 1;
         }
 
         int offset = packetSize - remain_size;
         int targetSize = 0;
-        if (remain_size > MAX_PACKET_SIZE) {
+        if (remain_size > MAX_PACKET_SIZE)
+        {
             targetSize = MAX_PACKET_SIZE;
-        } else {
+        }
+        else
+        {
             targetSize = remain_size;
         }
         recv_size = g_tcpClient.Receive(&receivedPacket[offset], targetSize);
@@ -345,15 +378,16 @@ int RkAiqSocketClientINETReceive(int commandID, void* data, unsigned int dataSiz
     offset += receivedData.dataSize;
     // data hash
     memcpy((void*)&(receivedData.dataHash), receivedPacket + offset, sizeof(unsigned int));
-    if (receivedPacket != NULL) {
+    if (receivedPacket != NULL)
+    {
         free(receivedPacket);
         receivedPacket = NULL;
     }
 
     // size check
-    if (receivedData.dataSize != dataSize) {
-        LOG_DEBUG("INET receive: receivedData.dataSize:%u != target data size:%u, return\n", receivedData.dataSize,
-                  dataSize);
+    if (receivedData.dataSize != dataSize)
+    {
+        LOG_DEBUG("INET receive: receivedData.dataSize:%u != target data size:%u, return\n", receivedData.dataSize, dataSize);
         return 1;
     }
 
@@ -362,15 +396,19 @@ int RkAiqSocketClientINETReceive(int commandID, void* data, unsigned int dataSiz
     // LOG_DEBUG("INET receive 2: dataHash calculated:%x\n", dataHash);
     // LOG_DEBUG("INET receive: receivedData.dataHash:%x\n", receivedData.dataHash);
 
-    if (dataHash == receivedData.dataHash) {
+    if (dataHash == receivedData.dataHash)
+    {
         // LOG_DEBUG("INET receive: data hash check pass\n");
-    } else {
+    }
+    else
+    {
         LOG_DEBUG("INET receive: data hash check failed\n");
     }
 
     // return data value
     memcpy(data, (void*)receivedData.data, receivedData.dataSize);
-    if (receivedData.data != NULL) {
+    if (receivedData.data != NULL)
+    {
         free(receivedData.data);
         receivedData.data = NULL;
     }

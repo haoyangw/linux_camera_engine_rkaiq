@@ -27,61 +27,69 @@ extern int log_level;
 #define __BI_FILENAME__ (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
 
 #ifdef __ANDROID__
-    #define LOG_INFO(format, ...)                                                                                      \
-        do {                                                                                                           \
-            if (log_level < LOG_LEVEL_INFO)                                                                            \
-                break;                                                                                                 \
-            ALOGI("%s:%d - " format "", __BI_FILENAME__, __LINE__, ##__VA_ARGS__);                                     \
+    #define LOG_INFO(format, ...)                                                                                                                                                                                                                                                                          \
+        do                                                                                                                                                                                                                                                                                                 \
+        {                                                                                                                                                                                                                                                                                                  \
+            if (log_level < LOG_LEVEL_INFO)                                                                                                                                                                                                                                                                \
+                break;                                                                                                                                                                                                                                                                                     \
+            ALOGI("%s:%d - " format "", __BI_FILENAME__, __LINE__, ##__VA_ARGS__);                                                                                                                                                                                                                         \
         } while (0)
 
-    #define LOG_WARN(format, ...)                                                                                      \
-        do {                                                                                                           \
-            if (log_level < LOG_LEVEL_WARN)                                                                            \
-                break;                                                                                                 \
-            ALOGW("%s:%d - " format "", __BI_FILENAME__, __LINE__, ##__VA_ARGS__);                                     \
+    #define LOG_WARN(format, ...)                                                                                                                                                                                                                                                                          \
+        do                                                                                                                                                                                                                                                                                                 \
+        {                                                                                                                                                                                                                                                                                                  \
+            if (log_level < LOG_LEVEL_WARN)                                                                                                                                                                                                                                                                \
+                break;                                                                                                                                                                                                                                                                                     \
+            ALOGW("%s:%d - " format "", __BI_FILENAME__, __LINE__, ##__VA_ARGS__);                                                                                                                                                                                                                         \
         } while (0)
 
-    #define LOG_ERROR(format, ...)                                                                                     \
-        do {                                                                                                           \
-            if (log_level < LOG_LEVEL_ERROR)                                                                           \
-                break;                                                                                                 \
-            ALOGE("%s:%d - " format "", __BI_FILENAME__, __LINE__, ##__VA_ARGS__);                                     \
+    #define LOG_ERROR(format, ...)                                                                                                                                                                                                                                                                         \
+        do                                                                                                                                                                                                                                                                                                 \
+        {                                                                                                                                                                                                                                                                                                  \
+            if (log_level < LOG_LEVEL_ERROR)                                                                                                                                                                                                                                                               \
+                break;                                                                                                                                                                                                                                                                                     \
+            ALOGE("%s:%d - " format "", __BI_FILENAME__, __LINE__, ##__VA_ARGS__);                                                                                                                                                                                                                         \
         } while (0)
 
-    #define LOG_DEBUG(format, ...)                                                                                     \
-        do {                                                                                                           \
-            if (log_level < LOG_LEVEL_DEBUG)                                                                           \
-                break;                                                                                                 \
-            ALOGD("%s:%d - " format "", __BI_FILENAME__, __LINE__, ##__VA_ARGS__);                                     \
+    #define LOG_DEBUG(format, ...)                                                                                                                                                                                                                                                                         \
+        do                                                                                                                                                                                                                                                                                                 \
+        {                                                                                                                                                                                                                                                                                                  \
+            if (log_level < LOG_LEVEL_DEBUG)                                                                                                                                                                                                                                                               \
+                break;                                                                                                                                                                                                                                                                                     \
+            ALOGD("%s:%d - " format "", __BI_FILENAME__, __LINE__, ##__VA_ARGS__);                                                                                                                                                                                                                         \
         } while (0)
 #else
 
-    #define LOG_INFO(format, ...)                                                                                      \
-        do {                                                                                                           \
-            if (log_level < LOG_LEVEL_INFO)                                                                            \
-                break;                                                                                                 \
-            fprintf(stderr, "[%s][%s]:" format, LOG_TAG, __FUNCTION__, ##__VA_ARGS__);                                 \
+    #define LOG_INFO(format, ...)                                                                                                                                                                                                                                                                          \
+        do                                                                                                                                                                                                                                                                                                 \
+        {                                                                                                                                                                                                                                                                                                  \
+            if (log_level < LOG_LEVEL_INFO)                                                                                                                                                                                                                                                                \
+                break;                                                                                                                                                                                                                                                                                     \
+            fprintf(stderr, "[%s][%s]:" format, LOG_TAG, __FUNCTION__, ##__VA_ARGS__);                                                                                                                                                                                                                     \
         } while (0)
 
-    #define LOG_WARN(format, ...)                                                                                      \
-        do {                                                                                                           \
-            if (log_level < LOG_LEVEL_WARN)                                                                            \
-                break;                                                                                                 \
-            fprintf(stderr, "[%s][%s]:" format, LOG_TAG, __FUNCTION__, ##__VA_ARGS__);                                 \
+    #define LOG_WARN(format, ...)                                                                                                                                                                                                                                                                          \
+        do                                                                                                                                                                                                                                                                                                 \
+        {                                                                                                                                                                                                                                                                                                  \
+            if (log_level < LOG_LEVEL_WARN)                                                                                                                                                                                                                                                                \
+                break;                                                                                                                                                                                                                                                                                     \
+            fprintf(stderr, "[%s][%s]:" format, LOG_TAG, __FUNCTION__, ##__VA_ARGS__);                                                                                                                                                                                                                     \
         } while (0)
 
-    #define LOG_ERROR(format, ...)                                                                                     \
-        do {                                                                                                           \
-            if (log_level < LOG_LEVEL_ERROR)                                                                           \
-                break;                                                                                                 \
-            fprintf(stderr, "[%s][%s]:" format, LOG_TAG, __FUNCTION__, ##__VA_ARGS__);                                 \
+    #define LOG_ERROR(format, ...)                                                                                                                                                                                                                                                                         \
+        do                                                                                                                                                                                                                                                                                                 \
+        {                                                                                                                                                                                                                                                                                                  \
+            if (log_level < LOG_LEVEL_ERROR)                                                                                                                                                                                                                                                               \
+                break;                                                                                                                                                                                                                                                                                     \
+            fprintf(stderr, "[%s][%s]:" format, LOG_TAG, __FUNCTION__, ##__VA_ARGS__);                                                                                                                                                                                                                     \
         } while (0)
 
-    #define LOG_DEBUG(format, ...)                                                                                     \
-        do {                                                                                                           \
-            if (log_level < LOG_LEVEL_DEBUG)                                                                           \
-                break;                                                                                                 \
-            fprintf(stderr, "[%s][%s]:" format, LOG_TAG, __FUNCTION__, ##__VA_ARGS__);                                 \
+    #define LOG_DEBUG(format, ...)                                                                                                                                                                                                                                                                         \
+        do                                                                                                                                                                                                                                                                                                 \
+        {                                                                                                                                                                                                                                                                                                  \
+            if (log_level < LOG_LEVEL_DEBUG)                                                                                                                                                                                                                                                               \
+                break;                                                                                                                                                                                                                                                                                     \
+            fprintf(stderr, "[%s][%s]:" format, LOG_TAG, __FUNCTION__, ##__VA_ARGS__);                                                                                                                                                                                                                     \
         } while (0)
 
 #endif
@@ -90,8 +98,7 @@ extern int log_level;
 
 inline int64_t gettimeofday()
 {
-    std::chrono::microseconds us =
-        std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
+    std::chrono::microseconds us = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
     return us.count();
 }
 

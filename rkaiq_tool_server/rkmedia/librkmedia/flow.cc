@@ -34,12 +34,9 @@ namespace easymedia
         void ASyncFetchInputAtomic(MediaBufferVector& in);
 
         void SendNullBufferDown(Flow::FlowMap& fm, const MediaBufferVector& in, std::list<Flow::FlowInputMap>& flows);
-        void SendBufferDown(Flow::FlowMap& fm, const MediaBufferVector& in, std::list<Flow::FlowInputMap>& flows,
-                            bool process_ret);
-        void SendBufferDownFromDeque(Flow::FlowMap& fm, const MediaBufferVector& in,
-                                     std::list<Flow::FlowInputMap>& flows, bool process_ret);
-        size_t OutputHoldRelated(Flow::FlowMap& fm, std::shared_ptr<MediaBuffer>& out_buffer,
-                                 const MediaBufferVector& input_vector);
+        void SendBufferDown(Flow::FlowMap& fm, const MediaBufferVector& in, std::list<Flow::FlowInputMap>& flows, bool process_ret);
+        void SendBufferDownFromDeque(Flow::FlowMap& fm, const MediaBufferVector& in, std::list<Flow::FlowInputMap>& flows, bool process_ret);
+        size_t OutputHoldRelated(Flow::FlowMap& fm, std::shared_ptr<MediaBuffer>& out_buffer, const MediaBufferVector& input_vector);
 
         Flow* flow;
         Model model;
@@ -67,15 +64,15 @@ namespace easymedia
         int expect_process_time; // ms
     };
 
-    FlowCoroutine::FlowCoroutine(Flow* f, Model sync_model, FunctionProcess func, float inter)
-        : flow(f), model(sync_model), interval(inter), th(nullptr), th_run(func), expect_process_time(0)
+    FlowCoroutine::FlowCoroutine(Flow* f, Model sync_model, FunctionProcess func, float inter) : flow(f), model(sync_model), interval(inter), th(nullptr), th_run(func), expect_process_time(0)
 
     {
     }
 
     FlowCoroutine::~FlowCoroutine()
     {
-        if (th) {
+        if (th)
+        {
             th->join();
             delete th;
         }
@@ -93,7 +90,8 @@ namespace easymedia
     {
         bool need_thread = false;
         auto func = &FlowCoroutine::WhileRun;
-        switch (model) {
+        switch (model)
+        {
             case Model::ASYNCCOMMON:
                 need_thread = true;
                 fetch_input_func = &FlowCoroutine::ASyncFetchInputCommon;
@@ -114,9 +112,11 @@ namespace easymedia
                 return false;
         }
         in_vector.resize(in_slots.size());
-        if (need_thread) {
+        if (need_thread)
+        {
             th = new std::thread(func, this);
-            if (!th) {
+            if (!th)
+            {
                 errno = ENOMEM;
                 return false;
             }
@@ -127,7 +127,8 @@ namespace easymedia
 #ifndef NDEBUG
     static void check_consume_time(const char* name, int expect, int exactly)
     {
-        if (exactly > expect) {
+        if (exactly > expect)
+        {
             LOG("%s, expect consume %d ms, however %d ms\n", name, expect, exactly);
         }
     }
@@ -138,7 +139,8 @@ namespace easymedia
         bool ret = true;
         (this->*fetch_input_func)(in_vector);
 
-        if (flow->GetRunTimesRemaining()) {
+        if (flow->GetRunTimesRemaining())
+        {
 #ifndef NDEBUG
             {
                 AutoDuration ad;
@@ -151,7 +153,8 @@ namespace easymedia
 #endif // DEBUG
         }
 
-        for (int idx : out_slots) {
+        for (int idx : out_slots)
+        {
             auto& fm = flow->downflowmap[idx];
             std::list<Flow::FlowInputMap> flows;
             fm.list_mtx.read_lock();
@@ -159,7 +162,8 @@ namespace easymedia
             fm.list_mtx.unlock();
             (this->*send_down_func)(fm, in_vector, flows, ret);
         }
-        for (auto& buffer : in_vector) {
+        for (auto& buffer : in_vector)
+        {
             buffer.reset();
         }
     }
@@ -168,7 +172,8 @@ namespace easymedia
     {
         prctl(PR_SET_NAME, this->name.c_str());
         LOGD("flow-name %s\n", this->name.c_str());
-        while (!flow->quit) {
+        while (!flow->quit)
+        {
             RunOnce();
         }
     }
@@ -181,17 +186,21 @@ namespace easymedia
         prctl(PR_SET_NAME, this->name.c_str());
         LOGD("flow-name %s\n", this->name.c_str());
 
-        while (!flow->quit) {
-            if (times == 0) {
+        while (!flow->quit)
+        {
+            if (times == 0)
+            {
                 ad.Reset();
             }
             RunOnce();
             ++times;
             int64_t remain = (interval * times - ad.Get()) / 1000;
-            if (remain > 0) {
+            if (remain > 0)
+            {
                 msleep((int)remain);
             }
-            if (times >= 10000) {
+            if (times >= 10000)
+            {
                 times = 0;
             }
         }
@@ -200,7 +209,8 @@ namespace easymedia
     void FlowCoroutine::SyncFetchInput(MediaBufferVector& in)
     {
         int i = 0;
-        for (int idx : in_slots) {
+        for (int idx : in_slots)
+        {
             auto& buffer = flow->v_input[idx].cached_buffer;
             in[i++] = buffer;
             buffer.reset();
@@ -211,27 +221,33 @@ namespace easymedia
     {
         flow->cond_mtx.lock();
         bool empty = true;
-        for (size_t i = 0; i < in_slots.size(); i++) {
+        for (size_t i = 0; i < in_slots.size(); i++)
+        {
             int idx = in_slots[i];
             auto& input = flow->v_input[idx];
             auto& v = input.cached_buffers;
-            if (!v.empty()) {
+            if (!v.empty())
+            {
                 empty = false;
             }
         }
-        if (empty) {
+        if (empty)
+        {
             flow->cond_mtx.wait();
         }
         flow->cond_mtx.unlock();
 
-        for (size_t i = 0; i < in_slots.size(); i++) {
+        for (size_t i = 0; i < in_slots.size(); i++)
+        {
             int idx = in_slots[i];
             auto& input = flow->v_input[idx];
             auto& v = input.cached_buffers;
-            if (v.empty()) {
+            if (v.empty())
+            {
                 continue;
             }
-            if (!flow->enable) {
+            if (!flow->enable)
+            {
                 in.assign(in_slots.size(), nullptr);
                 break;
             }
@@ -245,7 +261,8 @@ namespace easymedia
     void FlowCoroutine::ASyncFetchInputAtomic(MediaBufferVector& in)
     {
         int i = 0;
-        for (int idx : in_slots) {
+        for (int idx : in_slots)
+        {
             std::shared_ptr<MediaBuffer> buffer;
             auto& input = flow->v_input[idx];
             input.spin_mtx.lock();
@@ -255,60 +272,68 @@ namespace easymedia
         }
     }
 
-    void FlowCoroutine::SendNullBufferDown(Flow::FlowMap& fm, const MediaBufferVector& in,
-                                           std::list<Flow::FlowInputMap>& flows)
+    void FlowCoroutine::SendNullBufferDown(Flow::FlowMap& fm, const MediaBufferVector& in, std::list<Flow::FlowInputMap>& flows)
     {
         std::shared_ptr<MediaBuffer> nullbuffer;
-        if (fm.hold_input != HoldInputMode::NONE) {
+        if (fm.hold_input != HoldInputMode::NONE)
+        {
             auto empty_result = std::make_shared<easymedia::MediaBuffer>();
-            if (empty_result && OutputHoldRelated(fm, empty_result, in) > 0) {
+            if (empty_result && OutputHoldRelated(fm, empty_result, in) > 0)
+            {
                 nullbuffer = empty_result;
             }
         }
-        for (auto& f : flows) {
+        for (auto& f : flows)
+        {
             f.flow->SendInput(nullbuffer, f.index_of_in);
         }
     }
 
-    void FlowCoroutine::SendBufferDown(Flow::FlowMap& fm, const MediaBufferVector& in,
-                                       std::list<Flow::FlowInputMap>& flows, bool process_ret)
+    void FlowCoroutine::SendBufferDown(Flow::FlowMap& fm, const MediaBufferVector& in, std::list<Flow::FlowInputMap>& flows, bool process_ret)
     {
-        if (!process_ret) {
+        if (!process_ret)
+        {
             SendNullBufferDown(fm, in, flows);
             return;
         }
-        for (auto& f : flows) {
+        for (auto& f : flows)
+        {
             OutputHoldRelated(fm, fm.cached_buffer, in);
             f.flow->SendInput(fm.cached_buffer, f.index_of_in);
         }
         fm.cached_buffer.reset();
     }
 
-    void FlowCoroutine::SendBufferDownFromDeque(Flow::FlowMap& fm, const MediaBufferVector& in,
-                                                std::list<Flow::FlowInputMap>& flows, bool process_ret)
+    void FlowCoroutine::SendBufferDownFromDeque(Flow::FlowMap& fm, const MediaBufferVector& in, std::list<Flow::FlowInputMap>& flows, bool process_ret)
     {
-        if (!process_ret) {
+        if (!process_ret)
+        {
             SendNullBufferDown(fm, in, flows);
             return;
         }
-        if (fm.cached_buffers.empty()) {
+        if (fm.cached_buffers.empty())
+        {
             return;
         }
-        for (auto& buffer : fm.cached_buffers) {
+        for (auto& buffer : fm.cached_buffers)
+        {
             OutputHoldRelated(fm, buffer, in);
-            for (auto& f : flows) {
+            for (auto& f : flows)
+            {
                 f.flow->SendInput(buffer, f.index_of_in);
             }
         }
         fm.cached_buffers.clear();
     }
 
-    size_t FlowCoroutine::OutputHoldRelated(Flow::FlowMap& fm, std::shared_ptr<MediaBuffer>& out_buffer,
-                                            const MediaBufferVector& input_vector)
+    size_t FlowCoroutine::OutputHoldRelated(Flow::FlowMap& fm, std::shared_ptr<MediaBuffer>& out_buffer, const MediaBufferVector& input_vector)
     {
-        if (fm.hold_input == HoldInputMode::HOLD_INPUT) {
+        if (fm.hold_input == HoldInputMode::HOLD_INPUT)
+        {
             return FlowOutputHoldInput(out_buffer, input_vector);
-        } else if (fm.hold_input == HoldInputMode::INHERIT_FORM_INPUT) {
+        }
+        else if (fm.hold_input == HoldInputMode::INHERIT_FORM_INPUT)
+        {
             return FlowOutputInheritFromInput(out_buffer, input_vector);
         }
         return 0;
@@ -317,8 +342,10 @@ namespace easymedia
     int FlowCoroutine::GetCachedBufferCnt()
     {
         int cnt = 0;
-        for (auto inv : in_vector) {
-            if (inv) {
+        for (auto inv : in_vector)
+        {
+            if (inv)
+            {
                 cnt++;
             }
         }
@@ -333,10 +360,8 @@ namespace easymedia
     const FunctionProcess Flow::void_transaction00 = void_transaction<0, 0>;
 
     Flow::Flow()
-        : out_slot_num(0), input_slot_num(0), down_flow_num(0), waite_down_flow(true), event_handler2_(nullptr),
-          event_callback_(nullptr), enable(true), quit(false), event_handler_(nullptr), play_video_handler_(nullptr),
-          play_audio_handler_(nullptr), user_handler_(nullptr), user_callback_(nullptr), out_handler_(nullptr),
-          out_callback_(nullptr), run_times(-1)
+        : out_slot_num(0), input_slot_num(0), down_flow_num(0), waite_down_flow(true), event_handler2_(nullptr), event_callback_(nullptr), enable(true), quit(false), event_handler_(nullptr), play_video_handler_(nullptr), play_audio_handler_(nullptr), user_handler_(nullptr), user_callback_(nullptr),
+          out_handler_(nullptr), out_callback_(nullptr), run_times(-1)
     {
     }
 
@@ -352,7 +377,8 @@ namespace easymedia
         cond_mtx.lock();
         cond_mtx.notify();
         cond_mtx.unlock();
-        for (auto& coroutine : coroutines) {
+        for (auto& coroutine : coroutines)
+        {
             coroutine.reset();
         }
     }
@@ -362,37 +388,46 @@ namespace easymedia
 #ifndef NDEBUG
         int i = 0;
 
-        for (auto& input : v_input) {
+        for (auto& input : v_input)
+        {
             LOG("#FLOW v_input-%d cached_buffers size:%zu\n", i, input.cached_buffers.size());
             LOG("#FLOW v_input-%d cached_buffer :%s\n", i++, input.cached_buffer ? "NotNull" : "Null");
         }
 
         i = 0;
-        for (auto& coroutin : coroutines) {
+        for (auto& coroutin : coroutines)
+        {
             LOG("#FLOW coroutin-%d in_vector size:%d\n", i++, coroutin->GetCachedBufferCnt());
         }
 
         i = 0;
-        for (auto& fm : downflowmap) {
+        for (auto& fm : downflowmap)
+        {
             LOG("#FLOW downflowmap-%d cached_buffers size:%zu\n", i, fm.cached_buffers.size());
             LOG("#FLOW downflowmap-%d cached_buffer : %s\n", i++, fm.cached_buffer ? "NotNull" : "Null");
         }
 #endif
 
-        for (auto& input : v_input) {
-            if (input.cached_buffers.size() || input.cached_buffer) {
+        for (auto& input : v_input)
+        {
+            if (input.cached_buffers.size() || input.cached_buffer)
+            {
                 return false;
             }
         }
 
-        for (auto& coroutin : coroutines) {
-            if (coroutin->GetCachedBufferCnt()) {
+        for (auto& coroutin : coroutines)
+        {
+            if (coroutin->GetCachedBufferCnt())
+            {
                 return false;
             }
         }
 
-        for (auto& fm : downflowmap) {
-            if (fm.cached_buffers.size() || fm.cached_buffer) {
+        for (auto& fm : downflowmap)
+        {
+            if (fm.cached_buffers.size() || fm.cached_buffer)
+            {
                 return false;
             }
         }
@@ -403,7 +438,8 @@ namespace easymedia
     void Flow::StartStream()
     {
         waite_down_flow = false;
-        if (source_start_cond_mtx) {
+        if (source_start_cond_mtx)
+        {
             source_start_cond_mtx->lock();
             source_start_cond_mtx->notify();
             source_start_cond_mtx->unlock();
@@ -421,7 +457,8 @@ namespace easymedia
     {
         int remaining_value = run_times;
 
-        if (run_times > 0) {
+        if (run_times > 0)
+        {
             run_times--;
         }
 
@@ -443,7 +480,8 @@ namespace easymedia
         sprintf(str_line, "  OutSlotNum: %d\r\n", out_slot_num);
         dump_info.append(str_line);
 
-        for (auto& input : v_input) {
+        for (auto& input : v_input)
+        {
             memset(str_line, 0, sizeof(str_line));
             sprintf(str_line, "  ->Input[%d] info:\r\n", idx);
             dump_info.append(str_line);
@@ -451,35 +489,49 @@ namespace easymedia
             sprintf(str_line, "    Valid: %s\r\n", input.valid ? "True" : "False");
             dump_info.append(str_line);
             memset(str_line, 0, sizeof(str_line));
-            if (input.thread_model == Model::ASYNCCOMMON) {
+            if (input.thread_model == Model::ASYNCCOMMON)
+            {
                 sprintf(str_line, "    ThreadMode: ASYNCCOMMON\r\n");
-            } else if (input.thread_model == Model::ASYNCATOMIC) {
+            }
+            else if (input.thread_model == Model::ASYNCATOMIC)
+            {
                 sprintf(str_line, "    ThreadMode: ASYNCATOMIC\r\n");
-            } else if (input.thread_model == Model::SYNC) {
+            }
+            else if (input.thread_model == Model::SYNC)
+            {
                 sprintf(str_line, "    ThreadMode: SYNC\r\n");
-            } else {
+            }
+            else
+            {
                 sprintf(str_line, "    ThreadMode: NONE\r\n");
             }
             dump_info.append(str_line);
             memset(str_line, 0, sizeof(str_line));
-            if (input.mode_when_full == InputMode::BLOCKING) {
+            if (input.mode_when_full == InputMode::BLOCKING)
+            {
                 sprintf(str_line, "    InputMode: BLOCKING\r\n");
-            } else if (input.mode_when_full == InputMode::DROPCURRENT) {
+            }
+            else if (input.mode_when_full == InputMode::DROPCURRENT)
+            {
                 sprintf(str_line, "    InputMode: DROPCURRENT\r\n");
-            } else if (input.mode_when_full == InputMode::DROPFRONT) {
+            }
+            else if (input.mode_when_full == InputMode::DROPFRONT)
+            {
                 sprintf(str_line, "    InputMode: DROPFRONT\r\n");
-            } else {
+            }
+            else
+            {
                 sprintf(str_line, "    InputMode: NONE\r\n");
             }
             dump_info.append(str_line);
             memset(str_line, 0, sizeof(str_line));
-            sprintf(str_line, "    BufferCnt: current:%d, max:%d\r\n", input.cached_buffers.size(),
-                    input.max_cache_num);
+            sprintf(str_line, "    BufferCnt: current:%d, max:%d\r\n", input.cached_buffers.size(), input.max_cache_num);
             dump_info.append(str_line);
         }
 
         idx = 0;
-        for (auto& fm : downflowmap) {
+        for (auto& fm : downflowmap)
+        {
             memset(str_line, 0, sizeof(str_line));
             sprintf(str_line, "  ->FlowMap[%d] info:\r\n", idx);
             dump_info.append(str_line);
@@ -491,7 +543,8 @@ namespace easymedia
             dump_info.append(str_line);
 
             dump_info.append("    NextFlow: ");
-            for (auto& nflow : fm.flows) {
+            for (auto& nflow : fm.flows)
+            {
                 dump_info.append(nflow.flow->GetFlowTag());
                 dump_info.append(" ");
             }
@@ -501,14 +554,17 @@ namespace easymedia
 
     static bool check_slots(std::vector<int>& slots, const char* debugstr)
     {
-        if (slots.empty()) {
+        if (slots.empty())
+        {
             return true;
         }
         std::sort(slots.begin(), slots.end());
         auto iend = std::unique(slots.begin(), slots.end());
-        if (iend != slots.end()) {
+        if (iend != slots.end())
+        {
             LOG("%s slot duplicate :", debugstr);
-            while (iend != slots.end()) {
+            while (iend != slots.end())
+            {
                 LOG(" %d", *iend);
                 iend++;
             }
@@ -520,7 +576,8 @@ namespace easymedia
 
     Flow::FlowMap::FlowMap(FlowMap&& fm)
     {
-        if (fm.valid) {
+        if (fm.valid)
+        {
             LOG("Flow::FlowMap is not copyable and moveable after inited\n");
             assert(0);
         }
@@ -530,9 +587,12 @@ namespace easymedia
     {
         assert(!valid);
         valid = true;
-        if (m == Model::ASYNCCOMMON) {
+        if (m == Model::ASYNCCOMMON)
+        {
             set_output_behavior = &FlowMap::SetOutputToQueueBehavior;
-        } else {
+        }
+        else
+        {
             set_output_behavior = &FlowMap::SetOutputBehavior;
         }
         hold_input = hold_in;
@@ -549,7 +609,8 @@ namespace easymedia
 
     Flow::Input::Input(Input&& in)
     {
-        if (in.valid) {
+        if (in.valid)
+        {
             LOG("Flow::Input is not copyable and moveable after inited\n");
             assert(0);
         }
@@ -564,7 +625,8 @@ namespace easymedia
         fetch_block = f_block;
         max_cache_num = mcn;
         mode_when_full = im;
-        switch (m) {
+        switch (m)
+        {
             case Model::ASYNCCOMMON:
                 send_input_behavior = &Input::ASyncSendInputCommonBehavior;
                 break;
@@ -578,7 +640,8 @@ namespace easymedia
             default:
                 break;
         }
-        switch (im) {
+        switch (im)
+        {
             case InputMode::BLOCKING:
                 async_full_behavior = &Input::ASyncFullBlockingBehavior;
                 break;
@@ -596,7 +659,8 @@ namespace easymedia
     bool Flow::SetAsSource(const std::vector<int>& output_slots, FunctionProcess f, const std::string& mark)
     {
         source_start_cond_mtx = std::make_shared<ConditionLockMutex>();
-        if (!source_start_cond_mtx) {
+        if (!source_start_cond_mtx)
+        {
             return false;
         }
         SlotMap sm;
@@ -605,7 +669,8 @@ namespace easymedia
         sm.process = f;
         sm.thread_model = Model::SYNC;
         sm.mode_when_full = InputMode::DROPFRONT;
-        if (!InstallSlotMap(sm, mark, 0)) {
+        if (!InstallSlotMap(sm, mark, 0))
+        {
             LOG("Fail to InstallSlotMap, read %s\n", mark.c_str());
             return false;
         }
@@ -617,73 +682,86 @@ namespace easymedia
         LOGD("%s, thread_model=%d, mode_when_full=%d\n", mark.c_str(), map.thread_model, map.mode_when_full);
         // parameters validity check
         auto& in_slots = map.input_slots;
-        if (in_slots.size() > 1 && map.thread_model == Model::SYNC) {
+        if (in_slots.size() > 1 && map.thread_model == Model::SYNC)
+        {
             LOG("More than 1 input to flow, can not set sync input\n");
             return false;
         }
-        if (!check_slots(in_slots, "input")) {
+        if (!check_slots(in_slots, "input"))
+        {
             return false;
         }
         bool ret = true;
-        for (int i : in_slots) {
-            if (i >= (int)v_input.size()) {
+        for (int i : in_slots)
+        {
+            if (i >= (int)v_input.size())
+            {
                 continue;
             }
-            if (v_input[i].valid) {
+            if (v_input[i].valid)
+            {
                 LOG("input slot %d has been set\n", i);
                 ret = false;
             }
         }
-        if (!ret) {
+        if (!ret)
+        {
             return false;
         }
 
         auto& out_slots = map.output_slots;
-        if (!check_slots(out_slots, "output")) {
+        if (!check_slots(out_slots, "output"))
+        {
             return false;
         }
-        for (int i : out_slots) {
-            if (i >= (int)downflowmap.size()) {
+        for (int i : out_slots)
+        {
+            if (i >= (int)downflowmap.size())
+            {
                 continue;
             }
-            if (downflowmap[i].valid) {
+            if (downflowmap[i].valid)
+            {
                 LOG("output slot %d has been set\n", i);
                 ret = false;
             }
         }
-        if (!ret) {
+        if (!ret)
+        {
             return false;
         }
 
         auto c = std::make_shared<FlowCoroutine>(this, map.thread_model, map.process, map.interval);
-        if (!c) {
+        if (!c)
+        {
             errno = ENOMEM;
             return false;
         }
         c->Bind(in_slots, out_slots);
         coroutines.push_back(c);
-        if (!in_slots.empty()) {
+        if (!in_slots.empty())
+        {
             int max_idx = in_slots[in_slots.size() - 1];
-            if ((int)v_input.size() <= max_idx) {
+            if ((int)v_input.size() <= max_idx)
+            {
                 v_input.resize(max_idx + 1);
             }
-            for (size_t i = 0; i < in_slots.size(); i++) {
-                v_input[in_slots[i]].Init(
-                    this, map.thread_model, (map.thread_model == Model::ASYNCCOMMON) ? map.input_maxcachenum[i] : 0,
-                    map.mode_when_full,
-                    (map.thread_model == Model::ASYNCCOMMON && map.fetch_block.size() > i) ? map.fetch_block[i] : true,
-                    c);
+            for (size_t i = 0; i < in_slots.size(); i++)
+            {
+                v_input[in_slots[i]].Init(this, map.thread_model, (map.thread_model == Model::ASYNCCOMMON) ? map.input_maxcachenum[i] : 0, map.mode_when_full, (map.thread_model == Model::ASYNCCOMMON && map.fetch_block.size() > i) ? map.fetch_block[i] : true, c);
                 input_slot_num++;
             }
         }
-        if (!out_slots.empty()) {
+        if (!out_slots.empty())
+        {
             int max_idx = out_slots[out_slots.size() - 1];
-            if ((int)downflowmap.size() <= max_idx) {
+            if ((int)downflowmap.size() <= max_idx)
+            {
                 downflowmap.resize(max_idx + 1);
             }
-            for (size_t i = 0; i < out_slots.size(); i++) {
-                downflowmap[out_slots[i]].Init(map.thread_model,
-                                               map.hold_input.size() > i ? map.hold_input[i] : HoldInputMode::NONE);
+            for (size_t i = 0; i < out_slots.size(); i++)
+            {
+                downflowmap[out_slots[i]].Init(map.thread_model, map.hold_input.size() > i ? map.hold_input[i] : HoldInputMode::NONE);
                 out_slot_num++;
             }
         }
@@ -698,7 +776,8 @@ namespace easymedia
     {
         AutoLockMutex _lg(list_mtx);
         auto i = std::find(flows.begin(), flows.end(), flow);
-        if (i != flows.end()) {
+        if (i != flows.end())
+        {
             LOG("repeatedly add, update index\n");
             i->index_of_in = index;
             return;
@@ -717,20 +796,24 @@ namespace easymedia
 
     bool Flow::AddDownFlow(std::shared_ptr<Flow> down, int out_slot_index, int in_slot_index_of_down)
     {
-        if (out_slot_num <= 0 || (int)downflowmap.size() != out_slot_num) {
+        if (out_slot_num <= 0 || (int)downflowmap.size() != out_slot_num)
+        {
             LOG("Uncompleted or final flow\n");
             return false;
         }
-        if (out_slot_index >= (int)downflowmap.size()) {
+        if (out_slot_index >= (int)downflowmap.size())
+        {
             LOG("output slot index exceed max\n");
             return false;
         }
-        if (this == down.get()) {
+        if (this == down.get())
+        {
             LOG("can not set self loop flow\n");
             return false;
         }
         downflowmap[out_slot_index].AddFlow(down, in_slot_index_of_down);
-        if (source_start_cond_mtx) {
+        if (source_start_cond_mtx)
+        {
             source_start_cond_mtx->lock();
             down_flow_num++;
             source_start_cond_mtx->notify();
@@ -741,17 +824,21 @@ namespace easymedia
 
     void Flow::RemoveDownFlow(std::shared_ptr<Flow> down)
     {
-        if (out_slot_num <= 0 || (int)downflowmap.size() != out_slot_num) {
+        if (out_slot_num <= 0 || (int)downflowmap.size() != out_slot_num)
+        {
             return;
         }
         // if (down->down_flow_num > 0)
         //   LOG("the removing flow has down flows, remove them first\n");
-        for (auto& dm : downflowmap) {
-            if (!dm.valid) {
+        for (auto& dm : downflowmap)
+        {
+            if (!dm.valid)
+            {
                 continue;
             }
             dm.RemoveFlow(down);
-            if (source_start_cond_mtx) {
+            if (source_start_cond_mtx)
+            {
                 source_start_cond_mtx->lock();
                 down_flow_num--;
                 source_start_cond_mtx->notify();
@@ -762,12 +849,14 @@ namespace easymedia
 
     void Flow::SendInput(std::shared_ptr<MediaBuffer>& input, int in_slot_index)
     {
-        if (in_slot_index < 0 || in_slot_index >= input_slot_num) {
+        if (in_slot_index < 0 || in_slot_index >= input_slot_num)
+        {
             errno = EINVAL;
             LOG("ERROR: Input slot[%d] is vaild!\n", in_slot_index);
             return;
         }
-        if (enable) {
+        if (enable)
+        {
             auto& in = v_input[in_slot_index];
             CALL_MEMBER_FN(in, in.send_input_behavior)(input);
         }
@@ -775,17 +864,20 @@ namespace easymedia
 
     bool Flow::SetOutput(const std::shared_ptr<MediaBuffer>& output, int out_slot_index)
     {
-        if (out_slot_index < 0 || out_slot_index >= out_slot_num) {
+        if (out_slot_index < 0 || out_slot_index >= out_slot_num)
+        {
             errno = EINVAL;
             LOG("ERROR: Output slot[%d] is vaild!\n", out_slot_index);
             return false;
         }
 
-        if (out_callback_ && output) {
+        if (out_callback_ && output)
+        {
             out_callback_(out_handler_, output);
         }
 
-        if (enable) {
+        if (enable)
+        {
             auto& out = downflowmap[out_slot_index];
             CALL_MEMBER_FN(out, out.set_output_behavior)(output);
             return true;
@@ -793,18 +885,20 @@ namespace easymedia
         return false;
     }
 
-    bool Flow::ParseWrapFlowParams(const char* param, std::map<std::string, std::string>& flow_params,
-                                   std::list<std::string>& sub_param_list)
+    bool Flow::ParseWrapFlowParams(const char* param, std::map<std::string, std::string>& flow_params, std::list<std::string>& sub_param_list)
     {
         sub_param_list = ParseFlowParamToList(param);
-        if (sub_param_list.empty()) {
+        if (sub_param_list.empty())
+        {
             return false;
         }
-        if (!parse_media_param_map(sub_param_list.front().c_str(), flow_params)) {
+        if (!parse_media_param_map(sub_param_list.front().c_str(), flow_params))
+        {
             return false;
         }
         sub_param_list.pop_front();
-        if (flow_params[KEY_NAME].empty()) {
+        if (flow_params[KEY_NAME].empty())
+        {
             LOG("missing key name\n");
             return false;
         }
@@ -814,14 +908,16 @@ namespace easymedia
     void Flow::RegisterEventHandler(std::shared_ptr<Flow> flow, EventHook proc)
     {
         event_handler_.reset(new EventHandler());
-        if (event_handler_) {
+        if (event_handler_)
+        {
             event_handler_->RegisterEventHook(flow, proc);
         }
     }
 
     void Flow::UnRegisterEventHandler()
     {
-        if (event_handler_) {
+        if (event_handler_)
+        {
             event_handler_->UnRegisterEventHook();
             event_handler_.reset(nullptr);
         }
@@ -829,7 +925,8 @@ namespace easymedia
 
     void Flow::NotifyToEventHandler(EventParamPtr param, int type)
     {
-        if (event_handler_) {
+        if (event_handler_)
+        {
             MessagePtr msg = std::make_shared<EventMessage>(this, param, type);
             event_handler_->NotifyToEventHandler(msg);
             event_handler_->SignalEventHook();
@@ -838,7 +935,8 @@ namespace easymedia
 
     void Flow::NotifyToEventHandler(int id, int type)
     {
-        if (event_handler_) {
+        if (event_handler_)
+        {
             EventParamPtr event_param = std::make_shared<EventParam>(id, 0);
             MessagePtr msg = std::make_shared<EventMessage>(this, event_param, type);
             event_handler_->NotifyToEventHandler(msg);
@@ -848,14 +946,16 @@ namespace easymedia
 
     void Flow::EventHookWait()
     {
-        if (event_handler_) {
+        if (event_handler_)
+        {
             event_handler_->EventHookWait();
         }
     }
 
     MessagePtr Flow::GetEventMessage()
     {
-        if (event_handler_) {
+        if (event_handler_)
+        {
             return event_handler_->GetEventMessage();
         }
         return nullptr;
@@ -863,7 +963,8 @@ namespace easymedia
 
     EventParamPtr Flow::GetEventParam(MessagePtr msg)
     {
-        if (msg) {
+        if (msg)
+        {
             return msg->GetEventParam();
         }
         return nullptr;
@@ -879,9 +980,11 @@ namespace easymedia
     void Flow::Input::ASyncSendInputCommonBehavior(std::shared_ptr<MediaBuffer>& input)
     {
         mtx.lock();
-        if (max_cache_num > 0 && max_cache_num <= (int)cached_buffers.size()) {
+        if (max_cache_num > 0 && max_cache_num <= (int)cached_buffers.size())
+        {
             bool ret = (this->*async_full_behavior)(flow->enable);
-            if (!ret) {
+            if (!ret)
+            {
                 mtx.unlock();
                 return;
             }
@@ -903,10 +1006,12 @@ namespace easymedia
 #ifndef NDEBUG
         AutoDuration ad;
 #endif
-        do {
+        do
+        {
             mtx.unlock();
             msleep(5);
-            if (max_cache_num > (int)cached_buffers.size()) {
+            if (max_cache_num > (int)cached_buffers.size())
+            {
                 mtx.lock();
                 break;
             }
@@ -914,8 +1019,7 @@ namespace easymedia
         } while (pred);
 #ifndef NDEBUG
         if (ad.Get() > 100000 /*ms*/)
-            LOG("WARN: Flow[%s]: Input[block mode]: block too long(%.2fms) > 5ms\n",
-                flow ? flow->GetFlowTag() : "Name is null", ad.Get() / 1000.0);
+            LOG("WARN: Flow[%s]: Input[block mode]: block too long(%.2fms) > 5ms\n", flow ? flow->GetFlowTag() : "Name is null", ad.Get() / 1000.0);
 #endif
         return pred;
     }
@@ -946,10 +1050,10 @@ namespace easymedia
 
     Model GetModelByString(const std::string& model)
     {
-        static std::map<std::string, Model> model_map = {
-            {KEY_ASYNCCOMMON, Model::ASYNCCOMMON}, {KEY_ASYNCATOMIC, Model::ASYNCATOMIC}, {KEY_SYNC, Model::SYNC}};
+        static std::map<std::string, Model> model_map = {{KEY_ASYNCCOMMON, Model::ASYNCCOMMON}, {KEY_ASYNCATOMIC, Model::ASYNCATOMIC}, {KEY_SYNC, Model::SYNC}};
         auto it = model_map.find(model);
-        if (it != model_map.end()) {
+        if (it != model_map.end())
+        {
             return it->second;
         }
         return Model::NONE;
@@ -957,11 +1061,10 @@ namespace easymedia
 
     InputMode GetInputModelByString(const std::string& in_model)
     {
-        static std::map<std::string, InputMode> in_model_map = {{KEY_BLOCKING, InputMode::BLOCKING},
-                                                                {KEY_DROPFRONT, InputMode::DROPFRONT},
-                                                                {KEY_DROPCURRENT, InputMode::DROPCURRENT}};
+        static std::map<std::string, InputMode> in_model_map = {{KEY_BLOCKING, InputMode::BLOCKING}, {KEY_DROPFRONT, InputMode::DROPFRONT}, {KEY_DROPCURRENT, InputMode::DROPCURRENT}};
         auto it = in_model_map.find(in_model);
-        if (it != in_model_map.end()) {
+        if (it != in_model_map.end())
+        {
             return it->second;
         }
         return InputMode::NONE;
@@ -971,9 +1074,11 @@ namespace easymedia
     {
         float fps = 0.0f;
         std::string& fps_str = params[KEY_FPS];
-        if (!fps_str.empty()) {
+        if (!fps_str.empty())
+        {
             fps = std::stof(fps_str);
-            if (fps > 0.0f) {
+            if (fps > 0.0f)
+            {
                 sm.interval = 1000.0f / fps;
             }
         }
@@ -981,9 +1086,11 @@ namespace easymedia
         sm.mode_when_full = GetInputModelByString(params[KEK_INPUT_MODEL]);
         std::string& cache_num_str = params[KEY_INPUT_CACHE_NUM];
         int cache_num = -1;
-        if (!cache_num_str.empty()) {
+        if (!cache_num_str.empty())
+        {
             cache_num = std::stoi(cache_num_str);
-            if (cache_num <= 0) {
+            if (cache_num <= 0)
+            {
                 LOG("warning, input cache num = %d\n", cache_num);
             }
             input_maxcachenum = cache_num;
@@ -994,7 +1101,8 @@ namespace easymedia
     {
         assert(out_buffer);
         size_t i = 0;
-        for (; i < input_vector.size(); i++) {
+        for (; i < input_vector.size(); i++)
+        {
             out_buffer->SetRelatedSPtr(input_vector[i], i);
         }
         return i;
@@ -1005,7 +1113,8 @@ namespace easymedia
         assert(out_buffer);
         size_t ret = 0;
         auto& vec = out_buffer->GetRelatedSPtrs();
-        for (size_t i = 0; i < input_vector.size(); i++) {
+        for (size_t i = 0; i < input_vector.size(); i++)
+        {
             auto& input_vec = input_vector[i]->GetRelatedSPtrs();
             ret += input_vec.size();
             vec.insert(vec.end(), input_vec.begin(), input_vec.end());
@@ -1019,7 +1128,8 @@ namespace easymedia
         ret.append(flow_param);
         va_list va;
         va_start(va, num_elem);
-        while (num_elem--) {
+        while (num_elem--)
+        {
             const std::string& elem_param = va_arg(va, const std::string);
             ret.append(1, FLOW_PARAM_SEPARATE_CHAR).append(elem_param);
         }
@@ -1030,7 +1140,8 @@ namespace easymedia
     std::list<std::string> ParseFlowParamToList(const char* param)
     {
         std::list<std::string> separate_list;
-        if (!parse_media_param_list(param, separate_list, FLOW_PARAM_SEPARATE_CHAR) || separate_list.size() < 2) {
+        if (!parse_media_param_list(param, separate_list, FLOW_PARAM_SEPARATE_CHAR) || separate_list.size() < 2)
+        {
             separate_list.clear();
         }
         return std::move(separate_list);

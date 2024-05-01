@@ -52,17 +52,20 @@ RKHWEncApi::~RKHWEncApi()
     ALOGD("~RKHWEncApi enter");
 
     mVpuCtx->flush(mVpuCtx);
-    if (mVpuCtx != NULL) {
+    if (mVpuCtx != NULL)
+    {
         vpu_close_context(&mVpuCtx);
         free(mVpuCtx);
         mVpuCtx = NULL;
     }
 
-    if (mOutputBuf != NULL) {
+    if (mOutputBuf != NULL)
+    {
         free(mOutputBuf);
         mOutputBuf = NULL;
     }
-    if (mSpsPpsBuf != NULL) {
+    if (mSpsPpsBuf != NULL)
+    {
         free(mSpsPpsBuf);
         mSpsPpsBuf = NULL;
     }
@@ -75,7 +78,8 @@ bool RKHWEncApi::init(EncCfgInfo* cfg)
 
     mVpuCtx = (VpuCodecContext_t*)malloc(sizeof(VpuCodecContext_t));
     ret = vpu_open_context(&mVpuCtx);
-    if (ret) {
+    if (ret)
+    {
         ALOGE("ERROR: Failed to open ctx, ErrCode %d", ret);
         return false;
     }
@@ -122,17 +126,18 @@ bool RKHWEncApi::init(EncCfgInfo* cfg)
           "profileIdc = %d,\n"
           "levelIdc = %d,\n"
           "rc_mode = %d,\n",
-          params->width, params->height, params->bitRate, params->framerate, params->format, params->enableCabac,
-          params->cabacInitIdc, params->intraPicRate, params->profileIdc, params->levelIdc, params->rc_mode);
+          params->width, params->height, params->bitRate, params->framerate, params->format, params->enableCabac, params->cabacInitIdc, params->intraPicRate, params->profileIdc, params->levelIdc, params->rc_mode);
 
     ret = mVpuCtx->init(mVpuCtx, NULL, 0);
-    if (ret) {
+    if (ret)
+    {
         ALOGE("ERROR: Failed to init ctx, ErrCode %d", ret);
         return false;
     }
 
     mVpuCtx->control(mVpuCtx, VPU_API_ENC_GETCFG, (void*)params);
-    if (mVpuCtx->extradata != NULL && mVpuCtx->extradata_size < 2048) {
+    if (mVpuCtx->extradata != NULL && mVpuCtx->extradata_size < 2048)
+    {
         mSpsPpsBuf = (unsigned char*)malloc(2048);
         memcpy(mSpsPpsBuf, mVpuCtx->extradata, mVpuCtx->extradata_size);
         mSpsPpsLen = mVpuCtx->extradata_size;
@@ -147,7 +152,8 @@ bool RKHWEncApi::sendFrame(char* data, int32_t size, int64_t pts, int32_t flag)
     int32_t ret;
     EncInputStream_t aInput;
 
-    if (!mVpuCtx) {
+    if (!mVpuCtx)
+    {
         ALOGE("Init first");
         return false;
     }
@@ -160,15 +166,19 @@ bool RKHWEncApi::sendFrame(char* data, int32_t size, int64_t pts, int32_t flag)
     aInput.nFlags = flag;
 
     // TODO
-    if (aInput.nFlags != 0 && aInput.size == 0) {
+    if (aInput.nFlags != 0 && aInput.size == 0)
+    {
         aInput.size = 1;
     }
 
     ret = mVpuCtx->encoder_sendframe(mVpuCtx, &aInput);
-    if (ret < 0) {
+    if (ret < 0)
+    {
         ALOGE("Failed to send pkt, ErrCodec %d", ret);
         return false;
-    } else if (aInput.size != 0) {
+    }
+    else if (aInput.size != 0)
+    {
         return false; // retry again
     }
 
@@ -182,7 +192,8 @@ bool RKHWEncApi::sendFrame(int32_t fd, int32_t size, int64_t pts, int32_t flag)
     int32_t ret;
     EncInputStream_t aInput;
 
-    if (!mVpuCtx) {
+    if (!mVpuCtx)
+    {
         ALOGE("Init first");
         return false;
     }
@@ -195,15 +206,19 @@ bool RKHWEncApi::sendFrame(int32_t fd, int32_t size, int64_t pts, int32_t flag)
     aInput.nFlags = flag;
 
     // TODO
-    if (aInput.nFlags != 0 && aInput.size == 0) {
+    if (aInput.nFlags != 0 && aInput.size == 0)
+    {
         aInput.size = 1;
     }
 
     ret = mVpuCtx->encoder_sendframe(mVpuCtx, &aInput);
-    if (ret < 0) {
+    if (ret < 0)
+    {
         ALOGE("Failed to send pkt, ErrCodec %d", ret);
         return false;
-    } else if (aInput.size != 0) {
+    }
+    else if (aInput.size != 0)
+    {
         return false; // retry again
     }
 
@@ -216,7 +231,8 @@ bool RKHWEncApi::getOutStream(EncoderOut_t* encOut)
 {
     int32_t ret;
 
-    if (!mVpuCtx) {
+    if (!mVpuCtx)
+    {
         ALOGE("Init first");
         return false;
     }
@@ -224,11 +240,15 @@ bool RKHWEncApi::getOutStream(EncoderOut_t* encOut)
     memset(encOut, 0, sizeof(EncoderOut_t));
 
     ret = mVpuCtx->encoder_getstream(mVpuCtx, encOut);
-    if (ret < 0 || encOut->size == 0) {
+    if (ret < 0 || encOut->size == 0)
+    {
         return false; // EOS_STREAM_REACHED;
-    } else if (encOut->size > 0) {
+    }
+    else if (encOut->size > 0)
+    {
         int32_t offset = 0;
-        if (mFrameCount == 0 && mSpsPpsLen > 0) {
+        if (mFrameCount == 0 && mSpsPpsLen > 0)
+        {
             // setup h264 sps_pps header flag
             memcpy(mOutputBuf, mSpsPpsBuf, mSpsPpsLen);
             encOut->size += mSpsPpsLen;
@@ -239,14 +259,14 @@ bool RKHWEncApi::getOutStream(EncoderOut_t* encOut)
         memcpy(mOutputBuf + offset + 4, encOut->data, encOut->size);
         encOut->size += 4;
 
-        if (encOut->data != NULL) {
+        if (encOut->data != NULL)
+        {
             free(encOut->data);
             encOut->data = mOutputBuf;
         }
 
         mFrameCount++;
-        ALOGI("Get one frame_num %d size %d pts %lld keyFrame %d", mFrameCount, encOut->size, encOut->timeUs,
-              encOut->keyFrame);
+        ALOGI("Get one frame_num %d size %d pts %lld keyFrame %d", mFrameCount, encOut->size, encOut->timeUs, encOut->keyFrame);
 
         return true;
     }

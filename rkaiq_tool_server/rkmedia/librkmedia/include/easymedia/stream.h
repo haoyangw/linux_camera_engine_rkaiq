@@ -9,15 +9,17 @@
 #include <stdint.h>
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 
-typedef struct {
-    int (*close)(void* stream);
-    size_t (*read)(void* ptr, size_t size, size_t nmemb, void* stream);
-    size_t (*write)(const void* ptr, size_t size, size_t nmemb, void* stream);
-    int (*seek)(void* stream, int64_t offset, int whence);
-    long (*tell)(void* stream);
-} StreamOperation;
+    typedef struct
+    {
+        int (*close)(void* stream);
+        size_t (*read)(void* ptr, size_t size, size_t nmemb, void* stream);
+        size_t (*write)(const void* ptr, size_t size, size_t nmemb, void* stream);
+        int (*seek)(void* stream, int64_t offset, int whence);
+        long (*tell)(void* stream);
+    } StreamOperation;
 }
 #endif
 
@@ -35,9 +37,9 @@ namespace easymedia
     //        T must be the final class type exposed to user
     DECLARE_REFLECTOR(Stream)
 
-#define DEFINE_STREAM_FACTORY(REAL_PRODUCT, FINAL_EXPOSE_PRODUCT)                                                      \
-    DEFINE_MEDIA_CHILD_FACTORY(REAL_PRODUCT, REAL_PRODUCT::GetStreamName(), FINAL_EXPOSE_PRODUCT, Stream)              \
-    DEFINE_MEDIA_CHILD_FACTORY_EXTRA(REAL_PRODUCT)                                                                     \
+#define DEFINE_STREAM_FACTORY(REAL_PRODUCT, FINAL_EXPOSE_PRODUCT)                                                                                                                                                                                                                                          \
+    DEFINE_MEDIA_CHILD_FACTORY(REAL_PRODUCT, REAL_PRODUCT::GetStreamName(), FINAL_EXPOSE_PRODUCT, Stream)                                                                                                                                                                                                  \
+    DEFINE_MEDIA_CHILD_FACTORY_EXTRA(REAL_PRODUCT)                                                                                                                                                                                                                                                         \
     DEFINE_MEDIA_NEW_PRODUCT_BY(REAL_PRODUCT, FINAL_EXPOSE_PRODUCT, Open() < 0)
 
     class MediaBuffer;

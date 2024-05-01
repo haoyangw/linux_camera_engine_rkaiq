@@ -18,23 +18,26 @@
 #include <openssl/base.h>
 
 #if defined(__cplusplus)
-extern "C" {
+extern "C"
+{
 #endif
 
-// HRSS
-//
-// HRSS is a structured-lattice-based post-quantum key encapsulation mechanism.
-// The best exposition is https://eprint.iacr.org/2017/667.pdf although this
-// implementation uses a different KEM construction based on
-// https://eprint.iacr.org/2017/1005.pdf.
+    // HRSS
+    //
+    // HRSS is a structured-lattice-based post-quantum key encapsulation mechanism.
+    // The best exposition is https://eprint.iacr.org/2017/667.pdf although this
+    // implementation uses a different KEM construction based on
+    // https://eprint.iacr.org/2017/1005.pdf.
 
-struct HRSS_private_key {
-    uint8_t opaque[1808];
-};
+    struct HRSS_private_key
+    {
+        uint8_t opaque[1808];
+    };
 
-struct HRSS_public_key {
-    uint8_t opaque[1424];
-};
+    struct HRSS_public_key
+    {
+        uint8_t opaque[1424];
+    };
 
 // HRSS_SAMPLE_BYTES is the number of bytes of entropy needed to generate a
 // short vector. There are 701 coefficients, but the final one is always set to
@@ -57,32 +60,29 @@ struct HRSS_public_key {
 #define HRSS_POLY3_BYTES 140
 #define HRSS_PRIVATE_KEY_BYTES (HRSS_POLY3_BYTES * 2 + HRSS_PUBLIC_KEY_BYTES + 2 + 32)
 
-// HRSS_generate_key is a deterministic function that outputs a public and
-// private key based on the given entropy.
-OPENSSL_EXPORT void HRSS_generate_key(struct HRSS_public_key* out_pub, struct HRSS_private_key* out_priv,
-                                      const uint8_t input[HRSS_GENERATE_KEY_BYTES]);
+    // HRSS_generate_key is a deterministic function that outputs a public and
+    // private key based on the given entropy.
+    OPENSSL_EXPORT void HRSS_generate_key(struct HRSS_public_key* out_pub, struct HRSS_private_key* out_priv, const uint8_t input[HRSS_GENERATE_KEY_BYTES]);
 
-// HRSS_encap is a deterministic function the generates and encrypts a random
-// session key from the given entropy, writing those values to |out_shared_key|
-// and |out_ciphertext|, respectively.
-OPENSSL_EXPORT void HRSS_encap(uint8_t out_ciphertext[HRSS_CIPHERTEXT_BYTES], uint8_t out_shared_key[HRSS_KEY_BYTES],
-                               const struct HRSS_public_key* in_pub, const uint8_t in[HRSS_ENCAP_BYTES]);
+    // HRSS_encap is a deterministic function the generates and encrypts a random
+    // session key from the given entropy, writing those values to |out_shared_key|
+    // and |out_ciphertext|, respectively.
+    OPENSSL_EXPORT void HRSS_encap(uint8_t out_ciphertext[HRSS_CIPHERTEXT_BYTES], uint8_t out_shared_key[HRSS_KEY_BYTES], const struct HRSS_public_key* in_pub, const uint8_t in[HRSS_ENCAP_BYTES]);
 
-// HRSS_decap decrypts a session key from |ciphertext_len| bytes of
-// |ciphertext|. If the ciphertext is valid, the decrypted key is written to
-// |out_shared_key|. Otherwise the HMAC of |ciphertext| under a secret key (kept
-// in |in_priv|) is written. If the ciphertext is the wrong length then it will
-// leak which was done via side-channels. Otherwise it should perform either
-// action in constant-time.
-OPENSSL_EXPORT void HRSS_decap(uint8_t out_shared_key[HRSS_KEY_BYTES], const struct HRSS_private_key* in_priv,
-                               const uint8_t* ciphertext, size_t ciphertext_len);
+    // HRSS_decap decrypts a session key from |ciphertext_len| bytes of
+    // |ciphertext|. If the ciphertext is valid, the decrypted key is written to
+    // |out_shared_key|. Otherwise the HMAC of |ciphertext| under a secret key (kept
+    // in |in_priv|) is written. If the ciphertext is the wrong length then it will
+    // leak which was done via side-channels. Otherwise it should perform either
+    // action in constant-time.
+    OPENSSL_EXPORT void HRSS_decap(uint8_t out_shared_key[HRSS_KEY_BYTES], const struct HRSS_private_key* in_priv, const uint8_t* ciphertext, size_t ciphertext_len);
 
-// HRSS_marshal_public_key serialises |in_pub| to |out|.
-OPENSSL_EXPORT void HRSS_marshal_public_key(uint8_t out[HRSS_PUBLIC_KEY_BYTES], const struct HRSS_public_key* in_pub);
+    // HRSS_marshal_public_key serialises |in_pub| to |out|.
+    OPENSSL_EXPORT void HRSS_marshal_public_key(uint8_t out[HRSS_PUBLIC_KEY_BYTES], const struct HRSS_public_key* in_pub);
 
-// HRSS_parse_public_key sets |*out| to the public-key encoded in |in|. It
-// returns true on success and zero on error.
-OPENSSL_EXPORT int HRSS_parse_public_key(struct HRSS_public_key* out, const uint8_t in[HRSS_PUBLIC_KEY_BYTES]);
+    // HRSS_parse_public_key sets |*out| to the public-key encoded in |in|. It
+    // returns true on success and zero on error.
+    OPENSSL_EXPORT int HRSS_parse_public_key(struct HRSS_public_key* out, const uint8_t in[HRSS_PUBLIC_KEY_BYTES]);
 
 #if defined(__cplusplus)
 } // extern C

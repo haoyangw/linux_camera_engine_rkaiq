@@ -17,8 +17,7 @@
 #include "stdio.h"
 #include "unistd.h"
 
-static std::shared_ptr<easymedia::Flow> create_flow(const std::string& flow_name, const std::string& flow_param,
-                                                    const std::string& elem_param)
+static std::shared_ptr<easymedia::Flow> create_flow(const std::string& flow_name, const std::string& flow_param, const std::string& elem_param)
 {
     auto&& param = easymedia::JoinFlowParam(flow_param, 1, elem_param);
     // printf("create_flow :\n");
@@ -26,14 +25,14 @@ static std::shared_ptr<easymedia::Flow> create_flow(const std::string& flow_name
     // printf("param : \n%s\n", param.c_str());
     auto ret = easymedia::REFLECTOR(Flow)::Create<easymedia::Flow>(flow_name.c_str(), param.c_str());
     printf(" ####### create_flow flow use_count %ld\n", ret.use_count());
-    if (!ret) {
+    if (!ret)
+    {
         fprintf(stderr, "Create flow %s failed\n", flow_name.c_str());
     }
     return ret;
 }
 
-static std::string get_video_cap_flow_param(std::string input_path, std::string pixel_format, int video_width,
-                                            int video_height)
+static std::string get_video_cap_flow_param(std::string input_path, std::string pixel_format, int video_width, int video_height)
 {
     std::string flow_param;
     // Reading yuv from camera
@@ -46,8 +45,7 @@ static std::string get_video_cap_flow_param(std::string input_path, std::string 
     return flow_param;
 }
 
-static std::string get_video_cap_stream_param(std::string input_path, std::string pixel_format, int video_width,
-                                              int video_height)
+static std::string get_video_cap_stream_param(std::string input_path, std::string pixel_format, int video_width, int video_height)
 {
     std::string stream_param;
     stream_param = "";
@@ -63,8 +61,7 @@ static std::string get_video_cap_stream_param(std::string input_path, std::strin
     return stream_param;
 }
 
-static std::shared_ptr<easymedia::Flow> create_video_capture_flow(std::string input_path, std::string pixel_format,
-                                                                  int video_width, int video_height)
+static std::shared_ptr<easymedia::Flow> create_video_capture_flow(std::string input_path, std::string pixel_format, int video_width, int video_height)
 {
     std::string flow_name;
     std::string flow_param;
@@ -75,7 +72,8 @@ static std::shared_ptr<easymedia::Flow> create_video_capture_flow(std::string in
     flow_param = get_video_cap_flow_param(input_path, pixel_format, video_width, video_height);
     stream_param = get_video_cap_stream_param(input_path, pixel_format, video_width, video_height);
     video_read_flow = create_flow(flow_name, flow_param, stream_param);
-    if (!video_read_flow) {
+    if (!video_read_flow)
+    {
         fprintf(stderr, "Create flow %s failed\n", flow_name.c_str());
         exit(EXIT_FAILURE);
     }
@@ -92,7 +90,8 @@ std::shared_ptr<easymedia::Flow> create_sink_flow()
     flow_name = "sink_flow";
 
     sink_flow = create_flow(flow_name, flow_param, stream_param);
-    if (!sink_flow) {
+    if (!sink_flow)
+    {
         fprintf(stderr, "Create flow %s failed\n", flow_name.c_str());
         exit(EXIT_FAILURE);
     }
@@ -127,7 +126,8 @@ void init_2688p(std::shared_ptr<easymedia::Flow>& video_cap_flow, std::shared_pt
     std::string enc_type = VIDEO_H264;
 
     const char* video_dev = "/dev/video0";
-    if (!video_path.empty()) {
+    if (!video_path.empty())
+    {
         video_dev = video_path.c_str();
     }
 
@@ -145,7 +145,8 @@ void ImageProcess(unsigned char* buffer, unsigned int buffer_size, long present_
 
 int main(int argc, char** argv)
 {
-    if (argc == 2) {
+    if (argc == 2)
+    {
         video_path = argv[1];
     }
     easymedia::REFLECTOR(Stream)::DumpFactories();
@@ -155,7 +156,8 @@ int main(int argc, char** argv)
     std::shared_ptr<easymedia::Flow> sink_flow;
     init_2688p(video_cap_flow, sink_flow);
     sink_flow->SetVideoHandler(ImageProcess);
-    while (!quit) {
+    while (!quit)
+    {
         easymedia::msleep(1000);
     }
     deinit(video_cap_flow, sink_flow);

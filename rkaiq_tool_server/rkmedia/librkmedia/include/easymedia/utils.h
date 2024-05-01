@@ -61,18 +61,19 @@ template <typename T, typename TBase> class IsDerived
 namespace easymedia
 {
 
-#define GET_STRING_TO_INT(var, map, key, defalut)                                                                      \
-    if (!map[key].empty())                                                                                             \
-        var = std::stoi(map[key]);                                                                                     \
-    else                                                                                                               \
+#define GET_STRING_TO_INT(var, map, key, defalut)                                                                                                                                                                                                                                                          \
+    if (!map[key].empty())                                                                                                                                                                                                                                                                                 \
+        var = std::stoi(map[key]);                                                                                                                                                                                                                                                                         \
+    else                                                                                                                                                                                                                                                                                                   \
         var = defalut;
 
-#define CHECK_EMPTY_SETERRNO_RETURN(v_type, v, map, k, seterrno, ret)                                                  \
-    v_type v = map[k];                                                                                                 \
-    if (v.empty()) {                                                                                                   \
-        LOG("miss %s\n", k);                                                                                           \
-        seterrno;                                                                                                      \
-        return ret;                                                                                                    \
+#define CHECK_EMPTY_SETERRNO_RETURN(v_type, v, map, k, seterrno, ret)                                                                                                                                                                                                                                      \
+    v_type v = map[k];                                                                                                                                                                                                                                                                                     \
+    if (v.empty())                                                                                                                                                                                                                                                                                         \
+    {                                                                                                                                                                                                                                                                                                      \
+        LOG("miss %s\n", k);                                                                                                                                                                                                                                                                               \
+        seterrno;                                                                                                                                                                                                                                                                                          \
+        return ret;                                                                                                                                                                                                                                                                                        \
     }
 
 #define CHECK_EMPTY(v, map, k) CHECK_EMPTY_SETERRNO_RETURN(, v, map, k, , false)
@@ -90,8 +91,7 @@ namespace easymedia
     // delim: '=', '\n'
     _API bool parse_media_param_map(const char* param, std::map<std::string, std::string>& map);
     bool parse_media_param_list(const char* param, std::list<std::string>& list, const char delim = '\n');
-    int parse_media_param_match(const char* param, std::map<std::string, std::string>& map,
-                                std::list<std::pair<const std::string, std::string&>>& list);
+    int parse_media_param_match(const char* param, std::map<std::string, std::string>& map, std::list<std::pair<const std::string, std::string&>>& list);
     _API bool has_intersection(const char* str, const char* expect, std::list<std::string>* expect_list);
 
     std::string get_media_value_by_key(const char* param, const char* key);
@@ -99,25 +99,27 @@ namespace easymedia
     _API bool string_start_withs(std::string const& fullString, std::string const& starting);
     _API bool string_end_withs(std::string const& fullString, std::string const& ending);
 
-#define FIND_ENTRY_TARGET(INPUT, MAP, KEY, TARGET)                                                                     \
-    for (size_t i = 0; i < ARRAY_ELEMS(MAP); i++) {                                                                    \
-        if (INPUT == MAP[i].KEY)                                                                                       \
-            return MAP[i].TARGET;                                                                                      \
+#define FIND_ENTRY_TARGET(INPUT, MAP, KEY, TARGET)                                                                                                                                                                                                                                                         \
+    for (size_t i = 0; i < ARRAY_ELEMS(MAP); i++)                                                                                                                                                                                                                                                          \
+    {                                                                                                                                                                                                                                                                                                      \
+        if (INPUT == MAP[i].KEY)                                                                                                                                                                                                                                                                           \
+            return MAP[i].TARGET;                                                                                                                                                                                                                                                                          \
     }
 
-#define FIND_ENTRY_TARGET_BY_STRCMP(INPUT, MAP, KEY, TARGET)                                                           \
-    if (INPUT) {                                                                                                       \
-        for (size_t i = 0; i < ARRAY_ELEMS(MAP); i++) {                                                                \
-            if (!strcmp(INPUT, MAP[i].KEY))                                                                            \
-                return MAP[i].TARGET;                                                                                  \
-        }                                                                                                              \
+#define FIND_ENTRY_TARGET_BY_STRCMP(INPUT, MAP, KEY, TARGET)                                                                                                                                                                                                                                               \
+    if (INPUT)                                                                                                                                                                                                                                                                                             \
+    {                                                                                                                                                                                                                                                                                                      \
+        for (size_t i = 0; i < ARRAY_ELEMS(MAP); i++)                                                                                                                                                                                                                                                      \
+        {                                                                                                                                                                                                                                                                                                  \
+            if (!strcmp(INPUT, MAP[i].KEY))                                                                                                                                                                                                                                                                \
+                return MAP[i].TARGET;                                                                                                                                                                                                                                                                      \
+        }                                                                                                                                                                                                                                                                                                  \
     }
 
     // return microseconds
     _API inline int64_t gettimeofday()
     {
-        std::chrono::microseconds us =
-            std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
+        std::chrono::microseconds us = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
         return us.count();
     }
 
@@ -136,7 +138,8 @@ namespace easymedia
     {
         int r;
 
-        do {
+        do
+        {
             r = f(fd, request, argp);
         } while (-1 == r && EINTR == errno);
 

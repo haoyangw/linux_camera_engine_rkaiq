@@ -11,7 +11,8 @@ class RKHWEncApi
     RKHWEncApi();
     ~RKHWEncApi();
 
-    typedef struct EncCfgInfo {
+    typedef struct EncCfgInfo
+    {
         int32_t width;
         int32_t height;
         int32_t format; /* input yuv format */

@@ -50,39 +50,45 @@ namespace easymedia
     volatile bool RtspConnection::init_ok = false;
     volatile char RtspConnection::out_loop_cond = 1;
 
-    RtspConnection::RtspConnection(int port, std::string username, std::string userpwd)
-        : scheduler(nullptr), env(nullptr), authDB(nullptr), rtspServer(nullptr), session_thread(nullptr)
+    RtspConnection::RtspConnection(int port, std::string username, std::string userpwd) : scheduler(nullptr), env(nullptr), authDB(nullptr), rtspServer(nullptr), session_thread(nullptr)
     {
-        if (!username.empty() && !userpwd.empty()) {
+        if (!username.empty() && !userpwd.empty())
+        {
             authDB = new UserAuthenticationDatabase;
-            if (!authDB) {
+            if (!authDB)
+            {
                 goto err;
             }
             authDB->addUserRecord(username.c_str(), userpwd.c_str());
         }
         scheduler = BasicTaskScheduler::createNew();
-        if (!scheduler) {
+        if (!scheduler)
+        {
             goto err;
         }
         env = BasicUsageEnvironment::createNew(*scheduler);
-        if (!env) {
+        if (!env)
+        {
             goto err;
         }
 
         rtspServer = RTSPServer::createNew(*env, port, authDB, 10);
 
-        if (!rtspServer) {
+        if (!rtspServer)
+        {
             goto err;
         }
 
-        if (pipe2(msg_fd, O_CLOEXEC)) {
+        if (pipe2(msg_fd, O_CLOEXEC))
+        {
             LOG("create msg_fd error.\n");
             goto err;
         }
 
         out_loop_cond = 0;
         session_thread = new std::thread(&RtspConnection::service_session_run, this);
-        if (!session_thread) {
+        if (!session_thread)
+        {
             LOG_NO_MEMORY();
             goto err;
         }
@@ -98,14 +104,11 @@ namespace easymedia
         AutoPrintLine apl(__func__);
         LOG("================ service_session_run =================\n");
         prctl(PR_SET_NAME, "live555_server");
-        env->taskScheduler().turnOnBackgroundReadHandling(
-            msg_fd[0], (TaskScheduler::BackgroundHandlerProc*)&incomingMsgHandler, this);
+        env->taskScheduler().turnOnBackgroundReadHandling(msg_fd[0], (TaskScheduler::BackgroundHandlerProc*)&incomingMsgHandler, this);
         env->taskScheduler().doEventLoop(&out_loop_cond);
     }
 
-    Live555MediaInput* RtspConnection::createNewChannel(std::string channel_name, std::string video_type,
-                                                        std::string audio_type, int channels, int sample_rate,
-                                                        unsigned bitrate, int profile)
+    Live555MediaInput* RtspConnection::createNewChannel(std::string channel_name, std::string video_type, std::string audio_type, int channels, int sample_rate, unsigned bitrate, int profile)
     {
         struct message msg;
         msg.cmd_type = CMD_TYPE::NewSession;
@@ -118,7 +121,8 @@ namespace easymedia
         msg.profile = profile;
         sendMessage(msg);
         auto search = input_map.find(channel_name);
-        if (search != input_map.end()) {
+        if (search != input_map.end())
+        {
             return search->second;
         }
         return nullptr;
@@ -141,11 +145,13 @@ namespace easymedia
     {
         struct message msg;
         ssize_t count = read(msg_fd[0], &msg, sizeof(msg));
-        if (count < 0) {
+        if (count < 0)
+        {
             LOG("incomingMsgHandler1 read failed\n");
             return;
         }
-        switch (msg.cmd_type) {
+        switch (msg.cmd_type)
+        {
             case CMD_TYPE::NewSession:
                 addSession(msg);
                 break;
@@ -171,9 +177,9 @@ namespace easymedia
         // 1. server_input
         Live555MediaInput* server_input = Live555MediaInput::createNew(*env);
         auto search = input_map.find(msg.channel_name);
-        if (search != input_map.end()) {
-            LOG("%s:%s:: input_map, %s already exists, so we have to delete it.\n", __FILE__, __func__,
-                msg.channel_name);
+        if (search != input_map.end())
+        {
+            LOG("%s:%s:: input_map, %s already exists, so we have to delete it.\n", __FILE__, __func__, msg.channel_name);
             input_map.erase(msg.channel_name);
         }
 
@@ -182,55 +188,70 @@ namespace easymedia
         t = time(&t);
         ServerMediaSession* sms = RKServerMediaSession::createNew(*(env), msg.channel_name, server_input);
 
-        if (rtspServer != nullptr && sms != nullptr) {
+        if (rtspServer != nullptr && sms != nullptr)
+        {
             char* url = nullptr;
             rtspServer->addServerMediaSession(sms);
             url = rtspServer->rtspURL(sms);
             *env << "Play this stream using the URL:\n\t" << url << "\n";
-            if (url) {
+            if (url)
+            {
                 delete[] url;
             }
         }
 
         // video
         ServerMediaSubsession* subsession = nullptr;
-        if (strcmp(msg.videoType, VIDEO_H264) == 0) {
+        if (strcmp(msg.videoType, VIDEO_H264) == 0)
+        {
             subsession = H264ServerMediaSubsession::createNew(*env, *server_input);
-        } else if (strcmp(msg.videoType, VIDEO_H265) == 0) {
+        }
+        else if (strcmp(msg.videoType, VIDEO_H265) == 0)
+        {
 #ifdef LIVE555_SERVER_H265
             subsession = H265ServerMediaSubsession::createNew(*env, *server_input);
 #endif
-        } else if (strcmp(msg.videoType, IMAGE_JPEG) == 0) {
+        }
+        else if (strcmp(msg.videoType, IMAGE_JPEG) == 0)
+        {
             subsession = MJPEGServerMediaSubsession::createNew(*env, *server_input);
-        } else {
+        }
+        else
+        {
             LOG(" %s : no video. videoType = %s \n", __func__, msg.videoType);
         }
-        if (subsession) {
+        if (subsession)
+        {
             sms->addSubsession(subsession);
         }
 
         // audio or muxer MUXER_MPEG_TS
-        if (strcmp(msg.audioType, AUDIO_AAC) == 0) {
-            subsession =
-                AACServerMediaSubsession::createNew(*env, *server_input, msg.sample_rate, msg.channels, msg.profile);
-        } else if (strcmp(msg.audioType, AUDIO_MP2) == 0) {
+        if (strcmp(msg.audioType, AUDIO_AAC) == 0)
+        {
+            subsession = AACServerMediaSubsession::createNew(*env, *server_input, msg.sample_rate, msg.channels, msg.profile);
+        }
+        else if (strcmp(msg.audioType, AUDIO_MP2) == 0)
+        {
             subsession = MP2ServerMediaSubsession::createNew(*env, *server_input);
-        } else if (strcmp(msg.audioType, AUDIO_G711A) == 0 || strcmp(msg.audioType, AUDIO_G711U) == 0 ||
-                   strcmp(msg.audioType, AUDIO_G726) == 0 || strcmp(msg.audioType, MUXER_MPEG_TS) == 0 ||
-                   strcmp(msg.audioType, MUXER_MPEG_PS) == 0) {
-            subsession = SIMPLEServerMediaSubsession::createNew(*env, *server_input, msg.sample_rate, msg.channels,
-                                                                msg.audioType, msg.bitrate);
-        } else {
+        }
+        else if (strcmp(msg.audioType, AUDIO_G711A) == 0 || strcmp(msg.audioType, AUDIO_G711U) == 0 || strcmp(msg.audioType, AUDIO_G726) == 0 || strcmp(msg.audioType, MUXER_MPEG_TS) == 0 || strcmp(msg.audioType, MUXER_MPEG_PS) == 0)
+        {
+            subsession = SIMPLEServerMediaSubsession::createNew(*env, *server_input, msg.sample_rate, msg.channels, msg.audioType, msg.bitrate);
+        }
+        else
+        {
             LOG(" %s : no audio. audioType = %s \n", __func__, msg.audioType);
         }
-        if (subsession) {
+        if (subsession)
+        {
             sms->addSubsession(subsession);
         }
     }
 
     void RtspConnection::removeSession(struct message msg)
     {
-        if (rtspServer != nullptr) {
+        if (rtspServer != nullptr)
+        {
             rtspServer->deleteServerMediaSession(msg.channel_name);
             input_map.erase(msg.channel_name);
             LOG("RtspConnection delete %s.\n", msg.channel_name);
@@ -242,11 +263,13 @@ namespace easymedia
         mtx.lock();
         flag = true;
         ssize_t count = write(msg_fd[1], (void*)&msg, sizeof(msg));
-        if (count < 0) {
+        if (count < 0)
+        {
             LOG("%s: write filed %s\n", __func__, strerror(errno));
         }
         LOG("%s: before mtx.wait.\n", __func__);
-        while (flag) {
+        while (flag)
+        {
             mtx.wait();
         }
         mtx.unlock();
@@ -257,35 +280,43 @@ namespace easymedia
     RtspConnection::~RtspConnection()
     {
         out_loop_cond = 1;
-        if (msg_fd[0] > 0) {
+        if (msg_fd[0] > 0)
+        {
             env->taskScheduler().turnOffBackgroundReadHandling(msg_fd[0]);
         }
-        if (msg_fd[0] >= 0) {
+        if (msg_fd[0] >= 0)
+        {
             ::close(msg_fd[0]);
             msg_fd[0] = -1;
         }
-        if (msg_fd[1] >= 0) {
+        if (msg_fd[1] >= 0)
+        {
             ::close(msg_fd[1]);
             msg_fd[1] = -1;
         }
-        if (session_thread) {
+        if (session_thread)
+        {
             session_thread->join();
             delete session_thread;
             session_thread = nullptr;
         }
-        if (rtspServer) {
+        if (rtspServer)
+        {
             // will also reclaim ServerMediaSession and ServerMediaSubsessions
             Medium::close(rtspServer);
             rtspServer = nullptr;
         }
-        if (authDB) {
+        if (authDB)
+        {
             delete authDB;
             authDB = nullptr;
         }
-        if (env && env->reclaim() == True) {
+        if (env && env->reclaim() == True)
+        {
             env = nullptr;
         }
-        if (scheduler) {
+        if (scheduler)
+        {
             delete scheduler;
             scheduler = nullptr;
         }

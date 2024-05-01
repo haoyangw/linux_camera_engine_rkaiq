@@ -25,7 +25,8 @@ namespace easymedia
         }
         virtual int Control(unsigned long int request, ...) final
         {
-            if (!out_stream) {
+            if (!out_stream)
+            {
                 return -1;
             }
             va_list vl;
@@ -44,7 +45,8 @@ namespace easymedia
     {
         std::list<std::string> separate_list;
         std::map<std::string, std::string> params;
-        if (!ParseWrapFlowParams(param, params, separate_list)) {
+        if (!ParseWrapFlowParams(param, params, separate_list))
+        {
             SetError(-EINVAL);
             return;
         }
@@ -55,12 +57,14 @@ namespace easymedia
         ParseParamToSlotMap(params, sm, input_maxcachenum);
         if (sm.thread_model == Model::NONE)
             sm.thread_model = !params[KEY_FPS].empty() ? Model::ASYNCATOMIC : Model::ASYNCCOMMON;
-        if (sm.mode_when_full == InputMode::NONE) {
+        if (sm.mode_when_full == InputMode::NONE)
+        {
             sm.mode_when_full = InputMode::DROPCURRENT;
         }
         const std::string& stream_param = separate_list.back();
         auto stream = REFLECTOR(Stream)::Create<Stream>(stream_name, stream_param.c_str());
-        if (!stream) {
+        if (!stream)
+        {
             LOG("Fail to create stream %s\n", stream_name);
             SetError(-EINVAL);
             return;
@@ -70,7 +74,8 @@ namespace easymedia
         sm.process = send_buffer;
         std::string tag = "OutputStreamFlow:";
         tag.append(stream_name);
-        if (!InstallSlotMap(sm, tag, -1)) {
+        if (!InstallSlotMap(sm, tag, -1))
+        {
             LOG("Fail to InstallSlotMap for %s\n", tag.c_str());
             SetError(-EINVAL);
             return;
@@ -83,7 +88,8 @@ namespace easymedia
     {
         OutPutStreamFlow* flow = static_cast<OutPutStreamFlow*>(f);
         auto& buffer = input_vector[0];
-        if (!buffer) {
+        if (!buffer)
+        {
             return true;
         }
         return flow->out_stream->Write(buffer);

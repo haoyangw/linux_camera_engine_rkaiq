@@ -19,9 +19,9 @@ namespace easymedia
     // T must be the final class type exposed to user
     DECLARE_REFLECTOR(Muxer)
 
-#define DEFINE_MUXER_FACTORY(REAL_PRODUCT, FINAL_EXPOSE_PRODUCT)                                                       \
-    DEFINE_MEDIA_CHILD_FACTORY(REAL_PRODUCT, REAL_PRODUCT::GetMuxName(), FINAL_EXPOSE_PRODUCT, Muxer)                  \
-    DEFINE_MEDIA_CHILD_FACTORY_EXTRA(REAL_PRODUCT)                                                                     \
+#define DEFINE_MUXER_FACTORY(REAL_PRODUCT, FINAL_EXPOSE_PRODUCT)                                                                                                                                                                                                                                           \
+    DEFINE_MEDIA_CHILD_FACTORY(REAL_PRODUCT, REAL_PRODUCT::GetMuxName(), FINAL_EXPOSE_PRODUCT, Muxer)                                                                                                                                                                                                      \
+    DEFINE_MEDIA_CHILD_FACTORY_EXTRA(REAL_PRODUCT)                                                                                                                                                                                                                                                         \
     DEFINE_MEDIA_NEW_PRODUCT_BY(REAL_PRODUCT, Muxer, Init() != true)
 
 #define DEFINE_COMMON_MUXER_FACTORY(REAL_PRODUCT) DEFINE_MUXER_FACTORY(REAL_PRODUCT, Muxer)
@@ -46,8 +46,7 @@ namespace easymedia
             return false;
         }
         // create a new muxer stream by encoder, return the stream number
-        virtual bool NewMuxerStream(const MediaConfig& mc, const std::shared_ptr<MediaBuffer>& enc_extra_data,
-                                    int& stream_no) = 0;
+        virtual bool NewMuxerStream(const MediaConfig& mc, const std::shared_ptr<MediaBuffer>& enc_extra_data, int& stream_no) = 0;
         // Some muxer has close integrated io operation, such as ffmpeg.
         // Need set into a corresponding Stream.
         // If set io stream, the following function 'Write' may always return nullptr.

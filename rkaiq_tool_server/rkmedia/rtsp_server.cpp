@@ -15,8 +15,7 @@ std::shared_ptr<easymedia::Flow> g_video_enc_flow = nullptr;
 std::shared_ptr<easymedia::Flow> g_video_rtsp_flow = nullptr;
 std::shared_ptr<easymedia::Flow> video_dump_flow = nullptr;
 
-std::shared_ptr<easymedia::Flow> create_flow(const std::string& flow_name, const std::string& flow_param,
-                                             const std::string& elem_param)
+std::shared_ptr<easymedia::Flow> create_flow(const std::string& flow_name, const std::string& flow_param, const std::string& elem_param)
 {
     auto&& param = easymedia::JoinFlowParam(flow_param, 1, elem_param);
     // printf("create_flow :\n");
@@ -24,14 +23,14 @@ std::shared_ptr<easymedia::Flow> create_flow(const std::string& flow_name, const
     // printf("param : \n%s\n", param.c_str());
     auto ret = easymedia::REFLECTOR(Flow)::Create<easymedia::Flow>(flow_name.c_str(), param.c_str());
     printf(" ####### create_flow flow use_count %d\n", ret.use_count());
-    if (!ret) {
+    if (!ret)
+    {
         fprintf(stderr, "Create flow %s failed\n", flow_name.c_str());
     }
     return ret;
 }
 
-std::string get_video_cap_flow_param(std::string input_path, std::string pixel_format, int video_width,
-                                     int video_height)
+std::string get_video_cap_flow_param(std::string input_path, std::string pixel_format, int video_width, int video_height)
 {
     std::string flow_param;
     // Reading yuv from camera
@@ -44,8 +43,7 @@ std::string get_video_cap_flow_param(std::string input_path, std::string pixel_f
     return flow_param;
 }
 
-std::string get_video_cap_stream_param(std::string input_path, std::string pixel_format, int video_width,
-                                       int video_height)
+std::string get_video_cap_stream_param(std::string input_path, std::string pixel_format, int video_width, int video_height)
 {
     std::string stream_param;
     stream_param = "";
@@ -61,8 +59,7 @@ std::string get_video_cap_stream_param(std::string input_path, std::string pixel
     return stream_param;
 }
 
-std::shared_ptr<easymedia::Flow> create_video_capture_flow(std::string input_path, std::string pixel_format,
-                                                           int video_width, int video_height)
+std::shared_ptr<easymedia::Flow> create_video_capture_flow(std::string input_path, std::string pixel_format, int video_width, int video_height)
 {
     std::string flow_name;
     std::string flow_param;
@@ -73,15 +70,15 @@ std::shared_ptr<easymedia::Flow> create_video_capture_flow(std::string input_pat
     flow_param = get_video_cap_flow_param(input_path, pixel_format, video_width, video_height);
     stream_param = get_video_cap_stream_param(input_path, pixel_format, video_width, video_height);
     video_read_flow = create_flow(flow_name, flow_param, stream_param);
-    if (!video_read_flow) {
+    if (!video_read_flow)
+    {
         fprintf(stderr, "Create flow %s failed\n", flow_name.c_str());
         exit(EXIT_FAILURE);
     }
     return video_read_flow;
 }
 
-std::string get_video_enc_flow_param(std::string pixel_format, std::string video_enc_type, int video_width,
-                                     int video_height, int video_fps)
+std::string get_video_enc_flow_param(std::string pixel_format, std::string video_enc_type, int video_width, int video_height, int video_fps)
 {
     std::string flow_param;
     flow_param = "";
@@ -91,8 +88,7 @@ std::string get_video_enc_flow_param(std::string pixel_format, std::string video
     return flow_param;
 }
 
-std::string get_video_enc_stream_param(std::string pixel_format, std::string video_enc_type, int video_width,
-                                       int video_height, int video_fps)
+std::string get_video_enc_stream_param(std::string pixel_format, std::string video_enc_type, int video_width, int video_height, int video_fps)
 {
     std::string stream_param;
 
@@ -111,8 +107,7 @@ std::string get_video_enc_stream_param(std::string pixel_format, std::string vid
     return stream_param;
 }
 
-std::shared_ptr<easymedia::Flow> create_video_enc_flow(std::string pixel_format, std::string video_enc_type,
-                                                       int video_width, int video_height, int video_fps)
+std::shared_ptr<easymedia::Flow> create_video_enc_flow(std::string pixel_format, std::string video_enc_type, int video_width, int video_height, int video_fps)
 {
     std::shared_ptr<easymedia::Flow> video_encoder_flow;
 
@@ -124,7 +119,8 @@ std::shared_ptr<easymedia::Flow> create_video_enc_flow(std::string pixel_format,
     flow_param = get_video_enc_flow_param(pixel_format, video_enc_type, video_width, video_height, video_fps);
     stream_param = get_video_enc_stream_param(pixel_format, video_enc_type, video_width, video_height, video_fps);
     video_encoder_flow = create_flow(flow_name, flow_param, stream_param);
-    if (!video_encoder_flow) {
+    if (!video_encoder_flow)
+    {
         fprintf(stderr, "Create flow %s failed\n", flow_name.c_str());
         exit(EXIT_FAILURE);
     }
@@ -161,7 +157,8 @@ std::shared_ptr<easymedia::Flow> create_rtsp_server_flow(std::string channel_nam
     stream_param = get_rtsp_server_stream_param(channel_name, media_type);
 
     rtsp_flow = create_flow(flow_name, flow_param, stream_param);
-    if (!rtsp_flow) {
+    if (!rtsp_flow)
+    {
         fprintf(stderr, "Create flow %s failed\n", flow_name.c_str());
         exit(EXIT_FAILURE);
     }
@@ -186,8 +183,7 @@ std::string get_rtmp_server_stream_param(std::string channel_name, std::string m
     return stream_param;
 }
 
-std::shared_ptr<easymedia::Flow> create_rtmp_server_flow(std::string stream_addr, std::string output_type,
-                                                         std::string video_param, std::string audio_param)
+std::shared_ptr<easymedia::Flow> create_rtmp_server_flow(std::string stream_addr, std::string output_type, std::string video_param, std::string audio_param)
 {
     std::shared_ptr<easymedia::Flow> rtmp_flow;
     std::string flow_name;
@@ -199,7 +195,8 @@ std::shared_ptr<easymedia::Flow> create_rtmp_server_flow(std::string stream_addr
     muxer_param = easymedia::JoinFlowParam(flow_param, 2, video_param, audio_param);
 
     rtmp_flow = create_flow(flow_name, flow_param, muxer_param);
-    if (!rtmp_flow) {
+    if (!rtmp_flow)
+    {
         fprintf(stderr, "Create flow %s failed\n", flow_name.c_str());
         exit(EXIT_FAILURE);
     }
@@ -224,7 +221,8 @@ std::shared_ptr<easymedia::Flow> create_dump_server_flow(std::string input_type)
     flow_name = "link_flow";
     flow_param = get_dump_flow_param(input_type);
     dump_flow = create_flow(flow_name, flow_param, "");
-    if (!dump_flow) {
+    if (!dump_flow)
+    {
         fprintf(stderr, "Create flow %s failed\n", flow_name.c_str());
         exit(EXIT_FAILURE);
     }
@@ -234,22 +232,28 @@ std::shared_ptr<easymedia::Flow> create_dump_server_flow(std::string input_type)
 
 void deinit_rtsp()
 {
-    if (video_cap_flow && video_dump_flow) {
+    if (video_cap_flow && video_dump_flow)
+    {
         video_cap_flow->RemoveDownFlow(video_dump_flow);
     }
-    if (video_cap_flow && g_video_enc_flow) {
+    if (video_cap_flow && g_video_enc_flow)
+    {
         video_cap_flow->RemoveDownFlow(g_video_enc_flow);
     }
-    if (g_video_rtsp_flow && g_video_enc_flow) {
+    if (g_video_rtsp_flow && g_video_enc_flow)
+    {
         g_video_enc_flow->RemoveDownFlow(g_video_rtsp_flow);
     }
-    if (g_video_rtsp_flow) {
+    if (g_video_rtsp_flow)
+    {
         g_video_rtsp_flow.reset();
     }
-    if (g_video_enc_flow) {
+    if (g_video_enc_flow)
+    {
         g_video_enc_flow.reset();
     }
-    if (video_cap_flow) {
+    if (video_cap_flow)
+    {
         video_cap_flow.reset();
     }
     g_video_rtsp_flow = nullptr;
@@ -277,7 +281,8 @@ int init_rtsp(const char* video_dev, int width, int height, std::string enc_type
     video_cap_flow->AddDownFlow(g_video_enc_flow, 0, 0);
     video_cap_flow->AddDownFlow(video_dump_flow, 0, 0);
 
-    if (!video_cap_flow || !video_dump_flow) {
+    if (!video_cap_flow || !video_dump_flow)
+    {
         return -1;
     }
     return 0;

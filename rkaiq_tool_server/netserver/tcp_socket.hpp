@@ -41,7 +41,8 @@ template <uint16_t BUFFER_SIZE = AS_DEFAULT_BUFFER_SIZE> class TCPSocket : publi
 
         // Try to connect.
         int status = connect(this->sock, (const sockaddr*)&this->address, sizeof(sockaddr_in));
-        if (status == -1) {
+        if (status == -1)
+        {
             onError(errno, "Connection failed to the host.");
             this->setTimeout(0);
             return;
@@ -66,13 +67,16 @@ template <uint16_t BUFFER_SIZE = AS_DEFAULT_BUFFER_SIZE> class TCPSocket : publi
 
         // Get address info from DNS
         int status = getaddrinfo(host, NULL, &hints, &res);
-        if (status != 0) {
+        if (status != 0)
+        {
             onError(errno, "Invalid address." + std::string(gai_strerror(status)));
             return;
         }
 
-        for (it = res; it != NULL; it = it->ai_next) {
-            if (it->ai_family == AF_INET) { // IPv4
+        for (it = res; it != NULL; it = it->ai_next)
+        {
+            if (it->ai_family == AF_INET)
+            { // IPv4
                 memcpy((void*)(&this->address), (void*)it->ai_addr, sizeof(sockaddr_in));
                 break; // for now, just get the first ip (ipv4).
             }
@@ -113,7 +117,8 @@ template <uint16_t BUFFER_SIZE = AS_DEFAULT_BUFFER_SIZE> class TCPSocket : publi
         char tempBuffer[BUFFER_SIZE + 1];
         ssize_t messageLength;
 
-        while ((messageLength = recv(socket->sock, tempBuffer, BUFFER_SIZE, 0)) > 0) {
+        while ((messageLength = recv(socket->sock, tempBuffer, BUFFER_SIZE, 0)) > 0)
+        {
             tempBuffer[messageLength] = '\0';
             if (socket->onMessageReceived)
                 socket->onMessageReceived(std::string(tempBuffer, messageLength));

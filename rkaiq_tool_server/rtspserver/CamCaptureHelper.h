@@ -12,7 +12,8 @@ class CamCaptureHelper
     CamCaptureHelper();
     ~CamCaptureHelper();
 
-    typedef struct {
+    typedef struct
+    {
         /* v4l2 setup information */
         char video_dev[128]; // v4l2 video device
         int width;           // v4l2 pixel format
@@ -20,7 +21,8 @@ class CamCaptureHelper
         int format;
     } MetaInfo;
 
-    typedef struct CamFrame_t {
+    typedef struct CamFrame_t
+    {
         void* start;
         size_t length;
         int export_fd;

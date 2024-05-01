@@ -13,34 +13,41 @@
 namespace easymedia
 {
 
-    typedef struct {
+    typedef struct
+    {
         const char* name;
         uint64_t value;
     } DRMPropertyArg;
 
-    typedef struct {
+    typedef struct
+    {
         unsigned long int sub_request;
         int size;
         void* arg;
     } SubRequest;
 
-    typedef struct {
+    typedef struct
+    {
         bool enable;
     } NNinputArg;
 
-    typedef struct {
+    typedef struct
+    {
         bool enable;
     } FaceDetectArg;
 
-    typedef struct {
+    typedef struct
+    {
         bool enable;
     } FaceCaptureArg;
 
-    typedef struct {
+    typedef struct
+    {
         bool enable;
     } DrawFilterArg;
 
-    typedef struct {
+    typedef struct
+    {
         bool enable;
         int interval;
         int duration;     /* second */
@@ -58,14 +65,16 @@ namespace easymedia
         USER_ENABLE,
     } FaceRegArgType;
 
-    typedef struct {
+    typedef struct
+    {
         FaceRegArgType type;
         int user_id; /* it is used to delete user */
         char pic_path[RKNN_PICTURE_PATH_LEN];
         bool enable;
     } FaceRegArg;
 
-    typedef struct {
+    typedef struct
+    {
         bool enable;
         int interval;
     } RockxFilterArg;

@@ -22,7 +22,8 @@ namespace easymedia
         }
         virtual int Control(unsigned long int request, ...) final
         {
-            if (!stream) {
+            if (!stream)
+            {
                 return -1;
             }
             va_list vl;
@@ -44,7 +45,8 @@ namespace easymedia
     {
         std::list<std::string> separate_list;
         std::map<std::string, std::string> params;
-        if (!ParseWrapFlowParams(param, params, separate_list)) {
+        if (!ParseWrapFlowParams(param, params, separate_list))
+        {
             SetError(-EINVAL);
             return;
         }
@@ -52,20 +54,23 @@ namespace easymedia
         const char* stream_name = name.c_str();
         const std::string& stream_param = separate_list.back();
         stream = REFLECTOR(Stream)::Create<Stream>(stream_name, stream_param.c_str());
-        if (!stream) {
+        if (!stream)
+        {
             LOG("Create stream %s failed\n", stream_name);
             SetError(-EINVAL);
             return;
         }
         tag = "SourceFlow:";
         tag.append(name);
-        if (!SetAsSource(std::vector<int>({0}), void_transaction00, tag)) {
+        if (!SetAsSource(std::vector<int>({0}), void_transaction00, tag))
+        {
             SetError(-EINVAL);
             return;
         }
         loop = true;
         read_thread = new std::thread(&SourceStreamFlow::ReadThreadRun, this);
-        if (!read_thread) {
+        if (!read_thread)
+        {
             loop = false;
             SetError(-EINVAL);
             return;
@@ -78,11 +83,13 @@ namespace easymedia
         loop = false;
         StopAllThread();
         int stop = 1;
-        if (stream && Control(S_STREAM_OFF, &stop)) {
+        if (stream && Control(S_STREAM_OFF, &stop))
+        {
             LOG("Fail to stop source stream\n");
         }
         LOGD("\nSourceStreamFlow[%s]: stream off....\n", GetFlowTag());
-        if (read_thread) {
+        if (read_thread)
+        {
             source_start_cond_mtx->lock();
             loop = false;
             source_start_cond_mtx->notify();
@@ -97,15 +104,19 @@ namespace easymedia
     void SourceStreamFlow::ReadThreadRun()
     {
         prctl(PR_SET_NAME, this->tag.c_str());
-        if (waite_down_flow) {
+        if (waite_down_flow)
+        {
             source_start_cond_mtx->lock();
-            if (down_flow_num == 0 && IsEnable()) {
+            if (down_flow_num == 0 && IsEnable())
+            {
                 source_start_cond_mtx->wait();
             }
             source_start_cond_mtx->unlock();
         }
-        while (loop) {
-            if (stream->Eof()) {
+        while (loop)
+        {
+            if (stream->Eof())
+            {
                 // TODO: tell that I reach eof
                 SetDisable();
                 break;

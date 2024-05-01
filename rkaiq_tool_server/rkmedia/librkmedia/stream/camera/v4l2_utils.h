@@ -29,7 +29,8 @@
 #define S1_ENTITY_NAME DRIVER_NAME "_scale1"
 #define S2_ENTITY_NAME DRIVER_NAME "_scale2"
 
-typedef struct {
+typedef struct
+{
     char media_dev_path[DEV_PATH_LEN];
     char ispp_m_bypass_path[DEV_PATH_LEN];
     char ispp_scale0_path[DEV_PATH_LEN];
@@ -37,7 +38,8 @@ typedef struct {
     char ispp_scale2_path[DEV_PATH_LEN];
 } ispp_t;
 
-typedef struct {
+typedef struct
+{
     char media_dev_path[DEV_PATH_LEN];
     char isp_main_path[DEV_PATH_LEN];
     char isp_self_path[DEV_PATH_LEN];
@@ -51,7 +53,8 @@ namespace easymedia
     __u32 GetV4L2ColorSpaceByString(const char* type);
     const std::string& GetStringOfV4L2Fmts();
 
-    typedef struct {
+    typedef struct
+    {
         int (*open_f)(const char* file, int oflag, ...);
         int (*close_f)(int fd);
         int (*dup_f)(int fd);

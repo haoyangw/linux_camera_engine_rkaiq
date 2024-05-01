@@ -67,14 +67,14 @@ enum class Type
 #define AUDIO_PCM_S32P "audio:pcm_s32p"
 #define AUDIO_PCM_FLTP "audio:pcm_fltp"
 
-#define AUDIO_PCM                                                                                                      \
-    TYPENEAR(AUDIO_PCM_U8)                                                                                             \
-    TYPENEAR(AUDIO_PCM_S16)                                                                                            \
-    TYPENEAR(AUDIO_PCM_S32)                                                                                            \
-    TYPENEAR(AUDIO_PCM_FLT)                                                                                            \
-    TYPENEAR(AUDIO_PCM_U8P)                                                                                            \
-    TYPENEAR(AUDIO_PCM_S16P)                                                                                           \
-    TYPENEAR(AUDIO_PCM_S32P)                                                                                           \
+#define AUDIO_PCM                                                                                                                                                                                                                                                                                          \
+    TYPENEAR(AUDIO_PCM_U8)                                                                                                                                                                                                                                                                                 \
+    TYPENEAR(AUDIO_PCM_S16)                                                                                                                                                                                                                                                                                \
+    TYPENEAR(AUDIO_PCM_S32)                                                                                                                                                                                                                                                                                \
+    TYPENEAR(AUDIO_PCM_FLT)                                                                                                                                                                                                                                                                                \
+    TYPENEAR(AUDIO_PCM_U8P)                                                                                                                                                                                                                                                                                \
+    TYPENEAR(AUDIO_PCM_S16P)                                                                                                                                                                                                                                                                               \
+    TYPENEAR(AUDIO_PCM_S32P)                                                                                                                                                                                                                                                                               \
     TYPENEAR(AUDIO_PCM_FLTP)
 
 #define AUDIO_AAC "audio:aac"

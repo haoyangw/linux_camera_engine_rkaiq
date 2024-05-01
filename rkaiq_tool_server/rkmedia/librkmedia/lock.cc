@@ -57,21 +57,24 @@ namespace easymedia
     ReadWriteLockMutex::ReadWriteLockMutex() : valid(true)
     {
         int ret = pthread_rwlock_init(&rwlock, NULL);
-        if (ret) {
+        if (ret)
+        {
             fprintf(stderr, "Fail to pthread_rwlock_init\n");
             valid = false;
         }
     }
     ReadWriteLockMutex::~ReadWriteLockMutex()
     {
-        if (valid) {
+        if (valid)
+        {
             pthread_rwlock_destroy(&rwlock);
         }
     }
     void ReadWriteLockMutex::lock()
     {
         // write lock
-        if (valid) {
+        if (valid)
+        {
             pthread_rwlock_wrlock(&rwlock);
         }
         locktimeinc();
@@ -79,13 +82,15 @@ namespace easymedia
     void ReadWriteLockMutex::unlock()
     {
         locktimedec();
-        if (valid) {
+        if (valid)
+        {
             pthread_rwlock_unlock(&rwlock);
         }
     }
     void ReadWriteLockMutex::read_lock()
     {
-        if (valid) {
+        if (valid)
+        {
             pthread_rwlock_rdlock(&rwlock);
         }
         locktimeinc();

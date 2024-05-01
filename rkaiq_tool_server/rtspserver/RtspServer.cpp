@@ -16,17 +16,20 @@ RtspServer::RtspServer() : mEnv(NULL), mSms(NULL), mRtspServer(NULL), mProcThrea
 RtspServer::~RtspServer()
 {
     ALOGD("~RtspServer enter");
-    if (mProcThread != NULL) {
+    if (mProcThread != NULL)
+    {
         delete mProcThread;
         mProcThread = NULL;
     }
 
-    if (mCamDev != NULL) {
+    if (mCamDev != NULL)
+    {
         mCamDev->deinit();
         delete mCamDev;
         mCamDev = NULL;
     }
-    if (mEncoder != NULL) {
+    if (mEncoder != NULL)
+    {
         delete mEncoder;
         mEncoder = NULL;
     }
@@ -34,19 +37,22 @@ RtspServer::~RtspServer()
 
 bool RtspServer::init(MetaInfo* meta)
 {
-    if (meta == NULL) {
+    if (meta == NULL)
+    {
         ALOGE("Failed to get metaData");
         return false;
     }
 
-    if (mEnv == NULL) {
+    if (mEnv == NULL)
+    {
         // begin by setting up our usage environment.
         TaskScheduler* scheduler = BasicTaskScheduler::createNew();
         mEnv = BasicUsageEnvironment::createNew(*scheduler);
 
         OutPacketBuffer::maxSize = 1920 * 1080 * 2;
         mRtspServer = RTSPServer::createNew(*mEnv, meta->port_num);
-        if (mRtspServer == NULL) {
+        if (mRtspServer == NULL)
+        {
             ALOGE("Failed to create RTSP server: %s", mEnv->getResultMsg());
             return false;
         }
@@ -67,7 +73,8 @@ bool RtspServer::initOther(MetaInfo* meta)
     camInfo.height = meta->height;
     camInfo.format = 0; // nv12
 
-    if (!mCamDev->init(&camInfo)) {
+    if (!mCamDev->init(&camInfo))
+    {
         ALOGE("Failed to init mCamDev");
         return false;
     }
@@ -84,7 +91,8 @@ bool RtspServer::initOther(MetaInfo* meta)
     encInfo.rc_mode = 1;
     encInfo.qp = 20;
 
-    if (!mEncoder->init(&encInfo)) {
+    if (!mEncoder->init(&encInfo))
+    {
         ALOGE("Failed to init mEncoder");
         return false;
     }
@@ -99,9 +107,11 @@ void RtspServer::onDoGetNextFrame(QMediaBuffer* outBuf)
 
     ALOGI("onDoGetNextFrame");
 
-    if (mCamDev->getCameraBuffer(&camBuf)) {
+    if (mCamDev->getCameraBuffer(&camBuf))
+    {
         ret = mEncoder->sendFrame(camBuf.getFd(), camBuf.getSize(), 0, 0);
-        if (!ret) {
+        if (!ret)
+        {
             ALOGD("Failed to sendFrame");
             mCamDev->putCameraBuffer(&camBuf);
             return;
@@ -109,15 +119,20 @@ void RtspServer::onDoGetNextFrame(QMediaBuffer* outBuf)
 
         EncoderOut_t encOut;
         ret = mEncoder->getOutStream(&encOut);
-        if (ret) {
+        if (ret)
+        {
             // fill live source data
             outBuf->setData(encOut.data, encOut.size);
-        } else {
+        }
+        else
+        {
             ALOGD("Failed to getOutStream");
         }
 
         mCamDev->putCameraBuffer(&camBuf);
-    } else {
+    }
+    else
+    {
         ALOGD("Failed to get camera buffer");
     }
 }
@@ -145,22 +160,26 @@ bool RtspServer::stop()
     setDoneFlag();
 
     ALOGD("Exit procThread");
-    if (mProcThread != NULL) {
+    if (mProcThread != NULL)
+    {
         mProcThread->join();
         delete mProcThread;
         mProcThread = NULL;
     }
 
-    if (mRtspServer != NULL) {
+    if (mRtspServer != NULL)
+    {
         mRtspServer->deleteServerMediaSession(mStreamName);
     }
 
-    if (mCamDev != NULL) {
+    if (mCamDev != NULL)
+    {
         mCamDev->deinit();
         delete mCamDev;
         mCamDev = NULL;
     }
-    if (mEncoder != NULL) {
+    if (mEncoder != NULL)
+    {
         delete mEncoder;
         mEncoder = NULL;
     }
@@ -187,7 +206,8 @@ int init_rtsp(const char* video_dev, int width, int height)
 
     ALOGD("init_rtsp: video_dev %s w %d h %d", video_dev, width, height);
 
-    if (!_g_rtsp_server.init(&info)) {
+    if (!_g_rtsp_server.init(&info))
+    {
         ALOGE("Failed to init _g_rtsp_server");
         return -1;
     }
