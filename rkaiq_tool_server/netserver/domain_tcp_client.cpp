@@ -1,4 +1,4 @@
-#include "domain_tcp_client.h"
+﻿#include "domain_tcp_client.h"
 
 #include <errno.h>
 
@@ -12,37 +12,7 @@
 #endif
 #define LOG_TAG "aiqtool"
 
-#ifdef __ANDROID__
-    #define ANDROID_RESERVED_SOCKET_PREFIX "/dev/socket/"
-
-// Connects to /dev/socket/<name> and returns the associated fd or returns -1 on error.
-// O_CLOEXEC is always set.
-static int socket_local_client(const std::string& name, int type)
-{
-    sockaddr_un addr = {.sun_family = AF_LOCAL};
-
-    std::string path = "/dev/socket/" + name;
-    if (path.size() + 1 > sizeof(addr.sun_path))
-    {
-        return -1;
-    }
-    strlcpy(addr.sun_path, path.c_str(), sizeof(addr.sun_path));
-
-    int fd = socket(AF_LOCAL, type | SOCK_CLOEXEC, 0);
-    if (fd == -1)
-    {
-        return -1;
-    }
-
-    if (connect(fd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == -1)
-    {
-        close(fd);
-        return -1;
-    }
-
-    return fd;
-}
-#endif
+extern DomainTCPClient g_domainTcpClient;
 
 DomainTCPClient::DomainTCPClient()
 {

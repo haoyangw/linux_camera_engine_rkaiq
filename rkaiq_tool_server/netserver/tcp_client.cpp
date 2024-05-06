@@ -1,4 +1,4 @@
-#include "tcp_client.h"
+﻿#include "tcp_client.h"
 
 #ifdef LOG_TAG
     #undef LOG_TAG
@@ -61,62 +61,88 @@ bool TCPClient::Setup(string address, int port)
     return true;
 }
 
-bool TCPClient::Send(string data)
-{
-    if (sock != -1)
-    {
-        if (send(sock, data.c_str(), strlen(data.c_str()), 0) < 0)
-        {
-            LOG_ERROR("Send failed : %s\n", data.c_str());
-            return false;
-        }
-    }
-    else
-    {
-        return false;
-    }
-    return true;
-}
-
 int TCPClient::Send(char* buff, int size)
 {
     int ret = -1;
-    if (sock != -1)
+    int sendOffset = 0;
+    auto stopSendTimer = std::chrono::high_resolution_clock::now();
+    while (true)
     {
-        ret = send(sock, buff, size, 0);
-        if (ret <= 0)
+        int sendSize = send(sock, buff + sendOffset, size, 0);
+        if (sendSize > 0)
         {
-            LOG_ERROR("Send buff size %d failed\n", size);
-            return ret;
+            stopSendTimer = std::chrono::high_resolution_clock::now();
+            sendOffset += sendSize;
+        }
+        else if (sendSize <= 0)
+        {
+            if (sendOffset == size)
+            {
+                LOG_DEBUG("tcp send to pc finish.\n");
+                ret = 0;
+                break;
+            }
+
+            if (errno != EAGAIN)
+            {
+                close(sock);
+                break;
+            }
+            else
+            {
+                auto now = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double, std::milli> waitTime = now - stopSendTimer;
+                if (std::chrono::duration<double, std::milli>(waitTime) > std::chrono::duration<double, std::milli>(500))
+                {
+                    LOG_DEBUG("tcp send to pc OK %f\n", waitTime.count());
+                    break;
+                }
+            }
         }
     }
-    return ret;
-}
 
-string TCPClient::Receive(int size)
-{
-    char buffer[size];
-    memset(&buffer[0], 0, sizeof(buffer));
-    string reply;
-    if (recv(sock, buffer, size, 0) < 0)
-    {
-        LOG_ERROR("receive failed %s !\n", strerror(errno));
-        return "\0";
-    }
-    buffer[size - 1] = '\0';
-    reply = buffer;
-    return reply;
+    return ret;
 }
 
 int TCPClient::Receive(char* buff, int size)
 {
     int ret = -1;
-    memset(buff, 0, size);
-    ret = recv(sock, buff, size, 0);
-    if (ret < 0)
+    int receiveOffset = 0;
+    auto stopReceiveTimer = std::chrono::high_resolution_clock::now();
+    while (true)
     {
-        LOG_ERROR("receive failed %s !\n", strerror(errno));
-        return -1;
+        int recvSize = recv(sock, buff + receiveOffset, size, 0);
+        if (recvSize > 0)
+        {
+            stopReceiveTimer = std::chrono::high_resolution_clock::now();
+            receiveOffset += recvSize;
+        }
+        else if (recvSize <= 0)
+        {
+            if (receiveOffset == size)
+            {
+                LOG_DEBUG("tcp recv from pc finish.\n");
+                ret = 0;
+                break;
+            }
+
+            if (errno != EAGAIN)
+            {
+                close(sock);
+                break;
+            }
+            else
+            {
+                auto now = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double, std::milli> waitTime = now - stopReceiveTimer;
+                if (std::chrono::duration<double, std::milli>(waitTime) > std::chrono::duration<double, std::milli>(500))
+                {
+                    LOG_DEBUG("tcp recv from pc OK %f\n", waitTime.count());
+                    break;
+                }
+            }
+        }
     }
+
     return ret;
 }
