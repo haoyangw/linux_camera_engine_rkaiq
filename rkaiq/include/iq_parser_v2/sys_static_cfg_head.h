@@ -20,7 +20,7 @@
 #ifndef __CALIBDBV2_SYS_STATIC_CFG_HEADER_H__
 #define __CALIBDBV2_SYS_STATIC_CFG_HEADER_H__
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 RKAIQ_BEGIN_DECLARE
 

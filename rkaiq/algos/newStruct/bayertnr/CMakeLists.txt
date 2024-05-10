@@ -1,5 +1,5 @@
 set(BAYERTNR_SRC
-    "algo_bayertnr.cpp"
+    "algo_bayertnr.c"
     )
 
-dec_algo(bayertnr algo_bayertnr.cpp ${BAYERTNR_SRC})
+dec_algo(bayertnr algo_bayertnr.c ${BAYERTNR_SRC})

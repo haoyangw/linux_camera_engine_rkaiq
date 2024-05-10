@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_ATMO_H_
 #define _RK_AIQ_USER_API2_ATMO_H_
 
-#include "atmo/rk_aiq_uapi_atmo_int.h"
+#include "algos/atmo/rk_aiq_uapi_atmo_int.h"
 
 #ifndef RK_AIQ_SYS_CTX_T
 #define RK_AIQ_SYS_CTX_T

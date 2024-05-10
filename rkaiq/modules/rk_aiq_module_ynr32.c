@@ -19,7 +19,7 @@ void rk_aiq_ynr32_params_cvt(void* attr, struct isp32_isp_params_cfg* isp_cfg,co
     int i;
     int tmp;
     int w0, w1, w2;
-    struct isp32_ynr_cfg *phwcfg = &isp_cfg->others.ynr_cfg;
+    struct isp32_ynr_cfg *phwcfg = &isp_params->isp_cfg->others.ynr_cfg;
     ynr_param_t *ynr_param = (ynr_param_t *) attr;
     ynr_params_static_t* psta = &ynr_param->sta;
     ynr_params_dyn_t* pdyn = &ynr_param->dyn;

@@ -424,7 +424,7 @@ XCamReturn AlscAutoConfig
     float fVignetting;
     pDomIlluProfile = &hAlsc->calibLsc->aLscCof.illAll[caseIndex][dominateIlluProfileIdx];
 
-    interpolation(pDomIlluProfile->vignettingCurve.pSensorGain,
+    interpolation1(pDomIlluProfile->vignettingCurve.pSensorGain,
                   pDomIlluProfile->vignettingCurve.pVignetting,
                   pDomIlluProfile->vignettingCurve.arraySize,
                   sensorGain, &fVignetting);

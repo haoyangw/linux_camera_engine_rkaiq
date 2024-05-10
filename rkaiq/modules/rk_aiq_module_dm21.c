@@ -79,7 +79,7 @@ bool rk_aiq_dm21_check_attrib(dm_api_attrib_t *attr)
 
 void rk_aiq_dm21_params_cvt(void* attr, struct isp32_isp_params_cfg* isp_cfg)
 {
-    struct isp32_debayer_cfg *phwcfg = &isp_cfg->others.debayer_cfg;
+    struct isp32_debayer_cfg *phwcfg = &isp_params->isp_cfg->others.debayer_cfg;
     dm_param_t *dm_param = (dm_param_t *) attr;
     dm_params_dyn_t *pdyn = &dm_param->dyn;
     dm_params_static_t *psta = &dm_param->sta;

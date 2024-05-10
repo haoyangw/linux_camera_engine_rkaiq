@@ -47,5 +47,9 @@ define(`M4_NOTES', `notes=M4_XARGS(\""$@"\")')
 define(`M4_REF', `ref=M4_XARGS(\""$@"\")')
 define(`M4_DATAX', `data_x=M4_XARGS(\""$@"\")')
 define(`M4_GENERIC_DESC', `M4_MACRO(M4_XARGS(``$0'' $@))')
+define(`M4_NOTES', `notes=M4_XARGS(\""$@"\")')
+define(`M4_GROUP_CTRL', `group_ctrl=M4_XARGS(\""$@"\")')
+define(`M4_GROUP', `group=M4_XARGS(\""$@"\")')
+define(`M4_MARK', `mark=M4_XARGS(\""$@"\")')
 
 divert(0)dnl

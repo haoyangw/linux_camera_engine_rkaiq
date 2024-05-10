@@ -38,20 +38,16 @@ class RkAiqCore;
 typedef struct rk_aiq_singlecam_result_s {
     rk_aiq_singlecam_3a_result_t _3aResults;
     SmartPtr<RkAiqFullParamsProxy> _fullIspParam;
-
+    SmartPtr<RkAiqAwbStatsProxy> _mAwbStats;
+    SmartPtr<RkAiqAecStatsProxy> _mAeStats;
+    
     rk_aiq_singlecam_result_s () {
         memset(&_3aResults, 0, sizeof(_3aResults));
     }
     void reset() {
-        XCamVideoBuffer* stats_buf = _3aResults.awb._awbStats;
-        if (stats_buf)
-            stats_buf->unref(stats_buf);
-
-        stats_buf = _3aResults.aec._aecStats;
-        if (stats_buf)
-            stats_buf->unref(stats_buf);
-
-        stats_buf = _3aResults.aec._aePreRes;
+        _mAeStats.release();
+        _mAwbStats.release();
+        XCamVideoBuffer* stats_buf = _3aResults.aec._aePreRes;
         if (stats_buf)
             stats_buf->unref(stats_buf);
 
@@ -129,7 +125,7 @@ public:
     };
     typedef struct rk_aiq_groupcam_result_wrapper_s {
         rk_aiq_groupcam_result_wrapper_s(rk_aiq_groupcam_result_t* gc_result)
-            :_gc_result(gc_result){};
+            : _gc_result(gc_result) {};
         rk_aiq_groupcam_result_t* _gc_result;
     } rk_aiq_groupcam_result_wrapper_t;
     bool sendFrame(rk_aiq_groupcam_result_t* gc_result);
@@ -145,7 +141,6 @@ private:
     SafeList<rk_aiq_groupcam_result_wrapper_t>  mMsgQueue;
 };
 
-typedef std::shared_ptr<std::list<std::string>> ModuleNameList;
 class RkAiqCamgroupHandle;
 class RkAiqCamGroupManager
 {
@@ -200,12 +195,14 @@ public:
     RkAiqAlgoContext* getEnabledAxlibCtx(const int algo_type);
     RkAiqAlgoContext* getAxlibCtx(const int algo_type, const int lib_id);
     RkAiqCamgroupHandle* getAiqCamgroupHandle(const int algo_type, const int lib_id);
-    XCamReturn calibTuning(const CamCalibDbV2Context_t* aiqCalib, ModuleNameList& change_name_list);
+    XCamReturn calibTuning(const CamCalibDbV2Context_t* aiqCalib);
     XCamReturn updateCalibDb(const CamCalibDbV2Context_t* newCalibDb);
     XCamReturn rePrepare();
 
     void setVicapReady(rk_aiq_hwevt_t* hwevt);
     bool isAllVicapReady();
+    XCamReturn register3Aalgo(void* algoDes, void *cbs);
+    XCamReturn unregister3Aalgo(int algoType);
 protected:
     const struct RkAiqAlgoDesCommExt* mGroupAlgosDesArray;
     /* key: camId*/
@@ -243,7 +240,7 @@ protected:
      *   CAMGROUP_MANAGER_BINDED-> CAMGROUP_MANAGER_INITED            init
      *   CAMGROUP_MANAGER_INITED -> CAMGROUP_MANAGER_PREPARED         prepare
      *   CAMGROUP_MANAGER_PREPARED -> CAMGROUP_MANAGER_STARTED        start
-     *   CAMGROUP_MANAGER_STARTED -> CAMGROUP_MANAGER_PREPARED        stop
+     *   CAMGROUP_MANAGER_STARTED -> CAMGROUP_MANAGER_STOPED          stop
      *   CAMGROUP_MANAGER_PREPARED-> CAMGROUP_MANAGER_UNBINDED        unbind
      *   CAMGROUP_MANAGER_UNBINDED -> CAMGROUP_MANAGER_INVALID        deinit
      *
@@ -259,6 +256,7 @@ protected:
         CAMGROUP_MANAGER_INITED,
         CAMGROUP_MANAGER_PREPARED,
         CAMGROUP_MANAGER_STARTED,
+        CAMGROUP_MANAGER_STOPED,
     };
     int mState;
     bool mInit;

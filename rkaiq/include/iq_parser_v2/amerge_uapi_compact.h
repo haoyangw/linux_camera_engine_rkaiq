@@ -18,7 +18,7 @@
 #ifndef __AMERGE_UAPI_COMPACT_H__
 #define __AMERGE_UAPI_COMPACT_H__
 
-#include "amerge_uapi_head.h"
+#include "iq_parser_v2/amerge_uapi_head.h"
 
 #ifdef __cplusplus
 extern "C" {

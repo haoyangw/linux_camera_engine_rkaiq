@@ -19,6 +19,7 @@
 
 namespace RkCam {
 
+#if (USE_NEWSTRUCT == 0)
 #if RKAIQ_HAVE_YUVME_V1
 
 XCamReturn RkAiqCamGroupAyuvmeV1HandleInt::updateConfig(bool needSync) {
@@ -182,5 +183,6 @@ XCamReturn RkAiqCamGroupAyuvmeV1HandleInt::getInfo(rk_aiq_yuvme_info_v1_t *pInfo
     return ret;
 }
 
+#endif
 #endif
 }  // namespace RkCam

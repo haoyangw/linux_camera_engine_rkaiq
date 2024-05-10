@@ -18,9 +18,11 @@
 #ifndef _SAMPLE_CSM_MODULE_H_
 #define _SAMPLE_CSM_MODULE_H_
 
-#include "base/xcam_common.h"
+#include "xcore/base/xcam_common.h"
 
 void sample_print_csm_info(const void *arg);
-XCamReturn sample_csm_module(const void *arg);
-
+XCamReturn sample_csm_module(const void* arg);
+#ifdef USE_NEWSTRUCT
+void sample_new_csm(const rk_aiq_sys_ctx_t* ctx);
+#endif
 #endif

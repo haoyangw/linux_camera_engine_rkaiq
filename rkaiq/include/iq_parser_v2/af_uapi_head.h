@@ -19,7 +19,7 @@
 #define __AF_UAPI_HEAD_H__
 
 
-#include "rk_aiq_user_api_common.h"
+#include "uAPI2/rk_aiq_user_api_common.h"
 
 #ifdef __cplusplus
 extern "C" {

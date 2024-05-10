@@ -2,15 +2,24 @@
 #ifndef _RK_AIQ_TOOL_API_H_
 #define _RK_AIQ_TOOL_API_H_
 
-#include "rk_aiq_user_api2_imgproc.h"
+#include "uAPI2/rk_aiq_user_api2_imgproc.h"
 #include "rk_aiq_api_private.h"
 #include "uAPI2/rk_aiq_user_api2_wrapper.h"
 
+#ifndef USE_NEWSTRUCT
 XCamReturn rk_aiq_tool_api_ae_setExpSwAttr
     (const rk_aiq_sys_ctx_t* sys_ctx, const Uapi_ExpSwAttrV2_t expSwAttr)
 {
     return rk_aiq_user_api2_ae_setExpSwAttr(sys_ctx, expSwAttr);
 }
+#else
+    //TODO
+    XCamReturn
+    rk_aiq_tool_api_ae_setExpSwAttr(const rk_aiq_sys_ctx_t* sys_ctx, const ae_api_expSwAttr_t expSwAttr)
+{
+    return rk_aiq_user_api2_ae_setExpSwAttr(sys_ctx, expSwAttr);
+}
+#endif
 
 XCamReturn rk_aiq_tool_api_setMWBGain
     (const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_wb_gain_t *gain)

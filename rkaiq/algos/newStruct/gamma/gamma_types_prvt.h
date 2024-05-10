@@ -46,10 +46,6 @@
 #include "RkAiqCalibDbV2Helper.h"
 #include "xcam_log.h"
 
-#define ISP3X_SEGNUM_LOG_49     (2)
-#define ISP3X_SEGNUM_LOG_45     (0)
-#define ISP3X_SEGNUM_EQU_45     (1)
-
 typedef struct GammaContext_s {
     const RkAiqAlgoCom_prepare_t* prepare_params;
     gamma_api_attrib_t* gamma_attrib;

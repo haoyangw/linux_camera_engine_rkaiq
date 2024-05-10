@@ -20,7 +20,7 @@
 #ifndef _RK_AIQ_TYPES_CNR32_H_
 #define _RK_AIQ_TYPES_CNR32_H_
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 #include "rk_aiq_param_cnr32.h"
 
 #define cnr_param_calib_t cnr_param_auto_t

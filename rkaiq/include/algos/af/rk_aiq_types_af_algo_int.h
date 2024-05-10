@@ -1,8 +1,8 @@
 #ifndef __RK_AIQ_TYPES_AF_ALGO_INT_H__
 #define __RK_AIQ_TYPES_AF_ALGO_INT_H__
 
-#include "af_uapi_head.h"
-#include "rk_aiq_types_af_algo.h"
+#include "iq_parser_v2/af_uapi_head.h"
+#include "algos/af/rk_aiq_types_af_algo.h"
 
 typedef struct {
     unsigned char valid;
@@ -72,6 +72,7 @@ typedef struct rk_aiq_af_attrib_s {
         rk_aiq_af_algo_meas_v31_t manual_meascfg_v31;
         rk_aiq_af_algo_meas_v32_t manual_meascfg_v32;
         rk_aiq_af_algo_meas_v33_t manual_meascfg_v33;
+        afStats_cfg_t manual_afStats_cfg;
     };
 } rk_aiq_af_attrib_t;
 

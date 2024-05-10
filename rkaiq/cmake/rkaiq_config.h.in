@@ -22,6 +22,7 @@
 #if RKAIQ_HAVE_AWB_V32
 #cmakedefine01 RKAIQ_HAVE_AWB_V32LT
 #endif
+#cmakedefine01 RKAIQ_HAVE_AWB_V39
 #cmakedefine01 RKAIQ_HAVE_AWB_V32
 #cmakedefine01 RKAIQ_HAVE_AWB_V21
 #cmakedefine01 RKAIQ_HAVE_AWB_V20
@@ -120,5 +121,6 @@
 #cmakedefine01 RKAIQ_HAVE_BAYERTNR_V30
 #cmakedefine01 RKAIQ_HAVE_YUVME_V1
 #cmakedefine01 RKAIQ_HAVE_CNR_V31
+#cmakedefine01 RKAIQ_HAVE_LDC
 
 #endif /* RKAIQ_CONFIG_H */

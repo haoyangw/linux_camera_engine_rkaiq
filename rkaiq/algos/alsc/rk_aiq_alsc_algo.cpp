@@ -967,7 +967,7 @@ XCamReturn AlscAutoConfig(alsc_handle_t hAlsc)
     // 3) calculate vignetting from sensor gain;
     float sensorGain = hAlsc->alscSwInfo.sensorGain;
     float fVignetting;
-    interpolation(illu_case->alsc_cof->gains,
+    interpolation_f(illu_case->alsc_cof->gains,
                   illu_case->alsc_cof->vig,
                   illu_case->alsc_cof->vig_len,
                   sensorGain, &fVignetting);

@@ -49,7 +49,7 @@ XCamReturn RkAiqAgainV2HandleInt::updateConfig(bool needSync) {
 
     if (updataWriteAgainInputAttr) {
         mCurWriteInputAttr = mNewWriteInputAttr;
-        rk_aiq_uapiV2_againV2_WriteInput(mAlgoCtx, mCurWriteInputAttr, false);
+        rk_aiq_uapiV2_againV2_WriteInput(mAlgoCtx, &mCurWriteInputAttr, false);
         updataWriteAgainInputAttr = false;
         sendSignal(mCurWriteInputAttr.sync.sync_mode);
     }
@@ -153,7 +153,7 @@ XCamReturn RkAiqAgainV2HandleInt::writeAginIn(rk_aiq_uapiV2_again_wrtIn_attr_t a
 #if defined(ISP_HW_V32)
     mCfgMutex.lock();
 #ifdef DISABLE_HANDLE_ATTRIB
-    ret = rk_aiq_uapiV2_againV2_WriteInput(mAlgoCtx, att, false);
+    ret = rk_aiq_uapiV2_againV2_WriteInput(mAlgoCtx, &att, false);
 #else
     // check if there is different between att & mCurWriteInputAttr(sync)/mNewWriteInputAttr(async)
     // if something changed, set att to mNewWriteInputAttr, and

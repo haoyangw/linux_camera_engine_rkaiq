@@ -13,16 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "sample_agic_module.h"
 
 #include "sample_comm.h"
 #include "uAPI2/rk_aiq_user_api2_agic.h"
+#include "sample_agic_module.h"
+// #define USE_NEWSTRUCT
+#ifdef ISP_HW_V39
+#include "rk_aiq_user_api2_rk3576.h"
+#elif  defined(ISP_HW_V33)
+#include "rk_aiq_user_api2_rv1103B.h"
+#elif  defined(ISP_HW_V32)
+#include "rk_aiq_user_api2_rv1106.h"
+#endif
+#include "uAPI2/rk_aiq_user_api2_helper.h"
+#include <string>
 
 static void sample_agic_usage() {
     printf("Usage : \n");
     printf("  Module API: \n");
     printf("\t a) GIC:         Set gic Attr & Sync .\n");
     printf("\t b) GIC:         Set gic Attr & Async .\n");
+    printf("\t c) GIC:         GIC new struct test.\n");
     printf("\n");
     printf("\t h) GIC:         help.\n");
     printf("\t q) GIC:         return to main sample screen.\n");
@@ -82,6 +93,120 @@ static int sample_gic_getgicAttr(const rk_aiq_sys_ctx_t* ctx) {
     return 0;
 }
 
+#ifdef USE_NEWSTRUCT
+static void sample_gic_tuningtool_test(const rk_aiq_sys_ctx_t* ctx)
+{
+    char *ret_str = NULL;
+
+    printf(">>> start tuning tool test: op attrib get ...\n");
+
+    std::string json_agic_status_str = " \n\
+        [{ \n\
+            \"op\":\"get\", \n\
+            \"path\": \"/uapi/0/gic_uapi/info\", \n\
+            \"value\": \n\
+            { \"opMode\": \"RK_AIQ_OP_MODE_MANUAL\", \"en\": 0,\"bypass\": 3} \n\
+        }]";
+
+    rkaiq_uapi_unified_ctl(const_cast<rk_aiq_sys_ctx_t*>(ctx),
+                           const_cast<char*>(json_agic_status_str.c_str()), &ret_str, RKAIQUAPI_OPMODE_GET);
+
+    if (ret_str) {
+        printf("agic status json str: %s\n", ret_str);
+    }
+
+    printf("  start tuning tool test: op attrib set ...\n");
+    std::string json_agic_str = " \n\
+        [{ \n\
+            \"op\":\"replace\", \n\
+            \"path\": \"/uapi/0/gic_uapi/attr\", \n\
+            \"value\": \n\
+            { \"opMode\": \"RK_AIQ_OP_MODE_MANUAL\", \"en\": 1,\"bypass\": 1} \n\
+        }]";
+    printf("agic json_cmd_str: %s\n", json_agic_str.c_str());
+    ret_str = NULL;
+    rkaiq_uapi_unified_ctl(const_cast<rk_aiq_sys_ctx_t*>(ctx),
+                           const_cast<char*>(json_agic_str.c_str()), &ret_str, RKAIQUAPI_OPMODE_SET);
+
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    gic_status_t status;
+    memset(&status, 0, sizeof(gic_status_t));
+
+    rk_aiq_user_api2_gic_QueryStatus(ctx, &status);
+
+    if (status.opMode != RK_AIQ_OP_MODE_MANUAL || status.en != 1 || status.bypass != 1) {
+        printf("agic op set_attrib failed !\n");
+        printf("agic status: opmode:%d(EXP:%d), en:%d(EXP:%d), bypass:%d(EXP:%d)\n",
+               status.opMode, RK_AIQ_OP_MODE_MANUAL, status.en, 1, status.bypass, 1);
+    } else {
+        printf("agic op set_attrib success !\n");
+    }
+
+    printf(">>> tuning tool test done \n");
+}
+
+void get_auto_attr(gic_api_attrib_t* attr) {
+    gic_param_auto_t* stAuto = &attr->stAuto;
+    for (int i = 0;i < 13;i++) {
+    }
+}
+
+void get_manual_attr(gic_api_attrib_t* attr) {
+    gic_param_t* stMan = &attr->stMan;
+}
+
+void sample_gic_test(const rk_aiq_sys_ctx_t* ctx) {
+    // sample_gic_tuningtool_test(ctx);
+    // get cur mode
+    printf("+++++++ GIC module test start ++++++++\n");
+
+    gic_api_attrib_t attr;
+    memset(&attr, 0, sizeof(attr));
+
+    rk_aiq_user_api2_gic_GetAttrib(ctx, &attr);
+
+    printf("gic attr: opmode:%d, en:%d, bypass:%d\n", attr.opMode, attr.en, attr.bypass);
+
+    srand(time(0));
+    int rand_num = rand() % 101;
+
+    if (rand_num <70) {
+        printf("update gic arrrib!\n");
+        if (attr.opMode == RK_AIQ_OP_MODE_AUTO) {
+            attr.opMode = RK_AIQ_OP_MODE_MANUAL;
+            get_manual_attr(&attr);
+        }
+        else {
+            get_auto_attr(&attr);
+            attr.opMode = RK_AIQ_OP_MODE_AUTO;
+        }
+    }
+    else {
+        // reverse en
+        printf("reverse gic en!\n");
+        attr.en = !attr.en;
+    }
+
+    rk_aiq_user_api2_gic_SetAttrib(ctx, &attr);
+
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    gic_status_t status;
+    memset(&status, 0, sizeof(gic_status_t));
+
+    rk_aiq_user_api2_gic_QueryStatus(ctx, &status);
+
+    printf("gic status: opmode:%d, en:%d, bypass:%d\n", status.opMode, status.en, status.bypass);
+
+    if (status.opMode != attr.opMode || status.en != attr.en)
+        printf("gic test failed\n");
+    printf("-------- gic module test done --------\n");
+}
+#endif
+
 XCamReturn sample_agic_module(const void* arg) {
     int key = -1;
     CLEAR();
@@ -121,6 +246,11 @@ XCamReturn sample_agic_module(const void* arg) {
                 usleep(40 * 1000);
                 sample_gic_getgicAttr(ctx);
                 break;
+#ifdef USE_NEWSTRUCT
+            case 'c':
+                sample_gic_test(ctx);
+                break;
+#endif
             default:
                 CLEAR();
                 sample_agic_usage();

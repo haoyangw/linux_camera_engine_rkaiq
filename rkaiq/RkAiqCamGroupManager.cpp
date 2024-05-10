@@ -81,7 +81,7 @@ RkAiqCamGroupManager::RkAiqCamGroupManager()
 #if RKAIQ_HAVE_AWB
     mRequiredMsgsMask |= (1ULL << XCAM_MESSAGE_AWB_STATS_OK);
 #endif
-#if RKAIQ_HAVE_BAYERTNR_V30
+#if RKAIQ_HAVE_BAYERTNR_V30 && !USE_NEWSTRUCT
     mRequiredMsgsMask |= (1ULL << XCAM_MESSAGE_TNR_STATS_OK);
 #endif
 
@@ -361,7 +361,7 @@ RkAiqCamGroupManager::setSingleCamStatusReady(rk_aiq_singlecam_result_status_t* 
 }
 
 void
-RkAiqCamGroupManager::calcHdrIso(RKAiqAecExpInfo_t* pCurExp, rk_aiq_singlecam_3a_result_t *singleCam3aRes) 
+RkAiqCamGroupManager::calcHdrIso(RKAiqAecExpInfo_t* pCurExp, rk_aiq_singlecam_3a_result_t *singleCam3aRes)
 {
     const auto* aiqManager = (mBindAiqsMap.begin())->second;
     auto* aiqCore = aiqManager->mRkAiqAnalyzer.ptr();
@@ -376,8 +376,12 @@ RkAiqCamGroupManager::calcHdrIso(RKAiqAecExpInfo_t* pCurExp, rk_aiq_singlecam_3a
         arAGain = pCurExp->LinearExp.exp_real_params.analog_gain;
         arDGain = pCurExp->LinearExp.exp_real_params.digital_gain;
         arTime = pCurExp->LinearExp.exp_real_params.integration_time;
-        if (arAGain < 1.0) { arAGain = 1.0; }
-        if (arDGain < 1.0) { arDGain = 1.0;}
+        if (arAGain < 1.0) {
+            arAGain = 1.0;
+        }
+        if (arDGain < 1.0) {
+            arDGain = 1.0;
+        }
 
         singleCam3aRes->hdrIso = arAGain * arDGain * 50;
     } else {
@@ -392,8 +396,12 @@ RkAiqCamGroupManager::calcHdrIso(RKAiqAecExpInfo_t* pCurExp, rk_aiq_singlecam_3a
         arDGain = pCurExp->HdrExp[i].exp_real_params.digital_gain;
         arTime = pCurExp->HdrExp[i].exp_real_params.integration_time;
 
-        if (arAGain < 1.0) { arAGain = 1.0; }
-        if (arDGain < 1.0) { arDGain = 1.0;}
+        if (arAGain < 1.0) {
+            arAGain = 1.0;
+        }
+        if (arDGain < 1.0) {
+            arDGain = 1.0;
+        }
 
         singleCam3aRes->hdrIso = arAGain * arDGain * 50;
     }
@@ -404,7 +412,7 @@ RkAiqCamGroupManager::processAiqCoreMsgs(RkAiqCore* src, RkAiqCoreVdBufMsg& msg)
 {
     int camId = src->getCamPhyId();
     uint32_t frameId = msg.frame_id;
-
+    // only support v3x now
     // check if the msg is required firstly
     if (!(mRequiredMsgsMask & (1ULL << msg.msg_id))) {
         LOG1_CAMGROUP("camgroup: not required core msg :%s of frameId: %d, ignore",
@@ -441,13 +449,38 @@ RkAiqCamGroupManager::processAiqCoreMsgs(RkAiqCore* src, RkAiqCoreVdBufMsg& msg)
 
     switch (msg.msg_id) {
     case XCAM_MESSAGE_AWB_STATS_OK:
-        singleCamRes->_3aResults.awb._awbStats = convert_to_XCamVideoBuffer(vdBufMsg->msg);
+        singleCamRes->_mAwbStats = vdBufMsg->msg.dynamic_cast_ptr<RkAiqAwbStatsProxy>();
+#if ISP_HW_V39
+        singleCamRes->_3aResults.awb.awb_stats_v39 =
+            &singleCamRes->_mAwbStats->data()->awb_stats_v39;
+#elif ISP_HW_V32||ISP_HW_V32_LITE
+        singleCamRes->_3aResults.awb.awb_stats_v32 =
+            &singleCamRes->_mAwbStats->data()->awb_stats_v32;
+
+#elif ISP_HW_V30
+        singleCamRes->_3aResults.awb.awb_stats_v3x =
+            &singleCamRes->_mAwbStats->data()->awb_stats_v3x;
+#elif ISP_HW_V21
+        singleCamRes->_3aResults.awb.awb_stats_v201 =
+            &singleCamRes->_mAwbStats->data()->awb_stats_v201;
+#endif
+#if  ISP_HW_V30||ISP_HW_V21
+       singleCamRes->_3aResults.awb.blc_cfg_effect =
+            singleCamRes->_mAwbStats->data()->blc_cfg_effect;
+#endif
         break;
     case XCAM_MESSAGE_AWB_PROC_RES_OK:
         //singleCamRes->_3aResults.awb._awbProcRes = convert_to_XCamVideoBuffer(vdBufMsg->msg);
         break;
     case XCAM_MESSAGE_AEC_STATS_OK:
-        singleCamRes->_3aResults.aec._aecStats = convert_to_XCamVideoBuffer(vdBufMsg->msg);
+        singleCamRes->_mAeStats = vdBufMsg->msg.dynamic_cast_ptr<RkAiqAecStatsProxy>();
+#ifndef USE_NEWSTRUCT
+        singleCamRes->_3aResults.aec.aec_stats =
+            &singleCamRes->_mAeStats->data()->aec_stats;
+#else
+        singleCamRes->_3aResults.aec.aec_stats_v25 =
+            &singleCamRes->_mAeStats->data()->aec_stats_v25;
+#endif
         break;
     case XCAM_MESSAGE_AE_PRE_RES_OK:
         singleCamRes->_3aResults.aec._aePreRes = convert_to_XCamVideoBuffer(vdBufMsg->msg);
@@ -461,7 +494,8 @@ RkAiqCamGroupManager::processAiqCoreMsgs(RkAiqCore* src, RkAiqCoreVdBufMsg& msg)
             sofInfoMsg->data()->curExp->data()->aecExpInfo;
         singleCamRes->_3aResults.aec._bEffAecExpValid = true;
         calcHdrIso(&singleCamRes->_3aResults.aec._effAecExpInfo, &singleCamRes->_3aResults);
-    } break;
+    }
+    break;
     case XCAM_MESSAGE_TNR_STATS_OK:
 #if (USE_NEWSTRUCT == 0)
         singleCamRes->_3aResults.abayertnr._tnr_stats = convert_to_XCamVideoBuffer(vdBufMsg->msg);
@@ -584,10 +618,16 @@ RkAiqCamGroupManager::RelayAiqCoreResults(RkAiqCore* src, SmartPtr<RkAiqFullPara
 #if RKAIQ_HAVE_CAC
     SET_TO_CAMGROUP(Cac, CAC);
 #endif
+#if RKAIQ_HAVE_LDC
+    SET_TO_CAMGROUP(Ldc, LDC);
+#endif
 #if USE_NEWSTRUCT
     SET_TO_CAMGROUP(Sharp, SHARPEN);
     SET_TO_CAMGROUP(Btnr, TNR);
     SET_TO_CAMGROUP(Dm, DEBAYER);
+    SET_TO_CAMGROUP(Gamma, AGAMMA);
+    SET_TO_CAMGROUP(Yme, MOTION);
+    SET_TO_CAMGROUP(AeStats, AESTATS);
 #endif
 }
 
@@ -652,18 +692,19 @@ RkAiqCamGroupManager::newAlgoHandle(RkAiqAlgoDesComm* algo, int hw_ver)
 
     NEW_ALGO_HANDLE(Ae, AE);
     NEW_ALGO_HANDLE(Awb, AWB);
+#if (USE_NEWSTRUCT == 0)
     NEW_ALGO_HANDLE(Accm, ACCM);
     NEW_ALGO_HANDLE(A3dlut, A3DLUT);
-#if (USE_NEWSTRUCT == 0)
     NEW_ALGO_HANDLE(Agamma, AGAMMA);
-#endif
     NEW_ALGO_HANDLE(Amerge, AMERGE);
+#endif
+
 #if (USE_NEWSTRUCT == 0)
     NEW_ALGO_HANDLE(Adrc, ADRC);
     NEW_ALGO_HANDLE(Adehaze, ADHAZ);
-#endif
 #ifndef ISP_HW_V32_LITE
     NEW_ALGO_HANDLE(Agic, AGIC);
+#endif
 #endif
 
 #if defined(ISP_HW_V30)
@@ -693,19 +734,20 @@ RkAiqCamGroupManager::newAlgoHandle(RkAiqAlgoDesComm* algo, int hw_ver)
     NEW_ALGO_HANDLE(AbayertnrV23, AMFNR);
 #endif
 
-    NEW_ALGO_HANDLE(Alsc, ALSC);
 #if (USE_NEWSTRUCT == 0)
+    NEW_ALGO_HANDLE(Alsc, ALSC);
     NEW_ALGO_HANDLE(Adpcc, ADPCC);
-#endif
 #if RKAIQ_HAVE_GAIN
     NEW_ALGO_HANDLE(AgainV2, AGAIN);
 #endif
-#if defined(ISP_HW_V39)
-    NEW_ALGO_HANDLE(AyuvmeV1, AMD);
-#if (USE_NEWSTRUCT == 0)
-    NEW_ALGO_HANDLE(AcnrV31, ACNR);
 #endif
+
+#if defined(ISP_HW_V39)
+#if (USE_NEWSTRUCT == 0)
+    NEW_ALGO_HANDLE(AyuvmeV1, AMD);
+    NEW_ALGO_HANDLE(AcnrV31, ACNR);
     NEW_ALGO_HANDLE(Argbir, ARGBIR);
+#endif
 #endif
     /* TODO: new the handle of other algo modules */
 
@@ -766,11 +808,14 @@ RkAiqCamGroupManager::addDefaultAlgos(const struct RkAiqAlgoDesCommExt* algoDes)
                           AlgoTypeToString(algo_des->type).c_str());
             continue;
         }
+
+        RkAiqHandle* cam0_handle = aiqCore->getAiqAlgoHandle(algo_des->type);
+
         mGroupAlgoCtxCfg.cfg_com.module_hw_version = algoDes[i].module_hw_ver;
+        mGroupAlgoCtxCfg.pSingleAlgoCtx = cam0_handle->getAlgoCtx();
 
         auto grpHandle =
             newAlgoHandle(const_cast<RkAiqAlgoDesComm*>(algo_des), 0);
-        RkAiqHandle* cam0_handle = aiqCore->getAiqAlgoHandle(algo_des->type);
         grpHandle->setAlgoHandle(cam0_handle);
 
         mDefAlgoHandleList.push_back(grpHandle);
@@ -863,7 +908,7 @@ RkAiqCamGroupManager::stop()
     }
 
     if (mState == CAMGROUP_MANAGER_STARTED) {
-        mState = CAMGROUP_MANAGER_PREPARED;
+        mState = CAMGROUP_MANAGER_STOPED;
     }
 
     while (_sync_sof_running == true) {
@@ -889,7 +934,8 @@ RkAiqCamGroupManager::prepare()
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
     if (mState != CAMGROUP_MANAGER_INITED &&
-            mState != CAMGROUP_MANAGER_BINDED) {
+        mState != CAMGROUP_MANAGER_BINDED &&
+        mState != CAMGROUP_MANAGER_STOPED) {
         LOGE_CAMGROUP("wrong state %d\n", mState);
         return XCAM_RETURN_ERROR_FAILED;
     }
@@ -1086,7 +1132,11 @@ RkAiqCamGroupManager::reProcess(rk_aiq_groupcam_result_t* gc_res)
                 //if (gc_res->_frameId == 1)
                 RET_FAILED();
             }
-
+#if USE_NEWSTRUCT
+            if (!aiqParams->mAeStatsParams.ptr())
+                RET_FAILED();
+            scam_3a_res->aec._aeNewCfg = &aiqParams->mAeStatsParams->data()->result;
+#else
             if (!aiqParams->mAecParams.ptr())
                 RET_FAILED();
             scam_3a_res->aec._aeMeasParams = &aiqParams->mAecParams->data()->result;
@@ -1094,36 +1144,47 @@ RkAiqCamGroupManager::reProcess(rk_aiq_groupcam_result_t* gc_res)
             if (!aiqParams->mHistParams.ptr())
                 RET_FAILED();
             scam_3a_res->aec._aeHistMeasParams = &aiqParams->mHistParams->data()->result;
-
+#endif
 #if RKAIQ_HAVE_AWB_V21
-                if (!aiqParams->mAwbParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->awb._awbCfgV201 = &aiqParams->mAwbParams->data()->result;
+            if (!aiqParams->mAwbParams.ptr())
+                RET_FAILED();
+            scam_3a_res->awb._awbCfgV201 = &aiqParams->mAwbParams->data()->result;
 #elif RKAIQ_HAVE_AWB_V32 || RKAIQ_HAVE_AWB_V32LT
-                if (!aiqParams->mAwbParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->awb._awbCfgV32 = &aiqParams->mAwbParams->data()->result;
+            if (!aiqParams->mAwbParams.ptr())
+                RET_FAILED();
+            scam_3a_res->awb._awbCfgV32 = &aiqParams->mAwbParams->data()->result;
+
+#elif RKAIQ_HAVE_AWB_V39
+            if (!aiqParams->mAwbParams.ptr())
+                RET_FAILED();
+            scam_3a_res->awb._awbCfgV39 = &aiqParams->mAwbParams->data()->result;
 #else
-                if (!aiqParams->mAwbParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->awb._awbCfgV3x = &aiqParams->mAwbParams->data()->result;
+            if (!aiqParams->mAwbParams.ptr())
+                RET_FAILED();
+            scam_3a_res->awb._awbCfgV3x = &aiqParams->mAwbParams->data()->result;
 #endif
 #if USE_NEWSTRUCT
             if (!aiqParams->mDehazeParams.ptr())
                 RET_FAILED();
-            scam_3a_res->dehaze = aiqParams->mDehazeParams->data().ptr();
+            scam_3a_res->dehaze = &aiqParams->mDehazeParams->data()->result;
 #else
             if (!aiqParams->mDehazeParams.ptr())
                 RET_FAILED();
             scam_3a_res->_adehazeConfig = &aiqParams->mDehazeParams->data()->result;
 #endif
+#if USE_NEWSTRUCT
+            if (!aiqParams->mMergeParams.ptr())
+                RET_FAILED();
+            scam_3a_res->merge = &aiqParams->mMergeParams->data()->result;
+#else
             if (!aiqParams->mMergeParams.ptr())
                 RET_FAILED();
             scam_3a_res->_amergeConfig = &aiqParams->mMergeParams->data()->result;
+#endif
 #if USE_NEWSTRUCT
             if (!aiqParams->mGammaParams.ptr())
                 RET_FAILED();
-            scam_3a_res->gamma = aiqParams->mGammaParams->data().ptr();
+            scam_3a_res->gamma = &aiqParams->mGammaParams->data()->result;
 #else
             if (!aiqParams->mAgammaParams.ptr())
                 RET_FAILED();
@@ -1132,182 +1193,213 @@ RkAiqCamGroupManager::reProcess(rk_aiq_groupcam_result_t* gc_res)
 #if USE_NEWSTRUCT
             if (!aiqParams->mDrcParams.ptr())
                 RET_FAILED();
-            scam_3a_res->drc = aiqParams->mDrcParams->data().ptr();
+            scam_3a_res->drc = &aiqParams->mDrcParams->data()->result;
 #else
             if (!aiqParams->mDrcParams.ptr())
                 RET_FAILED();
             scam_3a_res->_adrcConfig = &aiqParams->mDrcParams->data()->result;
 #endif
 #if RKAIQ_HAVE_RGBIR_REMOSAIC
+#if USE_NEWSTRUCT
+            if (!aiqParams->mRgbirParams.ptr())
+                RET_FAILED();
+            scam_3a_res->rgbir = &aiqParams->mRgbirParams->data()->result;
+#else
             if (!aiqParams->mRgbirParams.ptr()) RET_FAILED();
             scam_3a_res->_aRgbirConfig = &aiqParams->mRgbirParams->data()->result;
 #endif
-#if RKAIQ_HAVE_AWB_V32 || RKAIQ_HAVE_AWB_V32LT
-                if (!aiqParams->mAwbGainParams.ptr()) {
-                    RET_FAILED();
-                }
-                scam_3a_res->awb._awbGainV32Params = &aiqParams->mAwbGainParams->data()->result;
+#endif
+#if RKAIQ_HAVE_AWB_V32 || RKAIQ_HAVE_AWB_V32LT||RKAIQ_HAVE_AWB_V39
+            if (!aiqParams->mAwbGainParams.ptr()) {
+                RET_FAILED();
+            }
+            scam_3a_res->awb._awbGainV32Params = &aiqParams->mAwbGainParams->data()->result;
 #else
-                if (!aiqParams->mAwbGainParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->awb._awbGainParams = &aiqParams->mAwbGainParams->data()->result;
+            if (!aiqParams->mAwbGainParams.ptr())
+                RET_FAILED();
+            scam_3a_res->awb._awbGainParams = &aiqParams->mAwbGainParams->data()->result;
 #endif
 
+#if USE_NEWSTRUCT
+            if (!aiqParams->mLscParams.ptr())
+                RET_FAILED();
+            scam_3a_res->lsc = &aiqParams->mLscParams->data()->result;
+#else
             if (!aiqParams->mLscParams.ptr())
                 RET_FAILED();
             scam_3a_res->_lscConfig = &aiqParams->mLscParams->data()->result;
+#endif
 
 #if USE_NEWSTRUCT
             if (!aiqParams->mDpccParams.ptr())
                 RET_FAILED();
-            scam_3a_res->dpc = aiqParams->mDpccParams->data().ptr();
+            scam_3a_res->dpc = &aiqParams->mDpccParams->data()->result;
 #else
             if (!aiqParams->mDpccParams.ptr())
                 RET_FAILED();
             scam_3a_res->_dpccConfig = &aiqParams->mDpccParams->data()->result;
 #endif
 
-#if RKAIQ_HAVE_CCM_V1
-                if (!aiqParams->mCcmParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->accm._ccmCfg = &aiqParams->mCcmParams->data()->result;
+#if USE_NEWSTRUCT
+            if (!aiqParams->mCcmParams.ptr())
+                RET_FAILED();
+            scam_3a_res->ccm = &aiqParams->mCcmParams->data()->result;
 #else
-                if (!aiqParams->mCcmParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->accm._ccmCfg_v2 = &aiqParams->mCcmParams->data()->result;
+#if RKAIQ_HAVE_CCM_V1
+            if (!aiqParams->mCcmParams.ptr())
+                RET_FAILED();
+            scam_3a_res->accm._ccmCfg = &aiqParams->mCcmParams->data()->result;
+#else
+            if (!aiqParams->mCcmParams.ptr())
+                RET_FAILED();
+            scam_3a_res->accm._ccmCfg_v2 = &aiqParams->mCcmParams->data()->result;
+#endif
 #endif
 
+#if USE_NEWSTRUCT
+            if (!aiqParams->mLut3dParams.ptr())
+                RET_FAILED();
+            scam_3a_res->lut3d = &aiqParams->mLut3dParams->data()->result;
+#else
             if (!aiqParams->mLut3dParams.ptr())
                 RET_FAILED();
             scam_3a_res->_lut3dCfg = &aiqParams->mLut3dParams->data()->result;
+#endif
 
 #if RKAIQ_HAVE_BLC_V32
             if (!aiqParams->mBlcParams.ptr())
-                    RET_FAILED();
+                RET_FAILED();
 #if USE_NEWSTRUCT
-                scam_3a_res->ablc.blc = aiqParams->mBlcParams->data().ptr();
+            scam_3a_res->ablc.blc = &aiqParams->mBlcParams->data()->result;
 #else
-                scam_3a_res->ablc._blcConfig_v32 = &aiqParams->mBlcParams->data()->result;
+            scam_3a_res->ablc._blcConfig_v32 = &aiqParams->mBlcParams->data()->result;
 #endif
+
 #else
-                if (!aiqParams->mBlcParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->ablc._blcConfig = &aiqParams->mBlcParams->data()->result;
+            if (!aiqParams->mBlcParams.ptr())
+                RET_FAILED();
+            scam_3a_res->ablc._blcConfig = &aiqParams->mBlcParams->data()->result;
 #endif
 
 #if USE_NEWSTRUCT
-                if (!aiqParams->mYnrParams.ptr())
-                    RET_FAILED();
+            if (!aiqParams->mYnrParams.ptr())
+                RET_FAILED();
 
-                scam_3a_res->ynr = aiqParams->mYnrParams->data().ptr();
+            scam_3a_res->ynr = &aiqParams->mYnrParams->data()->result;
 #elif RKAIQ_HAVE_YNR_V2
-                if (!aiqParams->mYnrParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->aynr._aynr_procRes_v2 = &aiqParams->mYnrParams->data()->result;
+            if (!aiqParams->mYnrParams.ptr())
+                RET_FAILED();
+            scam_3a_res->aynr._aynr_procRes_v2 = &aiqParams->mYnrParams->data()->result;
 #elif RKAIQ_HAVE_YNR_V3
-                if (!aiqParams->mYnrParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->aynr._aynr_procRes_v3._stFix = &aiqParams->mYnrParams->data()->result;
+            if (!aiqParams->mYnrParams.ptr())
+                RET_FAILED();
+            scam_3a_res->aynr._aynr_procRes_v3._stFix = &aiqParams->mYnrParams->data()->result;
 #elif RKAIQ_HAVE_YNR_V22
-                if (!aiqParams->mYnrParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->aynr._aynr_procRes_v22 = &aiqParams->mYnrParams->data()->result;
+            if (!aiqParams->mYnrParams.ptr())
+                RET_FAILED();
+            scam_3a_res->aynr._aynr_procRes_v22 = &aiqParams->mYnrParams->data()->result;
 #elif RKAIQ_HAVE_YNR_V24
-                if (!aiqParams->mYnrParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->aynr._aynr_procRes_v24 = &aiqParams->mYnrParams->data()->result;
+            if (!aiqParams->mYnrParams.ptr())
+                RET_FAILED();
+            scam_3a_res->aynr._aynr_procRes_v24 = &aiqParams->mYnrParams->data()->result;
 #endif
 
 #if USE_NEWSTRUCT
-                if (!aiqParams->mCnrParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->cnr = aiqParams->mCnrParams->data().ptr();
+            if (!aiqParams->mCnrParams.ptr())
+                RET_FAILED();
+            scam_3a_res->cnr = &aiqParams->mCnrParams->data()->result;
 #elif RKAIQ_HAVE_CNR_V1
-                if (!aiqParams->mCnrParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->acnr._acnr_procRes_v1 = &aiqParams->mCnrParams->data()->result;
+            if (!aiqParams->mCnrParams.ptr())
+                RET_FAILED();
+            scam_3a_res->acnr._acnr_procRes_v1 = &aiqParams->mCnrParams->data()->result;
 #elif RKAIQ_HAVE_CNR_V2
-                if (!aiqParams->mCnrParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->acnr._acnr_procRes_v2 = &aiqParams->mCnrParams->data()->result;
+            if (!aiqParams->mCnrParams.ptr())
+                RET_FAILED();
+            scam_3a_res->acnr._acnr_procRes_v2 = &aiqParams->mCnrParams->data()->result;
 #elif RKAIQ_HAVE_CNR_V30 || RKAIQ_HAVE_CNR_V30_LITE
-                if (!aiqParams->mCnrParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->acnr._acnr_procRes_v30 = &aiqParams->mCnrParams->data()->result;
+            if (!aiqParams->mCnrParams.ptr())
+                RET_FAILED();
+            scam_3a_res->acnr._acnr_procRes_v30 = &aiqParams->mCnrParams->data()->result;
 #elif RKAIQ_HAVE_CNR_V31
 #ifndef USE_NEWSTRUCT
-                if (!aiqParams->mCnrParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->acnr._acnr_procRes_v31 = &aiqParams->mCnrParams->data()->result;
+            if (!aiqParams->mCnrParams.ptr())
+                RET_FAILED();
+            scam_3a_res->acnr._acnr_procRes_v31 = &aiqParams->mCnrParams->data()->result;
 #endif
 #endif
 
 #if USE_NEWSTRUCT
             if (!aiqParams->mSharpParams.ptr())
                 RET_FAILED();
-            scam_3a_res->sharp = aiqParams->mSharpParams->data().ptr();
+            scam_3a_res->sharp = &aiqParams->mSharpParams->data()->result;
 #elif RKAIQ_HAVE_SHARP_V3
-                if (!aiqParams->mSharpenParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->asharp._asharp_procRes_v3 = &aiqParams->mSharpenParams->data()->result;
+            if (!aiqParams->mSharpenParams.ptr())
+                RET_FAILED();
+            scam_3a_res->asharp._asharp_procRes_v3 = &aiqParams->mSharpenParams->data()->result;
 #elif RKAIQ_HAVE_SHARP_V4
-                if (!aiqParams->mSharpenParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->asharp._asharp_procRes_v4 = &aiqParams->mSharpenParams->data()->result;
+            if (!aiqParams->mSharpenParams.ptr())
+                RET_FAILED();
+            scam_3a_res->asharp._asharp_procRes_v4 = &aiqParams->mSharpenParams->data()->result;
 #elif RKAIQ_HAVE_SHARP_V33 || RKAIQ_HAVE_SHARP_V33_LITE
-                if (!aiqParams->mSharpenParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->asharp._asharp_procRes_v33 = &aiqParams->mSharpenParams->data()->result;
+            if (!aiqParams->mSharpenParams.ptr())
+                RET_FAILED();
+            scam_3a_res->asharp._asharp_procRes_v33 = &aiqParams->mSharpenParams->data()->result;
 #elif RKAIQ_HAVE_SHARP_V34
-                if (!aiqParams->mSharpenParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->asharp._asharp_procRes_v34 = &aiqParams->mSharpenParams->data()->result;
+            if (!aiqParams->mSharpenParams.ptr())
+                RET_FAILED();
+            scam_3a_res->asharp._asharp_procRes_v34 = &aiqParams->mSharpenParams->data()->result;
 #endif
 
 
 #if RKAIQ_HAVE_BAYERNR_V2
-                if (!aiqParams->mBaynrParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->abayernr._abayernr_procRes_v1 = &aiqParams->mBaynrParams->data()->result;
+            if (!aiqParams->mBaynrParams.ptr())
+                RET_FAILED();
+            scam_3a_res->abayernr._abayernr_procRes_v1 = &aiqParams->mBaynrParams->data()->result;
 #elif RKAIQ_HAVE_BAYER2DNR_V2
-                if (!aiqParams->mBaynrParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->abayernr._abayer2dnr_procRes_v2 = &aiqParams->mBaynrParams->data()->result;
+            if (!aiqParams->mBaynrParams.ptr())
+                RET_FAILED();
+            scam_3a_res->abayernr._abayer2dnr_procRes_v2 = &aiqParams->mBaynrParams->data()->result;
 #elif RKAIQ_HAVE_BAYER2DNR_V23
-                if (!aiqParams->mBaynrParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->abayernr._abayer2dnr_procRes_v23 = &aiqParams->mBaynrParams->data()->result;
+            if (!aiqParams->mBaynrParams.ptr())
+                RET_FAILED();
+            scam_3a_res->abayernr._abayer2dnr_procRes_v23 = &aiqParams->mBaynrParams->data()->result;
 #endif
 
 #if USE_NEWSTRUCT
             if (!aiqParams->mBtnrParams.ptr())
                 RET_FAILED();
 
-            scam_3a_res->btnr = aiqParams->mBtnrParams->data().ptr();
+            scam_3a_res->btnr = &aiqParams->mBtnrParams->data()->result;
 #elif RKAIQ_HAVE_BAYERTNR_V2
-                if (!aiqParams->mTnrParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->abayertnr._abayertnr_procRes_v2 = &aiqParams->mTnrParams->data()->result;
+            if (!aiqParams->mTnrParams.ptr())
+                RET_FAILED();
+            scam_3a_res->abayertnr._abayertnr_procRes_v2 = &aiqParams->mTnrParams->data()->result;
 #elif RKAIQ_HAVE_BAYERTNR_V23 || RKAIQ_HAVE_BAYERTNR_V23_LITE
-                if (!aiqParams->mTnrParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->abayertnr._abayertnr_procRes_v23 = &aiqParams->mTnrParams->data()->result;
+            if (!aiqParams->mTnrParams.ptr())
+                RET_FAILED();
+            scam_3a_res->abayertnr._abayertnr_procRes_v23 = &aiqParams->mTnrParams->data()->result;
 #elif RKAIQ_HAVE_BAYERTNR_V30
-                if (!aiqParams->mTnrParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->abayertnr._abayertnr_procRes_v30 = &aiqParams->mTnrParams->data()->result;
+            if (!aiqParams->mTnrParams.ptr())
+                RET_FAILED();
+            scam_3a_res->abayertnr._abayertnr_procRes_v30 = &aiqParams->mTnrParams->data()->result;
 #endif
 
-#if RKAIQ_HAVE_YUVME_V1
-                if (!aiqParams->mYuvmeParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->ayuvme._ayuvme_procRes_v1 = &aiqParams->mYuvmeParams->data()->result;
+#if RKAIQ_HAVE_YUVME_V1 && !USE_NEWSTRUCT
+            if (!aiqParams->mYuvmeParams.ptr())
+                RET_FAILED();
+            scam_3a_res->ayuvme._ayuvme_procRes_v1 = &aiqParams->mYuvmeParams->data()->result;
 #endif
 
 #if RKAIQ_HAVE_GAIN
-                if (!aiqParams->mGainParams.ptr())
-                    RET_FAILED();
-                scam_3a_res->again._again_procRes_v2 = &aiqParams->mGainParams->data()->result;
+#if USE_NEWSTRUCT
+            if (!aiqParams->mGainParams.ptr())
+                RET_FAILED();
+            scam_3a_res->gain = &aiqParams->mGainParams->data()->result;
+#else
+            if (!aiqParams->mGainParams.ptr())
+                RET_FAILED();
+            scam_3a_res->again._again_procRes_v2 = &aiqParams->mGainParams->data()->result;
+#endif
 #endif
 
             // copy otp info
@@ -1318,11 +1410,11 @@ RkAiqCamGroupManager::reProcess(rk_aiq_groupcam_result_t* gc_res)
                     memcpy(&scam_3a_res->_otp_awb, &sharedCom.snsDes.otp_awb, sizeof(sharedCom.snsDes.otp_awb));
 
                     LOGD_CAMGROUP("camId:%d, user awb otp: flag: %d, r:%d,b:%d,gr:%d,gb:%d, golden r:%d,b:%d,gr:%d,gb:%d\n",
-                            i, scam_3a_res->_otp_awb.flag,
-                            scam_3a_res->_otp_awb.r_value, scam_3a_res->_otp_awb.b_value,
-                            scam_3a_res->_otp_awb.gr_value, scam_3a_res->_otp_awb.gb_value,
-                            scam_3a_res->_otp_awb.golden_r_value, scam_3a_res->_otp_awb.golden_b_value,
-                            scam_3a_res->_otp_awb.golden_gr_value, scam_3a_res->_otp_awb.golden_gb_value);
+                                  i, scam_3a_res->_otp_awb.flag,
+                                  scam_3a_res->_otp_awb.r_value, scam_3a_res->_otp_awb.b_value,
+                                  scam_3a_res->_otp_awb.gr_value, scam_3a_res->_otp_awb.gb_value,
+                                  scam_3a_res->_otp_awb.golden_r_value, scam_3a_res->_otp_awb.golden_b_value,
+                                  scam_3a_res->_otp_awb.golden_gr_value, scam_3a_res->_otp_awb.golden_gb_value);
                 }
             }
 
@@ -1696,8 +1788,7 @@ RkAiqCamGroupManager::rePrepare()
 }
 
 XCamReturn
-RkAiqCamGroupManager::calibTuning(const CamCalibDbV2Context_t* aiqCalib,
-                                  ModuleNameList& change_name_list)
+RkAiqCamGroupManager::calibTuning(const CamCalibDbV2Context_t* aiqCalib)
 {
     ENTER_ANALYZER_FUNCTION();
     if (!aiqCalib) {
@@ -1838,13 +1929,108 @@ XCamReturn
 RkAiqCamGroupManager::updateCalibDb(const CamCalibDbV2Context_t* newCalibDb)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-    auto update_list = std::make_shared<std::list<std::string>>();
 
-    update_list->push_back("colorAsGrey");
-
-    calibTuning(newCalibDb, update_list);
+    calibTuning(newCalibDb);
 
     EXIT_XCORE_FUNCTION();
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn
+RkAiqCamGroupManager::register3Aalgo(void* algoDes, void *cbs)
+{
+    if (mBindAiqsMap.empty()) {
+        LOGD_CAMGROUP("no group cam, bypass");
+        return XCAM_RETURN_ERROR_FAILED;
+    }
+    RkAiqAlgoDesCommExt *algoDesArray = (RkAiqAlgoDesCommExt*)algoDes;
+
+    const auto* aiqManager = (mBindAiqsMap.begin())->second;
+    auto* aiqCore = aiqManager->mRkAiqAnalyzer.ptr();
+    const auto* sharedCom = &aiqCore->mAlogsComSharedParams;
+
+    if (mState != CAMGROUP_MANAGER_STOPED && mState != CAMGROUP_MANAGER_INITED)
+        return XCAM_RETURN_ERROR_ANALYZER;
+
+    for (int i = 0; algoDesArray[i].des != NULL; i++) {
+        const auto* algo_des = algoDesArray[i].des;
+        auto* algo_map = aiqCore->getAlgoTypeHandleMap(algo_des->type);
+        if (!algo_map || algo_map->empty()) {
+            LOGE_CAMGROUP("Adding group algo %s without single algo is not supported yet!",
+                          AlgoTypeToString(algo_des->type).c_str());
+            continue;
+        }
+        mGroupAlgoCtxCfg.cfg_com.module_hw_version = algoDesArray[i].module_hw_ver;
+        mGroupAlgoCtxCfg.cfg_com.cbs               = cbs;
+
+        auto grpHandle =
+            newAlgoHandle(const_cast<RkAiqAlgoDesComm*>(algo_des), 0);
+        RkAiqHandle* cam0_handle = aiqCore->getAiqAlgoHandle(algo_des->type);
+        std::list<XCam::SmartPtr<RkCam::RkAiqCamgroupHandle>>::iterator it;
+        grpHandle->setAlgoHandle(cam0_handle);
+        switch (algo_des->type)
+        {
+        case RK_AIQ_ALGO_TYPE_AE:
+            mDefAlgoHandleList.push_front(grpHandle);
+            break;
+        case RK_AIQ_ALGO_TYPE_AWB:
+            for (it = mDefAlgoHandleList.begin(); it != mDefAlgoHandleList.end();) {
+                if (it->ptr()->getAlgoType() == RK_AIQ_ALGO_TYPE_ABLC) {
+                    it++;
+                    mDefAlgoHandleList.insert(it, grpHandle);
+                    break;
+                } else
+                    it++;
+            }
+            break;
+        default:
+            break;
+        }
+
+        mDefAlgoHandleMap[algo_des->type] = grpHandle;
+
+        std::map<int, SmartPtr<RkAiqCamgroupHandle>> hdlMaps;
+        hdlMaps[0] = grpHandle;
+        mAlgoHandleMaps[algo_des->type] = hdlMaps;
+
+        mGroupAlgoCtxCfg.cfg_com.cbs = NULL;
+        LOGD_CAMGROUP("camgroup: add algo: %d", algo_des->type);
+    }
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn
+RkAiqCamGroupManager::unregister3Aalgo(int algoType)
+{
+    ENTER_ANALYZER_FUNCTION();
+
+    if (mState != CAMGROUP_MANAGER_STOPED && mState != CAMGROUP_MANAGER_INITED)
+        return XCAM_RETURN_ERROR_ANALYZER;
+
+    // delete mDefAlgoHandleMap
+    std::map<int, SmartPtr<RkAiqCamgroupHandle>>::iterator it = mDefAlgoHandleMap.find(algoType);
+    if (it != mDefAlgoHandleMap.end()) {
+        mDefAlgoHandleMap.erase(it);
+    }
+
+    std::map<int, map<int, SmartPtr<RkAiqCamgroupHandle>>>::iterator it_algoMap =
+        mAlgoHandleMaps.find(algoType);
+    if (it_algoMap != mAlgoHandleMaps.end()) {
+        it_algoMap->second.clear();
+        mAlgoHandleMaps.erase(it_algoMap);
+    }
+
+    std::list<SmartPtr<RkAiqCamgroupHandle>>::iterator itList;
+    for (itList = mDefAlgoHandleList.begin(); itList != mDefAlgoHandleList.end();) {
+        if (itList->ptr()->getAlgoType() == algoType) {
+            itList = mDefAlgoHandleList.erase(itList);
+            break;
+        } else
+            itList++;
+    }
+
+    EXIT_ANALYZER_FUNCTION();
+
     return XCAM_RETURN_NO_ERROR;
 }
 

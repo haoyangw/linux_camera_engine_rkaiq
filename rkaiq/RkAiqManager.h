@@ -30,6 +30,14 @@
 
 namespace RkCam {
 
+typedef enum aiq_state_e {
+    AIQ_STATE_INVALID,
+    AIQ_STATE_INITED,
+    AIQ_STATE_PREPARED,
+    AIQ_STATE_STARTED,
+    AIQ_STATE_STOPED,
+} aiq_state_t;
+
 class RkAiqManager;
 
 class RkAiqMngCmdThread
@@ -202,7 +210,7 @@ public:
     void setMulCamConc(bool cc);
     CamCalibDbV2Context_t* getCurrentCalibDBV2(void);
     XCamReturn calibTuning(CamCalibDbV2Context_t* aiqCalib,
-                           ModuleNameList& change_list);
+                           TuningCalib* change_list);
     XCamReturn setVicapStreamMode(int on, bool isSingleMode);
 #ifdef RKAIQ_ENABLE_CAMGROUP
     void setCamGroupManager(RkAiqCamGroupManager* cam_group_manager, bool isMain) {
@@ -217,6 +225,9 @@ public:
     GlobalParamsManager* getGlobalParamsManager() {
         return mGlobalParamsManager.ptr();
     }
+    int getAiqState() {
+        return _state;
+    }
     uint32_t sensor_output_width;
     uint32_t sensor_output_height;
     // post aiisp status
@@ -225,13 +236,6 @@ protected:
     XCamReturn applyAnalyzerResult(SmartPtr<RkAiqFullParamsProxy>& results, bool ignoreIsUpdate = false);
     XCamReturn swWorkingModeDyn(rk_aiq_working_mode_t mode);
 private:
-    enum aiq_state_e {
-        AIQ_STATE_INVALID,
-        AIQ_STATE_INITED,
-        AIQ_STATE_PREPARED,
-        AIQ_STATE_STARTED,
-        AIQ_STATE_STOPED,
-    };
     XCAM_DEAD_COPY (RkAiqManager);
 private:
     SmartPtr<ICamHw> mCamHw;

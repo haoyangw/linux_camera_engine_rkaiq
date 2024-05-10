@@ -1477,19 +1477,11 @@ static XCamReturn _rkAwbStats2CustomGroupAwbStats( rk_aiq_singlecam_3a_result_t 
 {
     LOG1_AWB_SUBM(0xff, "%s ENTER", __func__);
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-    XCamVideoBuffer* awbStatsBuf = nullptr;
-    RkAiqAwbStats* xAwbStats = nullptr;
     rk_aiq_customAwb_stats_t *awbStat = customStats;
     rk_aiq_customAwb_stats_t *awbStat2 = customStats;
     for(int i=0;i<camera_num;i++){
-        awbStatsBuf = rk_aiq_singlecam_3a_result[i]->awb._awbStats;
-        if (awbStatsBuf) {
-           xAwbStats = (RkAiqAwbStats*)awbStatsBuf->map(awbStatsBuf);
-           if (!xAwbStats) {
-               LOGE_AWBGROUP("awb stats is null for %dth camera",i);
-               return(XCAM_RETURN_ERROR_FAILED);
-           }
-        } else {
+        rk_aiq_isp_awb_stats_v3x_t *awb_stats_v3x = rk_aiq_singlecam_3a_result[i]->awb.awb_stats_v3x;
+        if (awb_stats_v3x == NULL) {
            LOGE_AWBGROUP("awb stats is null for %dth camera",i);
            return(XCAM_RETURN_ERROR_FAILED);
         }
@@ -1505,7 +1497,7 @@ static XCamReturn _rkAwbStats2CustomGroupAwbStats( rk_aiq_singlecam_3a_result_t 
             awbStat = awbStat->next;
 
         }
-        _rkAwbStats2CustomAwbStats(awbStat2, &xAwbStats->awb_stats_v3x);
+        _rkAwbStats2CustomAwbStats(awbStat2, awb_stats_v3x);
         //WriteMeasureResult(xAwbStats->awb_stats_v3x,XCORE_LOG_LEVEL_LOW1+1,i);
     }
     LOG1_AWB_SUBM(0xff, "%s EXIT", __func__);

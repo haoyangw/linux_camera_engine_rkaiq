@@ -23,10 +23,10 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
-#include "rk_aiq_comm.h"
-#include "RkAiqCalibDbTypes.h"
-#include "amfnr/rk_aiq_types_amfnr_algo_v1.h"
-#include "mfnr_head_v1.h"
+#include "common/rk_aiq_comm.h"
+#include "iq_parser/RkAiqCalibDbTypes.h"
+#include "algos/amfnr/rk_aiq_types_amfnr_algo_v1.h"
+#include "iq_parser_v2/mfnr_head_v1.h"
 
 RKAIQ_BEGIN_DECLARE
 

@@ -17,9 +17,12 @@
 
 #include "sample_comm.h"
 
+// #define USE_NEWSTRUCT
 #ifdef ISP_HW_V39
 #include "rk_aiq_user_api2_rk3576.h"
-#elif  ISP_HW_V32
+#elif  defined(ISP_HW_V33)
+#include "rk_aiq_user_api2_rv1103B.h"
+#elif  defined(ISP_HW_V32)
 #include "rk_aiq_user_api2_rv1106.h"
 #endif
 
@@ -45,6 +48,7 @@ static void sample_aynr_usage()
     printf("\t h) AYNR:         set aynr strength med value 0.5 on async mode, only on auto mode has effect.\n");
     printf("\t i) AYNR:         set aynr attri to default vaule on async mode.\n");
     printf("\t j) YNR:          test mode/en switch.\n");
+    printf("\t k) YNR:          sample_ynr_reverseEn\n");
     printf("\t q) AYNR:         press key q or Q to quit.\n");
 
 }
@@ -1424,7 +1428,18 @@ XCamReturn sample_ynr_setDefault_v24(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mo
 }
 
 #ifdef USE_NEWSTRUCT
-static void sample_ynr_test(const rk_aiq_sys_ctx_t* ctx)
+
+void get_auto_attr(ynr_api_attrib_t* attr) {
+    ynr_param_auto_t* stAuto = &attr->stAuto;
+    for (int i = 0;i < 13;i++) {
+    }
+}
+
+void get_manual_attr(ynr_api_attrib_t* attr) {
+    ynr_param_t* stMan = &attr->stMan;
+}
+
+void sample_ynr_test(const rk_aiq_sys_ctx_t* ctx)
 {
     // get cur mode
     printf("+++++++ YNR module test start ++++++++\n");
@@ -1436,13 +1451,25 @@ static void sample_ynr_test(const rk_aiq_sys_ctx_t* ctx)
 
     printf("ynr attr: opmode:%d, en:%d, bypass:%d\n", attr.opMode, attr.en, attr.bypass);
 
-    if (attr.opMode == RK_AIQ_OP_MODE_AUTO)
-        attr.opMode = RK_AIQ_OP_MODE_MANUAL;
-    else
-        attr.opMode = RK_AIQ_OP_MODE_AUTO;
+    srand(time(0));
+    int rand_num = rand() % 101;
 
-    // reverse en
-    attr.en = !attr.en;
+    if (rand_num <70) {
+        printf("update ynr arrrib!\n");
+        if (attr.opMode == RK_AIQ_OP_MODE_AUTO) {
+            attr.opMode = RK_AIQ_OP_MODE_MANUAL;
+            get_manual_attr(&attr);
+        }
+        else {
+            get_auto_attr(&attr);
+            attr.opMode = RK_AIQ_OP_MODE_AUTO;
+        }
+    }
+    else {
+        // reverse en
+        printf("reverse ynr en!\n");
+        attr.en = !attr.en;
+    }
 
     rk_aiq_user_api2_ynr_SetAttrib(ctx, &attr);
 
@@ -1458,6 +1485,35 @@ static void sample_ynr_test(const rk_aiq_sys_ctx_t* ctx)
 
     if (status.opMode != attr.opMode || status.en != attr.en)
         printf("ynr test failed\n");
+    printf("-------- YNR module test done --------\n");
+}
+
+static void sample_ynr_reverseEn(const rk_aiq_sys_ctx_t* ctx)
+{
+    // get cur mode
+    printf("+++++++ YNR module test start ++++++++\n");
+
+    ynr_api_attrib_t attr;
+    memset(&attr, 0, sizeof(attr));
+
+    rk_aiq_user_api2_ynr_GetAttrib(ctx, &attr);
+
+    printf("ynr attr: opmode:%d, en:%d, bypass:%d\n", attr.opMode, attr.en, attr.bypass);
+
+    if (attr.opMode == RK_AIQ_OP_MODE_AUTO)
+        attr.opMode = RK_AIQ_OP_MODE_MANUAL;
+    // reverse en
+    attr.en = !attr.en;
+
+    rk_aiq_user_api2_ynr_SetAttrib(ctx, &attr);
+
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    rk_aiq_user_api2_ynr_GetAttrib(ctx, &attr);
+
+    printf("ynr attr: opmode:%d, en:%d, bypass:%d\n", attr.opMode, attr.en, attr.bypass);
+
     printf("-------- YNR module test done --------\n");
 }
 #endif
@@ -1707,6 +1763,9 @@ XCamReturn sample_aynr_module (const void *arg)
 #ifdef USE_NEWSTRUCT
         case 'j':
             sample_ynr_test(ctx);
+            break;
+        case 'k':
+            sample_ynr_reverseEn(ctx);
             break;
 #endif
         default:

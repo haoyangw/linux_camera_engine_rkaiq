@@ -115,7 +115,7 @@ XCamReturn rk_aiq_user_api_accm_v2_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
 }
 #endif
 
-#if RKAIQ_HAVE_CCM_V3
+#if RKAIQ_HAVE_CCM_V3 && !USE_NEWSTRUCT
 XCamReturn rk_aiq_user_api_accm_v3_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
                                           const rk_aiq_ccm_v3_attrib_t* attr)
 {
@@ -161,7 +161,7 @@ XCamReturn rk_aiq_user_api_accm_v3_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
 }
 #endif
 
-#if RKAIQ_HAVE_CCM_V1 || RKAIQ_HAVE_CCM_V2 || RKAIQ_HAVE_CCM_V3
+#if RKAIQ_HAVE_CCM_V1 || RKAIQ_HAVE_CCM_V2 || (RKAIQ_HAVE_CCM_V3 && !USE_NEWSTRUCT)
 XCamReturn rk_aiq_user_api_accm_QueryCcmInfo(const rk_aiq_sys_ctx_t* sys_ctx,
                                             rk_aiq_ccm_querry_info_t *ccm_querry_info)
 {

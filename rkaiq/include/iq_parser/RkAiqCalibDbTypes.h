@@ -1,10 +1,10 @@
 #ifndef _RK_AIQ_CALIB_TYPES_H_
 #define _RK_AIQ_CALIB_TYPES_H_
-#include "rk_aiq_algo_des.h"
+#include "algos/rk_aiq_algo_des.h"
 
 #include "common/list.h"
-#include "RkAiqCalibDbTypesIsp20.h"
-#include "RkAiqCalibDbTypesIsp21.h"
+#include "iq_parser/RkAiqCalibDbTypesIsp20.h"
+#include "iq_parser/RkAiqCalibDbTypesIsp21.h"
 
 #pragma pack(4)
 

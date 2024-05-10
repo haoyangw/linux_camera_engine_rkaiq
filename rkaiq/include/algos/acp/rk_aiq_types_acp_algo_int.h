@@ -20,7 +20,7 @@
 #ifndef _RK_AIQ_TYPES_ACP_ALGO_INT_H_
 #define _RK_AIQ_TYPES_ACP_ALGO_INT_H_
 
-#include "rk_aiq_types_acp_algo.h"
+#include "algos/acp/rk_aiq_types_acp_algo.h"
 
 //TODO
 

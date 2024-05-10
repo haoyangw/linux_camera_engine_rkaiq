@@ -69,6 +69,22 @@ public:
     virtual XCamReturn getExpWinAttr(Uapi_ExpWin_t* pExpWinAttr);
     virtual XCamReturn setAecStatsCfg(Uapi_AecStatsCfg_t AecStatsCfg);
     virtual XCamReturn getAecStatsCfg(Uapi_AecStatsCfg_t* pAecStatsCfg);
+
+#ifdef USE_NEWSTRUCT
+    // TODO: calibv3
+    virtual XCamReturn setExpSwAttr(ae_api_expSwAttr_t ExpSwAttr);
+    virtual XCamReturn getExpSwAttr(ae_api_expSwAttr_t* pExpSwAttr);
+    virtual XCamReturn setLinExpAttr(ae_api_linExpAttr_t LinExpAttr);
+    virtual XCamReturn getLinExpAttr(ae_api_linExpAttr_t* pLinExpAttr);
+    virtual XCamReturn setHdrExpAttr(ae_api_hdrExpAttr_t HdrExpAttr);
+    virtual XCamReturn getHdrExpAttr(ae_api_hdrExpAttr_t* pHdrExpAttr);
+    virtual XCamReturn setIrisAttr(ae_api_irisAttr_t IrisAttr);
+    virtual XCamReturn getIrisAttr(ae_api_irisAttr_t* pIrisAttr);
+    virtual XCamReturn setSyncTestAttr(ae_api_syncTestAttr_t SyncTestAttr);
+    virtual XCamReturn getSyncTestAttr(ae_api_syncTestAttr_t* pSyncTestAttr);
+    virtual XCamReturn queryExpInfo(ae_api_queryInfo_t* pExpQueryInfo);
+#endif
+
     virtual XCamReturn genIspResult(RkAiqFullParams* params, RkAiqFullParams* cur_params);
 };
 

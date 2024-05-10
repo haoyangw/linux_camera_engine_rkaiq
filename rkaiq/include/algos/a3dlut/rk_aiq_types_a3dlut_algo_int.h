@@ -19,8 +19,8 @@
 
 #ifndef _RK_AIQ_TYPES_A3DLUT_ALGO_INT_H_
 #define _RK_AIQ_TYPES_A3DLUT_ALGO_INT_H_
-#include "rk_aiq_types_a3dlut_algo.h"
-#include "rk_aiq_types_a3dlut_ext.h"
+#include "algos/a3dlut/rk_aiq_types_a3dlut_algo.h"
+#include "algos/a3dlut/rk_aiq_types_a3dlut_ext.h"
 RKAIQ_BEGIN_DECLARE
 
 typedef struct alut3d_sw_info_s {

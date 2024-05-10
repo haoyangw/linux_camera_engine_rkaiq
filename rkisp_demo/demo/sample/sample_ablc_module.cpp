@@ -20,6 +20,8 @@
 #ifdef USE_NEWSTRUCT
 #ifdef ISP_HW_V39
 #include "rk_aiq_user_api2_rk3576.h"
+#elif  defined(ISP_HW_V33)
+#include "rk_aiq_user_api2_rv1103B.h"
 #elif  defined(ISP_HW_V32)
 #include "rk_aiq_user_api2_rv1106.h"
 #endif
@@ -342,11 +344,33 @@ static void sample_blc_tuningtool_test(const rk_aiq_sys_ctx_t* ctx)
     printf(">>> tuning tool test done \n");
 }
 
+void get_auto_attr(blc_api_attrib_t* attr) {
+    blc_param_auto_t* stAuto = &attr->stAuto;
+    for (int i = 0;i < 13;i++) {
+        stAuto->dyn[i].obcPreTnr.hw_blcC_obR_val = 200;
+        stAuto->dyn[i].obcPreTnr.hw_blcC_obGr_val = 200;
+        stAuto->dyn[i].obcPreTnr.hw_blcC_obGb_val = 200;
+        stAuto->dyn[i].obcPreTnr.hw_blcC_obB_val = 200;
+        stAuto->dyn[i].obcPostTnr.sw_blcT_autoOB_offset = 200;
+        stAuto->dyn[i].obcPostTnr.sw_blcT_obcPostTnr_en = 1;
+    }
+}
+
+void get_manual_attr(blc_api_attrib_t* attr) {
+    blc_param_t* stMan = &attr->stMan;
+    stMan->dyn.obcPreTnr.hw_blcC_obR_val = 128;
+    stMan->dyn.obcPreTnr.hw_blcC_obGr_val = 128;
+    stMan->dyn.obcPreTnr.hw_blcC_obGb_val = 128;
+    stMan->dyn.obcPreTnr.hw_blcC_obB_val = 128;
+    stMan->dyn.obcPostTnr.sw_blcT_autoOB_offset = 128;
+    stMan->dyn.obcPostTnr.sw_blcT_obcPostTnr_en = 0;
+}
+
 void sample_new_blc(const rk_aiq_sys_ctx_t* ctx) {
     // get cur mode
     printf("+++++++ BLC module test start ++++++++\n");
 
-    sample_blc_tuningtool_test(ctx);
+    // sample_blc_tuningtool_test(ctx);
 
     blc_api_attrib_t attr;
     memset(&attr, 0, sizeof(attr));
@@ -355,13 +379,25 @@ void sample_new_blc(const rk_aiq_sys_ctx_t* ctx) {
 
     printf("blc attr: opmode:%d, en:%d, bypass:%d\n", attr.opMode, attr.en, attr.bypass);
 
-    if (attr.opMode == RK_AIQ_OP_MODE_AUTO)
-        attr.opMode = RK_AIQ_OP_MODE_MANUAL;
-    else
-        attr.opMode = RK_AIQ_OP_MODE_AUTO;
+    srand(time(0));
+    int rand_num = rand() % 101;
 
-    // reverse en
-    attr.en = !attr.en;
+    if (rand_num <70) {
+        printf("update blc arrrib!\n");
+        if (attr.opMode == RK_AIQ_OP_MODE_AUTO) {
+            attr.opMode = RK_AIQ_OP_MODE_MANUAL;
+            get_manual_attr(&attr);
+        }
+        else {
+            get_auto_attr(&attr);
+            attr.opMode = RK_AIQ_OP_MODE_AUTO;
+        }
+    }
+    else {
+        // reverse en
+        printf("reverse blc en!\n");
+        attr.en = !attr.en;
+    }
 
     rk_aiq_user_api2_blc_SetAttrib(ctx, &attr);
 

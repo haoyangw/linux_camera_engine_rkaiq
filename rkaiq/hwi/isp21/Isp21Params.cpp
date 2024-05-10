@@ -15,6 +15,9 @@
  */
 #include "Isp21Params.h"
 
+#ifdef USE_NEWSTRUCT
+#include "rk_aiq_isp39_modules.h"
+#endif
 #include <cstdint>
 #include <type_traits>
 
@@ -1033,6 +1036,36 @@ Isp21Params::convertAiqDrcToIsp21Params(struct isp21_isp_params_cfg& isp_cfg,
 }
 #endif
 
+#ifdef USE_NEWSTRUCT
+void Isp21Params::convertAiqGicToIsp21Params(void *isp_cfg_p, rk_aiq_isp_gic_params_t *gic_attr)
+{
+    struct isp39_isp_params_cfg& isp_cfg       = *(struct isp39_isp_params_cfg*)isp_cfg_p;
+    if (gic_attr->en) {
+        isp_cfg.module_en_update |= 1LL << RK_ISP2X_GIC_ID;
+        isp_cfg.module_ens |= 1LL << RK_ISP2X_GIC_ID;
+        isp_cfg.module_cfg_update |= 1LL << RK_ISP2X_GIC_ID;
+    }
+    else {
+       if (!mCommonCvtInfo.drc_en) {
+            isp_cfg.module_en_update |= 1LL << RK_ISP2X_GIC_ID;
+            isp_cfg.module_ens &= ~(1LL << RK_ISP2X_GIC_ID);
+            isp_cfg.module_cfg_update &= ~(1LL << RK_ISP2X_GIC_ID);
+            return;
+        }
+        else {
+           gic_attr->bypass = 1;
+           // ignore, ISP hw will do this
+           //isp_cfg.module_cfg_update |= 1LL << RK_ISP2X_GIC_ID;
+           LOGW_ACAC("When drc is on, gic can't be off, change to bypass on",
+                "Equivalent effect, but not equivalent power consumption.");
+        }
+    }
+
+    isp_cfg.others.gic_cfg.bypass_en = gic_attr->bypass;
+    rk_aiq_gic21_params_cvt(&gic_attr->result, &isp_cfg.others.gic_cfg);
+    return;
+}
+#else
 template<class T>
 void Isp21Params::convertAiqAgicToIsp21Params(T& isp_cfg,
         const rk_aiq_isp_gic_v21_t& agic)
@@ -1072,6 +1105,7 @@ void Isp21Params::convertAiqAgicToIsp21Params(T& isp_cfg,
     isp_cfg.others.gic_cfg.diff_clip      = agic.ProcResV21.diff_clip;
     for (int i = 0; i < 15; i++) isp_cfg.others.gic_cfg.sigma_y[i] = agic.ProcResV21.sigma_y[i];
 }
+#endif
 
 template<class T>
 void
@@ -1099,6 +1133,23 @@ Isp21Params::convertAiqCsmToIsp21Params(T& isp_cfg,
     }
 }
 #if RKAIQ_HAVE_CGC_V1
+#ifdef USE_NEWSTRUCT
+void Isp21Params::convertAiqCgcToIsp21Params(void *isp_cfg_p,
+    rk_aiq_isp_cgc_params_t* cgc_attr) {
+    struct isp39_isp_params_cfg& isp_cfg       = *(struct isp39_isp_params_cfg*)isp_cfg_p;
+    if (cgc_attr->en) {
+        isp_cfg.module_ens |= ISP2X_MODULE_CGC;
+        isp_cfg.module_en_update |= ISP2X_MODULE_CGC;
+        isp_cfg.module_cfg_update |= ISP2X_MODULE_CGC;
+    } else {
+        isp_cfg.module_ens &= ~ISP2X_MODULE_CGC;
+        isp_cfg.module_en_update |= ISP2X_MODULE_CGC;
+        return;
+    }
+
+    rk_aiq_cgc10_params_cvt(&cgc_attr->result, &isp_cfg);
+}
+#else
 template <class T>
 void Isp21Params::convertAiqCgcToIsp21Params(T& isp_cfg,
         const rk_aiq_acgc_params_t& cgc_param) {
@@ -1116,6 +1167,7 @@ void Isp21Params::convertAiqCgcToIsp21Params(T& isp_cfg,
         isp_cfg.module_cfg_update &= ~(ISP2X_MODULE_CGC);
     }
 }
+#endif
 #endif
 
 #define ISP3X_WBGAIN_INTSCALE_BIT  8
@@ -1405,9 +1457,11 @@ bool Isp21Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult> &result,
     break;
     case RESULT_TYPE_GIC_PARAM:
     {
-        RkAiqIspGicParamsProxy* params = result.get_cast_ptr<RkAiqIspGicParamsProxy>();
-        if (params)
-            convertAiqAgicToIsp21Params(isp_cfg, params->data()->result);
+#if (USE_NEWSTRUCT == 0)
+        RkAiqIspGicParamsProxy* params =
+            result.get_cast_ptr<RkAiqIspGicParamsProxy>();
+        if (params) convertAiqAgicToIsp21Params(isp_cfg, params->data()->result);
+#endif
     }
     break;
     // followings are the same as isp20
@@ -1489,7 +1543,7 @@ bool Isp21Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult> &result,
     break;
     case RESULT_TYPE_LUT3D_PARAM:
     {
-#if RKAIQ_HAVE_3DLUT_V1
+#if RKAIQ_HAVE_3DLUT_V1 && !USE_NEWSTRUCT
         RkAiqIspLut3dParamsProxy* params = result.get_cast_ptr<RkAiqIspLut3dParamsProxy>();
         if (params)
             convertAiqA3dlutToIsp20Params(isp_cfg, params->data()->result);
@@ -1523,13 +1577,15 @@ bool Isp21Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult> &result,
     break;
     case RESULT_TYPE_CSM_PARAM:
     {
+#ifndef USE_NEWSTRUCT
         RkAiqIspCsmParamsProxy* params = result.get_cast_ptr<RkAiqIspCsmParamsProxy>();
         if (params)
             convertAiqCsmToIsp21Params(isp_cfg, params->data()->result);
+#endif
     }
     break;
     case RESULT_TYPE_CGC_PARAM: {
-#if RKAIQ_HAVE_CGC_V1
+#if RKAIQ_HAVE_CGC_V1  && (USE_NEWSTRUCT == 0)
         RkAiqIspCgcParamsProxy* params = result.get_cast_ptr<RkAiqIspCgcParamsProxy>();
         if (params)
             convertAiqCgcToIsp21Params(isp_cfg, params->data()->result);
@@ -1542,7 +1598,7 @@ bool Isp21Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult> &result,
         break;
     case RESULT_TYPE_CP_PARAM:
     {
-#if RKAIQ_HAVE_ACP_V10
+#if RKAIQ_HAVE_ACP_V10 && (USE_NEWSTRUCT == 0)
         RkAiqIspCpParamsProxy* params = result.get_cast_ptr<RkAiqIspCpParamsProxy>();
         if (params)
             convertAiqCpToIsp20Params(isp_cfg, params->data()->result);
@@ -1551,7 +1607,7 @@ bool Isp21Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult> &result,
     break;
     case RESULT_TYPE_IE_PARAM:
     {
-#if RKAIQ_HAVE_AIE_V10
+#if RKAIQ_HAVE_AIE_V10 && (USE_NEWSTRUCT == 0)
         RkAiqIspIeParamsProxy* params = result.get_cast_ptr<RkAiqIspIeParamsProxy>();
         if (params)
             convertAiqIeToIsp20Params(isp_cfg, params->data()->result);

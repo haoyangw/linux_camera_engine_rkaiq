@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_ABLC_H_
 #define _RK_AIQ_USER_API2_ABLC_H_
 
-#include "ablc/rk_aiq_uapi_ablc_int.h"
+#include "algos/ablc/rk_aiq_uapi_ablc_int.h"
 
 #ifndef RK_AIQ_SYS_CTX_T
 #define RK_AIQ_SYS_CTX_T

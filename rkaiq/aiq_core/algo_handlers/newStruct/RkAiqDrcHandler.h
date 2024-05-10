@@ -17,7 +17,7 @@
 #define _RK_AIQ_DRC_HANDLE_INT_H_
 
 #include "RkAiqHandle.h"
-#include "newStruct/drc/include/drc_algo_api.h"
+#include "newStruct/drc/drc_types_prvt.h"
 #include "algos/rk_aiq_api_types_drc.h"
 #include "rk_aiq_api_private.h"
 #include "rk_aiq_pool.h"
@@ -45,6 +45,7 @@ public:
     void setAeProcRes(RkAiqAlgoProcResAeShared_t* aeProcRes) {
         mAeProcRes = *aeProcRes;
     }
+    void DrcProchelper(RkAiqAlgoProcDrc* drc_proc_param);
 
 protected:
     virtual void init();

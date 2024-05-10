@@ -2,7 +2,7 @@
 
 void rk_aiq_dpcc20_params_cvt(void* attr, struct isp32_isp_params_cfg* isp_cfg)
 {
-    struct isp2x_dpcc_cfg* phwcfg = &isp_cfg->others.dpcc_cfg;
+    struct isp2x_dpcc_cfg* phwcfg = &isp_params->isp_cfg->others.dpcc_cfg;
     dpcc_param_t *drc_attrib = (dpcc_param_t*) attr;
     dpcc_params_dyn_t* pdyn = &drc_attrib->dyn;
     dpcc_params_static_t* psta = &drc_attrib->sta;

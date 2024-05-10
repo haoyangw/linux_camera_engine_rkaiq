@@ -18,6 +18,7 @@
 
 namespace RkCam {
 
+#if !USE_NEWSTRUCT
 XCamReturn RkAiqCamGroupA3dlutHandleInt::updateConfig(bool needSync) {
     ENTER_ANALYZER_FUNCTION();
 
@@ -110,6 +111,6 @@ XCamReturn RkAiqCamGroupA3dlutHandleInt::query3dlutInfo(rk_aiq_lut3d_querry_info
     EXIT_ANALYZER_FUNCTION();
     return ret;
 }
-
+#endif
 
 }  // namespace RkCam

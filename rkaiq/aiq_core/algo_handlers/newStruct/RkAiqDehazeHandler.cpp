@@ -31,6 +31,11 @@ void RkAiqDehazeHandleInt::init() {
     mProcInParam  = (RkAiqAlgoCom*)(new RkAiqAlgoProcDehaze());
     mProcOutParam = (RkAiqAlgoResCom*)(new RkAiqAlgoProcResDehaze());
 
+    updateStrth = false;
+    strthCtrl.MDehazeStrth = 50;
+    strthCtrl.MEnhanceStrth = 50;
+    strthCtrl.MEnhanceChromeStrth = 50;
+
     EXIT_ANALYZER_FUNCTION();
 }
 
@@ -71,7 +76,7 @@ XCamReturn RkAiqDehazeHandleInt::queryStatus(dehaze_status_t* status) {
     if (mAiqCore->mAiqCurParams->data().ptr() && mAiqCore->mAiqCurParams->data()->mDehazeParams.ptr()) {
         rk_aiq_isp_dehaze_params_t* dehaze_param = mAiqCore->mAiqCurParams->data()->mDehazeParams->data().ptr();
         if (dehaze_param) {
-            status->stMan = dehaze_param->result; 
+            status->stMan = dehaze_param->result.dehaze_param; 
             status->en = dehaze_param->en;
             status->bypass = dehaze_param->bypass;
             status->opMode = RK_AIQ_OP_MODE_AUTO;
@@ -85,6 +90,33 @@ XCamReturn RkAiqDehazeHandleInt::queryStatus(dehaze_status_t* status) {
     }
 
     mCfgMutex.unlock();
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn RkAiqDehazeHandleInt::setMDehazeStrth(dehazeStrth ctrl) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    mCfgMutex.lock();
+    updateStrth = true;
+    strthCtrl = ctrl;
+    mCfgMutex.unlock();
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+XCamReturn RkAiqDehazeHandleInt::getMDehazeStrth(dehazeStrth *ctrl) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    mCfgMutex.lock();
+
+    *ctrl = strthCtrl;
+
+    mCfgMutex.unlock();
+
     EXIT_ANALYZER_FUNCTION();
     return ret;
 }
@@ -143,18 +175,6 @@ XCamReturn RkAiqDehazeHandleInt::processing() {
 #endif
     }
 
-    if (shared->res_comb.aynrV22_proc_res || shared->res_comb.aynrV24_proc_res) {
-        for (int i = 0; i < YNR_ISO_CURVE_POINT_NUM; i++)
-#if RKAIQ_HAVE_YNR_V22
-            dehaze_proc_param->sigma[i] = shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[i];
-#elif RKAIQ_HAVE_YNR_V24
-            dehaze_proc_param->sigma[i] = shared->res_comb.aynrV24_proc_res->stSelect->sigma[i];
-#endif
-    }
-    else {
-        for (int i = 0; i < YNR_ISO_CURVE_POINT_NUM; i++)
-            dehaze_proc_param->sigma[i] = 0.0f;
-    }
 #if RKAIQ_HAVE_BLC_V32 && !USE_NEWSTRUCT
     dehaze_proc_param->blc_ob_enable   = shared->res_comb.ablcV32_proc_res->blc_ob_enable;
     dehaze_proc_param->isp_ob_predgain = shared->res_comb.ablcV32_proc_res->isp_ob_predgain;
@@ -163,8 +183,8 @@ XCamReturn RkAiqDehazeHandleInt::processing() {
     dehaze_proc_param->isp_ob_predgain = 1.0f;
 #endif
 
-    dehaze_proc_res_int->dehazeRes = &shared->fullParams->mDehazeParams->data()->result;
-
+    dehaze_proc_res_int->dehazeRes = &shared->fullParams->mDehazeParams->data()->result.dehaze_param;
+    dehaze_proc_res_int->histeqRes = &shared->fullParams->mDehazeParams->data()->result.histeq_param;
     GlobalParamsManager* globalParamsManager = mAiqCore->getGlobalParamsManager();
 
     if (globalParamsManager && !globalParamsManager->isFullManualMode() &&
@@ -174,6 +194,10 @@ XCamReturn RkAiqDehazeHandleInt::processing() {
         wrap_param.man_param_size = sizeof(dehaze_param_t);
         wrap_param.man_param_ptr = dehaze_proc_res_int->dehazeRes;
         XCamReturn ret1 = globalParamsManager->getAndClearPending(&wrap_param);
+        wrap_param.type = RESULT_TYPE_HISTEQ_PARAM;
+        wrap_param.man_param_size = sizeof(histeq_param_t);
+        wrap_param.man_param_ptr = dehaze_proc_res_int->histeqRes;
+        ret1 = globalParamsManager->getAndClearPending(&wrap_param);
         if (ret1 == XCAM_RETURN_NO_ERROR) {
             LOGK_ADEHAZE("get new manual params success !");
             dehaze_proc_res_int->res_com.en = wrap_param.en;
@@ -193,6 +217,14 @@ XCamReturn RkAiqDehazeHandleInt::processing() {
             ret                       = des->processing(mProcInParam, mProcOutParam);
             globalParamsManager->unlockAlgoParam(RESULT_TYPE_DEHAZE_PARAM);
         }
+    }
+
+    shared->fullParams->mDehazeParams->data()->result.MDehazeStrth = strthCtrl.MDehazeStrth;
+    shared->fullParams->mDehazeParams->data()->result.MEnhanceStrth = strthCtrl.MEnhanceStrth;
+    shared->fullParams->mDehazeParams->data()->result.MEnhanceChromeStrth = strthCtrl.MEnhanceChromeStrth;
+    if (updateStrth) {
+        dehaze_proc_res_int->res_com.cfg_update = true;
+        updateStrth = false;
     }
 
     RKAIQCORE_CHECK_RET(ret, "dehaze algo processing failed");

@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_GAMMA_H_
 #define _RK_AIQ_USER_API2_GAMMA_H_
 
-#include "rk_aiq_api_types_gamma.h"
+#include "algos/rk_aiq_api_types_gamma.h"
 
 RKAIQ_BEGIN_DECLARE
 

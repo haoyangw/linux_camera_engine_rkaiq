@@ -1,10 +1,10 @@
 #ifndef _RK_AIQ_UAPI_ARGBIR_INT_H_
 #define _RK_AIQ_UAPI_ARGBIR_INT_H_
 
-#include "argbir_uapi_head.h"
-#include "base/xcam_common.h"
-#include "rk_aiq_algo_des.h"
-#include "rk_aiq_types_argbir_algo_int.h"
+#include "iq_parser_v2/argbir_uapi_head.h"
+#include "xcore/base/xcam_common.h"
+#include "algos/rk_aiq_algo_des.h"
+#include "algos/argbir/rk_aiq_types_argbir_algo_int.h"
 
 // need_sync means the implementation should consider
 // the thread synchronization

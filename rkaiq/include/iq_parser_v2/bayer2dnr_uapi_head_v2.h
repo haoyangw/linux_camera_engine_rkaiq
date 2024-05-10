@@ -20,7 +20,7 @@
 #ifndef __CALIBDBV2_UAPI_BAYER_2DNR_HEADER_V2_H__
 #define __CALIBDBV2_UAPI_BAYER_2DNR_HEADER_V2_H__
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 //#include "RkAiqCalibDbTypes.h"
 
 #define RK_BAYER2DNR_V2_MAX_ISO_NUM  13

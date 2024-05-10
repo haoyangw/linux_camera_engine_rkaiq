@@ -19,11 +19,11 @@
 
 #ifndef _RK_AIQ_TYPE_ASHARP_ALGO_INT_H_
 #define _RK_AIQ_TYPE_ASHARP_ALGO_INT_H_
-#include "rk_aiq_comm.h"
-#include "RkAiqCalibDbTypes.h"
-#include "asharp/rk_aiq_types_asharp_algo.h"
-#include "sharp_head_v1.h"
-#include "edgefilter_head_v1.h"
+#include "common/rk_aiq_comm.h"
+#include "iq_parser/RkAiqCalibDbTypes.h"
+#include "algos/asharp/rk_aiq_types_asharp_algo.h"
+#include "iq_parser_v2/sharp_head_v1.h"
+#include "iq_parser_v2/edgefilter_head_v1.h"
 
 RKAIQ_BEGIN_DECLARE
 

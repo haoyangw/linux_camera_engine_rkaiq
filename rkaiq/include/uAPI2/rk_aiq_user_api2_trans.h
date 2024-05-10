@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_TRANS_H_
 #define _RK_AIQ_USER_API2_TRANS_H_
 
-#include "rk_aiq_api_types_trans.h"
+#include "algos/rk_aiq_api_types_trans.h"
 
 RKAIQ_BEGIN_DECLARE
 

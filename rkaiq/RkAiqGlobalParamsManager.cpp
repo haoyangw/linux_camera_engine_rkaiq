@@ -15,6 +15,7 @@
  */
 
 #include "RkAiqGlobalParamsManager.h"
+#include "RkAiqManager.h"
 
 using namespace XCam;
 namespace RkCam {
@@ -64,7 +65,6 @@ GlobalParamsManager::init_withCalib()
 {
     ENTER_ANALYZER_FUNCTION();
 
-    mIsAlgoParamUpdateBits = 0;
 #if USE_NEWSTRUCT
     rk_aiq_global_params_ptr_wrap_t* wrap_ptr = &mGlobalParams[RESULT_TYPE_DEBAYER_PARAM];
     dm_api_attrib_t* dm_calib = (dm_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
@@ -75,9 +75,8 @@ GlobalParamsManager::init_withCalib()
         wrap_ptr->bypass = &dm_calib->bypass;
         wrap_ptr->man_param_ptr = &dm_calib->stMan;
         wrap_ptr->aut_param_ptr = &dm_calib->stAuto;
-        if (dm_calib->opMode == RK_AIQ_OP_MODE_MANUAL)
-            mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_DEBAYER_PARAM;
-        else if (dm_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_DEBAYER_PARAM;
+        if (dm_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
             dm_calib->opMode = RK_AIQ_OP_MODE_MANUAL;
         }
         LOGK("Module DM: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
@@ -94,9 +93,8 @@ GlobalParamsManager::init_withCalib()
         wrap_ptr->bypass = &btnr_calib->bypass;
         wrap_ptr->man_param_ptr = &btnr_calib->stMan;
         wrap_ptr->aut_param_ptr = &btnr_calib->stAuto;
-        if (btnr_calib->opMode == RK_AIQ_OP_MODE_MANUAL)
-            mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_TNR_PARAM;
-        else if (btnr_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_TNR_PARAM;
+        if (btnr_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
             btnr_calib->opMode = RK_AIQ_OP_MODE_MANUAL;
         }
         LOGK("Module BTNR: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
@@ -113,9 +111,8 @@ GlobalParamsManager::init_withCalib()
         wrap_ptr->bypass = &ynr_calib->bypass;
         wrap_ptr->man_param_ptr = &ynr_calib->stMan;
         wrap_ptr->aut_param_ptr = &ynr_calib->stAuto;
-        if (ynr_calib->opMode == RK_AIQ_OP_MODE_MANUAL)
-            mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_YNR_PARAM;
-        else if (ynr_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_YNR_PARAM;
+        if (ynr_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
             ynr_calib->opMode = RK_AIQ_OP_MODE_MANUAL;
         }
         LOGK("Module YNR: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
@@ -132,9 +129,8 @@ GlobalParamsManager::init_withCalib()
         wrap_ptr->bypass = &cnr_calib->bypass;
         wrap_ptr->man_param_ptr = &cnr_calib->stMan;
         wrap_ptr->aut_param_ptr = &cnr_calib->stAuto;
-        if (cnr_calib->opMode == RK_AIQ_OP_MODE_MANUAL)
-            mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_UVNR_PARAM;
-        else if (cnr_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_UVNR_PARAM;
+        if (cnr_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
             cnr_calib->opMode = RK_AIQ_OP_MODE_MANUAL;
         }
         LOGK("Module CNR: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
@@ -151,9 +147,8 @@ GlobalParamsManager::init_withCalib()
         wrap_ptr->bypass = &gamma_calib->bypass;
         wrap_ptr->man_param_ptr = &gamma_calib->stMan;
         wrap_ptr->aut_param_ptr = &gamma_calib->stAuto;
-        if (gamma_calib->opMode == RK_AIQ_OP_MODE_MANUAL)
-            mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_AGAMMA_PARAM;
-        else if (gamma_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_AGAMMA_PARAM;
+        if (gamma_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
             gamma_calib->opMode = RK_AIQ_OP_MODE_MANUAL;
         }
         LOGK("Module gamma: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
@@ -170,9 +165,8 @@ GlobalParamsManager::init_withCalib()
         wrap_ptr->bypass = &sharp_calib->bypass;
         wrap_ptr->man_param_ptr = &sharp_calib->stMan;
         wrap_ptr->aut_param_ptr = &sharp_calib->stAuto;
-        if (sharp_calib->opMode == RK_AIQ_OP_MODE_MANUAL)
-            mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_SHARPEN_PARAM;
-        else if (sharp_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_SHARPEN_PARAM;
+        if (sharp_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
             sharp_calib->opMode = RK_AIQ_OP_MODE_MANUAL;
         }
         LOGK("Module SHARP: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
@@ -191,9 +185,8 @@ GlobalParamsManager::init_withCalib()
         wrap_ptr->bypass = &drc_calib->bypass;
         wrap_ptr->man_param_ptr = &drc_calib->stMan;
         wrap_ptr->aut_param_ptr = &drc_calib->stAuto;
-        if (drc_calib->opMode == RK_AIQ_OP_MODE_MANUAL)
-            mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_DRC_PARAM;
-        else if (drc_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_DRC_PARAM;
+        if (drc_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
             drc_calib->opMode = RK_AIQ_OP_MODE_MANUAL;
         }
         LOGK("Module drc: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
@@ -210,9 +203,8 @@ GlobalParamsManager::init_withCalib()
         wrap_ptr->en = &trans_calib->en;
         wrap_ptr->bypass = &trans_calib->bypass;
         wrap_ptr->man_param_ptr = &trans_calib->stMan;
-        if (trans_calib->opMode == RK_AIQ_OP_MODE_MANUAL)
-            mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_DRC_PARAM;
-        else if (trans_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_DRC_PARAM;
+        if (trans_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
             trans_calib->opMode = RK_AIQ_OP_MODE_MANUAL;
         }
         LOGK("Module trans: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
@@ -230,9 +222,8 @@ GlobalParamsManager::init_withCalib()
         wrap_ptr->bypass = &dehaze_calib->bypass;
         wrap_ptr->man_param_ptr = &dehaze_calib->stMan;
         wrap_ptr->aut_param_ptr = &dehaze_calib->stAuto;
-        if (dehaze_calib->opMode == RK_AIQ_OP_MODE_MANUAL)
-            mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_DEHAZE_PARAM;
-        else if (dehaze_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_DEHAZE_PARAM;
+        if (dehaze_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
             dehaze_calib->opMode = RK_AIQ_OP_MODE_MANUAL;
         }
         LOGK("Module dehaze: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
@@ -251,9 +242,8 @@ GlobalParamsManager::init_withCalib()
         wrap_ptr->bypass = &blc_calib->bypass;
         wrap_ptr->man_param_ptr = &blc_calib->stMan;
         wrap_ptr->aut_param_ptr = &blc_calib->stAuto;
-        if (blc_calib->opMode == RK_AIQ_OP_MODE_MANUAL)
-            mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_BLC_PARAM;
-        else if (blc_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_BLC_PARAM;
+        if (blc_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
             blc_calib->opMode = RK_AIQ_OP_MODE_MANUAL;
         }
         LOGK("Module BLC: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
@@ -271,9 +261,8 @@ GlobalParamsManager::init_withCalib()
         wrap_ptr->bypass = &dpc_calib->bypass;
         wrap_ptr->man_param_ptr = &dpc_calib->stMan;
         wrap_ptr->aut_param_ptr = &dpc_calib->stAuto;
-        if (dpc_calib->opMode == RK_AIQ_OP_MODE_MANUAL)
-            mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_DPCC_PARAM;
-        else if (dpc_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_DPCC_PARAM;
+        if (dpc_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
             dpc_calib->opMode = RK_AIQ_OP_MODE_MANUAL;
         }
         LOGK("Module DPC: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
@@ -281,7 +270,295 @@ GlobalParamsManager::init_withCalib()
     } else {
         LOGE("no dpc calib !");
     }
+
+    wrap_ptr = &mGlobalParams[RESULT_TYPE_GIC_PARAM];
+    gic_api_attrib_t* gic_calib = (gic_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+                (void*)(mCalibDb), gic));
+    if (gic_calib) {
+        wrap_ptr->opMode = &gic_calib->opMode;
+        wrap_ptr->en = &gic_calib->en;
+        wrap_ptr->bypass = &gic_calib->bypass;
+        wrap_ptr->man_param_ptr = &gic_calib->stMan;
+        wrap_ptr->aut_param_ptr = &gic_calib->stAuto;
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_GIC_PARAM;
+        if (gic_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+            gic_calib->opMode = RK_AIQ_OP_MODE_MANUAL;
+        }
+        LOGK("Module GIC: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
+             *wrap_ptr->opMode, *wrap_ptr->en, *wrap_ptr->bypass, wrap_ptr->man_param_ptr);
+    }
+    else {
+        LOGE("no gic calib !");
+    }
+
+    wrap_ptr = &mGlobalParams[RESULT_TYPE_MOTION_PARAM];
+    yme_api_attrib_t* yme_calib = (yme_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+                (void*)(mCalibDb), yme));
+    if (yme_calib) {
+        wrap_ptr->opMode = &yme_calib->opMode;
+        wrap_ptr->en = &yme_calib->en;
+        wrap_ptr->bypass = &yme_calib->bypass;
+        wrap_ptr->man_param_ptr = &yme_calib->stMan;
+        wrap_ptr->aut_param_ptr = &yme_calib->stAuto;
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_MOTION_PARAM;
+        if (yme_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+            yme_calib->opMode = RK_AIQ_OP_MODE_MANUAL;
+        }
+        LOGK("Module YME: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
+             *wrap_ptr->opMode, *wrap_ptr->en, *wrap_ptr->bypass, wrap_ptr->man_param_ptr);
+    } else {
+        LOGE("no yme calib !");
+    }
+
+    wrap_ptr = &mGlobalParams[RESULT_TYPE_CAC_PARAM];
+    cac_api_attrib_t* cac_calib = (cac_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+                (void*)(mCalibDb), cac));
+    if (cac_calib) {
+        wrap_ptr->opMode = &cac_calib->opMode;
+        wrap_ptr->en = &cac_calib->en;
+        wrap_ptr->bypass = &cac_calib->bypass;
+        wrap_ptr->man_param_ptr = &cac_calib->stMan;
+        wrap_ptr->aut_param_ptr = &cac_calib->stAuto;
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_CAC_PARAM;
+        if (cac_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+            cac_calib->opMode = RK_AIQ_OP_MODE_MANUAL;
+        }
+        LOGK("Module CAC: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
+             *wrap_ptr->opMode, *wrap_ptr->en, *wrap_ptr->bypass, wrap_ptr->man_param_ptr);
+    } else {
+        LOGE("no cac calib !");
+    }
+
+    wrap_ptr = &mGlobalParams[RESULT_TYPE_LDCH_PARAM];
+    ldch_api_attrib_t* ldch_calib = (ldch_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+                (void*)(mCalibDb), ldch));
+    if (ldch_calib) {
+        wrap_ptr->opMode = &ldch_calib->opMode;
+        wrap_ptr->en = &ldch_calib->en;
+        wrap_ptr->bypass = &ldch_calib->bypass;
+        wrap_ptr->aut_param_ptr = &ldch_calib->stAuto;
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_LDCH_PARAM;
+        if (ldch_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+            ldch_calib->opMode = RK_AIQ_OP_MODE_AUTO;
+        }
+        LOGK("Module LDCH: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
+             *wrap_ptr->opMode, *wrap_ptr->en, *wrap_ptr->bypass, wrap_ptr->man_param_ptr);
+    } else {
+        LOGE("no ldch calib !");
+    }
+
+    wrap_ptr = &mGlobalParams[RESULT_TYPE_HISTEQ_PARAM];
+    histeq_api_attrib_t* histeq_calib = (histeq_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+                (void*)(mCalibDb), histeq));
+    if (histeq_calib) {
+        wrap_ptr->opMode = &histeq_calib->opMode;
+        wrap_ptr->en = &histeq_calib->en;
+        wrap_ptr->bypass = &histeq_calib->bypass;
+        wrap_ptr->man_param_ptr = &histeq_calib->stMan;
+        wrap_ptr->aut_param_ptr = &histeq_calib->stAuto;
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_HISTEQ_PARAM;
+        if (histeq_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+            histeq_calib->opMode = RK_AIQ_OP_MODE_MANUAL;
+        }
+        LOGK("Module HISTEQ: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
+             *wrap_ptr->opMode, *wrap_ptr->en, *wrap_ptr->bypass, wrap_ptr->man_param_ptr);
+    } else {
+        LOGE("no histeq calib !");
+    }
+    wrap_ptr = &mGlobalParams[RESULT_TYPE_CSM_PARAM];
+    csm_api_attrib_t* csm_calib = (csm_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+                (void*)(mCalibDb), csm));
+    if (csm_calib) {
+        wrap_ptr->opMode = &csm_calib->opMode;
+        wrap_ptr->en = &csm_calib->en;
+        wrap_ptr->bypass = &csm_calib->bypass;
+        wrap_ptr->man_param_ptr = &csm_calib->stMan;
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_CSM_PARAM;
+        if (csm_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+            csm_calib->opMode = RK_AIQ_OP_MODE_MANUAL;
+        }
+        LOGK("Module csm: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
+             *wrap_ptr->opMode, *wrap_ptr->en, *wrap_ptr->bypass, wrap_ptr->man_param_ptr);
+    } else {
+        LOGE("no csm calib !");
+    }
+
+    wrap_ptr = &mGlobalParams[RESULT_TYPE_MERGE_PARAM];
+    mge_api_attrib_t* mge_calib = (mge_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+                (void*)(mCalibDb), mge));
+    if (mge_calib) {
+        wrap_ptr->opMode = &mge_calib->opMode;
+        wrap_ptr->en = &mge_calib->en;
+        wrap_ptr->bypass = &mge_calib->bypass;
+        wrap_ptr->man_param_ptr = &mge_calib->stMan;
+        wrap_ptr->aut_param_ptr = &mge_calib->stAuto;
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_MERGE_PARAM;
+        if (mge_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+            mge_calib->opMode = RK_AIQ_OP_MODE_MANUAL;
+        }
+        LOGK("Module MERGE: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
+             *wrap_ptr->opMode, *wrap_ptr->en, *wrap_ptr->bypass, wrap_ptr->man_param_ptr);
+    } else {
+        LOGE("no merge calib !");
+    }
+
+    wrap_ptr = &mGlobalParams[RESULT_TYPE_LSC_PARAM];
+    lsc_calib_attrib_t* lsc_calib = (lsc_calib_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+                (void*)(mCalibDb), lsc));
+    if (lsc_calib) {
+        lsc_api_attrib_t* lsc_attrib = &lsc_calib->tunning;
+        wrap_ptr->opMode = &lsc_attrib ->opMode;
+        wrap_ptr->en = &lsc_attrib ->en;
+        wrap_ptr->bypass = &lsc_attrib ->bypass;
+        wrap_ptr->man_param_ptr = &lsc_attrib->stMan;
+        wrap_ptr->aut_param_ptr = &lsc_attrib->stAuto;
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_LSC_PARAM;
+        if (lsc_attrib->opMode == RK_AIQ_OP_MODE_INVALID) {
+            lsc_attrib->opMode = RK_AIQ_OP_MODE_MANUAL;
+        }
+        LOGK("Module LSC: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
+             *wrap_ptr->opMode, *wrap_ptr->en, *wrap_ptr->bypass, wrap_ptr->man_param_ptr);
+    }
+    else {
+        LOGE("no lsc calib !");
+    }
+
+    wrap_ptr = &mGlobalParams[RESULT_TYPE_RGBIR_PARAM];
+    rgbir_api_attrib_t* rgbir_calib = (rgbir_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+                (void*)(mCalibDb), rgbir));
+    if (rgbir_calib) {
+        wrap_ptr->opMode = &rgbir_calib->opMode;
+        wrap_ptr->en = &rgbir_calib->en;
+        wrap_ptr->bypass = &rgbir_calib->bypass;
+        wrap_ptr->man_param_ptr = &rgbir_calib->stMan;
+        wrap_ptr->aut_param_ptr = &rgbir_calib->stAuto;
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_RGBIR_PARAM;
+        if (rgbir_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+            rgbir_calib->opMode = RK_AIQ_OP_MODE_MANUAL;
+        }
+        LOGK("Module rgbir: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
+             *wrap_ptr->opMode, *wrap_ptr->en, *wrap_ptr->bypass, wrap_ptr->man_param_ptr);
+    } else {
+        LOGE("no rgbir calib !");
+    }
+
+    wrap_ptr = &mGlobalParams[RESULT_TYPE_CGC_PARAM];
+    cgc_api_attrib_t* cgc_calib = (cgc_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+                (void*)(mCalibDb), cgc));
+    if (cgc_calib) {
+        wrap_ptr->opMode = &cgc_calib->opMode;
+        wrap_ptr->en = &cgc_calib->en;
+        wrap_ptr->bypass = &cgc_calib->bypass;
+        wrap_ptr->man_param_ptr = &cgc_calib->stMan;
+        wrap_ptr->aut_param_ptr = &cgc_calib->stAuto;
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_CGC_PARAM;
+        if (cgc_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+            cgc_calib->opMode = RK_AIQ_OP_MODE_MANUAL;
+        }
+        LOGK("Module cgc: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
+             *wrap_ptr->opMode, *wrap_ptr->en, *wrap_ptr->bypass, wrap_ptr->man_param_ptr);
+    } else {
+        LOGE("no cgc calib !");
+    }
+
+    wrap_ptr = &mGlobalParams[RESULT_TYPE_CP_PARAM];
+    cp_api_attrib_t* cp_calib = (cp_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+                (void*)(mCalibDb), cp));
+    if (cp_calib) {
+        wrap_ptr->opMode = &cp_calib->opMode;
+        wrap_ptr->en = &cp_calib->en;
+        wrap_ptr->bypass = &cp_calib->bypass;
+        wrap_ptr->man_param_ptr = &cp_calib->stMan;
+        wrap_ptr->aut_param_ptr = &cp_calib->stAuto;
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_CP_PARAM;
+        if (cp_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+            cp_calib->opMode = RK_AIQ_OP_MODE_MANUAL;
+        }
+        LOGK("Module cp: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
+             *wrap_ptr->opMode, *wrap_ptr->en, *wrap_ptr->bypass, wrap_ptr->man_param_ptr);
+    } else {
+        LOGE("no cp calib !");
+    }
+
+    wrap_ptr = &mGlobalParams[RESULT_TYPE_IE_PARAM];
+    ie_api_attrib_t* ie_calib = (ie_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+                (void*)(mCalibDb), ie));
+    if (ie_calib) {
+        wrap_ptr->opMode = &ie_calib->opMode;
+        wrap_ptr->en = &ie_calib->en;
+        wrap_ptr->bypass = &ie_calib->bypass;
+        wrap_ptr->man_param_ptr = &ie_calib->stMan;
+        wrap_ptr->aut_param_ptr = &ie_calib->stAuto;
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_IE_PARAM;
+        if (ie_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+            ie_calib->opMode = RK_AIQ_OP_MODE_MANUAL;
+        }
+        LOGK("Module ie: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
+             *wrap_ptr->opMode, *wrap_ptr->en, *wrap_ptr->bypass, wrap_ptr->man_param_ptr);
+    } else {
+        LOGE("no ie calib !");
+    }
+
+    wrap_ptr = &mGlobalParams[RESULT_TYPE_GAIN_PARAM];
+    gain_api_attrib_t* gain_calib = (gain_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+                (void*)(mCalibDb), gain));
+    if (gain_calib) {
+        wrap_ptr->opMode = &gain_calib->opMode;
+        wrap_ptr->en = &gain_calib->en;
+        wrap_ptr->bypass = &gain_calib->bypass;
+        wrap_ptr->man_param_ptr = &gain_calib->stMan;
+        wrap_ptr->aut_param_ptr = &gain_calib->stAuto;
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_GAIN_PARAM;
+        if (gain_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+            gain_calib->opMode = RK_AIQ_OP_MODE_MANUAL;
+        }
+        LOGK("Module gain: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
+             *wrap_ptr->opMode, *wrap_ptr->en, *wrap_ptr->bypass, wrap_ptr->man_param_ptr);
+    } else {
+        LOGE("no gain calib !");
+    }
+
+    wrap_ptr = &mGlobalParams[RESULT_TYPE_LUT3D_PARAM];
+    lut3d_calib_attrib_t* lut3d_calib = (lut3d_calib_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+                (void*)(mCalibDb), lut3d));
+    if (lut3d_calib) {
+        lut3d_api_attrib_t* lut3d_attrib = &lut3d_calib->tunning;
+        wrap_ptr->opMode = &lut3d_attrib->opMode;
+        wrap_ptr->en = &lut3d_attrib->en;
+        wrap_ptr->bypass = &lut3d_attrib->bypass;
+        wrap_ptr->man_param_ptr = &lut3d_attrib->stMan;
+        wrap_ptr->aut_param_ptr = &lut3d_attrib->stAuto;
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_LUT3D_PARAM;
+        if (lut3d_attrib->opMode == RK_AIQ_OP_MODE_INVALID) {
+            lut3d_attrib->opMode = RK_AIQ_OP_MODE_MANUAL;
+        }
+        LOGK("Module 3DLUT: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
+             *wrap_ptr->opMode, *wrap_ptr->en, *wrap_ptr->bypass, wrap_ptr->man_param_ptr);
+    } else {
+        LOGE("no lut3d calib !");
+    }
+
+    wrap_ptr = &mGlobalParams[RESULT_TYPE_CCM_PARAM];
+    ccm_calib_attrib_t* ccm_calib = (ccm_calib_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+                (void*)(mCalibDb), ccm));
+    if (ccm_calib) {
+        ccm_api_attrib_t* ccm_attrib = &ccm_calib->tunning;
+        wrap_ptr->opMode = &ccm_attrib ->opMode;
+        wrap_ptr->en = &ccm_attrib ->en;
+        wrap_ptr->bypass = &ccm_attrib ->bypass;
+        wrap_ptr->man_param_ptr = &ccm_attrib->stMan;
+        wrap_ptr->aut_param_ptr = &ccm_attrib->stAuto;
+        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_CCM_PARAM;
+        if (ccm_attrib->opMode == RK_AIQ_OP_MODE_INVALID) {
+            ccm_attrib->opMode = RK_AIQ_OP_MODE_MANUAL;
+        }
+        LOGK("Module CCM: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
+             *wrap_ptr->opMode, *wrap_ptr->en, *wrap_ptr->bypass, wrap_ptr->man_param_ptr);
+    } else {
+        LOGE("no ccm calib !");
+    }
 #endif
+
     EXIT_ANALYZER_FUNCTION();
 }
 
@@ -296,21 +573,70 @@ GlobalParamsManager::init(bool isFullManMode, CamCalibDbV2Context_t* calibDb)
         init_fullManual();
     } else {
         init_withCalib();
+        checkAlgoEnableInit();
     }
     EXIT_ANALYZER_FUNCTION();
 }
 
-void
+XCamReturn
 GlobalParamsManager::switchCalibDb(CamCalibDbV2Context_t* calibDb)
 {
     ENTER_ANALYZER_FUNCTION();
 
     SmartLock lock(mMutex);
+    int state = rkAiqManager->getAiqState();
 
+    if (state != AIQ_STATE_INITED && state != AIQ_STATE_STOPED)
+        if (switchCalibDbCheck(calibDb) == XCAM_RETURN_ERROR_FAILED) {
+            LOGE("switchCalibDbCheck fail");
+            return XCAM_RETURN_ERROR_FAILED;
+        }
     mCalibDb = calibDb;
     init_withCalib();
+    checkAlgoEnableInit();
 
     EXIT_ANALYZER_FUNCTION();
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn
+GlobalParamsManager::switchCalibDbCheck(CamCalibDbV2Context_t* calibDb) {
+
+#if USE_NEWSTRUCT
+    btnr_api_attrib_t* btnr_calib = (btnr_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+        (void*)(calibDb), bayertnr));
+    if (*mGlobalParams[RESULT_TYPE_TNR_PARAM].en != btnr_calib->en) {
+        LOGE("tnr can't open/close in runtime!");
+        return XCAM_RETURN_ERROR_FAILED;
+    }
+
+    yme_api_attrib_t* yme_calib = (yme_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+                (void*)(mCalibDb), yme));
+    if (*mGlobalParams[RESULT_TYPE_MOTION_PARAM].en != yme_calib->en) {
+        LOGE("yuvme can't open/close in runtime!");
+        return XCAM_RETURN_ERROR_FAILED;
+    }
+
+    cnr_api_attrib_t* cnr_calib = (cnr_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+        (void*)(calibDb), cnr));
+    ynr_api_attrib_t* ynr_calib = (ynr_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+        (void*)(calibDb), ynr));
+    sharp_api_attrib_t* sharp_calib = (sharp_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+        (void*)(calibDb), sharp));
+    if (!(cnr_calib->en == ynr_calib->en && ynr_calib->en == sharp_calib->en)) {
+        LOGW("ynr, cnr and sharp should be on or off in the same time");
+        return XCAM_RETURN_BYPASS;
+    }
+
+    drc_api_attrib_t* drc_calib = (drc_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+        (void*)(mCalibDb), drc));
+    if (rkAiqManager->getWorkingMode() != RK_AIQ_WORKING_MODE_NORMAL && drc_calib->en == 0) {
+        LOGE("drc must be on when open HDR mode!");
+        return XCAM_RETURN_ERROR_FAILED;
+    }
+
+#endif
+    return XCAM_RETURN_NO_ERROR;
 }
 
 XCamReturn
@@ -320,6 +646,17 @@ GlobalParamsManager::set(rk_aiq_global_params_wrap_t* param)
 
     if (param->type < 0 || param->type >= RESULT_TYPE_MAX_PARAM)
         return XCAM_RETURN_ERROR_OUTOFRANGE;
+
+    XCamReturn ret = checkAlgoEnableBypass(param->type, param->en, param->bypass);
+    if (ret == XCAM_RETURN_ERROR_FAILED) {
+        LOGE("checkAlgoEnableBypass fail");
+        return ret;
+    }
+
+    if (!checkAlgoParams(param)) {
+        LOGE("checkAlgoParams fail");
+        return XCAM_RETURN_ERROR_FAILED;
+    }
 
     mAlgoMutex[param->type].lock();
 
@@ -360,19 +697,15 @@ GlobalParamsManager::set(rk_aiq_global_params_wrap_t* param)
          param->type, param->opMode, param->en, param->bypass, param->man_param_ptr, param->man_param_size,
          isUpdateOpMode, isUpdateEn, isUpdateBypass, isUpdateManParam);
 
-    if (isUpdateOpMode || isUpdateEn || isUpdateBypass || isUpdateManParam) {
+    if (isUpdateOpMode || isUpdateEn || isUpdateBypass || isUpdateManParam || isUpdateAutParam) {
         mIsGlobalModulesUpdateBits |= ((uint64_t)1) << param->type;
-    }
-
-    if (isUpdateAutParam) {
-        mIsAlgoParamUpdateBits |= ((uint64_t)1) << param->type;
     }
 
     mAlgoMutex[param->type].unlock();
 
     EXIT_ANALYZER_FUNCTION();
 
-    return XCAM_RETURN_NO_ERROR;
+    return ret;
 }
 
 XCamReturn
@@ -404,6 +737,60 @@ GlobalParamsManager::get(rk_aiq_global_params_wrap_t* param)
     lockAlgoParam(param->type);
     ret = get_locked(param);
     unlockAlgoParam(param->type);
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn
+GlobalParamsManager::get_ModuleEn(rk_aiq_module_list_t* mod) {
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    ENTER_ANALYZER_FUNCTION();
+
+    for (int i = 0;i < RESULT_TYPE_MAX_PARAM;i++) {
+        lockAlgoParam(i);
+        mod->module_ctl[i].type = (camAlgoResultType)i;
+        if (mGlobalParams[i].en != NULL) {
+            mod->module_ctl[i].en = *mGlobalParams[i].en;
+            mod->module_ctl[i].bypass = *mGlobalParams[i].bypass;
+            mod->module_ctl[i].opMode = *mGlobalParams[i].opMode;
+        }
+        else {
+            mod->module_ctl[i].en = 0;
+            mod->module_ctl[i].bypass = 0;
+            mod->module_ctl[i].opMode = RK_AIQ_OP_MODE_INVALID;
+        }
+        unlockAlgoParam(i);
+    }
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn
+GlobalParamsManager::set_ModuleEn(rk_aiq_module_list_t* mod) {
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    ENTER_ANALYZER_FUNCTION();
+
+    for (int i = 0;i < RESULT_TYPE_MAX_PARAM;i++) {
+        int cur_type = mod->module_ctl[i].type;
+        if (mGlobalParams[cur_type].en != NULL) {
+            if (checkAlgoEnableBypass(cur_type, mod->module_ctl[i].en, mod->module_ctl[i].bypass) == XCAM_RETURN_ERROR_FAILED) {
+                LOGE("checkAlgoEnableBypass fail");
+                continue;
+            }
+            lockAlgoParam(cur_type);
+            if (*mGlobalParams[cur_type].en != mod->module_ctl[i].en ||
+                *mGlobalParams[cur_type].bypass != mod->module_ctl[i].bypass ||
+                *mGlobalParams[cur_type].opMode != mod->module_ctl[i].opMode) {
+                *mGlobalParams[cur_type].en = mod->module_ctl[i].en;
+                *mGlobalParams[cur_type].bypass = mod->module_ctl[i].bypass;
+                *mGlobalParams[cur_type].opMode = mod->module_ctl[i].opMode;
+                mIsGlobalModulesUpdateBits |= ((uint64_t)1) << cur_type;
+            }
+            unlockAlgoParam(cur_type);
+        }
+    }
 
     EXIT_ANALYZER_FUNCTION();
     return ret;
@@ -529,29 +916,146 @@ GlobalParamsManager::getAndClearAlgoParamUpdateFlagLocked(int type)
     if (type < 0 || type >= RESULT_TYPE_MAX_PARAM)
         return false;
 
-    bool isNeedUpdate = mIsAlgoParamUpdateBits & (((uint64_t)1) << type);
-    mIsAlgoParamUpdateBits &= ~(((uint64_t)1) << type);
+    bool isNeedUpdate = mIsGlobalModulesUpdateBits & (((uint64_t)1) << type);
+    mIsGlobalModulesUpdateBits &= ~(((uint64_t)1) << type);
 
     EXIT_ANALYZER_FUNCTION();
     return isNeedUpdate;
 }
 
-bool
-GlobalParamsManager::checkAlgoEnableBypass(int type, bool en, bool bypass)
+void
+GlobalParamsManager::checkAlgoEnableInit() {
+    int type;
+#if USE_NEWSTRUCT
+    bool cnr_en = *mGlobalParams[RESULT_TYPE_UVNR_PARAM].en;
+    bool ynr_en = *mGlobalParams[RESULT_TYPE_YNR_PARAM].en;
+    bool sharp_en = *mGlobalParams[RESULT_TYPE_SHARPEN_PARAM].en;
+    if (!(ynr_en == cnr_en && cnr_en == sharp_en)) {
+        LOGW("ynr, cnr and sharp should be on or off in the same time");
+    }
+
+    if (*mGlobalParams[RESULT_TYPE_TNR_PARAM].en != *mGlobalParams[RESULT_TYPE_MOTION_PARAM].en) {
+        *mGlobalParams[RESULT_TYPE_MOTION_PARAM].en = *mGlobalParams[RESULT_TYPE_TNR_PARAM].en;
+        LOGE("btnr and yuvme should be turned on or off simultaneously,please check!");
+    }
+
+    type = RESULT_TYPE_DRC_PARAM;
+    checkAlgoEnableBypass(type, *mGlobalParams[type].en, *mGlobalParams[type].bypass);
+    type = RESULT_TYPE_GIC_PARAM;
+    checkAlgoEnableBypass(type, *mGlobalParams[type].en, *mGlobalParams[type].bypass);
+    type = RESULT_TYPE_CAC_PARAM;
+    checkAlgoEnableBypass(type, *mGlobalParams[type].en, *mGlobalParams[type].bypass);
+#endif
+}
+
+XCamReturn
+GlobalParamsManager::checkAlgoEnableBypass(int type, bool &en, bool &bypass)
 {
+    int state = rkAiqManager->getAiqState();
+#if USE_NEWSTRUCT
     if (type == RESULT_TYPE_TNR_PARAM) {
         if (*mGlobalParams[type].en != en) {
             // tnr can't open/close in runtime
-            return false;
+            if (state != AIQ_STATE_INITED && state != AIQ_STATE_STOPED) {
+                LOGE("tnr can't open/close in runtime!");
+                return XCAM_RETURN_ERROR_FAILED;
+            }
+        }
+    }
+
+    if (type == RESULT_TYPE_MOTION_PARAM) {
+        if (*mGlobalParams[type].en != en) {
+            if (state != AIQ_STATE_INITED &&state != AIQ_STATE_STOPED) {
+                LOGE("btnr and yuvme should be turned on or off simultaneously,"
+                    " and tnr can't open/close in runtime!");
+                return XCAM_RETURN_ERROR_FAILED;
+            }
         }
     }
 
     if (type == RESULT_TYPE_RAWNR_PARAM) {
-        if ((en == false) && mGlobalParams[RESULT_TYPE_TNR_PARAM].en) {
+        if ((en == false) && *mGlobalParams[RESULT_TYPE_TNR_PARAM].en) {
             // can't disable 2dnr while 3dnr enabled
+            return XCAM_RETURN_ERROR_FAILED;
+        }
+    }
+
+    if (type == RESULT_TYPE_UVNR_PARAM || type == RESULT_TYPE_YNR_PARAM || type == RESULT_TYPE_SHARPEN_PARAM) {
+        if (*mGlobalParams[type].en != en) {
+            LOGD("ynr, cnr or sharp en is changed");
+            return XCAM_RETURN_BYPASS;
+        }
+    }
+
+    if (type == RESULT_TYPE_DRC_PARAM) {
+        if (rkAiqManager->getWorkingMode() != RK_AIQ_WORKING_MODE_NORMAL && en == 0) {
+            LOGE("drc must be on when open HDR mode!");
+            return XCAM_RETURN_ERROR_FAILED;
+        }
+    }
+
+    if (type == RESULT_TYPE_GIC_PARAM || type == RESULT_TYPE_CAC_PARAM) {
+        if (en == 0 && *mGlobalParams[RESULT_TYPE_DRC_PARAM].en) {
+            LOGE("gic and cac can not be off when drc is on, open bypass");
+            return XCAM_RETURN_BYPASS;
+        }
+    }
+#endif
+    return XCAM_RETURN_NO_ERROR;
+}
+
+bool
+GlobalParamsManager::checkAlgoParams(rk_aiq_global_params_wrap_t* param) {
+#ifdef USE_NEWSTRUCT
+    int state = rkAiqManager->getAiqState();
+    if (param->type == RESULT_TYPE_TNR_PARAM&&
+        (state != AIQ_STATE_INITED && state != AIQ_STATE_STOPED)) {
+        btnr_api_attrib_t attr;
+        btnr_api_attrib_t old_attr;
+        btnr_pixDomain_mode_t newmode;
+        btnr_pixDomain_mode_t oldmode;
+        if (param->opMode == RK_AIQ_OP_MODE_AUTO) {
+            memcpy(&attr.stAuto, param->aut_param_ptr, param->aut_param_size);
+            newmode = attr.stAuto.sta.hw_btnrCfg_pixDomain_mode;
+        }
+        else {
+            memcpy(&attr.stMan, param->man_param_ptr, param->man_param_size);
+            newmode = attr.stMan.sta.hw_btnrCfg_pixDomain_mode;
+        }
+        if (*mGlobalParams[param->type].opMode == RK_AIQ_OP_MODE_AUTO) {
+            memcpy(&old_attr.stAuto, mGlobalParams[param->type].aut_param_ptr, param->aut_param_size);
+            oldmode = old_attr.stAuto.sta.hw_btnrCfg_pixDomain_mode;
+        }
+        else{
+            memcpy(&old_attr.stMan, mGlobalParams[param->type].man_param_ptr, param->man_param_size);
+            oldmode = old_attr.stMan.sta.hw_btnrCfg_pixDomain_mode;
+        }
+        if (newmode != oldmode) {
+            LOGE("Btnr is running, so config pixDomain_mode to btnr_pixLinearDomain_mode failed!");
             return false;
         }
     }
+
+    if (param->type == RESULT_TYPE_BLC_PARAM && rkAiqManager->getWorkingMode() != RK_AIQ_WORKING_MODE_NORMAL) {
+        blc_api_attrib_t attr;
+        if (param->opMode == RK_AIQ_OP_MODE_AUTO) {
+            memcpy(&attr.stAuto, param->aut_param_ptr, param->aut_param_size);
+            for (int i = 0;i < BLC_ISO_STEP_MAX;i++) {
+                if (attr.stAuto.dyn[i].obcPostTnr.sw_blcT_obcPostTnr_en) {
+                    LOGE("When using HDR mode, blc_t_obcPostTnr_en must be off!");
+                    return false;
+                }
+            }
+        }
+        else {
+            memcpy(&attr.stMan, param->man_param_ptr, param->man_param_size);
+            if (attr.stMan.dyn.obcPostTnr.sw_blcT_obcPostTnr_en) {
+                LOGE("When using HDR mode, blc_t_obcPostTnr_en must be off!");
+                return false;
+            }
+        }
+    }
+#endif
     return true;
 }
 

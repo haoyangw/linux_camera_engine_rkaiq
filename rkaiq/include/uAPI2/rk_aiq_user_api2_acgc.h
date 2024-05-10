@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_ACGC_H_
 #define _RK_AIQ_USER_API2_ACGC_H_
 
-#include "acgc/rk_aiq_uapi_acgc_int.h"
+#include "algos/acgc/rk_aiq_uapi_acgc_int.h"
 
 typedef struct rk_aiq_sys_ctx_s rk_aiq_sys_ctx_t;
 

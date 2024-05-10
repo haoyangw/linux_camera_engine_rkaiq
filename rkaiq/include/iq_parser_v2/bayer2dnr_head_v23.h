@@ -20,7 +20,7 @@
 #ifndef __CALIBDBV2_BAYER_2DNR_HEADER_V23_H__
 #define __CALIBDBV2_BAYER_2DNR_HEADER_V23_H__
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 RKAIQ_BEGIN_DECLARE
 

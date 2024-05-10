@@ -19,7 +19,7 @@
 
 #ifndef _RK_AIQ_TYPE_AYUVME_ALGO_V1_H_
 #define _RK_AIQ_TYPE_AYUVME_ALGO_V1_H_
-#include "ayuvmeV1/rk_aiq_types_ayuvme_hw_v1.h"
+#include "algos/ayuvmeV1/rk_aiq_types_ayuvme_hw_v1.h"
 
 RKAIQ_BEGIN_DECLARE
 

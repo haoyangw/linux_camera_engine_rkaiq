@@ -17,6 +17,14 @@
 
 #include "sample_comm.h"
 
+// #define USE_NEWSTRUCT
+#ifdef ISP_HW_V39
+#include "rk_aiq_user_api2_rk3576.h"
+#elif  defined(ISP_HW_V33)
+#include "rk_aiq_user_api2_rv1103B.h"
+#elif  ISP_HW_V32
+#include "rk_aiq_user_api2_rv1106.h"
+#endif
 static void sample_acnr_usage()
 {
     printf("Usage : \n");
@@ -38,6 +46,7 @@ static void sample_acnr_usage()
     printf("\t g) ACNR:         set acnr strength min value 0.0 on async mode, only on auto mode has effect.\n");
     printf("\t h) ACNR:         set acnr strength med value 0.5 on async mode, only on auto mode has effect.\n");
     printf("\t i) ACNR:         set acnr attri to default vaule on async mode.\n");
+    printf("\t j) ACNR:         sample_cnr_reverseEn.\n");
     printf("\t q) ACNR:         press key q or Q to quit.\n");
 
 }
@@ -1039,6 +1048,65 @@ XCamReturn sample_acnr_setDefault_v31(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_m
     return ret;
 }
 
+#ifdef USE_NEWSTRUCT
+
+void get_auto_attr(cnr_api_attrib_t* attr) {
+    cnr_param_auto_t* stAuto = &attr->stAuto;
+    for (int i = 0;i < 13;i++) {
+    }
+}
+
+void get_manual_attr(cnr_api_attrib_t* attr) {
+    cnr_param_t* stMan = &attr->stMan;
+}
+
+void sample_cnr_reverseEn(const rk_aiq_sys_ctx_t* ctx)
+{
+    // get cur mode
+    printf("+++++++ cnr module test start ++++++++\n");
+
+    cnr_api_attrib_t attr;
+    memset(&attr, 0, sizeof(attr));
+
+    rk_aiq_user_api2_cnr_GetAttrib(ctx, &attr);
+
+    printf("cnr attr: opmode:%d, en:%d, bypass:%d\n", attr.opMode, attr.en, attr.bypass);
+
+    srand(time(0));
+    int rand_num = rand() % 101;
+
+    if (rand_num <70) {
+        printf("update cnr arrrib!\n");
+        if (attr.opMode == RK_AIQ_OP_MODE_AUTO) {
+            attr.opMode = RK_AIQ_OP_MODE_MANUAL;
+            get_manual_attr(&attr);
+        }
+        else {
+            get_auto_attr(&attr);
+            attr.opMode = RK_AIQ_OP_MODE_AUTO;
+        }
+    }
+    else {
+        // reverse en
+        printf("reverse cnr en!\n");
+        attr.en = !attr.en;
+    }
+
+    rk_aiq_user_api2_cnr_SetAttrib(ctx, &attr);
+
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    cnr_status_t status;
+    memset(&status, 0, sizeof(cnr_status_t));
+
+    rk_aiq_user_api2_cnr_QueryStatus(ctx, &status);
+
+    printf("cnr status: opmode:%d, en:%d, bypass:%d\n", status.opMode, status.en, status.bypass);
+
+    printf("-------- cnr module test done --------\n");
+}
+#endif
 
 XCamReturn sample_acnr_module (const void *arg)
 {
@@ -1285,6 +1353,11 @@ XCamReturn sample_acnr_module (const void *arg)
                 sample_acnr_setDefault_v31(ctx, RK_AIQ_UAPI_MODE_ASYNC, default_cnrV31_attr);
             }
             break;
+#ifdef USE_NEWSTRUCT
+        case 'j':
+            sample_cnr_reverseEn(ctx);
+            break;
+#endif
         default:
             printf("not support test\n\n");
             break;

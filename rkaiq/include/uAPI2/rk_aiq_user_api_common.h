@@ -2,6 +2,7 @@
 
 #ifndef __RK_AIQ_USER_API2_COMMON_H__
 #define __RK_AIQ_USER_API2_COMMON_H__
+#include "common/rk_aiq_comm.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -89,6 +90,77 @@ typedef struct frameRateInfo_s {
     opMode_t         mode;
     unsigned int     fps; /* valid when manual mode*/
 } frameRateInfo_t;
+
+typedef struct rk_aiq_version_info_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(aiq_ver),
+        M4_TYPE(char),
+        M4_SIZE_EX(1,32),
+        M4_DEFAULT(""),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO.
+		Freq of use: high))  */
+    char aiq_ver[32];
+} rk_aiq_version_info_t;
+
+typedef struct rk_aiq_module_ctl_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(type),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(camAlgoResultType),
+        M4_DEFAULT(RESULT_TYPE_INVALID),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(Reference enum types.\n
+		Freq of use: high))  */
+    camAlgoResultType type;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(en),
+        M4_TYPE(bool),
+        M4_DEFAULT(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO.
+		Freq of use: high))  */
+    bool en;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(bypass),
+        M4_TYPE(bool),
+        M4_DEFAULT(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO.
+		Freq of use: high))  */
+    bool bypass;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(opMode),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(rk_aiq_op_mode_t),
+        M4_DEFAULT(RK_AIQ_OP_MODE_AUTO),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(The current operation mode))  */
+    rk_aiq_op_mode_t opMode;
+} rk_aiq_module_ctl_t;
+
+typedef struct rk_aiq_module_list_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(module_ctl),
+        M4_TYPE(struct),
+        M4_SIZE_EX(1,47),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))   */
+    rk_aiq_module_ctl_t module_ctl[RESULT_TYPE_MAX_PARAM];
+} rk_aiq_module_list_t;
 
 #ifdef __cplusplus
 }

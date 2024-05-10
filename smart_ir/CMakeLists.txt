@@ -8,8 +8,8 @@ cmake_minimum_required(VERSION 2.8...3.22)
 
 PROJECT(smart_ir)
 
-if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/rk_smart_ir.cpp")
-	message("${CMAKE_CURRENT_SOURCE_DIR}/src/rk_smart_ir.cpp not exist, install the libs directly")
+if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/rk_smart_ir.c")
+	message("${CMAKE_CURRENT_SOURCE_DIR}/src/rk_smart_ir.c not exist, install the libs directly")
 	set(C_LIBRARY_NAME "glibc" CACHE INTERNAL "")
 	if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/../rkaiq/)
 		include(${CMAKE_CURRENT_LIST_DIR}/../rkaiq/cmake/CheckGlibc.cmake)
@@ -51,6 +51,12 @@ message("rkaiq src path" ${RK_AIQ_SOURCE_DIR})
 
 add_compile_options(-Os)
 add_compile_options(-fstack-protector-strong -D_FORTIFY_SOURCE=2)
+add_compile_options(${ISP_HW_VERSION})
+
+if (ISP_HW_VERSION STREQUAL "-DISP_HW_V39"
+		OR ISP_HW_VERSION STREQUAL "-DISP_HW_V33")
+    add_compile_options(-DUSE_NEWSTRUCT=1)
+endif()
 
 find_path(RKAIQ_INCLUDE_DIR
     NAMES
@@ -103,7 +109,7 @@ include_directories(
     )
 
 set (SMARTIR_SRC
-	src/rk_smart_ir.cpp
+	src/rk_smart_ir.c
 	)
 list(APPEND DIR_SRCS ${AFDEMO_DIR_SRCS})
 

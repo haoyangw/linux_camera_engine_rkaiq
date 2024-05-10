@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_DEHAZE_H_
 #define _RK_AIQ_USER_API2_DEHAZE_H_
 
-#include "rk_aiq_api_types_dehaze.h"
+#include "algos/rk_aiq_api_types_dehaze.h"
 
 RKAIQ_BEGIN_DECLARE
 
@@ -33,6 +33,10 @@ XCamReturn
 rk_aiq_user_api2_dehaze_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, dehaze_api_attrib_t* attr);
 XCamReturn
 rk_aiq_user_api2_dehaze_QueryStatus(const rk_aiq_sys_ctx_t* sys_ctx, dehaze_status_t* status);
+XCamReturn
+rk_aiq_uapi2_setDehazeEnhanceStrth(const rk_aiq_sys_ctx_t* sys_ctx, adehaze_strength_t ctrl);
+XCamReturn
+rk_aiq_uapi2_getDehazeEnhanceStrth(const rk_aiq_sys_ctx_t* sys_ctx, adehaze_strength_t* ctrl);
 
 RKAIQ_END_DECLARE
 

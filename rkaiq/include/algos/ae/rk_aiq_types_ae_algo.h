@@ -41,8 +41,9 @@
  *
  */
 
-#include "rk_aiq_types_ae_hw.h"
-#include "rk_aiq_comm.h"
+#include "algos/ae/rk_aiq_types_ae_hw.h"
+#include "../../isp/rk_aiq_stats_aeStats25.h"
+#include "common/rk_aiq_comm.h"
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>

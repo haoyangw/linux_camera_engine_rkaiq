@@ -1,9 +1,9 @@
 #ifndef _RK_AIQ_UAPI_ADEHAZE_INT_H_
 #define _RK_AIQ_UAPI_ADEHAZE_INT_H_
 
-#include "base/xcam_common.h"
-#include "rk_aiq_algo_des.h"
-#include "adehaze/rk_aiq_types_adehaze_algo_int.h"
+#include "xcore/base/xcam_common.h"
+#include "algos/rk_aiq_algo_des.h"
+#include "algos/adehaze/rk_aiq_types_adehaze_algo_int.h"
 
 // need_sync means the implementation should consider
 // the thread synchronization

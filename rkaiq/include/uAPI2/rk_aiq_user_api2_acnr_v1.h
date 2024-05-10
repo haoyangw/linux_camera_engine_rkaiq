@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_ACNRV1_H_
 #define _RK_AIQ_USER_API2_ACNRV1_H_
 
-#include "acnr/rk_aiq_uapi_acnr_int_v1.h"
+#include "algos/acnr/rk_aiq_uapi_acnr_int_v1.h"
 
 #ifndef RK_AIQ_SYS_CTX_T
 #define RK_AIQ_SYS_CTX_T

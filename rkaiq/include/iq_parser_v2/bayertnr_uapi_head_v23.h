@@ -20,7 +20,7 @@
 #ifndef __CALIBDBV2_BAYER_TNR_UAPI_HEADER_V23_H__
 #define __CALIBDBV2_BAYER_TNR_UAPI_HEADER_V23_H__
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 // clang-format off
 
 RKAIQ_BEGIN_DECLARE

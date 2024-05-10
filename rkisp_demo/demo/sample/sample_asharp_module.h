@@ -18,10 +18,12 @@
 #ifndef _SAMPLE_ASHARP_MODULE_H_
 #define _SAMPLE_ASHARP_MODULE_H_
 
-#include "base/xcam_common.h"
+#include "xcore/base/xcam_common.h"
 
 void sample_print_asharp_info(const void *arg);
-XCamReturn sample_asharp_module(const void *arg);
-
+XCamReturn sample_asharp_module(const void* arg);
+#ifdef USE_NEWSTRUCT
+void sample_sharp_reverseEn(const rk_aiq_sys_ctx_t* ctx);
+#endif
 #endif
 

@@ -29,6 +29,18 @@
 XCAM_BEGIN_DECLARE
 
 extern RkAiqAlgoDescription g_RkIspAlgoDescAwb;
+XCamReturn
+new_awb_context(RkAiqAlgoContext **context);
+XCamReturn
+init_awb_context(RkAiqAlgoContext **context, const AlgoCtxInstanceCfg* cfg);
+XCamReturn
+destroy_awb_context(RkAiqAlgoContext *context);
+XCamReturn
+awb_prepare(RkAiqAlgoCom* params);
+XCamReturn
+awb_processing2(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams);
+void
+initCustAwbHwConfig(RkAiqAlgoContext *context, void  *custAwbHwConfig);
 
 
 XCAM_END_DECLARE

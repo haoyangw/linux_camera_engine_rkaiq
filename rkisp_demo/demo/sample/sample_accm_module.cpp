@@ -16,6 +16,14 @@
  */
 
 #include "sample_comm.h"
+// #define USE_NEWSTRUCT
+#ifdef ISP_HW_V39
+#include "rk_aiq_user_api2_rk3576.h"
+#elif  defined(ISP_HW_V33)
+#include "rk_aiq_user_api2_rv1103B.h"
+#elif  defined(ISP_HW_V32)
+#include "rk_aiq_user_api2_rv1106.h"
+#endif
 
 static void sample_accm_usage()
 {
@@ -40,6 +48,7 @@ static void sample_accm_usage()
     printf("\t j) CCM:         Set Auto attr & Sync.\n");
     printf("\t k) CCM:         Set Auto attr & Async.\n");
     printf("\t l) CCM:         Query CCM Info.\n");
+    printf("\t m) CCM:         newstruct test.\n");
     printf("\n");
     printf("\t h) CCM:         help.\n");
     printf("\t q) CCM:         return to main sample screen.\n");
@@ -1155,6 +1164,70 @@ XCamReturn sample_accm_v2_module(const void *arg)
 
     return XCAM_RETURN_NO_ERROR;
 }
+
+#ifdef USE_NEWSTRUCT
+
+void get_auto_attr(ccm_api_attrib_t* attr) {
+    ccm_param_auto_t* stAuto = &attr->stAuto;
+    for (int i = 0;i < 13;i++) {
+    }
+}
+
+void get_manual_attr(ccm_api_attrib_t* attr) {
+    ccm_param_t* stMan = &attr->stMan;
+}
+
+int sample_ccm_test(const rk_aiq_sys_ctx_t* ctx)
+{
+    // get cur mode
+    printf("+++++++ ccm module test start ++++++++\n");
+
+    ccm_api_attrib_t attr;
+    memset(&attr, 0, sizeof(attr));
+
+    rk_aiq_user_api2_ccm_GetAttrib(ctx, &attr);
+
+    printf("ccm attr: opmode:%d, en:%d, bypass:%d\n", attr.opMode, attr.en, attr.bypass);
+
+    srand(time(0));
+    int rand_num = rand() % 101;
+
+    if (rand_num <70) {
+        printf("update ccm arrrib!\n");
+        if (attr.opMode == RK_AIQ_OP_MODE_AUTO) {
+            attr.opMode = RK_AIQ_OP_MODE_MANUAL;
+            get_manual_attr(&attr);
+        }
+        else {
+            get_auto_attr(&attr);
+            attr.opMode = RK_AIQ_OP_MODE_AUTO;
+        }
+    }
+    else {
+        // reverse en
+        printf("reverse ccm en!\n");
+        attr.en = !attr.en;
+    }
+
+    rk_aiq_user_api2_ccm_SetAttrib(ctx, &attr);
+
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    ccm_status_t status;
+    memset(&status, 0, sizeof(ccm_status_t));
+
+    rk_aiq_user_api2_ccm_QueryStatus(ctx, &status);
+
+    printf("ccm status: opmode:%d, en:%d, bypass:%d\n", status.opMode, status.en, status.bypass);
+
+    if (status.opMode != attr.opMode || status.en != attr.en)
+        printf("ccm test failed\n");
+    printf("-------- ccm module test done --------\n");
+
+    return 0;
+}
+#endif
 
 XCamReturn sample_accm_v3_module(const void *arg)
 {

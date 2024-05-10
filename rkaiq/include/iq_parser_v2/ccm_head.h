@@ -20,7 +20,7 @@
 #ifndef __CALIBDBV2_CCM_HEADER_H__
 #define __CALIBDBV2_CCM_HEADER_H__
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 RKAIQ_BEGIN_DECLARE
 
@@ -184,7 +184,7 @@ typedef struct CalibDbV2_Ccm_Control_Para_s {
 typedef struct CalibDbV2_Ccm_Enh_para_s {
     // M4_ARRAY_DESC("gains", "f32", M4_SIZE(1,9), M4_RANGE(0,4096), "1", M4_DIGIT(0), M4_DYNAMIC(0))
     float gains[9];
-    // M4_ARRAY_DESC("Enhance ratio max", "f32", M4_SIZE(1,9), M4_RANGE(0, 8), "0", M4_DIGIT(1), M4_DYNAMIC(0))
+    // M4_ARRAY_DESC("Enhance ratio max", "f32", M4_SIZE(1,9), M4_RANGE(0, 8), "1", M4_DIGIT(1), M4_DYNAMIC(0))
     float enh_rat_max[9];
 } CalibDbV2_Ccm_Enh_para_t;
 

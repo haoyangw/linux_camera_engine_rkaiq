@@ -24,6 +24,10 @@ if (librga_FOUND)
     add_compile_options(-DISPDEMO_ENABLE_RGA=1)
 endif()
 
+if (RKAIQ_NEWSTRUCT_TEST)
+    add_compile_options(-DUSE_NEWSTRUCT=1)
+endif()
+
 if (RKAIQ_ENABLE_LIBDRM)
 find_package(libdrm QUIET)
 endif()
@@ -70,15 +74,8 @@ if(ADD_RK_AIQ)
     set(RK_AIQ_LIB_DIR ${RK_AIQ_INSTALLED_DIR}/lib)
     message("rkaiq lib path" ${RK_AIQ_LIB_DIR})
     set(RK_AIQ_INCLUDE_DIR
-        ${RK_AIQ_INSTALLED_DIR}/include/
         ${RK_AIQ_INSTALLED_DIR}/include/rkaiq/
         ${RK_AIQ_INSTALLED_DIR}/include/rkaiq/uAPI2
-        ${RK_AIQ_INSTALLED_DIR}/include/rkaiq/xcore/
-        ${RK_AIQ_INSTALLED_DIR}/include/rkaiq/algos/
-        ${RK_AIQ_INSTALLED_DIR}/include/rkaiq/common/
-        ${RK_AIQ_INSTALLED_DIR}/include/rkaiq/iq_parser/
-        ${RK_AIQ_INSTALLED_DIR}/include/rkaiq/iq_parser_v2/
-        ${RK_AIQ_INSTALLED_DIR}/include/rkaiq/isp/
         )
     set(RK_AIQ_LIB rkaiq)
 endif()
@@ -164,16 +161,20 @@ list(APPEND DIR_SRCS ${AEDEMO_DIR_SRCS})
 
 #AUX_SOURCE_DIRECTORY(demo/awb_algo_demo AWBDEMO_DIR_SRCS)
 #list(APPEND DIR_SRCS ${AWBDEMO_DIR_SRCS})
-if (${ISP_HW_VERSION} STREQUAL "-DISP_HW_V32")
+if (${ISP_HW_VERSION} STREQUAL "-DISP_HW_V39")
+    # add_compile_options(-DUSE_NEWSTRUCT=1)
+    set(AWBDEMO_DIR_SRCS demo/awb_algo_demo/third_party_awbV39_algo.cpp)
+elseif (${ISP_HW_VERSION} STREQUAL "-DISP_HW_V32")
     set(AWBDEMO_DIR_SRCS demo/awb_algo_demo/third_party_awbV32_algo.cpp)
 else()
     set(AWBDEMO_DIR_SRCS demo/awb_algo_demo/third_party_awb_algo.cpp)
 endif()
 list(APPEND DIR_SRCS ${AWBDEMO_DIR_SRCS})
 
-
+if (NOT (${ISP_HW_VERSION} STREQUAL "-DISP_HW_V33"))
 AUX_SOURCE_DIRECTORY(demo/af_algo_demo AFDEMO_DIR_SRCS)
 list(APPEND DIR_SRCS ${AFDEMO_DIR_SRCS})
+endif()
 
 if(WIN32)
     SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/exe)

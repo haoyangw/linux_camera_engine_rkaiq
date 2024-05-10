@@ -30,7 +30,7 @@ RkAiqAnalyzerGroup::RkAiqAnalyzerGroup(RkAiqCore* aiqCore, enum rk_aiq_core_anal
                                        const bool singleThrd)
     : mAiqCore(aiqCore), mGroupType(type), mDepsFlag(flag) {
     mUserSetDelayCnts = INT8_MAX;
-    mAwakenId         = (uint32_t)-1;
+    mAwakenId         = (uint32_t) -1;
     if (grpConds)
         mGrpConds = *grpConds;
     if (!singleThrd) {
@@ -71,11 +71,11 @@ void RkAiqAnalyzerGroup::msgReduction(std::map<uint32_t, GroupMessage>& msgMap) 
                 i++;
             }
             LOGW_ANALYZER_SUBM(ANALYZER_SUBM,
-                    "camId: %d, group(%s): id[%d] map size is %d, erase %d, element, missing conditions: %s",
-                    mAiqCore->mAlogsComSharedParams.mCamPhyId,
-                    AnalyzerGroupType2Str[mGroupType], mGroupMsgMap.begin()->first,
-                    originalSize, numToErase,
-                    missing_conds.c_str());
+                               "camId: %d, group(%s): id[%d] map size is %d, erase %d, element, missing conditions: %s",
+                               mAiqCore->mAlogsComSharedParams.mCamPhyId,
+                               AnalyzerGroupType2Str[mGroupType], mGroupMsgMap.begin()->first,
+                               originalSize, numToErase,
+                               missing_conds.c_str());
 
             auto eraseIter = mGroupMsgMap.begin();
             std::advance(eraseIter, numToErase);
@@ -100,7 +100,7 @@ int8_t RkAiqAnalyzerGroup::getMsgDelayCnt(XCamMessageType &msg_id) {
             delayCnt = mGrpConds.conds[i].delay;
             if (delayCnt != 0 && mUserSetDelayCnts != INT8_MAX)
                 delayCnt = mUserSetDelayCnts;
-           return delayCnt;
+            return delayCnt;
         }
     }
 
@@ -118,10 +118,8 @@ void RkAiqAnalyzerGroup::setVicapScaleFlag(bool mode) {
     mVicapScaleStart = mode;
 }
 
-void RkAiqAnalyzerGroup::awakenClean(uint32_t sequence) {
-    stop();
+void RkAiqAnalyzerGroup::setWakenId(uint32_t sequence) {
     mAwakenId = sequence;
-    start();
 }
 
 bool RkAiqAnalyzerGroup::msgHandle(RkAiqCoreVdBufMsg* msg) {
@@ -141,9 +139,9 @@ bool RkAiqAnalyzerGroup::msgHandle(RkAiqCoreVdBufMsg* msg) {
     int& msg_cnts = msgWrapper.msg_cnts;
     if (msg_cnts >= MAX_MESSAGES) {
         LOGE_ANALYZER_SUBM(ANALYZER_SUBM,
-            "camId: %d, group(%s): id[%d] push msg(%s), msg_cnts: %d overflow",
-             mAiqCore->mAlogsComSharedParams.mCamPhyId, AnalyzerGroupType2Str[mGroupType], msg->frame_id,
-             MessageType2Str[msg->msg_id], msg_cnts);
+                           "camId: %d, group(%s): id[%d] push msg(%s), msg_cnts: %d overflow",
+                           mAiqCore->mAlogsComSharedParams.mCamPhyId, AnalyzerGroupType2Str[mGroupType], msg->frame_id,
+                           MessageType2Str[msg->msg_id], msg_cnts);
         for (int i = 0; i < msg_cnts; i++) {
             LOGE_ANALYZER_SUBM(ANALYZER_SUBM, "%d: fid:%d, msg:%s",
                                i, msgWrapper.msgList[i].frame_id, MessageType2Str[msgWrapper.msgList[i].msg_id]);
@@ -155,10 +153,10 @@ bool RkAiqAnalyzerGroup::msgHandle(RkAiqCoreVdBufMsg* msg) {
     msgWrapper.msgList[msg_cnts++] = *msg;
 
     LOGD_ANALYZER_SUBM(ANALYZER_SUBM,
-        "camId: %d, group(%s): id[%d] push msg(%s), msg delayCnt(%d), map size is %d",
-         mAiqCore->mAlogsComSharedParams.mCamPhyId,
-         AnalyzerGroupType2Str[mGroupType], msg->frame_id,
-         MessageType2Str[msg->msg_id], delayCnt, mGroupMsgMap.size());
+                       "camId: %d, group(%s): id[%d] push msg(%s), msg delayCnt(%d), map size is %d",
+                       mAiqCore->mAlogsComSharedParams.mCamPhyId,
+                       AnalyzerGroupType2Str[mGroupType], msg->frame_id,
+                       MessageType2Str[msg->msg_id], delayCnt, mGroupMsgMap.size());
 
     uint64_t msg_flags = msgWrapper.msg_flags;
     if (!(msg_flags ^ mDepsFlag)) {
@@ -232,15 +230,15 @@ bool RkAiqAnalyzeGroupMsgHdlThread::loop() {
 
 XCamReturn RkAiqAnalyzeGroupMsgHdlThread::handleCalibUpdate(RkAiqAnalyzerGroup* grp)
 {
-  ENTER_ANALYZER_FUNCTION();
-  XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    ENTER_ANALYZER_FUNCTION();
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
-  if (grp && grp->getAiqCore()) {
-    grp->getAiqCore()->updateCalib(grp->getType());
-  }
+    if (grp && grp->getAiqCore()) {
+        grp->getAiqCore()->updateCalib(grp->getType());
+    }
 
-  EXIT_ANALYZER_FUNCTION();
-  return ret;
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
 }
 
 RkAiqAnalyzeGroupManager::RkAiqAnalyzeGroupManager(RkAiqCore* aiqCore, bool single_thread)
@@ -248,9 +246,9 @@ RkAiqAnalyzeGroupManager::RkAiqAnalyzeGroupManager(RkAiqCore* aiqCore, bool sing
 
 uint64_t RkAiqAnalyzeGroupManager::getGrpDeps(rk_aiq_core_analyze_type_e group) {
     auto res = std::find_if(std::begin(mGroupMap), std::end(mGroupMap),
-                            [&group](const std::pair<uint64_t, SmartPtr<RkAiqAnalyzerGroup>>& grp) {
-                                return group == grp.second->getType();
-                            });
+    [&group](const std::pair<uint64_t, SmartPtr<RkAiqAnalyzerGroup>>& grp) {
+        return group == grp.second->getType();
+    });
     if (res != std::end(mGroupMap)) {
         return res->second->getDepsFlag();
     }
@@ -259,11 +257,11 @@ uint64_t RkAiqAnalyzeGroupManager::getGrpDeps(rk_aiq_core_analyze_type_e group) 
 }
 
 XCamReturn RkAiqAnalyzeGroupManager::setGrpDeps(rk_aiq_core_analyze_type_e group,
-                                                uint64_t new_deps) {
+        uint64_t new_deps) {
     auto res = std::find_if(std::begin(mGroupMap), std::end(mGroupMap),
-                            [&group](const std::pair<uint64_t, SmartPtr<RkAiqAnalyzerGroup>>& grp) {
-                                return group == grp.second->getType();
-                            });
+    [&group](const std::pair<uint64_t, SmartPtr<RkAiqAnalyzerGroup>>& grp) {
+        return group == grp.second->getType();
+    });
     if (res != std::end(mGroupMap)) {
         uint64_t old_deps = res->second->getDepsFlag();
 
@@ -316,7 +314,7 @@ XCamReturn RkAiqAnalyzeGroupManager::stop() {
 }
 
 XCamReturn RkAiqAnalyzeGroupManager::groupMessageHandler(std::array<RkAiqCoreVdBufMsg, MAX_MESSAGES>& msgs,
-                                                         int msg_cnts, uint32_t id, uint64_t grpId) {
+        int msg_cnts, uint32_t id, uint64_t grpId) {
     uint64_t grpMask                           = mAiqCore->grpId2GrpMask(grpId);
     RkAiqCore::RkAiqAlgosGroupShared_t* shared = nullptr;
     mAiqCore->getGroupSharedParams(grpMask, shared);
@@ -328,243 +326,243 @@ XCamReturn RkAiqAnalyzeGroupManager::groupMessageHandler(std::array<RkAiqCoreVdB
         vdBufMsg = &msgs[i];
         if (!vdBufMsg || !vdBufMsg->msg.ptr()) continue;
         switch (vdBufMsg->msg_id) {
-            case XCAM_MESSAGE_SOF_INFO_OK:
-                sofInfoMsg =
-                    vdBufMsg->msg.get_cast_ptr<RkAiqSofInfoWrapperProxy>();
-                shared->curExp = sofInfoMsg->data()->curExp->data()->aecExpInfo;
-                shared->preExp = sofInfoMsg->data()->preExp->data()->aecExpInfo;
-                shared->nxtExp = sofInfoMsg->data()->nxtExp->data()->aecExpInfo;
-                shared->sof = sofInfoMsg->data()->sof;
-                shared->iso = sofInfoMsg->data()->iso;
-                break;
-            case XCAM_MESSAGE_ISP_STATS_OK:
-                shared->ispStats = convert_to_XCamVideoBuffer(vdBufMsg->msg);
-                break;
-            case XCAM_MESSAGE_AEC_STATS_OK:
-                {
-                    RkAiqAecStatsProxy* aecStats = vdBufMsg->msg.get_cast_ptr<RkAiqAecStatsProxy>();
-                    if (aecStats)
-                        shared->aecStatsBuf = aecStats->data().ptr();
-                }
-                break;
-            case XCAM_MESSAGE_AWB_STATS_OK:
-                {
-                    RkAiqAwbStatsProxy* awbStats = vdBufMsg->msg.get_cast_ptr<RkAiqAwbStatsProxy>();
-                    if (awbStats)
-                        shared->awbStatsBuf = awbStats->data().ptr();
-                }
-                break;
-            case XCAM_MESSAGE_AF_STATS_OK:
-                {
-                    RkAiqAfStatsProxy* afStats = vdBufMsg->msg.get_cast_ptr<RkAiqAfStatsProxy>();
-                    if (afStats)
-                        shared->afStatsBuf = afStats->data().ptr();
-                }
-                break;
-            case XCAM_MESSAGE_ISP_POLL_SP_OK:
-                shared->sp = convert_to_XCamVideoBuffer(vdBufMsg->msg);
-                break;
-            case XCAM_MESSAGE_ISP_GAIN_OK:
-                shared->ispGain = convert_to_XCamVideoBuffer(vdBufMsg->msg);
-                break;
-            case XCAM_MESSAGE_ISP_POLL_TX_OK:
-                shared->tx = convert_to_XCamVideoBuffer(vdBufMsg->msg);
-                break;
-            case XCAM_MESSAGE_ISPP_GAIN_KG_OK:
-                shared->kgGain = convert_to_XCamVideoBuffer(vdBufMsg->msg);
-                break;
-            case XCAM_MESSAGE_ISPP_GAIN_WR_OK:
-                shared->wrGain = convert_to_XCamVideoBuffer(vdBufMsg->msg);
-                break;
-            case XCAM_MESSAGE_ORB_STATS_OK:
-                shared->orbStats = convert_to_XCamVideoBuffer(vdBufMsg->msg);
-                break;
-            case XCAM_MESSAGE_NR_IMG_OK:
-                shared->nrImg = convert_to_XCamVideoBuffer(vdBufMsg->msg);
-                break;
-            case XCAM_MESSAGE_PDAF_STATS_OK:
-                {
-                    RkAiqPdafStatsProxy* pdafStats = vdBufMsg->msg.get_cast_ptr<RkAiqPdafStatsProxy>();
-                    if (pdafStats)
-                        shared->pdafStatsBuf = pdafStats->data().ptr();
-                }
-                break;
-            case XCAM_MESSAGE_AE_PRE_RES_OK:
-                shared->res_comb.ae_pre_res = convert_to_XCamVideoBuffer(vdBufMsg->msg);
-                break;
-            case XCAM_MESSAGE_AE_PROC_RES_OK:
-                shared->res_comb.ae_proc_res = convert_to_XCamVideoBuffer(vdBufMsg->msg);
-                break;
-            case XCAM_MESSAGE_AWB_PROC_RES_OK:
-                shared->res_comb.awb_proc_res = convert_to_XCamVideoBuffer(vdBufMsg->msg);
-                break;
-            case XCAM_MESSAGE_AMD_PROC_RES_OK:
-                // xCamAmdProcRes = convert_to_XCamVideoBuffer(vdBufMsg->msg);
-                break;
-            case XCAM_MESSAGE_BLC_PROC_RES_OK:
-                shared->res_comb.ablc_proc_res =
-                    ((RkAiqAlgoProcResAblc*)vdBufMsg->msg->map())->ablc_proc_res;
-                LOGD_ANALYZER_SUBM(
-                    ANALYZER_SUBM, "camId: %d, group: %s: id: %d, blc_r: %d, blc1_r: %d",
-                    mAiqCore->mAlogsComSharedParams.mCamPhyId, AnalyzerGroupType2Str[grpId],
-                    vdBufMsg->msg->get_sequence(), shared->res_comb.ablc_proc_res->blc_r,
-                    shared->res_comb.ablc_proc_res->blc1_r);
-                break;
-            case XCAM_MESSAGE_BLC_V32_PROC_RES_OK:
-                shared->res_comb.ablcV32_proc_res =
-                    ((RkAiqAlgoProcResAblcV32*)vdBufMsg->msg->map())->ablcV32_proc_res;
-                LOGD_ANALYZER_SUBM(
-                    ANALYZER_SUBM,
-                    "camId: %d, group: %s: id: %d, ob_offset: %d, ob_predgain: %f",
-                    mAiqCore->mAlogsComSharedParams.mCamPhyId, AnalyzerGroupType2Str[grpId],
-                    vdBufMsg->msg->get_sequence(),
-                    shared->res_comb.ablcV32_proc_res->isp_ob_offset,
-                    shared->res_comb.ablcV32_proc_res->isp_ob_predgain);
-                break;
-            case XCAM_MESSAGE_YNR_V3_PROC_RES_OK:
-                shared->res_comb.aynrV3_proc_res =
-                    &((RkAiqAlgoProcResAynrV3*)vdBufMsg->msg->map())->stAynrProcResult;
-                LOGD_ANALYZER_SUBM(ANALYZER_SUBM,
-                                   "camId: %d, group: %s: id: %d, sigma: %f %f %f %f %f %f %f "
-                                   "%f %f %f %f %f %f %f %f %f %f ",
-                                   mAiqCore->mAlogsComSharedParams.mCamPhyId,
-                                   AnalyzerGroupType2Str[grpId],
-                                   vdBufMsg->msg->get_sequence(),
-                                   shared->res_comb.aynrV3_proc_res->stSelect->sigma[0],
-                                   shared->res_comb.aynrV3_proc_res->stSelect->sigma[1],
-                                   shared->res_comb.aynrV3_proc_res->stSelect->sigma[2],
-                                   shared->res_comb.aynrV3_proc_res->stSelect->sigma[3],
-                                   shared->res_comb.aynrV3_proc_res->stSelect->sigma[4],
-                                   shared->res_comb.aynrV3_proc_res->stSelect->sigma[5],
-                                   shared->res_comb.aynrV3_proc_res->stSelect->sigma[6],
-                                   shared->res_comb.aynrV3_proc_res->stSelect->sigma[7],
-                                   shared->res_comb.aynrV3_proc_res->stSelect->sigma[8],
-                                   shared->res_comb.aynrV3_proc_res->stSelect->sigma[9],
-                                   shared->res_comb.aynrV3_proc_res->stSelect->sigma[10],
-                                   shared->res_comb.aynrV3_proc_res->stSelect->sigma[11],
-                                   shared->res_comb.aynrV3_proc_res->stSelect->sigma[12],
-                                   shared->res_comb.aynrV3_proc_res->stSelect->sigma[13],
-                                   shared->res_comb.aynrV3_proc_res->stSelect->sigma[14],
-                                   shared->res_comb.aynrV3_proc_res->stSelect->sigma[15],
-                                   shared->res_comb.aynrV3_proc_res->stSelect->sigma[16]);
-                break;
-            case XCAM_MESSAGE_YNR_V22_PROC_RES_OK:
-                shared->res_comb.aynrV22_proc_res =
-                    &((RkAiqAlgoProcResAynrV22*)vdBufMsg->msg->map())->stAynrProcResult;
-                LOGD_ANALYZER_SUBM(ANALYZER_SUBM,
-                                   "camId: %d, group: %s: id: %d, sigma: %f %f %f %f %f %f %f "
-                                   "%f %f %f %f %f %f %f %f %f %f ",
-                                   mAiqCore->mAlogsComSharedParams.mCamPhyId,
-                                   AnalyzerGroupType2Str[grpId],
-                                   vdBufMsg->msg->get_sequence(),
-                                   shared->res_comb.aynrV22_proc_res->stSelect->sigma[0],
-                                   shared->res_comb.aynrV22_proc_res->stSelect->sigma[1],
-                                   shared->res_comb.aynrV22_proc_res->stSelect->sigma[2],
-                                   shared->res_comb.aynrV22_proc_res->stSelect->sigma[3],
-                                   shared->res_comb.aynrV22_proc_res->stSelect->sigma[4],
-                                   shared->res_comb.aynrV22_proc_res->stSelect->sigma[5],
-                                   shared->res_comb.aynrV22_proc_res->stSelect->sigma[6],
-                                   shared->res_comb.aynrV22_proc_res->stSelect->sigma[7],
-                                   shared->res_comb.aynrV22_proc_res->stSelect->sigma[8],
-                                   shared->res_comb.aynrV22_proc_res->stSelect->sigma[9],
-                                   shared->res_comb.aynrV22_proc_res->stSelect->sigma[10],
-                                   shared->res_comb.aynrV22_proc_res->stSelect->sigma[11],
-                                   shared->res_comb.aynrV22_proc_res->stSelect->sigma[12],
-                                   shared->res_comb.aynrV22_proc_res->stSelect->sigma[13],
-                                   shared->res_comb.aynrV22_proc_res->stSelect->sigma[14],
-                                   shared->res_comb.aynrV22_proc_res->stSelect->sigma[15],
-                                   shared->res_comb.aynrV22_proc_res->stSelect->sigma[16]);
-                break;
-            case XCAM_MESSAGE_YNR_V24_PROC_RES_OK:
-                shared->res_comb.aynrV24_proc_res =
-                    &((RkAiqAlgoProcResAynrV24*)vdBufMsg->msg->map())->stAynrProcResult;
-                LOGD_ANALYZER_SUBM(ANALYZER_SUBM,
-                                   "camId: %d, group: %s: id: %d, sigma: %f %f %f %f %f %f %f "
-                                   "%f %f %f %f %f %f %f %f %f %f ",
-                                   mAiqCore->mAlogsComSharedParams.mCamPhyId,
-                                   AnalyzerGroupType2Str[grpId],
-                                   vdBufMsg->msg->get_sequence(),
-                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[0],
-                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[1],
-                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[2],
-                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[3],
-                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[4],
-                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[5],
-                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[6],
-                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[7],
-                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[8],
-                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[9],
-                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[10],
-                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[11],
-                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[12],
-                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[13],
-                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[14],
-                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[15],
-                                   shared->res_comb.aynrV24_proc_res->stSelect->sigma[16]);
-                break;
+        case XCAM_MESSAGE_SOF_INFO_OK:
+            sofInfoMsg =
+                vdBufMsg->msg.get_cast_ptr<RkAiqSofInfoWrapperProxy>();
+            shared->curExp = sofInfoMsg->data()->curExp->data()->aecExpInfo;
+            shared->preExp = sofInfoMsg->data()->preExp->data()->aecExpInfo;
+            shared->nxtExp = sofInfoMsg->data()->nxtExp->data()->aecExpInfo;
+            shared->sof = sofInfoMsg->data()->sof;
+            shared->iso = sofInfoMsg->data()->iso;
+            break;
+        case XCAM_MESSAGE_ISP_STATS_OK:
+            shared->ispStats = convert_to_XCamVideoBuffer(vdBufMsg->msg);
+            break;
+        case XCAM_MESSAGE_AEC_STATS_OK:
+        {
+            RkAiqAecStatsProxy* aecStats = vdBufMsg->msg.get_cast_ptr<RkAiqAecStatsProxy>();
+            if (aecStats)
+                shared->aecStatsBuf = aecStats->data().ptr();
+        }
+        break;
+        case XCAM_MESSAGE_AWB_STATS_OK:
+        {
+            RkAiqAwbStatsProxy* awbStats = vdBufMsg->msg.get_cast_ptr<RkAiqAwbStatsProxy>();
+            if (awbStats)
+                shared->awbStatsBuf = awbStats->data().ptr();
+        }
+        break;
+        case XCAM_MESSAGE_AF_STATS_OK:
+        {
+            RkAiqAfStatsProxy* afStats = vdBufMsg->msg.get_cast_ptr<RkAiqAfStatsProxy>();
+            if (afStats)
+                shared->afStatsBuf = afStats->data().ptr();
+        }
+        break;
+        case XCAM_MESSAGE_ISP_POLL_SP_OK:
+            shared->sp = convert_to_XCamVideoBuffer(vdBufMsg->msg);
+            break;
+        case XCAM_MESSAGE_ISP_GAIN_OK:
+            shared->ispGain = convert_to_XCamVideoBuffer(vdBufMsg->msg);
+            break;
+        case XCAM_MESSAGE_ISP_POLL_TX_OK:
+            shared->tx = convert_to_XCamVideoBuffer(vdBufMsg->msg);
+            break;
+        case XCAM_MESSAGE_ISPP_GAIN_KG_OK:
+            shared->kgGain = convert_to_XCamVideoBuffer(vdBufMsg->msg);
+            break;
+        case XCAM_MESSAGE_ISPP_GAIN_WR_OK:
+            shared->wrGain = convert_to_XCamVideoBuffer(vdBufMsg->msg);
+            break;
+        case XCAM_MESSAGE_ORB_STATS_OK:
+            shared->orbStats = convert_to_XCamVideoBuffer(vdBufMsg->msg);
+            break;
+        case XCAM_MESSAGE_NR_IMG_OK:
+            shared->nrImg = convert_to_XCamVideoBuffer(vdBufMsg->msg);
+            break;
+        case XCAM_MESSAGE_PDAF_STATS_OK:
+        {
+            RkAiqPdafStatsProxy* pdafStats = vdBufMsg->msg.get_cast_ptr<RkAiqPdafStatsProxy>();
+            if (pdafStats)
+                shared->pdafStatsBuf = pdafStats->data().ptr();
+        }
+        break;
+        case XCAM_MESSAGE_AE_PRE_RES_OK:
+            shared->res_comb.ae_pre_res = convert_to_XCamVideoBuffer(vdBufMsg->msg);
+            break;
+        case XCAM_MESSAGE_AE_PROC_RES_OK:
+            shared->res_comb.ae_proc_res = convert_to_XCamVideoBuffer(vdBufMsg->msg);
+            break;
+        case XCAM_MESSAGE_AWB_PROC_RES_OK:
+            shared->res_comb.awb_proc_res = convert_to_XCamVideoBuffer(vdBufMsg->msg);
+            break;
+        case XCAM_MESSAGE_AMD_PROC_RES_OK:
+            // xCamAmdProcRes = convert_to_XCamVideoBuffer(vdBufMsg->msg);
+            break;
+        case XCAM_MESSAGE_BLC_PROC_RES_OK:
+            shared->res_comb.ablc_proc_res =
+                ((RkAiqAlgoProcResAblc*)vdBufMsg->msg->map())->ablc_proc_res;
+            LOGD_ANALYZER_SUBM(
+                ANALYZER_SUBM, "camId: %d, group: %s: id: %d, blc_r: %d, blc1_r: %d",
+                mAiqCore->mAlogsComSharedParams.mCamPhyId, AnalyzerGroupType2Str[grpId],
+                vdBufMsg->msg->get_sequence(), shared->res_comb.ablc_proc_res->blc_r,
+                shared->res_comb.ablc_proc_res->blc1_r);
+            break;
+        case XCAM_MESSAGE_BLC_V32_PROC_RES_OK:
+            shared->res_comb.ablcV32_proc_res =
+                ((RkAiqAlgoProcResAblcV32*)vdBufMsg->msg->map())->ablcV32_proc_res;
+            LOGD_ANALYZER_SUBM(
+                ANALYZER_SUBM,
+                "camId: %d, group: %s: id: %d, ob_offset: %d, ob_predgain: %f",
+                mAiqCore->mAlogsComSharedParams.mCamPhyId, AnalyzerGroupType2Str[grpId],
+                vdBufMsg->msg->get_sequence(),
+                shared->res_comb.ablcV32_proc_res->isp_ob_offset,
+                shared->res_comb.ablcV32_proc_res->isp_ob_predgain);
+            break;
+        case XCAM_MESSAGE_YNR_V3_PROC_RES_OK:
+            shared->res_comb.aynrV3_proc_res =
+                &((RkAiqAlgoProcResAynrV3*)vdBufMsg->msg->map())->stAynrProcResult;
+            LOGD_ANALYZER_SUBM(ANALYZER_SUBM,
+                               "camId: %d, group: %s: id: %d, sigma: %f %f %f %f %f %f %f "
+                               "%f %f %f %f %f %f %f %f %f %f ",
+                               mAiqCore->mAlogsComSharedParams.mCamPhyId,
+                               AnalyzerGroupType2Str[grpId],
+                               vdBufMsg->msg->get_sequence(),
+                               shared->res_comb.aynrV3_proc_res->stSelect->sigma[0],
+                               shared->res_comb.aynrV3_proc_res->stSelect->sigma[1],
+                               shared->res_comb.aynrV3_proc_res->stSelect->sigma[2],
+                               shared->res_comb.aynrV3_proc_res->stSelect->sigma[3],
+                               shared->res_comb.aynrV3_proc_res->stSelect->sigma[4],
+                               shared->res_comb.aynrV3_proc_res->stSelect->sigma[5],
+                               shared->res_comb.aynrV3_proc_res->stSelect->sigma[6],
+                               shared->res_comb.aynrV3_proc_res->stSelect->sigma[7],
+                               shared->res_comb.aynrV3_proc_res->stSelect->sigma[8],
+                               shared->res_comb.aynrV3_proc_res->stSelect->sigma[9],
+                               shared->res_comb.aynrV3_proc_res->stSelect->sigma[10],
+                               shared->res_comb.aynrV3_proc_res->stSelect->sigma[11],
+                               shared->res_comb.aynrV3_proc_res->stSelect->sigma[12],
+                               shared->res_comb.aynrV3_proc_res->stSelect->sigma[13],
+                               shared->res_comb.aynrV3_proc_res->stSelect->sigma[14],
+                               shared->res_comb.aynrV3_proc_res->stSelect->sigma[15],
+                               shared->res_comb.aynrV3_proc_res->stSelect->sigma[16]);
+            break;
+        case XCAM_MESSAGE_YNR_V22_PROC_RES_OK:
+            shared->res_comb.aynrV22_proc_res =
+                &((RkAiqAlgoProcResAynrV22*)vdBufMsg->msg->map())->stAynrProcResult;
+            LOGD_ANALYZER_SUBM(ANALYZER_SUBM,
+                               "camId: %d, group: %s: id: %d, sigma: %f %f %f %f %f %f %f "
+                               "%f %f %f %f %f %f %f %f %f %f ",
+                               mAiqCore->mAlogsComSharedParams.mCamPhyId,
+                               AnalyzerGroupType2Str[grpId],
+                               vdBufMsg->msg->get_sequence(),
+                               shared->res_comb.aynrV22_proc_res->stSelect->sigma[0],
+                               shared->res_comb.aynrV22_proc_res->stSelect->sigma[1],
+                               shared->res_comb.aynrV22_proc_res->stSelect->sigma[2],
+                               shared->res_comb.aynrV22_proc_res->stSelect->sigma[3],
+                               shared->res_comb.aynrV22_proc_res->stSelect->sigma[4],
+                               shared->res_comb.aynrV22_proc_res->stSelect->sigma[5],
+                               shared->res_comb.aynrV22_proc_res->stSelect->sigma[6],
+                               shared->res_comb.aynrV22_proc_res->stSelect->sigma[7],
+                               shared->res_comb.aynrV22_proc_res->stSelect->sigma[8],
+                               shared->res_comb.aynrV22_proc_res->stSelect->sigma[9],
+                               shared->res_comb.aynrV22_proc_res->stSelect->sigma[10],
+                               shared->res_comb.aynrV22_proc_res->stSelect->sigma[11],
+                               shared->res_comb.aynrV22_proc_res->stSelect->sigma[12],
+                               shared->res_comb.aynrV22_proc_res->stSelect->sigma[13],
+                               shared->res_comb.aynrV22_proc_res->stSelect->sigma[14],
+                               shared->res_comb.aynrV22_proc_res->stSelect->sigma[15],
+                               shared->res_comb.aynrV22_proc_res->stSelect->sigma[16]);
+            break;
+        case XCAM_MESSAGE_YNR_V24_PROC_RES_OK:
+            shared->res_comb.aynrV24_proc_res =
+                &((RkAiqAlgoProcResAynrV24*)vdBufMsg->msg->map())->stAynrProcResult;
+            LOGD_ANALYZER_SUBM(ANALYZER_SUBM,
+                               "camId: %d, group: %s: id: %d, sigma: %f %f %f %f %f %f %f "
+                               "%f %f %f %f %f %f %f %f %f %f ",
+                               mAiqCore->mAlogsComSharedParams.mCamPhyId,
+                               AnalyzerGroupType2Str[grpId],
+                               vdBufMsg->msg->get_sequence(),
+                               shared->res_comb.aynrV24_proc_res->stSelect->sigma[0],
+                               shared->res_comb.aynrV24_proc_res->stSelect->sigma[1],
+                               shared->res_comb.aynrV24_proc_res->stSelect->sigma[2],
+                               shared->res_comb.aynrV24_proc_res->stSelect->sigma[3],
+                               shared->res_comb.aynrV24_proc_res->stSelect->sigma[4],
+                               shared->res_comb.aynrV24_proc_res->stSelect->sigma[5],
+                               shared->res_comb.aynrV24_proc_res->stSelect->sigma[6],
+                               shared->res_comb.aynrV24_proc_res->stSelect->sigma[7],
+                               shared->res_comb.aynrV24_proc_res->stSelect->sigma[8],
+                               shared->res_comb.aynrV24_proc_res->stSelect->sigma[9],
+                               shared->res_comb.aynrV24_proc_res->stSelect->sigma[10],
+                               shared->res_comb.aynrV24_proc_res->stSelect->sigma[11],
+                               shared->res_comb.aynrV24_proc_res->stSelect->sigma[12],
+                               shared->res_comb.aynrV24_proc_res->stSelect->sigma[13],
+                               shared->res_comb.aynrV24_proc_res->stSelect->sigma[14],
+                               shared->res_comb.aynrV24_proc_res->stSelect->sigma[15],
+                               shared->res_comb.aynrV24_proc_res->stSelect->sigma[16]);
+            break;
 #if USE_NEWSTRUCT
-            case XCAM_MESSAGE_YNR_PROC_RES_OK:
-                shared->res_comb.ynr_proc_res =
-                    ((RkAiqAlgoProcResYnr*)vdBufMsg->msg->map())->ynrRes;
-                /*
-                LOGD_ANALYZER_SUBM(ANALYZER_SUBM,
-                                   "camId: %d, group: %s: id: %d, sigma: %d %d %d %d %d %d %d "
-                                   "%d %d %d %d %d %d %d %d %d %d ",
-                                   mAiqCore->mAlogsComSharedParams.mCamPhyId,
-                                   AnalyzerGroupType2Str[grpId],
-                                   vdBufMsg->msg->get_sequence(),
-                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[0],
-                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[1],
-                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[2],
-                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[3],
-                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[4],
-                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[5],
-                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[6],
-                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[7],
-                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[8],
-                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[9],
-                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[10],
-                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[11],
-                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[12],
-                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[13],
-                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[14],
-                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[15],
-                                   shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[16]);
-                */
-                break;
+        case XCAM_MESSAGE_YNR_PROC_RES_OK:
+            shared->res_comb.ynr_proc_res =
+                ((RkAiqAlgoProcResYnr*)vdBufMsg->msg->map())->ynrRes;
+            /*
+            LOGD_ANALYZER_SUBM(ANALYZER_SUBM,
+                               "camId: %d, group: %s: id: %d, sigma: %d %d %d %d %d %d %d "
+                               "%d %d %d %d %d %d %d %d %d %d ",
+                               mAiqCore->mAlogsComSharedParams.mCamPhyId,
+                               AnalyzerGroupType2Str[grpId],
+                               vdBufMsg->msg->get_sequence(),
+                               shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[0],
+                               shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[1],
+                               shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[2],
+                               shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[3],
+                               shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[4],
+                               shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[5],
+                               shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[6],
+                               shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[7],
+                               shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[8],
+                               shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[9],
+                               shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[10],
+                               shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[11],
+                               shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[12],
+                               shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[13],
+                               shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[14],
+                               shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[15],
+                               shared->res_comb.ynr_proc_res->dyn.loNrPost.hw_ynrC_luma2LoSgm_curve.val[16]);
+            */
+            break;
 #endif
-            case XCAM_MESSAGE_ADEHAZE_STATS_OK:
-                {
-                    RkAiqAdehazeStatsProxy* dehazeStats = vdBufMsg->msg.get_cast_ptr<RkAiqAdehazeStatsProxy>();
-                    if (dehazeStats)
-                        shared->adehazeStatsBuf = dehazeStats->data().ptr();
-                }
-                break;
-            case XCAM_MESSAGE_AGAIN_STATS_OK:
-                {
-                    RkAiqAgainStatsProxy* againStats = vdBufMsg->msg.get_cast_ptr<RkAiqAgainStatsProxy>();
-                    if (againStats)
-                        shared->againStatsBuf = againStats->data().ptr();
-                }
-                break;
-            case XCAM_MESSAGE_VICAP_POLL_SCL_OK:
-            {
-                RkAiqVicapRawBufInfo_t *buf_info = (RkAiqVicapRawBufInfo_t *)vdBufMsg->msg->map();
-                shared->scaleRawInfo.bpp = buf_info->bpp;
-                if (buf_info->flags == RK_AIQ_VICAP_SCALE_HDR_MODE_NORMAL) {
-                    shared->scaleRawInfo.raw_s = convert_to_XCamVideoBuffer(buf_info->raw_s);
-                } else if (buf_info->flags == RK_AIQ_VICAP_SCALE_HDR_MODE_2_HDR) {
-                    shared->scaleRawInfo.raw_l = convert_to_XCamVideoBuffer(buf_info->raw_l);
-                    shared->scaleRawInfo.raw_s = convert_to_XCamVideoBuffer(buf_info->raw_s);
-                } else if (buf_info->flags == RK_AIQ_VICAP_SCALE_HDR_MODE_3_HDR) {
-                    shared->scaleRawInfo.raw_l = convert_to_XCamVideoBuffer(buf_info->raw_l);
-                    shared->scaleRawInfo.raw_s = convert_to_XCamVideoBuffer(buf_info->raw_s);
-                    shared->scaleRawInfo.raw_m = convert_to_XCamVideoBuffer(buf_info->raw_m);
-                }
-                break;
+        case XCAM_MESSAGE_ADEHAZE_STATS_OK:
+        {
+            RkAiqAdehazeStatsProxy* dehazeStats = vdBufMsg->msg.get_cast_ptr<RkAiqAdehazeStatsProxy>();
+            if (dehazeStats)
+                shared->adehazeStatsBuf = dehazeStats->data().ptr();
+        }
+        break;
+        case XCAM_MESSAGE_AGAIN_STATS_OK:
+        {
+            RkAiqAgainStatsProxy* againStats = vdBufMsg->msg.get_cast_ptr<RkAiqAgainStatsProxy>();
+            if (againStats)
+                shared->againStatsBuf = againStats->data().ptr();
+        }
+        break;
+        case XCAM_MESSAGE_VICAP_POLL_SCL_OK:
+        {
+            RkAiqVicapRawBufInfo_t *buf_info = (RkAiqVicapRawBufInfo_t *)vdBufMsg->msg->map();
+            shared->scaleRawInfo.bpp = buf_info->bpp;
+            if (buf_info->flags == RK_AIQ_VICAP_SCALE_HDR_MODE_NORMAL) {
+                shared->scaleRawInfo.raw_s = convert_to_XCamVideoBuffer(buf_info->raw_s);
+            } else if (buf_info->flags == RK_AIQ_VICAP_SCALE_HDR_MODE_2_HDR) {
+                shared->scaleRawInfo.raw_l = convert_to_XCamVideoBuffer(buf_info->raw_l);
+                shared->scaleRawInfo.raw_s = convert_to_XCamVideoBuffer(buf_info->raw_s);
+            } else if (buf_info->flags == RK_AIQ_VICAP_SCALE_HDR_MODE_3_HDR) {
+                shared->scaleRawInfo.raw_l = convert_to_XCamVideoBuffer(buf_info->raw_l);
+                shared->scaleRawInfo.raw_s = convert_to_XCamVideoBuffer(buf_info->raw_s);
+                shared->scaleRawInfo.raw_m = convert_to_XCamVideoBuffer(buf_info->raw_m);
             }
-            default:
-                break;
+            break;
+        }
+        default:
+            break;
         }
     }
     //msgs.clear();
@@ -683,7 +681,7 @@ XCamReturn RkAiqAnalyzeGroupManager::thumbnailsGroupMessageHandler(
 
 void RkAiqAnalyzeGroupManager::parseAlgoGroup(const struct RkAiqAlgoDesCommExt* algoDes) {
     uint64_t disAlgosMask = mAiqCore->getInitDisAlgosMask();
-    if (mSingleThreadMode) {
+    if (mSingleThreadMode && mMsgThrd.ptr() == nullptr) {
         mMsgThrd = new RkAiqAnalyzeGroupMsgHdlThread("GrpMsgThrd", nullptr);
         XCAM_ASSERT(mMsgThrd.ptr() != nullptr);
     }
@@ -699,15 +697,35 @@ void RkAiqAnalyzeGroupManager::parseAlgoGroup(const struct RkAiqAlgoDesCommExt* 
         for (size_t j = 0; j < algoDes[i].grpConds.size; j++)
             deps_flag |= 1ULL << algoDes[i].grpConds.conds[j].cond;
         rk_aiq_core_analyze_type_e group = algoDes[i].group;
+        SmartPtr<RkAiqHandle> tmp_hdl;
         if (mAiqCore->getCurAlgoTypeHandle(algo_type)) {
             mGroupAlgoListMap[group].push_back(*mAiqCore->getCurAlgoTypeHandle(algo_type));
-            mGroupAlgoListMap[RK_AIQ_CORE_ANALYZE_ALL].push_back(*mAiqCore->getCurAlgoTypeHandle(algo_type));
+            switch (algo_type)
+            {
+            case RK_AIQ_ALGO_TYPE_AE:
+                mGroupAlgoListMap[RK_AIQ_CORE_ANALYZE_ALL].insert(
+                    mGroupAlgoListMap[RK_AIQ_CORE_ANALYZE_ALL].begin(), *mAiqCore->getCurAlgoTypeHandle(algo_type));
+                break;
+            case RK_AIQ_ALGO_TYPE_AWB:
+                tmp_hdl = mGroupAlgoListMap[RK_AIQ_CORE_ANALYZE_ALL].front();
+                if (tmp_hdl->getAlgoType() == RK_AIQ_ALGO_TYPE_AE) {
+                    mGroupAlgoListMap[RK_AIQ_CORE_ANALYZE_ALL].insert(
+                        mGroupAlgoListMap[RK_AIQ_CORE_ANALYZE_ALL].begin() + 1, *mAiqCore->getCurAlgoTypeHandle(algo_type));
+                } else {
+                    mGroupAlgoListMap[RK_AIQ_CORE_ANALYZE_ALL].insert(
+                        mGroupAlgoListMap[RK_AIQ_CORE_ANALYZE_ALL].begin(), *mAiqCore->getCurAlgoTypeHandle(algo_type));
+                }
+                break;
+            default:
+                mGroupAlgoListMap[RK_AIQ_CORE_ANALYZE_ALL].push_back(*mAiqCore->getCurAlgoTypeHandle(algo_type));
+                break;
+            }
         }
         if (mGroupMap.count(group)) {
             continue;
         }
         mGroupMap[group] = new RkAiqAnalyzerGroup(mAiqCore, group, deps_flag,
-                                                      &algoDes[i].grpConds, mSingleThreadMode);
+                &algoDes[i].grpConds, mSingleThreadMode);
         if (mSingleThreadMode) mMsgThrd->add_group(mGroupMap[group].ptr());
 #if defined(RKAIQ_HAVE_THUMBNAILS)
         if (group == RK_AIQ_CORE_ANALYZE_THUMBNAILS) {
@@ -740,10 +758,10 @@ XCamReturn RkAiqAnalyzeGroupManager::handleMessage(RkAiqCoreVdBufMsg& msg) {
         for (auto& it : mGroupMap) {
             if ((it.second->getDepsFlag() & (1ULL << msg.msg_id)) != 0) {
                 LOGD_ANALYZER_SUBM(ANALYZER_SUBM,
-                    "camId: %d, Handle message(%s) id[%d] on group(%s), flags %" PRIx64 "",
-                    mAiqCore->mAlogsComSharedParams.mCamPhyId,
-                    MessageType2Str[msg.msg_id], msg.frame_id,
-                    AnalyzerGroupType2Str[it.second->getType()], it.second->getDepsFlag());
+                                   "camId: %d, Handle message(%s) id[%d] on group(%s), flags %" PRIx64 "",
+                                   mAiqCore->mAlogsComSharedParams.mCamPhyId,
+                                   MessageType2Str[msg.msg_id], msg.frame_id,
+                                   AnalyzerGroupType2Str[it.second->getType()], it.second->getDepsFlag());
 
                 it.second->pushMsg(msg);
             }
@@ -756,6 +774,37 @@ void RkAiqAnalyzeGroupManager::setDelayCnts(int delayCnts) {
     for (auto& it : mGroupMap) {
         it.second->setDelayCnts(delayCnts);
     }
+}
+
+void RkAiqAnalyzeGroupManager::rmAlgoHandle(int algoType) {
+    bool endLoop = false;
+    std::map<uint64_t, std::vector<XCam::SmartPtr<RkCam::RkAiqHandle>>>::iterator it;
+    std::map<uint64_t, SmartPtr<RkAiqAnalyzerGroup>>::iterator grp_it;
+    std::vector<XCam::SmartPtr<RkCam::RkAiqHandle>>::iterator list;
+    for (it = mGroupAlgoListMap.begin(); it != mGroupAlgoListMap.end();) {
+        for (list = it->second.begin(); list != it->second.end();) {
+            if (list->ptr()->getAlgoType() == algoType) {
+                list = it->second.erase(list);
+            } else
+                list++;
+        }
+        if (it->second.size() == 0) {
+            grp_it = mGroupMap.find(it->first);
+            if (grp_it != mGroupMap.end())
+                mGroupMap.erase(grp_it);
+            mGroupAlgoListMap.erase(it++);
+        } else
+            it++;
+    }
+}
+
+void RkAiqAnalyzeGroupManager::awakenClean(uint32_t sequence)
+{
+    stop();
+    for (auto& it : mGroupMap) {
+        it.second->setWakenId(sequence);
+    }
+    start();
 }
 
 }  // namespace RkCam

@@ -20,10 +20,10 @@
 #ifndef RK_AIQ_USER_API2_CAMGROUP_H
 #define RK_AIQ_USER_API2_CAMGROUP_H
 
-#include "rk_aiq.h"
-#include "rk_aiq_algo_des.h"
-#include "rk_aiq_user_api2_sysctl.h"
-#include "rk_aiq_user_api_common.h"
+#include "common/rk_aiq.h"
+#include "algos/rk_aiq_algo_des.h"
+#include "uAPI2/rk_aiq_user_api2_sysctl.h"
+#include "uAPI2/rk_aiq_user_api_common.h"
 
 /*****************************************
  * Useage examples

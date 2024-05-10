@@ -224,7 +224,7 @@ static struct RkAiqAlgoDesCommExt g_default_3a_des[] = {
     { &g_RkIspAlgoDescAfec.common,          RK_AIQ_CORE_ANALYZE_OTHER, 0, 0, 0,     otherGrpCondsV3x   },
 #endif
 #if (RKAIQ_HAVE_AFD_V2)
-	{ &g_RkIspAlgoDescAfd.common,			 RK_AIQ_CORE_ANALYZE_AFD,	  0, 1, 0,	  grpAfdConds	   },
+    { &g_RkIspAlgoDescAfd.common,            RK_AIQ_CORE_ANALYZE_AFD,     0, 1, 0,    grpAfdConds      },
 #endif
     { NULL,                                 RK_AIQ_CORE_ANALYZE_ALL,    0, 0, 0,    {0, 0}             },
     // clang-format on

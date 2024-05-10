@@ -17,9 +17,11 @@
 #ifndef _SAMPLE_CAC_MODULE_H_
 #define _SAMPLE_CAC_MODULE_H_
 
-#include "base/xcam_common.h"
+#include "xcore/base/xcam_common.h"
 
 void sample_print_cac_info(const void* arg);
 XCamReturn sample_cac_module(const void* arg);
-
+#ifdef USE_NEWSTRUCT
+int sample_cac_test(const rk_aiq_sys_ctx_t* ctx);
+#endif
 #endif

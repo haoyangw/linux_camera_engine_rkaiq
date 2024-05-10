@@ -24,11 +24,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "RkAiqCalibDbTypes.h"
-#include "asharpV33/rk_aiq_types_asharp_algo_v33.h"
-#include "rk_aiq_comm.h"
-#include "sharp_head_v33.h"
-#include "sharp_uapi_head_v33.h"
+#include "iq_parser/RkAiqCalibDbTypes.h"
+#include "algos/asharpV33/rk_aiq_types_asharp_algo_v33.h"
+#include "common/rk_aiq_comm.h"
+#include "iq_parser_v2/sharp_head_v33.h"
+#include "iq_parser_v2/sharp_uapi_head_v33.h"
 
 
 

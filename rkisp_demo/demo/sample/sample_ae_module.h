@@ -18,9 +18,10 @@
 #ifndef _SAMPLE_AE_MODULE_H_
 #define _SAMPLE_AE_MODULE_H_
 
-#include "base/xcam_common.h"
+#include "xcore/base/xcam_common.h"
 
 void sample_print_ae_info(const void *arg);
 XCamReturn sample_ae_module(const void *arg);
+void sample_ae_case(const rk_aiq_sys_ctx_t* ctx);
 
 #endif

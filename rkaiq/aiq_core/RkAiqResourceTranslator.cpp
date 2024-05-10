@@ -299,6 +299,22 @@ RkAiqResourceTranslator::translateAecStats (const SmartPtr<VideoBuffer> &from, S
     }
 
     //ae
+
+    if (expParams.ptr()) {
+
+        statsInt->aec_stats.ae_exp = expParams->data()->aecExpInfo;
+        /*
+         * printf("%s: L: [0x%x-0x%x], M: [0x%x-0x%x], S: [0x%x-0x%x]\n",
+         *        __func__,
+         *        expParams->data()->aecExpInfo.HdrExp[2].exp_sensor_params.coarse_integration_time,
+         *        expParams->data()->aecExpInfo.HdrExp[2].exp_sensor_params.analog_gain_code_global,
+         *        expParams->data()->aecExpInfo.HdrExp[1].exp_sensor_params.coarse_integration_time,
+         *        expParams->data()->aecExpInfo.HdrExp[1].exp_sensor_params.analog_gain_code_global,
+         *        expParams->data()->aecExpInfo.HdrExp[0].exp_sensor_params.coarse_integration_time,
+         *        expParams->data()->aecExpInfo.HdrExp[0].exp_sensor_params.analog_gain_code_global);
+         */
+    }
+
     /*rawae stats*/
     uint8_t AeSwapMode, AeSelMode;
 #if defined(ISP_HW_V21)
@@ -376,8 +392,12 @@ RkAiqResourceTranslator::translateAecStats (const SmartPtr<VideoBuffer> &from, S
     HistMean[0] = (uint16_t)(SumHistBin[0] / MAX(SumHistPix[0], 1));
     HistMean[1] = (uint16_t)(SumHistBin[1] / MAX(SumHistPix[1], 1));
     HistMean[2] = (uint16_t)(SumHistBin[2] / MAX(SumHistPix[2], 1));
-    bool run_flag = getAeStatsRunFlag(HistMean);
-    run_flag |= _aeAlgoStatsCfg.UpdateStats;
+    bool run_flag = true;
+
+    if(memcmp(&_lastAeStats.ae_exp, &statsInt->aec_stats.ae_exp, sizeof(RKAiqAecExpInfo_t)) == 0) {
+        run_flag = getAeStatsRunFlag(HistMean);
+        run_flag |= _aeAlgoStatsCfg.UpdateStats;
+    }
 
     if (run_flag) {
         calcAecLiteWinStats(&stats->params.rawae0,
@@ -434,26 +454,13 @@ RkAiqResourceTranslator::translateAecStats (const SmartPtr<VideoBuffer> &from, S
                 statsInt->aec_stats.ae_data.yuvae.ro_yuvae_sumy[i] = stats->params.yuvae.ro_yuvae_sumy[i];
         }
         memcpy(statsInt->aec_stats.ae_data.sihist.bins, stats->params.sihst.win_stat[0].hist_bins, ISP2X_SIHIST_WIN_NUM * sizeof(u32));
-        _lastAeStats =  statsInt->aec_stats.ae_data;
+        _lastAeStats.ae_data =  statsInt->aec_stats.ae_data;
 
     } else {
-        statsInt->aec_stats.ae_data = _lastAeStats;
+        statsInt->aec_stats.ae_data = _lastAeStats.ae_data;
     }
 
-    if (expParams.ptr()) {
-
-        statsInt->aec_stats.ae_exp = expParams->data()->aecExpInfo;
-        /*
-         * printf("%s: L: [0x%x-0x%x], M: [0x%x-0x%x], S: [0x%x-0x%x]\n",
-         *        __func__,
-         *        expParams->data()->aecExpInfo.HdrExp[2].exp_sensor_params.coarse_integration_time,
-         *        expParams->data()->aecExpInfo.HdrExp[2].exp_sensor_params.analog_gain_code_global,
-         *        expParams->data()->aecExpInfo.HdrExp[1].exp_sensor_params.coarse_integration_time,
-         *        expParams->data()->aecExpInfo.HdrExp[1].exp_sensor_params.analog_gain_code_global,
-         *        expParams->data()->aecExpInfo.HdrExp[0].exp_sensor_params.coarse_integration_time,
-         *        expParams->data()->aecExpInfo.HdrExp[0].exp_sensor_params.analog_gain_code_global);
-         */
-    }
+    _lastAeStats.ae_exp = statsInt->aec_stats.ae_exp;
 
     if (irisParams.ptr()) {
 
@@ -760,7 +767,7 @@ bool RkAiqResourceTranslator::getFileValue(const char* path, int* pos) {
     fp = open(path, O_RDONLY | O_SYNC);
     if (fp != -1) {
         if (read(fp, buffer, sizeof(buffer)) <= 0) {
-            LOGE_AF("%s read %s failed!", __func__, path);
+            LOGE_AF("read %s failed!", path);
             goto OUT;
         } else {
             char* p = nullptr;
@@ -823,30 +830,28 @@ RkAiqResourceTranslator::translatePdafStats (const SmartPtr<VideoBuffer> &from, 
                 fflush(fp);
                 fclose(fp);
             } else {
-                LOGE_AF("%s: can not write to %s file", __func__, name);
+                LOGE_AF("can not write to %s file", name);
             }
         }
     }
 #endif
 
     if (pdaf->pdafSensorType == PDAF_SENSOR_TYPE3) {
-        if (pdaf->pdLRInDiffLine == 0) {
-            pdWidth = pdaf->pdWidth >> 1;
-            pdHeight = pdaf->pdHeight;
-
-            pixelperline = 2 * pdWidth;
-            for (j = 0; j < pdHeight; j++) {
-                pdData = (uint16_t *)pdafstats + j * pixelperline;
-                for (i = 0; i < pixelperline; i += 2) {
-                    *pdLData++ = pdData[i] >> 6;
-                    *pdRData++ = pdData[i + 1] >> 6;
-                }
-            }
-        } else {
+        // OV13855
+        if (strcasecmp(pdaf->snsName, "OV13855") == 0) {
             pdWidth = pdaf->pdWidth;
             pdHeight = pdaf->pdHeight >> 1;
             pixelperline = pdaf->pdWidth;
-            for (j = 0; j < 2 * pdHeight; j += 2) {
+            for (j = 0; j < 2 * pdHeight; j += 4) {
+                for (i = 0; i < pixelperline; i++) {
+                    *pdRData++ = pdData[i] >> 6;
+                }
+                pdData += pixelperline;
+                for (i = 0; i < pixelperline; i++) {
+                    *pdLData++ = pdData[i] >> 6;
+                }
+                pdData += pixelperline;
+
                 for (i = 0; i < pixelperline; i++) {
                     *pdLData++ = pdData[i] >> 6;
                 }
@@ -855,8 +860,33 @@ RkAiqResourceTranslator::translatePdafStats (const SmartPtr<VideoBuffer> &from, 
                     *pdRData++ = pdData[i] >> 6;
                 }
                 pdData += pixelperline;
-                pdLData += pixelperline;
-                pdRData += pixelperline;
+            }
+        } else {
+            if (pdaf->pdLRInDiffLine == 0) {
+                pdWidth = pdaf->pdWidth >> 1;
+                pdHeight = pdaf->pdHeight;
+                pixelperline = 2 * pdWidth;
+                for (j = 0; j < pdHeight; j++) {
+                    pdData = (uint16_t *)pdafstats + j * pixelperline;
+                    for (i = 0; i < pixelperline; i += 2) {
+                        *pdLData++ = pdData[i] >> 6;
+                        *pdRData++ = pdData[i + 1] >> 6;
+                    }
+                }
+            } else {
+                pdWidth = pdaf->pdWidth;
+                pdHeight = pdaf->pdHeight >> 1;
+                pixelperline = pdaf->pdWidth;
+                for (j = 0; j < 2 * pdHeight; j += 2) {
+                    for (i = 0; i < pixelperline; i++) {
+                        *pdLData++ = pdData[i] >> 6;
+                    }
+                    pdData += pixelperline;
+                    for (i = 0; i < pixelperline; i++) {
+                        *pdRData++ = pdData[i] >> 6;
+                    }
+                    pdData += pixelperline;
+                }
             }
         }
     } else {
@@ -948,7 +978,7 @@ RkAiqResourceTranslator::translatePdafStats (const SmartPtr<VideoBuffer> &from, 
         if (mPdafDumpCnt > 0) {
             frame_id = buf->get_sequence();
 
-            LOGI_AF("%s: dump pd raw, mPdafDumpCnt %d, frame_id %d", __func__, mPdafDumpCnt, frame_id);
+            LOGI_AF("dump pd raw, mPdafDumpCnt %d, frame_id %d", mPdafDumpCnt, frame_id);
             mPdafDumpCnt--;
             dumppdraw = true;
         }
@@ -966,7 +996,7 @@ RkAiqResourceTranslator::translatePdafStats (const SmartPtr<VideoBuffer> &from, 
             fflush(fp);
             fclose(fp);
         } else {
-            LOGE_AF("%s: can not write to %s file", __func__, name);
+            LOGE_AF("can not write to %s file", name);
         }
 
         memset(name, 0, sizeof(name));
@@ -977,7 +1007,7 @@ RkAiqResourceTranslator::translatePdafStats (const SmartPtr<VideoBuffer> &from, 
             fflush(fp);
             fclose(fp);
         } else {
-            LOGE_AF("%s: can not write to %s file", __func__, name);
+            LOGE_AF("can not write to %s file", name);
         }
     }
 

@@ -1,9 +1,9 @@
 #ifndef _RK_AIQ_UAPI_ALDCH_V21_INT_H_
 #define _RK_AIQ_UAPI_ALDCH_V21_INT_H_
 
-#include "base/xcam_common.h"
-#include "rk_aiq_algo_des.h"
-#include "aldch/rk_aiq_types_aldch_algo_int.h"
+#include "xcore/base/xcam_common.h"
+#include "algos/rk_aiq_algo_des.h"
+#include "algos/aldch/rk_aiq_types_aldch_algo_int.h"
 
 typedef rk_aiq_ldch_v21_cfg_t rk_aiq_ldch_v21_attrib_t;
 

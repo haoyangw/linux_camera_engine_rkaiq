@@ -38,6 +38,10 @@ func rkaiq_getAlgosMacros(macros_map map[string]bool) []string {
     if (flag0) {
         cflags = append(cflags, "-DRKAIQ_HAVE_MULTIISP")
     }
+    flag0 = macros_map["RKAIQ_NEWSTRUCT_TEST"]
+    if flag0 {
+        cflags = append(cflags, "-DUSE_NEWSTRUCT=1")
+    }
     flag0 = macros_map["RKAIQ_HAVE_AWB_V20"]
     if (flag0) {
         cflags = append(cflags, "-DRKAIQ_HAVE_AWB_V20=1")
@@ -51,6 +55,11 @@ func rkaiq_getAlgosMacros(macros_map map[string]bool) []string {
     flag0 = macros_map["RKAIQ_HAVE_AWB_V32"]
     if (flag0) {
         cflags = append(cflags, "-DRKAIQ_HAVE_AWB_V32=1")
+        cflags = append(cflags, "-DRKAIQ_HAVE_AWB=1")
+    }
+    flag0 = macros_map["RKAIQ_HAVE_AWB_V39"]
+    if (flag0) {
+        cflags = append(cflags, "-DRKAIQ_HAVE_AWB_V39=1")
         cflags = append(cflags, "-DRKAIQ_HAVE_AWB=1")
     }
     flag0 = macros_map["RKAIQ_HAVE_GIC_V1"]
@@ -91,6 +100,11 @@ func rkaiq_getAlgosMacros(macros_map map[string]bool) []string {
     flag0 = macros_map["RKAIQ_HAVE_CAC_V12"]
     if (flag0) {
         cflags = append(cflags, "-DRKAIQ_HAVE_CAC_V12=1")
+        cflags = append(cflags, "-DRKAIQ_HAVE_CAC=1")
+    }
+    flag0 = macros_map["RKAIQ_HAVE_CAC_V30"]
+    if (flag0) {
+        cflags = append(cflags, "-DRKAIQ_HAVE_CAC_V30=1")
         cflags = append(cflags, "-DRKAIQ_HAVE_CAC=1")
     }
     flag0 = macros_map["RKAIQ_HAVE_YNR_V1"]
@@ -410,6 +424,11 @@ func rkaiq_getAlgosMacros(macros_map map[string]bool) []string {
     flag0 = macros_map["RKAIQ_HAVE_DEBAYER_V3"]
     if (flag0) {
         cflags = append(cflags, "-DRKAIQ_HAVE_DEBAYER_V3=1")
+        cflags = append(cflags, "-DRKAIQ_HAVE_DEBAYER=1")
+    }
+    flag0 = macros_map["RKAIQ_HAVE_DEBAYER_V4"]
+    if (flag0) {
+        cflags = append(cflags, "-DRKAIQ_HAVE_DEBAYER_V4=1")
         cflags = append(cflags, "-DRKAIQ_HAVE_DEBAYER=1")
     }
     flag0 = macros_map["RKAIQ_HAVE_LSC_V1"]

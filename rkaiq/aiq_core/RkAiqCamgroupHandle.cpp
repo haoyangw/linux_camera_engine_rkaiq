@@ -145,7 +145,7 @@ XCamReturn RkAiqCamgroupHandle::processing(rk_aiq_singlecam_3a_result_t** params
     procIn->_is_bw_sensor = sharedCom->is_bw_sensor;
     procIn->_offset_is_update =
          (char*)(&((rk_aiq_isp_params_t<int> *)0)->result) - (char*)(&((rk_aiq_isp_params_t<int>*)0)->is_update);
-    procIn->attribUpdated = mSingleHdl->isUpdateGrpAttr();
+    //procIn->attribUpdated = mSingleHdl->isUpdateGrpAttr();
 
     com->ctx         = mAlgoCtx;
     com->frame_id    = params_res_array[0]->_frameId;
@@ -157,8 +157,6 @@ XCamReturn RkAiqCamgroupHandle::processing(rk_aiq_singlecam_3a_result_t** params
         LOGW_CAMGROUP("group algo %d proc error !", mDes->type);
         return ret;
     }
-
-    mSingleHdl->clearUpdateGrpAttr();
 
     EXIT_ANALYZER_FUNCTION();
 

@@ -18,11 +18,11 @@
 #ifndef _RK_AIQ_USER_API2_ANR_H_
 #define _RK_AIQ_USER_API2_ANR_H_
 
-#include "anr/rk_aiq_uapi_anr_int.h"
-#include "arawnr/rk_aiq_uapi_abayernr_int_v1.h"
-#include "aynr/rk_aiq_uapi_aynr_int_v1.h"
-#include "auvnr/rk_aiq_uapi_auvnr_int_v1.h"
-#include "amfnr/rk_aiq_uapi_amfnr_int_v1.h"
+#include "algos/anr/rk_aiq_uapi_anr_int.h"
+#include "algos/arawnr/rk_aiq_uapi_abayernr_int_v1.h"
+#include "algos/aynr/rk_aiq_uapi_aynr_int_v1.h"
+#include "algos/auvnr/rk_aiq_uapi_auvnr_int_v1.h"
+#include "algos/amfnr/rk_aiq_uapi_amfnr_int_v1.h"
 
 #ifndef RK_AIQ_SYS_CTX_T
 #define RK_AIQ_SYS_CTX_T

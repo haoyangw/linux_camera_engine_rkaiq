@@ -21,66 +21,66 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "rk_aiq_comm.h"
-#include "rk_aiq_mems_sensor.h"
+#include "common/rk_aiq_comm.h"
+#include "common/rk_aiq_mems_sensor.h"
 #include "common/rk-camera-module.h"
-#include "adebayer/rk_aiq_types_adebayer_algo.h"
-#include "ae/rk_aiq_types_ae_algo.h"
-#include "afd/rk_aiq_types_afd_algo.h"
-#include "awb/rk_aiq_types_awb_algo.h"
-#include "alsc/rk_aiq_types_alsc_algo.h"
-#include "accm/rk_aiq_types_accm_algo.h"
-#include "a3dlut/rk_aiq_types_a3dlut_algo.h"
-#include "amerge/rk_aiq_types_amerge_algo_int.h"
-#include "atmo/rk_aiq_types_atmo_algo_int.h"
-#include "atmo/rk_aiq_types_atmo_algo.h"
-#include "adrc/rk_aiq_types_adrc_algo_int.h"
-#include "adrc/rk_aiq_types_adrc_algo.h"
-#include "agamma/rk_aiq_types_agamma_algo_int.h"
-#include "adegamma/rk_aiq_types_adegamma_algo_int.h"
-#include "adehaze/rk_aiq_types_adehaze_algo_int.h"
-#include "adehaze/rk_aiq_types_adehaze_algo.h"
-#include "acp/rk_aiq_types_acp_algo.h"
-#include "aie/rk_aiq_types_aie_algo_int.h"
-#include "aorb/rk_aiq_types_orb_algo.h"
-#include "asd/rk_aiq_types_asd_algo.h"
-#include "anr/rk_aiq_types_anr_algo.h"
-#include "anr/rk_aiq_types_anr_algo_int.h"
-#include "asharp/rk_aiq_types_asharp_algo.h"
-#include "asharp/rk_aiq_types_asharp_algo_int.h"
-#include "adpcc/rk_aiq_types_adpcc_algo.h"
-#include "adpcc/rk_aiq_types_adpcc_algo_int.h"
-#include "ablc/rk_aiq_types_ablc_algo.h"
-#include "ablc/rk_aiq_types_ablc_algo_int.h"
-#include "agic/rk_aiq_types_algo_agic_int.h"
-#include "aldch/rk_aiq_types_aldch_algo.h"
-#include "afec/rk_aiq_types_afec_algo.h"
-#include "asharp3/rk_aiq_types_asharp_algo_v3.h"
-#include "aynr2/rk_aiq_types_aynr_algo_v2.h"
-#include "acnr/rk_aiq_types_acnr_algo_v1.h"
-#include "arawnr2/rk_aiq_types_abayernr_algo_v2.h"
-#include "amd/rk_aiq_types_amd_algo.h"
-#include "arawnr/rk_aiq_types_abayernr_algo_v1.h"
-#include "amfnr/rk_aiq_types_amfnr_algo_v1.h"
-#include "aynr/rk_aiq_types_aynr_algo_v1.h"
-#include "auvnr/rk_aiq_types_auvnr_algo_v1.h"
-#include "again/rk_aiq_types_again_algo.h"
-#include "acsm/rk_aiq_types_acsm_algo.h"
-#include "acgc/rk_aiq_types_acgc_algo.h"
+#include "algos/adebayer/rk_aiq_types_adebayer_algo.h"
+#include "algos/ae/rk_aiq_types_ae_algo.h"
+#include "algos/afd/rk_aiq_types_afd_algo.h"
+#include "algos/awb/rk_aiq_types_awb_algo.h"
+#include "algos/alsc/rk_aiq_types_alsc_algo.h"
+#include "algos/accm/rk_aiq_types_accm_algo.h"
+#include "algos/a3dlut/rk_aiq_types_a3dlut_algo.h"
+#include "algos/amerge/rk_aiq_types_amerge_algo_int.h"
+#include "algos/atmo/rk_aiq_types_atmo_algo_int.h"
+#include "algos/atmo/rk_aiq_types_atmo_algo.h"
+#include "algos/adrc/rk_aiq_types_adrc_algo_int.h"
+#include "algos/adrc/rk_aiq_types_adrc_algo.h"
+#include "algos/agamma/rk_aiq_types_agamma_algo_int.h"
+#include "algos/adegamma/rk_aiq_types_adegamma_algo_int.h"
+#include "algos/adehaze/rk_aiq_types_adehaze_algo_int.h"
+#include "algos/adehaze/rk_aiq_types_adehaze_algo.h"
+#include "algos/acp/rk_aiq_types_acp_algo.h"
+#include "algos/aie/rk_aiq_types_aie_algo_int.h"
+#include "algos/aorb/rk_aiq_types_orb_algo.h"
+#include "algos/asd/rk_aiq_types_asd_algo.h"
+#include "algos/anr/rk_aiq_types_anr_algo.h"
+#include "algos/anr/rk_aiq_types_anr_algo_int.h"
+#include "algos/asharp/rk_aiq_types_asharp_algo.h"
+#include "algos/asharp/rk_aiq_types_asharp_algo_int.h"
+#include "algos/adpcc/rk_aiq_types_adpcc_algo.h"
+#include "algos/adpcc/rk_aiq_types_adpcc_algo_int.h"
+#include "algos/ablc/rk_aiq_types_ablc_algo.h"
+#include "algos/ablc/rk_aiq_types_ablc_algo_int.h"
+#include "algos/agic/rk_aiq_types_algo_agic_int.h"
+#include "algos/aldch/rk_aiq_types_aldch_algo.h"
+#include "algos/afec/rk_aiq_types_afec_algo.h"
+#include "algos/asharp3/rk_aiq_types_asharp_algo_v3.h"
+#include "algos/aynr2/rk_aiq_types_aynr_algo_v2.h"
+#include "algos/acnr/rk_aiq_types_acnr_algo_v1.h"
+#include "algos/arawnr2/rk_aiq_types_abayernr_algo_v2.h"
+#include "algos/amd/rk_aiq_types_amd_algo.h"
+#include "algos/arawnr/rk_aiq_types_abayernr_algo_v1.h"
+#include "algos/amfnr/rk_aiq_types_amfnr_algo_v1.h"
+#include "algos/aynr/rk_aiq_types_aynr_algo_v1.h"
+#include "algos/auvnr/rk_aiq_types_auvnr_algo_v1.h"
+#include "algos/again/rk_aiq_types_again_algo.h"
+#include "algos/acsm/rk_aiq_types_acsm_algo.h"
+#include "algos/acgc/rk_aiq_types_acgc_algo.h"
 
 #ifdef RK_SIMULATOR_HW
 #include "simulator/isp20_hw_simulator.h"
 #include "af/rk_aiq_af_hw_v200.h"
 #else
-#include "af/rk_aiq_types_af_algo.h"
+#include "algos/af/rk_aiq_types_af_algo.h"
 
 #endif
 
-#include "rk_aiq_types_v20.h"
-#include "rk_aiq_types_v21.h"
-#include "rk_aiq_types_v3x.h" /*< v3x types */
-#include "rk_aiq_types_v32.h"
-#include "rk_aiq_types_v39.h"
+#include "common/rk_aiq_types_v20.h"
+#include "common/rk_aiq_types_v21.h"
+#include "common/rk_aiq_types_v3x.h" /*< v3x types */
+#include "common/rk_aiq_types_v32.h"
+#include "common/rk_aiq_types_v39.h"
 
 #define ANR_NO_SEPERATE_MARCO (0)
 
@@ -89,10 +89,10 @@
     ((uint32_t)(a) | ((uint32_t)(b) << 8) | ((uint32_t)(c) << 16) | ((uint32_t)(d) << 24))
 #define rk_fmt_fourcc_be(a, b, c, d)    (rk_fmt_fourcc(a, b, c, d) | (1 << 31))
 
-typedef struct rk_aiq_color_info_s{
+typedef struct rk_aiq_color_info_s {
     float sensorGain;
     float awbGain[2];
-}rk_aiq_color_info_t;
+} rk_aiq_color_info_t;
 
 typedef struct rk_aiq_range_s {
     float min;
@@ -450,7 +450,6 @@ struct rk_aiq_isp_window {
 };
 #pragma pack()
 
-
 typedef RKAiqAecStats_t rk_aiq_isp_aec_stats_t;
 
 typedef rk_aiq_af_algo_stat_v20_t rk_aiq_isp_af_stats_t;
@@ -479,20 +478,27 @@ typedef struct {
 
 typedef struct {
     uint32_t frame_id;
-    rk_aiq_isp_aec_stats_t aec_stats;
+    union {
+        rk_aiq_isp_aec_stats_t aec_stats;
+        RKAiqAecStatsV25_t     aec_stats_v25;
+    };
+    bool bValid_aec_stats;
     int awb_hw_ver;
     union {
         rk_aiq_awb_stat_res_v200_t awb_stats_v200;
         rk_aiq_awb_stat_res2_v201_t awb_stats_v21;
         rk_aiq_isp_awb_stats2_v3x_t awb_stats_v3x;
         rk_aiq_isp_awb_stats_v32_t awb_stats_v32;
+        awbStats_stats_priv_t awb_stats_v39;
     };
+    bool bValid_awb_stats;
     int af_hw_ver;
     union {
         rk_aiq_isp_af_stats_t  af_stats;
         rk_aiq_isp_af_stats_v3x_t af_stats_v3x;
         afStats_stats_t afStats_stats;
     };
+    bool bValid_af_stats;
 } rk_aiq_isp_stats_t;
 
 
@@ -669,28 +675,30 @@ typedef struct {
     char rd_mode;
     uint16_t wr_linecnt;
     uint16_t rd_linecnt;
-} rk_aiq_aiisp_cfg_t;
+} __attribute__((packed)) rk_aiq_aiisp_cfg_t;
 
 typedef struct rkisp_bay3dbuf_info_s {
-       int iir_fd;
-       int iir_size;
-       union {
-               struct {
-                       int cur_fd;
-                       int cur_size;
-                       int ds_fd;
-                       int ds_size;
-               } v30;
-               struct {
-                       int ds_fd;
-                       int ds_size;
-               } v32;
-               struct {
-                       int gain_fd;
-                       int gain_size;
-               } v39;
-       } u;
-} rkisp_bay3dbuf_info_t;
+    int iir_fd;
+    int iir_size;
+    union {
+        struct {
+            int cur_fd;
+            int cur_size;
+            int ds_fd;
+            int ds_size;
+        } v30;
+        struct {
+            int ds_fd;
+            int ds_size;
+        } v32;
+        struct {
+            int gain_fd;
+            int gain_size;
+            int aiisp_fd;
+            int aiisp_size;
+        } v39;
+    } u;
+} __attribute__((packed)) rkisp_bay3dbuf_info_t;
 
 #define RK_AIQ_CAM_GROUP_MAX_CAMS (8)
 

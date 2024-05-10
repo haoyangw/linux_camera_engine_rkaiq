@@ -18,8 +18,8 @@
 #ifndef _RK_AIQ_USER_API2_AMERGE_H_
 #define _RK_AIQ_USER_API2_AMERGE_H_
 
-#include "amerge/rk_aiq_uapi_amerge_int.h"
-#include "amerge_uapi_compact.h"
+#include "algos/amerge/rk_aiq_uapi_amerge_int.h"
+#include "iq_parser_v2/amerge_uapi_compact.h"
 
 #ifndef RK_AIQ_SYS_CTX_T
 #define RK_AIQ_SYS_CTX_T

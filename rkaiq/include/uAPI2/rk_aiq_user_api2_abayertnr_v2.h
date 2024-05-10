@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_ABAYERTNRV2_H_
 #define _RK_AIQ_USER_API2_ABAYERTNRV2_H_
 
-#include "abayertnr2/rk_aiq_uapi_abayertnr_int_v2.h"
+#include "algos/abayertnr2/rk_aiq_uapi_abayertnr_int_v2.h"
 
 #ifndef RK_AIQ_SYS_CTX_T
 #define RK_AIQ_SYS_CTX_T

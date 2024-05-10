@@ -39,6 +39,7 @@
 #include "sample_csm_module.h"
 #include "sample_ablc_module.h"
 #include "sample_agic_module.h"
+#include "sample_aldc_module.h"
 #include "sample_aldch_module.h"
 #include "sample_aldch_v21_module.h"
 #include "sample_adebayer_module.h"
@@ -51,6 +52,8 @@
 #include "sample_again_module.h"
 #include "sample_smartIr.h"
 #include "sample_ainr_module.h"
+#include "sample_trans_module.h"
+#include "sample_rgbir_module.h"
 
 struct module_sample_info {
     const char * const name;
@@ -68,7 +71,7 @@ struct module_sample_info {
 static struct module_sample_info module_samples[] = {
     MODULE_INFO(RK_ISP_AE, sample_ae_module, sample_print_ae_info),
     MODULE_INFO(RK_ISP_AWB, sample_awb_module, sample_print_awb_info),
-    MODULE_INFO(RK_ISP_AWB32, sample_awb32_module, sample_print_awb32_info),
+    MODULE_INFO(RK_ISP_AWB32, sample_awb_module, sample_print_awb_info),  
     MODULE_INFO(RK_ISP_AF, sample_af_module, sample_print_af_info),
     MODULE_INFO(RK_ISP_ACCM, sample_accm_module, sample_print_accm_info),
     MODULE_INFO(RK_ISP_A3DLUT, sample_a3dlut_module, sample_print_a3dlut_info),
@@ -94,6 +97,7 @@ static struct module_sample_info module_samples[] = {
     MODULE_INFO(RK_ISP_ACCM_V2, sample_accm_v2_module, sample_print_accm_v2_info),
     MODULE_INFO(RK_ISP_ALDCH_V21, sample_aldch_v21_module, sample_print_aldch_v21_info),
     MODULE_INFO(RK_SMARTIR, sample_smartIr_module, sample_print_smartIr_info),
+    MODULE_INFO(RK_ISP_ALDC, sample_aldc_module, sample_print_aldc_info),
 };
 
 static void sample_usage()
@@ -132,6 +136,10 @@ static void sample_usage()
     printf("\t t) SMARTIR:    module test sample.\n");
     printf("\t u) DPCC:       module test sample.\n");
     printf("\t v) AINR:       module test sample.\n");
+    printf("\t w) TRANS:       module test sample.\n");
+    printf("\t x) ALDC:       module test sample.\n");
+    printf("\t y) RGBIR:       module test sample.\n");
+    printf("\t z) ALL:       module test sample.\n");
     printf("\n");
     printf("\t please press the key: ");
 
@@ -144,7 +152,6 @@ XCamReturn sample_main (const void *arg)
         ERR ("%s, arg is nullptr\n", __FUNCTION__);
         return XCAM_RETURN_ERROR_PARAM;
     }
-
     sample_usage ();
 
     int key = getchar ();
@@ -313,12 +320,6 @@ XCamReturn sample_main (const void *arg)
         info->func (arg);
         break;
     }
-    case 'p': {
-        struct module_sample_info *info = &module_samples[RK_ISP_AWB32];
-        info->debug (nullptr);
-        info->func (arg);
-        break;
-    }
     case 'r': {
         struct module_sample_info *info = &module_samples[RK_ISP_ACCM_V2];
         info->debug (nullptr);
@@ -345,6 +346,67 @@ XCamReturn sample_main (const void *arg)
     case 'v': {
         printf("enter AINR module test\n");
         sample_ainr_module(arg);
+        break;
+    }
+    case 'w': {
+        printf("enter TRANS module test\n");
+        sample_trans_module(arg);
+        break;
+    }
+    case 'x': {
+        struct module_sample_info *info = &module_samples[RK_ISP_ALDC];
+        info->debug (nullptr);
+        info->func (arg);
+        break;
+    }
+    case 'y': {
+        printf("enter RGBIR module test\n");
+        sample_rgbir_module(arg);
+        break;
+    }
+    case 'z': {
+        printf("enter all module test\n");
+        const demo_context_t *demo_ctx = (demo_context_t *)arg;
+        const rk_aiq_sys_ctx_t* ctx ;
+        if (demo_ctx->camGroup) {
+            ctx = (rk_aiq_sys_ctx_t*)(demo_ctx->camgroup_ctx);
+        } else {
+            ctx = (rk_aiq_sys_ctx_t*)(demo_ctx->aiq_ctx);
+        } 
+        #if USE_NEWSTRUCT
+        for (int i = 0;i < 1000;i++) {
+            // sample_ae_case(ctx);
+            // sample_awb_case(ctx);
+            // sample_af_case(ctx);
+            // sample_3dlut_test(ctx);
+            // sample_btnr_test(ctx);
+            sample_new_blc(ctx);
+            sample_ccm_test(ctx);
+            // sample_cnr_reverseEn(ctx);
+            sample_cp_test(ctx);
+            sample_dm_test(ctx);
+            // sample_new_dehaze(ctx);
+            sample_dpc_test(ctx);
+            sample_new_drc(ctx);
+            sample_gain_test(ctx);
+            sample_agamma_test(ctx);
+            // sample_gic_test(ctx);
+            sample_new_ie(ctx);
+#if RKAIQ_HAVE_LDCH_V21
+            sample_ldch_test(ctx);
+#endif
+            sample_lsc_test(ctx);
+            sample_merge_test(ctx);
+            // sample_sharp_reverseEn(ctx);
+            // sample_ynr_test(ctx);
+            // sample_cac_test(ctx);
+            sample_cgc_test(ctx);
+            sample_new_csm(ctx);
+            // sample_new_rgbir(ctx);
+            // sample_new_trans(ctx);
+            
+        }
+        #endif
         break;
     }
     default:

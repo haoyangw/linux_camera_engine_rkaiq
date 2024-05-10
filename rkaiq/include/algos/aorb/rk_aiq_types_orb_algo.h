@@ -6,7 +6,7 @@
 #define ORB_FEATURE_DESCRIPTOR_BITS 120
 #define ORB_FEATURE_DUMMY_NUM       13
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 RKAIQ_BEGIN_DECLARE
 

@@ -19,7 +19,7 @@
 #ifndef _RK_AIQ_TYPE_AEIS_ALGO_INT_H_
 #define _RK_AIQ_TYPE_AEIS_ALGO_INT_H_
 
-#include "aeis/rk_aiq_types_aeis_algo.h"
+#include "algos/aeis/rk_aiq_types_aeis_algo.h"
 
 RKAIQ_BEGIN_DECLARE
 

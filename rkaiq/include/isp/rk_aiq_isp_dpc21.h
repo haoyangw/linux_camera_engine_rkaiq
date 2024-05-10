@@ -32,10 +32,11 @@ typedef struct dpc_dpDct_norDist2DpTh_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_rod_green0_en),
         M4_TYPE(bool),
-        M4_DEFAULT(1),
+        M4_DEFAULT(0),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP_CTRL(rod_green_group),
         M4_NOTES(Enable ROD method check for green.\n
         Freq of use: low))  */
     //reg: sw_rod_green0_en ~ sw_rod_green2_en
@@ -43,10 +44,11 @@ typedef struct dpc_dpDct_norDist2DpTh_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_rod_red_blue0_en),
         M4_TYPE(bool),
-        M4_DEFAULT(1),
+        M4_DEFAULT(0),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP_CTRL(rod_redblue_group),
         M4_NOTES(Enable ROD method check for red blue.\n
         Freq of use: low))  */
     //reg: sw_rod_red_blue0_en ~ sw_rod_red_blue2_en
@@ -59,8 +61,9 @@ typedef struct dpc_dpDct_norDist2DpTh_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(od_green_group),
         M4_NOTES(TODO\n
-        Freq of use: low))  */
+        Freq of use: high))  */
     //reg: sw_dpcc_od0_range_g ~ sw_dpcc_od2_range_g
     unsigned char hw_dpcT_ordDpThG_idx;
     /* M4_GENERIC_DESC(
@@ -71,8 +74,9 @@ typedef struct dpc_dpDct_norDist2DpTh_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(od_redblue_group),
         M4_NOTES(TODO\n
-        Freq of use: low))  */
+        Freq of use: high))  */
     //reg: sw_dpcc_od0_range_rb ~ sw_dpcc_od2_range_rb
     unsigned char hw_dpcT_ordDpThRB_idx;
     /* M4_GENERIC_DESC(
@@ -82,6 +86,7 @@ typedef struct dpc_dpDct_norDist2DpTh_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP_CTRL(od_green_group),
         M4_NOTES(Enable order detect for green.\n
         Freq of use: low))  */
     //reg: od_green0_enable ~ od_green2_enable
@@ -93,6 +98,7 @@ typedef struct dpc_dpDct_norDist2DpTh_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP_CTRL(od_redblue_group),
         M4_NOTES(Enable order detect check for green.\n
         Freq of use: low))  */
     //reg: od_red_blue0_enable ~ od_red_blue2_enable
@@ -101,52 +107,56 @@ typedef struct dpc_dpDct_norDist2DpTh_s {
         M4_ALIAS(sw_dpcc_rod_mindis0_g),
         M4_TYPE(u8),
         M4_RANGE_EX(0,255),
-        M4_DEFAULT(1),
+        M4_DEFAULT(0),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(rod_green_group),
         M4_NOTES(Min distance for green.
         The smaller the value, the more likely it is to be judged as a defective pixel.\n
-        Freq of use: low))  */
+        Freq of use: high))  */
     //reg: sw_dpcc_rod_mindis0_g ~ sw_dpcc_rod_mindis2_g
     unsigned char hw_dpcT_norDistG_minLimit;
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_dpcc_rod_mindis0_rb),
         M4_TYPE(u8),
         M4_RANGE_EX(0,255),
-        M4_DEFAULT(1),
+        M4_DEFAULT(0),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(rod_redblue_group),
         M4_NOTES(Min distance for red/blue.
         The smaller the value, the more likely it is to be judged as a defective pixel.\n
-        Freq of use: low))  */
+        Freq of use: high))  */
     //reg: sw_dpcc_rod_mindis0_rb ~ sw_dpcc_rod_mindis2_rb
     unsigned char hw_dpcT_norDistRB_minLimit;
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_dpcc_rod0_dis_max),
         M4_TYPE(u8),
         M4_RANGE_EX(0,63),
-        M4_DEFAULT(1),
+        M4_DEFAULT(0),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(rod_redblue_group;rod_green_group),
         M4_NOTES(Distance scale for max channel.
         The smaller the value, the more likely it is to be judged as a defective pixel.\n
-        Freq of use: low))  */
+        Freq of use: high))  */
     //reg: sw_dpcc_rod0_dis_max ~ sw_dpcc_rod2_dis_max
     unsigned char hw_dpcT_dist2LightDpTh_scale;
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_dpcc_rod0_dis_min),
         M4_TYPE(u8),
         M4_RANGE_EX(0,63),
-        M4_DEFAULT(1),
+        M4_DEFAULT(0),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(rod_redblue_group;rod_green_group),
         M4_NOTES(Distance scale for min channel.
         The smaller the value, the more likely it is to be judged as a defective pixel.\n
-        Freq of use: low))  */
+        Freq of use: high))  */
     //reg: sw_dpcc_rod0_dis_min ~ sw_dpcc_rod2_dis_min
     unsigned char hw_dpcT_dist2DarkDpTh_scale;
 } dpc_dpDct_norDist2DpTh_t;
@@ -159,6 +169,7 @@ typedef struct dpcc_dpDct_dpThCfg_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP_CTRL(rdd_green_group),
         M4_NOTES(Enable rank differernce detect check for green.\n
         Freq of use: low))  */
     //reg: rdd_green0_enable ~ rdd_green2_enable
@@ -170,6 +181,7 @@ typedef struct dpcc_dpDct_dpThCfg_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP_CTRL(rdd_redblue_group),
         M4_NOTES(Enable rank differernce detect check for green.\n
         Freq of use: low))  */
     //reg: rdd_red_blue0_enable ~ rdd_red_blue2_enable
@@ -178,10 +190,11 @@ typedef struct dpcc_dpDct_dpThCfg_s {
         M4_ALIAS(sw_dpcc_rdd0_thr_g),
         M4_TYPE(u8),
         M4_RANGE_EX(0,255),
-        M4_DEFAULT(1),
+        M4_DEFAULT(8),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(rdd_green_group),
         M4_NOTES(Rank neighbor difference threshold for green.
         The smaller the value, the more likely it is to be judged as a defective pixel.\n
         Freq of use: low))  */
@@ -190,11 +203,12 @@ typedef struct dpcc_dpDct_dpThCfg_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_dpcc_rdd0_thr_rb),
         M4_TYPE(u8),
-        M4_RANGE_EX(0,64),
-        M4_DEFAULT(1),
+        M4_RANGE_EX(0,255),
+        M4_DEFAULT(8),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(rdd_redblue_group),
         M4_NOTES(Rank neighbor difference threshold for red/blue.
         The smaller the value, the more likely it is to be judged as a defective pixel.\n
         Freq of use: low))  */
@@ -204,10 +218,11 @@ typedef struct dpcc_dpDct_dpThCfg_s {
         M4_ALIAS(sw_dpcc_rdd0_range_g),
         M4_TYPE(u8),
         M4_RANGE_EX(0,3),
-        M4_DEFAULT(1),
+        M4_DEFAULT(3),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(rdd_green_group),
         M4_NOTES(Rank offset to neighbor for green.
         The smaller the value, the more likely it is to be judged as a defective pixel.\n
         Freq of use: low))  */
@@ -217,10 +232,11 @@ typedef struct dpcc_dpDct_dpThCfg_s {
         M4_ALIAS(sw_dpcc_rdd0_range_rb),
         M4_TYPE(u8),
         M4_RANGE_EX(0,3),
-        M4_DEFAULT(1),
+        M4_DEFAULT(3),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(rdd_redblue_group),
         M4_NOTES(Rank offset to neighbor for red/blue.
         The smaller the value, the more likely it is to be judged as a defective pixel.\n
         Freq of use: low))  */
@@ -236,6 +252,7 @@ typedef struct dpc_dpDct_grad_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP_CTRL(rd_green_group),
         M4_NOTES(Enable rank detect check for green.\n
         Freq of use: low))  */
     //reg: rd_green0_enable ~ rd_green2_enable
@@ -247,6 +264,7 @@ typedef struct dpc_dpDct_grad_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP_CTRL(rd_redblue_group),
         M4_NOTES(Enable rank detect check for red/blue.\n
         Freq of use: low))  */
     //reg: rd_red_blue0_enable ~ rd_red_blue2_enable
@@ -254,11 +272,12 @@ typedef struct dpc_dpDct_grad_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_dpcc_rd0_fac_g),
         M4_TYPE(u8),
-        M4_RANGE_EX(0,64),
-        M4_DEFAULT(1),
+        M4_RANGE_EX(0,63),
+        M4_DEFAULT(8),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(rd_green_group),
         M4_NOTES(Rank detect factor for green.
         The smaller the value, the more likely it is to be judged as a defective pixel.\n
         Freq of use: low))  */
@@ -267,11 +286,12 @@ typedef struct dpc_dpDct_grad_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_dpcc_rd0_fac_rb),
         M4_TYPE(u8),
-        M4_RANGE_EX(0,64),
-        M4_DEFAULT(1),
+        M4_RANGE_EX(0,63),
+        M4_DEFAULT(8),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(rd_redblue_group),
         M4_NOTES(Rank detect factor for red/blue.
         The smaller the value, the more likely it is to be judged as a defective pixel.\n
         Freq of use: low))  */
@@ -287,6 +307,7 @@ typedef struct dpc_dpDct_edg_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP_CTRL(epd_green_group),
         M4_NOTES(Enable edge preservation detect for green.\n
         Freq of use: low))  */
     //reg: epd_green0_enable ~ epd_green2_enable
@@ -298,6 +319,7 @@ typedef struct dpc_dpDct_edg_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP_CTRL(epd_redblue_group),
         M4_NOTES(Enable edge preservation detect for red_blue.\n
         Freq of use: low))  */
     //reg: epd_red_blue0_enable ~ epd_red_blue2_enable
@@ -305,53 +327,57 @@ typedef struct dpc_dpDct_edg_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_dpcc_epd0_fac_g),
         M4_TYPE(u8),
-        M4_RANGE_EX(0,64),
-        M4_DEFAULT(1),
+        M4_RANGE_EX(0,63),
+        M4_DEFAULT(4),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(epd_green_group),
         M4_NOTES(Line MAD factor for green.
         The smaller the value, the more likely it is to be judged as a defective pixel.\n
-        Freq of use: low))  */
+        Freq of use: high))  */
     //reg: sw_dpcc_epd0_fac_g ~ sw_dpcc_epd2_fac_g
     unsigned char hw_dpcT_dpEdgThG_scale;
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_dpcc_epd0_fac_rb),
         M4_TYPE(u8),
-        M4_RANGE_EX(0,64),
-        M4_DEFAULT(1),
+        M4_RANGE_EX(0,63),
+        M4_DEFAULT(4),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(epd_redblue_group),
         M4_NOTES(Line MAD factor for red/blue.
         The smaller the value, the more likely it is to be judged as a defective pixel.\n
-        Freq of use: low))  */
+        Freq of use: high))  */
     //reg: sw_dpcc_epd0_fac_rb ~ sw_dpcc_epd2_fac_rb
     unsigned char hw_dpcT_dpEdgThRB_scale;
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_dpcc_epd0_thr_g),
         M4_TYPE(u8),
         M4_RANGE_EX(0,255),
-        M4_DEFAULT(1),
+        M4_DEFAULT(8),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(epd_green_group),
         M4_NOTES(Line threshold for green.
         The smaller the value, the more likely it is to be judged as a defective pixel.\n
-        Freq of use: low))  */
+        Freq of use: high))  */
     //reg: sw_dpcc_epd0_thr_g ~ sw_dpcc_epd2_thr_g
     unsigned char hw_dpcT_dpEdgThG_offset;
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_dpcc_epd0_thr_rb),
         M4_TYPE(u8),
         M4_RANGE_EX(0,255),
-        M4_DEFAULT(1),
+        M4_DEFAULT(8),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(epd_redblue_group),
         M4_NOTES(Line threshold for red/blue.
         The smaller the value, the more likely it is to be judged as a defective pixel.\n
-        Freq of use: low))  */
+        Freq of use: high))  */
     //reg: sw_dpcc_epd0_thr_rb ~ sw_dpcc_epd2_thr_rb
     unsigned char hw_dpcT_dpEdgThRB_offset;
 } dpc_dpDct_edg_t;
@@ -364,6 +390,7 @@ typedef struct dpc_dpDct_peak_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP_CTRL(pd_green_group),
         M4_NOTES(Enable peak gradient check for green.\n
         Freq of use: low))  */
     //reg: pd_green0_enable ~ pd_green2_enable
@@ -375,34 +402,37 @@ typedef struct dpc_dpDct_peak_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP_CTRL(pd_redblue_group),
         M4_NOTES(Enable peak gradient check for red/blue.\n
         Freq of use: low))  */
     //reg: pd_red_blue0_enable ~ pd_red_blue2_enable
     bool hw_dpcT_dctRB_en;
     /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_dpcc_pd0_fac_rb),
+        M4_ALIAS(sw_dpcc_pd0_fac_g),
         M4_TYPE(u8),
-        M4_RANGE_EX(0,64),
-        M4_DEFAULT(1),
+        M4_RANGE_EX(0,63),
+        M4_DEFAULT(4),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(pd_green_group),
         M4_NOTES(Peak gradient factor for green.
         The smaller the value, the more likely it is to be judged as a defective pixel.\n
-        Freq of use: low))  */
+        Freq of use: high))  */
     //reg: sw_dpcc_pd0_fac_rb ~ sw_dpcc_pd2_fac_rb
     unsigned char hw_dpcT_dpPeakThG_scale;
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_dpcc_pd0_fac_rb),
         M4_TYPE(u8),
-        M4_RANGE_EX(0,64),
-        M4_DEFAULT(1),
+        M4_RANGE_EX(0,63),
+        M4_DEFAULT(4),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(pd_redblue_group),
         M4_NOTES(Peak gradient factor for red/blue.
         The smaller the value, the more likely it is to be judged as a defective pixel.\n
-        Freq of use: low))  */
+        Freq of use: high))  */
     //reg: sw_dpcc_pd0_fac_rb ~ sw_dpcc_pd2_fac_rb
     unsigned char hw_dpcT_dpPeakThRb_scale;
 } dpc_dpDct_peak_t;
@@ -422,21 +452,22 @@ typedef struct dpc_dpDct_cfgEngine_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP_CTRL(dpc_engine_group),
         M4_NOTES(TODO\n
-        Freq of use: low))  */
+        Freq of use: high))  */
     //reg: sw_dpcc_engine_en
     bool hw_dpcT_engine_en;
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_dpcT_engine_mode),
         M4_TYPE(enum),
         M4_ENUM_DEF(dpc_dpDctEngine_mode_t),
-        M4_DEFAULT(dpc_usrCfg_mode),
+        M4_DEFAULT(dpc_dpSingleDefault_mode),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(TODO.\n
         Reference enum types.\n
-        Freq of use: low))  */
+        Freq of use: high))  */
     dpc_dpDctEngine_mode_t sw_dpcT_engine_mode;
         /* M4_GENERIC_DESC(
         M4_ALIAS(sw_dpcT_FastMode_strg),
@@ -450,7 +481,7 @@ typedef struct dpc_dpDct_cfgEngine_s {
         M4_ORDER(0),
         M4_NOTES(Directly configure the correction strength of
         the defect point detection algorithm when sw_dpcct_engine_mode != dpcc_usrCfg_mode.\n
-        Freq of use: low))  */
+        Freq of use: high))  */
     unsigned char sw_dpcT_defaultMode_strg;
         /* M4_GENERIC_DESC(
         M4_ALIAS(peakDct),
@@ -459,6 +490,7 @@ typedef struct dpc_dpDct_cfgEngine_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(dpc_engine_group),
         M4_NOTES(TODO))   */
     dpc_dpDct_peak_t dpDct_peak;
     /* M4_GENERIC_DESC(
@@ -468,6 +500,7 @@ typedef struct dpc_dpDct_cfgEngine_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(dpc_engine_group),
         M4_NOTES(TODO))   */
     dpc_dpDct_edg_t dpDct_edg;
     /* M4_GENERIC_DESC(
@@ -477,6 +510,7 @@ typedef struct dpc_dpDct_cfgEngine_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(dpc_engine_group),
         M4_NOTES(TODO))   */
     dpc_dpDct_norDist2DpTh_t dpDct_norDist2DpTh;
     /* M4_GENERIC_DESC(
@@ -486,6 +520,7 @@ typedef struct dpc_dpDct_cfgEngine_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(dpc_engine_group),
         M4_NOTES(TODO))   */
     dpc_dpDct_dpThCfg_t dpDct_dpThCfg;
     /* M4_GENERIC_DESC(
@@ -495,6 +530,7 @@ typedef struct dpc_dpDct_cfgEngine_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(dpc_engine_group),
         M4_NOTES(TODO))   */
     dpc_dpDct_grad_t dpDct_grad;
 } dpc_dpDct_cfgEngine_t;
@@ -503,7 +539,7 @@ typedef struct dpc_dpDct_fixEngine_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_dpcc_engine_en),
         M4_TYPE(bool),
-        M4_DEFAULT(1),
+        M4_DEFAULT(0),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
@@ -525,17 +561,17 @@ typedef enum dpc_dpcByMux_mode_e {
 } dpc_dpcByMux_mode_t;
 
 typedef enum dpc_medFilt_mode_e {
-    // @reg: sw_dpcc_median_mode_sel == 0
+    // @reg: sw_dpcc_median_mode_sel == 1
     dpc_medEntireKernel_mode = 0,
-    // @reg: (sw_dpcc_median_mode_sel == 1) && (sw_dpcc_incl_center_en == 1)
+    // @reg: (sw_dpcc_median_mode_sel == 0) && (sw_dpcc_incl_center_en == 1)
     dpc_medNrstNhoodDpInc_mode = 1,
-    // @reg: (sw_dpcc_median_mode_sel == 1) && (sw_dpcc_incl_center_en == 0)
-    dpc_medNrstNhoodDpExc_mode = 2    
+    // @reg: (sw_dpcc_median_mode_sel == 0) && (sw_dpcc_incl_center_en == 0)
+    dpc_medNrstNhoodDpExc_mode = 2
 } dpc_medFilt_mode_t;
 
 typedef struct dpc_dpcProc_s {
     /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_dpcc_roc_out_sel),
+        M4_ALIAS(hw_dpcT_dpcByMux_mode),
         M4_TYPE(enum),
         M4_ENUM_DEF(dpc_dpcByMux_mode_t),
         M4_DEFAULT(dpc_dpcByMedFilt_mode),
@@ -545,7 +581,7 @@ typedef struct dpc_dpcProc_s {
         M4_ORDER(0),
         M4_NOTES(Select ROD method.\n
         Freq of use: low))  */
-    //reg: sw_dpcc_roc_out_sel
+    //reg: sw_dpcc_output_sel, sw_dpcc_roc_out_sel
     dpc_dpcByMux_mode_t hw_dpcT_dpcByMux_mode;
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_dpcT_medFiltG_mode),
@@ -590,7 +626,7 @@ typedef struct dpc_dpcProc_s {
 *    +                      +   *           zone                     +   *           zone                     + 
 *    +                      +                                        +                                        + 
 *    +                      +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-*    +                                                                                               
+*    +                      |<-------       zone_width       ------->|
 *    +                                                                                               
 *    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
@@ -605,7 +641,52 @@ typedef enum dpc_spc_mode_e {
     */
     dpc_spcByMedforward_mode = 1
 } dpc_spc_mode_t;
- /*spc: shield pixel correct */
+
+typedef struct dpc_spInZone_s{
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(sw_pdaf_point0_en),
+        M4_TYPE(bool),
+        M4_SIZE_EX(1,16),
+        M4_RANGE_EX(0,10),
+        M4_DEFAULT([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(Point replace enable bit.\n
+        Freq of use: high))  */
+        //para:pdaf_point_en   reg: sw_pdaf_point0_en ~ sw_pdaf_point15_en
+    bool hw_dpcCfg_spcEnInZone_en[DPC_PDAF_POINT_NUM];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(sw_pdaf_point0_x),
+        M4_TYPE(u8),
+        M4_SIZE_EX(1,16),
+        M4_RANGE_EX(0,255),
+        M4_DEFAULT([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(Point y coordinate.\n
+        Freq of use: high))  */
+        //para:point_x   reg: sw_pdaf_point0_x ~ sw_pdaf_point15_x
+    unsigned char hw_dpcCfg_spInZoneCoord_x[DPC_PDAF_POINT_NUM];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(sw_pdaf_point0_y),
+        M4_TYPE(u8),
+        M4_SIZE_EX(1,16),
+        M4_RANGE_EX(0,255),
+        M4_DEFAULT([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(Point x coordinate.\n
+        Freq of use: high))  */
+        //para:point_y   reg: sw_pdaf_point0_y ~ sw_pdaf_point15_y
+    unsigned char hw_dpcCfg_spInZoneCoord_y[DPC_PDAF_POINT_NUM];
+} dpc_spInZone_t;
+
+/*spc: shield pixel correct */
 typedef struct dpc_spc_s {
 	/* M4_GENERIC_DESC(
         M4_ALIAS(sw_pdaf_en),
@@ -623,58 +704,58 @@ typedef struct dpc_spc_s {
         M4_ALIAS(sw_pdaf_offsetx),
         M4_TYPE(u16),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,8191),
+        M4_RANGE_EX(0,100),
         M4_DEFAULT(0),
         M4_DIGIT_EX(0),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(The beginning x coordinate of pdaf pattern.\n
-		Freq of use: low))  */
+		Freq of use: high))  */
     //para:pdaf_offsetx   reg: sw_pdaf_offsetx
     uint16_t hw_dpcCfg_win_x;
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_pdaf_offsety),
         M4_TYPE(u16),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,8191),
+        M4_RANGE_EX(0,100),
         M4_DEFAULT(0),
         M4_DIGIT_EX(0),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(The beginning y coordinate of pdaf pattern.\n
-		Freq of use: low))  */
+		Freq of use: high))  */
     //para:pdaf_offsety   reg: sw_pdaf_offsety
     uint16_t hw_dpcCfg_win_y;
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_pdaf_wrapx),
         M4_TYPE(u16),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,1023),
+        M4_RANGE_EX(1,16),
         M4_DEFAULT(0),
         M4_DIGIT_EX(0),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(The width of pdaf pixel pattern.\n
-        Freq of use: low))  */
+        Freq of use: high))  */
     //para:pdaf_offsetx   reg: sw_pdaf_wrapx
     uint16_t hw_dpcCfg_zone_width;
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_pdaf_wrapy),
         M4_TYPE(u16),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,1023),
+        M4_RANGE_EX(1,16),
         M4_DEFAULT(0),
         M4_DIGIT_EX(0),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(The height of pdaf pixel pattern.\n
-        Freq of use: low))  */
+        Freq of use: high))  */
     //para:pdaf_wrapy     reg: sw_pdaf_wrapy
-    uint16_t hw_dpcCfg_zone_height;    
+    uint16_t hw_dpcCfg_zone_height;
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_pdaf_wrapx_num),
         M4_TYPE(u16),
@@ -686,7 +767,7 @@ typedef struct dpc_spc_s {
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(The num of wrapy.\n
-        Freq of use: low))  */
+        Freq of use: high))  */
     //para:pdaf_wrapx_num     reg: sw_pdaf_wrapx_num
     uint16_t hw_dpcCfg_zonesRow_num;
     /* M4_GENERIC_DESC(
@@ -700,49 +781,18 @@ typedef struct dpc_spc_s {
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(The num of wrapx.\n
-        Freq of use: low))  */
+        Freq of use: high))  */
     //para:pdaf_wrapy_num     reg: sw_pdaf_wrapy_num
     uint16_t hw_dpcCfg_zonesCol_num;
-	/* M4_GENERIC_DESC(
-        M4_ALIAS(sw_pdaf_point0_en),
-        M4_TYPE(bool),
-        M4_SIZE_EX(1,16),
-        M4_DEFAULT(0),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(Point replace enable bit.\n
-        Freq of use: high))  */
-    //para:pdaf_point_en   reg: sw_pdaf_point0_en ~ sw_pdaf_point15_en
-    uint16_t hw_dpcCfg_spcEnInZone_bit[DPC_PDAF_POINT_NUM];    
     /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_pdaf_point0_x),
-        M4_TYPE(u8),
-        M4_SIZE_EX(1,16),
-        M4_RANGE_EX(0,255),
-        M4_DEFAULT(0),
-        M4_DIGIT_EX(0),
+        M4_ALIAS(spInZone),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_NOTES(Point y coordinate.\n
-        Freq of use: low))  */
-    //para:point_x   reg: sw_pdaf_point0_x ~ sw_pdaf_point15_x
-    unsigned char hw_dpcCfg_spInZoneCoord_x[DPC_PDAF_POINT_NUM];
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_pdaf_point0_y),
-        M4_TYPE(u8),
-        M4_SIZE_EX(1,16),
-        M4_RANGE_EX(0,255),
-        M4_DEFAULT(0),
-        M4_DIGIT_EX(0),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(Point x coordinate.\n
-        Freq of use: low))  */
-    //para:point_y   reg: sw_pdaf_point0_y ~ sw_pdaf_point15_y
-    unsigned char hw_dpcCfg_spInZoneCoord_y[DPC_PDAF_POINT_NUM];
+        M4_NOTES(TODO))   */
+    dpc_spInZone_t spInZone;
     /* M4_GENERIC_DESC(
         M4_ALIAS(pdaf_forward_med),
         M4_TYPE(enum),
@@ -769,7 +819,13 @@ typedef enum dpc_srcFmt_e {
 } dpc_srcFmt_t;
 
 typedef enum dpc_dpcROI_mode_e {
+    /*
+    sw_dpcc_border_bypss_mode = 0
+    */
     dpc_imgBoundaryIncl_mode = 0,
+    /*
+    sw_dpcc_border_bypss_mode = 1
+    */
     dpc_imgBoundaryExcl_mode = 1,
 } dpc_dpcROI_mode_t;
 
@@ -799,6 +855,15 @@ typedef struct dpc_params_static_s {
     // reg: sw_dpcc_border_bypss_mode;
     dpc_dpcROI_mode_t hw_dpcCfg_dpcROI_mode;
     /* M4_GENERIC_DESC(
+        M4_ALIAS(dpcProc),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))   */
+    dpc_dpcProc_t dpcProc;
+    /* M4_GENERIC_DESC(
         M4_ALIAS(spc),
         M4_TYPE(struct),
         M4_UI_MODULE(normal_ui_style),
@@ -809,10 +874,11 @@ typedef struct dpc_params_static_s {
     dpc_spc_t spc;
 } dpc_params_static_t;
 
-typedef struct dpc_params_dyn_t {
+typedef struct dpc_params_dpcDyn_t {
     /* M4_GENERIC_DESC(
         M4_ALIAS(dpDctEngine0),
-        M4_TYPE(struct),
+        M4_TYPE(struct_list),
+        M4_SIZE_EX(1,3),
         M4_UI_MODULE(normal_ui_style),
         M4_HIDE_EX(0),
         M4_RO(0),
@@ -827,37 +893,28 @@ typedef struct dpc_params_dyn_t {
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(TODO))   */
-    dpc_dpDct_fixEngine_t dpDct_fixEngine;    
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(dpcProc),
-        M4_TYPE(struct),
-        M4_UI_MODULE(normal_ui_style),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(TODO))   */
-    dpc_dpcProc_t dpcProc;
-} dpc_params_dyn_t;
+    dpc_dpDct_fixEngine_t dpDct_fixEngine;
+} dpc_params_dpcDyn_t;
 
 typedef struct dpc_param_s{
     /* M4_GENERIC_DESC(
         M4_ALIAS(static),
         M4_TYPE(struct),
-        M4_UI_MODULE(dynamic_ui),
+        M4_UI_MODULE(static_ui),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
         M4_NOTES(TODO))  */
     dpc_params_static_t sta;
     /* M4_GENERIC_DESC(
-        M4_ALIAS(dynamic_param),
+        M4_ALIAS(dpcDyn),
         M4_TYPE(struct),
         M4_UI_MODULE(dynamic_ui),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
         M4_NOTES(All dynamic params array corresponded with iso array))  */
-    dpc_params_dyn_t dyn;
+    dpc_params_dpcDyn_t dyn;
 } dpc_param_t;
 
 #endif

@@ -19,7 +19,7 @@
 
 #ifndef _RK_AIQ_TYPE_ABLC_ALGO_H_
 #define _RK_AIQ_TYPE_ABLC_ALGO_H_
-#include "ablc/rk_aiq_types_ablc_hw.h"
+#include "algos/ablc/rk_aiq_types_ablc_hw.h"
 
 RKAIQ_BEGIN_DECLARE
 

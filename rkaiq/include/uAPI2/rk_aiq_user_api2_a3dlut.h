@@ -17,7 +17,7 @@
 
 #ifndef _RK_AIQ_USER_API2_A3DLUT_H_
 #define _RK_AIQ_USER_API2_A3DLUT_H_
-#include "a3dlut/rk_aiq_uapi_a3dlut_int.h"
+#include "algos/a3dlut/rk_aiq_uapi_a3dlut_int.h"
 
 #ifndef RK_AIQ_SYS_CTX_T
 #define RK_AIQ_SYS_CTX_T

@@ -18,9 +18,9 @@
 
 #include <stdint.h>
 
-#include "RkAiqCalibDbTypes.h"
-#include "rk_aiq_comm.h"
-#include "agic_uapi_head.h"
+#include "iq_parser/RkAiqCalibDbTypes.h"
+#include "common/rk_aiq_comm.h"
+#include "iq_parser_v2/agic_uapi_head.h"
 
 typedef struct rkaiq_gic_v1_hw_param_s {
     uint8_t edge_open;

@@ -18,9 +18,9 @@
 #ifndef _RK_AIQ_USER_API_CUSTOM_AE_H_
 #define _RK_AIQ_USER_API_CUSTOM_AE_H_
 
-#include "rk_aiq_types.h" /* common structs */
-#include "rk_aiq_user_api2_sysctl.h" /* rk_aiq_sys_ctx_t */
-#include "ae/rk_aiq_types_ae_hw.h" /* include ae structs*/
+#include "common/rk_aiq_types.h" /* common structs */
+#include "uAPI2/rk_aiq_user_api2_sysctl.h" /* rk_aiq_sys_ctx_t */
+#include "algos/ae/rk_aiq_types_ae_hw.h" /* include ae structs*/
 
 RKAIQ_BEGIN_DECLARE
 

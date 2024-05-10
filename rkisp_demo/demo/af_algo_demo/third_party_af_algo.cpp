@@ -1,6 +1,8 @@
 #include "third_party_af_algo.h"
 #include "rk_aiq_user_api2_sysctl.h"
 
+// #define USE_NEWSTRUCT
+
 static void set_af_manual_meascfg(const rk_aiq_sys_ctx_t* ctx)
 {
     rk_aiq_af_attrib_t attr;
@@ -488,6 +490,160 @@ static void set_af_manual_meascfg(const rk_aiq_sys_ctx_t* ctx)
         attr.manual_meascfg_v32.bls_en = 0;
         attr.manual_meascfg_v32.bls_offset = 0;
     } else if (attr.AfHwVer == RKAIQ_AF_HW_V33) {
+#ifdef USE_NEWSTRUCT
+        float ns_gammy[] = {0, 0.0440, 0.1056, 0.1750, 0.2395, 0.3363, 0.3998, 0.4487, 0.4888, 0.5543, 0.6080, 0.6608, 0.7419, 0.8143, 0.8759, 0.9404, 1.0000};
+
+        memset(&attr.manual_afStats_cfg, 0, sizeof(attr.manual_afStats_cfg));
+
+        attr.manual_afStats_cfg.hw_afCfg_stats_en = true;
+        attr.manual_afStats_cfg.hw_afCfg_ldg_en = false;
+        attr.manual_afStats_cfg.hw_afCfg_statsSrc_mode = afStats_chl0Wb0Out_mode;
+        attr.manual_afStats_cfg.hw_afCfg_statsBtnrOut_shift = 0;
+
+        attr.manual_afStats_cfg.mainWin.hw_afCfg_win_x = 4;
+        attr.manual_afStats_cfg.mainWin.hw_afCfg_win_y = 4;
+        attr.manual_afStats_cfg.mainWin.hw_afCfg_win_width = 300;
+        attr.manual_afStats_cfg.mainWin.hw_afCfg_win_height = 300;
+        attr.manual_afStats_cfg.subWin.hw_afCfg_win_x = 500;
+        attr.manual_afStats_cfg.subWin.hw_afCfg_win_y = 600;
+        attr.manual_afStats_cfg.subWin.hw_afCfg_win_width = 300;
+        attr.manual_afStats_cfg.subWin.hw_afCfg_win_height = 300;
+
+        attr.manual_afStats_cfg.hw_afCfg_ds_mode = afStats_ds_disable_mode;
+
+        attr.manual_afStats_cfg.gamma.hw_afCfg_gamma_en = true;
+        memcpy(attr.manual_afStats_cfg.gamma.hw_afCfg_gamma_val, ns_gammy, sizeof(attr.manual_afStats_cfg.gamma.hw_afCfg_gamma_val));
+
+        attr.manual_afStats_cfg.preFilt.hw_afCfg_gaus_en = 1;
+        attr.manual_afStats_cfg.preFilt.hw_afCfg_gaus_coeff[1] = 0.5;
+        attr.manual_afStats_cfg.preFilt.hw_afCfg_gaus_coeff[4] = 0.5;
+        attr.manual_afStats_cfg.hw_afCfg_hLumaCnt_thred = 0.9;
+
+        // Horizontal filter
+        // low [0.0125, 0.03], max=0.5
+        int hor_flt_low[2][6] =
+        {
+            { 256,   958,  -460,   202,     0,  -202 },
+            {  45,   994,  -485,    87,     0,   -87 },
+        };
+        // face [0.025, 0.06], max=0.5
+        int hor_flt_face[2][6] =
+        {
+            { 512,   877,  -417,   184,     0,  -184 },
+            { 181,   957,  -460,    42,     0,   -42 },
+        };
+        // lowlit [0.025, 0.075], max=0.5
+        int hor_flt_lowlit[2][6] =
+        {
+            { 512,   811,  -375,   266,     0,  -266 },
+            { 249,   945,  -448,    41,     0,   -41 },
+        };
+        // normal [0.042, 0.14], max=0.5
+        int hor_flt_normal[2][6] =
+        {
+            { 512,   557,  -276,   460,     0,  -460 },
+            { 512,   870,  -399,    37,     0,   -37 },
+        };
+        // high [0.055, 0.125], max=0.5
+        int hor_flt_high[2][6] =
+        {
+            { 512,   648,  -344,   327,     0,  -327 },
+            { 512,   854,  -409,    29,     0,   -29 },
+        };
+        // dotlight [0.1 0.175], max=0.5
+        int hor_flt_dotlight[2][6] =
+        {
+            { 512,   447,  -349,   319,     0,  -319 },
+            { 512,   698,  -386,    34,     0,   -34 },
+        };
+        // full [0.025, 0.175], max=0.5
+        int hor_flt_full[2][6] =
+        {
+            { 512,   362,  -171,   512,     0,  -512 },
+            { 512,   915,  -417,    67,     0,   -67 },
+        };
+
+        attr.manual_afStats_cfg.hw_afCfg_hFiltLnBnd_mode = afStats_hFiltLnBnd_curLn_mode;
+        attr.manual_afStats_cfg.hFilt1.hw_afCfg_fvFmt_mode = afStats_outNorm_sumSqu_mode;
+        attr.manual_afStats_cfg.hFilt1.hw_afCfg_accMainWin_shift = 1;
+        attr.manual_afStats_cfg.hFilt1.hw_afCfg_accSubWin_shift = 1;
+        for (int i = 0; i < 6; i++) {
+            attr.manual_afStats_cfg.hFilt1.hw_afCfg_iirStep1_coeff[i] = hor_flt_lowlit[0][i];
+            attr.manual_afStats_cfg.hFilt1.hw_afCfg_iirStep2_coeff[i] = hor_flt_lowlit[1][i];
+        }
+
+        attr.manual_afStats_cfg.hFilt2.hw_afCfg_fvFmt_mode = afStats_outNorm_sumSqu_mode;
+        attr.manual_afStats_cfg.hFilt2.hw_afCfg_accMainWin_shift = 1;
+        attr.manual_afStats_cfg.hFilt2.hw_afCfg_accSubWin_shift = 1;
+        for (int i = 0; i < 6; i++) {
+            attr.manual_afStats_cfg.hFilt2.hw_afCfg_iirStep1_coeff[i] = hor_flt_normal[0][i];
+            attr.manual_afStats_cfg.hFilt2.hw_afCfg_iirStep2_coeff[i] = hor_flt_normal[1][i];
+        }
+
+        attr.manual_afStats_cfg.hFilt_coring.hw_afCfg_coring_thred = 0;
+        attr.manual_afStats_cfg.hFilt_coring.hw_afCfg_slope_val = 1;
+        attr.manual_afStats_cfg.hFilt_coring.hw_afCfg_coring_maxLimit = 1;
+
+        attr.manual_afStats_cfg.hFilt_ldg.hw_afCfg_lumaL_thred = 0.250;
+        attr.manual_afStats_cfg.hFilt_ldg.hw_afCfg_gainL_val = 0.100;
+        attr.manual_afStats_cfg.hFilt_ldg.hw_afCfg_slopeL_val = 5.040;
+        attr.manual_afStats_cfg.hFilt_ldg.hw_afCfg_lumaR_thred = 0.725;
+        attr.manual_afStats_cfg.hFilt_ldg.hw_afCfg_gainR_val = 0.0314;
+        attr.manual_afStats_cfg.hFilt_ldg.hw_afCfg_slopeR_val = 5.489;
+        attr.manual_afStats_cfg.hFilt_ldg.hw_afCfg_maxOptBndL_len = 0;
+
+        // Vertical filter
+        // face [0.025, 0.06], max=0.5
+        int ver_flt_face[6] =
+            { -410, 895, 330, -79, 0, 79 };
+
+        // lowlit [0.025, 0.075], max=0.5
+        int ver_flt_lowlit[6] =
+            { -372, 851, 465, -77, 0, 77 };
+
+        // normal [0.042, 0.14], max=0.5
+        int ver_flt_normal[6] =
+            { -265, 686, 512, -124, 0, 124 };
+
+        // high [0.055, 0.125], max=0.5
+        int ver_flt_high[6] =
+            { -325, 724, 512, -94, 0, 94 };
+
+        // dotlight [0.1 0.175], max=0.5
+        int ver_flt_dotlight[6] =
+            { -314, 552, 512, -99, 0, 99 };
+
+        // full [0.025, 0.175], max=0.5
+        int ver_flt_full[6] =
+            { -166, 616, 512, -173, 0, 173 };
+
+        attr.manual_afStats_cfg.vFilt1.hw_afCfg_fvFmt_mode = afStats_outNorm_sumSqu_mode;
+        attr.manual_afStats_cfg.vFilt1.hw_afCfg_accMainWin_shift = 1;
+        attr.manual_afStats_cfg.vFilt1.hw_afCfg_accSubWin_shift = 1;
+        for (int i = 0; i < 3; i++) {
+            attr.manual_afStats_cfg.vFilt1.hw_afCfg_iirStep1_coeff[i] = ver_flt_lowlit[i];
+            attr.manual_afStats_cfg.vFilt1.hw_afCfg_firStep2_coeff[i] = ver_flt_lowlit[i + 3];
+        }
+        attr.manual_afStats_cfg.vFilt2.hw_afCfg_fvFmt_mode = afStats_outNorm_sumSqu_mode;
+        attr.manual_afStats_cfg.vFilt2.hw_afCfg_accMainWin_shift = 1;
+        attr.manual_afStats_cfg.vFilt2.hw_afCfg_accSubWin_shift = 1;
+        for (int i = 0; i < 3; i++) {
+            attr.manual_afStats_cfg.vFilt2.hw_afCfg_iirStep1_coeff[i] = ver_flt_normal[i];
+            attr.manual_afStats_cfg.vFilt2.hw_afCfg_firStep2_coeff[i] = ver_flt_normal[i + 3];
+        }
+
+        attr.manual_afStats_cfg.vFilt_coring.hw_afCfg_coring_thred = 0;
+        attr.manual_afStats_cfg.vFilt_coring.hw_afCfg_slope_val = 1;
+        attr.manual_afStats_cfg.vFilt_coring.hw_afCfg_coring_maxLimit = 1;
+
+        attr.manual_afStats_cfg.vFilt_ldg.hw_afCfg_lumaL_thred = 0.250;
+        attr.manual_afStats_cfg.vFilt_ldg.hw_afCfg_gainL_val = 0.100;
+        attr.manual_afStats_cfg.vFilt_ldg.hw_afCfg_slopeL_val = 5.040;
+        attr.manual_afStats_cfg.vFilt_ldg.hw_afCfg_lumaR_thred = 0.725;
+        attr.manual_afStats_cfg.vFilt_ldg.hw_afCfg_gainR_val = 0.0314;
+        attr.manual_afStats_cfg.vFilt_ldg.hw_afCfg_slopeR_val = 5.489;
+
+#else
         // rk3576
         memset(&attr.manual_meascfg_v33, 0, sizeof(attr.manual_meascfg_v33));
         attr.manual_meascfg_v33.af_en = 1;
@@ -637,6 +793,7 @@ static void set_af_manual_meascfg(const rk_aiq_sys_ctx_t* ctx)
         // bls
         attr.manual_meascfg_v33.bls_en = 0;
         attr.manual_meascfg_v33.bls_offset = 0;
+#endif
     }
 
     attr.sync.sync_mode = RK_AIQ_UAPI_MODE_SYNC;
@@ -769,7 +926,7 @@ static void print_af_stats(rk_aiq_isp_stats_t *stats_ref)
         }
     } else if (stats_ref->af_hw_ver == RKAIQ_AF_HW_V33) {
         // rk3576
-//#define USE_NEWSTRUCT
+
 #ifndef USE_NEWSTRUCT
         printf("wnda_fv_h1\n");
         for (int i = 0; i < 15; i++) {
@@ -899,8 +1056,10 @@ static void* af_thread(void* args) {
     // set af meas config
     set_af_manual_meascfg(ctx);
     while(1) {
-        rk_aiq_isp_stats_t *stats_ref = NULL;
         // get 3a stats
+//#define USE_IMPLEMENT_C
+#ifndef USE_IMPLEMENT_C
+        rk_aiq_isp_stats_t *stats_ref = NULL;
         ret = rk_aiq_uapi2_sysctl_get3AStatsBlk(ctx, &stats_ref, -1);
         if (ret == XCAM_RETURN_NO_ERROR && stats_ref != NULL) {
             printf("get one stats frame id %d \n", stats_ref->frame_id);
@@ -919,6 +1078,22 @@ static void* af_thread(void* args) {
                 break;
             }
         }
+#else
+        rk_aiq_isp_stats_t stats_ref;
+        ret = rk_aiq_uapi2_sysctl_getIspStats(ctx, &stats_ref, -1);
+        if (ret == XCAM_RETURN_NO_ERROR) {
+            printf("get one stats frame id %d \n", stats_ref.frame_id);
+            custom_af_algo(&stats_ref);
+        } else {
+            if (ret == XCAM_RETURN_ERROR_TIMEOUT) {
+                printf("aiq timeout!\n");
+                continue;
+            } else if (ret == XCAM_RETURN_ERROR_FAILED) {
+                printf("aiq stats is not right!\n");
+                continue;
+            }
+        }
+#endif
     }
     printf("end stats thread\n");
     return 0;

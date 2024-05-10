@@ -15,43 +15,144 @@
  */
 #include "Isp39Params.h"
 #include "rk_aiq_isp39_modules.h"
+#include "awb/fixfloat.h"
+
 
 namespace RkCam {
 
 #define ISP2X_WBGAIN_FIXSCALE_BIT  8
 #define ISP3X_WBGAIN_INTSCALE_BIT  8
+#define LOG2(x)   (log((double)x) / log((double)2))
 
+
+static void AwbGainOtpAdjust( rk_aiq_wb_gain_v32_t* awb_gain_out,
+                            const struct rkmodule_awb_inf* otp_awb)
+{
+    LOG1_AWB("%s: (enter)  \n", __FUNCTION__);
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    if (otp_awb != NULL && otp_awb->flag==0) {
+        LOGV_AWB("%s: otp_awb is null \n", __FUNCTION__);
+        return ;
+    }else{
+        LOGV_AWB("%s: otp_awb flag(%d),golden(%d,%d,%d),current(%d,%d,%d) \n", __FUNCTION__,otp_awb->flag,
+            otp_awb->golden_r_value,otp_awb->golden_gr_value,otp_awb->golden_b_value,
+            otp_awb->r_value,otp_awb->gr_value,otp_awb->b_value);
+    }
+    awb_gain_out->bgain = awb_gain_out->bgain *
+                        (float) otp_awb->golden_b_value /
+                        (float) otp_awb->b_value;
+    awb_gain_out->rgain = awb_gain_out->rgain *
+                            (float) otp_awb->golden_r_value /
+                            (float) otp_awb->r_value;
+    awb_gain_out->gbgain = awb_gain_out->gbgain;
+    awb_gain_out->grgain = awb_gain_out->grgain *
+                            (float) otp_awb->golden_gr_value /
+                            (float) otp_awb->gr_value;
+
+    LOGD_AWB("%s awb gain(multiplied by otp)  = [%f, %f, %f, %f] \n",
+                __FUNCTION__,awb_gain_out->rgain, awb_gain_out->grgain,
+                awb_gain_out->gbgain, awb_gain_out->bgain);
+}
+
+
+
+//call afte ablc_res_v32 got
+static void ConfigWbgainBaseOnBlc(rk_aiq_wb_gain_v32_t *awb_gain,const blc_res_cvt_t *blc,float dgain)
+{
+    short int mainPieplineBLC[AWB_CHANNEL_MAX];
+    if(blc==nullptr ||blc->en==false){
+        return;
+    }
+    memset(mainPieplineBLC, 0, sizeof(mainPieplineBLC[0])*AWB_CHANNEL_MAX);
+    if(blc->en) {
+        mainPieplineBLC[AWB_CHANNEL_R] += blc->obcPreTnr.hw_blcC_obR_val;
+        mainPieplineBLC[AWB_CHANNEL_GR] += blc->obcPreTnr.hw_blcC_obGr_val;
+        mainPieplineBLC[AWB_CHANNEL_B] += blc->obcPreTnr.hw_blcC_obB_val;
+        mainPieplineBLC[AWB_CHANNEL_GB] += blc->obcPreTnr.hw_blcC_obGb_val;
+    }
+    // if(awb_gain->applyPosition== IN_AWBGAIN1 && blc->obcPostTnr.sw_blcT_obcPostTnr_mode == blc_manualOBCPostTnr_mode ) {
+    //     mainPieplineBLC[AWB_CHANNEL_R] += blc->obcPostTnr.hw_blcT_manualOBR_val*dgain;
+    //     mainPieplineBLC[AWB_CHANNEL_GR] += blc->obcPostTnr.hw_blcT_manualOBGr_val*dgain;
+    //     mainPieplineBLC[AWB_CHANNEL_B] += blc->obcPostTnr.hw_blcT_manualOBB_val*dgain;
+    //     mainPieplineBLC[AWB_CHANNEL_GB] += blc->obcPostTnr.hw_blcT_manualOBGb_val*dgain;
+    // }
+    for(int i = 0; i < AWB_CHANNEL_MAX; i++) {
+        if(mainPieplineBLC[i]>4094){
+               mainPieplineBLC[i] = 4094;
+               LOGE_AWB("mainPieplineBLC[%d] = %d is too large!!!!",i,mainPieplineBLC[i]);
+           }
+    }
+    float maxg1 = 0;
+    if(mainPieplineBLC[AWB_CHANNEL_R] > 0) {
+        awb_gain->rgain *= 4095.0 / (4095 - mainPieplineBLC[AWB_CHANNEL_R]); //max_value=4095
+    }
+    if(maxg1 < awb_gain->rgain) {
+        maxg1 = awb_gain->rgain;
+    }
+    if(mainPieplineBLC[AWB_CHANNEL_B] > 0) {
+        awb_gain->bgain *= 4095.0 / (4095 - mainPieplineBLC[AWB_CHANNEL_B]); //max_value=4095
+    }
+    if(maxg1 < awb_gain->bgain) {
+        maxg1 = awb_gain->bgain;
+    }
+    if(mainPieplineBLC[AWB_CHANNEL_GR] > 0) {
+        awb_gain->grgain *= 4095.0 / (4095 - mainPieplineBLC[AWB_CHANNEL_GR]); //max_value=4095
+    }
+    if(maxg1 < awb_gain->grgain) {
+        maxg1 = awb_gain->grgain;
+    }
+    if(mainPieplineBLC[AWB_CHANNEL_GB] > 0) {
+        awb_gain->gbgain *= 4095.0 / (4095 - mainPieplineBLC[AWB_CHANNEL_GB]); //max_value=4095
+    }
+    if(maxg1 < awb_gain->gbgain) {
+        maxg1 = awb_gain->gbgain;
+    }
+
+    if(maxg1 > 8) { //max_wbgain=8.0
+        float scale = 8 / maxg1;
+        awb_gain->gbgain *= scale;
+        awb_gain->grgain *= scale;
+        awb_gain->bgain *= scale;
+        awb_gain->rgain *= scale;
+        LOGW_AWB("max wbgain is %f, maybe error case", maxg1);
+    }
+    LOGD_AWB("%s awb gain  = [%f, %f, %f, %f] \n",
+                __FUNCTION__,awb_gain->rgain, awb_gain->grgain,
+                awb_gain->gbgain, awb_gain->bgain);
+}
 
 void Isp39Params::convertAiqAwbGainToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
-        const rk_aiq_wb_gain_v32_t& awb_gain, bool awb_gain_update)
+        const rk_aiq_wb_gain_v32_t& awb_gain_ori, bool awb_gain_update)
 {
-
-#if RKAIQ_HAVE_AWB_V32
-
-    if(awb_gain_update) {
+    LOG1_AWB("%s enter",__FUNCTION__);
+#if RKAIQ_HAVE_AWB_V39
+    if(1/*update by awb_gain_update+blc+otp*/) {
         isp_cfg.module_ens |= 1LL << RK_ISP2X_AWB_GAIN_ID;
         isp_cfg.module_cfg_update |= 1LL << RK_ISP2X_AWB_GAIN_ID;
         isp_cfg.module_en_update |= 1LL << RK_ISP2X_AWB_GAIN_ID;
     } else {
         return;
     }
+    awb_gain_final = awb_gain_ori;
+    const blc_res_cvt_t *blc = &mCommonCvtInfo.blc_res;
 
+    //1)//check awb gain apply position
+    awb_gain_final.applyPosition  =
+        ((rk_aiq_working_mode_t)_working_mode == RK_AIQ_WORKING_MODE_NORMAL) ? IN_AWBGAIN1:IN_AWBGAIN0;
+    //2) //otp
+    AwbGainOtpAdjust(&awb_gain_final, &mCommonCvtInfo.otp_awb);
+    //3)//ConfigWbgainBaseOnBlc
+    float dgain = mCommonCvtInfo.frameDGain[0]>1?mCommonCvtInfo.frameDGain[0]:1;
+    ConfigWbgainBaseOnBlc(&awb_gain_final,blc,dgain);
+    //iqmap
+    //4)//set to reg
     struct isp32_awb_gain_cfg *  cfg = &isp_cfg.others.awb_gain_cfg;
     uint16_t max_wb_gain = (1 << (ISP2X_WBGAIN_FIXSCALE_BIT + 3)) - 1;
-    rk_aiq_wb_gain_v32_t awb_gain1 = awb_gain;
-#if 0 //to do
-    if(blc != nullptr && blc->v0.enable) {
-        awb_gain1.bgain *= (float)((1 << ISP2X_BLC_BIT_MAX) - 1) / ((1 << ISP2X_BLC_BIT_MAX) - 1 - blc->v0.blc_b);
-        awb_gain1.gbgain *= (float)((1 << ISP2X_BLC_BIT_MAX) - 1) / ((1 << ISP2X_BLC_BIT_MAX) - 1 - blc->v0.blc_gb);
-        awb_gain1.rgain *= (float)((1 << ISP2X_BLC_BIT_MAX) - 1) / ((1 << ISP2X_BLC_BIT_MAX) - 1 - blc->v0.blc_r);
-        awb_gain1.grgain *= (float)((1 << ISP2X_BLC_BIT_MAX) - 1) / ((1 << ISP2X_BLC_BIT_MAX) - 1 - blc->v0.blc_gr);
-    }
-#endif
-    uint16_t R = (uint16_t)(0.5 + awb_gain1.rgain * (1 << ISP2X_WBGAIN_FIXSCALE_BIT));
-    uint16_t B = (uint16_t)(0.5 + awb_gain1.bgain * (1 << ISP2X_WBGAIN_FIXSCALE_BIT));
-    uint16_t Gr = (uint16_t)(0.5 + awb_gain1.grgain * (1 << ISP2X_WBGAIN_FIXSCALE_BIT));
-    uint16_t Gb = (uint16_t)(0.5 + awb_gain1.gbgain * (1 << ISP2X_WBGAIN_FIXSCALE_BIT));
-    if(awb_gain.applyPosition == IN_AWBGAIN0) {
+    uint16_t R = (uint16_t)(0.5 + awb_gain_final.rgain * (1 << ISP2X_WBGAIN_FIXSCALE_BIT));
+    uint16_t B = (uint16_t)(0.5 + awb_gain_final.bgain * (1 << ISP2X_WBGAIN_FIXSCALE_BIT));
+    uint16_t Gr = (uint16_t)(0.5 + awb_gain_final.grgain * (1 << ISP2X_WBGAIN_FIXSCALE_BIT));
+    uint16_t Gb = (uint16_t)(0.5 + awb_gain_final.gbgain * (1 << ISP2X_WBGAIN_FIXSCALE_BIT));
+    if(awb_gain_final.applyPosition == IN_AWBGAIN0) {
         cfg->gain0_red       = R > max_wb_gain ? max_wb_gain : R;
         cfg->gain0_blue      = B > max_wb_gain ? max_wb_gain : B;
         cfg->gain0_green_r   = Gr > max_wb_gain ? max_wb_gain : Gr ;
@@ -88,17 +189,20 @@ void Isp39Params::convertAiqAwbGainToIsp39Params(struct isp39_isp_params_cfg& is
     }
 #endif
 
-#if RKAIQ_HAVE_AWB_V32
+#if RKAIQ_HAVE_AWB_V39
     mLatestWbGainCfg = *cfg;
 #endif
 }
 
-#if RKAIQ_HAVE_AWB_V32
+#if RKAIQ_HAVE_AWB_V39
 static void WriteAwbReg(struct isp39_rawawb_meas_cfg* awb_cfg_v32)
 {
 #if 0
+    static int count = 0;
+    if(count>20) return;
     char fName[100];
-    sprintf(fName, "./tmp/awb_reg.txt");
+    sprintf(fName, "./tmp/awb_reg_%d.txt",count);
+    count++;
     LOGE_AWB( "%s", fName);
 
     FILE* fp = fopen(fName, "wb");
@@ -106,6 +210,9 @@ static void WriteAwbReg(struct isp39_rawawb_meas_cfg* awb_cfg_v32)
         return;
     }
     //fprintf(fp, "\t\tsw_rawawb_en = 0x%0x (%d)\n",                              awb_cfg_v32->en                            ,awb_cfg_v32->en);
+    fprintf(fp, "\t\tsw_drc2awb_sel = 0x%0x (%d)\n",                                  awb_cfg_v32->drc2awb_sel, awb_cfg_v32->drc2awb_sel);
+    fprintf(fp, "\t\tsw_bnr2awb_sel = 0x%0x (%d)\n",                                  awb_cfg_v32->bnr2awb_sel, awb_cfg_v32->bnr2awb_sel);
+    fprintf(fp, "\t\tsw_rawawb_sel = 0x%0x (%d)\n",                                   awb_cfg_v32->rawawb_sel, awb_cfg_v32->rawawb_sel);
     fprintf(fp, "\t\tsw_rawawb_uv_en0 = 0x%0x (%d)\n",                            awb_cfg_v32->uv_en0, awb_cfg_v32->uv_en0);
     fprintf(fp, "\t\tsw_rawawb_xy_en0 = 0x%0x (%d)\n",                            awb_cfg_v32->xy_en0, awb_cfg_v32->xy_en0);
     fprintf(fp, "\t\tsw_rawawb_yuv3d_en0 = 0x%0x (%d)\n",                         awb_cfg_v32->yuv3d_en0, awb_cfg_v32->yuv3d_en0);
@@ -350,21 +457,28 @@ static void WriteAwbReg(struct isp39_rawawb_meas_cfg* awb_cfg_v32)
     fprintf(fp, "\t\tsw_rawawb_exc_wp_region0_excen = 0x%0x (%d)\n",              awb_cfg_v32->exc_wp_region0_excen, awb_cfg_v32->exc_wp_region0_excen);
     fprintf(fp, "\t\tsw_rawawb_exc_wp_region0_measen = 0x%0x (%d)\n",             awb_cfg_v32->exc_wp_region0_measen, awb_cfg_v32->exc_wp_region0_measen);
     fprintf(fp, "\t\tsw_rawawb_exc_wp_region0_domain = 0x%0x (%d)\n",             awb_cfg_v32->exc_wp_region0_domain, awb_cfg_v32->exc_wp_region0_domain);
+    fprintf(fp, "\t\tsw_rawawb_exc_wp_region0_weight = 0x%0x (%d)\n",             awb_cfg_v32->exc_wp_region0_weight, awb_cfg_v32->exc_wp_region0_weight);
     fprintf(fp, "\t\tsw_rawawb_exc_wp_region1_excen = 0x%0x (%d)\n",              awb_cfg_v32->exc_wp_region1_excen, awb_cfg_v32->exc_wp_region1_excen);
     fprintf(fp, "\t\tsw_rawawb_exc_wp_region1_measen = 0x%0x (%d)\n",             awb_cfg_v32->exc_wp_region1_measen, awb_cfg_v32->exc_wp_region1_measen);
     fprintf(fp, "\t\tsw_rawawb_exc_wp_region1_domain = 0x%0x (%d)\n",             awb_cfg_v32->exc_wp_region1_domain, awb_cfg_v32->exc_wp_region1_domain);
+    fprintf(fp, "\t\tsw_rawawb_exc_wp_region1_weight = 0x%0x (%d)\n",             awb_cfg_v32->exc_wp_region1_weight, awb_cfg_v32->exc_wp_region1_weight);
     fprintf(fp, "\t\tsw_rawawb_exc_wp_region2_excen = 0x%0x (%d)\n",              awb_cfg_v32->exc_wp_region2_excen, awb_cfg_v32->exc_wp_region2_excen);
     fprintf(fp, "\t\tsw_rawawb_exc_wp_region2_measen = 0x%0x (%d)\n",             awb_cfg_v32->exc_wp_region2_measen, awb_cfg_v32->exc_wp_region2_measen);
     fprintf(fp, "\t\tsw_rawawb_exc_wp_region2_domain = 0x%0x (%d)\n",             awb_cfg_v32->exc_wp_region2_domain, awb_cfg_v32->exc_wp_region2_domain);
+    fprintf(fp, "\t\tsw_rawawb_exc_wp_region2_weight = 0x%0x (%d)\n",             awb_cfg_v32->exc_wp_region3_weight, awb_cfg_v32->exc_wp_region2_weight);
     fprintf(fp, "\t\tsw_rawawb_exc_wp_region3_excen = 0x%0x (%d)\n",              awb_cfg_v32->exc_wp_region3_excen, awb_cfg_v32->exc_wp_region3_excen);
     fprintf(fp, "\t\tsw_rawawb_exc_wp_region3_measen = 0x%0x (%d)\n",             awb_cfg_v32->exc_wp_region3_measen, awb_cfg_v32->exc_wp_region3_measen);
     fprintf(fp, "\t\tsw_rawawb_exc_wp_region3_domain = 0x%0x (%d)\n",             awb_cfg_v32->exc_wp_region3_domain, awb_cfg_v32->exc_wp_region3_domain);
+    fprintf(fp, "\t\tsw_rawawb_exc_wp_region3_weight = 0x%0x (%d)\n",             awb_cfg_v32->exc_wp_region3_weight, awb_cfg_v32->exc_wp_region3_weight);
     fprintf(fp, "\t\tsw_rawawb_exc_wp_region4_excen = 0x%0x (%d)\n",              awb_cfg_v32->exc_wp_region4_excen, awb_cfg_v32->exc_wp_region4_excen);
     fprintf(fp, "\t\tsw_rawawb_exc_wp_region4_domain = 0x%0x (%d)\n",             awb_cfg_v32->exc_wp_region4_domain, awb_cfg_v32->exc_wp_region4_domain);
+    fprintf(fp, "\t\tsw_rawawb_exc_wp_region4_weight = 0x%0x (%d)\n",             awb_cfg_v32->exc_wp_region4_weight, awb_cfg_v32->exc_wp_region4_weight);
     fprintf(fp, "\t\tsw_rawawb_exc_wp_region5_excen = 0x%0x (%d)\n",              awb_cfg_v32->exc_wp_region5_excen, awb_cfg_v32->exc_wp_region5_excen);
     fprintf(fp, "\t\tsw_rawawb_exc_wp_region5_domain = 0x%0x (%d)\n",             awb_cfg_v32->exc_wp_region5_domain, awb_cfg_v32->exc_wp_region5_domain);
+    fprintf(fp, "\t\tsw_rawawb_exc_wp_region5_weight = 0x%0x (%d)\n",             awb_cfg_v32->exc_wp_region5_weight, awb_cfg_v32->exc_wp_region5_weight);
     fprintf(fp, "\t\tsw_rawawb_exc_wp_region6_excen = 0x%0x (%d)\n",              awb_cfg_v32->exc_wp_region6_excen, awb_cfg_v32->exc_wp_region6_excen);
     fprintf(fp, "\t\tsw_rawawb_exc_wp_region6_domain = 0x%0x (%d)\n",             awb_cfg_v32->exc_wp_region6_domain, awb_cfg_v32->exc_wp_region6_domain);
+    fprintf(fp, "\t\tsw_rawawb_exc_wp_region6_weight = 0x%0x (%d)\n",             awb_cfg_v32->exc_wp_region6_weight, awb_cfg_v32->exc_wp_region6_weight);
     fprintf(fp, "\t\tsw_rawawb_multiwindow_en = 0x%0x (%d)\n",                    awb_cfg_v32->multiwindow_en, awb_cfg_v32->multiwindow_en);
     fprintf(fp, "\t\tsw_rawawb_multiwindow0_h_offs = 0x%0x (%d)\n",               awb_cfg_v32->multiwindow0_h_offs, awb_cfg_v32->multiwindow0_h_offs);
     fprintf(fp, "\t\tsw_rawawb_multiwindow0_v_offs = 0x%0x (%d)\n",               awb_cfg_v32->multiwindow0_v_offs, awb_cfg_v32->multiwindow0_v_offs);
@@ -410,16 +524,316 @@ static void WriteAwbReg(struct isp39_rawawb_meas_cfg* awb_cfg_v32)
     fprintf(fp, "\t\tsw_rawawb_exc_wp_region6_xu1 = 0x%0x (%d)\n",                awb_cfg_v32->exc_wp_region6_xu1, awb_cfg_v32->exc_wp_region6_xu1);
     fprintf(fp, "\t\tsw_rawawb_exc_wp_region6_yv0 = 0x%0x (%d)\n",                awb_cfg_v32->exc_wp_region6_yv0, awb_cfg_v32->exc_wp_region6_yv0);
     fprintf(fp, "\t\tsw_rawawb_exc_wp_region6_yv1 = 0x%0x (%d)\n",                awb_cfg_v32->exc_wp_region6_yv1, awb_cfg_v32->exc_wp_region6_yv1);
+    fprintf(fp, "\t\tbls2 en(%d),val_rggb(%d,%d,%d,%d))\n",             awb_cfg_v32->bls2_en, awb_cfg_v32->bls2_val.r,
+        awb_cfg_v32->bls2_val.gr,awb_cfg_v32->bls2_val.gb,awb_cfg_v32->bls2_val.b);
 
 
     fclose(fp);
 #endif
 }
+
+static void calcInputBitIs12Bit( u8 *inputBitIs12Bit, const awbStats_cfg_t* awb_meas,int working_mode,bool ablc_en,float isp_ob_predgain )
+{
+
+    //inputShiftEnable is true for 20bit ipnut ,for CALIB_AWB_INPUT_BAYERNR + (hdr case  or dgainInAwbGain) is enbale case
+     // to do  inputShiftEnable = !inputBitIs12Bit;
+    bool selectBayerNrData = (awb_meas->hw_awbCfg_statsSrc_mode== awbStats_btnrOut_mode);
+    bool dgainEn = ablc_en && isp_ob_predgain > 1;
+    if (selectBayerNrData
+            && (dgainEn || (rk_aiq_working_mode_t)working_mode != RK_AIQ_WORKING_MODE_NORMAL)) {
+        *inputBitIs12Bit = false;
+    } else {
+        *inputBitIs12Bit = true;
+    }
+}
+
+static void  ConfigBlc2(const blc_res_cvt_t *ablc, const awbStats_cfg_t *awb_meas,float isp_dgain, float isp_ob_predgain,int working_mode,
+                               struct isp39_rawawb_meas_cfg* awb_cfg_v32)
+{
+    awb_cfg_v32->bls2_en = false;
+    awb_cfg_v32->bls2_val.r = 0;
+    awb_cfg_v32->bls2_val.gr = 0;
+    awb_cfg_v32->bls2_val.gb = 0;
+    awb_cfg_v32->bls2_val.b = 0;
+    if(awb_meas->hw_awbCfg_statsSrc_mode== awbStats_drcOut_mode ||
+            (awb_meas->hw_awbCfg_statsSrc_mode == awbStats_btnrOut_mode &&
+             working_mode != RK_AIQ_WORKING_MODE_NORMAL )) {
+        //don't support to use blc2
+        LOGW_AWB("The BLC bias of the awbStats pathway is not effective in the current mode and is consistent with the main pathway");
+        return;
+    }
+    awb_cfg_v32->bls2_en = true;
+    awbStats_blc_t awbBls2 = awb_meas->blc;
+    if(awb_meas->blc.hw_awbCfg_blc_en == false){
+        memset(&awbBls2,0,sizeof(awbBls2));
+    }
+    float blc1[AWB_CHANNEL_MAX] = {0, 0, 0, 0};
+    float dgain2 = 1.0;
+    //sw_blcT_obcPostTnr_mode == blc_autoOBCPostTnr_mode : use oboffset only
+    //sw_blcT_obcPostTnr_mode == blc_manualOBCPostTnr_mode : use blc1 only
+    if(ablc&&ablc->en) {
+        if(isp_ob_predgain > 1) {
+            dgain2 =  isp_ob_predgain;
+        }
+        // if(ablc->obcPostTnr.sw_blcT_obcPostTnr_en && ablc->obcPostTnr.sw_blcT_obcPostTnr_mode == blc_manualOBCPostTnr_mode) {
+        //     blc1[AWB_CHANNEL_R] = (float)ablc->obcPostTnr.hw_blcT_manualOBR_val;//check blc1 was already multiplied by isp_dgain?
+        //     blc1[AWB_CHANNEL_GR] = (float)ablc->obcPostTnr.hw_blcT_manualOBGr_val;
+        //     blc1[AWB_CHANNEL_GB] = (float)ablc->obcPostTnr.hw_blcT_manualOBGb_val;
+        //     blc1[AWB_CHANNEL_B] = (float)ablc->obcPostTnr.hw_blcT_manualOBB_val;
+        // }
+    }
+    // 2 blc2 recalc base on ablc
+    if(awb_meas->hw_awbCfg_statsSrc_mode == awbStats_btnrOut_mode) {
+        //update by (offset +blc1)*dgain
+        // working_mode = normal,so   applyPosition = IN_AWBGAIN1
+        awb_cfg_v32->bls2_val.r = (awbBls2.hw_awbCfg_obR_val + blc1[AWB_CHANNEL_R])*isp_dgain * dgain2  + 0.5;
+        awb_cfg_v32->bls2_val.b = (awbBls2.hw_awbCfg_obB_val + blc1[AWB_CHANNEL_B])*isp_dgain * dgain2  + 0.5;
+        awb_cfg_v32->bls2_val.gr = (awbBls2.hw_awbCfg_obGr_val + blc1[AWB_CHANNEL_GR])*isp_dgain * dgain2  + 0.5;
+        awb_cfg_v32->bls2_val.gb= (awbBls2.hw_awbCfg_obGb_val + blc1[AWB_CHANNEL_GB])*isp_dgain * dgain2  + 0.5;
+    } else {//select raw
+        //update by offset +blc1
+        awb_cfg_v32->bls2_val.r = (awbBls2.hw_awbCfg_obR_val + blc1[AWB_CHANNEL_R])  + 0.5;
+        awb_cfg_v32->bls2_val.b = (awbBls2.hw_awbCfg_obB_val + blc1[AWB_CHANNEL_B])  + 0.5;
+        awb_cfg_v32->bls2_val.gr = (awbBls2.hw_awbCfg_obGr_val + blc1[AWB_CHANNEL_GR])  + 0.5;
+        awb_cfg_v32->bls2_val.gb= (awbBls2.hw_awbCfg_obGb_val + blc1[AWB_CHANNEL_GB])  + 0.5;
+    }
+}
+
+//call after blc2 calc
+static XCamReturn  ConfigOverexposureValue(const blc_res_cvt_t *ablc,float hdrmge_gain0_1,float isp_ob_predgain, int working_mode,
+    const awbStats_cfg_t* awb_meas,struct isp39_rawawb_meas_cfg* awb_cfg_v32)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    awb_cfg_v32->in_overexposure_check_en = true;
+    float dgain = 1.0;
+    int max_blc = 0;
+    short ob = 0;
+    int overexposure_value = 254;
+    /*if (ablc)
+        ob = ablc->isp_ob_offset;*/
+    if (awb_meas->hw_awbCfg_statsSrc_mode== awbStats_drcOut_mode) {
+        awb_cfg_v32->in_overexposure_threshold = overexposure_value;
+    } else if(awb_meas->hw_awbCfg_statsSrc_mode == awbStats_btnrOut_mode) {
+        if(ablc&&ablc->en&& isp_ob_predgain > 1) {
+            dgain =  isp_ob_predgain;
+        }
+        if(working_mode != RK_AIQ_WORKING_MODE_NORMAL) {
+            //hdr mode,awbgain0 will reset the out data to full range
+            LOGV_AWB("hdrmge_gain0_1 %f", hdrmge_gain0_1);
+            awb_cfg_v32->in_overexposure_threshold = overexposure_value * hdrmge_gain0_1 * dgain;
+        } else {
+            //need check
+            short int blc[AWB_CHANNEL_MAX] = {0, 0, 0, 0};
+            if(ablc && ablc->en) {
+                blc[AWB_CHANNEL_R] = ablc->obcPreTnr.hw_blcC_obR_val* dgain - ob;
+                blc[AWB_CHANNEL_GR] = ablc->obcPreTnr.hw_blcC_obGr_val* dgain - ob;
+                blc[AWB_CHANNEL_GB] = ablc->obcPreTnr.hw_blcC_obGb_val* dgain - ob;
+                blc[AWB_CHANNEL_B] = ablc->obcPreTnr.hw_blcC_obB_val* dgain - ob;
+            }
+            for(int i = 0; i < AWB_CHANNEL_MAX; i++) {
+                if(blc[i] < 0) {
+                    blc[i] = 0;
+                }
+            }
+            blc[AWB_CHANNEL_B] += awb_cfg_v32->bls2_val.b + ob;
+            blc[AWB_CHANNEL_R] += awb_cfg_v32->bls2_val.r + ob;
+            blc[AWB_CHANNEL_GB] += awb_cfg_v32->bls2_val.gb + ob;
+            blc[AWB_CHANNEL_GR] += awb_cfg_v32->bls2_val.gr + ob;
+            for(int i = 0; i < AWB_CHANNEL_MAX; i++) {
+                if(blc[i] > max_blc) {
+                    max_blc = blc[i];
+                }
+            }
+            if(max_blc < 0) {
+                max_blc = 0;
+            }
+            awb_cfg_v32->in_overexposure_threshold = overexposure_value * dgain - max_blc / 16;
+        }
+
+    } else {
+        //raw
+        //need check
+        short int blc[AWB_CHANNEL_MAX] = {0, 0, 0, 0};
+        if(ablc && ablc->en) {
+            blc[AWB_CHANNEL_R] = ablc->obcPreTnr.hw_blcC_obR_val- ob;
+            blc[AWB_CHANNEL_GR] = ablc->obcPreTnr.hw_blcC_obGr_val- ob;
+            blc[AWB_CHANNEL_GB] = ablc->obcPreTnr.hw_blcC_obGb_val- ob;
+            blc[AWB_CHANNEL_B] = ablc->obcPreTnr.hw_blcC_obB_val- ob;
+        }
+
+        for(int i = 0; i < AWB_CHANNEL_MAX; i++) {
+            if(blc[i] < 0) {
+                blc[i] = 0;
+            }
+        }
+        blc[AWB_CHANNEL_B] += awb_cfg_v32->bls2_val.b + ob;
+        blc[AWB_CHANNEL_R] += awb_cfg_v32->bls2_val.r + ob;
+        blc[AWB_CHANNEL_GB] += awb_cfg_v32->bls2_val.gb + ob;
+        blc[AWB_CHANNEL_GR] += awb_cfg_v32->bls2_val.gr + ob;
+        for(int i = 0; i < AWB_CHANNEL_MAX; i++) {
+            if(blc[i] > max_blc) {
+                max_blc = blc[i];
+            }
+        }
+        if(max_blc < 0) {
+            max_blc = 0;
+        }
+        awb_cfg_v32->in_overexposure_threshold = overexposure_value - max_blc / 16;
+    }
+    return(ret);
+
+}
+
+static void UvParaFixed32(const awbStats_uvRegion_t *wpRegion, unsigned short pu_region[5],unsigned short pv_region[5],int slope_inv[4])
+{
+
+    //unsigned short pu_region[5];//12 bit
+    //unsigned short pv_region[5];
+    //int slope_inv[4];//10+10 signed 1/k
+    for (int j = 0; j < 5; j++)
+    {
+        if (j == 4) {
+           pu_region[4] =pu_region[0];
+           pv_region[4] =pv_region[0];
+        }
+        else {
+           pu_region[j] = (uint16_t)(wpRegion->regionVtx[j].hw_awbT_vtxU_val * 16 + 0.5);
+           pv_region[j] = (uint16_t)(wpRegion->regionVtx[j].hw_awbT_vtxV_val * 16 + 0.5);
+        }
+        if (j > 0 && j < 5)
+        {
+            int tmp =pv_region[j] -pv_region[j - 1];
+            if (tmp != 0)
+            {
+                float tmp2 = (float)(pu_region[j] -pu_region[j - 1]) / (float)tmp;
+               slope_inv[j - 1] = tmp2 > 0 ? (int32_t)(tmp2 * (1 << AWB_UV_RANGE_SLOVE_FRACTION) + 0.5) :
+                                                  (int32_t)(tmp2 * (1 << AWB_UV_RANGE_SLOVE_FRACTION) - 0.5);
+            }
+            else
+            {
+               slope_inv[j - 1] = (1 << (AWB_UV_RANGE_SLOVE_FRACTION + AWB_UV_RANGE_SLOVE_SINTER - 1)) - 1;
+            }
+        }
+    }
+
+}
+
+
+
+static void  ConfigPreWbgain3(struct isp39_rawawb_meas_cfg* awb_cfg_v32,const awbStats_cfg_priv_t* awb_meas,const rk_aiq_wb_gain_v32_t *awb_gain,const struct rkmodule_awb_inf* otp_awb )
+{
+    // higher priority than ConfigPreWbgain2
+    //call after wbgain  and frameChoose calculation,
+    //1) awb statistics before the awbgain application:
+    //    prewbgain = iqMap2MainCam.wbgain
+    //2) awb statistics after the awbgain application:
+    //    prewbgain =1/stat3aAwbGainOut *iqMap2MainCam.wbgain   
+    float preWbgainSw[4];
+    if(awb_meas->mode == AWB_CFG_MODE_RK &&(awb_meas->preWbgainSw[0]*awb_meas->preWbgainSw[1]*
+        awb_meas->preWbgainSw[2]*awb_meas->preWbgainSw[3]> 0.0001)){
+        preWbgainSw[0] = awb_meas->preWbgainSw[0];
+        preWbgainSw[1] = awb_meas->preWbgainSw[1];
+        preWbgainSw[2] = awb_meas->preWbgainSw[2];
+        preWbgainSw[3] = awb_meas->preWbgainSw[3];
+    }else{
+        if(awb_meas->mode == AWB_CFG_MODE_RK){
+            LOGE_AWB("%s, wrong awb_meas->preWbgainSw!!! ", __FUNCTION__);
+        }
+        preWbgainSw[0] = 1;
+        preWbgainSw[1] = 1;
+        preWbgainSw[2] = 1;
+        preWbgainSw[3] = 1;
+    }
+
+    //pre_wbgain_inv_b is updating  for awb0-gain enable+select = bnr/hdrc case
+    if((awb_gain->rgain*awb_gain->grgain*awb_gain->bgain> 0.0001) &&(awb_meas->com.hw_awbCfg_statsSrc_mode== awbStats_drcOut_mode ||
+            (awb_gain->applyPosition== IN_AWBGAIN0 && awb_meas->com.hw_awbCfg_statsSrc_mode == awbStats_btnrOut_mode))) {
+        //for awb statistics after the awbgain application
+        awb_cfg_v32->pre_wbgain_inv_r = (1 << RK_AIQ_AWB_PRE_WBGAIN_FRAC_BIT) / awb_gain->rgain* preWbgainSw[0] + 0.5;
+        awb_cfg_v32->pre_wbgain_inv_g = (1 << RK_AIQ_AWB_PRE_WBGAIN_FRAC_BIT) / awb_gain->grgain * preWbgainSw[1] + 0.5;
+        awb_cfg_v32->pre_wbgain_inv_b = (1 << RK_AIQ_AWB_PRE_WBGAIN_FRAC_BIT) / awb_gain->bgain * preWbgainSw[3] + 0.5;
+
+    }else{
+        if((awb_meas->com.hw_awbCfg_statsSrc_mode== awbStats_drcOut_mode ||
+            (awb_gain->applyPosition== IN_AWBGAIN0 && awb_meas->com.hw_awbCfg_statsSrc_mode == awbStats_btnrOut_mode))){
+            LOGE_AWB("%s, wrong awb_gain!!! ", __FUNCTION__);
+        }
+        // for awb statistics before the awbgain application
+        awb_cfg_v32->pre_wbgain_inv_r = (1 << RK_AIQ_AWB_PRE_WBGAIN_FRAC_BIT) * preWbgainSw[0] + 0.5;
+        awb_cfg_v32->pre_wbgain_inv_g = (1 << RK_AIQ_AWB_PRE_WBGAIN_FRAC_BIT) * preWbgainSw[1] + 0.5;
+        awb_cfg_v32->pre_wbgain_inv_b = (1 << RK_AIQ_AWB_PRE_WBGAIN_FRAC_BIT) * preWbgainSw[3] + 0.5;
+    }
+
+
+    if(otp_awb != NULL && otp_awb->flag){
+        LOGD_AWB("%s before otp pre_wbgain_inv = [%d, %d, %d];",
+                 __FUNCTION__, awb_cfg_v32->pre_wbgain_inv_r,
+                 awb_cfg_v32->pre_wbgain_inv_g, awb_cfg_v32->pre_wbgain_inv_b);
+        awb_cfg_v32->pre_wbgain_inv_r = (float) awb_cfg_v32->pre_wbgain_inv_r *
+                                          (float) otp_awb->golden_r_value /
+                                          (float) otp_awb->r_value + 0.5;
+        awb_cfg_v32->pre_wbgain_inv_g = (float) awb_cfg_v32->pre_wbgain_inv_g *
+                                          (float) (otp_awb->golden_gr_value+1024) /
+                                          (float) (otp_awb->gr_value+1024) + 0.5;
+        awb_cfg_v32->pre_wbgain_inv_b = (float) awb_cfg_v32->pre_wbgain_inv_b *
+                                          (float) otp_awb->golden_b_value /
+                                          (float) otp_awb->b_value + 0.5;
+        LOGD_AWB("otp pre_wbgain_inv = [%d, %d, %d] \n",
+                 awb_cfg_v32->pre_wbgain_inv_r,
+                 awb_cfg_v32->pre_wbgain_inv_g,
+                 awb_cfg_v32->pre_wbgain_inv_b);
+    }
+
+
+}
+bool isAwbCfgVaild( const rk_aiq_isp_awb_meas_cfg_v39_t *awb_meas_priv,const common_cvt_info_t *mCommonCvtInfo)
+{
+    const awbStats_cfg_t *wpDetectPara = (awbStats_cfg_t*)awb_meas_priv;
+    if(wpDetectPara->mainWin.hw_awbCfg_win_x > mCommonCvtInfo->rawWidth ||
+            wpDetectPara->mainWin.hw_awbCfg_win_x + wpDetectPara->mainWin.hw_awbCfg_win_width > mCommonCvtInfo->rawWidth ||
+            wpDetectPara->mainWin.hw_awbCfg_win_y > mCommonCvtInfo->rawHeight||
+            wpDetectPara->mainWin.hw_awbCfg_win_y + wpDetectPara->mainWin.hw_awbCfg_win_height > mCommonCvtInfo->rawHeight) {
+        LOGE_AWB("mainWin[%d,%d,%d,%d]is invaild!!!\n", wpDetectPara->mainWin.hw_awbCfg_win_x,
+                 wpDetectPara->mainWin.hw_awbCfg_win_y, wpDetectPara->mainWin.hw_awbCfg_win_width, wpDetectPara->mainWin.hw_awbCfg_win_height);
+        return(false);
+    }
+    //do do dsmode correct + mainwin divisible by 16*8
+    return(true);
+}
+
+static bool srcChooseCheck(awbStats_src_mode_t srcChoose, int working_mode)
+{
+    bool flag = true;
+    if ((rk_aiq_working_mode_t)working_mode == RK_AIQ_WORKING_MODE_NORMAL) {
+        if (srcChoose == awbStats_chl1DegamOut_mode || srcChoose == awbStats_chl2DegamOut_mode) {
+            flag = false;
+        }
+    }
+    else if ((rk_aiq_working_mode_t)working_mode >= RK_AIQ_WORKING_MODE_ISP_HDR2
+             && (rk_aiq_working_mode_t)working_mode < RK_AIQ_WORKING_MODE_ISP_HDR3) {
+        if (srcChoose == awbStats_chl2DegamOut_mode) {
+            flag = false;
+        }
+    }
+    if(flag == false){
+        LOGE_AWB("srcChoose %d is invaild!!!\n", srcChoose);
+    }
+    return flag;
+
+}
+
 void Isp39Params::convertAiqAwbToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
-        const rk_aiq_isp_awb_meas_cfg_v32_t& awb_meas,
-        bool awb_cfg_udpate) {
-    if (awb_cfg_udpate) {
-        if (awb_meas.awbEnable) {
+        const rk_aiq_isp_awb_meas_cfg_v39_t& awb_meas_priv,bool awb_cfg_udpate)
+
+{
+    LOG1_AWB("%s enter",__FUNCTION__);
+    const awbStats_cfg_t* awb_meas = &awb_meas_priv.com;
+    if(isAwbCfgVaild(&awb_meas_priv,&mCommonCvtInfo)==false
+        || srcChooseCheck(awb_meas->hw_awbCfg_statsSrc_mode,_working_mode) ==false){
+        return;
+    }
+    if (1/*todo: update by awb_cfg_udpate+awb_gain_update+isp_dgain+hdrmge_gain0_1+blc_res+otp*/) {
+        if (awb_meas->hw_awbCfg_stats_en) {
             isp_cfg.module_ens |= ISP2X_MODULE_RAWAWB;
             isp_cfg.module_cfg_update |= ISP2X_MODULE_RAWAWB;
             isp_cfg.module_en_update |= ISP2X_MODULE_RAWAWB;
@@ -432,414 +846,489 @@ void Isp39Params::convertAiqAwbToIsp39Params(struct isp39_isp_params_cfg& isp_cf
     //isp_cfg.module_ens |= ISP2X_MODULE_BLS;
     //isp_cfg.module_cfg_update |= ISP2X_MODULE_BLS;
     //isp_cfg.module_en_update |= ISP2X_MODULE_BLS;
-
     struct isp39_rawawb_meas_cfg* awb_cfg_v32 = &isp_cfg.meas.rawawb;
-    awb_cfg_v32->bls2_en = awb_meas.blc.enable;
-    awb_cfg_v32->bls2_val.r = awb_meas.blc.blc[0];
-    awb_cfg_v32->bls2_val.gr = awb_meas.blc.blc[1];
-    awb_cfg_v32->bls2_val.gb = awb_meas.blc.blc[2];
-    awb_cfg_v32->bls2_val.b = awb_meas.blc.blc[3];
-    LOGV_AWB("blc2_cfg %d %d,%d,%d,%d", awb_cfg_v32->bls2_en, awb_cfg_v32->bls2_val.r, awb_cfg_v32->bls2_val.gr,
+    RKAiqAecExpInfo_t *ae_exp = mCommonCvtInfo.ae_exp; 
+    float isp_dgain = 1;
+    float hdrmge_gain0_1 = 1;
+    if(ae_exp!=NULL){
+        if(_working_mode == RK_AIQ_WORKING_MODE_NORMAL) {
+            isp_dgain = MAX(1.0f, ae_exp->LinearExp.exp_real_params.isp_dgain);
+        }else{
+            isp_dgain = MAX(1.0f, ae_exp->HdrExp[0].exp_real_params.isp_dgain);
+            float sExpo = ae_exp->HdrExp[0].exp_real_params.analog_gain *
+                          ae_exp->HdrExp[0].exp_real_params.digital_gain *
+                          ae_exp->HdrExp[0].exp_real_params.integration_time;
+
+            float lExpo = ae_exp->HdrExp[1].exp_real_params.analog_gain *
+                          ae_exp->HdrExp[1].exp_real_params.digital_gain *
+                          ae_exp->HdrExp[1].exp_real_params.integration_time;
+            if(sExpo > 0.001) {
+                hdrmge_gain0_1 = lExpo / sExpo;
+            }
+
+        }
+        LOGD_AWB("isp_dgain(%f),hdrmge_gain0_1(%f)",isp_dgain,hdrmge_gain0_1);    
+    }else{
+       LOGW_AWB("%s ae_exp is null",__FUNCTION__); 
+    }
+       
+    const blc_res_cvt_t *blc = &mCommonCvtInfo.blc_res;
+    if(blc==NULL){
+        LOGW_AWB("%s blc_res is null",__FUNCTION__); 
+    }
+    float isp_ob_predgain = mCommonCvtInfo.preDGain;
+    ConfigBlc2(blc, awb_meas, isp_dgain,isp_ob_predgain, _working_mode,awb_cfg_v32);
+    LOGD_AWB("blc2_cfg %d %d,%d,%d,%d", awb_cfg_v32->bls2_en, awb_cfg_v32->bls2_val.r, awb_cfg_v32->bls2_val.gr,
              awb_cfg_v32->bls2_val.gb, awb_cfg_v32->bls2_val.b);
 
     awb_cfg_v32->rawawb_sel = 0;
-    if (awb_meas.frameChoose == CALIB_AWB_INPUT_DRC) {
+    if (awb_meas->hw_awbCfg_statsSrc_mode == awbStats_drcOut_mode) {
         awb_cfg_v32->drc2awb_sel = 1;
-        //awb_cfg_v32->rawawb_sel need check
     } else {
         awb_cfg_v32->drc2awb_sel = 0;
-        if (awb_meas.frameChoose == CALIB_AWB_INPUT_BAYERNR) {
+        if (awb_meas->hw_awbCfg_statsSrc_mode == awbStats_btnrOut_mode) {
             awb_cfg_v32->bnr2awb_sel = 1;
-            //awb_cfg_v32->rawawb_sel need check
         }
         else {
             awb_cfg_v32->bnr2awb_sel = 0;
-            awb_cfg_v32->rawawb_sel = awb_meas.frameChoose;
+            awb_cfg_v32->rawawb_sel = awb_meas->hw_awbCfg_statsSrc_mode;
+            if(_working_mode == RK_AIQ_WORKING_MODE_NORMAL && awb_cfg_v32->rawawb_sel>0 ){
+                awb_cfg_v32->rawawb_sel =0;
+            }
         }
     }
-    awb_cfg_v32->low12bit_val = awb_meas.inputBitIs12Bit;
-    //awb_cfg_v32->ddr_path_en = awb_meas.write2ddrEnable;
-    //awb_cfg_v32->ddr_path_sel = awb_meas.write2ddrSelc;
-    awb_cfg_v32->in_rshift_to_12bit_en = awb_meas.inputShiftEnable;
-    awb_cfg_v32->in_overexposure_check_en = true;
-    awb_cfg_v32->in_overexposure_threshold = awb_meas.overexposure_value;
-    if(awb_cfg_v32->in_overexposure_threshold == 0) {
-        awb_cfg_v32->in_overexposure_check_en = false;
-    }
-    awb_cfg_v32->xy_en0    = awb_meas.xyDetectionEnable[RK_AIQ_AWB_XY_TYPE_NORMAL_V201];
-    awb_cfg_v32->uv_en0    = awb_meas.uvDetectionEnable[RK_AIQ_AWB_XY_TYPE_NORMAL_V201];
-    awb_cfg_v32->yuv3d_en0 = awb_meas.threeDyuvEnable[RK_AIQ_AWB_XY_TYPE_NORMAL_V201];
-    awb_cfg_v32->xy_en1    = awb_meas.xyDetectionEnable[RK_AIQ_AWB_XY_TYPE_BIG_V201];
-    awb_cfg_v32->uv_en1    = awb_meas.uvDetectionEnable[RK_AIQ_AWB_XY_TYPE_BIG_V201];
-    awb_cfg_v32->yuv3d_en1 = awb_meas.threeDyuvEnable[RK_AIQ_AWB_XY_TYPE_BIG_V201];
-    awb_cfg_v32->wp_blk_wei_en0 =
-        awb_meas.blkWeightEnable[RK_AIQ_AWB_XY_TYPE_NORMAL_V201];
-    awb_cfg_v32->wp_blk_wei_en1 = awb_meas.blkWeightEnable[RK_AIQ_AWB_XY_TYPE_BIG_V201];
-    awb_cfg_v32->rawlsc_bypass_en      = awb_meas.lscBypEnable;
-    awb_cfg_v32->blk_measure_enable   = awb_meas.blkStatisticsEnable;
-    awb_cfg_v32->blk_measure_mode     = awb_meas.blkMeasureMode;
-    awb_cfg_v32->blk_measure_xytype   = awb_meas.xyRangeTypeForBlkStatistics;
-    awb_cfg_v32->blk_measure_illu_idx = awb_meas.illIdxForBlkStatistics;
-    awb_cfg_v32->blk_with_luma_wei_en = awb_meas.blkStatisticsWithLumaWeightEn;
-    awb_cfg_v32->wp_luma_wei_en0 =
-        awb_meas.wpDiffWeiEnable[RK_AIQ_AWB_XY_TYPE_NORMAL_V201];
-    awb_cfg_v32->wp_luma_wei_en1 = awb_meas.wpDiffWeiEnable[RK_AIQ_AWB_XY_TYPE_BIG_V201];
-    awb_cfg_v32->wp_hist_xytype  = awb_meas.xyRangeTypeForWpHist;
-    awb_cfg_v32->yuv3d_ls_idx0   = awb_meas.threeDyuvIllu[0];
-    awb_cfg_v32->yuv3d_ls_idx1   = awb_meas.threeDyuvIllu[1];
-    awb_cfg_v32->yuv3d_ls_idx2   = awb_meas.threeDyuvIllu[2];
-    awb_cfg_v32->yuv3d_ls_idx3   = awb_meas.threeDyuvIllu[3];
-    awb_cfg_v32->light_num       = awb_meas.lightNum;
-    awb_cfg_v32->h_offs          = awb_meas.windowSet[0];
-    awb_cfg_v32->v_offs          = awb_meas.windowSet[1];
-    awb_cfg_v32->h_size          = awb_meas.windowSet[2];
-    awb_cfg_v32->v_size          = awb_meas.windowSet[3];
-#if RKAIQ_HAVE_AWB_V32LT||ISP_HW_V39
-    if(awb_meas.dsMode == RK_AIQ_AWB_DS_4X4 || awb_meas.dsMode == RK_AIQ_AWB_DS_8X8) {
-        awb_cfg_v32->wind_size       = awb_meas.dsMode;
-        awb_cfg_v32->ds16x8_mode_en = 0;
-    } else if(awb_meas.dsMode == RK_AIQ_AWB_DS_16X8) {
-        awb_cfg_v32->ds16x8_mode_en = 1;
-        awb_cfg_v32->wind_size = RK_AIQ_AWB_DS_8X8;
-    }
-#else
-    awb_cfg_v32->wind_size       = awb_meas.dsMode;
-#endif
-    awb_cfg_v32->r_max           = awb_meas.maxR;
-    awb_cfg_v32->g_max           = awb_meas.maxG;
-    awb_cfg_v32->b_max           = awb_meas.maxB;
-    awb_cfg_v32->y_max           = awb_meas.maxY;
-    awb_cfg_v32->r_min           = awb_meas.minR;
-    awb_cfg_v32->g_min           = awb_meas.minG;
-    awb_cfg_v32->b_min           = awb_meas.minB;
-    awb_cfg_v32->y_min           = awb_meas.minY;
-    awb_cfg_v32->vertex0_u_0     = awb_meas.uvRange_param[0].pu_region[0];
-    awb_cfg_v32->vertex0_v_0     = awb_meas.uvRange_param[0].pv_region[0];
-    awb_cfg_v32->vertex1_u_0     = awb_meas.uvRange_param[0].pu_region[1];
-    awb_cfg_v32->vertex1_v_0     = awb_meas.uvRange_param[0].pv_region[1];
-    awb_cfg_v32->vertex2_u_0     = awb_meas.uvRange_param[0].pu_region[2];
-    awb_cfg_v32->vertex2_v_0     = awb_meas.uvRange_param[0].pv_region[2];
-    awb_cfg_v32->vertex3_u_0     = awb_meas.uvRange_param[0].pu_region[3];
-    awb_cfg_v32->vertex3_v_0     = awb_meas.uvRange_param[0].pv_region[3];
-    awb_cfg_v32->islope01_0      = awb_meas.uvRange_param[0].slope_inv[0];
-    awb_cfg_v32->islope12_0      = awb_meas.uvRange_param[0].slope_inv[1];
-    awb_cfg_v32->islope23_0      = awb_meas.uvRange_param[0].slope_inv[2];
-    awb_cfg_v32->islope30_0      = awb_meas.uvRange_param[0].slope_inv[3];
-    awb_cfg_v32->vertex0_u_1     = awb_meas.uvRange_param[1].pu_region[0];
-    awb_cfg_v32->vertex0_v_1     = awb_meas.uvRange_param[1].pv_region[0];
-    awb_cfg_v32->vertex1_u_1     = awb_meas.uvRange_param[1].pu_region[1];
-    awb_cfg_v32->vertex1_v_1     = awb_meas.uvRange_param[1].pv_region[1];
-    awb_cfg_v32->vertex2_u_1     = awb_meas.uvRange_param[1].pu_region[2];
-    awb_cfg_v32->vertex2_v_1     = awb_meas.uvRange_param[1].pv_region[2];
-    awb_cfg_v32->vertex3_u_1     = awb_meas.uvRange_param[1].pu_region[3];
-    awb_cfg_v32->vertex3_v_1     = awb_meas.uvRange_param[1].pv_region[3];
-    awb_cfg_v32->islope01_1      = awb_meas.uvRange_param[1].slope_inv[0];
-    awb_cfg_v32->islope12_1      = awb_meas.uvRange_param[1].slope_inv[1];
-    awb_cfg_v32->islope23_1      = awb_meas.uvRange_param[1].slope_inv[2];
-    awb_cfg_v32->islope30_1      = awb_meas.uvRange_param[1].slope_inv[3];
-    awb_cfg_v32->vertex0_u_2     = awb_meas.uvRange_param[2].pu_region[0];
-    awb_cfg_v32->vertex0_v_2     = awb_meas.uvRange_param[2].pv_region[0];
-    awb_cfg_v32->vertex1_u_2     = awb_meas.uvRange_param[2].pu_region[1];
-    awb_cfg_v32->vertex1_v_2     = awb_meas.uvRange_param[2].pv_region[1];
-    awb_cfg_v32->vertex2_u_2     = awb_meas.uvRange_param[2].pu_region[2];
-    awb_cfg_v32->vertex2_v_2     = awb_meas.uvRange_param[2].pv_region[2];
-    awb_cfg_v32->vertex3_u_2     = awb_meas.uvRange_param[2].pu_region[3];
-    awb_cfg_v32->vertex3_v_2     = awb_meas.uvRange_param[2].pv_region[3];
-    awb_cfg_v32->islope01_2      = awb_meas.uvRange_param[2].slope_inv[0];
-    awb_cfg_v32->islope12_2      = awb_meas.uvRange_param[2].slope_inv[1];
-    awb_cfg_v32->islope23_2      = awb_meas.uvRange_param[2].slope_inv[2];
-    awb_cfg_v32->islope30_2      = awb_meas.uvRange_param[2].slope_inv[3];
-    awb_cfg_v32->vertex0_u_3     = awb_meas.uvRange_param[3].pu_region[0];
-    awb_cfg_v32->vertex0_v_3     = awb_meas.uvRange_param[3].pv_region[0];
-    awb_cfg_v32->vertex1_u_3     = awb_meas.uvRange_param[3].pu_region[1];
-    awb_cfg_v32->vertex1_v_3     = awb_meas.uvRange_param[3].pv_region[1];
-    awb_cfg_v32->vertex2_u_3     = awb_meas.uvRange_param[3].pu_region[2];
-    awb_cfg_v32->vertex2_v_3     = awb_meas.uvRange_param[3].pv_region[2];
-    awb_cfg_v32->vertex3_u_3     = awb_meas.uvRange_param[3].pu_region[3];
-    awb_cfg_v32->vertex3_v_3     = awb_meas.uvRange_param[3].pv_region[3];
-    awb_cfg_v32->islope01_3      = awb_meas.uvRange_param[3].slope_inv[0];
-    awb_cfg_v32->islope12_3      = awb_meas.uvRange_param[3].slope_inv[1];
-    awb_cfg_v32->islope23_3      = awb_meas.uvRange_param[3].slope_inv[2];
-    awb_cfg_v32->islope30_3      = awb_meas.uvRange_param[3].slope_inv[3];
-    awb_cfg_v32->rgb2ryuvmat0_u  = awb_meas.icrgb2RYuv_matrix[0];
-    awb_cfg_v32->rgb2ryuvmat1_u  = awb_meas.icrgb2RYuv_matrix[1];
-    awb_cfg_v32->rgb2ryuvmat2_u  = awb_meas.icrgb2RYuv_matrix[2];
-    awb_cfg_v32->rgb2ryuvofs_u   = awb_meas.icrgb2RYuv_matrix[3];
-    awb_cfg_v32->rgb2ryuvmat0_v  = awb_meas.icrgb2RYuv_matrix[4];
-    awb_cfg_v32->rgb2ryuvmat1_v  = awb_meas.icrgb2RYuv_matrix[5];
-    awb_cfg_v32->rgb2ryuvmat2_v  = awb_meas.icrgb2RYuv_matrix[6];
-    awb_cfg_v32->rgb2ryuvofs_v   = awb_meas.icrgb2RYuv_matrix[7];
-    awb_cfg_v32->rgb2ryuvmat0_y  = awb_meas.icrgb2RYuv_matrix[8];
-    awb_cfg_v32->rgb2ryuvmat1_y  = awb_meas.icrgb2RYuv_matrix[9];
-    awb_cfg_v32->rgb2ryuvmat2_y  = awb_meas.icrgb2RYuv_matrix[10];
-    awb_cfg_v32->rgb2ryuvofs_y   = awb_meas.icrgb2RYuv_matrix[11];
-    awb_cfg_v32->rotu0_ls0       = awb_meas.ic3Dyuv2Range_param[0].thcurve_u[0];
-    awb_cfg_v32->rotu1_ls0       = awb_meas.ic3Dyuv2Range_param[0].thcurve_u[1];
-    awb_cfg_v32->rotu2_ls0       = awb_meas.ic3Dyuv2Range_param[0].thcurve_u[2];
-    awb_cfg_v32->rotu3_ls0       = awb_meas.ic3Dyuv2Range_param[0].thcurve_u[3];
-    awb_cfg_v32->rotu4_ls0       = awb_meas.ic3Dyuv2Range_param[0].thcurve_u[4];
-    awb_cfg_v32->rotu5_ls0       = awb_meas.ic3Dyuv2Range_param[0].thcurve_u[5];
-    awb_cfg_v32->th0_ls0         = awb_meas.ic3Dyuv2Range_param[0].thcure_th[0];
-    awb_cfg_v32->th1_ls0         = awb_meas.ic3Dyuv2Range_param[0].thcure_th[1];
-    awb_cfg_v32->th2_ls0         = awb_meas.ic3Dyuv2Range_param[0].thcure_th[2];
-    awb_cfg_v32->th3_ls0         = awb_meas.ic3Dyuv2Range_param[0].thcure_th[3];
-    awb_cfg_v32->th4_ls0         = awb_meas.ic3Dyuv2Range_param[0].thcure_th[4];
-    awb_cfg_v32->th5_ls0         = awb_meas.ic3Dyuv2Range_param[0].thcure_th[5];
-    awb_cfg_v32->coor_x1_ls0_u   = awb_meas.ic3Dyuv2Range_param[0].lineP1[0];
-    awb_cfg_v32->coor_x1_ls0_v   = awb_meas.ic3Dyuv2Range_param[0].lineP1[1];
-    awb_cfg_v32->coor_x1_ls0_y   = awb_meas.ic3Dyuv2Range_param[0].lineP1[2];
-    awb_cfg_v32->vec_x21_ls0_u   = awb_meas.ic3Dyuv2Range_param[0].vP1P2[0];
-    awb_cfg_v32->vec_x21_ls0_v   = awb_meas.ic3Dyuv2Range_param[0].vP1P2[1];
-    awb_cfg_v32->vec_x21_ls0_y   = awb_meas.ic3Dyuv2Range_param[0].vP1P2[2];
-    awb_cfg_v32->dis_x1x2_ls0    = awb_meas.ic3Dyuv2Range_param[0].disP1P2;
-    awb_cfg_v32->rotu0_ls1       = awb_meas.ic3Dyuv2Range_param[1].thcurve_u[0];
-    awb_cfg_v32->rotu1_ls1       = awb_meas.ic3Dyuv2Range_param[1].thcurve_u[1];
-    awb_cfg_v32->rotu2_ls1       = awb_meas.ic3Dyuv2Range_param[1].thcurve_u[2];
-    awb_cfg_v32->rotu3_ls1       = awb_meas.ic3Dyuv2Range_param[1].thcurve_u[3];
-    awb_cfg_v32->rotu4_ls1       = awb_meas.ic3Dyuv2Range_param[1].thcurve_u[4];
-    awb_cfg_v32->rotu5_ls1       = awb_meas.ic3Dyuv2Range_param[1].thcurve_u[5];
-    awb_cfg_v32->th0_ls1         = awb_meas.ic3Dyuv2Range_param[1].thcure_th[0];
-    awb_cfg_v32->th1_ls1         = awb_meas.ic3Dyuv2Range_param[1].thcure_th[1];
-    awb_cfg_v32->th2_ls1         = awb_meas.ic3Dyuv2Range_param[1].thcure_th[2];
-    awb_cfg_v32->th3_ls1         = awb_meas.ic3Dyuv2Range_param[1].thcure_th[3];
-    awb_cfg_v32->th4_ls1         = awb_meas.ic3Dyuv2Range_param[1].thcure_th[4];
-    awb_cfg_v32->th5_ls1         = awb_meas.ic3Dyuv2Range_param[1].thcure_th[5];
-    awb_cfg_v32->coor_x1_ls1_u   = awb_meas.ic3Dyuv2Range_param[1].lineP1[0];
-    awb_cfg_v32->coor_x1_ls1_v   = awb_meas.ic3Dyuv2Range_param[1].lineP1[1];
-    awb_cfg_v32->coor_x1_ls1_y   = awb_meas.ic3Dyuv2Range_param[1].lineP1[2];
-    awb_cfg_v32->vec_x21_ls1_u   = awb_meas.ic3Dyuv2Range_param[1].vP1P2[0];
-    awb_cfg_v32->vec_x21_ls1_v   = awb_meas.ic3Dyuv2Range_param[1].vP1P2[1];
-    awb_cfg_v32->vec_x21_ls1_y   = awb_meas.ic3Dyuv2Range_param[1].vP1P2[2];
-    awb_cfg_v32->dis_x1x2_ls1    = awb_meas.ic3Dyuv2Range_param[1].disP1P2;
-    awb_cfg_v32->rotu0_ls2       = awb_meas.ic3Dyuv2Range_param[2].thcurve_u[0];
-    awb_cfg_v32->rotu1_ls2       = awb_meas.ic3Dyuv2Range_param[2].thcurve_u[1];
-    awb_cfg_v32->rotu2_ls2       = awb_meas.ic3Dyuv2Range_param[2].thcurve_u[2];
-    awb_cfg_v32->rotu3_ls2       = awb_meas.ic3Dyuv2Range_param[2].thcurve_u[3];
-    awb_cfg_v32->rotu4_ls2       = awb_meas.ic3Dyuv2Range_param[2].thcurve_u[4];
-    awb_cfg_v32->rotu5_ls2       = awb_meas.ic3Dyuv2Range_param[2].thcurve_u[5];
-    awb_cfg_v32->th0_ls2         = awb_meas.ic3Dyuv2Range_param[2].thcure_th[0];
-    awb_cfg_v32->th1_ls2         = awb_meas.ic3Dyuv2Range_param[2].thcure_th[1];
-    awb_cfg_v32->th2_ls2         = awb_meas.ic3Dyuv2Range_param[2].thcure_th[2];
-    awb_cfg_v32->th3_ls2         = awb_meas.ic3Dyuv2Range_param[2].thcure_th[3];
-    awb_cfg_v32->th4_ls2         = awb_meas.ic3Dyuv2Range_param[2].thcure_th[4];
-    awb_cfg_v32->th5_ls2         = awb_meas.ic3Dyuv2Range_param[2].thcure_th[5];
-    awb_cfg_v32->coor_x1_ls2_u   = awb_meas.ic3Dyuv2Range_param[2].lineP1[0];
-    awb_cfg_v32->coor_x1_ls2_v   = awb_meas.ic3Dyuv2Range_param[2].lineP1[1];
-    awb_cfg_v32->coor_x1_ls2_y   = awb_meas.ic3Dyuv2Range_param[2].lineP1[2];
-    awb_cfg_v32->vec_x21_ls2_u   = awb_meas.ic3Dyuv2Range_param[2].vP1P2[0];
-    awb_cfg_v32->vec_x21_ls2_v   = awb_meas.ic3Dyuv2Range_param[2].vP1P2[1];
-    awb_cfg_v32->vec_x21_ls2_y   = awb_meas.ic3Dyuv2Range_param[2].vP1P2[2];
-    awb_cfg_v32->dis_x1x2_ls2    = awb_meas.ic3Dyuv2Range_param[2].disP1P2;
+    bool ablc_en = blc&&blc->en;
+    calcInputBitIs12Bit( &awb_cfg_v32->low12bit_val, awb_meas,_working_mode, ablc_en,isp_ob_predgain );
+    awb_cfg_v32->in_rshift_to_12bit_en = !awb_cfg_v32->low12bit_val;
+    //awb_cfg_v32->ddr_path_en = awb_meas->write2ddrEnable;
+    //awb_cfg_v32->ddr_path_sel = awb_meas->write2ddrSelc;
+    ConfigOverexposureValue(blc,hdrmge_gain0_1,isp_ob_predgain,_working_mode,awb_meas,awb_cfg_v32);
+    awb_cfg_v32->xy_en0    = awb_meas->wpEngine.norWpStatsCfg.hw_awbCfg_xyDct_en;
+    awb_cfg_v32->uv_en0    = awb_meas->wpEngine.norWpStatsCfg.hw_awbCfg_uvDct_en;
+    awb_cfg_v32->yuv3d_en0 = awb_meas->wpEngine.norWpStatsCfg.hw_awbCfg_rotYuvDct_en;
+    awb_cfg_v32->xy_en1    = awb_meas->wpEngine.bigWpStatsCfg.hw_awbCfg_xyDct_en;
+    awb_cfg_v32->uv_en1    = awb_meas->wpEngine.bigWpStatsCfg.hw_awbCfg_uvDct_en;
+    awb_cfg_v32->yuv3d_en1 = awb_meas->wpEngine.bigWpStatsCfg.hw_awbCfg_rotYuvDct_en;
+    awb_cfg_v32->wp_blk_wei_en0 =awb_meas->wpEngine.norWpStatsCfg.hw_awbCfg_zoneWgt_en;
+    awb_cfg_v32->wp_blk_wei_en1 = awb_meas->wpEngine.bigWpStatsCfg.hw_awbCfg_zoneWgt_en;
+    awb_cfg_v32->rawlsc_bypass_en      = awb_meas->hw_awbCfg_statsSrc_mode == awbStats_drcOut_mode? true:awb_meas->hw_awbCfg_lsc_bypass;
+    awb_cfg_v32->blk_measure_enable   = awb_meas->pixEngine.hw_awbCfg_stats_en;
+    awb_cfg_v32->blk_measure_mode     = awb_meas->pixEngine.hw_awbCfg_zoneStatsSrc_mode>awbStats_pixAll_mode;
+    awb_cfg_v32->blk_measure_xytype   = awb_meas->pixEngine.hw_awbCfg_zoneStatsSrc_mode>=awbStats_bigWpLs0_mode;
+    awb_cfg_v32->blk_measure_illu_idx = awb_meas->pixEngine.hw_awbCfg_zoneStatsSrc_mode%0x10;
+    awb_cfg_v32->blk_with_luma_wei_en = awb_meas->pixEngine.hw_awbCfg_lumaWgt_en;
+    awb_cfg_v32->wp_luma_wei_en0 = awb_meas->wpEngine.norWpStatsCfg.hw_awbCfg_lumaWgt_en;
+    awb_cfg_v32->wp_luma_wei_en1 = awb_meas->wpEngine.bigWpStatsCfg.hw_awbCfg_lumaWgt_en;
+    awb_cfg_v32->wp_hist_xytype  = awb_meas->wpEngine.hw_awbCfg_wpHistSrc_mode;
+    awb_cfg_v32->light_num       = awb_meas->wpEngine.hw_awbCfg_lightSrcNum_val;
+    awb_cfg_v32->h_offs          = awb_meas->mainWin.hw_awbCfg_win_x;
+    awb_cfg_v32->v_offs          = awb_meas->mainWin.hw_awbCfg_win_y;
+    awb_cfg_v32->h_size          = awb_meas->mainWin.hw_awbCfg_win_width;
+    awb_cfg_v32->v_size          = awb_meas->mainWin.hw_awbCfg_win_height;
 
-    awb_cfg_v32->rotu0_ls3        = awb_meas.ic3Dyuv2Range_param[3].thcurve_u[0];
-    awb_cfg_v32->rotu1_ls3        = awb_meas.ic3Dyuv2Range_param[3].thcurve_u[1];
-    awb_cfg_v32->rotu2_ls3        = awb_meas.ic3Dyuv2Range_param[3].thcurve_u[2];
-    awb_cfg_v32->rotu3_ls3        = awb_meas.ic3Dyuv2Range_param[3].thcurve_u[3];
-    awb_cfg_v32->rotu4_ls3        = awb_meas.ic3Dyuv2Range_param[3].thcurve_u[4];
-    awb_cfg_v32->rotu5_ls3        = awb_meas.ic3Dyuv2Range_param[3].thcurve_u[5];
-    awb_cfg_v32->th0_ls3          = awb_meas.ic3Dyuv2Range_param[3].thcure_th[0];
-    awb_cfg_v32->th1_ls3          = awb_meas.ic3Dyuv2Range_param[3].thcure_th[1];
-    awb_cfg_v32->th2_ls3          = awb_meas.ic3Dyuv2Range_param[3].thcure_th[2];
-    awb_cfg_v32->th3_ls3          = awb_meas.ic3Dyuv2Range_param[3].thcure_th[3];
-    awb_cfg_v32->th4_ls3          = awb_meas.ic3Dyuv2Range_param[3].thcure_th[4];
-    awb_cfg_v32->th5_ls3          = awb_meas.ic3Dyuv2Range_param[3].thcure_th[5];
-    awb_cfg_v32->coor_x1_ls3_u    = awb_meas.ic3Dyuv2Range_param[3].lineP1[0];
-    awb_cfg_v32->coor_x1_ls3_v    = awb_meas.ic3Dyuv2Range_param[3].lineP1[1];
-    awb_cfg_v32->coor_x1_ls3_y    = awb_meas.ic3Dyuv2Range_param[3].lineP1[2];
-    awb_cfg_v32->vec_x21_ls3_u    = awb_meas.ic3Dyuv2Range_param[3].vP1P2[0];
-    awb_cfg_v32->vec_x21_ls3_v    = awb_meas.ic3Dyuv2Range_param[3].vP1P2[1];
-    awb_cfg_v32->vec_x21_ls3_y    = awb_meas.ic3Dyuv2Range_param[3].vP1P2[2];
-    awb_cfg_v32->dis_x1x2_ls3     = awb_meas.ic3Dyuv2Range_param[3].disP1P2;
-    awb_cfg_v32->wt0              = awb_meas.rgb2xy_param.pseudoLuminanceWeight[0];
-    awb_cfg_v32->wt1              = awb_meas.rgb2xy_param.pseudoLuminanceWeight[1];
-    awb_cfg_v32->wt2              = awb_meas.rgb2xy_param.pseudoLuminanceWeight[2];
-    awb_cfg_v32->mat0_x           = awb_meas.rgb2xy_param.rotationMat[0];
-    awb_cfg_v32->mat1_x           = awb_meas.rgb2xy_param.rotationMat[1];
-    awb_cfg_v32->mat2_x           = awb_meas.rgb2xy_param.rotationMat[2];
-    awb_cfg_v32->mat0_y           = awb_meas.rgb2xy_param.rotationMat[3];
-    awb_cfg_v32->mat1_y           = awb_meas.rgb2xy_param.rotationMat[4];
-    awb_cfg_v32->mat2_y           = awb_meas.rgb2xy_param.rotationMat[5];
-    awb_cfg_v32->nor_x0_0         = awb_meas.xyRange_param[0].NorrangeX[0];
-    awb_cfg_v32->nor_x1_0         = awb_meas.xyRange_param[0].NorrangeX[1];
-    awb_cfg_v32->nor_y0_0         = awb_meas.xyRange_param[0].NorrangeY[0];
-    awb_cfg_v32->nor_y1_0         = awb_meas.xyRange_param[0].NorrangeY[1];
-    awb_cfg_v32->big_x0_0         = awb_meas.xyRange_param[0].SperangeX[0];
-    awb_cfg_v32->big_x1_0         = awb_meas.xyRange_param[0].SperangeX[1];
-    awb_cfg_v32->big_y0_0         = awb_meas.xyRange_param[0].SperangeY[0];
-    awb_cfg_v32->big_y1_0         = awb_meas.xyRange_param[0].SperangeY[1];
-    awb_cfg_v32->nor_x0_1         = awb_meas.xyRange_param[1].NorrangeX[0];
-    awb_cfg_v32->nor_x1_1         = awb_meas.xyRange_param[1].NorrangeX[1];
-    awb_cfg_v32->nor_y0_1         = awb_meas.xyRange_param[1].NorrangeY[0];
-    awb_cfg_v32->nor_y1_1         = awb_meas.xyRange_param[1].NorrangeY[1];
-    awb_cfg_v32->big_x0_1         = awb_meas.xyRange_param[1].SperangeX[0];
-    awb_cfg_v32->big_x1_1         = awb_meas.xyRange_param[1].SperangeX[1];
-    awb_cfg_v32->big_y0_1         = awb_meas.xyRange_param[1].SperangeY[0];
-    awb_cfg_v32->big_y1_1         = awb_meas.xyRange_param[1].SperangeY[1];
-    awb_cfg_v32->nor_x0_2         = awb_meas.xyRange_param[2].NorrangeX[0];
-    awb_cfg_v32->nor_x1_2         = awb_meas.xyRange_param[2].NorrangeX[1];
-    awb_cfg_v32->nor_y0_2         = awb_meas.xyRange_param[2].NorrangeY[0];
-    awb_cfg_v32->nor_y1_2         = awb_meas.xyRange_param[2].NorrangeY[1];
-    awb_cfg_v32->big_x0_2         = awb_meas.xyRange_param[2].SperangeX[0];
-    awb_cfg_v32->big_x1_2         = awb_meas.xyRange_param[2].SperangeX[1];
-    awb_cfg_v32->big_y0_2         = awb_meas.xyRange_param[2].SperangeY[0];
-    awb_cfg_v32->big_y1_2         = awb_meas.xyRange_param[2].SperangeY[1];
-    awb_cfg_v32->nor_x0_3         = awb_meas.xyRange_param[3].NorrangeX[0];
-    awb_cfg_v32->nor_x1_3         = awb_meas.xyRange_param[3].NorrangeX[1];
-    awb_cfg_v32->nor_y0_3         = awb_meas.xyRange_param[3].NorrangeY[0];
-    awb_cfg_v32->nor_y1_3         = awb_meas.xyRange_param[3].NorrangeY[1];
-    awb_cfg_v32->big_x0_3         = awb_meas.xyRange_param[3].SperangeX[0];
-    awb_cfg_v32->big_x1_3         = awb_meas.xyRange_param[3].SperangeX[1];
-    awb_cfg_v32->big_y0_3         = awb_meas.xyRange_param[3].SperangeY[0];
-    awb_cfg_v32->big_y1_3         = awb_meas.xyRange_param[3].SperangeY[1];
-    awb_cfg_v32->pre_wbgain_inv_r = awb_meas.pre_wbgain_inv_r;
-    awb_cfg_v32->pre_wbgain_inv_g = awb_meas.pre_wbgain_inv_g;
-    awb_cfg_v32->pre_wbgain_inv_b = awb_meas.pre_wbgain_inv_b;
-    awb_cfg_v32->multiwindow_en      = awb_meas.multiwindow_en;
-    awb_cfg_v32->multiwindow0_h_offs = awb_meas.multiwindow[0][0];
-    awb_cfg_v32->multiwindow0_v_offs = awb_meas.multiwindow[0][1];
-    awb_cfg_v32->multiwindow0_h_size =
-        awb_meas.multiwindow[0][0] + awb_meas.multiwindow[0][2];
-    awb_cfg_v32->multiwindow0_v_size =
-        awb_meas.multiwindow[0][1] + awb_meas.multiwindow[0][3];
-    awb_cfg_v32->multiwindow1_h_offs = awb_meas.multiwindow[1][0];
-    awb_cfg_v32->multiwindow1_v_offs = awb_meas.multiwindow[1][1];
-    awb_cfg_v32->multiwindow1_h_size =
-        awb_meas.multiwindow[1][0] + awb_meas.multiwindow[1][2];
-    awb_cfg_v32->multiwindow1_v_size =
-        awb_meas.multiwindow[1][1] + awb_meas.multiwindow[1][3];
-    awb_cfg_v32->multiwindow2_h_offs = awb_meas.multiwindow[2][0];
-    awb_cfg_v32->multiwindow2_v_offs = awb_meas.multiwindow[2][1];
-    awb_cfg_v32->multiwindow2_h_size =
-        awb_meas.multiwindow[2][0] + awb_meas.multiwindow[2][2];
-    awb_cfg_v32->multiwindow2_v_size =
-        awb_meas.multiwindow[2][1] + awb_meas.multiwindow[2][3];
-    awb_cfg_v32->multiwindow3_h_offs = awb_meas.multiwindow[3][0];
-    awb_cfg_v32->multiwindow3_v_offs = awb_meas.multiwindow[3][1];
-    awb_cfg_v32->multiwindow3_h_size =
-        awb_meas.multiwindow[3][0] + awb_meas.multiwindow[3][2];
-    awb_cfg_v32->multiwindow3_v_size =
-        awb_meas.multiwindow[3][1] + awb_meas.multiwindow[3][3];
-    int exc_wp_region0_excen0 =
-        awb_meas.excludeWpRange[0].excludeEnable[RK_AIQ_AWB_XY_TYPE_NORMAL_V201];
-    int exc_wp_region0_excen1 =
-        awb_meas.excludeWpRange[0].excludeEnable[RK_AIQ_AWB_XY_TYPE_BIG_V201];
+    if(awb_meas->hw_awbCfg_ds_mode == awbStats_ds_4x4 || awb_meas->hw_awbCfg_ds_mode == awbStats_ds_8x8) {
+        awb_cfg_v32->wind_size       = awb_meas->hw_awbCfg_ds_mode;
+        awb_cfg_v32->ds16x8_mode_en = 0;
+    } else if(awb_meas->hw_awbCfg_ds_mode == awbStats_ds_16x8) {
+        awb_cfg_v32->ds16x8_mode_en = 1;
+        awb_cfg_v32->wind_size = awbStats_ds_8x8;
+    }
+    awb_cfg_v32->r_max           = 16 * awb_meas->wpEngine.wpDct_rgbySpace.hw_awbT_wpMaxR_thred +0.5;
+    awb_cfg_v32->g_max           = 16 * awb_meas->wpEngine.wpDct_rgbySpace.hw_awbT_wpMaxG_thred +0.5;
+    awb_cfg_v32->b_max           = 16 * awb_meas->wpEngine.wpDct_rgbySpace.hw_awbT_wpMaxB_thred +0.5;
+    awb_cfg_v32->y_max           = 16 * awb_meas->wpEngine.wpDct_rgbySpace.hw_awbT_wpMaxY_thred +0.5;
+    awb_cfg_v32->r_min           = 16 * awb_meas->wpEngine.wpDct_rgbySpace.hw_awbT_wpMinR_thred +0.5;
+    awb_cfg_v32->g_min           = 16 * awb_meas->wpEngine.wpDct_rgbySpace.hw_awbT_wpMinG_thred +0.5;
+    awb_cfg_v32->b_min           = 16 * awb_meas->wpEngine.wpDct_rgbySpace.hw_awbT_wpMinB_thred +0.5;
+    awb_cfg_v32->y_min           = 16 * awb_meas->wpEngine.wpDct_rgbySpace.hw_awbT_wpMinY_thred +0.5;
+
+    unsigned short pu_region[5];
+    unsigned short pv_region[5];
+    int slope_inv[4];
+    UvParaFixed32(&awb_meas->wpEngine.wpDct_uvSpace.wpRegion[0], pu_region,pv_region,slope_inv);
+    awb_cfg_v32->vertex0_u_0     = pu_region[0];
+    awb_cfg_v32->vertex0_v_0     = pv_region[0];
+    awb_cfg_v32->vertex1_u_0     = pu_region[1];
+    awb_cfg_v32->vertex1_v_0     = pv_region[1];
+    awb_cfg_v32->vertex2_u_0     = pu_region[2];
+    awb_cfg_v32->vertex2_v_0     = pv_region[2];
+    awb_cfg_v32->vertex3_u_0     = pu_region[3];
+    awb_cfg_v32->vertex3_v_0     = pv_region[3];
+    awb_cfg_v32->islope01_0      = slope_inv[0];
+    awb_cfg_v32->islope12_0      = slope_inv[1];
+    awb_cfg_v32->islope23_0      = slope_inv[2];
+    awb_cfg_v32->islope30_0      = slope_inv[3];
+    UvParaFixed32(&awb_meas->wpEngine.wpDct_uvSpace.wpRegion[1], pu_region,pv_region,slope_inv);
+    awb_cfg_v32->vertex0_u_1     = pu_region[0];
+    awb_cfg_v32->vertex0_v_1     = pv_region[0];
+    awb_cfg_v32->vertex1_u_1     = pu_region[1];
+    awb_cfg_v32->vertex1_v_1     = pv_region[1];
+    awb_cfg_v32->vertex2_u_1     = pu_region[2];
+    awb_cfg_v32->vertex2_v_1     = pv_region[2];
+    awb_cfg_v32->vertex3_u_1     = pu_region[3];
+    awb_cfg_v32->vertex3_v_1     = pv_region[3];
+    awb_cfg_v32->islope01_1      = slope_inv[0];
+    awb_cfg_v32->islope12_1      = slope_inv[1];
+    awb_cfg_v32->islope23_1      = slope_inv[2];
+    awb_cfg_v32->islope30_1      = slope_inv[3];
+    UvParaFixed32(&awb_meas->wpEngine.wpDct_uvSpace.wpRegion[2], pu_region,pv_region,slope_inv);
+    awb_cfg_v32->vertex0_u_2     = pu_region[0];
+    awb_cfg_v32->vertex0_v_2     = pv_region[0];
+    awb_cfg_v32->vertex1_u_2     = pu_region[1];
+    awb_cfg_v32->vertex1_v_2     = pv_region[1];
+    awb_cfg_v32->vertex2_u_2     = pu_region[2];
+    awb_cfg_v32->vertex2_v_2     = pv_region[2];
+    awb_cfg_v32->vertex3_u_2     = pu_region[3];
+    awb_cfg_v32->vertex3_v_2     = pv_region[3];
+    awb_cfg_v32->islope01_2      = slope_inv[0];
+    awb_cfg_v32->islope12_2      = slope_inv[1];
+    awb_cfg_v32->islope23_2      = slope_inv[2];
+    awb_cfg_v32->islope30_2      = slope_inv[3];
+    UvParaFixed32(&awb_meas->wpEngine.wpDct_uvSpace.wpRegion[3], pu_region,pv_region,slope_inv);
+    awb_cfg_v32->vertex0_u_3     = pu_region[0];
+    awb_cfg_v32->vertex0_v_3     = pv_region[0];
+    awb_cfg_v32->vertex1_u_3     = pu_region[1];
+    awb_cfg_v32->vertex1_v_3     = pv_region[1];
+    awb_cfg_v32->vertex2_u_3     = pu_region[2];
+    awb_cfg_v32->vertex2_v_3     = pv_region[2];
+    awb_cfg_v32->vertex3_u_3     = pu_region[3];
+    awb_cfg_v32->vertex3_v_3     = pv_region[3];
+    awb_cfg_v32->islope01_3      = slope_inv[0];
+    awb_cfg_v32->islope12_3      = slope_inv[1];
+    awb_cfg_v32->islope23_3      = slope_inv[2];
+    awb_cfg_v32->islope30_3      = slope_inv[3];
+
+    short icrgb2RYuv_matrix[12];
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            float tmp = awb_meas->wpEngine.wpDct_rotYuvSpace.hw_awbCfg_rgb2RotYuv_coeff[i * 4 + j];
+            icrgb2RYuv_matrix[i * 4 + j] = tmp > 0 ? (int16_t)(tmp * (1 << RK_AIQ_AWB_YUV2_MATRIX_FRAC_BIT) + 0.5) : (int16_t)(tmp * (1 << RK_AIQ_AWB_YUV2_MATRIX_FRAC_BIT) - 0.5);
+        }
+        float tmp = awb_meas->wpEngine.wpDct_rotYuvSpace.hw_awbCfg_rgb2RotYuv_coeff[i * 4 + 3];
+        icrgb2RYuv_matrix[i * 4 + 3] = tmp > 0 ? (int16_t)(tmp * (1 << RK_AIQ_AWB_YUV2_OFFSET_FRAC_BIT) + 0.5) : (int16_t)(tmp * (1 << RK_AIQ_AWB_YUV2_OFFSET_FRAC_BIT) - 0.5);
+    }
+
+    awb_cfg_v32->rgb2ryuvmat0_u  = icrgb2RYuv_matrix[0];
+    awb_cfg_v32->rgb2ryuvmat1_u  = icrgb2RYuv_matrix[1];
+    awb_cfg_v32->rgb2ryuvmat2_u  = icrgb2RYuv_matrix[2];
+    awb_cfg_v32->rgb2ryuvofs_u   = icrgb2RYuv_matrix[3];
+    awb_cfg_v32->rgb2ryuvmat0_v  = icrgb2RYuv_matrix[4];
+    awb_cfg_v32->rgb2ryuvmat1_v  = icrgb2RYuv_matrix[5];
+    awb_cfg_v32->rgb2ryuvmat2_v  = icrgb2RYuv_matrix[6];
+    awb_cfg_v32->rgb2ryuvofs_v   = icrgb2RYuv_matrix[7];
+    awb_cfg_v32->rgb2ryuvmat0_y  = icrgb2RYuv_matrix[8];
+    awb_cfg_v32->rgb2ryuvmat1_y  = icrgb2RYuv_matrix[9];
+    awb_cfg_v32->rgb2ryuvmat2_y  = icrgb2RYuv_matrix[10];
+    awb_cfg_v32->rgb2ryuvofs_y   = icrgb2RYuv_matrix[11];
+    const awbStats_rotYuvRegion_t *wpRegion = &awb_meas->wpEngine.wpDct_rotYuvSpace.wpRegion[0];
+    awb_cfg_v32->rotu0_ls0       = wpRegion->hw_awbT_u2WpDistTh_curve.idx[0];
+    awb_cfg_v32->rotu1_ls0       = wpRegion->hw_awbT_u2WpDistTh_curve.idx[1];
+    awb_cfg_v32->rotu2_ls0       = wpRegion->hw_awbT_u2WpDistTh_curve.idx[2];
+    awb_cfg_v32->rotu3_ls0       = wpRegion->hw_awbT_u2WpDistTh_curve.idx[3];
+    awb_cfg_v32->rotu4_ls0       = wpRegion->hw_awbT_u2WpDistTh_curve.idx[4];
+    awb_cfg_v32->rotu5_ls0       = wpRegion->hw_awbT_u2WpDistTh_curve.idx[5];
+    awb_cfg_v32->th0_ls0         = (uint16_t)(wpRegion->hw_awbT_u2WpDistTh_curve.val[0] * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->th1_ls0         = (uint16_t)(wpRegion->hw_awbT_u2WpDistTh_curve.val[1] * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->th2_ls0         = (uint16_t)(wpRegion->hw_awbT_u2WpDistTh_curve.val[2] * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->th3_ls0         = (uint16_t)(wpRegion->hw_awbT_u2WpDistTh_curve.val[3] * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->th4_ls0         = (uint16_t)(wpRegion->hw_awbT_u2WpDistTh_curve.val[4] * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->th5_ls0         = (uint16_t)(wpRegion->hw_awbT_u2WpDistTh_curve.val[5] * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->coor_x1_ls0_u   = (uint16_t)(wpRegion->lsVect.edp[0].hw_awbT_edpU_val * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->coor_x1_ls0_v   = (uint16_t)(wpRegion->lsVect.edp[0].hw_awbT_edpV_val * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->coor_x1_ls0_y   = (uint16_t)(wpRegion->lsVect.edp[0].hw_awbT_edpY_val * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    float vecP1P2[3];
+    vecP1P2[0] = (wpRegion->lsVect.edp[1].hw_awbT_edpU_val-wpRegion->lsVect.edp[0].hw_awbT_edpU_val) * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT);
+    vecP1P2[1] = (wpRegion->lsVect.edp[1].hw_awbT_edpV_val-wpRegion->lsVect.edp[0].hw_awbT_edpV_val) * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT);
+    vecP1P2[2] = (wpRegion->lsVect.edp[1].hw_awbT_edpY_val-wpRegion->lsVect.edp[0].hw_awbT_edpY_val) * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT);
+    awb_cfg_v32->vec_x21_ls0_u   = FloatToS16(vecP1P2[0]);
+    awb_cfg_v32->vec_x21_ls0_v   = FloatToS16(vecP1P2[1]);
+    awb_cfg_v32->vec_x21_ls0_y   = FloatToS16(vecP1P2[2]);
+    awb_cfg_v32->dis_x1x2_ls0    = u8(LOG2(vecP1P2[0]*vecP1P2[0]+
+                                        vecP1P2[1]*vecP1P2[1]+
+                                        vecP1P2[2]*vecP1P2[2])+0.5-
+                                        RK_AIQ_AWB_YUV2_OUT_FRAC_BIT*2);
+    wpRegion = &awb_meas->wpEngine.wpDct_rotYuvSpace.wpRegion[1];
+    awb_cfg_v32->rotu0_ls1       = wpRegion->hw_awbT_u2WpDistTh_curve.idx[0];
+    awb_cfg_v32->rotu1_ls1       = wpRegion->hw_awbT_u2WpDistTh_curve.idx[1];
+    awb_cfg_v32->rotu2_ls1       = wpRegion->hw_awbT_u2WpDistTh_curve.idx[2];
+    awb_cfg_v32->rotu3_ls1       = wpRegion->hw_awbT_u2WpDistTh_curve.idx[3];
+    awb_cfg_v32->rotu4_ls1       = wpRegion->hw_awbT_u2WpDistTh_curve.idx[4];
+    awb_cfg_v32->rotu5_ls1       = wpRegion->hw_awbT_u2WpDistTh_curve.idx[5];
+    awb_cfg_v32->th0_ls1         = (uint16_t)(wpRegion->hw_awbT_u2WpDistTh_curve.val[0] * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->th1_ls1         = (uint16_t)(wpRegion->hw_awbT_u2WpDistTh_curve.val[1] * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->th2_ls1         = (uint16_t)(wpRegion->hw_awbT_u2WpDistTh_curve.val[2] * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->th3_ls1         = (uint16_t)(wpRegion->hw_awbT_u2WpDistTh_curve.val[3] * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->th4_ls1         = (uint16_t)(wpRegion->hw_awbT_u2WpDistTh_curve.val[4] * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->th5_ls1         = (uint16_t)(wpRegion->hw_awbT_u2WpDistTh_curve.val[5] * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->coor_x1_ls1_u   = (uint16_t)(wpRegion->lsVect.edp[0].hw_awbT_edpU_val * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->coor_x1_ls1_v   = (uint16_t)(wpRegion->lsVect.edp[0].hw_awbT_edpV_val * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->coor_x1_ls1_y   = (uint16_t)(wpRegion->lsVect.edp[0].hw_awbT_edpY_val * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    vecP1P2[0] = (wpRegion->lsVect.edp[1].hw_awbT_edpU_val-wpRegion->lsVect.edp[0].hw_awbT_edpU_val) * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT);
+    vecP1P2[1] = (wpRegion->lsVect.edp[1].hw_awbT_edpV_val-wpRegion->lsVect.edp[0].hw_awbT_edpV_val) * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT);
+    vecP1P2[2] = (wpRegion->lsVect.edp[1].hw_awbT_edpY_val-wpRegion->lsVect.edp[0].hw_awbT_edpY_val) * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT);
+    awb_cfg_v32->vec_x21_ls1_u   = FloatToS16(vecP1P2[0]);
+    awb_cfg_v32->vec_x21_ls1_v   = FloatToS16(vecP1P2[1]);
+    awb_cfg_v32->vec_x21_ls1_y   = FloatToS16(vecP1P2[2]);
+    awb_cfg_v32->dis_x1x2_ls1    = u8(LOG2(vecP1P2[0]*vecP1P2[0]+
+                                        vecP1P2[1]*vecP1P2[1]+
+                                        vecP1P2[2]*vecP1P2[2])+0.5-
+                                        RK_AIQ_AWB_YUV2_OUT_FRAC_BIT*2);
+    wpRegion = &awb_meas->wpEngine.wpDct_rotYuvSpace.wpRegion[2];
+    awb_cfg_v32->rotu0_ls2       = wpRegion->hw_awbT_u2WpDistTh_curve.idx[0];
+    awb_cfg_v32->rotu1_ls2       = wpRegion->hw_awbT_u2WpDistTh_curve.idx[1];
+    awb_cfg_v32->rotu2_ls2       = wpRegion->hw_awbT_u2WpDistTh_curve.idx[2];
+    awb_cfg_v32->rotu3_ls2       = wpRegion->hw_awbT_u2WpDistTh_curve.idx[3];
+    awb_cfg_v32->rotu4_ls2       = wpRegion->hw_awbT_u2WpDistTh_curve.idx[4];
+    awb_cfg_v32->rotu5_ls2       = wpRegion->hw_awbT_u2WpDistTh_curve.idx[5];
+    awb_cfg_v32->th0_ls2         = (uint16_t)(wpRegion->hw_awbT_u2WpDistTh_curve.val[0] * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->th1_ls2         = (uint16_t)(wpRegion->hw_awbT_u2WpDistTh_curve.val[1] * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->th2_ls2         = (uint16_t)(wpRegion->hw_awbT_u2WpDistTh_curve.val[2] * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->th3_ls2         = (uint16_t)(wpRegion->hw_awbT_u2WpDistTh_curve.val[3] * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->th4_ls2         = (uint16_t)(wpRegion->hw_awbT_u2WpDistTh_curve.val[4] * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->th5_ls2         = (uint16_t)(wpRegion->hw_awbT_u2WpDistTh_curve.val[5] * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->coor_x1_ls2_u   = (uint16_t)(wpRegion->lsVect.edp[0].hw_awbT_edpU_val * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->coor_x1_ls2_v   = (uint16_t)(wpRegion->lsVect.edp[0].hw_awbT_edpV_val * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->coor_x1_ls2_y   = (uint16_t)(wpRegion->lsVect.edp[0].hw_awbT_edpY_val * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    vecP1P2[0] = (wpRegion->lsVect.edp[1].hw_awbT_edpU_val-wpRegion->lsVect.edp[0].hw_awbT_edpU_val) * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT);
+    vecP1P2[1] = (wpRegion->lsVect.edp[1].hw_awbT_edpV_val-wpRegion->lsVect.edp[0].hw_awbT_edpV_val) * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT);
+    vecP1P2[2] = (wpRegion->lsVect.edp[1].hw_awbT_edpY_val-wpRegion->lsVect.edp[0].hw_awbT_edpY_val) * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT);
+    awb_cfg_v32->vec_x21_ls2_u   = FloatToS16(vecP1P2[0]);
+    awb_cfg_v32->vec_x21_ls2_v   = FloatToS16(vecP1P2[1]);
+    awb_cfg_v32->vec_x21_ls2_y   = FloatToS16(vecP1P2[2]);
+    awb_cfg_v32->dis_x1x2_ls2    = u8(LOG2(vecP1P2[0]*vecP1P2[0]+
+                                        vecP1P2[1]*vecP1P2[1]+
+                                        vecP1P2[2]*vecP1P2[2])+0.5-
+                                        RK_AIQ_AWB_YUV2_OUT_FRAC_BIT*2);
+    wpRegion = &awb_meas->wpEngine.wpDct_rotYuvSpace.wpRegion[3];
+    awb_cfg_v32->rotu0_ls3       = wpRegion->hw_awbT_u2WpDistTh_curve.idx[0];
+    awb_cfg_v32->rotu1_ls3       = wpRegion->hw_awbT_u2WpDistTh_curve.idx[1];
+    awb_cfg_v32->rotu2_ls3       = wpRegion->hw_awbT_u2WpDistTh_curve.idx[2];
+    awb_cfg_v32->rotu3_ls3       = wpRegion->hw_awbT_u2WpDistTh_curve.idx[3];
+    awb_cfg_v32->rotu4_ls3       = wpRegion->hw_awbT_u2WpDistTh_curve.idx[4];
+    awb_cfg_v32->rotu5_ls3       = wpRegion->hw_awbT_u2WpDistTh_curve.idx[5];
+    awb_cfg_v32->th0_ls3         = (uint16_t)(wpRegion->hw_awbT_u2WpDistTh_curve.val[0] * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->th1_ls3         = (uint16_t)(wpRegion->hw_awbT_u2WpDistTh_curve.val[1] * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->th2_ls3         = (uint16_t)(wpRegion->hw_awbT_u2WpDistTh_curve.val[2] * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->th3_ls3         = (uint16_t)(wpRegion->hw_awbT_u2WpDistTh_curve.val[3] * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->th4_ls3         = (uint16_t)(wpRegion->hw_awbT_u2WpDistTh_curve.val[4] * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->th5_ls3         = (uint16_t)(wpRegion->hw_awbT_u2WpDistTh_curve.val[5] * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->coor_x1_ls3_u   = (uint16_t)(wpRegion->lsVect.edp[0].hw_awbT_edpU_val * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->coor_x1_ls3_v   = (uint16_t)(wpRegion->lsVect.edp[0].hw_awbT_edpV_val * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    awb_cfg_v32->coor_x1_ls3_y   = (uint16_t)(wpRegion->lsVect.edp[0].hw_awbT_edpY_val * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT) + 0.5);
+    vecP1P2[0] = (wpRegion->lsVect.edp[1].hw_awbT_edpU_val-wpRegion->lsVect.edp[0].hw_awbT_edpU_val) * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT);
+    vecP1P2[1] = (wpRegion->lsVect.edp[1].hw_awbT_edpV_val-wpRegion->lsVect.edp[0].hw_awbT_edpV_val) * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT);
+    vecP1P2[2] = (wpRegion->lsVect.edp[1].hw_awbT_edpY_val-wpRegion->lsVect.edp[0].hw_awbT_edpY_val) * (1 << RK_AIQ_AWB_YUV2_OUT_FRAC_BIT);
+    awb_cfg_v32->vec_x21_ls3_u   = FloatToS16(vecP1P2[0]);
+    awb_cfg_v32->vec_x21_ls3_v   = FloatToS16(vecP1P2[1]);
+    awb_cfg_v32->vec_x21_ls3_y   = FloatToS16(vecP1P2[2]);
+    awb_cfg_v32->dis_x1x2_ls3    = u8(LOG2(vecP1P2[0]*vecP1P2[0]+
+                                        vecP1P2[1]*vecP1P2[1]+
+                                        vecP1P2[2]*vecP1P2[2])+0.5-
+                                        RK_AIQ_AWB_YUV2_OUT_FRAC_BIT*2);
+    awb_cfg_v32->wt0              = UtlFloatToFix_U0012(awb_meas->wpEngine.wpDct_xySpace.rgb2xy.hw_awbCfg_rgb2xy_coeff[0]);
+    awb_cfg_v32->wt1              = UtlFloatToFix_U0012(awb_meas->wpEngine.wpDct_xySpace.rgb2xy.hw_awbCfg_rgb2xy_coeff[1]);
+    awb_cfg_v32->wt2              = UtlFloatToFix_U0012(awb_meas->wpEngine.wpDct_xySpace.rgb2xy.hw_awbCfg_rgb2xy_coeff[2]);
+    awb_cfg_v32->mat0_x           = UtlFloatToFix_S0312(awb_meas->wpEngine.wpDct_xySpace.rgb2xy.hw_awbCfg_xyTransMatrix_coeff[0]);
+    awb_cfg_v32->mat1_x           = UtlFloatToFix_S0312(awb_meas->wpEngine.wpDct_xySpace.rgb2xy.hw_awbCfg_xyTransMatrix_coeff[1]);
+    awb_cfg_v32->mat2_x           = UtlFloatToFix_S0312(awb_meas->wpEngine.wpDct_xySpace.rgb2xy.hw_awbCfg_xyTransMatrix_coeff[2]);
+    awb_cfg_v32->mat0_y           = UtlFloatToFix_S0312(awb_meas->wpEngine.wpDct_xySpace.rgb2xy.hw_awbCfg_xyTransMatrix_coeff[3]);
+    awb_cfg_v32->mat1_y           = UtlFloatToFix_S0312(awb_meas->wpEngine.wpDct_xySpace.rgb2xy.hw_awbCfg_xyTransMatrix_coeff[4]);
+    awb_cfg_v32->mat2_y           = UtlFloatToFix_S0312(awb_meas->wpEngine.wpDct_xySpace.rgb2xy.hw_awbCfg_xyTransMatrix_coeff[5]);
+    const awbStats_xyRegion_t *norWpRegion = &awb_meas->wpEngine.wpDct_xySpace.norWpRegion[0];
+    const awbStats_xyRegion_t *bigWpRegion = &awb_meas->wpEngine.wpDct_xySpace.bigWpRegion[0];
+    awb_cfg_v32->nor_x0_0         = UtlFloatToFix_S0310(norWpRegion->ltVtx.hw_awbT_vtxX_val);
+    awb_cfg_v32->nor_x1_0         = UtlFloatToFix_S0310(norWpRegion->rbVtx.hw_awbT_vtxX_val);
+    awb_cfg_v32->nor_y0_0         = UtlFloatToFix_S0310(norWpRegion->ltVtx.hw_awbT_vtxY_val);
+    awb_cfg_v32->nor_y1_0         = UtlFloatToFix_S0310(norWpRegion->rbVtx.hw_awbT_vtxY_val);
+    awb_cfg_v32->big_x0_0         = UtlFloatToFix_S0310(bigWpRegion->ltVtx.hw_awbT_vtxX_val);
+    awb_cfg_v32->big_x1_0         = UtlFloatToFix_S0310(bigWpRegion->rbVtx.hw_awbT_vtxX_val);
+    awb_cfg_v32->big_y0_0         = UtlFloatToFix_S0310(bigWpRegion->ltVtx.hw_awbT_vtxY_val);
+    awb_cfg_v32->big_y1_0         = UtlFloatToFix_S0310(bigWpRegion->rbVtx.hw_awbT_vtxY_val);
+    norWpRegion = &awb_meas->wpEngine.wpDct_xySpace.norWpRegion[1];
+    bigWpRegion = &awb_meas->wpEngine.wpDct_xySpace.bigWpRegion[1];
+    awb_cfg_v32->nor_x0_1         = UtlFloatToFix_S0310(norWpRegion->ltVtx.hw_awbT_vtxX_val);
+    awb_cfg_v32->nor_x1_1         = UtlFloatToFix_S0310(norWpRegion->rbVtx.hw_awbT_vtxX_val);
+    awb_cfg_v32->nor_y0_1         = UtlFloatToFix_S0310(norWpRegion->ltVtx.hw_awbT_vtxY_val);
+    awb_cfg_v32->nor_y1_1         = UtlFloatToFix_S0310(norWpRegion->rbVtx.hw_awbT_vtxY_val);
+    awb_cfg_v32->big_x0_1         = UtlFloatToFix_S0310(bigWpRegion->ltVtx.hw_awbT_vtxX_val);
+    awb_cfg_v32->big_x1_1         = UtlFloatToFix_S0310(bigWpRegion->rbVtx.hw_awbT_vtxX_val);
+    awb_cfg_v32->big_y0_1         = UtlFloatToFix_S0310(bigWpRegion->ltVtx.hw_awbT_vtxY_val);
+    awb_cfg_v32->big_y1_1         = UtlFloatToFix_S0310(bigWpRegion->rbVtx.hw_awbT_vtxY_val);
+    norWpRegion = &awb_meas->wpEngine.wpDct_xySpace.norWpRegion[2];
+    bigWpRegion = &awb_meas->wpEngine.wpDct_xySpace.bigWpRegion[2];
+    awb_cfg_v32->nor_x0_2         = UtlFloatToFix_S0310(norWpRegion->ltVtx.hw_awbT_vtxX_val);
+    awb_cfg_v32->nor_x1_2         = UtlFloatToFix_S0310(norWpRegion->rbVtx.hw_awbT_vtxX_val);
+    awb_cfg_v32->nor_y0_2         = UtlFloatToFix_S0310(norWpRegion->ltVtx.hw_awbT_vtxY_val);
+    awb_cfg_v32->nor_y1_2         = UtlFloatToFix_S0310(norWpRegion->rbVtx.hw_awbT_vtxY_val);
+    awb_cfg_v32->big_x0_2         = UtlFloatToFix_S0310(bigWpRegion->ltVtx.hw_awbT_vtxX_val);
+    awb_cfg_v32->big_x1_2         = UtlFloatToFix_S0310(bigWpRegion->rbVtx.hw_awbT_vtxX_val);
+    awb_cfg_v32->big_y0_2         = UtlFloatToFix_S0310(bigWpRegion->ltVtx.hw_awbT_vtxY_val);
+    awb_cfg_v32->big_y1_2         = UtlFloatToFix_S0310(bigWpRegion->rbVtx.hw_awbT_vtxY_val);
+    norWpRegion = &awb_meas->wpEngine.wpDct_xySpace.norWpRegion[3];
+    bigWpRegion = &awb_meas->wpEngine.wpDct_xySpace.bigWpRegion[3];
+    awb_cfg_v32->nor_x0_3         = UtlFloatToFix_S0310(norWpRegion->ltVtx.hw_awbT_vtxX_val);
+    awb_cfg_v32->nor_x1_3         = UtlFloatToFix_S0310(norWpRegion->rbVtx.hw_awbT_vtxX_val);
+    awb_cfg_v32->nor_y0_3         = UtlFloatToFix_S0310(norWpRegion->ltVtx.hw_awbT_vtxY_val);
+    awb_cfg_v32->nor_y1_3         = UtlFloatToFix_S0310(norWpRegion->rbVtx.hw_awbT_vtxY_val);
+    awb_cfg_v32->big_x0_3         = UtlFloatToFix_S0310(bigWpRegion->ltVtx.hw_awbT_vtxX_val);
+    awb_cfg_v32->big_x1_3         = UtlFloatToFix_S0310(bigWpRegion->rbVtx.hw_awbT_vtxX_val);
+    awb_cfg_v32->big_y0_3         = UtlFloatToFix_S0310(bigWpRegion->ltVtx.hw_awbT_vtxY_val);
+    awb_cfg_v32->big_y1_3         = UtlFloatToFix_S0310(bigWpRegion->rbVtx.hw_awbT_vtxY_val);
+    ConfigPreWbgain3(awb_cfg_v32,&awb_meas_priv,&awb_gain_final,&mCommonCvtInfo.otp_awb );
+    awb_cfg_v32->multiwindow_en      = awb_meas->mainWin.hw_awbCfg_nonROI_en;
+    awb_cfg_v32->multiwindow0_h_offs = awb_meas->mainWin.nonROI[0].hw_awbCfg_nonROI_x;
+    awb_cfg_v32->multiwindow0_v_offs = awb_meas->mainWin.nonROI[0].hw_awbCfg_nonROI_y;
+    awb_cfg_v32->multiwindow0_h_size = awb_meas->mainWin.nonROI[0].hw_awbCfg_nonROI_x + awb_meas->mainWin.nonROI[0].hw_awbCfg_nonROI_width;
+    awb_cfg_v32->multiwindow0_v_size = awb_meas->mainWin.nonROI[0].hw_awbCfg_nonROI_y + awb_meas->mainWin.nonROI[0].hw_awbCfg_nonROI_height;
+    awb_cfg_v32->multiwindow1_h_offs = awb_meas->mainWin.nonROI[1].hw_awbCfg_nonROI_x;
+    awb_cfg_v32->multiwindow1_v_offs = awb_meas->mainWin.nonROI[1].hw_awbCfg_nonROI_y;
+    awb_cfg_v32->multiwindow1_h_size = awb_meas->mainWin.nonROI[1].hw_awbCfg_nonROI_x + awb_meas->mainWin.nonROI[1].hw_awbCfg_nonROI_width;
+    awb_cfg_v32->multiwindow1_v_size = awb_meas->mainWin.nonROI[1].hw_awbCfg_nonROI_y + awb_meas->mainWin.nonROI[1].hw_awbCfg_nonROI_height;
+    awb_cfg_v32->multiwindow2_h_offs = awb_meas->mainWin.nonROI[2].hw_awbCfg_nonROI_x;
+    awb_cfg_v32->multiwindow2_v_offs = awb_meas->mainWin.nonROI[2].hw_awbCfg_nonROI_y;
+    awb_cfg_v32->multiwindow2_h_size = awb_meas->mainWin.nonROI[2].hw_awbCfg_nonROI_x + awb_meas->mainWin.nonROI[2].hw_awbCfg_nonROI_width;
+    awb_cfg_v32->multiwindow2_v_size = awb_meas->mainWin.nonROI[2].hw_awbCfg_nonROI_y + awb_meas->mainWin.nonROI[2].hw_awbCfg_nonROI_height;
+    awb_cfg_v32->multiwindow3_h_offs = awb_meas->mainWin.nonROI[3].hw_awbCfg_nonROI_x;
+    awb_cfg_v32->multiwindow3_v_offs = awb_meas->mainWin.nonROI[3].hw_awbCfg_nonROI_y;
+    awb_cfg_v32->multiwindow3_h_size = awb_meas->mainWin.nonROI[3].hw_awbCfg_nonROI_x + awb_meas->mainWin.nonROI[3].hw_awbCfg_nonROI_width;
+    awb_cfg_v32->multiwindow3_v_size = awb_meas->mainWin.nonROI[3].hw_awbCfg_nonROI_y + awb_meas->mainWin.nonROI[3].hw_awbCfg_nonROI_height;
+
+    int exc_wp_region0_excen0 = awb_meas->wpEngine.norWpStatsCfg.hw_awbCfg_wpFiltOut_en[0];
+    int exc_wp_region0_excen1 = awb_meas->wpEngine.bigWpStatsCfg.hw_awbCfg_wpFiltOut_en[0];
     awb_cfg_v32->exc_wp_region0_excen = ((exc_wp_region0_excen1 << 1) + exc_wp_region0_excen0) & 0x3;
-    awb_cfg_v32->exc_wp_region0_measen = awb_meas.excludeWpRange[0].measureEnable;
-    awb_cfg_v32->exc_wp_region0_domain = awb_meas.excludeWpRange[0].domain;
-    awb_cfg_v32->exc_wp_region0_xu0    = awb_meas.excludeWpRange[0].xu[0];
-    awb_cfg_v32->exc_wp_region0_xu1    = awb_meas.excludeWpRange[0].xu[1];
-    awb_cfg_v32->exc_wp_region0_yv0    = awb_meas.excludeWpRange[0].yv[0];
-    awb_cfg_v32->exc_wp_region0_yv1    = awb_meas.excludeWpRange[0].yv[1];
-    awb_cfg_v32->exc_wp_region0_weight = awb_meas.excludeWpRange[0].weightInculde;
-    int exc_wp_region1_excen0 =
-        awb_meas.excludeWpRange[1].excludeEnable[RK_AIQ_AWB_XY_TYPE_NORMAL_V201];
-    int exc_wp_region1_excen1 =
-        awb_meas.excludeWpRange[1].excludeEnable[RK_AIQ_AWB_XY_TYPE_BIG_V201];
-    awb_cfg_v32->exc_wp_region1_excen =  ((exc_wp_region1_excen1 << 1) + exc_wp_region1_excen0) & 0x3;
-    awb_cfg_v32->exc_wp_region1_measen = awb_meas.excludeWpRange[1].measureEnable;
-    awb_cfg_v32->exc_wp_region1_domain = awb_meas.excludeWpRange[1].domain;
-    awb_cfg_v32->exc_wp_region1_xu0    = awb_meas.excludeWpRange[1].xu[0];
-    awb_cfg_v32->exc_wp_region1_xu1    = awb_meas.excludeWpRange[1].xu[1];
-    awb_cfg_v32->exc_wp_region1_yv0    = awb_meas.excludeWpRange[1].yv[0];
-    awb_cfg_v32->exc_wp_region1_yv1    = awb_meas.excludeWpRange[1].yv[1];
-    awb_cfg_v32->exc_wp_region1_weight = awb_meas.excludeWpRange[1].weightInculde;
-    int exc_wp_region2_excen0 =
-        awb_meas.excludeWpRange[2].excludeEnable[RK_AIQ_AWB_XY_TYPE_NORMAL_V201];
-    int exc_wp_region2_excen1 =
-        awb_meas.excludeWpRange[2].excludeEnable[RK_AIQ_AWB_XY_TYPE_BIG_V201];
+    awb_cfg_v32->exc_wp_region0_measen = awb_meas->wpEngine.wpFiltOut_fullEntity[0].hw_awbCfg_wpStats_en;
+    awb_cfg_v32->exc_wp_region0_domain = awb_meas->wpEngine.wpFiltOut_fullEntity[0].hw_awbT_wpFiltOut_mode;
+    awb_cfg_v32->exc_wp_region0_xu0    = (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[0].wpRegion.ltVtx.hw_awbT_vtxXU_val;
+    awb_cfg_v32->exc_wp_region0_xu1    = (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[0].wpRegion.rbVtx.hw_awbT_vtxXU_val;
+    awb_cfg_v32->exc_wp_region0_yv0    = (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[0].wpRegion.ltVtx.hw_awbT_vtxYV_val;
+    awb_cfg_v32->exc_wp_region0_yv1    = (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[0].wpRegion.rbVtx.hw_awbT_vtxYV_val;
+    awb_cfg_v32->exc_wp_region0_weight = (u8)(awb_meas->wpEngine.wpFiltOut_fullEntity[0].hw_awbT_filtOutOpt_wgt * ((1 << RK_AIQ_WP_INCLUDE_BIS)-1) + 0.5);
+    int exc_wp_region1_excen0 = awb_meas->wpEngine.norWpStatsCfg.hw_awbCfg_wpFiltOut_en[1];
+    int exc_wp_region1_excen1 = awb_meas->wpEngine.bigWpStatsCfg.hw_awbCfg_wpFiltOut_en[1];
+    awb_cfg_v32->exc_wp_region1_excen = ((exc_wp_region1_excen1 << 1) + exc_wp_region1_excen0) & 0x3;
+    awb_cfg_v32->exc_wp_region1_measen = awb_meas->wpEngine.wpFiltOut_fullEntity[1].hw_awbCfg_wpStats_en;
+    awb_cfg_v32->exc_wp_region1_domain = awb_meas->wpEngine.wpFiltOut_fullEntity[1].hw_awbT_wpFiltOut_mode;
+    awb_cfg_v32->exc_wp_region1_xu0    = (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[1].wpRegion.ltVtx.hw_awbT_vtxXU_val;
+    awb_cfg_v32->exc_wp_region1_xu1    = (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[1].wpRegion.rbVtx.hw_awbT_vtxXU_val;
+    awb_cfg_v32->exc_wp_region1_yv0    = (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[1].wpRegion.ltVtx.hw_awbT_vtxYV_val;
+    awb_cfg_v32->exc_wp_region1_yv1    = (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[1].wpRegion.rbVtx.hw_awbT_vtxYV_val;
+    awb_cfg_v32->exc_wp_region1_weight = (u8)(awb_meas->wpEngine.wpFiltOut_fullEntity[1].hw_awbT_filtOutOpt_wgt * ((1 << RK_AIQ_WP_INCLUDE_BIS)-1) + 0.5);
+    int exc_wp_region2_excen0 = awb_meas->wpEngine.norWpStatsCfg.hw_awbCfg_wpFiltOut_en[2];
+    int exc_wp_region2_excen1 = awb_meas->wpEngine.bigWpStatsCfg.hw_awbCfg_wpFiltOut_en[2];
     awb_cfg_v32->exc_wp_region2_excen = ((exc_wp_region2_excen1 << 1) + exc_wp_region2_excen0) & 0x3;
-    awb_cfg_v32->exc_wp_region2_measen = awb_meas.excludeWpRange[2].measureEnable;
-    awb_cfg_v32->exc_wp_region2_domain = awb_meas.excludeWpRange[2].domain;
-    awb_cfg_v32->exc_wp_region2_xu0    = awb_meas.excludeWpRange[2].xu[0];
-    awb_cfg_v32->exc_wp_region2_xu1    = awb_meas.excludeWpRange[2].xu[1];
-    awb_cfg_v32->exc_wp_region2_yv0    = awb_meas.excludeWpRange[2].yv[0];
-    awb_cfg_v32->exc_wp_region2_yv1    = awb_meas.excludeWpRange[2].yv[1];
-    awb_cfg_v32->exc_wp_region2_weight = awb_meas.excludeWpRange[2].weightInculde;
-    int exc_wp_region3_excen0 =
-        awb_meas.excludeWpRange[3].excludeEnable[RK_AIQ_AWB_XY_TYPE_NORMAL_V201];
-    int exc_wp_region3_excen1 =
-        awb_meas.excludeWpRange[3].excludeEnable[RK_AIQ_AWB_XY_TYPE_BIG_V201];
+    awb_cfg_v32->exc_wp_region2_measen = awb_meas->wpEngine.wpFiltOut_fullEntity[2].hw_awbCfg_wpStats_en;
+    awb_cfg_v32->exc_wp_region2_domain = awb_meas->wpEngine.wpFiltOut_fullEntity[2].hw_awbT_wpFiltOut_mode;
+    awb_cfg_v32->exc_wp_region2_xu0    = (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[2].wpRegion.ltVtx.hw_awbT_vtxXU_val;
+    awb_cfg_v32->exc_wp_region2_xu1    = (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[2].wpRegion.rbVtx.hw_awbT_vtxXU_val;
+    awb_cfg_v32->exc_wp_region2_yv0    = (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[2].wpRegion.ltVtx.hw_awbT_vtxYV_val;
+    awb_cfg_v32->exc_wp_region2_yv1    = (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[2].wpRegion.rbVtx.hw_awbT_vtxYV_val;
+    awb_cfg_v32->exc_wp_region2_weight = (u8)(awb_meas->wpEngine.wpFiltOut_fullEntity[2].hw_awbT_filtOutOpt_wgt * ((1 << RK_AIQ_WP_INCLUDE_BIS)-1) + 0.5);
+    int exc_wp_region3_excen0 = awb_meas->wpEngine.norWpStatsCfg.hw_awbCfg_wpFiltOut_en[3];
+    int exc_wp_region3_excen1 = awb_meas->wpEngine.bigWpStatsCfg.hw_awbCfg_wpFiltOut_en[3];
     awb_cfg_v32->exc_wp_region3_excen = ((exc_wp_region3_excen1 << 1) + exc_wp_region3_excen0) & 0x3;
-    awb_cfg_v32->exc_wp_region3_measen = awb_meas.excludeWpRange[3].measureEnable;
-    awb_cfg_v32->exc_wp_region3_domain = awb_meas.excludeWpRange[3].domain;
-    awb_cfg_v32->exc_wp_region3_xu0    = awb_meas.excludeWpRange[3].xu[0];
-    awb_cfg_v32->exc_wp_region3_xu1    = awb_meas.excludeWpRange[3].xu[1];
-    awb_cfg_v32->exc_wp_region3_yv0    = awb_meas.excludeWpRange[3].yv[0];
-    awb_cfg_v32->exc_wp_region3_yv1    = awb_meas.excludeWpRange[3].yv[1];
-    awb_cfg_v32->exc_wp_region3_weight = awb_meas.excludeWpRange[3].weightInculde;
-    int exc_wp_region4_excen0 =
-        awb_meas.excludeWpRange[4].excludeEnable[RK_AIQ_AWB_XY_TYPE_NORMAL_V201];
-    int exc_wp_region4_excen1 =
-        awb_meas.excludeWpRange[4].excludeEnable[RK_AIQ_AWB_XY_TYPE_BIG_V201];
+    awb_cfg_v32->exc_wp_region3_measen = awb_meas->wpEngine.wpFiltOut_fullEntity[3].hw_awbCfg_wpStats_en;
+    awb_cfg_v32->exc_wp_region3_domain = awb_meas->wpEngine.wpFiltOut_fullEntity[3].hw_awbT_wpFiltOut_mode;
+    awb_cfg_v32->exc_wp_region3_xu0    = (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[3].wpRegion.ltVtx.hw_awbT_vtxXU_val;
+    awb_cfg_v32->exc_wp_region3_xu1    = (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[3].wpRegion.rbVtx.hw_awbT_vtxXU_val;
+    awb_cfg_v32->exc_wp_region3_yv0    = (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[3].wpRegion.ltVtx.hw_awbT_vtxYV_val;
+    awb_cfg_v32->exc_wp_region3_yv1    = (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[3].wpRegion.rbVtx.hw_awbT_vtxYV_val;
+    awb_cfg_v32->exc_wp_region3_weight = (u8)(awb_meas->wpEngine.wpFiltOut_fullEntity[3].hw_awbT_filtOutOpt_wgt * ((1 << RK_AIQ_WP_INCLUDE_BIS)-1) + 0.5);
+    int exc_wp_region4_excen0 = awb_meas->wpEngine.norWpStatsCfg.hw_awbCfg_wpFiltOut_en[4];
+    int exc_wp_region4_excen1 = awb_meas->wpEngine.bigWpStatsCfg.hw_awbCfg_wpFiltOut_en[4];
     awb_cfg_v32->exc_wp_region4_excen = ((exc_wp_region4_excen1 << 1) + exc_wp_region4_excen0) & 0x3;
-    awb_cfg_v32->exc_wp_region4_domain = awb_meas.excludeWpRange[4].domain;
-    awb_cfg_v32->exc_wp_region4_xu0    = awb_meas.excludeWpRange[4].xu[0];
-    awb_cfg_v32->exc_wp_region4_xu1    = awb_meas.excludeWpRange[4].xu[1];
-    awb_cfg_v32->exc_wp_region4_yv0    = awb_meas.excludeWpRange[4].yv[0];
-    awb_cfg_v32->exc_wp_region4_yv1    = awb_meas.excludeWpRange[4].yv[1];
-    awb_cfg_v32->exc_wp_region4_weight = awb_meas.excludeWpRange[4].weightInculde;
-    int exc_wp_region5_excen0 =
-        awb_meas.excludeWpRange[5].excludeEnable[RK_AIQ_AWB_XY_TYPE_NORMAL_V201];
-    int exc_wp_region5_excen1 =
-        awb_meas.excludeWpRange[5].excludeEnable[RK_AIQ_AWB_XY_TYPE_BIG_V201];
+    awb_cfg_v32->exc_wp_region4_domain = awb_meas->wpEngine.wpFiltOut_smpEntity[0].hw_awbT_wpFiltOut_mode;
+    awb_cfg_v32->exc_wp_region4_xu0    = (s16)awb_meas->wpEngine.wpFiltOut_smpEntity[0].wpRegion.ltVtx.hw_awbT_vtxXU_val;
+    awb_cfg_v32->exc_wp_region4_xu1    = (s16)awb_meas->wpEngine.wpFiltOut_smpEntity[0].wpRegion.rbVtx.hw_awbT_vtxXU_val;
+    awb_cfg_v32->exc_wp_region4_yv0    = (s16)awb_meas->wpEngine.wpFiltOut_smpEntity[0].wpRegion.ltVtx.hw_awbT_vtxYV_val;
+    awb_cfg_v32->exc_wp_region4_yv1    = (s16)awb_meas->wpEngine.wpFiltOut_smpEntity[0].wpRegion.rbVtx.hw_awbT_vtxYV_val;
+    awb_cfg_v32->exc_wp_region4_weight = (u8)(awb_meas->wpEngine.wpFiltOut_smpEntity[0].hw_awbT_filtOutOpt_wgt * ((1 << RK_AIQ_WP_INCLUDE_BIS)-1) + 0.5);
+    int exc_wp_region5_excen0 = awb_meas->wpEngine.norWpStatsCfg.hw_awbCfg_wpFiltOut_en[5];
+    int exc_wp_region5_excen1 = awb_meas->wpEngine.bigWpStatsCfg.hw_awbCfg_wpFiltOut_en[5];
     awb_cfg_v32->exc_wp_region5_excen = ((exc_wp_region5_excen1 << 1) + exc_wp_region5_excen0) & 0x3;
-    awb_cfg_v32->exc_wp_region5_domain = awb_meas.excludeWpRange[5].domain;
-    awb_cfg_v32->exc_wp_region5_xu0    = awb_meas.excludeWpRange[5].xu[0];
-    awb_cfg_v32->exc_wp_region5_xu1    = awb_meas.excludeWpRange[5].xu[1];
-    awb_cfg_v32->exc_wp_region5_yv0    = awb_meas.excludeWpRange[5].yv[0];
-    awb_cfg_v32->exc_wp_region5_yv1    = awb_meas.excludeWpRange[5].yv[1];
-    awb_cfg_v32->exc_wp_region5_weight = awb_meas.excludeWpRange[5].weightInculde;
-    int exc_wp_region6_excen0 =
-        awb_meas.excludeWpRange[6].excludeEnable[RK_AIQ_AWB_XY_TYPE_NORMAL_V201];
-    int exc_wp_region6_excen1 =
-        awb_meas.excludeWpRange[6].excludeEnable[RK_AIQ_AWB_XY_TYPE_BIG_V201];
+    awb_cfg_v32->exc_wp_region5_domain = awb_meas->wpEngine.wpFiltOut_smpEntity[1].hw_awbT_wpFiltOut_mode;
+    awb_cfg_v32->exc_wp_region5_xu0    = (s16)awb_meas->wpEngine.wpFiltOut_smpEntity[1].wpRegion.ltVtx.hw_awbT_vtxXU_val;
+    awb_cfg_v32->exc_wp_region5_xu1    = (s16)awb_meas->wpEngine.wpFiltOut_smpEntity[1].wpRegion.rbVtx.hw_awbT_vtxXU_val;
+    awb_cfg_v32->exc_wp_region5_yv0    = (s16)awb_meas->wpEngine.wpFiltOut_smpEntity[1].wpRegion.ltVtx.hw_awbT_vtxYV_val;
+    awb_cfg_v32->exc_wp_region5_yv1    = (s16)awb_meas->wpEngine.wpFiltOut_smpEntity[1].wpRegion.rbVtx.hw_awbT_vtxYV_val;
+    awb_cfg_v32->exc_wp_region5_weight = (u8)(awb_meas->wpEngine.wpFiltOut_smpEntity[1].hw_awbT_filtOutOpt_wgt * ((1 << RK_AIQ_WP_INCLUDE_BIS)-1) + 0.5);
+    int exc_wp_region6_excen0 = awb_meas->wpEngine.norWpStatsCfg.hw_awbCfg_wpFiltOut_en[6];
+    int exc_wp_region6_excen1 = awb_meas->wpEngine.bigWpStatsCfg.hw_awbCfg_wpFiltOut_en[6];
     awb_cfg_v32->exc_wp_region6_excen = ((exc_wp_region6_excen1 << 1) + exc_wp_region6_excen0) & 0x3;
-    awb_cfg_v32->exc_wp_region6_domain = awb_meas.excludeWpRange[6].domain;
-    awb_cfg_v32->exc_wp_region6_xu0    = awb_meas.excludeWpRange[6].xu[0];
-    awb_cfg_v32->exc_wp_region6_xu1    = awb_meas.excludeWpRange[6].xu[1];
-    awb_cfg_v32->exc_wp_region6_yv0    = awb_meas.excludeWpRange[6].yv[0];
-    awb_cfg_v32->exc_wp_region6_yv1    = awb_meas.excludeWpRange[6].yv[1];
-    awb_cfg_v32->exc_wp_region6_weight = awb_meas.excludeWpRange[6].weightInculde;
-    awb_cfg_v32->wp_luma_weicurve_y0   = awb_meas.wpDiffwei_y[0];
-    awb_cfg_v32->wp_luma_weicurve_y1   = awb_meas.wpDiffwei_y[1];
-    awb_cfg_v32->wp_luma_weicurve_y2   = awb_meas.wpDiffwei_y[2];
-    awb_cfg_v32->wp_luma_weicurve_y3   = awb_meas.wpDiffwei_y[3];
-    awb_cfg_v32->wp_luma_weicurve_y4   = awb_meas.wpDiffwei_y[4];
-    awb_cfg_v32->wp_luma_weicurve_y5   = awb_meas.wpDiffwei_y[5];
-    awb_cfg_v32->wp_luma_weicurve_y6   = awb_meas.wpDiffwei_y[6];
-    awb_cfg_v32->wp_luma_weicurve_y7   = awb_meas.wpDiffwei_y[7];
-    awb_cfg_v32->wp_luma_weicurve_y8   = awb_meas.wpDiffwei_y[8];
-    awb_cfg_v32->wp_luma_weicurve_w0   = awb_meas.wpDiffwei_w[0];
-    awb_cfg_v32->wp_luma_weicurve_w1   = awb_meas.wpDiffwei_w[1];
-    awb_cfg_v32->wp_luma_weicurve_w2   = awb_meas.wpDiffwei_w[2];
-    awb_cfg_v32->wp_luma_weicurve_w3   = awb_meas.wpDiffwei_w[3];
-    awb_cfg_v32->wp_luma_weicurve_w4   = awb_meas.wpDiffwei_w[4];
-    awb_cfg_v32->wp_luma_weicurve_w5   = awb_meas.wpDiffwei_w[5];
-    awb_cfg_v32->wp_luma_weicurve_w6   = awb_meas.wpDiffwei_w[6];
-    awb_cfg_v32->wp_luma_weicurve_w7   = awb_meas.wpDiffwei_w[7];
-    awb_cfg_v32->wp_luma_weicurve_w8   = awb_meas.wpDiffwei_w[8];
-#if RKAIQ_HAVE_AWB_V32LT
-    for (int i = 0; i < ISP32L_RAWAWB_WEIGHT_NUM; i++) {
-        awb_cfg_v32->win_weight[i] = awb_meas.blkWeight[i * 5] |
-                                     (awb_meas.blkWeight[i * 5 + 1] << 6) |
-                                     (awb_meas.blkWeight[i * 5 + 2] << 12) |
-                                     (awb_meas.blkWeight[i * 5 + 3] << 18) |
-                                     (awb_meas.blkWeight[i * 5 + 4] << 24);
-    }
-#else
+    awb_cfg_v32->exc_wp_region6_domain = awb_meas->wpEngine.wpFiltOut_smpEntity[2].hw_awbT_wpFiltOut_mode;
+    awb_cfg_v32->exc_wp_region6_xu0    = (s16)awb_meas->wpEngine.wpFiltOut_smpEntity[2].wpRegion.ltVtx.hw_awbT_vtxXU_val;
+    awb_cfg_v32->exc_wp_region6_xu1    = (s16)awb_meas->wpEngine.wpFiltOut_smpEntity[2].wpRegion.rbVtx.hw_awbT_vtxXU_val;
+    awb_cfg_v32->exc_wp_region6_yv0    = (s16)awb_meas->wpEngine.wpFiltOut_smpEntity[2].wpRegion.ltVtx.hw_awbT_vtxYV_val;
+    awb_cfg_v32->exc_wp_region6_yv1    = (s16)awb_meas->wpEngine.wpFiltOut_smpEntity[2].wpRegion.rbVtx.hw_awbT_vtxYV_val;
+    awb_cfg_v32->exc_wp_region6_weight = (u8)(awb_meas->wpEngine.wpFiltOut_smpEntity[2].hw_awbT_filtOutOpt_wgt * ((1 << RK_AIQ_WP_INCLUDE_BIS)-1) + 0.5);
+    awb_cfg_v32->wp_luma_weicurve_y0   = awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.idx[0];
+    awb_cfg_v32->wp_luma_weicurve_y1   = awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.idx[1];
+    awb_cfg_v32->wp_luma_weicurve_y2   = awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.idx[2];
+    awb_cfg_v32->wp_luma_weicurve_y3   = awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.idx[3];
+    awb_cfg_v32->wp_luma_weicurve_y4   = awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.idx[4];
+    awb_cfg_v32->wp_luma_weicurve_y5   = awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.idx[5];
+    awb_cfg_v32->wp_luma_weicurve_y6   = awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.idx[6];
+    awb_cfg_v32->wp_luma_weicurve_y7   = awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.idx[7];
+    awb_cfg_v32->wp_luma_weicurve_y8   = awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.idx[8];
+    awb_cfg_v32->wp_luma_weicurve_w0   = (u8)(awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.val[0]*((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1)+0.5);
+    awb_cfg_v32->wp_luma_weicurve_w1   = (u8)(awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.val[1]*((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1)+0.5);
+    awb_cfg_v32->wp_luma_weicurve_w2   = (u8)(awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.val[2]*((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1)+0.5);
+    awb_cfg_v32->wp_luma_weicurve_w3   = (u8)(awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.val[3]*((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1)+0.5);
+    awb_cfg_v32->wp_luma_weicurve_w4   = (u8)(awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.val[4]*((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1)+0.5);
+    awb_cfg_v32->wp_luma_weicurve_w5   = (u8)(awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.val[5]*((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1)+0.5);
+    awb_cfg_v32->wp_luma_weicurve_w6   = (u8)(awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.val[6]*((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1)+0.5);
+    awb_cfg_v32->wp_luma_weicurve_w7   = (u8)(awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.val[7]*((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1)+0.5);
+    awb_cfg_v32->wp_luma_weicurve_w8   = (u8)(awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.val[8]*((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1)+0.5);
     for (int i = 0; i < RK_AIQ_AWB_GRID_NUM_TOTAL; i++) {
-        awb_cfg_v32->wp_blk_wei_w[i] = awb_meas.blkWeight[i];
+        awb_cfg_v32->wp_blk_wei_w[i] = awb_meas->wpEngine.hw_awbCfg_zone_wgt[i];
     }
-#endif
-    awb_cfg_v32->blk_rtdw_measure_en = awb_meas.blk_rtdw_measure_en;
+    awb_cfg_v32->blk_rtdw_measure_en = 0;
 
     WriteAwbReg(awb_cfg_v32);
-
 }
+
+
+
 #endif
 
 #if RKAIQ_HAVE_AF_V33 || RKAIQ_ONLY_AF_STATS_V33
 #ifdef USE_NEWSTRUCT
+
+static void ConfigAfBlc(const blc_res_cvt_t *ablc, const afStats_cfg_t* af_data, float isp_dgain,
+                        float isp_ob_predgain, struct isp39_rawaf_meas_cfg *rawaf)
+{
+    if (af_data->hw_afCfg_statsSrc_mode == afStats_dmIn_mode ||
+        af_data->hw_afCfg_statsSrc_mode == afStats_ynrOut_mode) {
+        //don't support to use blc2
+        rawaf->bls_en = 0;
+        rawaf->bls_offset = 0;
+        return;
+    }
+
+    float bls_offset = 0;
+    float dgain2 = 1.0;
+    //sw_blcT_obcPostTnr_mode == blc_autoOBCPostTnr_mode : use oboffset only
+    //sw_blcT_obcPostTnr_mode == blc_manualOBCPostTnr_mode : use blc1 only
+    //now only support blc_autoOBCPostTnr_mode
+    if (ablc && ablc->en) {
+        if (isp_ob_predgain > 1) {
+            dgain2 = isp_ob_predgain;
+        }
+        if (ablc->obcPostTnr.sw_blcT_obcPostTnr_en) {
+            bls_offset = ablc->obcPostTnr.sw_blcT_autoOB_offset;
+        }
+    }
+    // 2 blc2 recalc base on ablc
+    if(af_data->hw_afCfg_statsSrc_mode == afStats_btnrOut_mode) {
+        //update by (offset +blc1)*dgain
+        // working_mode = normal,so   applyPosition = IN_AWBGAIN1
+        rawaf->bls_offset = bls_offset * isp_dgain * dgain2 + 0.5;
+    } else {//select raw
+        //update by offset +blc1
+        rawaf->bls_offset = bls_offset + 0.5;
+    }
+    rawaf->bls_en = 1;
+}
+
 void Isp39Params::convertAiqAfToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
         const afStats_cfg_t& af_data, bool af_cfg_udpate)
 {
@@ -853,42 +1342,43 @@ void Isp39Params::convertAiqAfToIsp39Params(struct isp39_isp_params_cfg& isp_cfg
     isp_cfg.module_en_update |= ISP2X_MODULE_RAWAF;
     isp_cfg.module_cfg_update |= ISP2X_MODULE_RAWAF;
 
+    rawaf->ldg_en = afStats_cfg->hw_afCfg_ldg_en;
     switch (afStats_cfg->hw_afCfg_statsSrc_mode) {
-        case afStats_vicapOut_mode:
-            rawaf->bnr2af_sel = 0;
-            rawaf->from_ynr = 1;
-            rawaf->rawaf_sel = 0;
-            break;
-        case afStats_ynrOut_mode:
-            rawaf->bnr2af_sel = 0;
-            rawaf->from_ynr = 1;
-            rawaf->rawaf_sel = 0;
-            break;
-        case afStats_btnrOut_mode:
-            rawaf->bnr2af_sel = 1;
-            rawaf->from_ynr = 0;
-            rawaf->rawaf_sel = 0;
-            break;
-        case afStats_dmIn_mode:
-            rawaf->bnr2af_sel = 0;
-            rawaf->from_ynr = 0;
-            rawaf->rawaf_sel = 3;
-            break;
-        case afStats_chl2Wb0Out_mode:
-            rawaf->bnr2af_sel = 0;
-            rawaf->from_ynr = 0;
-            rawaf->rawaf_sel = 2;
-            break;
-        case afStats_chl1Wb0Out_mode:
-            rawaf->bnr2af_sel = 0;
-            rawaf->from_ynr = 0;
-            rawaf->rawaf_sel = 1;
-            break;
-        default:
-            rawaf->bnr2af_sel = 0;
-            rawaf->from_ynr = 0;
-            rawaf->rawaf_sel = 0;
-            break;
+    case afStats_vicapOut_mode:
+        rawaf->bnr2af_sel = 0;
+        rawaf->from_ynr = 1;
+        rawaf->rawaf_sel = 0;
+        break;
+    case afStats_ynrOut_mode:
+        rawaf->bnr2af_sel = 0;
+        rawaf->from_ynr = 1;
+        rawaf->rawaf_sel = 0;
+        break;
+    case afStats_btnrOut_mode:
+        rawaf->bnr2af_sel = 1;
+        rawaf->from_ynr = 0;
+        rawaf->rawaf_sel = 0;
+        break;
+    case afStats_dmIn_mode:
+        rawaf->bnr2af_sel = 0;
+        rawaf->from_ynr = 0;
+        rawaf->rawaf_sel = 3;
+        break;
+    case afStats_chl2Wb0Out_mode:
+        rawaf->bnr2af_sel = 0;
+        rawaf->from_ynr = 0;
+        rawaf->rawaf_sel = 2;
+        break;
+    case afStats_chl1Wb0Out_mode:
+        rawaf->bnr2af_sel = 0;
+        rawaf->from_ynr = 0;
+        rawaf->rawaf_sel = 1;
+        break;
+    default:
+        rawaf->bnr2af_sel = 0;
+        rawaf->from_ynr = 0;
+        rawaf->rawaf_sel = 0;
+        break;
     }
 
     rawaf->tnrin_shift = afStats_cfg->hw_afCfg_statsBtnrOut_shift;
@@ -900,32 +1390,54 @@ void Isp39Params::convertAiqAfToIsp39Params(struct isp39_isp_params_cfg& isp_cfg
     rawaf->win[1].v_offs = afStats_cfg->subWin.hw_afCfg_win_y;
     rawaf->win[1].h_size = afStats_cfg->subWin.hw_afCfg_win_width;
     rawaf->win[1].v_size = afStats_cfg->subWin.hw_afCfg_win_height;
-    rawaf->bls_en = afStats_cfg->blc.hw_afCfg_blc_en;
-    rawaf->bls_offset = afStats_cfg->blc.hw_afCfg_ob_val;
-    rawaf->aehgl_en = afStats_cfg->mainWin.hw_afCfg_lumaStats_en;
+    rawaf->aehgl_en = 1;
     rawaf->ae_mode = 0;
     rawaf->ae_config_use = 1;
     rawaf->vldg_sel = 0;
     rawaf->y_mode = 0;
     rawaf->num_afm_win = 2;
 
-    switch (rawaf->avg_ds_mode) {
-        case afStats_ds_2x2_mode:
-            rawaf->avg_ds_en = 0;
-            rawaf->v_dnscl_mode = 2;
-            break;
-        case afStats_ds_4x4_mode:
-            rawaf->avg_ds_en = 1;
-            rawaf->avg_ds_mode = 0;
-            break;
-        case afStats_ds_8x8_mode:
-            rawaf->avg_ds_en = 1;
-            rawaf->avg_ds_mode = 1;
-            break;
-        default:
-            rawaf->avg_ds_en = 0;
-            rawaf->v_dnscl_mode = 1;
-            break;
+    RKAiqAecExpInfo_t *ae_exp = mCommonCvtInfo.ae_exp;
+    float isp_dgain = 1;
+    if (ae_exp != NULL) {
+        if(_working_mode == RK_AIQ_WORKING_MODE_NORMAL)
+            isp_dgain = MAX(1.0f, ae_exp->LinearExp.exp_real_params.isp_dgain);
+        else
+            isp_dgain = MAX(1.0f, ae_exp->HdrExp[0].exp_real_params.isp_dgain);
+
+        LOGD_AF("isp_dgain(%f)", isp_dgain);
+    } else {
+       LOGW_AF("%s ae_exp is null",__FUNCTION__);
+    }
+
+    const blc_res_cvt_t *blc = &mCommonCvtInfo.blc_res;
+    if (blc == NULL){
+        LOGW_AF("%s blc_res is null", __FUNCTION__);
+    }
+    ConfigAfBlc(blc, &af_data, isp_dgain, mCommonCvtInfo.preDGain, rawaf);
+    LOGD_AF("%s: bls_en %d, bls_offset %d", __FUNCTION__, rawaf->bls_en, rawaf->bls_offset);
+
+    switch (afStats_cfg->hw_afCfg_ds_mode) {
+    case afStats_ds_2x2_mode:
+        rawaf->avg_ds_en = 0;
+        rawaf->avg_ds_mode = 0;
+        rawaf->v_dnscl_mode = 2;
+        break;
+    case afStats_ds_4x4_mode:
+        rawaf->avg_ds_en = 1;
+        rawaf->avg_ds_mode = 0;
+        rawaf->v_dnscl_mode = 1;
+        break;
+    case afStats_ds_8x8_mode:
+        rawaf->avg_ds_en = 1;
+        rawaf->avg_ds_mode = 1;
+        rawaf->v_dnscl_mode = 1;
+        break;
+    default:
+        rawaf->avg_ds_en = 0;
+        rawaf->avg_ds_mode = 0;
+        rawaf->v_dnscl_mode = 1;
+        break;
     }
 
     rawaf->gamma_en = afStats_cfg->gamma.hw_afCfg_gamma_en;
@@ -935,31 +1447,30 @@ void Isp39Params::convertAiqAfToIsp39Params(struct isp39_isp_params_cfg& isp_cfg
     for (i = 0; i < 9; i++)
         rawaf->gaus_coe[i] = afStats_cfg->preFilt.hw_afCfg_gaus_coeff[i] * 128;
     rawaf->highlit_thresh = afStats_cfg->hw_afCfg_hLumaCnt_thred * 0x3FF;
-    rawaf->ldg_en = afStats_cfg->hw_afCfg_ldg_en;
 
-    rawaf->hiir_en = afStats_cfg->hw_afCfg_hFilt_en;
+    rawaf->hiir_en = 1;
     rawaf->hiir_left_border_mode = afStats_cfg->hw_afCfg_hFiltLnBnd_mode;
     for (i = 0; i < 6; i++)
         rawaf->h1iir1_coe[i] = afStats_cfg->hFilt1.hw_afCfg_iirStep1_coeff[i];
     for (i = 0; i < 6; i++)
         rawaf->h1iir2_coe[i] = afStats_cfg->hFilt1.hw_afCfg_iirStep2_coeff[i];
     switch (afStats_cfg->hFilt1.hw_afCfg_fvFmt_mode) {
-        case afStats_outPeak_sumLinear_mode:
-            rawaf->h1_fv_mode = 1;
-            rawaf->h1_acc_mode = 1;
-            break;
-        case afStats_outNorm_sumLinear_mode:
-            rawaf->h1_fv_mode = 1;
-            rawaf->h1_acc_mode = 0;
-            break;
-        case afStats_outPeak_sumSqu_mode:
-            rawaf->h1_fv_mode = 0;
-            rawaf->h1_acc_mode = 1;
-            break;
-        default:
-            rawaf->h1_fv_mode = 0;
-            rawaf->h1_acc_mode = 0;
-            break;
+    case afStats_outPeak_sumLinear_mode:
+        rawaf->h1_fv_mode = 1;
+        rawaf->h1_acc_mode = 1;
+        break;
+    case afStats_outNorm_sumLinear_mode:
+        rawaf->h1_fv_mode = 1;
+        rawaf->h1_acc_mode = 0;
+        break;
+    case afStats_outPeak_sumSqu_mode:
+        rawaf->h1_fv_mode = 0;
+        rawaf->h1_acc_mode = 1;
+        break;
+    default:
+        rawaf->h1_fv_mode = 0;
+        rawaf->h1_acc_mode = 0;
+        break;
     }
     rawaf->h1iir_shift_wina = afStats_cfg->hFilt1.hw_afCfg_accMainWin_shift;
     rawaf->h1iir_shift_winb = afStats_cfg->hFilt1.hw_afCfg_accSubWin_shift;
@@ -969,22 +1480,22 @@ void Isp39Params::convertAiqAfToIsp39Params(struct isp39_isp_params_cfg& isp_cfg
     for (i = 0; i < 6; i++)
         rawaf->h2iir2_coe[i] = afStats_cfg->hFilt2.hw_afCfg_iirStep2_coeff[i];
     switch (afStats_cfg->hFilt2.hw_afCfg_fvFmt_mode) {
-        case afStats_outPeak_sumLinear_mode:
-            rawaf->h2_fv_mode = 1;
-            rawaf->h2_acc_mode = 1;
-            break;
-        case afStats_outNorm_sumLinear_mode:
-            rawaf->h2_fv_mode = 1;
-            rawaf->h2_acc_mode = 0;
-            break;
-        case afStats_outPeak_sumSqu_mode:
-            rawaf->h2_fv_mode = 0;
-            rawaf->h2_acc_mode = 1;
-            break;
-        default:
-            rawaf->h2_fv_mode = 0;
-            rawaf->h2_acc_mode = 0;
-            break;
+    case afStats_outPeak_sumLinear_mode:
+        rawaf->h2_fv_mode = 1;
+        rawaf->h2_acc_mode = 1;
+        break;
+    case afStats_outNorm_sumLinear_mode:
+        rawaf->h2_fv_mode = 1;
+        rawaf->h2_acc_mode = 0;
+        break;
+    case afStats_outPeak_sumSqu_mode:
+        rawaf->h2_fv_mode = 0;
+        rawaf->h2_acc_mode = 1;
+        break;
+    default:
+        rawaf->h2_fv_mode = 0;
+        rawaf->h2_acc_mode = 0;
+        break;
     }
     rawaf->h2iir_shift_wina = afStats_cfg->hFilt2.hw_afCfg_accMainWin_shift;
     rawaf->h2iir_shift_winb = afStats_cfg->hFilt2.hw_afCfg_accSubWin_shift;
@@ -1000,28 +1511,28 @@ void Isp39Params::convertAiqAfToIsp39Params(struct isp39_isp_params_cfg& isp_cfg
     rawaf->curve_h[1].ldg_gslp  = afStats_cfg->hFilt_ldg.hw_afCfg_slopeR_val * 0x100;
     rawaf->hldg_dilate_num = afStats_cfg->hFilt_ldg.hw_afCfg_maxOptBndL_len;
 
-    rawaf->viir_en = afStats_cfg->hw_afCfg_vFilt_en;
+    rawaf->viir_en = 1;
     for (i = 0; i < 3; i++)
         rawaf->v1iir_coe[i] = afStats_cfg->vFilt1.hw_afCfg_iirStep1_coeff[i];
     for (i = 0; i < 3; i++)
         rawaf->v1fir_coe[i] = afStats_cfg->vFilt1.hw_afCfg_firStep2_coeff[i];
     switch (afStats_cfg->vFilt1.hw_afCfg_fvFmt_mode) {
-        case afStats_outPeak_sumLinear_mode:
-            rawaf->v1_fv_mode = 1;
-            rawaf->v1_acc_mode = 1;
-            break;
-        case afStats_outNorm_sumLinear_mode:
-            rawaf->v1_fv_mode = 1;
-            rawaf->v1_acc_mode = 0;
-            break;
-        case afStats_outPeak_sumSqu_mode:
-            rawaf->v1_fv_mode = 0;
-            rawaf->v1_acc_mode = 1;
-            break;
-        default:
-            rawaf->v1_fv_mode = 0;
-            rawaf->v1_acc_mode = 0;
-            break;
+    case afStats_outPeak_sumLinear_mode:
+        rawaf->v1_fv_mode = 1;
+        rawaf->v1_acc_mode = 1;
+        break;
+    case afStats_outNorm_sumLinear_mode:
+        rawaf->v1_fv_mode = 1;
+        rawaf->v1_acc_mode = 0;
+        break;
+    case afStats_outPeak_sumSqu_mode:
+        rawaf->v1_fv_mode = 0;
+        rawaf->v1_acc_mode = 1;
+        break;
+    default:
+        rawaf->v1_fv_mode = 0;
+        rawaf->v1_acc_mode = 0;
+        break;
     }
     rawaf->v1iir_shift_wina = afStats_cfg->vFilt1.hw_afCfg_accMainWin_shift;
     rawaf->v1iir_shift_winb = afStats_cfg->vFilt1.hw_afCfg_accSubWin_shift;
@@ -1031,22 +1542,22 @@ void Isp39Params::convertAiqAfToIsp39Params(struct isp39_isp_params_cfg& isp_cfg
     for (i = 0; i < 3; i++)
         rawaf->v2fir_coe[i] = afStats_cfg->vFilt2.hw_afCfg_firStep2_coeff[i];
     switch (afStats_cfg->vFilt2.hw_afCfg_fvFmt_mode) {
-        case afStats_outPeak_sumLinear_mode:
-            rawaf->v2_fv_mode = 1;
-            rawaf->v2_acc_mode = 1;
-            break;
-        case afStats_outNorm_sumLinear_mode:
-            rawaf->v2_fv_mode = 1;
-            rawaf->v2_acc_mode = 0;
-            break;
-        case afStats_outPeak_sumSqu_mode:
-            rawaf->v2_fv_mode = 0;
-            rawaf->v2_acc_mode = 1;
-            break;
-        default:
-            rawaf->v2_fv_mode = 0;
-            rawaf->v2_acc_mode = 0;
-            break;
+    case afStats_outPeak_sumLinear_mode:
+        rawaf->v2_fv_mode = 1;
+        rawaf->v2_acc_mode = 1;
+        break;
+    case afStats_outNorm_sumLinear_mode:
+        rawaf->v2_fv_mode = 1;
+        rawaf->v2_acc_mode = 0;
+        break;
+    case afStats_outPeak_sumSqu_mode:
+        rawaf->v2_fv_mode = 0;
+        rawaf->v2_acc_mode = 1;
+        break;
+    default:
+        rawaf->v2_fv_mode = 0;
+        rawaf->v2_acc_mode = 0;
+        break;
     }
     rawaf->v2iir_shift_wina = afStats_cfg->vFilt2.hw_afCfg_accMainWin_shift;
     rawaf->v2iir_shift_winb = afStats_cfg->vFilt2.hw_afCfg_accSubWin_shift;
@@ -1169,6 +1680,37 @@ void Isp39Params::convertAiqAfToIsp39Params(struct isp39_isp_params_cfg& isp_cfg
 #endif
 
 #if RKAIQ_HAVE_CAC_V11
+#ifdef USE_NEWSTRUCT
+void Isp39Params::convertAiqCacToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
+        struct isp39_isp_params_cfg& isp_cfg_right, rk_aiq_isp_cac_params_t* cac_attr, bool is_multi_isp)
+{
+    if (cac_attr->en) {
+        isp_cfg.module_en_update |= ISP3X_MODULE_CAC;
+        isp_cfg.module_ens |= ISP3X_MODULE_CAC;
+        isp_cfg.module_cfg_update |= ISP3X_MODULE_CAC;
+    }
+    else {
+        if (!mCommonCvtInfo.drc_en) {
+            isp_cfg.module_en_update |= (ISP3X_MODULE_CAC);
+            isp_cfg.module_ens &= ~(ISP3X_MODULE_CAC);
+            isp_cfg.module_cfg_update &= ~(ISP3X_MODULE_CAC);
+            return;
+        }
+        else {
+            cac_attr->bypass = 1;
+			// ignore, ISP hw will do this
+            //isp_cfg.module_cfg_update |= ISP3X_MODULE_CAC;
+            LOGW_ACAC("When drc is on, cac can't be off, change to bypass on",
+                "Equivalent effect, but not equivalent power consumption.");
+        }
+    }
+
+    isp_cfg.others.cac_cfg.bypass_en = cac_attr->bypass;
+    if(is_multi_isp)
+        isp_cfg_right.others.cac_cfg.bypass_en = cac_attr->bypass;
+    rk_aiq_cac21_params_cvt(&cac_attr->result, &isp_cfg, &isp_cfg_right, is_multi_isp);
+}
+#else
 void Isp39Params::convertAiqCacToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
         const rk_aiq_isp_cac_v32_t& cac_cfg) {
 
@@ -1216,27 +1758,31 @@ void Isp39Params::convertAiqCacToIsp39Params(struct isp39_isp_params_cfg& isp_cf
 #endif
 }
 #endif
+#endif
 
 #if (RKAIQ_HAVE_BAYERTNR_V30)
 #if USE_NEWSTRUCT
 void Isp39Params::convertAiqBtnrToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
         rk_aiq_isp_btnr_params_t* btnr_attr)
 {
-    if (btnr_attr->en) {
-        // bayer3dnr enable  bayer2dnr must enable at the same time
-        isp_cfg.module_ens |= ISP3X_MODULE_BAY3D;
-        isp_cfg.module_ens |= ISP3X_MODULE_BAYNR;
-        isp_cfg.module_en_update |= ISP3X_MODULE_BAY3D;
-        isp_cfg.module_cfg_update |= ISP3X_MODULE_BAY3D;
-        isp_cfg.module_en_update |= ISP3X_MODULE_BAYNR;
+    if (mCommonCvtInfo.isFirstFrame) {
+        if (btnr_attr->en) {
+            isp_cfg.module_ens |= ISP3X_MODULE_BAY3D;
+            isp_cfg.module_en_update |= ISP3X_MODULE_BAY3D;
+            isp_cfg.module_cfg_update |= ISP3X_MODULE_BAY3D;
+        } else {
+            isp_cfg.module_ens &=~ ISP3X_MODULE_BAY3D;
+            isp_cfg.module_en_update |= ISP3X_MODULE_BAY3D;
+            return;
+        }
     } else {
-        // tnr can't open/close in runtime.
-        isp_cfg.module_ens |= ISP3X_MODULE_BAY3D;
-        return;
+        isp_cfg.module_cfg_update |= ISP3X_MODULE_BAY3D;
     }
 
-    mBtnrInfo.bypass = btnr_attr->bypass;
-    rk_aiq_btnr40_params_cvt(&btnr_attr->result, &isp_cfg, &mCommonCvtInfo, &mBtnrInfo);
+    if (btnr_attr->en) {
+        mBtnrInfo.bypass = btnr_attr->bypass;
+        rk_aiq_btnr40_params_cvt(&btnr_attr->result, &isp_cfg, &mCommonCvtInfo, &mBtnrInfo);
+    }
 }
 #else
 void Isp39Params::convertAiqTnrToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
@@ -1431,10 +1977,40 @@ void Isp39Params::convertAiqTnrToIsp39Params(struct isp39_isp_params_cfg& isp_cf
 #if USE_NEWSTRUCT
 void Isp39Params::convertAiqYnrToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
         rk_aiq_isp_ynr_params_t *ynr_attr) {
-
-    isp_cfg.module_ens |= ISP3X_MODULE_YNR;
-    isp_cfg.module_en_update |= ISP3X_MODULE_YNR;
-    isp_cfg.module_cfg_update |= ISP3X_MODULE_YNR;
+    if (mCommonCvtInfo.cnr_ynr_sharp_same) {
+        if (ynr_attr->en) {
+            isp_cfg.module_ens |= ISP3X_MODULE_YNR;
+            isp_cfg.module_en_update |= ISP3X_MODULE_YNR;
+            isp_cfg.module_cfg_update |= ISP3X_MODULE_YNR;
+        }
+        else {
+            isp_cfg.module_ens &= ~ISP3X_MODULE_YNR;
+            isp_cfg.module_en_update |= ISP3X_MODULE_YNR;
+            isp_cfg.module_cfg_update |= ISP3X_MODULE_YNR;
+            return;
+        }
+        mCommonCvtInfo.ynr_count = 0;
+    }
+    else {
+        if (mCommonCvtInfo.ynr_count < 5)
+            LOGW_ANR("ynr, cnr and sharp's enable is not equal now, but they should be equal");
+        else if(mCommonCvtInfo.ynr_count % 300 == 0){
+            LOGW_ANR("ynr, cnr and sharp's enable is not equal now, but they should be equal");
+        }
+        mCommonCvtInfo.ynr_count++;
+        if (!ynr_attr->en) {
+            ynr_attr->bypass = 1;
+            ynr_attr->result.dyn.hw_ynrT_loNr_en = 0;
+            ynr_attr->result.dyn.hiNr_filtProc.hw_ynrT_nlmFilt_en = 0;
+            LOGW_ANR("ynr en disable is changed to bypass on, "
+                "Equivalent effect, but not equivalent power consumption.");
+        }
+        if (mCommonCvtInfo.isFirstFrame) {
+            isp_cfg.module_ens |= ISP3X_MODULE_YNR;
+            isp_cfg.module_en_update |= ISP3X_MODULE_YNR;
+        }
+        isp_cfg.module_cfg_update |= ISP3X_MODULE_YNR;
+    }
 
     rk_aiq_ynr34_params_cvt(&ynr_attr->result, &isp_cfg, &mCommonCvtInfo);
 }
@@ -1513,10 +2089,27 @@ void Isp39Params::convertAiqYnrToIsp39Params(struct isp39_isp_params_cfg& isp_cf
 #if USE_NEWSTRUCT
 void Isp39Params::convertAiqCnrToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
         rk_aiq_isp_cnr_params_t *attr) {
-
-    isp_cfg.module_ens |= ISP3X_MODULE_CNR;
-    isp_cfg.module_en_update |= ISP3X_MODULE_CNR;
-    isp_cfg.module_cfg_update |= ISP3X_MODULE_CNR;
+    if (mCommonCvtInfo.cnr_ynr_sharp_same) {
+        if (attr->en) {
+            isp_cfg.module_ens |= ISP3X_MODULE_CNR;
+            isp_cfg.module_en_update |= ISP3X_MODULE_CNR;
+            isp_cfg.module_cfg_update |= ISP3X_MODULE_CNR;
+        }
+        else {
+            isp_cfg.module_ens &= ~ISP3X_MODULE_CNR;
+            isp_cfg.module_en_update |= ISP3X_MODULE_CNR;
+            return;
+        }
+    }
+    else {
+        if (!attr->en) {
+            LOGW_ANR("cnr can't be disable and bypass, "
+            "suggest adjusting the parameter 'bifiltOut.alpha, lpfOut.alpha' to 0 to achieve the goal!");
+        }
+        isp_cfg.module_ens |= ISP3X_MODULE_CNR;
+        isp_cfg.module_en_update |= ISP3X_MODULE_CNR;
+        isp_cfg.module_cfg_update |= ISP3X_MODULE_CNR;
+    }
 
     //struct isp39_cnr_cfg* pCnr = &isp_cfg.others.cnr_cfg;
     rk_aiq_cnr34_params_cvt(&attr->result, &isp_cfg, &mCommonCvtInfo);
@@ -1623,6 +2216,24 @@ void Isp39Params::convertAiqUvnrToIsp39Params(struct isp39_isp_params_cfg& isp_c
 #endif
 
 #if RKAIQ_HAVE_DEBAYER_V3
+#if USE_NEWSTRUCT
+void Isp39Params::convertAiqDmToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
+        rk_aiq_isp_dm_params_t* dm_attr)
+{
+    if (dm_attr->en) {
+        isp_cfg.module_ens |= ISP2X_MODULE_DEBAYER;
+        isp_cfg.module_en_update |= ISP2X_MODULE_DEBAYER;
+        isp_cfg.module_cfg_update |= ISP2X_MODULE_DEBAYER;
+    } else {
+        isp_cfg.module_ens &= ~ISP2X_MODULE_DEBAYER;
+        isp_cfg.module_en_update |= ISP2X_MODULE_DEBAYER;
+        return;
+    }
+
+    rk_aiq_dm23_params_cvt(&dm_attr->result, &isp_cfg);
+}
+
+#else
 void Isp39Params::convertAiqAdebayerToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
         rk_aiq_isp_debayer_v39_t & debayer)
 {
@@ -1739,8 +2350,26 @@ void Isp39Params::convertAiqAdebayerToIsp39Params(struct isp39_isp_params_cfg& i
 
 }
 #endif
+#endif
 
 #if RKAIQ_HAVE_MERGE_V12
+#ifdef USE_NEWSTRUCT
+void Isp39Params::convertAiqMergeToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
+        rk_aiq_isp_merge_params_t* merge_attr) {
+    if (merge_attr->en) {
+        isp_cfg.module_en_update |= 1LL << RK_ISP2X_HDRMGE_ID;
+        isp_cfg.module_ens |= 1LL << RK_ISP2X_HDRMGE_ID;
+        isp_cfg.module_cfg_update |= 1LL << RK_ISP2X_HDRMGE_ID;
+    } else {
+        isp_cfg.module_en_update |= 1LL << RK_ISP2X_HDRMGE_ID;
+        isp_cfg.module_ens &= ~(1LL << RK_ISP2X_HDRMGE_ID);
+        isp_cfg.module_cfg_update &= ~(1LL << RK_ISP2X_HDRMGE_ID);
+        return;
+    }
+
+    rk_aiq_merge22_params_cvt(&merge_attr->result, &isp_cfg, &mCommonCvtInfo);
+}
+#else
 void Isp39Params::convertAiqMergeToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
         const rk_aiq_isp_merge_v32_t& amerge_data) {
     isp_cfg.module_en_update |= 1LL << RK_ISP2X_HDRMGE_ID;
@@ -1811,6 +2440,7 @@ void Isp39Params::convertAiqMergeToIsp39Params(struct isp39_isp_params_cfg& isp_
 #endif
 }
 #endif
+#endif
 
 #if RKAIQ_HAVE_DEHAZE_V14
 #ifdef USE_NEWSTRUCT
@@ -1830,8 +2460,10 @@ void Isp39Params::convertAiqDehazeToIsp39Params(struct isp39_isp_params_cfg& isp
         return;
     }
 
-    //hwi_api_dehaze23_params_cvt(&dehaze_attr->result, &isp_cfg);
-    //hwi_api_dehaze23_params_dump(&dehaze_attr->result, &isp_cfg.others.dhaz_cfg);
+    struct isp39_dhaz_cfg *pFix = &isp_cfg.others.dhaz_cfg;
+
+    rk_aiq_dehaze23_params_cvt(&dehaze_attr->result, &isp_cfg, &mCommonCvtInfo);
+    rk_aiq_histeq23_params_cvt(&dehaze_attr->result.histeq_param, &isp_cfg, &mCommonCvtInfo);
 }
 #else
 void Isp39Params::convertAiqAdehazeToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
@@ -1946,22 +2578,25 @@ void Isp39Params::convertAiqAdehazeToIsp39Params(struct isp39_isp_params_cfg& is
 #ifdef USE_NEWSTRUCT
 void Isp39Params::convertAiqDrcToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
         rk_aiq_isp_drc_params_t* drc_attr) {
-    //hwi_api_drc40_params_check(&drc_attr->result);
 
+    if (mCommonCvtInfo.frameNum > 1 && !drc_attr->en) {
+        LOGW_ATMO("When using HDR mode, drc should be enable!");
+    }
+    mCommonCvtInfo.drc_en = drc_attr->en;
     if (drc_attr->en) {
         isp_cfg.module_en_update |= 1LL << Rk_ISP21_DRC_ID;
         isp_cfg.module_ens |= 1LL << Rk_ISP21_DRC_ID;
         isp_cfg.module_cfg_update |= 1LL << Rk_ISP21_DRC_ID;
-    } else {
+    }
+    else {
         isp_cfg.module_en_update |= 1LL << Rk_ISP21_DRC_ID;
         isp_cfg.module_ens &= ~(1LL << Rk_ISP21_DRC_ID);
         // need to update cmps_byp_en when drc en off
         isp_cfg.module_cfg_update |= (1LL << Rk_ISP21_DRC_ID);
     }
 
+    isp_cfg.others.drc_cfg.bypass_en = drc_attr->bypass;
     rk_aiq_drc40_params_cvt(&drc_attr->result, &isp_cfg, &mCommonCvtInfo);
-    //hwi_api_drc40_params_cvt(&drc_attr->result, &isp_cfg);
-    //hwi_api_drc40_params_dump(&drc_attr->result, &isp_cfg.others.drc_cfg);
 }
 #else
 void Isp39Params::convertAiqDrcToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
@@ -2091,6 +2726,22 @@ void Isp39Params::convertAiqDrcToIsp39Params(struct isp39_isp_params_cfg& isp_cf
 #endif
 
 #if RKAIQ_HAVE_RGBIR_REMOSAIC_V10
+#if USE_NEWSTRUCT
+void Isp39Params::convertAiqRgbirToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
+    rk_aiq_isp_rgbir_params_t* rgbir_attr) {
+    if (rgbir_attr->en) {
+        isp_cfg.module_ens |= ISP39_MODULE_RGBIR;
+        isp_cfg.module_en_update |= ISP39_MODULE_RGBIR;
+        isp_cfg.module_cfg_update |= ISP39_MODULE_RGBIR;
+    } else {
+        isp_cfg.module_ens &= ~ISP39_MODULE_RGBIR;
+        isp_cfg.module_en_update |= ISP39_MODULE_RGBIR;
+        isp_cfg.module_cfg_update |= ISP39_MODULE_RGBIR;
+        return;
+    }
+    rk_aiq_rgbir10_params_cvt(&rgbir_attr->result, &isp_cfg);
+}
+#else
 void Isp39Params::convertAiqRgbirToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
         rk_aiq_isp_rgbir_v39_t& argbir_data) {
     if (argbir_data.bRgbirEn) {
@@ -2141,8 +2792,27 @@ void Isp39Params::convertAiqRgbirToIsp39Params(struct isp39_isp_params_cfg& isp_
                 isp_cfg.others.rgbir_cfg.scale_map[16]);
 }
 #endif
+#endif
 
 #if RKAIQ_HAVE_CCM_V3
+#if USE_NEWSTRUCT
+void Isp39Params::convertAiqCcmToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
+        rk_aiq_isp_ccm_params_t* ccm_attr) {
+
+    if (ccm_attr->en) {
+        isp_cfg.module_ens |= ISP3X_MODULE_CCM;
+        isp_cfg.module_en_update |= ISP3X_MODULE_CCM;
+        isp_cfg.module_cfg_update |= ISP3X_MODULE_CCM;
+    } else {
+        isp_cfg.module_ens &= ~ISP3X_MODULE_CCM;
+        isp_cfg.module_en_update |= ISP3X_MODULE_CCM;
+        return;
+    }
+
+    rk_aiq_ccm22_params_cvt(&ccm_attr->result, &isp_cfg, &mCommonCvtInfo);
+
+}
+#else
 void Isp39Params::convertAiqCcmToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
         const rk_aiq_ccm_cfg_v2_t& ccm) {
     if (ccm.ccmEnable) {
@@ -2200,18 +2870,45 @@ void Isp39Params::convertAiqCcmToIsp39Params(struct isp39_isp_params_cfg& isp_cf
     }
 }
 #endif
+#endif
 
 #if (RKAIQ_HAVE_SHARP_V34)
 #if USE_NEWSTRUCT
 void Isp39Params::convertAiqSharpToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
         rk_aiq_isp_sharp_params_t *attr) {
+    if (mCommonCvtInfo.cnr_ynr_sharp_same) {
+        if (attr->en) {
+            isp_cfg.module_ens |= ISP3X_MODULE_SHARP;
+            isp_cfg.module_en_update |= ISP3X_MODULE_SHARP;
+            isp_cfg.module_cfg_update |= ISP3X_MODULE_SHARP;
+        }
+        else {
+            isp_cfg.module_ens &= ~ISP3X_MODULE_SHARP;
+            isp_cfg.module_en_update |= ISP3X_MODULE_SHARP;
+            isp_cfg.module_cfg_update |= ISP3X_MODULE_SHARP;
+            return;
+        }
+    }
+    else {
+        if (mCommonCvtInfo.sharp_count < 5)
+            LOGW_ANR("ynr, cnr and sharp's enable is not equal now, but they should be equal");
+        else if(mCommonCvtInfo.sharp_count % 300 == 0){
+            LOGW_ANR("ynr, cnr and sharp's enable is not equal now, but they should be equal");
+        }
+        mCommonCvtInfo.sharp_count++;
+        if (!attr->en) {
+            attr->bypass = 1;
+            LOGW_ASHARP("Sharp en disable is changed to bypass on, "
+            "Equivalent effect, but not equivalent power consumption.");
+        }
+        if (mCommonCvtInfo.isFirstFrame) {
+            isp_cfg.module_ens |= ISP3X_MODULE_SHARP;
+            isp_cfg.module_en_update |= ISP3X_MODULE_SHARP;
+        }
+        isp_cfg.module_cfg_update |= ISP3X_MODULE_SHARP;
+    }
 
-    isp_cfg.module_ens |= ISP3X_MODULE_SHARP;
-    isp_cfg.module_en_update |= ISP3X_MODULE_SHARP;
-    isp_cfg.module_cfg_update |= ISP3X_MODULE_SHARP;
-
-    struct isp39_sharp_cfg* pSharp = &isp_cfg.others.sharp_cfg;
-
+    isp_cfg.others.sharp_cfg.bypass = attr->bypass;
     rk_aiq_sharp34_params_cvt(&attr->result, &isp_cfg, &mCommonCvtInfo);
 }
 #else
@@ -2400,21 +3097,22 @@ void Isp39Params::convertAiqBlcToIsp39Params(struct isp39_isp_params_cfg& isp_cf
 
     if (blc_attr->en) {
         isp_cfg.module_ens |= ISP2X_MODULE_BLS;
-        isp_cfg.module_en_update |= ISP2X_MODULE_BLS;
-        isp_cfg.module_cfg_update |= ISP2X_MODULE_BLS;
     } else {
         isp_cfg.module_ens &= ~ISP2X_MODULE_BLS;
-        isp_cfg.module_en_update |= ISP2X_MODULE_BLS;
-        return;
     }
+    isp_cfg.module_en_update |= ISP2X_MODULE_BLS;
+    isp_cfg.module_cfg_update |= ISP2X_MODULE_BLS;
 
     rk_aiq_blc30_params_cvt(&blc_attr->result, &isp_cfg, &mCommonCvtInfo);
+
+#if defined(ISP_HW_V39)
+    mLatestBlsCfg = isp_cfg.others.bls_cfg;
+#endif
 
 }
 #else
 void Isp39Params::convertAiqBlcToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
         rk_aiq_isp_blc_v32_t& blc) {
-    LOGD_ABLC("%s:(%d) enter enable:%d\n", __FUNCTION__, __LINE__, blc.enable);
 
     if (blc.enable) {
         isp_cfg.module_ens |= ISP3X_MODULE_BLS;
@@ -2480,6 +3178,24 @@ void Isp39Params::convertAiqBlcToIsp39Params(struct isp39_isp_params_cfg& isp_cf
 }
 #endif
 
+#if RKAIQ_HAVE_LDCH_V21
+#ifdef USE_NEWSTRUCT
+void Isp39Params::convertAiqLdchToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
+        struct isp39_isp_params_cfg& isp_cfg_right, rk_aiq_isp_ldch_params_t* ldch_attr, bool is_multi_isp) {
+
+    if (ldch_attr->en) {
+        isp_cfg.module_ens |= ISP39_MODULE_LDCH;
+        isp_cfg.module_en_update |= ISP39_MODULE_LDCH;
+        isp_cfg.module_cfg_update |= ISP39_MODULE_LDCH;
+    } else {
+        isp_cfg.module_ens &= ~ISP39_MODULE_LDCH;
+        isp_cfg.module_en_update |= ISP39_MODULE_LDCH;
+        return;
+    }
+
+    rk_aiq_ldch22_params_cvt(&ldch_attr->result, &isp_cfg, &isp_cfg_right, is_multi_isp);
+}
+#else
 void Isp39Params::convertAiqAldchToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
         const rk_aiq_isp_ldch_v21_t& ldch_cfg)
 {
@@ -2508,6 +3224,79 @@ void Isp39Params::convertAiqAldchToIsp39Params(struct isp39_isp_params_cfg& isp_
         isp_cfg.module_en_update |= ISP39_MODULE_LDCH;
     }
 }
+#endif
+#endif
+
+
+#if RKAIQ_HAVE_LDC
+void Isp39Params::convertAiqAldchToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
+        const rkaiq_ldch_v22_hw_param_t& ldch_cfg,
+        bool enable) {
+    LOGD_ALDC("convert LDCH params enable %d", enable);
+
+    if (enable) {
+        isp_cfg.module_en_update |= ISP39_MODULE_LDCH;
+        isp_cfg.module_ens |= ISP39_MODULE_LDCH;
+        isp_cfg.module_cfg_update |= ISP39_MODULE_LDCH;
+    } else {
+        isp_cfg.module_en_update |= (ISP39_MODULE_LDCH);
+        isp_cfg.module_ens &= ~(ISP39_MODULE_LDCH);
+        isp_cfg.module_cfg_update &= ~(ISP39_MODULE_LDCH);
+    }
+
+    struct isp39_ldch_cfg* cfg = &isp_cfg.others.ldch_cfg;
+    memcpy(cfg, &ldch_cfg, sizeof(ldch_cfg));
+
+#if 1
+    LOGD_ALDC("Dump LDCH config: ");
+    LOGD_ALDC("current enable: %d", enable);
+    LOGD_ALDC("frm_end_dis: %d", cfg->frm_end_dis);
+    LOGD_ALDC("sample_avr_en: %d", cfg->sample_avr_en);
+    LOGD_ALDC("bic_mode_en: %d", cfg->bic_mode_en);
+    LOGD_ALDC("force_map_en: %d", cfg->force_map_en);
+    LOGD_ALDC("out_hsize: %d", cfg->out_hsize);
+    LOGD_ALDC("hsize: %d", cfg->hsize);
+    LOGD_ALDC("vsize: %d", cfg->vsize);
+    LOGD_ALDC("mesh buffer fd: %d", cfg->buf_fd);
+#endif
+}
+
+void Isp39Params::convertAiqAldcvToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
+        const rkaiq_ldcv_v22_hw_param_t& ldcv_cfg,
+        bool enable) {
+    LOGD_ALDC("convert LDCV params enable %d", enable);
+
+    if (enable) {
+        isp_cfg.module_en_update |= ISP39_MODULE_LDCV;
+        isp_cfg.module_ens |= ISP39_MODULE_LDCV;
+        isp_cfg.module_cfg_update |= ISP39_MODULE_LDCV;
+    } else {
+        isp_cfg.module_en_update |= (ISP39_MODULE_LDCV);
+        isp_cfg.module_ens &= ~(ISP39_MODULE_LDCV);
+        isp_cfg.module_cfg_update &= ~(ISP39_MODULE_LDCV);
+    }
+
+    struct isp39_ldcv_cfg* cfg = &isp_cfg.others.ldcv_cfg;
+    memcpy(cfg, &ldcv_cfg, sizeof(ldcv_cfg));
+
+#if 1
+    LOGD_ALDC("Dump LDCV config: ");
+    LOGD_ALDC("current enable: %d", enable);
+    LOGD_ALDC("thumb_mode: %d", cfg->thumb_mode);
+    LOGD_ALDC("dth_bypass: %d", cfg->dth_bypass);
+    LOGD_ALDC("force_map_en: %d", cfg->force_map_en);
+    LOGD_ALDC("map13p3_en: %d", cfg->map13p3_en);
+    LOGD_ALDC("out_vsize: %d", cfg->out_vsize);
+    LOGD_ALDC("last_offset: %d", cfg->last_offset);
+    LOGD_ALDC("hsize: %d", cfg->hsize);
+    LOGD_ALDC("vsize: %d", cfg->vsize);
+    LOGD_ALDC("mesh buffer fd: %d", cfg->buf_fd);
+    LOGD_ALDC("bicubic0~8: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x", cfg->bicubic[0],
+              cfg->bicubic[1], cfg->bicubic[2], cfg->bicubic[3], cfg->bicubic[4], cfg->bicubic[5],
+              cfg->bicubic[6], cfg->bicubic[7]);
+#endif
+}
+#endif
 
 void Isp39Params::convertAiqExpIspDgainToIsp39Params(struct isp39_isp_params_cfg& isp_cfg, RKAiqAecExpInfo_t ae_exp)
 {
@@ -2568,7 +3357,61 @@ void Isp39Params::convertAiqExpIspDgainToIsp39Params(struct isp39_isp_params_cfg
 
 }
 
+#if USE_NEWSTRUCT
+void Isp39Params::convertAiqCsmToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
+        rk_aiq_isp_csm_params_t* csm_attr) {
+
+    if (csm_attr->en) {
+        isp_cfg.module_ens |= ISP2X_MODULE_CSM;
+        isp_cfg.module_en_update |= ISP2X_MODULE_CSM;
+        isp_cfg.module_cfg_update |= ISP2X_MODULE_CSM;
+    } else {
+        isp_cfg.module_ens &= ~ISP2X_MODULE_CSM;
+        isp_cfg.module_en_update |= ISP2X_MODULE_CSM;
+        return;
+    }
+
+    rk_aiq_csm21_params_cvt(&csm_attr->result, &isp_cfg);
+}
+
+void Isp39Params::convertAiq3dlutToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
+        rk_aiq_isp_lut3d_params_t* lut3d_attr) {
+
+    if (lut3d_attr->en) {
+        isp_cfg.module_ens |= ISP2X_MODULE_3DLUT;
+        isp_cfg.module_en_update |= ISP2X_MODULE_3DLUT;
+        isp_cfg.module_cfg_update |= ISP2X_MODULE_3DLUT;
+    } else {
+        isp_cfg.module_ens &= ~ISP2X_MODULE_3DLUT;
+        isp_cfg.module_en_update |= ISP2X_MODULE_3DLUT;
+        return;
+    }
+
+    isp_cfg.others.isp3dlut_cfg.bypass_en = lut3d_attr->bypass;
+    rk_aiq_lut3d20_params_cvt(&lut3d_attr->result, &isp_cfg);
+}
+
+#endif
+
 #if (RKAIQ_HAVE_YUVME_V1)
+#if USE_NEWSTRUCT
+void Isp39Params::convertAiqYmeToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
+        rk_aiq_isp_yme_params_t *yme_attr) {
+
+    if (yme_attr->en) {
+        isp_cfg.module_ens |= ISP39_MODULE_YUVME;
+        isp_cfg.module_en_update |= ISP39_MODULE_YUVME;
+        isp_cfg.module_cfg_update |= ISP39_MODULE_YUVME;
+    } else {
+        isp_cfg.module_ens &= ~ISP39_MODULE_YUVME;
+        isp_cfg.module_en_update |= ISP39_MODULE_YUVME;
+        return;
+    }
+
+    isp_cfg.others.yuvme_cfg.bypass = yme_attr->bypass;
+    rk_aiq_yme10_params_cvt(&yme_attr->result, &isp_cfg, &mCommonCvtInfo);
+}
+#else
 void Isp39Params::convertAiqYuvmeToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
         rk_aiq_isp_yuvme_v39_t& yuvme) {
 
@@ -2612,11 +3455,12 @@ void Isp39Params::convertAiqYuvmeToIsp39Params(struct isp39_isp_params_cfg& isp_
 
 }
 #endif
+#endif
 
 #if RKAIQ_HAVE_DPCC_V2
 #ifdef USE_NEWSTRUCT
 void Isp39Params::convertAiqDpccToIsp39Params(struct isp39_isp_params_cfg& isp_cfg,
-                                              rk_aiq_isp_dpcc_params_t* dpcc_attr){
+        rk_aiq_isp_dpcc_params_t* dpcc_attr) {
     // hwi_api_dpcc20_params_check(&dpcc_attr->result);
 
     if (dpcc_attr->en) {
@@ -2679,8 +3523,45 @@ void Isp39Params::convertAiqAgicToIsp39Params(struct isp39_isp_params_cfg& isp_c
 }
 #endif
 
+#if RKAIQ_HAVE_GAMMA_V11
+#ifdef USE_NEWSTRUCT
+void Isp39Params::convertAiqGammaToIsp39Params(struct isp39_isp_params_cfg& isp_cfg, rk_aiq_isp_gamma_params_t* gamma_attr) {
+
+    if (gamma_attr->en) {
+        isp_cfg.module_ens |= ISP2X_MODULE_GOC;
+        isp_cfg.module_en_update |= ISP2X_MODULE_GOC;
+        isp_cfg.module_cfg_update |= ISP2X_MODULE_GOC;
+    } else {
+        isp_cfg.module_ens &= ~ISP2X_MODULE_GOC;
+        isp_cfg.module_en_update |= ISP2X_MODULE_GOC;
+        return;
+    }
+
+    rk_aiq_gamma21_params_cvt(&gamma_attr->result, &isp_cfg);
+}
+#endif
+#endif
+
+#if RKAIQ_HAVE_LSC_V3 && USE_NEWSTRUCT
+void Isp39Params::convertAiqLscToIsp39Params(struct isp39_isp_params_cfg& isp_cfg, rk_aiq_isp_lsc_params_t* lsc_attr)
+{
+    if (lsc_attr->en) {
+        isp_cfg.module_ens |= ISP2X_MODULE_LSC;
+        isp_cfg.module_en_update |= ISP2X_MODULE_LSC;
+        isp_cfg.module_cfg_update |= ISP2X_MODULE_LSC;
+    } else {
+        isp_cfg.module_ens &= ~ISP2X_MODULE_LSC;
+        isp_cfg.module_en_update |= ISP2X_MODULE_LSC;
+        return;
+    }
+
+    rk_aiq_lsc21_params_cvt(&lsc_attr->result, &isp_cfg, &mCommonCvtInfo);
+}
+#endif
+
 bool Isp39Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult>& result, void* isp_cfg_p, bool is_multi_isp) {
     struct isp39_isp_params_cfg& isp_cfg       = *(struct isp39_isp_params_cfg*)isp_cfg_p;
+    struct isp39_isp_params_cfg& isp_cfg_right = *((struct isp39_isp_params_cfg*)isp_cfg_p + 1);
 
     if (result.ptr() == NULL) {
         LOGE_CAMHW_SUBM(ISP20PARAM_SUBM, "3A result empty");
@@ -2707,28 +3588,44 @@ bool Isp39Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult>& result, void* 
     }
     break;
     case RESULT_TYPE_AWB_PARAM: {
-#if RKAIQ_HAVE_AWB_V32
+#if RKAIQ_HAVE_AWB_V39
         mAwbParams = result.ptr();
         RkAiqIspAwbParamsProxy* params =
             result.get_cast_ptr<RkAiqIspAwbParamsProxy>();
 
-        if (params) convertAiqAwbToIsp39Params(isp_cfg, params->data()->result, true);
+        if (params) convertAiqAwbToIsp39Params(isp_cfg, params->data()->result,true);
 #endif
     }
     break;
     case RESULT_TYPE_GIC_PARAM: {
 #if RKAIQ_HAVE_GIC_V2
+#if USE_NEWSTRUCT
+        RkAiqIspGicParamsProxy* params =
+            result.get_cast_ptr<RkAiqIspGicParamsProxy>();
+        if (params) {
+            convertAiqGicToIsp21Params(isp_cfg_p, params->data().ptr());
+        }
+#else
         RkAiqIspGicParamsProxy* params =
             result.get_cast_ptr<RkAiqIspGicParamsProxy>();
         if (params) convertAiqAgicToIsp39Params(isp_cfg, params->data()->result);
+#endif
 #endif
     }
     break;
     case RESULT_TYPE_LSC_PARAM: {
 #if RKAIQ_HAVE_LSC_V3
+#ifndef USE_NEWSTRUCT
         RkAiqIspLscParamsProxy* params =
             result.get_cast_ptr<RkAiqIspLscParamsProxy>();
         if (params) convertAiqLscToIsp20Params(isp_cfg, params->data()->result);
+#else
+        RkAiqIspLscParamsProxy* params =
+            result.get_cast_ptr<RkAiqIspLscParamsProxy>();
+        if (params) {
+            convertAiqLscToIsp39Params(isp_cfg, params->data().ptr());
+        }
+#endif
 #endif
     }
     break;
@@ -2744,29 +3641,67 @@ bool Isp39Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult>& result, void* 
 #if RKAIQ_HAVE_CCM_V3
         RkAiqIspCcmParamsProxy* params =
             result.get_cast_ptr<RkAiqIspCcmParamsProxy>();
+#ifdef USE_NEWSTRUCT
+        if (params) {
+            convertAiqCcmToIsp39Params(isp_cfg, params->data().ptr());
+        }
+#else
         if (params) convertAiqCcmToIsp39Params(isp_cfg, params->data()->result);
+#endif
 #endif
     }
     break;
     case RESULT_TYPE_CAC_PARAM: {
 #if RKAIQ_HAVE_CAC_V11
+#ifdef USE_NEWSTRUCT
+        RkAiqIspCacParamsProxy* params =
+            result.get_cast_ptr<RkAiqIspCacParamsProxy>();
+        if (params)
+            convertAiqCacToIsp39Params(isp_cfg, isp_cfg_right, params->data().ptr(), is_multi_isp);
+#else
         RkAiqIspCacParamsProxy* params =
             result.get_cast_ptr<RkAiqIspCacParamsProxy>();
         if (params)
             convertAiqCacToIsp39Params(isp_cfg, params->data()->result);
 #endif
+#endif
     }
     break;
     case RESULT_TYPE_DEBAYER_PARAM: {
 #if RKAIQ_HAVE_DEBAYER_V3
+#if USE_NEWSTRUCT
+        RkAiqIspDmParamsProxy* params =
+            result.get_cast_ptr<RkAiqIspDmParamsProxy>();
+        if (params) {
+            convertAiqDmToIsp39Params(isp_cfg, params->data().ptr());
+        }
+#else
         RkAiqIspDebayerParamsProxy* params =
             result.get_cast_ptr<RkAiqIspDebayerParamsProxy>();
         if (params) {
             convertAiqAdebayerToIsp39Params(isp_cfg, params->data()->result);
         }
 #endif
+#endif
     }
     break;
+#if USE_NEWSTRUCT
+    case RESULT_TYPE_AESTATS_PARAM: {
+        mAeParams = result.ptr();
+        RkAiqIspAeStatsCfgProxy* params =
+            result.get_cast_ptr<RkAiqIspAeStatsCfgProxy>();
+        if (params) {
+            rk_aiq_ae25_stats_cfg_cvt(&params->data()->result, &isp_cfg);
+#if defined(ISP_HW_V39)
+            mLatestMeasCfg.rawae3 = isp_cfg.meas.rawae3;
+            mLatestMeasCfg.rawae0 = isp_cfg.meas.rawae0;
+            mLatestMeasCfg.rawhist3 = isp_cfg.meas.rawhist3;
+            mLatestMeasCfg.rawhist0 = isp_cfg.meas.rawhist0;
+#endif
+        }
+        break;
+    }
+#else
     case RESULT_TYPE_AEC_PARAM: {
 #ifdef ISP_HW_V39
         RkAiqIspAecParamsProxy* params =
@@ -2785,19 +3720,32 @@ bool Isp39Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult>& result, void* 
 #endif
     }
     break;
+#endif
     case RESULT_TYPE_AGAMMA_PARAM: {
 #if RKAIQ_HAVE_GAMMA_V11
+#ifdef USE_NEWSTRUCT
+        RkAiqIspGammaParamsProxy* params =
+            result.get_cast_ptr<RkAiqIspGammaParamsProxy>();
+        if (params) convertAiqGammaToIsp39Params(isp_cfg, params->data().ptr());
+#else
         RkAiqIspAgammaParamsProxy* params =
             result.get_cast_ptr<RkAiqIspAgammaParamsProxy>();
         if (params) convertAiqAgammaToIsp3xParams(isp_cfg, params->data()->result);
+#endif
 #endif
     }
     break;
     case RESULT_TYPE_MERGE_PARAM: {
 #if RKAIQ_HAVE_MERGE_V12
+#ifdef USE_NEWSTRUCT
+        RkAiqIspMergeParamsProxy* params =
+            result.get_cast_ptr<RkAiqIspMergeParamsProxy>();
+        if (params) convertAiqMergeToIsp39Params(isp_cfg, params->data().ptr());
+#else
         RkAiqIspMergeParamsProxy* params =
             result.get_cast_ptr<RkAiqIspMergeParamsProxy>();
         if (params) convertAiqMergeToIsp39Params(isp_cfg, params->data()->result);
+#endif
 #endif
     }
     break;
@@ -2829,9 +3777,15 @@ bool Isp39Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult>& result, void* 
     break;
     case RESULT_TYPE_LUT3D_PARAM: {
 #if RKAIQ_HAVE_3DLUT_V1
+#if USE_NEWSTRUCT
+        RkAiqIspLut3dParamsProxy* params =
+            result.get_cast_ptr<RkAiqIspLut3dParamsProxy>();
+        if (params) convertAiq3dlutToIsp39Params(isp_cfg, params->data().ptr());
+#else
         RkAiqIspLut3dParamsProxy* params =
             result.get_cast_ptr<RkAiqIspLut3dParamsProxy>();
         if (params) convertAiqA3dlutToIsp20Params(isp_cfg, params->data()->result);
+#endif
 #endif
     }
     break;
@@ -2849,7 +3803,10 @@ bool Isp39Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult>& result, void* 
     break;
 #endif
     case RESULT_TYPE_CSM_PARAM: {
-#ifdef USE_NEWSTRUCT
+#if USE_NEWSTRUCT
+        RkAiqIspCsmParamsProxy* params =
+            result.get_cast_ptr<RkAiqIspCsmParamsProxy>();
+        if (params) convertAiqCsmToIsp39Params(isp_cfg, params->data().ptr());
 #else
         RkAiqIspCsmParamsProxy* params =
             result.get_cast_ptr<RkAiqIspCsmParamsProxy>();
@@ -2921,9 +3878,15 @@ bool Isp39Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult>& result, void* 
     }
     break;
     case RESULT_TYPE_GAIN_PARAM: {
+#if USE_NEWSTRUCT
+        RkAiqIspGainParamsProxy* params =
+            result.get_cast_ptr<RkAiqIspGainParamsProxy>();
+        if (params) convertAiqGainToIsp3xParams(isp_cfg_p, params->data().ptr());
+#else
         RkAiqIspGainParamsProxy* params =
             result.get_cast_ptr<RkAiqIspGainParamsProxy>();
         if (params) convertAiqGainToIsp3xParams(isp_cfg, params->data()->result);
+#endif
     }
     break;
     case RESULT_TYPE_SHARPEN_PARAM: {
@@ -2942,42 +3905,97 @@ bool Isp39Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult>& result, void* 
     break;
     case RESULT_TYPE_CGC_PARAM: {
 #if RKAIQ_HAVE_CGC_V1
+#ifdef USE_NEWSTRUCT
+        RkAiqIspCgcParamsProxy* params =
+            result.get_cast_ptr<RkAiqIspCgcParamsProxy>();
+        if (params) convertAiqCgcToIsp21Params(isp_cfg_p, params->data().ptr());
+#else
         RkAiqIspCgcParamsProxy* params =
             result.get_cast_ptr<RkAiqIspCgcParamsProxy>();
         if (params) convertAiqCgcToIsp21Params(isp_cfg, params->data()->result);
+#endif
 #endif
     }
     break;
     case RESULT_TYPE_CP_PARAM: {
 #if RKAIQ_HAVE_ACP_V10
+#ifdef USE_NEWSTRUCT
+        RkAiqIspCpParamsProxy* params =
+            result.get_cast_ptr<RkAiqIspCpParamsProxy>();
+        if (params) convertAiqCpToIsp20Params(isp_cfg_p, params->data().ptr());
+#else
         RkAiqIspCpParamsProxy* params =
             result.get_cast_ptr<RkAiqIspCpParamsProxy>();
         if (params) convertAiqCpToIsp20Params(isp_cfg, params->data()->result);
 #endif
+#endif
     }
     break;
+#if RKAIQ_HAVE_LDCH_V21
     case RESULT_TYPE_LDCH_PARAM:
     {
+#if RKAIQ_HAVE_LDCH_V21
+#ifdef USE_NEWSTRUCT
+        RkAiqIspLdchParamsProxy* params =
+            result.get_cast_ptr<RkAiqIspLdchParamsProxy>();
+        if (params) convertAiqLdchToIsp39Params(isp_cfg, isp_cfg_right, params->data().ptr(), is_multi_isp);
+#else
         RkAiqIspLdchParamsProxy* params = result.get_cast_ptr<RkAiqIspLdchParamsProxy>();
         if (params)
             convertAiqAldchToIsp39Params(isp_cfg, params->data()->result);
+#endif
+#endif
     }
     break;
+#endif
     case RESULT_TYPE_MOTION_PARAM: {
 #if RKAIQ_HAVE_YUVME_V1
+#ifdef USE_NEWSTRUCT
+        RkAiqIspYmeParamsProxy* params =
+            result.get_cast_ptr<RkAiqIspYmeParamsProxy>();
+        if (params) convertAiqYmeToIsp39Params(isp_cfg, params->data().ptr());
+#else
         RkAiqIspYuvmeParamsProxy* params = result.get_cast_ptr<RkAiqIspYuvmeParamsProxy>();
         if (params) convertAiqYuvmeToIsp39Params(isp_cfg, params->data()->result);
+#endif
 #endif
     }
     break;
     case RESULT_TYPE_RGBIR_PARAM: {
 #if RKAIQ_HAVE_RGBIR_REMOSAIC_V10
+#ifdef USE_NEWSTRUCT
+        RkAiqIspRgbirParamsProxy* params = result.get_cast_ptr<RkAiqIspRgbirParamsProxy>();
+        if (params) convertAiqRgbirToIsp39Params(isp_cfg, params->data().ptr());
+#else
         RkAiqIspRgbirParamsProxy* params = result.get_cast_ptr<RkAiqIspRgbirParamsProxy>();
         if (params) convertAiqRgbirToIsp39Params(isp_cfg, params->data()->result);
 #endif
+#endif
     }
     break;
-
+#if RKAIQ_HAVE_LDC
+    case RESULT_TYPE_LDC_PARAM: {
+        RkAiqIspLdcParamsProxy* params = result.get_cast_ptr<RkAiqIspLdcParamsProxy>();
+        if (params) {
+            convertAiqAldchToIsp39Params(isp_cfg, params->data()->result.cfg.ldch,
+                                         params->data()->result.ldch_en);
+            convertAiqAldcvToIsp39Params(isp_cfg, params->data()->result.cfg.ldcv,
+                                         params->data()->result.ldcv_en);
+        }
+    } 
+    break;
+#endif
+    case RESULT_TYPE_IE_PARAM:
+    {
+#if RKAIQ_HAVE_AIE_V10
+#if USE_NEWSTRUCT
+        RkAiqIspIeParamsProxy* params = result.get_cast_ptr<RkAiqIspIeParamsProxy>();
+        if (params)
+            convertAiqIeToIsp20Params(isp_cfg_p, params->data().ptr());
+#endif
+#endif
+    }
+    break;
     default:
         LOGE("unknown param type: 0x%x!", type);
         return false;

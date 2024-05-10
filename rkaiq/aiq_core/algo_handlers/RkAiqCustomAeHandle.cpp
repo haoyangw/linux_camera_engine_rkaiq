@@ -139,6 +139,63 @@ XCamReturn RkAiqCustomAeHandle::setLockAeForAf(bool lock_ae) {
     return XCAM_RETURN_NO_ERROR;
 }
 
+#ifdef USE_NEWSTRUCT
+XCamReturn RkAiqCustomAeHandle::setExpSwAttr(ae_api_expSwAttr_t ExpSwAttr)
+{
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn RkAiqCustomAeHandle::getExpSwAttr(ae_api_expSwAttr_t* pExpSwAttr)
+{
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn RkAiqCustomAeHandle::setLinExpAttr(ae_api_linExpAttr_t LinExpAttr)
+{
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn RkAiqCustomAeHandle::getLinExpAttr(ae_api_linExpAttr_t* pLinExpAttr)
+{
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn RkAiqCustomAeHandle::setHdrExpAttr(ae_api_hdrExpAttr_t HdrExpAttr)
+{
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn RkAiqCustomAeHandle::getHdrExpAttr(ae_api_hdrExpAttr_t* pHdrExpAttr)
+{
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn RkAiqCustomAeHandle::setIrisAttr(ae_api_irisAttr_t IrisAttr)
+{
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn RkAiqCustomAeHandle::getIrisAttr(ae_api_irisAttr_t* pIrisAttr)
+{
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn RkAiqCustomAeHandle::setSyncTestAttr(ae_api_syncTestAttr_t SyncTestAttr)
+{
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn RkAiqCustomAeHandle::getSyncTestAttr(ae_api_syncTestAttr_t* pSyncTestAttr)
+{
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn RkAiqCustomAeHandle::queryExpInfo(ae_api_queryInfo_t* pExpQueryInfo)
+{
+    return XCAM_RETURN_NO_ERROR;
+}
+#endif
+
 void
 RkAiqCustomAeHandle::init() {
     if (mIsMulRun) {

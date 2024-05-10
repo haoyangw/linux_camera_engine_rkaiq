@@ -6,20 +6,36 @@
 #include "isp/rk_aiq_isp_cnr32.h"
 #elif RKAIQ_HAVE_CNR_V31
 #include "isp/rk_aiq_isp_cnr34.h"
+#elif RKAIQ_HAVE_CNR_V35
+#include "isp/rk_aiq_isp_cnr35.h"
 #else
 #error "wrong cnr hw version !"
 #endif
 #include "algos/rk_aiq_api_types_cnr.h"
 
+RKAIQ_BEGIN_DECLARE
+
+#if 0
 XCamReturn
 algo_cnr_GetAttrib(
     const RkAiqAlgoContext *ctx,
     cnr_api_attrib_t *attr
 );
 
-XCamReturn CnrSelectParam(cnr_param_auto_t *pAuto, cnr_param_t* out, int iso);
+XCamReturn
+algo_cnr_SetAttrib(RkAiqAlgoContext *ctx,
+                                    const cnr_api_attrib_t *attr,
+                                    bool need_sync);
 
-RKAIQ_BEGIN_DECLARE
+#endif
+XCamReturn
+algo_cnr_SetStrength(RkAiqAlgoContext *ctx, float strg, bool strg_en);
+
+XCamReturn
+algo_cnr_GetStrength(RkAiqAlgoContext *ctx, float *strg, bool *strg_en);
+
+XCamReturn Acnr_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams, int iso);
+
 extern RkAiqAlgoDescription g_RkIspAlgoDescCnr;
 RKAIQ_END_DECLARE
 

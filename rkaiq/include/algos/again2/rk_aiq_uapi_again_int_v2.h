@@ -17,9 +17,9 @@
 #ifndef _RK_AIQ_UAPI_AGAIN_INT_V2_H_
 #define _RK_AIQ_UAPI_AGAIN_INT_V2_H_
 
-#include "base/xcam_common.h"
-#include "rk_aiq_algo_des.h"
-#include "again2/rk_aiq_types_again_algo_int_v2.h"
+#include "xcore/base/xcam_common.h"
+#include "algos/rk_aiq_algo_des.h"
+#include "algos/again2/rk_aiq_types_again_algo_int_v2.h"
 
 // need_sync means the implementation should consider
 // the thread synchronization
@@ -43,6 +43,6 @@ rk_aiq_uapi_againV2_GetInfo(const RkAiqAlgoContext *ctx,
 
 XCamReturn
 rk_aiq_uapiV2_againV2_WriteInput(RkAiqAlgoContext *ctx,
-                                 const rk_aiq_uapiV2_again_wrtIn_attr_t &attr,
+                                 const rk_aiq_uapiV2_again_wrtIn_attr_t *attr,
                                  bool need_sync);
 #endif

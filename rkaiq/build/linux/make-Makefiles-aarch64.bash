@@ -1,8 +1,10 @@
 #!/bin/bash
 # Run this from within a bash shell
 # x86_64 is for simulation do not enable RK platform
-export AIQ_BUILD_HOST_DIR=/data/project_codes/gcc-arm-8.3-2019.03-x86_64-aarch64-linux-gnu
-export AIQ_BUILD_TOOLCHAIN_TRIPLE=aarch64-linux-gnu
+#export AIQ_BUILD_HOST_DIR=/data/project_codes/gcc-arm-8.3-2019.03-x86_64-aarch64-linux-gnu
+#export AIQ_BUILD_TOOLCHAIN_TRIPLE=aarch64-linux-gnu
+export AIQ_BUILD_HOST_DIR=/data/project_codes/gcc-arm-10.3-2021.07-x86_64-aarch64-none-linux-gnu
+export AIQ_BUILD_TOOLCHAIN_TRIPLE=aarch64-none-linux-gnu
 export AIQ_BUILD_SYSROOT=libc
 export AIQ_BUILD_ARCH=aarch64
 TOOLCHAIN_FILE=$(pwd)/../../cmake/toolchains/gcc.cmake

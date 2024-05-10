@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_ASHARPV4_H_
 #define _RK_AIQ_USER_API2_ASHARPV4_H_
 
-#include "asharp4/rk_aiq_uapi_asharp_int_v4.h"
+#include "algos/asharp4/rk_aiq_uapi_asharp_int_v4.h"
 
 #ifndef RK_AIQ_SYS_CTX_T
 #define RK_AIQ_SYS_CTX_T

@@ -136,7 +136,7 @@ extern "C" {
 	struct RK_PS_SrcOverlapMap
 	{
 		char versionInfo[64];
-		RK_PS_SrcOverlapPosition srcOverlapPositon[8];
+		enum RK_PS_SrcOverlapPosition srcOverlapPositon[8];
 		unsigned char overlapMap[15 * 15 * 8];
 	};
 
@@ -171,7 +171,7 @@ extern "C" {
 		int mesh_step_y;
 		int camera_num;
 		float* pmesh;
-		RK_PS_MeshParams mesh_params[8];
+		struct RK_PS_MeshParams mesh_params[8];
 	};
 
 	/*
@@ -189,8 +189,8 @@ extern "C" {
 	 */
 	struct RK_PS_Engine
 	{
-		RK_PS_MeshBuffer* mesh;					/**< input/output-mesh buffer */
-		RK_PS_AlphaBuffer* alpha;				/**< input/output-alpha buffer */
+		struct RK_PS_MeshBuffer* mesh;					/**< input/output-mesh buffer */
+		struct RK_PS_AlphaBuffer* alpha;				/**< input/output-alpha buffer */
 		void* p;
 	};
 
@@ -200,7 +200,7 @@ extern "C" {
 	 */
 	struct RK_PS_InitParams
 	{
-		RK_PS_MESH_ALPHA_SAVE_OPTION save_option;	/**< input-specify save option */
+		enum RK_PS_MESH_ALPHA_SAVE_OPTION save_option;	/**< input-specify save option */
 		int camera_num;								/**< input-camera numbers */
 		const char* input_calib_data_path;			/**< input-cameras calibration data path */
 		const char* input_mask_data_path;			/**< input-mask image path */
@@ -241,8 +241,8 @@ extern "C" {
 		int center_y;							/**< input-output stitch image center_y */
 		float stitch_distance;					/**< input-best stitch distance */
 		int save_mesh_alpha_type;				/**< input-output mesh and alpha type */
-		RK_PS_Rotation ori_rotation;			/**< input-output stitch image ori rotation */
-		RK_PS_Rotation rotation;				/**< input-output stitch image rotation */
+		struct RK_PS_Rotation ori_rotation;			/**< input-output stitch image ori rotation */
+		struct RK_PS_Rotation rotation;				/**< input-output stitch image rotation */
 	};
 
 	/*
@@ -255,7 +255,7 @@ extern "C" {
 		int offset_h[8];
 		int offset_w[8];
 		int offset_z[8];
-		RK_PS_Rotation rotation[8];
+		struct RK_PS_Rotation rotation[8];
 	};
 
 	/*
@@ -300,7 +300,7 @@ extern "C" {
 	DLL_PUBLIC int RK_PS_setEngine(struct RK_PS_Engine* engine);
 
 	/* 生成mesh表和alpha表时的初始化标定参数的函数 */
-	DLL_PUBLIC int RK_PS_initParams(struct RK_PS_Engine* engine, RK_PS_InitParams* params);
+	DLL_PUBLIC int RK_PS_initParams(struct RK_PS_Engine* engine, struct RK_PS_InitParams* params);
 
 	/* 生成mesh表和alpha表时设置输出图像规格的函数 */
 	DLL_PUBLIC int RK_PS_setProjectParams(struct RK_PS_Engine* engine, struct RK_PS_SetProjectParams* params);
@@ -321,7 +321,7 @@ extern "C" {
 	DLL_PUBLIC int RK_PS_mesh_alphaFromProjection(struct RK_PS_Engine* engine);
 
 	/* 通过用户指定的ROI参数生成rectilinear校正的mesh表的函数 */
-	DLL_PUBLIC int RK_PS_meshForRoiRectilinear(struct RK_PS_Engine* engine, RK_PS_RoiParams* roi_parmas, const char* save_mesh_path);
+	DLL_PUBLIC int RK_PS_meshForRoiRectilinear(struct RK_PS_Engine* engine, struct RK_PS_RoiParams* roi_parmas, const char* save_mesh_path);
 
 	/* 拼接图像的初始化函数 */
 	DLL_PUBLIC int RK_PS_initBlendedImages(struct RK_PS_Engine* engine, struct RK_PS_InitBlendedImages* params);

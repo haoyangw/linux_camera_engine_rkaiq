@@ -20,7 +20,7 @@
 #ifndef _RK_AIQ_TYPES_ASHARP_ALGO_V34_H_
 #define _RK_AIQ_TYPES_ASHARP_ALGO_V34_H_
 
-#include "asharpV34/rk_aiq_types_asharp_hw_v34.h"
+#include "algos/asharpV34/rk_aiq_types_asharp_hw_v34.h"
 
 RKAIQ_BEGIN_DECLARE
 

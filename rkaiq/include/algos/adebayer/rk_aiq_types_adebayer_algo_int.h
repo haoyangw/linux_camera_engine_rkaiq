@@ -2,8 +2,8 @@
 #ifndef __RKAIQ_TYPES_ADEBAYER_ALGO_INT_H__
 #define __RKAIQ_TYPES_ADEBAYER_ALGO_INT_H__
 
-#include "rk_aiq_types_adebayer_algo.h"
-#include "debayer_head.h"
+#include "algos/adebayer/rk_aiq_types_adebayer_algo.h"
+#include "iq_parser_v2/debayer_head.h"
 
 typedef enum rk_aiq_debayer_op_mode_e {
     RK_AIQ_DEBAYER_MODE_INVALID                     = 0,        /**< initialization value */

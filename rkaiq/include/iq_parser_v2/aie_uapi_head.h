@@ -18,8 +18,8 @@
 #ifndef __AIE_UAPI_HEAD_H__
 #define __AIE_UAPI_HEAD_H__
 
-#include "rk_aiq_comm.h"
-#include "aie/rk_aiq_types_aie_algo.h"
+#include "common/rk_aiq_comm.h"
+#include "algos/aie/rk_aiq_types_aie_algo.h"
 
 typedef struct aie_attrib_s {
   // M4_STRUCT_DESC("sync", "normal_ui_style", M4_HIDE(1))

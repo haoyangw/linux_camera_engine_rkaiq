@@ -11,6 +11,6 @@
 #ifndef __RK_AIQ_TYPES_ARGBIR_ALGO_H__
 #define __RK_AIQ_TYPES_ARGBIR_ALGO_H__
 
-#include "rk_aiq_types_argbir_hw.h"
+#include "algos/argbir/rk_aiq_types_argbir_hw.h"
 
 #endif

@@ -1,5 +1,5 @@
 set(YNR_SRC
-    "algo_ynr.cpp"
+    "algo_ynr.c"
     )
 
-dec_algo(ynr algo_ynr.cpp ${YNR_SRC})
+dec_algo(ynr algo_ynr.c ${YNR_SRC})

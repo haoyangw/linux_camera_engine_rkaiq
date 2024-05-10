@@ -19,7 +19,7 @@
 
 #ifndef _RK_AIQ_TYPE_ADPCC_ALGO_H_
 #define _RK_AIQ_TYPE_ADPCC_ALGO_H_
-#include "adpcc/rk_aiq_types_adpcc_hw.h"
+#include "algos/adpcc/rk_aiq_types_adpcc_hw.h"
 
 RKAIQ_BEGIN_DECLARE
 

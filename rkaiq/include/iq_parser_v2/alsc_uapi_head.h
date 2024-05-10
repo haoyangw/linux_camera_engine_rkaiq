@@ -18,7 +18,7 @@
 #ifndef __ALSC_UAPI_HEAD_H__
 #define __ALSC_UAPI_HEAD_H__
 
-#include "alsc/rk_aiq_types_alsc_hw.h"
+#include "algos/alsc/rk_aiq_types_alsc_hw.h"
 
 typedef struct rk_aiq_lsc_table_s {
     // M4_ARRAY_DESC("lsc_sect_size_x", "u16", M4_SIZE(1,16), M4_RANGE(0,10000), "0", M4_DIGIT(0), M4_DYNAMIC(0))

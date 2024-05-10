@@ -20,7 +20,7 @@
 #ifndef _RK_AIQ_TYPES_ACGC_ALGO_H_
 #define _RK_AIQ_TYPES_ACGC_ALGO_H_
 
-#include "cgc_head.h"
+#include "iq_parser_v2/cgc_head.h"
 
 typedef Cgc_Param_t rk_aiq_acgc_params_t;
 

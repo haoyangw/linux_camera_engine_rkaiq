@@ -540,6 +540,7 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
         outparams->cfg_update = true;
     } else {
         outparams->cfg_update = false;
+        memcpy(&pAgainCtx->stExpInfo, &stExpInfo, sizeof(Again_ExpInfo_V2_t));
     }
     Again_GetProcResult_V2(pAgainCtx, &pAgainProcResParams->stAgainProcResult);
     pAgainCtx->isReCalculate = 0;

@@ -10,8 +10,10 @@
  *****************************************************************************/
 #ifndef __RK_AIQ_UAPI_AFD_INT_H__
 #define __RK_AIQ_UAPI_AFD_INT_H__
-#include "base/xcam_common.h"
-#include "rk_aiq_algo_des.h"
+#include "xcore/base/xcam_common.h"
+#include "algos/rk_aiq_algo_des.h"
+
+XCAM_BEGIN_DECLARE
 
 typedef struct Uapi_AfdAttr_s {
     bool enable;
@@ -27,5 +29,6 @@ rk_aiq_uapi_afd_v2_GetEnable(RkAiqAlgoContext*  ctx, bool* en);
 XCamReturn
 rk_aiq_uapi_afd_v2_GetScaleRatio(RkAiqAlgoContext*  ctx, int* scale_ratio);*/
 
+XCAM_END_DECLARE
 
 #endif /*__RK_AIQ_UAPI_AFD_INT_H__*/

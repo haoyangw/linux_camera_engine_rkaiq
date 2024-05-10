@@ -23,7 +23,7 @@
 #include "xcam_mutex.h"
 
 namespace RkCam {
-#if RKAIQ_HAVE_CCM
+#if RKAIQ_HAVE_CCM && (USE_NEWSTRUCT == 0)
 class RkAiqAccmHandleInt : virtual public RkAiqHandle {
  public:
     explicit RkAiqAccmHandleInt(RkAiqAlgoDesComm* des, RkAiqCore* aiqCore)
@@ -47,6 +47,7 @@ class RkAiqAccmHandleInt : virtual public RkAiqHandle {
         memset(&mCurCalibAttV3, 0, sizeof(rk_aiq_ccm_v3_calib_attrib_t));
         memset(&mNewCalibAttV3, 0, sizeof(rk_aiq_ccm_v3_calib_attrib_t));
 #endif
+        updateCalibAttr = false;
 #endif
         colorConstFlag = false;
         memset(&colorSwInfo,0,sizeof(colorSwInfo));

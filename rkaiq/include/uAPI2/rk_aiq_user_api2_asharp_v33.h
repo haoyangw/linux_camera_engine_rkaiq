@@ -20,7 +20,7 @@
 #ifndef _RK_AIQ_USER_API2_ASHARP_V33_H_
 #define _RK_AIQ_USER_API2_ASHARP_V33_H_
 
-#include "asharpV33/rk_aiq_uapi_asharp_int_v33.h"
+#include "algos/asharpV33/rk_aiq_uapi_asharp_int_v33.h"
 
 typedef struct rk_aiq_sys_ctx_s rk_aiq_sys_ctx_t;
 

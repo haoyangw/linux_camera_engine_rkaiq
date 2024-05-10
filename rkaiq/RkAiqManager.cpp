@@ -119,25 +119,25 @@ RkAiqManager::RkAiqManager(const char* sns_ent_name,
     , mMetasCb(metas_cb)
     , mHwEvtCb(NULL)
     , mAiispCtx({NULL, NULL})
-    , mHwEvtCbCtx(NULL)
-    , mSnsEntName(sns_ent_name)
+, mHwEvtCbCtx(NULL)
+, mSnsEntName(sns_ent_name)
 #ifdef RKAIQ_ENABLE_PARSER_V1
-    , mCalibDb(NULL)
+, mCalibDb(NULL)
 #endif
-    , mCalibDbV2(NULL)
-    , tuningCalib(NULL)
-    , mNeedFreeCalib(true)
-    , mWorkingMode(RK_AIQ_WORKING_MODE_NORMAL)
-    , mOldWkModeForGray(RK_AIQ_WORKING_MODE_NORMAL)
-    , mWkSwitching(false)
-    , _state(AIQ_STATE_INVALID)
-    , mCurMirror(false)
-    , mCurFlip(false)
+, mCalibDbV2(NULL)
+, tuningCalib(NULL)
+, mNeedFreeCalib(true)
+, mWorkingMode(RK_AIQ_WORKING_MODE_NORMAL)
+, mOldWkModeForGray(RK_AIQ_WORKING_MODE_NORMAL)
+, mWkSwitching(false)
+, _state(AIQ_STATE_INVALID)
+, mCurMirror(false)
+, mCurFlip(false)
 #ifdef RKAIQ_ENABLE_CAMGROUP
-    , mCamGroupCoreManager(NULL)
+, mCamGroupCoreManager(NULL)
 #endif
-    , mIsMain(false)
-    , mGlobalParamsManager(new GlobalParamsManager())
+, mIsMain(false)
+, mGlobalParamsManager(new GlobalParamsManager())
 {
     ENTER_XCORE_FUNCTION();
     EXIT_XCORE_FUNCTION();
@@ -270,7 +270,8 @@ RkAiqManager::prepare(uint32_t width, uint32_t height, rk_aiq_working_mode_t mod
     int working_mode_hw = RK_AIQ_WORKING_MODE_NORMAL;
     if (mode == RK_AIQ_WORKING_MODE_NORMAL) {
         working_mode_hw = mode;
-    } else {
+    }
+    else {
         if (mode == RK_AIQ_WORKING_MODE_ISP_HDR2)
             working_mode_hw = RK_AIQ_ISP_HDR_MODE_2_FRAME_HDR;
         else if (mode == RK_AIQ_WORKING_MODE_ISP_HDR3)
@@ -311,6 +312,7 @@ RkAiqManager::prepare(uint32_t width, uint32_t height, rk_aiq_working_mode_t mod
 #endif
 #if RKAIQ_HAVE_PDAF
     ret = mRkAiqAnalyzer->set_pdaf_support(mCamHw->get_pdaf_support());
+    ret = mRkAiqAnalyzer->set_pdaf_type(mCamHw->get_pdaf_type());
 #endif
 
     RKAIQMNG_CHECK_RET(ret, "getSensorModeData error %d", ret);
@@ -480,7 +482,7 @@ RkAiqManager::deInit()
         mCalibDbV2 = NULL;
     }
     if (tuningCalib) {
-        RkAiqCalibDbV2::FreeCalibByJ2S(tuningCalib);
+        CamCalibDbFreeCalibByJ2S(tuningCalib);
         mCalibDbV2 = NULL;
     }
 
@@ -495,9 +497,12 @@ XCamReturn
 RkAiqManager::updateCalibDb(const CamCalibDbV2Context_t* newCalibDb)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-    auto update_list = std::make_shared<std::list<std::string>>();
-    update_list->push_back("colorAsGrey");
-    update_list->push_back("ALL");
+    TuningCalib update_list;
+
+    update_list.calib = NULL;
+    update_list.moduleNamesSize = 2;
+    strcpy(update_list.moduleNames[0], "colorAsGrey");
+    strcpy(update_list.moduleNames[1], "ALL");
 
     *mCalibDbV2 = *(CamCalibDbV2Context_t*)newCalibDb;
     mCamHw->setCalib(newCalibDb);
@@ -507,7 +512,7 @@ RkAiqManager::updateCalibDb(const CamCalibDbV2Context_t* newCalibDb)
     if (!mRkAiqAnalyzer->isRunningState()) {
         mRkAiqAnalyzer->updateCalibDbBrutal(mCalibDbV2);
     } else {
-        mRkAiqAnalyzer->calibTuning(mCalibDbV2, update_list);
+        mRkAiqAnalyzer->calibTuning(mCalibDbV2, &update_list);
     }
 
     EXIT_XCORE_FUNCTION();
@@ -597,8 +602,8 @@ RkAiqManager::hwResCb(SmartPtr<VideoBuffer>& hwres)
             clock_gettime(CLOCK_MONOTONIC_RAW, &tp);
 
             SmartPtr<ispHwEvt_t> hw_evt = mCamHwIsp20->make_ispHwEvt(
-                                                seq, V4L2_EVENT_FRAME_SYNC,
-                                                tp.tv_sec * 1000 * 1000 * 1000 + tp.tv_nsec);
+                                              seq, V4L2_EVENT_FRAME_SYNC,
+                                              tp.tv_sec * 1000 * 1000 * 1000 + tp.tv_nsec);
             mRkAiqAnalyzer->pushEvts(hw_evt);
             LOGI_ANALYZER("stats meas is special, buf frame id %d", seq);
         } else if (seq == mLastAweekId) {
@@ -634,7 +639,7 @@ RkAiqManager::hwResCb(SmartPtr<VideoBuffer>& hwres)
 
             (*mHwEvtCb)(&hwevt);
         }
-        
+
         if (mGlobalParamsManager->isFullManualMode())
             applyAnalyzerResult(mGlobalParamsManager->getFullManParamsProxy());
     } else if (hwres->_buf_type == ISPP_POLL_NR_STATS) {
@@ -678,9 +683,11 @@ RkAiqManager::hwResCb(SmartPtr<VideoBuffer>& hwres)
             aiisp_evt.bay3dbuf = evtdata->bay3dbuf;
             aiisp_evt.iir_address = evtdata->iir_address;
             aiisp_evt.gain_address = evtdata->gain_address;
+            aiisp_evt.aiisp_address = evtdata->aiisp_address;
             LOGD_ANALYZER("aiisp params: wr_linecnt %d rd_linecnt %d _height %d _frameid %d bay3dbuf.iir_fd  %d bay3dbuf.iir_size %d",
                           aiisp_evt.wr_linecnt, aiisp_evt.rd_linecnt, aiisp_evt.height, aiisp_evt.sequence, aiisp_evt.bay3dbuf.iir_fd,
                           aiisp_evt.bay3dbuf.iir_size);
+            LOGD_ANALYZER("bay3dbuf.aiisp_fd  %d bay3dbuf.aiisp_size %d", aiisp_evt.bay3dbuf.u.v39.aiisp_fd, aiisp_evt.bay3dbuf.u.v39.aiisp_size);
             (*mAiispCtx.mAiispEvtcb)(&aiisp_evt, mAiispCtx.ctx);
         }
         else {
@@ -841,6 +848,14 @@ RkAiqManager::applyAnalyzerResult(SmartPtr<RkAiqFullParamsProxy>& results, bool 
         results_list.push_back(aiqParams->mFocusParams);
     }
 
+#if USE_NEWSTRUCT
+    if (aiqParams->mAeStatsParams.ptr()) {
+        aiqParams->mAeStatsParams->setType(RESULT_TYPE_AESTATS_PARAM);
+        aiqParams->mAeStatsParams->setId(aiqParams->mFrmId);
+        \
+        results_list.push_back(aiqParams->mAeStatsParams);
+    }
+#endif
 
 #define APPLY_ANALYZER_RESULT(lc, BC) \
     { \
@@ -870,8 +885,8 @@ RkAiqManager::applyAnalyzerResult(SmartPtr<RkAiqFullParamsProxy>& results, bool 
     APPLY_ANALYZER_RESULT(Hist, HIST);
 #endif
 #if RKAIQ_HAVE_AWB
-    APPLY_ANALYZER_RESULT(Awb, AWB);
     APPLY_ANALYZER_RESULT(AwbGain, AWBGAIN);
+    APPLY_ANALYZER_RESULT(Awb, AWB);//call AwbGain before awb
 #endif
 
 #if RKAIQ_HAVE_AF
@@ -1000,12 +1015,18 @@ RkAiqManager::applyAnalyzerResult(SmartPtr<RkAiqFullParamsProxy>& results, bool 
     APPLY_ANALYZER_RESULT(Afd, AFD);
 #endif
 #if RKAIQ_HAVE_YUVME
+#if USE_NEWSTRUCT
+    APPLY_ANALYZER_RESULT(Yme, MOTION);
+#else
     APPLY_ANALYZER_RESULT(Yuvme, MOTION);
+#endif
 #endif
 #if RKAIQ_HAVE_RGBIR_REMOSAIC
     APPLY_ANALYZER_RESULT(Rgbir, RGBIR);
 #endif
-
+#if RKAIQ_HAVE_LDC
+    APPLY_ANALYZER_RESULT(Ldc, LDC);
+#endif
     mCamHw->applyAnalyzerResult(results_list);
 
     EXIT_XCORE_FUNCTION();
@@ -1298,25 +1319,24 @@ CamCalibDbV2Context_t* RkAiqManager::getCurrentCalibDBV2()
 }
 
 XCamReturn RkAiqManager::calibTuning(CamCalibDbV2Context_t* aiqCalib,
-                                     ModuleNameList& change_list)
+                                     TuningCalib* change_list)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
     mCamHw->setCalib(aiqCalib);
     ret = mRkAiqAnalyzer->setCalib(aiqCalib);
 
-    if (change_list != nullptr)
-        std::for_each(
-            std::begin(*change_list), std::end(*change_list),
-        [](const std::string & name) {
-        std::cout << "tuning : " << name << std::endl;
-    });
+    if (change_list != nullptr) {
+        for (int i = 0; i < change_list->moduleNamesSize; i++) {
+            std::cout << "tuning : " << change_list->moduleNames[i] << std::endl;
+        }
+    }
     mRkAiqAnalyzer->calibTuning(aiqCalib, change_list);
 
     // Won't free calib witch from iqfiles
     *mCalibDbV2 = *aiqCalib;
     if (mNeedFreeCalib) {
-        RkAiqCalibDbV2::FreeCalibByJ2S(tuningCalib);
+        CamCalibDbFreeCalibByJ2S(tuningCalib);
         tuningCalib = const_cast<CamCalibDbV2Context_t*>(aiqCalib);
     }
     else {

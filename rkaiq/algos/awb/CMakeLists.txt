@@ -1,24 +1,26 @@
 set(AWB_SRC
-    color_space_convert.cpp
-    fixfloat.cpp
-    rk_aiq_algo_awb_itf.cpp
-    rk_aiq_awb_algo_com1.cpp
-    rk_aiq_awb_algo_com2.cpp
-    rk_aiq_awb_algo_sgc.cpp
-    rk_aiq_algo_awb_itf.cpp
-    rk_aiq_uapi_awb_int.cpp
-    rk_aiq_uapiv2_awb_int.cpp
+    color_space_convert.c
+    fixfloat.c
+    rk_aiq_algo_awb_itf.c
+    rk_aiq_awb_algo_com1.c
+    rk_aiq_awb_algo_com2.c
+    rk_aiq_awb_algo_sgc.c
+    rk_aiq_uapi_awb_int.c
+    rk_aiq_uapiv2_awb_int.c
     )
 
 if (RKAIQ_HAVE_AWB_V20)
-    list(APPEND AWB_SRC rk_aiq_awb_algo_v200.cpp)
+    list(APPEND AWB_SRC rk_aiq_awb_algo_v200.c)
 endif()
 
 if (RKAIQ_HAVE_AWB_V21)
-    list(APPEND AWB_SRC rk_aiq_awb_algo_v201.cpp)
+    list(APPEND AWB_SRC rk_aiq_awb_algo_v201.c)
 endif()
 
 if (RKAIQ_HAVE_AWB_V32)
-    list(APPEND AWB_SRC rk_aiq_awb_algo_v32.cpp)
+    list(APPEND AWB_SRC rk_aiq_awb_algo_v32.c)
 endif()
-dec_algo(awb rk_aiq_algo_awb_itf.cpp ${AWB_SRC})
+if (RKAIQ_HAVE_AWB_V39)
+    list(APPEND AWB_SRC rk_aiq_awb_algo_v39.c)
+endif()
+dec_algo(awb rk_aiq_algo_awb_itf.c ${AWB_SRC})

@@ -23,7 +23,7 @@
 #ifndef __RK_AIQ_TYPE_AWB_STAT_V200_H__
 #define __RK_AIQ_TYPE_AWB_STAT_V200_H__
 
-#include "rk_aiq_types_awb_stat_v2xx.h"
+#include "algos/awb/rk_aiq_types_awb_stat_v2xx.h"
 
 #define RK_AIQ_AWB_MULTIWINDOW_NUM 8
 #define RK_AIQ_AWB_STAT_WP_RANGE_NUM_V200 7

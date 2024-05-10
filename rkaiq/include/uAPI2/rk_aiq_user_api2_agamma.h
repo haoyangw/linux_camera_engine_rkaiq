@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_AGAMMA_H_
 #define _RK_AIQ_USER_API2_AGAMMA_H_
 
-#include "agamma_uapi_compact.h"
+#include "iq_parser_v2/agamma_uapi_compact.h"
 #include "algos/agamma/rk_aiq_types_agamma_algo_int.h"
 
 #ifndef RK_AIQ_SYS_CTX_T

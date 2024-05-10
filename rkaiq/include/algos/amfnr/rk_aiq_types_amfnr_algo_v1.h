@@ -19,7 +19,7 @@
 
 #ifndef _RK_AIQ_TYPE_AMFNR_ALGO_V1_H_
 #define _RK_AIQ_TYPE_AMFNR_ALGO_V1_H_
-#include "amfnr/rk_aiq_types_amfnr_hw_v1.h"
+#include "algos/amfnr/rk_aiq_types_amfnr_hw_v1.h"
 
 RKAIQ_BEGIN_DECLARE
 

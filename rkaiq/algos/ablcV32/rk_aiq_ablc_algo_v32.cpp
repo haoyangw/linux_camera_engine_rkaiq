@@ -499,12 +499,15 @@ AblcResult_V32_t Ablc_GetProcResult_V32(AblcContext_V32_t* pAblcCtx, AblcProc_V3
             // isp_ob_predgain algo result
             pAblcResult->isp_ob_predgain = pAblcCtx->stBlcOBSelect.ob_predgain;
             // isp_ob_max algo result
-            pAblcResult->isp_ob_max = (int)(4096 * pAblcResult->isp_ob_predgain) - pAblcResult->isp_ob_offset;
+            if (pAblcResult->isp_ob_predgain == 1) 
+                pAblcResult->isp_ob_max = 0xfff;
+            else
+                pAblcResult->isp_ob_max = (int)(4096 * pAblcResult->isp_ob_predgain) - pAblcResult->isp_ob_offset;
         } else {
             pAblcResult->blc_ob_enable   = false;
             pAblcResult->isp_ob_offset   = 0;
             pAblcResult->isp_ob_predgain = 1;
-            pAblcResult->isp_ob_max      = 0xfffff;
+            pAblcResult->isp_ob_max      = 0xfff;
         }
     } else if (pAblcCtx->eMode == ABLC_V32_OP_MODE_MANUAL){
         pAblcResult->enable = pAblcCtx->stBlc0Manual.enable;
@@ -539,7 +542,7 @@ AblcResult_V32_t Ablc_GetProcResult_V32(AblcContext_V32_t* pAblcCtx, AblcProc_V3
             pAblcResult->blc_ob_enable   = false;
             pAblcResult->isp_ob_offset   = 0;
             pAblcResult->isp_ob_predgain = 1;
-            pAblcResult->isp_ob_max      = 0xfffff;
+            pAblcResult->isp_ob_max      = 0xfff;
         }
     }
 

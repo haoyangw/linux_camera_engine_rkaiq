@@ -19,7 +19,7 @@
 #ifndef RK_AIQ_USER_API_DEBUG_H
 #define RK_AIQ_USER_API_DEBUG_H
 
-#include "rk_aiq.h"
+#include "common/rk_aiq.h"
 
 #ifndef RK_AIQ_SYS_CTX_T
 #define RK_AIQ_SYS_CTX_T

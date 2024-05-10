@@ -1,4 +1,4 @@
 set(AGAMMA_SRC
-    algo_gamma.cpp
+    algo_gamma.c
     )
-dec_algo(gamma algo_gamma.cpp ${AGAMMA_SRC})
+dec_algo(gamma algo_gamma.c ${AGAMMA_SRC})

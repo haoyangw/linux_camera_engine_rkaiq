@@ -25,17 +25,11 @@ RKAIQ_BEGIN_DECLARE
 #define CHECK_USER_API_ENABLE
 #endif
 
+#ifndef USE_IMPLEMENT_C
 static XCamReturn
 _drc_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, drc_api_attrib_t* attr)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-
-    /*
-    if (!rk_aiq_drc_check_attrib(attr)) {
-        LOGE_ANR("drc wrong attrib!");
-        return ret;
-    }
-    */
     
     rk_aiq_global_params_wrap_t params;
     params.opMode = attr->opMode;
@@ -190,5 +184,6 @@ rk_aiq_user_api2_drc_QueryStatus(const rk_aiq_sys_ctx_t* sys_ctx, drc_status_t* 
 #endif
    return XCAM_RETURN_NO_ERROR;
 }
+#endif
 
 RKAIQ_END_DECLARE

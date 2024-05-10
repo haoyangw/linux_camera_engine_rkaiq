@@ -70,14 +70,21 @@ size_t j2s_root_struct_size(j2s_ctx *ctx) {
   j2s_obj *obj = NULL;
   int obj_index = -1;
   size_t root_size = 0;
+  uint32_t size;
 
   root_struct = &ctx->structs[ctx->root_index];
   obj_index = root_struct->child_index;
 
   while (obj_index >= 0) {
     obj = &ctx->objs[obj_index];
-    root_size += obj->base_elem_size;
-    printf("[%s] struct size:%u\n", obj->name, obj->base_elem_size);
+    if (obj->flags & J2S_FLAG_POINTER) {
+      size = sizeof(void*);
+      root_size += size;
+    } else {
+      size = obj->base_elem_size;
+      root_size += obj->base_elem_size;
+    }
+    printf("[%s] struct size:%u %u\n", obj->name, obj->base_elem_size, size);
     obj_index = obj->next_index;
   }
 
@@ -153,7 +160,7 @@ int main(int argc, char *argv[]) {
   printf("[root] struct info:[%s][%d]\n", root_struct->name,
          root_struct->child_index);
 
-  base_json = RkCam::cJSON_Parse((char *)file_data);
+  base_json = RkCam_cJSON_Parse((char *)file_data);
   if (!base_json) {
     return -1;
   }
@@ -161,7 +168,7 @@ int main(int argc, char *argv[]) {
   RkAiqsceneManager::mergeMultiSceneIQ(base_json);
 
 #ifndef RKAIQ_J2S4B_DEV
-  full_json = RkCam::cJSON_Parse(RkCam::cJSON_Print(base_json));
+  full_json = RkCam_cJSON_Parse(RkCam_cJSON_Print(base_json));
 #else
   if (file_data)
     free(file_data);
@@ -183,7 +190,7 @@ int main(int argc, char *argv[]) {
   root_json = j2s_root_struct_to_json(&j2s4b_ctx, bin_file_data);
 
   int cret =
-      RkCam::cJSON_Compare(RkCam::cJSON_Parse((char *)file_data), root_json, 1);
+      RkCam_cJSON_Compare(RkCam_cJSON_Parse((char *)file_data), root_json, 1);
 
   printf("[Check] bin struct match input json: %s\n",
          !cret ? "\e[32mYes\e[0m" : "No");
@@ -201,12 +208,12 @@ int main(int argc, char *argv[]) {
     bin_file_data = NULL;
   }
   if (full_json) {
-    RkCam::cJSON_Delete(full_json);
+    RkCam_cJSON_Delete(full_json);
   }
 #endif
 
   if (base_json) {
-    RkCam::cJSON_Delete(base_json);
+    RkCam_cJSON_Delete(base_json);
   }
 
   return 0;

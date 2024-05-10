@@ -20,7 +20,7 @@
 #ifndef _RK_AIQ_TYPES_ACCM_HW_H_
 #define _RK_AIQ_TYPES_ACCM_HW_H_
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 RKAIQ_BEGIN_DECLARE
 #ifndef CCM_CURVE_DOT_NUM
@@ -55,7 +55,7 @@ typedef struct rk_aiq_ccm_cfg_v2_s {
     float rgb2y_para[3];
     unsigned char enh_rgb2y_para[3];
     float enh_rat_max;
-#ifdef ISP_HW_V39
+#if ISP_HW_V39 || ISP_HW_V33
     uint8_t sat_decay_en;
 	uint8_t hf_low;
 	uint8_t hf_up;

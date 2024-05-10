@@ -14,6 +14,33 @@
 #include "isp/rk_aiq_isp_trans10.h"
 #include "algos/rk_aiq_api_types_trans.h"
 
+XCAM_BEGIN_DECLARE
+
+typedef enum FrameNumber_e {
+    LINEAR_NUM = 1,
+    HDR_2X_NUM = 2,
+    HDR_3X_NUM = 3,
+    SENSOR_MGE = 4,
+    HDR_NUM_MAX
+} FrameNumber_t;
+
+typedef struct DrcAEData_s {
+    bool LongFrmMode;
+    float L2M_Ratio;
+    float M2S_Ratio;
+    float L2S_Ratio;
+    float LExpo;  // invaild in Curr
+    float MExpo;  // invaild in Curr
+    float SExpo;  // invaild in Curr
+} DrcAEData_t;
+
+typedef struct NextData_s {
+    bool bDrcEn;
+    float MotionCoef;
+    DrcAEData_t AEData;
+} NextData_t;
+
+#if 0
 XCamReturn
 algo_drc_SetAttrib
 (
@@ -27,9 +54,7 @@ algo_drc_GetAttrib
     RkAiqAlgoContext*  ctx,
     drc_api_attrib_t *attr
 );
-
-
-XCAM_BEGIN_DECLARE
+#endif
 extern RkAiqAlgoDescription g_RkIspAlgoDescDrc;
 XCAM_END_DECLARE
 

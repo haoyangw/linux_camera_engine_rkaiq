@@ -30,9 +30,6 @@
 #include "xcam_log.h"
 
 #define DEFAULT_RECALCULATE_DELTA_ISO (0.01)
-#define LIMIT_VALUE(value,max_value,min_value)      (value > max_value? max_value : value < min_value ? min_value : value)
-#define FASTMODELEVELMAX     (10)
-#define FASTMODELEVELMIN     (1)
 
 typedef struct DpcContext_s {
     const RkAiqAlgoCom_prepare_t* prepare_params;

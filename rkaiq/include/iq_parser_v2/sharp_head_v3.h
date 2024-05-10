@@ -20,7 +20,7 @@
 #ifndef __CALIBDBV2_SHARP_HEADER_V3_H__
 #define __CALIBDBV2_SHARP_HEADER_V3_H__
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 RKAIQ_BEGIN_DECLARE
 

@@ -25,6 +25,7 @@ XCamReturn RkAiqCamGroupAeHandleInt::updateConfig(bool needSync) {
     if (needSync) mCfgMutex.lock();
     // if something changed
 
+#ifndef USE_NEWSTRUCT
     if (updateExpSwAttrV2) {
         mCurExpSwAttrV2   = mNewExpSwAttrV2;
         rk_aiq_uapi_ae_setExpSwAttr(mAlgoCtx, &mCurExpSwAttrV2, true, false);
@@ -65,6 +66,7 @@ XCamReturn RkAiqCamGroupAeHandleInt::updateConfig(bool needSync) {
         updateSyncTestAttr  = false;
         sendSignal(mCurAecSyncTestAttr.sync.sync_mode);
     }
+#endif
 
     if (updateAecStatsCfg) {
         mCurAecStatsCfg = mNewAecStatsCfg;
@@ -79,6 +81,7 @@ XCamReturn RkAiqCamGroupAeHandleInt::updateConfig(bool needSync) {
     return ret;
 }
 
+#ifndef USE_NEWSTRUCT
 XCamReturn RkAiqCamGroupAeHandleInt::setExpSwAttr(Uapi_ExpSwAttrV2_t ExpSwAttrV2) {
     ENTER_ANALYZER_FUNCTION();
 
@@ -397,6 +400,118 @@ XCamReturn RkAiqCamGroupAeHandleInt::queryExpInfo(Uapi_ExpQueryInfo_t* pExpQuery
     return ret;
 }
 
+#else
+XCamReturn RkAiqCamGroupAeHandleInt::setExpSwAttr(ae_api_expSwAttr_t ExpSwAttr)
+{
+    ENTER_ANALYZER_FUNCTION();
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    rk_aiq_uapi_ae_setExpSwAttr(mAlgoCtx, &ExpSwAttr, true);
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn RkAiqCamGroupAeHandleInt::getExpSwAttr(ae_api_expSwAttr_t* pExpSwAttr)
+{
+    ENTER_ANALYZER_FUNCTION();
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    rk_aiq_uapi_ae_getExpSwAttr(mAlgoCtx, pExpSwAttr, true);
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn RkAiqCamGroupAeHandleInt::setLinExpAttr(ae_api_linExpAttr_t LinExpAttr)
+{
+    ENTER_ANALYZER_FUNCTION();
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    rk_aiq_uapi_ae_setLinExpAttr(mAlgoCtx, &LinExpAttr, true);
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn RkAiqCamGroupAeHandleInt::getLinExpAttr(ae_api_linExpAttr_t* pLinExpAttr)
+{
+    ENTER_ANALYZER_FUNCTION();
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    rk_aiq_uapi_ae_getLinExpAttr(mAlgoCtx, pLinExpAttr, true);
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn RkAiqCamGroupAeHandleInt::setHdrExpAttr(ae_api_hdrExpAttr_t HdrExpAttr)
+{
+    ENTER_ANALYZER_FUNCTION();
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    rk_aiq_uapi_ae_setHdrExpAttr(mAlgoCtx, &HdrExpAttr, true);
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn RkAiqCamGroupAeHandleInt::getHdrExpAttr(ae_api_hdrExpAttr_t* pHdrExpAttr)
+{
+    ENTER_ANALYZER_FUNCTION();
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    rk_aiq_uapi_ae_getHdrExpAttr(mAlgoCtx, pHdrExpAttr, true);
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn RkAiqCamGroupAeHandleInt::setSyncTestAttr(ae_api_syncTestAttr_t SyncTestAttr)
+{
+    ENTER_ANALYZER_FUNCTION();
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    rk_aiq_uapi_ae_setSyncTest(mAlgoCtx, &SyncTestAttr, true);
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn RkAiqCamGroupAeHandleInt::getSyncTestAttr(ae_api_syncTestAttr_t* pSyncTestAttr)
+{
+    ENTER_ANALYZER_FUNCTION();
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    rk_aiq_uapi_ae_getSyncTest(mAlgoCtx, pSyncTestAttr, true);
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn RkAiqCamGroupAeHandleInt::queryExpInfo(ae_api_queryInfo_t* pExpQueryInfo)
+{
+    ENTER_ANALYZER_FUNCTION();
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    rk_aiq_uapi_ae_queryExpInfo(mAlgoCtx, pExpQueryInfo, true);
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn RkAiqCamGroupAeHandleInt::getRkAeStats(Uapi_RkAeStats_t* pRkAeStats)
+{
+    ENTER_ANALYZER_FUNCTION();
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    rk_aiq_uapi_ae_getRKAeStats(mAlgoCtx, pRkAeStats, true);
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+#endif
+
 XCamReturn RkAiqCamGroupAeHandleInt::setAecStatsCfg(Uapi_AecStatsCfg_t AecStatsCfg) {
     ENTER_ANALYZER_FUNCTION();
 
@@ -447,6 +562,5 @@ XCamReturn RkAiqCamGroupAeHandleInt::getAecStatsCfg(Uapi_AecStatsCfg_t* pAecStat
     EXIT_ANALYZER_FUNCTION();
     return ret;
 }
-
 
 }  // namespace RkCam

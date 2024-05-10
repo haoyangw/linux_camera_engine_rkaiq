@@ -16,7 +16,7 @@
  * limitations under the License.
  *
  */
-#include "adrc_head.h"
+#include "iq_parser_v2/adrc_head.h"
 
 #ifndef _RK_AIQ_ALGO_ADRC_HW_H_
 #define _RK_AIQ_ALGO_ADRC_HW_H_

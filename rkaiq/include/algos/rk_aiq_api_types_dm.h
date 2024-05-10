@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_API_TYPES_DM_H_
 #define _RK_AIQ_API_TYPES_DM_H_
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 //#include "isp/rk_aiq_isp_dm21.h"
 
 #define DM_ISO_STEP_MAX 13

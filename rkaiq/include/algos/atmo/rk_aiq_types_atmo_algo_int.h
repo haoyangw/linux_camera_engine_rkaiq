@@ -11,8 +11,8 @@
 #ifndef __RK_AIQ_TYPES_ATMO_ALGO_INT_H__
 #define __RK_AIQ_TYPES_ATMO_ALGO_INT_H__
 
-#include "RkAiqCalibDbTypes.h"
-#include "atmo_head.h"
+#include "iq_parser/RkAiqCalibDbTypes.h"
+#include "iq_parser_v2/atmo_head.h"
 
 typedef struct globalLuma_s
 {

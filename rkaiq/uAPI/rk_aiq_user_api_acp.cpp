@@ -26,34 +26,36 @@ RKAIQ_BEGIN_DECLARE
 XCamReturn  rk_aiq_user_api_acp_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
                                         const acp_attrib_t* attr)
 {
+
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
     CHECK_USER_API_ENABLE2(sys_ctx);
     CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_ACP);
     RKAIQ_API_SMART_LOCK(sys_ctx);
-
+#ifndef USE_NEWSTRUCT
     RkAiqAcpHandleInt* algo_handle =
         algoHandle<RkAiqAcpHandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_ACP);
 
     if (algo_handle) {
         return algo_handle->setAttrib(attr);
     }
-
+#endif
     return (ret);
 }
 
 XCamReturn  rk_aiq_user_api_acp_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
                                         acp_attrib_t *attr)
 {
+
     RKAIQ_API_SMART_LOCK(sys_ctx);
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-
+#ifndef USE_NEWSTRUCT
     RkAiqAcpHandleInt* algo_handle =
         algoHandle<RkAiqAcpHandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_ACP);
 
     if (algo_handle) {
         return algo_handle->getAttrib(attr);
     }
-
+#endif
     return (ret);
 
 }

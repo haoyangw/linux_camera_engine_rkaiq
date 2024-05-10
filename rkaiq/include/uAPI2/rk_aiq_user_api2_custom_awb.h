@@ -18,8 +18,8 @@
 #ifndef _RK_AIQ_USER_API_CUSTOM_AWB_H_
 #define _RK_AIQ_USER_API_CUSTOM_AWB_H_
 
-#include "rk_aiq_types.h" /* common structs */
-#include "rk_aiq_user_api2_sysctl.h" /* rk_aiq_sys_ctx_t */
+#include "common/rk_aiq_types.h" /* common structs */
+#include "uAPI2/rk_aiq_user_api2_sysctl.h" /* rk_aiq_sys_ctx_t */
 
 RKAIQ_BEGIN_DECLARE
 

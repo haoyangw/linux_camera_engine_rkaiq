@@ -17,6 +17,15 @@
 
 #include "sample_comm.h"
 
+// #define USE_NEWSTRUCT
+#ifdef ISP_HW_V39
+#include "rk_aiq_user_api2_rk3576.h"
+#elif  defined(ISP_HW_V33)
+#include "rk_aiq_user_api2_rv1103B.h"
+#elif  defined(ISP_HW_V32)
+#include "rk_aiq_user_api2_rv1106.h"
+#endif
+
 static void sample_asharp_usage()
 {
     printf("Usage : \n");
@@ -38,6 +47,7 @@ static void sample_asharp_usage()
     printf("\t g) ASHARP:         set asharp strength min value 0.0 on async mode, only on auto mode has effect.\n");
     printf("\t h) ASHARP:         set asharp strength med value 0.5 on async mode, only on auto mode has effect.\n");
     printf("\t i) ASHARP:         set asharp attri to default value on async mode.\n");
+    printf("\t j) ASHARP:         sample_sharp_reverseEn\n");
     printf("\t q) ASHARP:         press key q or Q to quit.\n");
 }
 
@@ -2139,6 +2149,66 @@ XCamReturn sample_sharp_SetDefault_v34(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_
     return ret;
 }
 
+#ifdef USE_NEWSTRUCT
+
+void get_auto_attr(sharp_api_attrib_t* attr) {
+    sharp_param_auto_t* stAuto = &attr->stAuto;
+    for (int i = 0;i < 13;i++) {
+    }
+}
+
+void get_manual_attr(sharp_api_attrib_t* attr) {
+    sharp_param_t* stMan = &attr->stMan;
+}
+
+void sample_sharp_reverseEn(const rk_aiq_sys_ctx_t* ctx)
+{
+    // get cur mode
+    printf("+++++++ sharp module test start ++++++++\n");
+
+    sharp_api_attrib_t attr;
+    memset(&attr, 0, sizeof(attr));
+
+    rk_aiq_user_api2_sharp_GetAttrib(ctx, &attr);
+
+    printf("sharp attr: opmode:%d, en:%d, bypass:%d\n", attr.opMode, attr.en, attr.bypass);
+
+    srand(time(0));
+    int rand_num = rand() % 101;
+
+    if (rand_num <70) {
+        printf("update sharp arrrib!\n");
+        if (attr.opMode == RK_AIQ_OP_MODE_AUTO) {
+            attr.opMode = RK_AIQ_OP_MODE_MANUAL;
+            get_manual_attr(&attr);
+        }
+        else {
+            get_auto_attr(&attr);
+            attr.opMode = RK_AIQ_OP_MODE_AUTO;
+        }
+    }
+    else {
+        // reverse en
+        printf("reverse sharp en!\n");
+        attr.en = !attr.en;
+    }
+
+    rk_aiq_user_api2_sharp_SetAttrib(ctx, &attr);
+
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    sharp_status_t status;
+    memset(&status, 0, sizeof(sharp_status_t));
+
+    rk_aiq_user_api2_sharp_QueryStatus(ctx, &status);
+
+    printf("sharp status: opmode:%d, en:%d, bypass:%d\n", status.opMode, status.en, status.bypass);
+
+    printf("-------- sharp module test done --------\n");
+}
+#endif
+
 XCamReturn sample_asharp_module (const void *arg)
 {
     int key = -1;
@@ -2422,6 +2492,11 @@ XCamReturn sample_asharp_module (const void *arg)
                 sample_sharp_SetDefault_v34(ctx, RK_AIQ_UAPI_MODE_ASYNC, default_sharpV34_attr);
             }
             break;
+#ifdef USE_NEWSTRUCT
+        case 'j':
+            sample_sharp_reverseEn(ctx);
+            break;
+#endif
         default:
             printf("not support test\n\n");
             break;

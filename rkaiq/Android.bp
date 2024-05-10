@@ -94,6 +94,8 @@ cc_rkaiq_library_shared {
         "include/ipc_server",
         "include/algos/amerge",
 		"modules",
+        "include/isp",
+        "c_base",
     ],
 
     header_libs: [
@@ -122,7 +124,7 @@ cc_rkaiq_library_shared {
         "aiq_core/thumbnails.cpp",
 
         // ALGO_COMMON_SRC
-        "algos/interpolation.cpp",
+        "algos/interpolation.c",
 
         // COMMON_SRC
         "common/mediactl/mediactl.c",
@@ -202,6 +204,17 @@ cc_rkaiq_library_shared {
         "RkAiqManager.cpp",
         "RkAiqGlobalParamsManager.cpp",
         "RkAiqCamProfiles.cpp",
+
+		// C_BASE
+		"c_base/aiq_base.c",
+		"c_base/aiq_mutex.c",
+		"c_base/aiq_cond.c",
+		"c_base/aiq_thread.c",
+		"c_base/aiq_queue.c",
+		"c_base/aiq_pool.c",
+		"c_base/aiq_map.c",
+		"c_base/aiq_list.c",
+		"c_base/aiq_cbase_test.c",
     ],
 
     static_libs: [
@@ -284,8 +297,10 @@ cc_rkaiq_library_shared {
         "include/common/mediactl",
         "include/xcore/base",
         "include/algos",
+        "include/isp",
         "include/ipc_server",
         "ipc_server",
+        "c_base",
     ],
 }
 
@@ -327,6 +342,8 @@ cc_library_shared {
         "include/iq_parser_v2/j2s",
         "include/uAPI2",
         "include/ipc_server",
+        "include/isp",
+        "c_base",
     ],
 
     shared_libs: [

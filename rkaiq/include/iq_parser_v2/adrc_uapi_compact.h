@@ -18,8 +18,8 @@
 #ifndef __ADRC_UAPI_COMPACT_H__
 #define __ADRC_UAPI_COMPACT_H__
 
-#include "adrc_head.h"
-#include "adrc_uapi_head.h"
+#include "iq_parser_v2/adrc_head.h"
+#include "iq_parser_v2/adrc_uapi_head.h"
 
 typedef enum AdrcVersion_e {
     ADRC_VERSION_356X = 0,

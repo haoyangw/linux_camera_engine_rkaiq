@@ -18,7 +18,7 @@
 #ifndef __ARGBIR_UAPI_HEAD_H__
 #define __ARGBIR_UAPI_HEAD_H__
 
-#include "argbir_head.h"
+#include "iq_parser_v2/argbir_head.h"
 
 // rgbir v10
 typedef struct mRgbirDataV10_s {

@@ -18,7 +18,7 @@
 
 namespace RkCam {
 
-#if (RKAIQ_HAVE_BAYERTNR_V30)
+#if (RKAIQ_HAVE_BAYERTNR_V30) && !USE_NEWSTRUCT
 XCamReturn RkAiqCamGroupAbayertnrV30HandleInt::updateConfig(bool needSync) {
     ENTER_ANALYZER_FUNCTION();
 

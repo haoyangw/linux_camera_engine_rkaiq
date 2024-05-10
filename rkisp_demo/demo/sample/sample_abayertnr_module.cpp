@@ -19,6 +19,8 @@
 
 #ifdef ISP_HW_V39
 #include "rk_aiq_user_api2_rk3576.h"
+#elif  defined(ISP_HW_V33)
+#include "rk_aiq_user_api2_rv1103B.h"
 #elif  defined(ISP_HW_V32)
 #include "rk_aiq_user_api2_rv1106.h"
 #endif
@@ -45,6 +47,7 @@ static void sample_abayertnr_usage()
     printf("\t h) ABAYERTNR:         set abayertnr strength med value 0.5 on async mode, only on auto mode has effect.\n");
     printf("\t i) ABAYERTNR:         set abayertnr attri to default value on async mode.\n");
     printf("\t j) BTNR:              test mode/en switch.\n");
+    printf("\t k) BTNR:              test strength.\n");
     printf("\t q) ABAYERTNR:         press key q or Q to quit.\n");
 
 
@@ -2515,7 +2518,17 @@ XCamReturn sample_abayertnr_setDefault_v30(const rk_aiq_sys_ctx_t* ctx, rk_aiq_u
 }
 
 #ifdef USE_NEWSTRUCT
-static void sample_btnr_test(const rk_aiq_sys_ctx_t* ctx)
+void get_auto_attr(btnr_api_attrib_t* attr) {
+    btnr_param_auto_t* stAuto = &attr->stAuto;
+    for (int i = 0;i < 13;i++) {
+    }
+}
+
+void get_manual_attr(btnr_api_attrib_t* attr) {
+    btnr_param_t* stMan = &attr->stMan;
+}
+
+void sample_btnr_test(const rk_aiq_sys_ctx_t* ctx)
 {
     // get cur mode
     printf("+++++++ BTNR module test start ++++++++\n");
@@ -2527,13 +2540,25 @@ static void sample_btnr_test(const rk_aiq_sys_ctx_t* ctx)
 
     printf("btnr attr: opmode:%d, en:%d, bypass:%d\n", attr.opMode, attr.en, attr.bypass);
 
-    if (attr.opMode == RK_AIQ_OP_MODE_AUTO)
-        attr.opMode = RK_AIQ_OP_MODE_MANUAL;
-    else
-        attr.opMode = RK_AIQ_OP_MODE_AUTO;
+    srand(time(0));
+    int rand_num = rand() % 101;
 
-    // reverse en
-    attr.en = !attr.en;
+    if (rand_num <70) {
+        printf("update btnr arrrib!\n");
+        if (attr.opMode == RK_AIQ_OP_MODE_AUTO) {
+            attr.opMode = RK_AIQ_OP_MODE_MANUAL;
+            get_manual_attr(&attr);
+        }
+        else {
+            get_auto_attr(&attr);
+            attr.opMode = RK_AIQ_OP_MODE_AUTO;
+        }
+    }
+    else {
+        // reverse en
+        printf("reverse btnr en!\n");
+        attr.en = !attr.en;
+    }
 
     rk_aiq_user_api2_btnr_SetAttrib(ctx, &attr);
 
@@ -2551,6 +2576,27 @@ static void sample_btnr_test(const rk_aiq_sys_ctx_t* ctx)
         printf("btnr test failed\n");
     printf("-------- BTNR module test done --------\n");
 }
+
+XCamReturn sample_btnr_strength_test(const rk_aiq_sys_ctx_t* ctx)
+{
+    abtnr_strength_t strg;
+    strg.en = true;
+    strg.percent = 0.8;
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    rk_aiq_user_api2_btnr_SetStrength(ctx, &strg);
+
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    rk_aiq_user_api2_btnr_GetStrength(ctx, &strg);
+
+    printf("btnr strength %f, enable %d\n", strg.percent, strg.en);
+
+    printf("-------- BTNR module test done --------\n");
+    return ret;
+}
+
 #endif
 
 XCamReturn sample_abayertnr_module (const void *arg)
@@ -2840,6 +2886,9 @@ XCamReturn sample_abayertnr_module (const void *arg)
 #ifdef USE_NEWSTRUCT
         case 'j':
             sample_btnr_test(ctx);
+            break;
+        case 'k':
+            sample_btnr_strength_test(ctx);
             break;
 #endif
         default:

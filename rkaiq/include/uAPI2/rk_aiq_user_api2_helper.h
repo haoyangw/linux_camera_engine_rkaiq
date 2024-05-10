@@ -39,22 +39,8 @@ typedef enum __RkAiqUapiOpMode {
 
 #define UAPIRPC_DEBUG
 
-#define __RKAIQUAPI_SET(api_name, type_name)                                   \
-  inline int __rkaiq_uapi_##api_name##_set(void *ctx, void *data) {            \
-    rk_aiq_sys_ctx_t *__ctx = (rk_aiq_sys_ctx_t *)ctx;                         \
-    type_name *__data = (type_name *)data;                                     \
-    return rkaiq_uapi_##api_name##_set(__ctx, __data);                         \
-  }
-
-#define __RKAIQUAPI_GET(api_name, type_name)                                   \
-  inline int __rkaiq_uapi_##api_name##_get(void *ctx, void *data) {            \
-    rk_aiq_sys_ctx_t *__ctx = (rk_aiq_sys_ctx_t *)ctx;                         \
-    type_name *__data = (type_name *)data;                                     \
-    return rkaiq_uapi_##api_name##_get(__ctx, __data);                         \
-  }
-
 #define __RKAIQUAPI_CALLER(type_name)                                          \
-  inline int __rkaiq_uapi_##type_name##_call(                                  \
+  int __rkaiq_uapi_##type_name##_call(                                         \
       void *desc, void *sys_ctx, cJSON *cmd_js, cJSON **ret_js, int mode) {    \
     RkAiqUapiDesc_t *uapi_desc = (RkAiqUapiDesc_t *)desc;                      \
     rk_aiq_sys_ctx_t *aiq_ctx = (rk_aiq_sys_ctx_t *)sys_ctx;                   \
@@ -75,7 +61,7 @@ typedef enum __RkAiqUapiOpMode {
         XCAM_LOG_ERROR("sysctl for %s readback failed.", #type_name);          \
         return -1;                                                             \
       }                                                                        \
-      ret = cJSONUtils_ApplyPatches(old_json, cmd_js);                         \
+      ret = RkCam_cJSONUtils_ApplyPatches(old_json, cmd_js);                   \
       if (0 != ret) {                                                          \
         XCAM_LOG_ERROR("%s apply patch failed %d!", __func__, ret);            \
         return -1;                                                             \
@@ -113,11 +99,11 @@ typedef int (*RkAiqUapi)(void *, void *);
 typedef int (*RkAiqUapiCaller)(void *, void *, void *, void **, int);
 
 typedef struct __RkAiqUapiDesc {
-  char arg_path[RKAIQ_UAPI_NAME_MAX_LEN];
-  char arg_type[RKAIQ_UAPI_NAME_MAX_LEN];
+  const char* arg_path;
+  const char* arg_type;
   RkAiqUapi arg_set;
   RkAiqUapi arg_get;
-  RkAiqUapiCaller uapi_caller;
+  int arg_size;
 } RkAiqUapiDesc_t;
 
 #ifdef __cplusplus
@@ -125,16 +111,16 @@ typedef struct __RkAiqUapiDesc {
 #define __RKAIQUAPI_DESC_DEF(__arg_path, __arg_type, __arg_set, __arg_get)     \
   {                                                                            \
     __arg_path, #__arg_type, (RkAiqUapi)__arg_set, (RkAiqUapi)__arg_get,       \
-        (RkAiqUapiCaller)__rkaiq_uapi_##__arg_type##_call,                     \
+    sizeof(__arg_type),                                                        \
   }
 
 #else
 
 #define __RKAIQUAPI_DESC_DEF(__arg_path, __arg_type, __arg_set, __arg_get)     \
   {                                                                            \
-    .arg_path = {__arg_path}, .arg_type = {#__arg_type},                       \
+    .arg_path = __arg_path, .arg_type = #__arg_type,                       \
     .arg_set = (RkAiqUapi)__arg_set, .arg_get = (RkAiqUapi)__arg_get,          \
-    .uapi_caller = (RkAiqUapiCaller)__rkaiq_uapi_##__arg_type##_call,          \
+    .arg_size = sizeof(__arg_type) \
   }
 
 #endif

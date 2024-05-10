@@ -20,9 +20,9 @@
 #ifndef __CALIBDBV2_ALSC_HEAD_H__
 #define __CALIBDBV2_ALSC_HEAD_H__
 
-#include "rk_aiq_comm.h"
-#include "alsc/rk_aiq_types_alsc_hw.h"
-#include "alsc/rk_aiq_types_alsc_common.h"
+#include "common/rk_aiq_comm.h"
+#include "algos/alsc/rk_aiq_types_alsc_hw.h"
+#include "algos/alsc/rk_aiq_types_alsc_common.h"
 
 RKAIQ_BEGIN_DECLARE
 

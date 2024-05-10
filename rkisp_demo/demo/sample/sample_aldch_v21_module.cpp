@@ -19,6 +19,17 @@
 
 #include "uAPI2/rk_aiq_user_api2_aldch_v21.h"
 
+// #define USE_NEWSTRUCT
+#ifdef ISP_HW_V39
+#include "rk_aiq_user_api2_rk3576.h"
+#elif  defined(ISP_HW_V33)
+#include "rk_aiq_user_api2_rv1103B.h"
+#elif  defined(ISP_HW_V32)
+#include "rk_aiq_user_api2_rv1106.h"
+#endif
+#include "uAPI2/rk_aiq_user_api2_helper.h"
+#include <string>
+
 static const uint8_t default_bic_table[9][4] = {
     {0x00, 0x80, 0x00, 0x00}, // table0: 0, 0, 128, 0
     {0xfc, 0x7f, 0x05, 0x00}, // table1: 0, 5, 127, -4
@@ -43,6 +54,8 @@ static const uint8_t bic_weight_table[9][4] = {
     {0x20, 0x20, 0x20, 0x20}, // table4: -8, 72, 72, -8
 };
 
+
+
 static void sample_aldch_v21_usage()
 {
     printf("Usage : \n");
@@ -53,6 +66,7 @@ static void sample_aldch_v21_usage()
     printf("\t 4) ALDCH_V21:         enable/disable zero_interp.\n");
     printf("\t 5) ALDCH_V21:         enable/disable sample_avr.\n");
     printf("\t 6) ALDCH_V21:         set all the weight table of bicubic to 0x20.\n");
+    printf("\t 7) ALDCH_V21:         sample_ldch_test\n");
     printf("\n");
 
     printf("\t h) ALDCH_V21: help.\n");
@@ -167,8 +181,128 @@ XCamReturn sample_aldch_v21_bic_weight_table(const rk_aiq_sys_ctx_t* ctx, bool i
     ret = rk_aiq_user_api2_aldch_v21_SetAttrib(ctx, &ldchAttr);
     return ret;
 }
+#ifdef USE_NEWSTRUCT
+#if RKAIQ_HAVE_LDCH_V21
+void sample_ldch_tuningtool_test(const rk_aiq_sys_ctx_t* ctx)
+{
+    char *ret_str = NULL;
 
-XCamReturn sample_aldch_v21_module (const void *arg)
+    printf(">>> start tuning tool test: op attrib get ...\n");
+
+    std::string json_ldch_status_str = " \n\
+        [{ \n\
+            \"op\":\"get\", \n\
+            \"path\": \"/uapi/0/ldch_uapi/info\", \n\
+            \"value\": \n\
+            { \"opMode\": \"RK_AIQ_OP_MODE_MANUAL\", \"en\": 0,\"bypass\": 3} \n\
+        }]";
+
+    rkaiq_uapi_unified_ctl(const_cast<rk_aiq_sys_ctx_t*>(ctx),
+                           const_cast<char*>(json_ldch_status_str.c_str()), &ret_str, RKAIQUAPI_OPMODE_GET);
+
+    if (ret_str) {
+        printf("ldch status json str: %s\n", ret_str);
+    }
+
+    printf("  start tuning tool test: op attrib set ...\n");
+    std::string json_ldch_str = " \n\
+        [{ \n\
+            \"op\":\"replace\", \n\
+            \"path\": \"/uapi/0/ldch_uapi/attr\", \n\
+            \"value\": \n\
+            { \"opMode\": \"RK_AIQ_OP_MODE_MANUAL\", \"en\": 1,\"bypass\": 1} \n\
+        }]";
+    printf("ldch json_cmd_str: %s\n", json_ldch_str.c_str());
+    ret_str = NULL;
+    rkaiq_uapi_unified_ctl(const_cast<rk_aiq_sys_ctx_t*>(ctx),
+                           const_cast<char*>(json_ldch_str.c_str()), &ret_str, RKAIQUAPI_OPMODE_SET);
+
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    ldch_status_t status;
+    memset(&status, 0, sizeof(ldch_status_t));
+
+    rk_aiq_user_api2_ldch_QueryStatus(ctx, &status);
+
+    if (status.opMode != RK_AIQ_OP_MODE_MANUAL || status.en != 1 || status.bypass != 1) {
+        printf("ldch op set_attrib failed !\n");
+        printf("ldch status: opmode:%d(EXP:%d), en:%d(EXP:%d), bypass:%d(EXP:%d)\n",
+               status.opMode, RK_AIQ_OP_MODE_MANUAL, status.en, 1, status.bypass, 1);
+    } else {
+        printf("ldch op set_attrib success !\n");
+    }
+
+    printf(">>> tuning tool test done \n");
+}
+
+void get_auto_attr(ldch_api_attrib_t* attr) {
+    ldch_param_auto_t* stAuto = &attr->stAuto;
+    for (int i = 0;i < 13;i++) {
+    }
+}
+
+void get_manual_attr(ldch_api_attrib_t* attr) {
+    ldch_param_t* stMan = &attr->stMan;
+}
+
+void sample_ldch_test(const rk_aiq_sys_ctx_t* ctx)
+{
+    // get cur mode
+    printf("+++++++ Ldch module test start ++++++++\n");
+
+    // sample_ldch_tuningtool_test(ctx);
+
+    ldch_api_attrib_t attr;
+    memset(&attr, 0, sizeof(attr));
+
+    rk_aiq_user_api2_ldch_GetAttrib(ctx, &attr);
+
+    printf("ldch attr: opmode:%d, en:%d, bypass:%d\n", attr.opMode, attr.en, attr.bypass);
+
+    srand(time(0));
+    int rand_num = rand() % 101;
+
+    if (rand_num <70) {
+        printf("update ldch arrrib!\n");
+        if (attr.opMode == RK_AIQ_OP_MODE_AUTO) {
+            attr.opMode = RK_AIQ_OP_MODE_MANUAL;
+            get_manual_attr(&attr);
+        }
+        else {
+            get_auto_attr(&attr);
+            attr.opMode = RK_AIQ_OP_MODE_AUTO;
+        }
+    }
+    else {
+        // reverse en
+        printf("reverse ldch en!\n");
+        attr.en = !attr.en;
+    }
+
+    rk_aiq_user_api2_ldch_SetAttrib(ctx, &attr);
+
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    ldch_status_t status;
+    memset(&status, 0, sizeof(ldch_status_t));
+
+    rk_aiq_user_api2_ldch_QueryStatus(ctx, &status);
+
+    printf("ldch status: opmode:%d, en:%d, bypass:%d\n", status.opMode, status.en, status.bypass);
+
+    if (status.opMode != attr.opMode || status.en != attr.en)
+        printf("ldch arrib api test failed\n");
+    else
+        printf("ldch arrib api test success\n");
+
+    printf("-------- Ldch module test done --------\n");
+}
+#endif
+#endif
+
+XCamReturn sample_aldch_v21_module(const void* arg)
 {
     int key = -1;
     CLEAR();
@@ -250,6 +384,14 @@ XCamReturn sample_aldch_v21_module (const void *arg)
             printf("aldch switch bic weight table to %s\n\n", isSwitch ? "0x20" : "default");
             break;
         }
+#ifdef USE_NEWSTRUCT
+#if RKAIQ_HAVE_LDCH_V21
+        case '7': {
+            sample_ldch_test(ctx);
+            break;
+        }
+#endif
+#endif
         default:
             break;
         }

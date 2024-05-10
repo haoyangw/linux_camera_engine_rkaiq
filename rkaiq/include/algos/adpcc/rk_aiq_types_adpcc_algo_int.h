@@ -20,9 +20,9 @@
 #ifndef _RK_AIQ_TYPE_ADPCC_ALGO_INT_H_
 #define _RK_AIQ_TYPE_ADPCC_ALGO_INT_H_
 
-#include "adpcc/rk_aiq_types_adpcc_algo.h"
-#include "adpcc/rk_aiq_types_adpcc_ext.h"
-#include "base/xcam_common.h"
+#include "algos/adpcc/rk_aiq_types_adpcc_algo.h"
+#include "algos/adpcc/rk_aiq_types_adpcc_ext.h"
+#include "xcore/base/xcam_common.h"
 
 typedef enum AdpccResult_e {
     ADPCC_RET_SUCCESS               = 0,   // this has to be 0, if clauses rely on it

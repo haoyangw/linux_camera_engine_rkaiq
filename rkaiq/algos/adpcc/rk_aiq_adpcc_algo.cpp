@@ -1136,6 +1136,7 @@ void Fast_mode_Triple_level_Setting(
     switch (level)
     {
     case 1:
+        pSelect->sw_rk_red_blue3_en = 0;
         pSelect->sw_rk_green3_en = 1;
         pSelect->sw_mindis3_rb = 0x5;
         pSelect->sw_mindis3_g = 0x5;
@@ -1172,6 +1173,7 @@ void Fast_mode_Triple_level_Setting(
         pSelect->pg_fac_3_g = 0x3;
         break;
     case 2:
+        pSelect->sw_rk_red_blue3_en = 0;
         pSelect->sw_rk_green3_en = 1;
         pSelect->sw_mindis3_rb = 0x5;
         pSelect->sw_mindis3_g = 0x5;
@@ -1208,6 +1210,7 @@ void Fast_mode_Triple_level_Setting(
         pSelect->pg_fac_3_g = 0x3;
         break;
     case 3:
+        pSelect->sw_rk_red_blue3_en = 0;
         pSelect->sw_rk_green3_en = 1;
         pSelect->sw_mindis3_rb = 0x5;
         pSelect->sw_mindis3_g = 0x5;
@@ -1244,6 +1247,7 @@ void Fast_mode_Triple_level_Setting(
         pSelect->pg_fac_3_g = 0x3;
         break;
     case 4:
+        pSelect->sw_rk_red_blue3_en = 0;
         pSelect->sw_rk_green3_en = 1;
         pSelect->sw_mindis3_rb = 0x5;
         pSelect->sw_mindis3_g = 0x5;
@@ -1280,6 +1284,7 @@ void Fast_mode_Triple_level_Setting(
         pSelect->pg_fac_3_g = 0x2;
         break;
     case 5:
+        pSelect->sw_rk_red_blue3_en = 0;
         pSelect->sw_rk_green3_en = 1;
         pSelect->sw_mindis3_rb = 0x5;
         pSelect->sw_mindis3_g = 0x5;
@@ -1579,7 +1584,7 @@ void Fast_mode_Double_level_Setting(
         pSelect->line_mad_fac_2_g = 0x4;
 
         pSelect->pg_red_blue2_enable = 1;
-        pSelect->pg_green1_enable = 1;
+        pSelect->pg_green2_enable = 1;
         pSelect->pg_fac_2_rb = 0x6;
         pSelect->pg_fac_2_g = 0x8;
         break;

@@ -1,9 +1,9 @@
 #ifndef _RK_AIQ_UAPI_ABAYERNR_INT_V1_H_
 #define _RK_AIQ_UAPI_ABAYERNR_INT_V1_H_
 
-#include "base/xcam_common.h"
-#include "rk_aiq_algo_des.h"
-#include "arawnr/rk_aiq_types_abayernr_algo_int_v1.h"
+#include "xcore/base/xcam_common.h"
+#include "algos/rk_aiq_algo_des.h"
+#include "algos/arawnr/rk_aiq_types_abayernr_algo_int_v1.h"
 
 
 #if 1

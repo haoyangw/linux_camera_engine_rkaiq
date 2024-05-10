@@ -102,7 +102,7 @@ XCamReturn RkAiqAfHandleInt::setAttrib(rk_aiq_af_attrib_t* att) {
     // called by RkAiqCore
     bool isChanged = false;
     if (att->sync.sync_mode == RK_AIQ_UAPI_MODE_ASYNC && \
-        memcmp(&mNewAtt, att, sizeof(*att)))
+            memcmp(&mNewAtt, att, sizeof(*att)))
         isChanged = true;
     else if (att->sync.sync_mode != RK_AIQ_UAPI_MODE_ASYNC && \
              memcmp(&mCurAtt, att, sizeof(*att)))
@@ -113,8 +113,8 @@ XCamReturn RkAiqAfHandleInt::setAttrib(rk_aiq_af_attrib_t* att) {
         mNewAtt         = *att;
         updateAtt       = true;
         isUpdateAttDone = false;
-        LOGI_AF("%s: AfMode %d, win: %d, %d, %d, %d",
-               __func__, att->AfMode, att->h_offs, att->v_offs, att->h_size, att->v_size);
+        LOGI_AF("AfMode %d, win: %d, %d, %d, %d",
+                att->AfMode, att->h_offs, att->v_offs, att->h_size, att->v_size);
         waitSignal(att->sync.sync_mode);
     }
 #endif
@@ -326,7 +326,13 @@ XCamReturn RkAiqAfHandleInt::GetSearchPath(rk_aiq_af_sec_path_t* path) {
     XCamReturn ret                              = XCAM_RETURN_NO_ERROR;
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
-    if (sharedCom->snsDes.lens_des.focus_support) rk_aiq_uapi_af_getSearchPath(mAlgoCtx, path);
+    if (sharedCom->snsDes.lens_des.focus_support) {
+        rk_aiq_uapi_af_getSearchPath(mAlgoCtx, path);
+    } else {
+        path->stat = RK_AIQ_AF_SEARCH_END;
+        path->search_num = 0;
+        LOGD_AF("no lens, return search end");
+    }
 
     EXIT_ANALYZER_FUNCTION();
     return ret;
@@ -338,7 +344,13 @@ XCamReturn RkAiqAfHandleInt::GetSearchResult(rk_aiq_af_result_t* result) {
     XCamReturn ret                              = XCAM_RETURN_NO_ERROR;
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
-    if (sharedCom->snsDes.lens_des.focus_support) rk_aiq_uapi_af_getSearchResult(mAlgoCtx, result);
+    if (sharedCom->snsDes.lens_des.focus_support) {
+        rk_aiq_uapi_af_getSearchResult(mAlgoCtx, result);
+    } else {
+        result->stat = RK_AIQ_AF_SEARCH_END;
+        result->final_pos = 0;
+        LOGD_AF("no lens, return search end");
+    }
 
     EXIT_ANALYZER_FUNCTION();
     return ret;
@@ -350,7 +362,12 @@ XCamReturn RkAiqAfHandleInt::GetFocusRange(rk_aiq_af_focusrange* range) {
     XCamReturn ret                              = XCAM_RETURN_NO_ERROR;
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
-    if (sharedCom->snsDes.lens_des.focus_support) rk_aiq_uapi_af_getFocusRange(mAlgoCtx, range);
+    if (sharedCom->snsDes.lens_des.focus_support) {
+        rk_aiq_uapi_af_getFocusRange(mAlgoCtx, range);
+    } else {
+        range->min_pos = 0;
+        range->max_pos = 64;
+    }
 
     EXIT_ANALYZER_FUNCTION();
     return ret;
@@ -362,7 +379,14 @@ XCamReturn RkAiqAfHandleInt::GetZoomRange(rk_aiq_af_zoomrange* range) {
     XCamReturn ret                              = XCAM_RETURN_NO_ERROR;
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
-    if (sharedCom->snsDes.lens_des.zoom_support) rk_aiq_uapi_af_getZoomRange(mAlgoCtx, range);
+    if (sharedCom->snsDes.lens_des.zoom_support) {
+        rk_aiq_uapi_af_getZoomRange(mAlgoCtx, range);
+    } else {
+        range->min_pos = 0;
+        range->max_pos = 64;
+        range->min_fl = 1;
+        range->max_fl = 1;
+    }
 
     EXIT_ANALYZER_FUNCTION();
     return ret;
@@ -403,15 +427,14 @@ XCamReturn RkAiqAfHandleInt::prepare() {
     af_config_int->otp_pdaf = sharedCom->snsDes.otp_pdaf;
 
     if ((af_config_int->com.u.prepare.sns_op_width != 0) &&
-        (af_config_int->com.u.prepare.sns_op_height != 0)) {
+            (af_config_int->com.u.prepare.sns_op_height != 0)) {
         RkAiqAlgoDescription* des = (RkAiqAlgoDescription*)mDes;
         ret                       = des->prepare(mConfig);
         RKAIQCORE_CHECK_RET(ret, "af algo prepare failed");
     } else {
-        LOGI_AF("%s: input sns_op_width %d or sns_op_height %d is zero, bypass!",
-            __func__,
-            af_config_int->com.u.prepare.sns_op_width,
-            af_config_int->com.u.prepare.sns_op_height);
+        LOGI_AF("input sns_op_width %d or sns_op_height %d is zero, bypass!",
+                af_config_int->com.u.prepare.sns_op_width,
+                af_config_int->com.u.prepare.sns_op_height);
     }
 
     EXIT_ANALYZER_FUNCTION();
@@ -430,7 +453,7 @@ bool RkAiqAfHandleInt::getValueFromFile(const char* path, int* pos) {
     fp = open(path, O_RDONLY | O_SYNC);
     if (fp != -1) {
         if (read(fp, buffer, sizeof(buffer)) <= 0) {
-            LOGE_AF("%s read %s failed!", __func__, path);
+            LOGE_AF("read %s failed!", path);
             goto OUT;
         } else {
             char* p = nullptr;
@@ -551,10 +574,14 @@ XCamReturn RkAiqAfHandleInt::processing() {
     }
 #endif
 #endif
+
+#if defined(ISP_HW_V21)
     if (shared->aecStatsBuf)
         af_proc_int->xcam_aec_stats = &shared->aecStatsBuf->aec_stats;
     else
         af_proc_int->xcam_aec_stats = NULL;
+#endif
+
     if (shared->pdafStatsBuf)
         af_proc_int->xcam_pdaf_stats = &shared->pdafStatsBuf->pdaf_stats;
     else
@@ -662,7 +689,7 @@ XCamReturn RkAiqAfHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPara
     } else {
         // do nothing, result in buf needn't update
         af_param->is_update = false;
-        LOGD_AF("[%d] meas params needn't update", shared->frameId);
+        //LOGD_AF("[%d] meas params needn't update", shared->frameId);
     }
 
     if (af_com->af_focus_update) {
@@ -685,7 +712,7 @@ XCamReturn RkAiqAfHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPara
     } else {
         // do nothing, result in buf needn't update
         focus_param->is_update = false;
-        LOGD_AF("[%d] focus params needn't update", shared->frameId);
+        //LOGD_AF("[%d] focus params needn't update", shared->frameId);
     }
 
     EXIT_ANALYZER_FUNCTION();

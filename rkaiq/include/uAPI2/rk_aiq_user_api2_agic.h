@@ -17,7 +17,7 @@
 #ifndef _RK_AIQ_USER_API2_AGIC_H_
 #define _RK_AIQ_USER_API2_AGIC_H_
 
-#include "agic/rk_aiq_uapi_agic_int.h"
+#include "algos/agic/rk_aiq_uapi_agic_int.h"
 
 #ifndef RK_AIQ_SYS_CTX_T
 #define RK_AIQ_SYS_CTX_T

@@ -24,11 +24,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "RkAiqCalibDbTypes.h"
-#include "asharpV34/rk_aiq_types_asharp_algo_v34.h"
-#include "rk_aiq_comm.h"
-#include "sharp_head_v34.h"
-#include "sharp_uapi_head_v34.h"
+#include "iq_parser/RkAiqCalibDbTypes.h"
+#include "algos/asharpV34/rk_aiq_types_asharp_algo_v34.h"
+#include "common/rk_aiq_comm.h"
+#include "iq_parser_v2/sharp_head_v34.h"
+#include "iq_parser_v2/sharp_uapi_head_v34.h"
 
 #define ASHARPV34_RECALCULATE_DELTA_ISO (10)
 #define RK_SHARP_V34_MAX_ISO_NUM        CALIBDB_MAX_ISO_LEVEL

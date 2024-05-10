@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_ADEBAYER_H_
 #define _RK_AIQ_USER_API2_ADEBAYER_H_
 
-#include "adebayer/rk_aiq_uapi_adebayer_int.h"
+#include "algos/adebayer/rk_aiq_uapi_adebayer_int.h"
 
 #ifndef RK_AIQ_SYS_CTX_T
 #define RK_AIQ_SYS_CTX_T

@@ -29,20 +29,43 @@ void RkAiqBtnrHandleInt::init() {
     RkAiqHandle::deInit();
     mConfig       = (RkAiqAlgoCom*)(new RkAiqAlgoCom());
     mProcInParam  = (RkAiqAlgoCom*)(new RkAiqAlgoProcBtnr());
-    mProcOutParam = (RkAiqAlgoResCom*)(new RkAiqAlgoProcResBtnr());
+    mProcOutParam = (RkAiqAlgoResCom*)(new RkAiqAlgoResCom());
 
     EXIT_ANALYZER_FUNCTION();
 }
 
 XCamReturn RkAiqBtnrHandleInt::setAttrib(btnr_api_attrib_t* attr) {
     ENTER_ANALYZER_FUNCTION();
-
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
     mCfgMutex.lock();
     ret = algo_bayertnr_SetAttrib(mAlgoCtx, attr, false);
     mCfgMutex.unlock();
 
-    mIsUpdateGrpAttr = true;
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn RkAiqBtnrHandleInt::setStrength(float strg, bool strg_en) {
+    ENTER_ANALYZER_FUNCTION();
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    mCfgMutex.lock();
+    ret = algo_bayertnr_SetStrength(mAlgoCtx, strg, strg_en);
+    mCfgMutex.unlock();
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn RkAiqBtnrHandleInt::getStrength(float *strg, bool *strg_en) {
+    ENTER_ANALYZER_FUNCTION();
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    mCfgMutex.lock();
+    ret = algo_bayertnr_GetStrength(mAlgoCtx, strg, strg_en);
+    mCfgMutex.unlock();
+
     EXIT_ANALYZER_FUNCTION();
     return ret;
 }
@@ -128,8 +151,7 @@ XCamReturn RkAiqBtnrHandleInt::processing() {
     btnr_proc_param->blc_ob_predgain = ob_predgain;
 #endif
 
-    RkAiqAlgoProcResBtnr* btnr_proc_res_int = (RkAiqAlgoProcResBtnr*)mProcOutParam;
-    btnr_proc_res_int->btnrRes =  &shared->fullParams->mBtnrParams->data()->result;
+    mProcOutParam->algoRes =  &shared->fullParams->mBtnrParams->data()->result;
 
     GlobalParamsManager* globalParamsManager = mAiqCore->getGlobalParamsManager();
 
@@ -138,15 +160,15 @@ XCamReturn RkAiqBtnrHandleInt::processing() {
         rk_aiq_global_params_wrap_t wrap_param;
         wrap_param.type = RESULT_TYPE_TNR_PARAM;
         wrap_param.man_param_size = sizeof(btnr_param_t);
-        wrap_param.man_param_ptr = btnr_proc_res_int->btnrRes;
+        wrap_param.man_param_ptr = mProcOutParam->algoRes;
         XCamReturn ret1 = globalParamsManager->getAndClearPending(&wrap_param);
         if (ret1 == XCAM_RETURN_NO_ERROR) {
             LOGK_ANR("get new btnr manual params success !");
-            btnr_proc_res_int->res_com.en = wrap_param.en;
-            btnr_proc_res_int->res_com.bypass = wrap_param.bypass;
-            btnr_proc_res_int->res_com.cfg_update = true;
+            mProcOutParam->en = wrap_param.en;
+            mProcOutParam->bypass = wrap_param.bypass;
+            mProcOutParam->cfg_update = true;
         } else {
-            btnr_proc_res_int->res_com.cfg_update = false;
+            mProcOutParam->cfg_update = false;
         }
     } else {
         // skip processing if is group algo
@@ -160,8 +182,8 @@ XCamReturn RkAiqBtnrHandleInt::processing() {
         }
     }
 
-    if (btnr_proc_res_int->res_com.cfg_update) {
-        shared->res_comb.bayernr3d_en = btnr_proc_res_int->res_com.en;
+    if (mProcOutParam->cfg_update) {
+        shared->res_comb.bayernr3d_en = mProcOutParam->en;
     }
 
     RKAIQCORE_CHECK_RET(ret, "btnr algo processing failed");
@@ -179,7 +201,7 @@ XCamReturn RkAiqBtnrHandleInt::genIspResult(RkAiqFullParams* params,
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
-    RkAiqAlgoProcResBtnr* btnr_res = (RkAiqAlgoProcResBtnr*)mProcOutParam;
+    RkAiqAlgoResCom* btnr_res = (RkAiqAlgoResCom*)mProcOutParam;
 
     rk_aiq_isp_btnr_params_t* btnr_param = params->mBtnrParams->data().ptr();
 
@@ -199,11 +221,11 @@ XCamReturn RkAiqBtnrHandleInt::genIspResult(RkAiqFullParams* params,
             btnr_param->frame_id = shared->frameId;
         }
 
-        if (btnr_res->res_com.cfg_update) {
+        if (btnr_res->cfg_update) {
             mSyncFlag = shared->frameId;
             btnr_param->sync_flag = mSyncFlag;
-            btnr_param->en = btnr_res->res_com.en;
-            btnr_param->bypass = btnr_res->res_com.bypass;
+            btnr_param->en = btnr_res->en;
+            btnr_param->bypass = btnr_res->bypass;
             // copy from algo result
             // set as the latest result
             cur_params->mBtnrParams = params->mBtnrParams;

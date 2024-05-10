@@ -1,7 +1,7 @@
 #ifndef _RK_AIQ_CALIB_TYPES_ISP21_H_
 #define _RK_AIQ_CALIB_TYPES_ISP21_H_
 
-#include "RkAiqCalibDbTypesIsp20.h"
+#include "iq_parser/RkAiqCalibDbTypesIsp20.h"
 
 #pragma pack(4)
 

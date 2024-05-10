@@ -203,7 +203,9 @@ XCamReturn RkAiqAmergeHandleInt::setAttribV12(const mergeAttrV12_t* att) {
     mCfgMutex.lock();
 
 #ifdef DISABLE_HANDLE_ATTRIB
+#ifndef USE_NEWSTRUCT
     ret = rk_aiq_uapi_amerge_v12_SetAttrib(mAlgoCtx, att, false);
+#endif
 #else
     // check if there is different between att & mCurAttV12(sync)/mNewAttV12(async)
     // if something changed, set att to mNewAttV12, and
@@ -234,9 +236,11 @@ XCamReturn RkAiqAmergeHandleInt::getAttribV12(mergeAttrV12_t* att) {
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 #ifdef DISABLE_HANDLE_ATTRIB
+#ifndef USE_NEWSTRUCT
     mCfgMutex.lock();
     rk_aiq_uapi_amerge_v12_GetAttrib(mAlgoCtx, att);
     mCfgMutex.unlock();
+#endif
 #else
 
     if (att->sync.sync_mode == RK_AIQ_UAPI_MODE_SYNC) {
@@ -345,7 +349,7 @@ XCamReturn RkAiqAmergeHandleInt::postProcess() {
     ENTER_ANALYZER_FUNCTION();
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-#if 0 
+#if 0
     RkAiqAlgoPostAmerge* amerge_post_int        = (RkAiqAlgoPostAmerge*)mPostInParam;
     RkAiqAlgoPostResAmerge* amerge_post_res_int = (RkAiqAlgoPostResAmerge*)mPostOutParam;
     RkAiqCore::RkAiqAlgosGroupShared_t* shared =

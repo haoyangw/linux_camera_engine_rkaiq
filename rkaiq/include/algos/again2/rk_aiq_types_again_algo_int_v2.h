@@ -23,11 +23,11 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
-#include "rk_aiq_comm.h"
-#include "RkAiqCalibDbTypes.h"
-#include "again2/rk_aiq_types_again_algo_v2.h"
-#include "gain_head_v2.h"
-#include "gain_uapi_head_v2.h"
+#include "common/rk_aiq_comm.h"
+#include "iq_parser/RkAiqCalibDbTypes.h"
+#include "algos/again2/rk_aiq_types_again_algo_v2.h"
+#include "iq_parser_v2/gain_head_v2.h"
+#include "iq_parser_v2/gain_uapi_head_v2.h"
 
 // enable write local gain write to ddr
 #define RK_GAIN_V2_ENABLE_GAIN2DDR      0

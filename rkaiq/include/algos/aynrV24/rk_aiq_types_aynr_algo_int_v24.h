@@ -24,11 +24,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "RkAiqCalibDbTypes.h"
-#include "aynrV24/rk_aiq_types_aynr_algo_v24.h"
-#include "rk_aiq_comm.h"
-#include "ynr_head_v24.h"
-#include "ynr_uapi_head_v24.h"
+#include "iq_parser/RkAiqCalibDbTypes.h"
+#include "algos/aynrV24/rk_aiq_types_aynr_algo_v24.h"
+#include "common/rk_aiq_comm.h"
+#include "iq_parser_v2/ynr_head_v24.h"
+#include "iq_parser_v2/ynr_uapi_head_v24.h"
 
 // RKAIQ_BEGIN_DECLARE
 #define RK_YNR_V24_MAX_ISO_NUM (CALIBDB_MAX_ISO_LEVEL)

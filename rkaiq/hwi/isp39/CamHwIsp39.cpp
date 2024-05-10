@@ -62,8 +62,15 @@ CamHwIsp39::updateEffParams(void* params, void* ori_params)
         if (mAwbParams) {
             RkAiqIspAwbParamsProxy* awbParams =
                 dynamic_cast<RkAiqIspAwbParamsProxy*>(mAwbParams);
-            _effecting_ispparam_map[effFrmId]->data()->result.awb_cfg_v32 = awbParams->data()->result;
+            _effecting_ispparam_map[effFrmId]->data()->result.awb_cfg_v39 = awbParams->data()->result;
         }
+#if defined(USE_NEWSTRUCT)
+        if (mAeParams) {
+            RkAiqIspAeStatsCfgProxy* aeParams =
+                dynamic_cast<RkAiqIspAeStatsCfgProxy*>(mAeParams);
+            _effecting_ispparam_map[effFrmId]->data()->result.ae_cfg_v39 = aeParams->data()->result;
+        }
+#endif
         _effecting_ispparam_map[effFrmId]->data()->result.meas = mLatestMeasCfg;
         _effecting_ispparam_map[effFrmId]->data()->result.bls_cfg = mLatestBlsCfg;
         _effecting_ispparam_map[effFrmId]->data()->result.awb_gain_cfg = mLatestWbGainCfg;
@@ -130,10 +137,10 @@ CamHwIsp39::processTb(void* params)
         if (isp_params->frame_id == 0 && _not_skip_first) {
             _not_skip_first = false;
             if (!_first_awb_param && mAwbParams) {
-                _first_awb_param = malloc(sizeof(rk_aiq_awb_stat_cfg_v32_t));
+                _first_awb_param = malloc(sizeof(rk_aiq_isp_awb_meas_cfg_v39_t));
                 RkAiqIspAwbParamsProxy* awbParams =
                     dynamic_cast<RkAiqIspAwbParamsProxy*>(mAwbParams);
-                *((rk_aiq_awb_stat_cfg_v32_t*)_first_awb_param) = awbParams->data()->result;
+                *((rk_aiq_isp_awb_meas_cfg_v39_t*)_first_awb_param) = awbParams->data()->result;
             }
             if (!_first_awb_cfg) {
                 _first_awb_cfg = malloc(sizeof(struct isp39_rawawb_meas_cfg));
@@ -143,9 +150,9 @@ CamHwIsp39::processTb(void* params)
                 _skipped_params = malloc(sizeof(struct isp39_isp_params_cfg));
                 *((struct isp39_isp_params_cfg*)_skipped_params) = *isp_params;
                 LOGK_CAMHW("cid[%d], fid[%d], skip_en_up: 0x%llx, cfg_up:0x%llx",
-                        mCamPhyId, isp_params->frame_id,
-                        isp_params->module_en_update,
-                        isp_params->module_cfg_update);
+                           mCamPhyId, isp_params->frame_id,
+                           isp_params->module_en_update,
+                           isp_params->module_cfg_update);
             }
             LOGK_CAMHW("<TB> Skip config id(%d)'s isp params", isp_params->frame_id);
             return true;
@@ -161,12 +168,12 @@ CamHwIsp39::processTb(void* params)
                 }
                 if (getParamsForEffMap(isp_params->frame_id)) {
                     if (mAwbParams && _first_awb_param) {
-                        rk_aiq_awb_stat_cfg_v32_t *first_awb_param = (rk_aiq_awb_stat_cfg_v32_t*)_first_awb_param;
+                        rk_aiq_isp_awb_meas_cfg_v39_t *first_awb_param = (rk_aiq_isp_awb_meas_cfg_v39_t*)_first_awb_param;
                         RkAiqIspAwbParamsProxy* awbParams =
                             dynamic_cast<RkAiqIspAwbParamsProxy*>(mAwbParams);
                         memcpy(first_awb_param->preWbgainSw, awbParams->data()->result.preWbgainSw, 4 * sizeof(float));
                         awbParams->data()->result = *first_awb_param;
-                        _effecting_ispparam_map[isp_params->frame_id]->data()->result.awb_cfg_v32 = awbParams->data()->result;
+                        _effecting_ispparam_map[isp_params->frame_id]->data()->result.awb_cfg_v39 = awbParams->data()->result;
                     }
                     _effecting_ispparam_map[isp_params->frame_id]->data()->result.meas = mLatestMeasCfg;
                 }
@@ -193,7 +200,7 @@ CamHwIsp39::processTb(void* params)
 
             if (skip_cfg_up) {
                 LOGK_CAMHW("cid[%d], fid[%d], skip_cfg_up: 0x%llx",
-                        mCamPhyId, isp_params->frame_id, skip_cfg_up);
+                           mCamPhyId, isp_params->frame_id, skip_cfg_up);
                 if (skip_cfg_up & ISP32_MODULE_RAWAF) {
                     new_param->module_cfg_update |= ISP32_MODULE_RAWAF;
                     new_param->meas.rawaf = skip_param->meas.rawaf;
@@ -202,7 +209,7 @@ CamHwIsp39::processTb(void* params)
 
             if (skip_en_up) {
                 LOGK_CAMHW("cid[%d], fid[%d], skip_en_up: 0x%llx",
-                        mCamPhyId, isp_params->frame_id, skip_cfg_up);
+                           mCamPhyId, isp_params->frame_id, skip_cfg_up);
                 if (skip_cfg_up & ISP32_MODULE_RAWAF) {
                     new_param->module_en_update |= ISP32_MODULE_RAWAF;
                     new_param->module_ens &= ~ISP32_MODULE_RAWAF;
@@ -215,15 +222,15 @@ CamHwIsp39::processTb(void* params)
         }
 
         LOGK_CAMHW("<TB> Config id(%u)'s isp params, ens 0x%llx ens_up 0x%llx, cfg_up 0x%llx", isp_params->frame_id,
-                        isp_params->module_ens,
-                        isp_params->module_en_update,
-                        isp_params->module_cfg_update);
+                   isp_params->module_ens,
+                   isp_params->module_en_update,
+                   isp_params->module_cfg_update);
         return false;
     } else if (isp_params->frame_id == 0 && _not_skip_first) {
         _not_skip_first = false;
         return true;
     } else {
-       return false;
+        return false;
     }
 #else
     return false;

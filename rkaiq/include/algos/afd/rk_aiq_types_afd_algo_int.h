@@ -40,11 +40,11 @@
  * @{
  *
  */
-#include <list>
-#include "RkAiqCalibDbV2Helper.h"
-#include "RkAiqCalibDbV2.h"
-#include "rk_aiq_types_afd_algo.h"
-#include "ae/rk_aiq_types_ae_algo_int.h"
+//#include <list>
+#include "iq_parser_v2/RkAiqCalibDbV2Helper.h"
+#include "iq_parser_v2/RkAiqCalibDbV2.h"
+#include "algos/afd/rk_aiq_types_afd_algo.h"
+#include "algos/ae/rk_aiq_types_ae_algo_int.h"
 
 
 /*****************************************************************************/
@@ -86,12 +86,6 @@ typedef struct ThumbData_s {
     uint32_t  frameid;
     RKAiqAecExpInfo_t expinfo;
 } ThumbData_t;
-
-typedef struct AfdInstanceConfig_s {
-    AfdHandle_t              hAfd;            /**< handle returned by AfdInit() */
-    AfdConfig_t*             afdCfg;
-    std::list<ThumbData_t*> _thumbQueue;
-} AfdInstanceConfig_t;
 
 /*****************************************************************************/
 /**

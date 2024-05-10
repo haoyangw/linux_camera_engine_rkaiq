@@ -18,6 +18,8 @@
 
 namespace RkCam {
 
+#if (USE_NEWSTRUCT == 0)
+
 XCamReturn RkAiqCamGroupAccmHandleInt::updateConfig(bool needSync) {
     ENTER_ANALYZER_FUNCTION();
 
@@ -388,5 +390,6 @@ XCamReturn RkAiqCamGroupAccmHandleInt::queryCcmInfo(rk_aiq_ccm_querry_info_t* cc
     return ret;
 }
 
+#endif
 
 }  // namespace RkCam

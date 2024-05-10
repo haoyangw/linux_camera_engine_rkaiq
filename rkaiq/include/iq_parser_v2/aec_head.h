@@ -20,14 +20,9 @@
 #ifndef __CALIBDBV2_AEC_HEAD_H__
 #define __CALIBDBV2_AEC_HEAD_H__
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 RKAIQ_BEGIN_DECLARE
-
-// #define M4_STRUCT_DESC(ALIAS, SIZE, UI_MODULE)
-// #define M4_NUMBER_DESC(ALIAS, TYPE, SIZE, RANGE, DEFAULT)
-// #define M4_STRING_DESC(ALIAS, SIZE, RANGE, DEFAULT)
-// #define M4_ENUM_DESC(ALIAS, ENUM, DEFAULT)
 
 #define AECV2_PIRIS_STEP_TABLE_MAX (1024)
 #define AECV2_MAX_GRIDWEIGHT_NUM (225)
@@ -386,7 +381,7 @@ typedef struct CalibDb_AecBacklightV2_s {
     bool                        Enable;
 
     // M4_NUMBER_DESC("StrBias", "f32", M4_RANGE(-500,500), "0", M4_DIGIT(2),M4_HIDE(1))
-    float                       StrBias;//uint: %
+    float                       StrBias;//unit: %
 
     // M4_ENUM_DESC("MeasArea", "CalibDb_AecMeasAreaModeV2_t","AECV2_MEASURE_AREA_AUTO")
     CalibDb_AecMeasAreaModeV2_t MeasArea;
@@ -395,7 +390,7 @@ typedef struct CalibDb_AecBacklightV2_s {
     float                       OEROILowTh;
 
     // M4_NUMBER_DESC("LumaDistTh", "f32", M4_RANGE(0,100), "10", M4_DIGIT(2),M4_HIDE(0))
-    float                       LumaDistTh;//uint: %
+    float                       LumaDistTh;//unit: %
 
     // M4_NUMBER_DESC("LvLowTh", "f32", M4_RANGE(0,100), "0.3125", M4_DIGIT(4),M4_HIDE(0))
     float                       LvLowTh;
@@ -424,7 +419,7 @@ typedef struct CalibDb_AecOverExpCtrlV2_s {
     bool                       Enable;
 
     // M4_NUMBER_DESC("StrBias", "f32", M4_RANGE(-500,500), "0", M4_DIGIT(2),M4_HIDE(1))
-    float                      StrBias; //uint: %
+    float                      StrBias; //unit: %
 
     // M4_NUMBER_DESC("MaxWeight", "f32", M4_RANGE(0,20), "8", M4_DIGIT(2),M4_HIDE(0))
     float                      MaxWeight;
@@ -444,13 +439,13 @@ typedef struct CalibDb_LinearAE_AttrV2_s {
     bool                            RawStatsEn;
 
     // M4_NUMBER_DESC("ToleranceIn", "f32", M4_RANGE(0,100), "10", M4_DIGIT(2),M4_HIDE(0))
-    float                           ToleranceIn;//uint: %
+    float                           ToleranceIn;//unit: %
 
     // M4_NUMBER_DESC("ToleranceOut", "f32", M4_RANGE(0,100), "15", M4_DIGIT(2),M4_HIDE(0))
-    float                           ToleranceOut;//uint: %
+    float                           ToleranceOut;//unit: %
 
     // M4_NUMBER_DESC("Evbias", "f32", M4_RANGE(-500,500), "0", M4_DIGIT(2),M4_HIDE(1))
-    float                           Evbias; //uint: %
+    float                           Evbias; //unit: %
 
     // M4_ENUM_DESC("StrategyMode", "CalibDb_AeStrategyModeV2_t","AECV2_STRATEGY_MODE_LOWLIGHT")
     CalibDb_AeStrategyModeV2_t      StrategyMode;
@@ -629,7 +624,7 @@ typedef struct CalibDb_LongFrmCtrlV2_s {
     CalibDb_AeHdrLongFrmModeV2_t    mode;
 
     // M4_NUMBER_DESC("SfrmMinLine", "u16", M4_RANGE(0,1024), "2", M4_DIGIT(0),M4_HIDE(0))
-    uint16_t                        SfrmMinLine;//uint:line
+    float                           SfrmMinLine;//unit:line
 
     // M4_NUMBER_DESC("LfrmModeExpTh", "f32", M4_RANGE(0,100), "0.62", M4_DIGIT(4),M4_HIDE(0))
     float                           LfrmModeExpTh;

@@ -30,7 +30,7 @@ void rk_aiq_sharp32_params_cvt(void* attr, struct isp32_isp_params_cfg* isp_cfg,
     int tmp;
     int pbf_sigma_shift     = 0;
     int bf_sigma_shift      = 0;
-    struct isp32_sharp_cfg *phwcfg = &isp_cfg->others.sharp_cfg ;
+    struct isp32_sharp_cfg *phwcfg = &isp_params->isp_cfg->others.sharp_cfg ;
     sharp_param_t *sharp_param = (sharp_param_t *) attr;
     sharp_params_dyn_t* pdyn = &sharp_param->dyn;
     int rows = cvtinfo->rawHeight;

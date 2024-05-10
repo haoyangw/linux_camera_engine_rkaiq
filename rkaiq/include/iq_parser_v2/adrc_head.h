@@ -20,7 +20,7 @@
 #ifndef __CALIBDBV2_ADRC_HEADER_H__
 #define __CALIBDBV2_ADRC_HEADER_H__
 
-#include "adehaze_head.h"
+#include "iq_parser_v2/adehaze_head.h"
 
 #define ADRC_Y_NUM             17
 #define ADRC_ENVLV_STEP_MAX    13

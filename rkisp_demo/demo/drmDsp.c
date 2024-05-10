@@ -32,7 +32,7 @@ struct drmDsp {
   struct sp_bo* nextbo;
 } gDrmDsp;
 
-int initDrmDsp() {
+int initDrmDsp(int crtc_num) {
   int ret = 0, i = 0;
   struct drmDsp* pDrmDsp = &gDrmDsp;
 
@@ -55,7 +55,7 @@ int initDrmDsp() {
     return -1;
   }
 
-  pDrmDsp->test_crtc = &pDrmDsp->dev->crtcs[0];
+  pDrmDsp->test_crtc = &pDrmDsp->dev->crtcs[crtc_num];
   pDrmDsp->num_test_planes = pDrmDsp->test_crtc->num_planes;
   for (i = 0; i < pDrmDsp->test_crtc->num_planes; i++) {
     pDrmDsp->plane[i] = get_sp_plane(pDrmDsp->dev, pDrmDsp->test_crtc);
@@ -66,6 +66,9 @@ int initDrmDsp() {
   }
   if (!pDrmDsp->test_plane)
     return -1;
+
+  printf("use ctrc id: %d, plane id: %d\n", pDrmDsp->test_crtc->crtc->crtc_id,
+         pDrmDsp->test_plane->plane->plane_id);
 
 #if ISPDEMO_ENABLE_RGA
   rkRgaInit();

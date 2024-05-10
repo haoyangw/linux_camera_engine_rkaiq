@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_ACSM_H_
 #define _RK_AIQ_USER_API2_ACSM_H_
 
-#include "acsm/rk_aiq_uapi_acsm_int.h"
+#include "algos/acsm/rk_aiq_uapi_acsm_int.h"
 
 #ifndef RK_AIQ_SYS_CTX_T
 #define RK_AIQ_SYS_CTX_T

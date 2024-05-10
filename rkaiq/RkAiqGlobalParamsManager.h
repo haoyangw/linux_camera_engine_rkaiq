@@ -52,17 +52,22 @@ typedef struct rk_aiq_global_params_wrap_s {
     void* aut_param_ptr;
 } rk_aiq_global_params_wrap_t;
 
+class RkAiqManager;
+
 class GlobalParamsManager {
     public:
         explicit GlobalParamsManager ();
         ~GlobalParamsManager ();
         // fullManMode has no calibDb, non
         void init(bool isFullManMode, CamCalibDbV2Context_t* calibDb);
-        void switchCalibDb(CamCalibDbV2Context_t* calibDb);
+        XCamReturn switchCalibDb(CamCalibDbV2Context_t* calibDb);
+        XCamReturn switchCalibDbCheck(CamCalibDbV2Context_t* calibDb);
         // set new params by user API
         XCamReturn set(rk_aiq_global_params_wrap_t* params);
         // get current params by user API
         XCamReturn get(rk_aiq_global_params_wrap_t* param);
+        XCamReturn get_ModuleEn(rk_aiq_module_list_t* mod);
+        XCamReturn set_ModuleEn(rk_aiq_module_list_t* mod);
         // used in aiq internal
         XCamReturn getAndClearPending(rk_aiq_global_params_wrap_t* wrap);
         SmartPtr<cam3aResult> getAndClearPending(int type);
@@ -78,7 +83,12 @@ class GlobalParamsManager {
         void unlockAlgoParam(int type);
         bool getAndClearAlgoParamUpdateFlagLocked(int type);
 
-        bool checkAlgoEnableBypass(int type, bool en, bool bypass);
+        void checkAlgoEnableInit();
+        XCamReturn checkAlgoEnableBypass(int type, bool& en, bool& bypass);
+        bool checkAlgoParams(rk_aiq_global_params_wrap_t* param);
+        void setManager(RkAiqManager* rkAiqManager) {
+            this->rkAiqManager = rkAiqManager;
+        }
     private:
         XCAM_DEAD_COPY (GlobalParamsManager);
         inline XCamReturn get_locked(rk_aiq_global_params_wrap_t* param);
@@ -101,6 +111,8 @@ class GlobalParamsManager {
         // mutex between set attrib and algo processing
         Mutex mAlgoMutex[RESULT_TYPE_MAX_PARAM];
 
+        RkAiqManager* rkAiqManager;
+
         void init_fullManual();
         void init_withCalib();
         Mutex mMutex;
@@ -108,7 +120,6 @@ class GlobalParamsManager {
         bool mFullManualMode{false};
         CamCalibDbV2Context_t* mCalibDb{NULL};
         uint64_t mIsGlobalModulesUpdateBits{0};
-        uint64_t mIsAlgoParamUpdateBits{0};
 };
 
 } //namespace RkCam

@@ -67,16 +67,16 @@ rk_aiq_uapi_againV2_GetInfo(const RkAiqAlgoContext *ctx,
 
 XCamReturn
 rk_aiq_uapiV2_againV2_WriteInput(RkAiqAlgoContext *ctx,
-                          const rk_aiq_uapiV2_again_wrtIn_attr_t &attr,
+                          const rk_aiq_uapiV2_again_wrtIn_attr_t *attr,
                           bool need_sync)
 {
 
     Again_Context_V2_t* pCtx = (Again_Context_V2_t*)ctx;
 
-    pCtx->wrt2ddr.need2wrt = attr.enable;
-    strcpy(pCtx->wrt2ddr.path_name, attr.path);
-    pCtx->wrt2ddr.again2ddr_mode = attr.mode;
-    pCtx->wrt2ddr.buf_cnt = attr.call_cnt;
+    pCtx->wrt2ddr.need2wrt = attr->enable;
+    strcpy(pCtx->wrt2ddr.path_name, attr->path);
+    pCtx->wrt2ddr.again2ddr_mode = attr->mode;
+    pCtx->wrt2ddr.buf_cnt = attr->call_cnt;
 
     return XCAM_RETURN_NO_ERROR;
 }

@@ -18,8 +18,8 @@
 #ifndef _RK_AIQ_USER_API_CUSTOM_AWB_TYPE_V3X_H_
 #define _RK_AIQ_USER_API_CUSTOM_AWB_TYPE_V3X_H_
 
-#include "rk_aiq_types.h" /* common structs */
-#include "awb/rk_aiq_types_awb_stat_v201.h" /* include awb structs*/
+#include "common/rk_aiq_types.h" /* common structs */
+#include "algos/awb/rk_aiq_types_awb_stat_v201.h" /* include awb structs*/
 
 RKAIQ_BEGIN_DECLARE
 

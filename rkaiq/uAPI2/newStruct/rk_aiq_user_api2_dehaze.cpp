@@ -17,6 +17,7 @@
 #include "newStruct/dehaze/include/dehaze_algo_api.h"
 #include "uAPI2/rk_aiq_user_api2_dehaze.h"
 #include "algo_handlers/newStruct/RkAiqDehazeHandler.h"
+#include "include/uAPI2/rk_aiq_user_api2_imgproc.h"
 #include "RkAiqGlobalParamsManager.h"
 
 RKAIQ_BEGIN_DECLARE
@@ -24,6 +25,94 @@ RKAIQ_BEGIN_DECLARE
 #ifdef RK_SIMULATOR_HW
 #define CHECK_USER_API_ENABLE
 #endif
+
+#ifndef USE_IMPLEMENT_C
+/*
+*****************************
+*
+* Desc: set/get manual dehaze strength
+*     this function is active for dehaze is manual mode
+* Argument:
+*   level: [0, 100]
+*
+*****************************
+*/
+static XCamReturn
+_dehaze_SetMDehazeStrth(const rk_aiq_sys_ctx_t* sys_ctx, dehazeStrth ctrl)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    RkAiqDehazeHandleInt* algo_handle =
+        algoHandle<RkAiqDehazeHandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_ADHAZ);
+    if (algo_handle) {
+        algo_handle->setMDehazeStrth(ctrl);
+    }
+    return ret;
+}
+
+static XCamReturn
+_dehaze_GetMDehazeStrth(const rk_aiq_sys_ctx_t* sys_ctx, dehazeStrth *ctrl)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    RkAiqDehazeHandleInt* algo_handle =
+        algoHandle<RkAiqDehazeHandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_ADHAZ);
+    if (algo_handle) {
+        algo_handle->getMDehazeStrth(ctrl);
+    }
+    return ret;
+}
+
+
+XCamReturn rk_aiq_uapi2_setDehazeEnhanceStrth(const rk_aiq_sys_ctx_t* sys_ctx, dehazeStrth ctrl)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+#if USE_NEWSTRUCT
+    CHECK_USER_API_ENABLE2(sys_ctx);
+    CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_ADHAZ);
+    RKAIQ_API_SMART_LOCK(sys_ctx);
+    if (sys_ctx->cam_type == RK_AIQ_CAM_TYPE_GROUP) {
+#ifdef RKAIQ_ENABLE_CAMGROUP
+        const rk_aiq_camgroup_ctx_t* camgroup_ctx = (rk_aiq_camgroup_ctx_t*)sys_ctx;
+        if (camgroup_ctx->cam_ctxs_array[0])
+            return _dehaze_SetMDehazeStrth(camgroup_ctx->cam_ctxs_array[0], ctrl);
+        else
+            return XCAM_RETURN_ERROR_FAILED;
+#else
+        return XCAM_RETURN_ERROR_FAILED;
+#endif
+    } else {
+        return _dehaze_SetMDehazeStrth(sys_ctx, ctrl);
+    }
+#else
+    return XCAM_RETURN_ERROR_UNKNOWN;
+#endif
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn rk_aiq_uapi2_getDehazeEnhanceStrth(const rk_aiq_sys_ctx_t* sys_ctx, dehazeStrth *ctrl)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+#if USE_NEWSTRUCT
+    CHECK_USER_API_ENABLE2(sys_ctx);
+    CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_ADHAZ);
+    RKAIQ_API_SMART_LOCK(sys_ctx);
+    if (sys_ctx->cam_type == RK_AIQ_CAM_TYPE_GROUP) {
+#ifdef RKAIQ_ENABLE_CAMGROUP
+        const rk_aiq_camgroup_ctx_t* camgroup_ctx = (rk_aiq_camgroup_ctx_t *)sys_ctx;
+        if (camgroup_ctx->cam_ctxs_array[0])
+            return _dehaze_GetMDehazeStrth(camgroup_ctx->cam_ctxs_array[0], ctrl);
+        else
+            return XCAM_RETURN_ERROR_FAILED;
+#else
+        return XCAM_RETURN_ERROR_FAILED;
+#endif
+    } else {
+        return _dehaze_GetMDehazeStrth(sys_ctx, ctrl);
+    }
+#else
+    return XCAM_RETURN_ERROR_UNKNOWN;
+#endif
+    return XCAM_RETURN_NO_ERROR;
+}
 
 static XCamReturn
 _dehaze_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, dehaze_api_attrib_t* attr)
@@ -190,5 +279,6 @@ rk_aiq_user_api2_dehaze_QueryStatus(const rk_aiq_sys_ctx_t* sys_ctx, dehaze_stat
 #endif
    return XCAM_RETURN_NO_ERROR;
 }
+#endif
 
 RKAIQ_END_DECLARE

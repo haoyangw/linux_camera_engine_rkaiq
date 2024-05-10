@@ -3,8 +3,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "rk_aiq_comm.h"
-#include "rk_aiq_types_aldch_algo.h"
+#include "common/rk_aiq_comm.h"
+#include "algos/aldch/rk_aiq_types_aldch_algo.h"
 
 typedef struct rk_aiq_uapi_sync_s rk_aiq_uapi_sync_t;
 

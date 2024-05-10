@@ -68,6 +68,9 @@ int rk_aiq_user_api2_get_scene(const rk_aiq_sys_ctx_t* sys_ctx, aiq_scene_t* sce
     return 0;
 }
 
+#ifdef USE_NEWSTRUCT
+
+#else
 int rk_aiq_uapi_get_ae_hwstats(const rk_aiq_sys_ctx_t* sys_ctx, uapi_ae_hwstats_t* ae_hwstats)
 {
     rk_aiq_isp_stats_t isp_stats;
@@ -85,6 +88,7 @@ int rk_aiq_uapi_get_ae_hwstats(const rk_aiq_sys_ctx_t* sys_ctx, uapi_ae_hwstats_
 
     return 0;
 }
+#endif
 
 int rk_aiq_uapi_get_awb_stat(const rk_aiq_sys_ctx_t* sys_ctx, rk_tool_awb_stat_res2_v30_t* awb_stat)
 {
@@ -133,6 +137,45 @@ int rk_aiq_uapi_get_awbV32_stat(const rk_aiq_sys_ctx_t* sys_ctx, rk_tool_isp_awb
 
     return 0;
 }
+
+int rk_aiq_uapi_get_awbV39_stat(const rk_aiq_sys_ctx_t* sys_ctx, rk_tool_isp_awb_stats_v32_t* awb_stat)
+{
+    rk_aiq_isp_stats_t isp_stats;
+
+    if (sys_ctx->cam_type == RK_AIQ_CAM_TYPE_GROUP) {
+        LOGE("Can't read 3A stats for group ctx!");
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+
+    rk_aiq_uapi_sysctl_get3AStats(sys_ctx, &isp_stats);
+    for (int i = 0; i < AWBSTATS_WPDCT_LS_NUM; i++){
+        awb_stat->light[i].xYType[0].RgainValue = isp_stats.awb_stats_v39.com.wpEngine.norWp[i].hw_awbCfg_rGainSum_val;
+        awb_stat->light[i].xYType[0].BgainValue = isp_stats.awb_stats_v39.com.wpEngine.norWp[i].hw_awbCfg_bGainSum_val;
+        awb_stat->light[i].xYType[0].WpNo = isp_stats.awb_stats_v39.com.wpEngine.norWp[i].hw_awbCfg_statsWp_count;
+        awb_stat->light[i].xYType[1].RgainValue = isp_stats.awb_stats_v39.com.wpEngine.bigWp[i].hw_awbCfg_rGainSum_val;
+        awb_stat->light[i].xYType[1].BgainValue = isp_stats.awb_stats_v39.com.wpEngine.bigWp[i].hw_awbCfg_bGainSum_val;
+        awb_stat->light[i].xYType[1].WpNo = isp_stats.awb_stats_v39.com.wpEngine.bigWp[i].hw_awbCfg_statsWp_count;
+        awb_stat->WpNo2[i] = isp_stats.awb_stats_v39.com.wpEngine.hw_awbCfg_wpXyUvSpcRaw_cnt[i];
+    }
+     for (int i = 0; i < AWBSTATS_WP_HIST_BIN_NUM; i++) {
+        awb_stat->WpNoHist[i] = isp_stats.awb_stats_v39.com.wpEngine.hw_awb_wpHistBin_val[i];
+    }
+        for (int i = 0; i < AWBSTATS_ZONE_15x15_NUM; i++)
+        {
+            awb_stat->blockResult[i].Rvalue =  isp_stats.awb_stats_v39.com.pixEngine.zonePix[i].hw_awbCfg_rSum_val;
+            awb_stat->blockResult[i].Gvalue =  isp_stats.awb_stats_v39.com.pixEngine.zonePix[i].hw_awbCfg_gSum_val;
+            awb_stat->blockResult[i].Bvalue =  isp_stats.awb_stats_v39.com.pixEngine.zonePix[i].hw_awbCfg_bSum_val;
+            awb_stat->blockResult[i].WpNo =  isp_stats.awb_stats_v39.com.pixEngine.zonePix[i].hw_awbCfg_statsPix_count;
+        }
+        for (int i = 0; i < AWBSTATS_WPFLTOUTFULL_ENTITY_NUM; i++)
+        {
+            awb_stat->excWpRangeResult[i].RgainValue = isp_stats.awb_stats_v39.com.wpFltOutFullEngine.fltPix[i].hw_awbCfg_rGainSum_val;
+            awb_stat->excWpRangeResult[i].BgainValue = isp_stats.awb_stats_v39.com.wpFltOutFullEngine.fltPix[i].hw_awbCfg_bGainSum_val;
+            awb_stat->excWpRangeResult[i].WpNo = isp_stats.awb_stats_v39.com.wpFltOutFullEngine.fltPix[i].hw_awbCfg_statsWp_count;
+        }
+    return 0;
+}
+
 
 XCamReturn rk_aiq_get_adpcc_manual_attr(const rk_aiq_sys_ctx_t *sys_ctx,
                                         Adpcc_Manual_Attr_t *manual) {

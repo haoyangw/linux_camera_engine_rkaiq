@@ -19,9 +19,9 @@
 #ifndef _RK_AIQ_UAPI_ASHARP_INT_V33_H_
 #define _RK_AIQ_UAPI_ASHARP_INT_V33_H_
 
-#include "asharpV33/rk_aiq_types_asharp_algo_int_v33.h"
-#include "base/xcam_common.h"
-#include "rk_aiq_algo_des.h"
+#include "algos/asharpV33/rk_aiq_types_asharp_algo_int_v33.h"
+#include "xcore/base/xcam_common.h"
+#include "algos/rk_aiq_algo_des.h"
 
 // need_sync means the implementation should consider
 // the thread synchronization

@@ -24,13 +24,13 @@
 #define RK_SHARP_V34_STRENGTH_TABLE_FIX_BITS    7
 #define RK_SHARP_V34_TEX_FIX_BITS               10
 
-void rk_aiq_sharp34_params_cvt(void * attr, struct isp39_isp_params_cfg* isp_cfg, common_cvt_info_t *cvtinfo)
+void rk_aiq_sharp34_params_cvt(void * attr, isp_params_t* isp_params, common_cvt_info_t *cvtinfo)
 {
     int i, tmp;
     float fPercent = 1.0f;
     int rows = cvtinfo->rawHeight;
     int cols = cvtinfo->rawWidth;
-    struct isp39_sharp_cfg *pFix = &isp_cfg->others.sharp_cfg;
+    struct isp39_sharp_cfg *pFix = &isp_params->isp_cfg->others.sharp_cfg;
     sharp_param_t *sharp_param = (sharp_param_t *) attr;
     sharp_params_static_t* psta = &sharp_param->sta;
     sharp_params_dyn_t* pdyn = &sharp_param->dyn;
@@ -39,7 +39,7 @@ void rk_aiq_sharp34_params_cvt(void * attr, struct isp39_isp_params_cfg* isp_cfg
     int bf_sigma_shift      = 0;
 
     // SHARP_EN (0x0000)
-    pFix->bypass            = 0;
+    // pFix->bypass            = 0;
     // TODO
     //pFix->center_mode       = pSelect->hw_sharp_centerPosition_mode;
 
@@ -70,30 +70,32 @@ void rk_aiq_sharp34_params_cvt(void * attr, struct isp39_isp_params_cfg* isp_cfg
     if (pdyn->sharpOpt.hw_sharpT_shpSrc_mode == sharp_sharpIn_mode) {
         pFix->baselmg_sel     = 1;
     }
-    if (pdyn->sharpOpt.hw_sharpT_shpSrc_mode == sharp_hfExtraLpfOut_mode) {
+    if (pdyn->sharpOpt.sw_sharpT_bwEdgClipIdx_mode == sharp_lpfPix_mode) {
         pFix->clipldx_sel     = 1;
+    } else {
+        pFix->clipldx_sel     = 0;
     }
 
     pFix->tex2wgt_en      = pdyn->sharpOpt.hw_sharpT_texShpSclRemap_en;
- 
+
     // SHARP_RATIO  (0x0004)
     tmp                       = (int)ROUND_F(pdyn->hfExtra_preBifilt.hw_sharpT_bifiltOut_alpha / fPercent *
-                       (1 << RK_SHARP_V34_BF_RATIO_FIX_BITS));
+                                (1 << RK_SHARP_V34_BF_RATIO_FIX_BITS));
     pFix->pre_bifilt_alpha    = CLIP(tmp, 0, 0x80);
     tmp                       = (int)ROUND_F(pdyn->hfExtra_lpf.hw_sharpT_lpfOut_alpha / fPercent *
-                       (1 << RK_SHARP_V34_GAUS_RATIO_FIX_BITS));
+                                (1 << RK_SHARP_V34_GAUS_RATIO_FIX_BITS));
     pFix->guide_filt_alpha    = CLIP(tmp, 0, 0x80);
     tmp                       = (int)ROUND_F(pdyn->hfExtra_hfBifilt.hw_sharpT_biFiltOut_alpha / fPercent *
-                       (1 << RK_SHARP_V34_BF_RATIO_FIX_BITS));
+                                (1 << RK_SHARP_V34_BF_RATIO_FIX_BITS));
     pFix->detail_bifilt_alpha = CLIP(tmp, 0, 0x80);
-    tmp = (int)ROUND_F((pdyn->sharpOpt.sw_sharpT_mfGlbShpScl_val + pdyn->sharpOpt.sw_sharpT_lfGlbShpScl_val) *
+    tmp = (int)ROUND_F((pdyn->sharpOpt.hw_sharpT_hfHiGlbShpScl_val + pdyn->sharpOpt.hw_sharpT_hfMidGlbShpScl_val) *
                        fPercent * (1 << RK_SHARP_V34_SHARP_STRG_FIX_BITS));
     pFix->global_sharp_strg = CLIP(tmp, 0, 127);
 
     // SHARP_LUMA_DX (0x0008)
     for (int i = 0; i < RK_SHARP_V34_LUMA_POINT_NUM - 1; i++) {
         tmp                     = (int16_t)LOG2(pdyn->hfExtra_sgmEnv.sw_sharpC_luma2Sigma_curve.idx[i + 1] -
-                            pdyn->hfExtra_sgmEnv.sw_sharpC_luma2Sigma_curve.idx[i]);
+                                                pdyn->hfExtra_sgmEnv.sw_sharpC_luma2Sigma_curve.idx[i]);
         pFix->luma2table_idx[i] = CLIP(tmp, 0, 15);
     }
 
@@ -119,10 +121,10 @@ void rk_aiq_sharp34_params_cvt(void * attr, struct isp39_isp_params_cfg* isp_cfg
     pbf_sigma_shift = sigma_bits[2] - 5;
     for (int i = 0; i < RK_SHARP_V34_LUMA_POINT_NUM; i++) {
         tmp = (int16_t)ROUND_F(
-            1.0f /
-            (pdyn->hfExtra_sgmEnv.sw_sharpC_luma2Sigma_curve.val[i] * pdyn->hfExtra_preBifilt.sw_sharpT_rgeSgm_scale +
-             pdyn->hfExtra_preBifilt.sw_sharpT_rgeSgm_offset) *
-            fPercent * (1 << sigma_bits[2]));
+                  1.0f /
+                  (pdyn->hfExtra_sgmEnv.sw_sharpC_luma2Sigma_curve.val[i] * pdyn->hfExtra_preBifilt.sw_sharpT_rgeSgm_scale +
+                   pdyn->hfExtra_preBifilt.sw_sharpT_rgeSgm_offset) *
+                  fPercent * (1 << sigma_bits[2]));
         pFix->pbf_sigma_inv[i] = CLIP(tmp, 0, 4095);
     }
 
@@ -147,10 +149,10 @@ void rk_aiq_sharp34_params_cvt(void * attr, struct isp39_isp_params_cfg* isp_cfg
     bf_sigma_shift = sigma_bits[2] - 5;
     for (int i = 0; i < RK_SHARP_V34_LUMA_POINT_NUM; i++) {
         tmp = (int16_t)ROUND_F(
-            1.0f /
-            (pdyn->hfExtra_sgmEnv.sw_sharpC_luma2Sigma_curve.val[i] * pdyn->hfExtra_hfBifilt.sw_sharpT_rgeSgm_scale +
-             pdyn->hfExtra_hfBifilt.sw_sharpT_rgeSgm_offset) *
-            fPercent * (1 << sigma_bits[2]));
+                  1.0f /
+                  (pdyn->hfExtra_sgmEnv.sw_sharpC_luma2Sigma_curve.val[i] * pdyn->hfExtra_hfBifilt.sw_sharpT_rgeSgm_scale +
+                   pdyn->hfExtra_hfBifilt.sw_sharpT_rgeSgm_offset) *
+                  fPercent * (1 << sigma_bits[2]));
         pFix->bf_sigma_inv[i] = CLIP(tmp, 0, 4095);
     }
 
@@ -221,7 +223,7 @@ void rk_aiq_sharp34_params_cvt(void * attr, struct isp39_isp_params_cfg* isp_cfg
         }
     } else {
         for (int i = 0; i < 3; i++) {
-            pre_bila_filter[i] = pdyn->hfExtra_hfBifilt.hw_sharpT_filtSpatial_wgt[i];
+            bila_filter[i] = pdyn->hfExtra_hfBifilt.hw_sharpT_filtSpatial_wgt[i];
         }
     }
     tmp            = (int)ROUND_F(bila_filter[0] * (1 << RK_SHARP_V34_RFCOEFF_FIX_BITS));
@@ -236,10 +238,10 @@ void rk_aiq_sharp34_params_cvt(void * attr, struct isp39_isp_params_cfg* isp_cfg
     tmp            = (int)(pFix->bf_coef0 + offset);
     pFix->bf_coef0 = CLIP(tmp, 0, 127);
 
-    float kernel0_ratio = pdyn->sharpOpt.sw_sharpT_mfGlbShpScl_val /
-                          (pdyn->sharpOpt.sw_sharpT_mfGlbShpScl_val + pdyn->sharpOpt.sw_sharpT_lfGlbShpScl_val);
-    float kernel1_ratio = pdyn->sharpOpt.sw_sharpT_lfGlbShpScl_val /
-                          (pdyn->sharpOpt.sw_sharpT_mfGlbShpScl_val + pdyn->sharpOpt.sw_sharpT_lfGlbShpScl_val);
+    float kernel0_ratio = pdyn->sharpOpt.hw_sharpT_hfHiGlbShpScl_val /
+                          (pdyn->sharpOpt.hw_sharpT_hfHiGlbShpScl_val + pdyn->sharpOpt.hw_sharpT_hfMidGlbShpScl_val);
+    float kernel1_ratio = pdyn->sharpOpt.hw_sharpT_hfMidGlbShpScl_val /
+                          (pdyn->sharpOpt.hw_sharpT_hfHiGlbShpScl_val + pdyn->sharpOpt.hw_sharpT_hfMidGlbShpScl_val);
     if (pdyn->hfExtra_lpf.sw_sharpT_filtCfg_mode == sharp_cfgBy2SwLpfStrg_mode) {
         float dis_table_5x5[6] = {0.0f, 1.0f, 2.0f, 4.0f, 5.0f, 8.0f};
         float dis_table_3x3[6] = {0.0f, 1.0f, 2.0f, 1000.0f, 1000.0f, 1000.0f};
@@ -247,8 +249,8 @@ void rk_aiq_sharp34_params_cvt(void * attr, struct isp39_isp_params_cfg* isp_cfg
         float gaus_table1[6];
         float gaus_table_combine[6];
 
-        float sigma  = pdyn->hfExtra_lpf.sw_sharpT_mf_strg;
-        float sigma1 = pdyn->hfExtra_lpf.sw_sharpT_lf_strg;
+        float sigma  = pdyn->hfExtra_lpf.sw_sharpT_hfHi_strg;
+        float sigma1 = pdyn->hfExtra_lpf.sw_sharpT_hfMid_strg;
         double e     = 2.71828182845905;
         for (int k = 0; k < 6; k++) {
             float tmp0    = pow(e, -dis_table_3x3[k] / 2.0 / sigma / sigma);
@@ -260,7 +262,7 @@ void rk_aiq_sharp34_params_cvt(void * attr, struct isp39_isp_params_cfg* isp_cfg
         }
         float sumTable = 0;
         sumTable       = gaus_table[0] + 4 * gaus_table[1] + 4 * gaus_table[2] + 4 * gaus_table[3] +
-                   8 * gaus_table[4] + 4 * gaus_table[5];
+                         8 * gaus_table[4] + 4 * gaus_table[5];
 
         float sumTable1 = 0;
         sumTable1 = gaus_table1[0] + 4 * gaus_table1[1] + 4 * gaus_table1[2] + 4 * gaus_table1[3] +
@@ -279,6 +281,12 @@ void rk_aiq_sharp34_params_cvt(void * attr, struct isp39_isp_params_cfg* isp_cfg
                 ROUND_F(range_coeff * (1 << RK_SHARP_V34_HBFCOEFF_FIX_BITS));
         }
     }
+    sum_coeff = pFix->img_lpf_coeff[0] + 4 * pFix->img_lpf_coeff[1] + 4 * pFix->img_lpf_coeff[2] +
+                4 * pFix->img_lpf_coeff[3] + 8 * pFix->img_lpf_coeff[4] +
+                4 * pFix->img_lpf_coeff[5];
+    offset                 = (1 << RK_SHARP_V34_RFCOEFF_FIX_BITS) - sum_coeff;
+    tmp                    = (int)(pFix->img_lpf_coeff[0] + offset);
+    pFix->img_lpf_coeff[0] = CLIP(tmp, 0, 127);
 
     // gain
     tmp               = pdyn->shpScl_locSgmStrg.hw_sharpT_glbSgmStrg_val * (1 << RK_SHARP_V34_GLOBAL_GAIN_FIX_BITS);
@@ -303,7 +311,7 @@ void rk_aiq_sharp34_params_cvt(void * attr, struct isp39_isp_params_cfg* isp_cfg
     // gain dis strength
     for (int i = 0; i < RK_SHARP_V34_STRENGTH_TABLE_LEN; i++) {
         tmp                        = ROUND_F(pdyn->sharpOpt.hw_sharpT_radiDist2ShpScl_val[i] *
-                      (1 << RK_SHARP_V34_STRENGTH_TABLE_FIX_BITS));
+                                             (1 << RK_SHARP_V34_STRENGTH_TABLE_FIX_BITS));
         pFix->distance2strg_val[i] = CLIP(tmp, 0, 128);
     }
 
@@ -350,13 +358,15 @@ void rk_aiq_sharp34_params_cvt(void * attr, struct isp39_isp_params_cfg* isp_cfg
     pFix->tex_wet_scale = CLIP(tmp, 0, 31 * (1 << RK_SHARP_V34_TEX_FIX_BITS));
 
     // TEXTURE_LUT
-    for (int i = 0; i < 17; i++) pFix->tex2wgt_val[i] = pdyn->sharpOpt.hw_sharpT_texShpSclRemap_val[i];
+    for (int i = 0; i < 17; i++) {
+        pFix->tex2wgt_val[i] = pdyn->sharpOpt.hw_sharpT_texShpSclRemap_val[i];
+    }
 
     // TEXTURE2
     tmp = ROUND_F(pdyn->shpScl_texDetect.hw_sharpT_estNs_scale * (1 << RK_SHARP_V34_ADJ_GAIN_FIX_BITS));
     pFix->noise_strg = CLIP(tmp, 0, 16383);
 
-    for (int i = 0; i < 17; i++) pFix->detail2strg_val[i] = pdyn->shpScl_hf.hw_sharpT_hfScl2ShpScl_val[i];
+    for (int i = 0; i < 17; i++) pFix->detail2strg_val[i] = pdyn->sharpOpt.hw_sharpT_hfScl2ShpScl_val[i];
 
     return;
 }

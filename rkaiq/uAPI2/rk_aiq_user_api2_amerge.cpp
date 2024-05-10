@@ -274,6 +274,7 @@ XCamReturn rk_aiq_user_api2_amerge_v11_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx
 #if RKAIQ_HAVE_MERGE_V12
 XCamReturn rk_aiq_user_api2_amerge_v12_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
                                                  const mergeAttrV12_t* attr) {
+#ifndef USE_NEWSTRUCT
     CHECK_USER_API_ENABLE2(sys_ctx);
     CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_AMERGE);
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
@@ -308,10 +309,14 @@ XCamReturn rk_aiq_user_api2_amerge_v12_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx
     }
 
     return ret;
+#else
+    return XCAM_RETURN_ERROR_FAILED;
+#endif
 }
 
 XCamReturn rk_aiq_user_api2_amerge_v12_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
                                                  mergeAttrV12_t* attr) {
+#ifndef USE_NEWSTRUCT
     RKAIQ_API_SMART_LOCK(sys_ctx);
 
     if (sys_ctx->cam_type == RK_AIQ_CAM_TYPE_GROUP) {
@@ -342,7 +347,7 @@ XCamReturn rk_aiq_user_api2_amerge_v12_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx
             return algo_handle->getAttribV12(attr);
         }
     }
-
+#endif
     return XCAM_RETURN_NO_ERROR;
 }
 #else

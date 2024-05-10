@@ -13,6 +13,9 @@ typedef enum GammaHwVersion_e
     Gamma_HARDWARE_MAX,
 } GammaHwVersion_t;
 
+XCAM_BEGIN_DECLARE
+
+#if 0
 XCamReturn
 algo_gamma_SetAttrib
 (
@@ -26,10 +29,10 @@ algo_gamma_GetAttrib
     RkAiqAlgoContext*  ctx,
     gamma_api_attrib_t *attr
 );
+#endif
 
 XCamReturn GammaSelectParam(gamma_param_auto_t *pAuto, gamma_param_t* out);
 
-XCAM_BEGIN_DECLARE
 extern RkAiqAlgoDescription g_RkIspAlgoDescGamma;
 XCAM_END_DECLARE
 

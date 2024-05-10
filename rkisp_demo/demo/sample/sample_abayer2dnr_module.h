@@ -18,7 +18,7 @@
 #ifndef _SAMPLE_ABAYER2DNR_MODULE_H_
 #define _SAMPLE_ABAYER2DNR_MODULE_H_
 
-#include "base/xcam_common.h"
+#include "xcore/base/xcam_common.h"
 
 void sample_print_abayer2dnr_info(const void *arg);
 XCamReturn sample_abayer2dnr_module(const void *arg);

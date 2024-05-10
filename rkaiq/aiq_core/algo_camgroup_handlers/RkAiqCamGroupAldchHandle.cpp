@@ -19,7 +19,7 @@
 #include "algos/aldch/rk_aiq_uapi_aldch_v21_int.h"
 
 namespace RkCam {
-
+#if (USE_NEWSTRUCT == 0)
 XCamReturn RkAiqCamGroupAldchHandleInt::updateConfig(bool needSync) {
     ENTER_ANALYZER_FUNCTION();
 
@@ -155,6 +155,7 @@ XCamReturn RkAiqCamGroupAldchHandleInt::getAttrib(rk_aiq_ldch_attrib_t* att) {
     EXIT_ANALYZER_FUNCTION();
     return ret;
 }
+#endif
 #endif
 
 }  // namespace RkCam

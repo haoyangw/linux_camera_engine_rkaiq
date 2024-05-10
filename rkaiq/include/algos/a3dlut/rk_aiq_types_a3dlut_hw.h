@@ -19,7 +19,7 @@
 
 #ifndef _RK_AIQ_TYPES_A3DLUT_HW_H_
 #define _RK_AIQ_TYPES_A3DLUT_HW_H_
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 #define LUT3D_LUT_GRID_NUM 9
 #define LUT3D_LUT_WSIZE   (LUT3D_LUT_GRID_NUM*LUT3D_LUT_GRID_NUM*LUT3D_LUT_GRID_NUM)
 RKAIQ_BEGIN_DECLARE

@@ -1,9 +1,9 @@
 #ifndef _RK_AIQ_UAPI_ATMO_INT_H_
 #define _RK_AIQ_UAPI_ATMO_INT_H_
 
-#include "base/xcam_common.h"
-#include "rk_aiq_algo_des.h"
-#include "rk_aiq_types_atmo_algo_int.h"
+#include "xcore/base/xcam_common.h"
+#include "algos/rk_aiq_algo_des.h"
+#include "algos/atmo/rk_aiq_types_atmo_algo_int.h"
 
 
 // TODO: move the structs define to a separate file,

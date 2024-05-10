@@ -13,9 +13,10 @@ cmake_minimum_required(VERSION 2.8)
 PROJECT(rk_stream)
 
 add_compile_options(-DUSE_RAWSTREAM_LIB)
-
+add_compile_options(${ISP_HW_VERSION})
 include_directories(
     include
+    ${AIQ_DIR}
     ${AIQ_DIR}/xcore
     ${AIQ_DIR}/xcore/base
     ${AIQ_DIR}/aiq_core
@@ -35,8 +36,8 @@ include_directories(
     )
 
 set(XCORE_SRC
-    ${AIQ_DIR}/xcore/xcam_common.cpp
-    ${AIQ_DIR}/xcore/xcam_log.cpp
+    ${AIQ_DIR}/xcore/xcam_common.c
+    ${AIQ_DIR}/xcore/xcam_log.c
     ${AIQ_DIR}/xcore/xcam_thread.cpp
     ${AIQ_DIR}/xcore/xcam_buffer.cpp
     ${AIQ_DIR}/xcore/video_buffer.cpp

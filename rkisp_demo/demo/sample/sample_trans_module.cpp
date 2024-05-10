@@ -19,6 +19,8 @@
 
 #ifdef ISP_HW_V39
 #include "rk_aiq_user_api2_rk3576.h"
+#elif  defined(ISP_HW_V33)
+#include "rk_aiq_user_api2_rv1103B.h"
 #elif  defined(ISP_HW_V32)
 #include "rk_aiq_user_api2_rv1106.h"
 #endif
@@ -89,18 +91,36 @@ static void sample_trans_tuningtool_test(const rk_aiq_sys_ctx_t* ctx)
     printf(">>> tuning tool test done \n");
 }
 
-static void sample_new_trans(const rk_aiq_sys_ctx_t* ctx) {
-    sample_trans_tuningtool_test(ctx);
+void get_manual_attr(trans_api_attrib_t* attr) {
+    trans_param_t* stMan = &attr->stMan;
+}
 
-    trans_api_attrib_t attr_trans;
+void sample_new_trans(const rk_aiq_sys_ctx_t* ctx) {
+    // sample_trans_tuningtool_test(ctx);
+
+    printf("+++++++ trans module test start ++++++++\n");
+    trans_api_attrib_t attr;
     trans_status_t status;
-    rk_aiq_user_api2_trans_GetAttrib(ctx, &attr_trans);
-    printf("\t attr_trans.opMode:%d attr_trans.en:%d\n\n",
-            attr_trans.opMode, attr_trans.en);
+    rk_aiq_user_api2_trans_GetAttrib(ctx, &attr);
+    printf("\t attr.opMode:%d attr.en:%d\n\n",
+            attr.opMode, attr.en);
 
-    attr_trans.opMode = RK_AIQ_OP_MODE_MANUAL;
-    attr_trans.stMan.sta.hw_transCfg_transOfDrc_offset += 1;
-    rk_aiq_user_api2_trans_SetAttrib(ctx, &attr_trans);
+    srand(time(0));
+    int rand_num = rand() % 101;
+
+    if (rand_num <70) {
+        printf("update trans arrrib!\n");
+        attr.opMode = RK_AIQ_OP_MODE_MANUAL;
+        get_manual_attr(&attr);
+    }
+    else {
+        // reverse en
+        printf("reverse trans en!\n");
+        attr.en = !attr.en;
+    }
+
+    // attr.stMan.sta.hw_transCfg_transOfDrc_offset += 1;
+    rk_aiq_user_api2_trans_SetAttrib(ctx, &attr);
 
     rk_aiq_user_api2_trans_QueryStatus(ctx, &status);
     printf("\t status.opMode:%d status.en:%d\n\n",

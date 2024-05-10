@@ -20,7 +20,7 @@
 #ifndef __AF_HW_STATICS_HEADER_H__
 #define __AF_HW_STATICS_HEADER_H__
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 
 #define AFSTATS_ZONE_ROW            15
@@ -57,7 +57,7 @@ typedef enum afStats_src_mode_e {
     */
     afStats_vicapOut_mode = 6
 } afStats_src_mode_t;
-    
+
 typedef enum afStats_ds_mode_e {
     /*
     reg: (sw_rawaf_avg_ds_en == 0 && sw_rawaf_v_dnscl_mode == 1)
@@ -79,8 +79,8 @@ typedef enum afStats_ds_mode_e {
 
 
 typedef enum afStats_hFiltLnBnd_mode_e {
-    afStats_hFiltLnBnd_preLnPix_mode = 0,
-    afStats_hFiltLnBnd_curLnPix_mode = 1
+    afStats_hFiltLnBnd_preLn_mode = 0,
+    afStats_hFiltLnBnd_curLn_mode = 1
 } afStats_hFiltLnBnd_mode_t;
 typedef struct afStats_coring_s {
     /* M4_GENERIC_DESC(
@@ -88,7 +88,7 @@ typedef struct afStats_coring_s {
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0, 1),
-        M4_DEFAULT(0),
+        M4_DEFAULT(0.001),
         M4_DIGIT_EX(10f10b),
         M4_HIDE_EX(0),
         M4_RO(0),
@@ -102,7 +102,7 @@ typedef struct afStats_coring_s {
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0.0039, 1.996),
-        M4_DEFAULT(0),
+        M4_DEFAULT(1),
         M4_DIGIT_EX(8f9b),
         M4_HIDE_EX(0),
         M4_RO(0),
@@ -116,7 +116,7 @@ typedef struct afStats_coring_s {
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0, 1),
-        M4_DEFAULT(0),
+        M4_DEFAULT(1),
         M4_DIGIT_EX(10f10b),
         M4_HIDE_EX(0),
         M4_RO(0),
@@ -133,7 +133,7 @@ typedef struct afStats_hLdg_s {
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0, 1.0),
-        M4_DEFAULT(0),
+        M4_DEFAULT(0.25),
         M4_DIGIT_EX(8f8b),
         M4_HIDE_EX(0),
         M4_RO(0),
@@ -147,7 +147,7 @@ typedef struct afStats_hLdg_s {
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0, 1.0),
-        M4_DEFAULT(0),
+        M4_DEFAULT(0.109),
         M4_DIGIT_EX(8f8b),
         M4_HIDE_EX(0),
         M4_RO(0),
@@ -161,8 +161,8 @@ typedef struct afStats_hLdg_s {
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0.0, 31.996),
-        M4_DEFAULT(0),
-        M4_DIGIT_EX(8f13b),
+        M4_DEFAULT(5.023),
+        M4_DIGIT_EX(6f13b),
         M4_RO(0),
         M4_ORDER(2),
         M4_NOTES(Slope value at dark side of ldg function.\n
@@ -174,7 +174,7 @@ typedef struct afStats_hLdg_s {
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0, 1.0),
-        M4_DEFAULT(0),
+        M4_DEFAULT(0.004),
         M4_DIGIT_EX(8f8b),
         M4_HIDE_EX(0),
         M4_RO(0),
@@ -188,7 +188,7 @@ typedef struct afStats_hLdg_s {
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0, 1.0),
-        M4_DEFAULT(0),
+        M4_DEFAULT(0.725),
         M4_DIGIT_EX(8f8b),
         M4_HIDE_EX(0),
         M4_RO(0),
@@ -202,8 +202,8 @@ typedef struct afStats_hLdg_s {
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0.0, 31.996),
-        M4_DEFAULT(0),
-        M4_DIGIT_EX(8f13b),
+        M4_DEFAULT(0.031),
+        M4_DIGIT_EX(6f13b),
         M4_RO(0),
         M4_ORDER(5),
         M4_NOTES(Slope value at bright side of ldg function.\n
@@ -213,6 +213,8 @@ typedef struct afStats_hLdg_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_afCfg_maxOptBndL_len),
         M4_TYPE(u8),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 7),
         M4_DEFAULT(0),
         M4_HIDE_EX(0),
         M4_RO(0),
@@ -228,7 +230,7 @@ typedef struct afStats_vLdg_s {
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0, 1.0),
-        M4_DEFAULT(0),
+        M4_DEFAULT(0.25),
         M4_DIGIT_EX(8f8b),
         M4_HIDE_EX(0),
         M4_RO(0),
@@ -242,7 +244,7 @@ typedef struct afStats_vLdg_s {
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0, 1.0),
-        M4_DEFAULT(0),
+        M4_DEFAULT(0.109),
         M4_DIGIT_EX(8f8b),
         M4_HIDE_EX(0),
         M4_RO(0),
@@ -256,8 +258,8 @@ typedef struct afStats_vLdg_s {
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0.0, 31.996),
-        M4_DEFAULT(0),
-        M4_DIGIT_EX(8f13b),
+        M4_DEFAULT(5.023),
+        M4_DIGIT_EX(6f13b),
         M4_RO(0),
         M4_ORDER(2),
         M4_NOTES(Slope value at dark side of ldg function.\n
@@ -269,7 +271,7 @@ typedef struct afStats_vLdg_s {
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0, 1.0),
-        M4_DEFAULT(0),
+        M4_DEFAULT(0.004),
         M4_DIGIT_EX(8f8b),
         M4_HIDE_EX(0),
         M4_RO(0),
@@ -285,7 +287,7 @@ typedef struct afStats_vLdg_s {
         M4_RANGE_EX(0, 1.0),
         M4_DEFAULT(0),
         M4_DIGIT_EX(8f8b),
-        M4_HIDE_EX(0),
+        M4_HIDE_EX(0.725),
         M4_RO(0),
         M4_ORDER(4),
         M4_NOTES(Gain value at bright side of ldg function.\n
@@ -297,8 +299,8 @@ typedef struct afStats_vLdg_s {
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0.0, 31.996),
-        M4_DEFAULT(0),
-        M4_DIGIT_EX(8f13b),
+        M4_DEFAULT(0.031),
+        M4_DIGIT_EX(6f13b),
         M4_RO(0),
         M4_ORDER(5),
         M4_NOTES(Slope value at bright side of ldg function.\n
@@ -346,7 +348,7 @@ typedef struct afStats_hFilt_s {
         M4_TYPE(s16),
         M4_SIZE_EX(1,6),
         M4_RANGE_EX(-2047,2047),
-        M4_DEFAULT([100, 870, -399, 191, 0, -191]),
+        M4_DEFAULT([512, 870, -399, 37, 0, -37]),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
@@ -397,7 +399,7 @@ typedef struct afStats_vFilt_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_afCfg_iirStep1_coeff),
         M4_TYPE(s16),
-        M4_SIZE_EX(1,6),
+        M4_SIZE_EX(1,3),
         M4_RANGE_EX(-2047,2047),
         M4_DEFAULT([-265, 686, 512]),
         M4_HIDE_EX(0),
@@ -410,7 +412,7 @@ typedef struct afStats_vFilt_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_afT_firStep2_coeff),
         M4_TYPE(s16),
-        M4_SIZE_EX(1,6),
+        M4_SIZE_EX(1,3),
         M4_RANGE_EX(-2047,2047),
         M4_DEFAULT([-124, 0, 124]),
         M4_HIDE_EX(0),
@@ -433,11 +435,11 @@ typedef struct afStats_vFilt_s {
     afStats_fvFmt_mode_t hw_afCfg_fvFmt_mode;
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_afCfg_accMainWin_shift),
-        M4_TYPE(f32),
+        M4_TYPE(u8),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0, 7),
         M4_DEFAULT(0),
-        M4_HIDE_EX(0),
+        M4_HIDE_EX(1),
         M4_RO(0),
         M4_ORDER(3),
         M4_NOTES(...\n
@@ -446,11 +448,11 @@ typedef struct afStats_vFilt_s {
     uint8_t hw_afCfg_accMainWin_shift;
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_afCfg_accSubWin_val),
-        M4_TYPE(f32),
+        M4_TYPE(u8),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0, 15),
         M4_DEFAULT(0),
-        M4_HIDE_EX(0),
+        M4_HIDE_EX(1),
         M4_RO(0),
         M4_ORDER(4),
         M4_NOTES(...\n
@@ -467,6 +469,7 @@ typedef struct afStats_gamma_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP_CTRL(gamma_en_group),
         M4_NOTES(Whether to enable gamma function.\nFreq of use: low))  */
     //reg: sw_gamma_en
     bool hw_afCfg_gamma_en;
@@ -480,6 +483,7 @@ typedef struct afStats_gamma_s {
         M4_DIGIT_EX(8f8b),
         M4_RO(0),
         M4_ORDER(1),
+        M4_GROUP(gamma_en_group),
         M4_NOTES(Gamma curve in af statics.\nFreq of use: high))  */
     //reg: sw_y0 ~ sw_y16
     float hw_afCfg_gamma_val[17]; 
@@ -493,6 +497,7 @@ typedef struct afStats_gaus_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP_CTRL(gause_en_group),
         M4_NOTES(Whether to enable gause filter.\nFreq of use: low))  */
     //reg: sw_gaus_en
     bool hw_afCfg_gaus_en;
@@ -506,6 +511,7 @@ typedef struct afStats_gaus_s {
         M4_DIGIT_EX(8f8b),
         M4_RO(0),
         M4_ORDER(1),
+        M4_GROUP(gause_en_group),
         M4_NOTES(Gause coefficient in af statics.\nFreq of use: high))  */
     //reg: sw_rawaf_gaus_coe0 ~ sw_rawaf_gaus_coe8
     float hw_afCfg_gaus_coeff[9];
@@ -560,16 +566,6 @@ typedef struct afStats_mainWin_s {
         M4_NOTES(Vertical size of af statics roi.\nFreq of use: high))  */
     //reg: sw_a_v_size
     uint16_t hw_afCfg_win_height;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_afCfg_lumaStats_en),
-        M4_TYPE(bool),
-        M4_DEFAULT(1),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(4),
-        M4_NOTES(Enable luma and highlight statics.\n))  */
-    //reg: sw_rawaf_aehgl_en
-    bool hw_afCfg_lumaStats_en;
 } afStats_mainWin_t;
 
 typedef struct afStats_subWin_s {
@@ -623,42 +619,28 @@ typedef struct afStats_subWin_s {
     uint16_t hw_afCfg_win_height;
 } afStats_subWin_t;
 
-typedef struct afStats_blc_s {
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_afCfg_blc_en),
-        M4_TYPE(bool),
-        M4_DEFAULT(1),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(Enable blc function\nFreq of use: low))  */
-    //reg: sw_rawaf_bls_en
-    bool hw_afCfg_blc_en;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_afCfg_blc_offset),
-        M4_TYPE(s16),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(-255,255),
-        M4_DEFAULT(0),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(1),
-        M4_NOTES(Offset value of black level\nFreq of use: low))  */
-    //reg: sw_rawaf_bls_offset
-    int16_t hw_afCfg_ob_val;
-} afStats_blc_t;
-
 typedef struct afStats_cfg_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_afCfg_stats_en),
         M4_TYPE(bool),
         M4_DEFAULT(1),
-        M4_HIDE_EX(0),
+        M4_HIDE_EX(1),
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(Enable af statics\nFreq of use: low))  */
     //reg: sw_rawaf_en
     bool hw_afCfg_stats_en;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(hw_afCfg_ldg_en),
+        M4_TYPE(bool),
+        M4_DEFAULT(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_GROUP_CTRL(ldg_en_group),
+        M4_NOTES(Enable ldg function.\nFreq of use: high))  */
+    //reg: sw_rawaf_ldg_en
+    bool hw_afCfg_ldg_en;
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_afCfg_statsSrc_mode),
         M4_TYPE(enum),
@@ -666,7 +648,7 @@ typedef struct afStats_cfg_s {
         M4_DEFAULT(afStats_chl0Wb0Out_mode),
         M4_HIDE_EX(0),
         M4_RO(0),
-        M4_ORDER(1),
+        M4_ORDER(2),
         M4_NOTES(Input source selection. Reference enum types.\nFreq of use: high))  */
     afStats_src_mode_t hw_afCfg_statsSrc_mode;
     /* M4_GENERIC_DESC(
@@ -677,7 +659,7 @@ typedef struct afStats_cfg_s {
         M4_DEFAULT(0),
         M4_HIDE_EX(0),
         M4_RO(0),
-        M4_ORDER(2),
+        M4_ORDER(3),
         M4_NOTES(Right shift bit number when use af_statsBtnrOut_mode.\nFreq of use: high))  */
     //reg: sw_rawaf_tnrin_shift
     uint8_t hw_afCfg_statsBtnrOut_shift;
@@ -685,34 +667,25 @@ typedef struct afStats_cfg_s {
         M4_ALIAS(mainWin),
         M4_TYPE(struct),
         M4_UI_MODULE(normal_ui_style),
-        M4_HIDE_EX(0),
+        M4_HIDE_EX(1),
         M4_RO(0),
-        M4_ORDER(3),
+        M4_ORDER(4),
         M4_NOTES(Roi of window A))  */
     afStats_mainWin_t mainWin;
     /* M4_GENERIC_DESC(
         M4_ALIAS(subWin),
         M4_TYPE(struct),
         M4_UI_MODULE(normal_ui_style),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(4),
-        M4_NOTES(Roi of window B))  */
-    afStats_subWin_t subWin;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(blc),
-        M4_TYPE(struct),
-        M4_UI_MODULE(normal_ui_style),
-        M4_HIDE_EX(0),
+        M4_HIDE_EX(1),
         M4_RO(0),
         M4_ORDER(5),
-        M4_NOTES(Black level setting))  */
-    afStats_blc_t blc;
+        M4_NOTES(Roi of window B))  */
+    afStats_subWin_t subWin;
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_afCfg_ds_mode),
         M4_TYPE(enum),
         M4_ENUM_DEF(afStats_ds_mode_t),
-        M4_DEFAULT(AFSEL_DPCCOUT_0),
+        M4_DEFAULT(afStats_ds_disable_mode),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(6),
@@ -750,34 +723,13 @@ typedef struct afStats_cfg_s {
     //reg: sw_rawaf_highlit_thresh
     float hw_afCfg_hLumaCnt_thred;
     /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_afCfg_ldg_en),
-        M4_TYPE(bool),
-        M4_DEFAULT(0),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(10),
-        M4_NOTES(Enable ldg function.\nFreq of use: high))  */
-    //reg: sw_rawaf_ldg_en
-    bool hw_afCfg_ldg_en;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_afCfg_hFilt_en),
-        M4_TYPE(bool),
-        M4_DEFAULT(1),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(11),
-        M4_NOTES(Whether to enable horizontal filter.\n
-        Freq of use: low))  */
-    //reg: sw_rawaf_hiir_en
-    bool hw_afCfg_hFilt_en;
-    /* M4_GENERIC_DESC(
         M4_ALIAS(hw_afCfg_hFiltLnBnd_mode),
         M4_TYPE(enum),
         M4_ENUM_DEF(afStats_hFiltLnBnd_mode_t),
-        M4_DEFAULT(afStats_hFiltLnBnd_curLnPix_mode),
+        M4_DEFAULT(afStats_hFiltLnBnd_curLn_mode),
         M4_HIDE_EX(0),
         M4_RO(0),
-        M4_ORDER(12),
+        M4_ORDER(10),
         M4_NOTES(Weather left border of horizontal filter use above line right border out.\nFreq of use: low))  */
     //reg: sw_rawaf_hiir_left_border_mode
     afStats_hFiltLnBnd_mode_t hw_afCfg_hFiltLnBnd_mode;
@@ -787,7 +739,7 @@ typedef struct afStats_cfg_s {
         M4_UI_MODULE(normal_ui_style),
         M4_HIDE_EX(0),
         M4_RO(0),
-        M4_ORDER(13),
+        M4_ORDER(11),
         M4_NOTES(Horizontal filter 1 setting))  */
     afStats_hFilt_t hFilt1;
     /* M4_GENERIC_DESC(
@@ -796,7 +748,7 @@ typedef struct afStats_cfg_s {
         M4_UI_MODULE(normal_ui_style),
         M4_HIDE_EX(0),
         M4_RO(0),
-        M4_ORDER(14),
+        M4_ORDER(12),
         M4_NOTES(Horizontal filter 2 setting))  */
     afStats_hFilt_t hFilt2;
     /* M4_GENERIC_DESC(
@@ -805,7 +757,7 @@ typedef struct afStats_cfg_s {
         M4_UI_MODULE(normal_ui_style),
         M4_HIDE_EX(0),
         M4_RO(0),
-        M4_ORDER(15),
+        M4_ORDER(13),
         M4_NOTES(Horizontal filter coring setting))  */
     afStats_coring_t hFilt_coring;
     /* M4_GENERIC_DESC(
@@ -814,27 +766,17 @@ typedef struct afStats_cfg_s {
         M4_UI_MODULE(normal_ui_style),
         M4_HIDE_EX(0),
         M4_RO(0),
-        M4_ORDER(16),
+        M4_ORDER(14),
+        M4_GROUP(ldg_en_group),
         M4_NOTES(Horizontal filter ldg setting))  */
     afStats_hLdg_t hFilt_ldg;    
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_afCfg_vFilt_en),
-        M4_TYPE(bool),
-        M4_DEFAULT(1),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(18),
-        M4_NOTES(Whether to enable vertical filter.\n
-        Freq of use: low))  */
-    //reg: sw_rawaf_viir_en
-    bool hw_afCfg_vFilt_en;
     /* M4_GENERIC_DESC(
         M4_ALIAS(vFilt1),
         M4_TYPE(struct),
         M4_UI_MODULE(normal_ui_style),
         M4_HIDE_EX(0),
         M4_RO(0),
-        M4_ORDER(19),
+        M4_ORDER(15),
         M4_NOTES(Vertical filter 1 setting))  */
     afStats_vFilt_t vFilt1;
     /* M4_GENERIC_DESC(
@@ -843,7 +785,7 @@ typedef struct afStats_cfg_s {
         M4_UI_MODULE(normal_ui_style),
         M4_HIDE_EX(0),
         M4_RO(0),
-        M4_ORDER(20),
+        M4_ORDER(16),
         M4_NOTES(Vertical filter 2 setting))  */
     afStats_vFilt_t vFilt2;
     /* M4_GENERIC_DESC(
@@ -852,7 +794,7 @@ typedef struct afStats_cfg_s {
         M4_UI_MODULE(normal_ui_style),
         M4_HIDE_EX(0),
         M4_RO(0),
-        M4_ORDER(21),
+        M4_ORDER(17),
         M4_NOTES(Vertical filter coring setting))  */
     afStats_coring_t vFilt_coring;
     /* M4_GENERIC_DESC(
@@ -861,7 +803,8 @@ typedef struct afStats_cfg_s {
         M4_UI_MODULE(normal_ui_style),
         M4_HIDE_EX(0),
         M4_RO(0),
-        M4_ORDER(22),
+        M4_ORDER(18),
+        M4_GROUP(ldg_en_group),
         M4_NOTES(Vertical filter ldg setting))  */
     afStats_vLdg_t vFilt_ldg;
 } afStats_cfg_t;

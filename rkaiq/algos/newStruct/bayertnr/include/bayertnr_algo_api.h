@@ -8,10 +8,16 @@
 #elif RKAIQ_HAVE_BAYERTNR_V30
 #include "isp/rk_aiq_isp_btnr40.h"
 #include "algos/rk_aiq_api_types_btnr40.h"
+#elif RKAIQ_HAVE_BAYERTNR_V41
+#include "isp/rk_aiq_isp_btnr41.h"
+#include "algos/rk_aiq_api_types_btnr41.h"
 #else
 #error "wrong btnr hw version !"
 #endif
 
+RKAIQ_BEGIN_DECLARE
+
+#if 0 
 XCamReturn
 algo_bayertnr_SetAttrib
 (
@@ -25,10 +31,15 @@ algo_bayertnr_GetAttrib(
     const RkAiqAlgoContext *ctx,
     btnr_api_attrib_t *attr
 );
+#endif
+XCamReturn
+algo_bayertnr_SetStrength(RkAiqAlgoContext *ctx, float strg, bool strg_en);
 
-XCamReturn BtnrSelectParam(btnr_param_auto_t *pAuto, btnr_param_t* out, int iso);
+XCamReturn
+algo_bayertnr_GetStrength(RkAiqAlgoContext *ctx, float *strg, bool *strg_en);
 
-RKAIQ_BEGIN_DECLARE
+XCamReturn Abtnr_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams, int iso);
+
 extern RkAiqAlgoDescription g_RkIspAlgoDescBayertnr;
 RKAIQ_END_DECLARE
 

@@ -18,11 +18,13 @@
 #ifndef _SAMPLE_ACCM_MODULE_H_
 #define _SAMPLE_ACCM_MODULE_H_
 
-#include "base/xcam_common.h"
+#include "xcore/base/xcam_common.h"
 
 void sample_print_accm_info(const void *arg);
 XCamReturn sample_accm_module(const void *arg);
 void sample_print_accm_v2_info(const void *arg);
-XCamReturn sample_accm_v2_module(const void *arg);
-
+XCamReturn sample_accm_v2_module(const void* arg);
+#ifdef USE_NEWSTRUCT
+int sample_ccm_test(const rk_aiq_sys_ctx_t* ctx);
+#endif
 #endif

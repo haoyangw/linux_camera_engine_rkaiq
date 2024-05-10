@@ -20,10 +20,10 @@
 
 #ifndef _RK_AIQ_TYPE_ABLC_ALGO_INT_H_
 #define _RK_AIQ_TYPE_ABLC_ALGO_INT_H_
-#include "ablc/rk_aiq_types_ablc_algo.h"
-#include "RkAiqCalibDbTypes.h"
-#include "ablc_head.h"
-#include "ablc_uapi_head.h"
+#include "algos/ablc/rk_aiq_types_ablc_algo.h"
+#include "iq_parser/RkAiqCalibDbTypes.h"
+#include "iq_parser_v2/ablc_head.h"
+#include "iq_parser_v2/ablc_uapi_head.h"
 
 
 #define ABLC_RECALCULATE_DELTE_ISO  (10)

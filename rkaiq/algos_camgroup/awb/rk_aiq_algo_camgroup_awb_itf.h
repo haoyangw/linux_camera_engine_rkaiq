@@ -31,6 +31,7 @@
 XCAM_BEGIN_DECLARE
 
 extern RkAiqAlgoDescription g_RkIspAlgoDescCamgroupAwb;
+XCamReturn awbGroupProcessing2(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams);
 
 XCAM_END_DECLARE
 

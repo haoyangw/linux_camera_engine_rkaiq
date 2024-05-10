@@ -24,6 +24,85 @@ RKAIQ_BEGIN_DECLARE
 #define CHECK_USER_API_ENABLE
 #endif
 
+#ifndef USE_IMPLEMENT_C
+static XCamReturn
+_btnr_SetStrength(const rk_aiq_sys_ctx_t* sys_ctx, float percent, bool enable)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    RkAiqBtnrHandleInt* algo_handle =
+        algoHandle<RkAiqBtnrHandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_AMFNR);
+    if (algo_handle) {
+        algo_handle->setStrength(percent, enable);
+    }
+    return ret;
+}
+
+XCamReturn
+rk_aiq_user_api2_btnr_SetStrength(const rk_aiq_sys_ctx_t* sys_ctx, abtnr_strength_t *strg)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+#if USE_NEWSTRUCT
+    CHECK_USER_API_ENABLE2(sys_ctx);
+    CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_AMFNR);
+    RKAIQ_API_SMART_LOCK(sys_ctx);
+    if (sys_ctx->cam_type == RK_AIQ_CAM_TYPE_GROUP) {
+#ifdef RKAIQ_ENABLE_CAMGROUP
+        const rk_aiq_camgroup_ctx_t* camgroup_ctx = (rk_aiq_camgroup_ctx_t *)sys_ctx;
+        if (camgroup_ctx->cam_ctxs_array[0])
+            return _btnr_SetStrength(camgroup_ctx->cam_ctxs_array[0], strg->percent, strg->en);
+        else
+            return XCAM_RETURN_ERROR_FAILED;
+#else
+        return XCAM_RETURN_ERROR_FAILED;
+#endif
+    } else {
+        return _btnr_SetStrength(sys_ctx, strg->percent, strg->en);
+    }
+#else
+    return XCAM_RETURN_ERROR_UNKNOWN;
+#endif
+    return XCAM_RETURN_NO_ERROR;
+}
+
+static XCamReturn
+_btnr_GetStrength(const rk_aiq_sys_ctx_t* sys_ctx, float *percent, bool *enable)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    RkAiqBtnrHandleInt* algo_handle =
+        algoHandle<RkAiqBtnrHandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_AMFNR);
+    if (algo_handle) {
+        algo_handle->getStrength(percent, enable);
+    }
+    return ret;
+}
+
+XCamReturn
+rk_aiq_user_api2_btnr_GetStrength(const rk_aiq_sys_ctx_t* sys_ctx, abtnr_strength_t *strg)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+#if USE_NEWSTRUCT
+    CHECK_USER_API_ENABLE2(sys_ctx);
+    CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_AMFNR);
+    RKAIQ_API_SMART_LOCK(sys_ctx);
+    if (sys_ctx->cam_type == RK_AIQ_CAM_TYPE_GROUP) {
+#ifdef RKAIQ_ENABLE_CAMGROUP
+        const rk_aiq_camgroup_ctx_t* camgroup_ctx = (rk_aiq_camgroup_ctx_t *)sys_ctx;
+        if (camgroup_ctx->cam_ctxs_array[0])
+            return _btnr_GetStrength(camgroup_ctx->cam_ctxs_array[0], &strg->percent, &strg->en);
+        else
+            return XCAM_RETURN_ERROR_FAILED;
+#else
+        return XCAM_RETURN_ERROR_FAILED;
+#endif
+    } else {
+        return _btnr_GetStrength(sys_ctx, &strg->percent, &strg->en);
+    }
+#else
+    return XCAM_RETURN_ERROR_UNKNOWN;
+#endif
+    return XCAM_RETURN_NO_ERROR;
+}
+
 static XCamReturn
 _btnr_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, btnr_api_attrib_t* attr)
 {
@@ -40,6 +119,11 @@ _btnr_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, btnr_api_attrib_t* attr)
     params.aut_param_ptr = &attr->stAuto;
     ret = sys_ctx->_rkAiqManager->getGlobalParamsManager()->set(&params);
 
+    RkAiqBtnrHandleInt* algo_handle =
+        algoHandle<RkAiqBtnrHandleInt>(sys_ctx, RK_AIQ_ALGO_TYPE_AMFNR);
+    if (algo_handle) {
+        algo_handle->setAttrib(attr);
+    }
     return ret;
 }
 
@@ -173,5 +257,6 @@ rk_aiq_user_api2_btnr_QueryStatus(const rk_aiq_sys_ctx_t* sys_ctx, btnr_status_t
 #endif
    return XCAM_RETURN_NO_ERROR;
 }
+#endif
 
 RKAIQ_END_DECLARE

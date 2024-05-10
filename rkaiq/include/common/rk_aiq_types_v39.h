@@ -16,23 +16,19 @@
 #ifndef _RK_AIQ_TYPES_V39_H_
 #define _RK_AIQ_TYPES_V39_H_
 
-#include "abayertnrV30/rk_aiq_types_abayertnr_algo_v30.h"
-#include "acnrV31/rk_aiq_types_acnr_algo_v31.h"
-#include "adebayer/rk_aiq_types_adebayer_algo.h"
-#include "argbir/rk_aiq_types_argbir_algo.h"
-#include "asharpV34/rk_aiq_types_asharp_algo_v34.h"
-#include "aynrV24/rk_aiq_types_aynr_algo_v24.h"
-#include "ayuvmeV1/rk_aiq_types_ayuvme_algo_v1.h"
-#include "isp/rk_aiq_isp_trans10.h"
-#include "rk_aiq_api_types_trans.h"
-#if USE_NEWSTRUCT
-#include "isp/rk_aiq_isp_drc40.h"
-#endif
-#include "rk_aiq_comm.h"
+#include "algos/abayertnrV30/rk_aiq_types_abayertnr_algo_v30.h"
+#include "algos/acnrV31/rk_aiq_types_acnr_algo_v31.h"
+#include "algos/adebayer/rk_aiq_types_adebayer_algo.h"
+#include "algos/aldc/rk_aiq_types_aldc_algo.h"
+#include "algos/argbir/rk_aiq_types_argbir_algo.h"
+#include "algos/asharpV34/rk_aiq_types_asharp_algo_v34.h"
+#include "algos/aynrV24/rk_aiq_types_aynr_algo_v24.h"
+#include "algos/ayuvmeV1/rk_aiq_types_ayuvme_algo_v1.h"
+#include "common/rk_aiq_comm.h"
 #include "rk_aiq_mems_sensor.h"
 
-#ifndef ISP32_LDCH_BIC_NUM
-#define ISP32_LDCH_BIC_NUM      36
+#ifndef ISP39_LDCH_BIC_NUM
+#define ISP39_LDCH_BIC_NUM 36
 #endif
 
 typedef AdebayerHwConfigV3_t rk_aiq_isp_debayer_v39_t;
@@ -43,19 +39,21 @@ typedef RK_YUVME_Fix_V1_t rk_aiq_isp_yuvme_v39_t;
 typedef RK_CNR_Fix_V31_t rk_aiq_isp_cnr_v39_t;
 #ifndef USE_NEWSTRUCT
 typedef RkAiqAdrcProcResult_t rk_aiq_isp_drc_v39_t;
+typedef RkAiqAdehazeProcResult_t rk_aiq_isp_dehaze_v39_t;
 #endif
 typedef RkAiqArgbirProcResult_t rk_aiq_isp_rgbir_v39_t;
 typedef RK_YNR_Fix_V24_t rk_aiq_isp_ynr_v39_t;
 
 typedef RK_SHARP_Fix_V34_t rk_aiq_isp_sharp_v39_t;
 
-typedef RkAiqAdehazeProcResult_t rk_aiq_isp_dehaze_v39_t;
+typedef struct rk_aiq_isp_ldc_s {
+    bool ldch_en;
+    bool ldcv_en;
+    rkaiq_ldc_hw_param_t cfg;
+} rk_aiq_isp_ldc_t;
 
-#if USE_NEWSTRUCT
-typedef struct rk_aiq_isp_drc_v39_s {
-    drc_param_t drc_param;
-    trans_api_attrib_t trans_attr;
-} rk_aiq_isp_drc_v39_t;
-#endif
+
+typedef awbStats_cfg_priv_t rk_aiq_isp_awb_meas_cfg_v39_t;
+typedef awbStats_stats_priv_t rk_aiq_isp_awb_stats_v39_t;
 
 #endif

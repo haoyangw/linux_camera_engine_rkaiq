@@ -20,7 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 #ifndef offsetof
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)

@@ -18,9 +18,10 @@
 #ifndef _SAMPLE_ADEHAZE_MODULE_H_
 #define _SAMPLE_ADEHAZE_MODULE_H_
 
-#include "base/xcam_common.h"
-
+#include "xcore/base/xcam_common.h"
 void sample_print_adehaze_info(const void *arg);
-XCamReturn sample_adehaze_module(const void *arg);
-
+XCamReturn sample_adehaze_module(const void* arg);
+#ifdef USE_NEWSTRUCT
+void sample_new_dehaze(const rk_aiq_sys_ctx_t* ctx);
+#endif
 #endif

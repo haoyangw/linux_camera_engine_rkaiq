@@ -11,9 +11,9 @@
 #ifndef __RK_AIQ_TYPES_AMERGE_ALGO_INT_H__
 #define __RK_AIQ_TYPES_AMERGE_ALGO_INT_H__
 
-#include "RkAiqCalibDbTypes.h"
-#include "amerge_head.h"
-#include "amerge_uapi_head.h"
+#include "iq_parser/RkAiqCalibDbTypes.h"
+#include "iq_parser_v2/amerge_head.h"
+#include "iq_parser_v2/amerge_uapi_head.h"
 
 typedef enum merge_OpMode_e {
     MERGE_OPMODE_AUTO   = 0,  // run auto merge

@@ -19,9 +19,9 @@
 
 #ifndef _RK_AIQ_TYPE_ALSC_ALGO_INT_H_
 #define _RK_AIQ_TYPE_ALSC_ALGO_INT_H_
-#include "alsc/rk_aiq_types_alsc_algo.h"
-#include "alsc_uapi_head.h"
-#include "rk_aiq_types_alsc_common.h"
+#include "algos/alsc/rk_aiq_types_alsc_algo.h"
+#include "iq_parser_v2/alsc_uapi_head.h"
+#include "algos/alsc/rk_aiq_types_alsc_common.h"
 
 
 RKAIQ_BEGIN_DECLARE

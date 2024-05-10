@@ -97,9 +97,15 @@ private:
                                    const rk_aiq_isp_af_v32_t& af_data, bool af_cfg_udpate);
 #endif
 #if RKAIQ_HAVE_CAC_V11
-   void convertAiqCacToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
+#ifdef USE_NEWSTRUCT
+    void convertAiqCacToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
+            struct isp32_isp_params_cfg& isp_cfg_right,
+            rk_aiq_isp_cac_params_t* cac_attr, bool is_multi_isp);
+#else
+    void convertAiqCacToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
             struct isp32_isp_params_cfg& isp_cfg_right,
             const rk_aiq_isp_cac_v32_t& cac_cfg, bool is_multi_isp);
+#endif
 #endif
 #if RKAIQ_HAVE_DEBAYER_V2 || RKAIQ_HAVE_DEBAYER_V2_LITE
 #ifdef USE_NEWSTRUCT
@@ -136,10 +142,16 @@ private:
                                     const rk_aiq_ccm_cfg_v2_t& ccm);
 #endif
 #if RKAIQ_HAVE_LDCH_V21
+#ifdef USE_NEWSTRUCT
+    void convertAiqLdchToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
+            struct isp32_isp_params_cfg& isp_cfg_right,
+            rk_aiq_isp_ldch_params_t* ldch_attr, bool is_multi_isp);
+#else
     void convertAiqAldchToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
                                       struct isp32_isp_params_cfg& isp_cfg_right,
                                       const rk_aiq_isp_ldch_v21_t& ldch_cfg,
                                       bool is_multi_isp);
+#endif
 #endif
     void convertAiqExpIspDgainToIsp32Params(struct isp32_isp_params_cfg& isp_cfg, RKAiqAecExpInfo_t ae_exp);
 
@@ -151,6 +163,18 @@ private:
 #if RKAIQ_HAVE_DPCC_V1
 #ifdef USE_NEWSTRUCT
     void convertAiqDpccToIsp32Params(struct isp32_isp_params_cfg& isp_cfg, rk_aiq_isp_dpcc_params_t* dpcc_attr);
+#endif
+#endif
+
+#if RKAIQ_HAVE_MERGE_V12
+#ifdef USE_NEWSTRUCT
+    void convertAiqMergeToIsp32Params(struct isp32_isp_params_cfg& isp_cfg, rk_aiq_isp_merge_params_t* merge_attr);
+#endif
+#endif
+
+#if RKAIQ_HAVE_LSC_V3
+#ifdef USE_NEWSTRUCT
+    void convertAiqLscToIsp32Params(struct isp32_isp_params_cfg& isp_cfg, rk_aiq_isp_lsc_params_t* lsc_attr);
 #endif
 #endif
 };

@@ -52,15 +52,17 @@ cc_library_static {
         "external/camera_engine_rkaiq/xcore/base",
         "external/camera_engine_rkaiq/xcore",
         "external/camera_engine_rkaiq/aiq_core",
+        "external/camera_engine_rkaiq/include/isp",
+        "external/camera_engine_rkaiq/c_base",
     ],
 
     srcs: [
-        "j2s/cJSON.cpp",
-        "j2s/cJSON_Utils.cpp",
-        "j2s/j2s.cpp",
-        "j2s/j2s_utils.cpp",
-        "RkAiqCalibDbV2.cpp",
-        "scene/scene_manager.cpp",
+        "j2s/cJSON.c",
+        "j2s/cJSON_Utils.c",
+        "j2s/j2s.c",
+        "j2s/j2s_utils.c",
+        "RkAiqCalibDbV2.c",
+        "scene/scene_manager.c",
     ],
 
     shared_libs: [

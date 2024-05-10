@@ -19,10 +19,10 @@
 
 #ifndef _RK_AIQ_TYPES_ACCM_ALGO_INT_H_
 #define _RK_AIQ_TYPES_ACCM_ALGO_INT_H_
-#include "RkAiqCalibDbTypes.h"
-#include "ccm_head.h"
-#include "ccm_uapi_head.h"
-#include "accm/rk_aiq_types_accm_algo.h"
+#include "iq_parser/RkAiqCalibDbTypes.h"
+#include "iq_parser_v2/ccm_head.h"
+#include "iq_parser_v2/ccm_uapi_head.h"
+#include "algos/accm/rk_aiq_types_accm_algo.h"
 
 RKAIQ_BEGIN_DECLARE
 

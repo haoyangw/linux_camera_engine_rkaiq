@@ -15,7 +15,7 @@
 
 #include "common.h"
 #include <time.h>
-#include ".j2s_generated.h"
+#include ".j2s_generated_v2.h"
 
 int main(int argc, char** argv) {
 

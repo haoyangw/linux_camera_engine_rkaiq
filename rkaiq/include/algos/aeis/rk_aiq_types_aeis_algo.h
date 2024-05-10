@@ -21,7 +21,7 @@
 #ifndef _RK_AIQ_TYPE_AEIS_ALGO_H_
 #define _RK_AIQ_TYPE_AEIS_ALGO_H_
 
-#include "aeis/rk_aiq_types_aeis_hw.h"
+#include "algos/aeis/rk_aiq_types_aeis_hw.h"
 
 RKAIQ_BEGIN_DECLARE
 

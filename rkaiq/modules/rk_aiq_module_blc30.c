@@ -16,14 +16,16 @@
 
 #include "rk_aiq_isp39_modules.h"
 
-void rk_aiq_blc30_params_cvt(void* attr, struct isp39_isp_params_cfg* isp_cfg, common_cvt_info_t *cvtinfo)
+void rk_aiq_blc30_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_info_t *cvtinfo)
 {
-    struct isp32_bls_cfg *phwcfg = &isp_cfg->others.bls_cfg;
+    struct isp32_bls_cfg *phwcfg = &isp_params->isp_cfg->others.bls_cfg;
     blc_params_dyn_t *pdyn = &((blc_param_t*)attr)->dyn;
     int isp_ob_max = 0xfff;
     float pre_dgain = 1.0;
+    float isp_dgain = 1.0;
 
     pre_dgain = cvtinfo->preDGain;
+    isp_dgain = cvtinfo->frameDGain[0];
 
     phwcfg->enable_auto = 0;
     phwcfg->en_windows  = 0;
@@ -49,28 +51,32 @@ void rk_aiq_blc30_params_cvt(void* attr, struct isp39_isp_params_cfg* isp_cfg, c
     // pre_dgain
     phwcfg->isp_ob_predgain = CLIP((int)(pre_dgain * (1 << 8)), 0, 65535);
 
-    if (pdyn->obcPostTnr.sw_btnrT_obcPostTnr_en) {
+    // blc1 aiq 6.0 does not support manualOBC, set to 0.
+    phwcfg->bls1_val.r = 0;
+    phwcfg->bls1_val.gr = 0;
+    phwcfg->bls1_val.gb = 0;
+    phwcfg->bls1_val.b = 0;
+
+    if (pdyn->obcPostTnr.sw_blcT_obcPostTnr_en) {
         phwcfg->bls1_en = 1;
-        if (pdyn->obcPostTnr.sw_blcT_obcPostTnr_mode == 0) {
-            phwcfg->bls1_val.r = 0;
-            phwcfg->bls1_val.gr = 0;
-            phwcfg->bls1_val.gb = 0;
-            phwcfg->bls1_val.b = 0;
-            phwcfg->isp_ob_offset = pdyn->obcPostTnr.sw_blcT_autoOB_offset;
-        } else {
-            phwcfg->bls1_val.r = CLIP(pdyn->obcPostTnr.hw_blcT_manualOBR_val * pre_dgain, 0, 32767);
-            phwcfg->bls1_val.gr = CLIP(pdyn->obcPostTnr.hw_blcT_manualOBGr_val * pre_dgain, 0, 32767);
-            phwcfg->bls1_val.gb = CLIP(pdyn->obcPostTnr.hw_blcT_manualOBGb_val * pre_dgain, 0, 32767);
-            phwcfg->bls1_val.b = CLIP(pdyn->obcPostTnr.hw_blcT_manualOBB_val * pre_dgain, 0, 32767);
-            phwcfg->isp_ob_offset = 0;
-        }
+        // phwcfg->bls1_val.r = CLIP(pdyn->obcPostTnr.hw_blcT_manualOBR_val * isp_dgain * pre_dgain, 0, 32767);
+        // phwcfg->bls1_val.gr = CLIP(pdyn->obcPostTnr.hw_blcT_manualOBGr_val * isp_dgain * pre_dgain, 0, 32767);
+        // phwcfg->bls1_val.gb = CLIP(pdyn->obcPostTnr.hw_blcT_manualOBGb_val * isp_dgain * pre_dgain, 0, 32767);
+        // phwcfg->bls1_val.b = CLIP(pdyn->obcPostTnr.hw_blcT_manualOBB_val * isp_dgain * pre_dgain, 0, 32767);
+        phwcfg->isp_ob_offset = pdyn->obcPostTnr.sw_blcT_autoOB_offset;
     } else {
         phwcfg->bls1_en = 0;
-        phwcfg->bls1_val.r = 0;
-        phwcfg->bls1_val.gr = 0;
-        phwcfg->bls1_val.gb = 0;
-        phwcfg->bls1_val.b = 0;
         phwcfg->isp_ob_offset = 0;
+    }
+
+    if (cvtinfo->frameNum > 1) {
+        if (phwcfg->bls1_en == 1 || phwcfg->isp_ob_offset > 0) {
+            LOGE_ABLC("When using HDR mode, obcPostTnr and ob_offset should be off");
+        }
+        // hdr won't use blc1 and blc_ob
+        phwcfg->bls1_en = 0;
+        phwcfg->isp_ob_offset = 0;
+        phwcfg->isp_ob_predgain = CLIP((int)(1 * (1 << 8)), 0, 65535);
     }
 
     if (phwcfg->isp_ob_predgain > 0x100) {

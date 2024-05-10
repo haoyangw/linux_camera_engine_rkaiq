@@ -17,7 +17,7 @@
 #ifndef __CALIBDBV2_GAIN_HEADER_V2_H__
 #define __CALIBDBV2_GAIN_HEADER_V2_H__
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 RKAIQ_BEGIN_DECLARE
 

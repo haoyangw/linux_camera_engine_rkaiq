@@ -41,6 +41,7 @@ public:
 protected:
     using CamHwIsp20::poll_buffer_ready;
     virtual XCamReturn init_mipi_devices(rk_sensor_full_info_t *s_info);
+    virtual XCamReturn prepare_mipi_devices(rk_sensor_full_info_t *s_info);
     void parse_rk_rawdata(void *rawdata, struct rk_aiq_vbuf *vbuf);
     XCamReturn parse_rk_rawfile(FILE *fp, struct rk_aiq_vbuf *vbuf);
     XCamReturn setupOffLineLink(int isp_index, bool enable);

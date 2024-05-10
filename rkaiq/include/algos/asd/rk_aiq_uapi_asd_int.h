@@ -1,8 +1,8 @@
 #ifndef _RK_AIQ_UAPI_ASD_INT_H_
 #define _RK_AIQ_UAPI_ASD_INT_H_
 
-#include "base/xcam_common.h"
-#include "rk_aiq_algo_des.h"
+#include "xcore/base/xcam_common.h"
+#include "algos/rk_aiq_algo_des.h"
 
 typedef struct asd_attrib_s {
     float cur_m2r;

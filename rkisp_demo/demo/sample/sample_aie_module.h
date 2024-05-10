@@ -1,10 +1,11 @@
 #ifndef __SAMPLE_AIE_MODULE_H__
 #define __SAMPLE_AIE_MODULE_H__
 
-#include "base/xcam_common.h"
+#include "xcore/base/xcam_common.h"
 
 void sample_print_aie_info(const void *arg);
-XCamReturn sample_aie_module(const void *arg);
-
-
+XCamReturn sample_aie_module(const void* arg);
+#ifdef USE_NEWSTRUCT
+void sample_new_ie(const rk_aiq_sys_ctx_t* ctx);
+#endif
 #endif  /*__SAMPLE_AIE_MODULE_H__*/

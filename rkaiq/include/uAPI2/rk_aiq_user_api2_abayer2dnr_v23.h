@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_ABAYER2DNRV23_H_
 #define _RK_AIQ_USER_API2_ABAYER2DNRV23_H_
 
-#include "abayer2dnrV23/rk_aiq_uapi_abayer2dnr_int_v23.h"
+#include "algos/abayer2dnrV23/rk_aiq_uapi_abayer2dnr_int_v23.h"
 
 typedef struct rk_aiq_sys_ctx_s rk_aiq_sys_ctx_t;
 

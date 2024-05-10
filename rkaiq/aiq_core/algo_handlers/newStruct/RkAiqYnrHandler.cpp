@@ -124,8 +124,7 @@ XCamReturn RkAiqYnrHandleInt::processing() {
     ynr_proc_param->blc_ob_predgain = ob_predgain;
 #endif
 
-    RkAiqAlgoProcResYnr* ynr_proc_res_int = (RkAiqAlgoProcResYnr*)mProcOutParam;
-    ynr_proc_res_int->ynrRes =  &shared->fullParams->mYnrParams->data()->result;
+    mProcOutParam->algoRes =  &shared->fullParams->mYnrParams->data()->result;
 
     GlobalParamsManager* globalParamsManager = mAiqCore->getGlobalParamsManager();
 
@@ -134,15 +133,15 @@ XCamReturn RkAiqYnrHandleInt::processing() {
         rk_aiq_global_params_wrap_t wrap_param;
         wrap_param.type = RESULT_TYPE_YNR_PARAM;
         wrap_param.man_param_size = sizeof(ynr_param_t);
-        wrap_param.man_param_ptr = ynr_proc_res_int->ynrRes;
+        wrap_param.man_param_ptr = mProcOutParam->algoRes;
         XCamReturn ret1 = globalParamsManager->getAndClearPending(&wrap_param);
         if (ret1 == XCAM_RETURN_NO_ERROR) {
             LOGK_ANR("get new ynr manual params success !");
-            ynr_proc_res_int->res_com.en = wrap_param.en;
-            ynr_proc_res_int->res_com.bypass = wrap_param.bypass;
-            ynr_proc_res_int->res_com.cfg_update = true;
+            mProcOutParam->en = wrap_param.en;
+            mProcOutParam->bypass = wrap_param.bypass;
+            mProcOutParam->cfg_update = true;
         } else {
-            ynr_proc_res_int->res_com.cfg_update = false;
+            mProcOutParam->cfg_update = false;
         }
     } else {
         // skip processing if is group algo
@@ -161,7 +160,7 @@ XCamReturn RkAiqYnrHandleInt::processing() {
     int frame_id = shared->frameId;
     SmartPtr<RkAiqAlgoProcResYnrIntShared> bp = new RkAiqAlgoProcResYnrIntShared;
     bp->set_sequence(frame_id);
-    bp->result.ynrRes = ynr_proc_res_int->ynrRes;
+    bp->result.ynrRes = &shared->fullParams->mYnrParams->data()->result;
     RkAiqCoreVdBufMsg msg(XCAM_MESSAGE_YNR_PROC_RES_OK, frame_id, bp);
     mAiqCore->post_message(msg);
 

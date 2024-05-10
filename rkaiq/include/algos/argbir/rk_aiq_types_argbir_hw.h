@@ -17,7 +17,7 @@
  *
  */
 
-#include "argbir_head.h"
+#include "iq_parser_v2/argbir_head.h"
 
 #ifndef _RK_AIQ_ALGO_ARGBIR_HW_H_
 #define _RK_AIQ_ALGO_ARGBIR_HW_H_

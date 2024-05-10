@@ -11,7 +11,7 @@
 #ifndef __RK_AIQ_TYPES_ATMO_ALGO_H__
 #define __RK_AIQ_TYPES_ATMO_ALGO_H__
 
-#include "rk_aiq_types_atmo_stat_v200.h"
+#include "algos/atmo/rk_aiq_types_atmo_stat_v200.h"
 
 
 #endif

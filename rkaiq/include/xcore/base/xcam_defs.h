@@ -77,6 +77,7 @@
 #undef XCAM_CL_MAX_STR_SIZE
 #define XCAM_CL_MAX_STR_SIZE 1024
 
+#define XCAM_TIMESPEC_2_NSEC(timespec) ((timespec).tv_sec*1000000000LL + (timespec).tv_nsec)
 #define XCAM_TIMESPEC_2_USEC(timespec) ((timespec).tv_sec*1000000LL + (timespec).tv_nsec/1000)
 #define XCAM_TIMEVAL_2_USEC(timeval) ((timeval).tv_sec*1000000LL + (timeval).tv_usec)
 

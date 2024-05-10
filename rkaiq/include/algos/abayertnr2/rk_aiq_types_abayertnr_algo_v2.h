@@ -19,7 +19,7 @@
 
 #ifndef _RK_AIQ_TYPE_ABAYERTNR_ALGO_V2_H_
 #define _RK_AIQ_TYPE_ABAYERTNR_ALGO_V2_H_
-#include "abayertnr2/rk_aiq_types_abayertnr_hw_v2.h"
+#include "algos/abayertnr2/rk_aiq_types_abayertnr_hw_v2.h"
 
 RKAIQ_BEGIN_DECLARE
 

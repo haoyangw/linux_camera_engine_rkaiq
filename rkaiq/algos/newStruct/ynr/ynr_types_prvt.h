@@ -25,11 +25,14 @@
 #include "include/ynr_algo_api.h"
 
 typedef struct {
-    const RkAiqAlgoCom_prepare_t* prepare_params;
     ynr_api_attrib_t* ynr_attrib;
     int working_mode;
-    int iso;
+    int pre_iso;
+
+    bool init_json;
     bool isReCal_;
+    bool strength_en;
+    float fStrength;
 } YnrContext_t;
 
 #define DEFAULT_RECALCULATE_DELTA_ISO (0.01)

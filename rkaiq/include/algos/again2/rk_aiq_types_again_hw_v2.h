@@ -19,7 +19,7 @@
 
 #ifndef _RK_AIQ_TYPE_AGAIN_HW_V2_H_
 #define _RK_AIQ_TYPE_AGAIN_HW_V2_H_
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 typedef struct RK_GAIN_Fix_V2_s {
 

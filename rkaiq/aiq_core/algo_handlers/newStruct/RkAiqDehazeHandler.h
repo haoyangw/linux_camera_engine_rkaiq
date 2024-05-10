@@ -42,6 +42,9 @@ public:
     XCamReturn getAttrib(dehaze_api_attrib_t* attr);
     XCamReturn queryStatus(dehaze_status_t* status);
 
+    XCamReturn setMDehazeStrth(dehazeStrth strthCtrl);
+    XCamReturn getMDehazeStrth(dehazeStrth *strthCtrl);
+
 protected:
     virtual void init();
     virtual void deInit() {
@@ -49,8 +52,8 @@ protected:
     };
 
 private:
-
-
+    dehazeStrth strthCtrl;
+    bool updateStrth;
 private:
     DECLARE_HANDLE_REGISTER_TYPE(RkAiqDehazeHandleInt);
 };

@@ -75,7 +75,7 @@ typedef struct trans_param_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(static),
         M4_TYPE(struct),
-        M4_UI_MODULE(dynamic_ui),
+        M4_UI_MODULE(static_ui),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),

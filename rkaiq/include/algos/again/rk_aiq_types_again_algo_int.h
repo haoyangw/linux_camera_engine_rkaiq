@@ -23,9 +23,9 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
-#include "rk_aiq_comm.h"
-#include "RkAiqCalibDbTypes.h"
-#include "again/rk_aiq_types_again_algo.h"
+#include "common/rk_aiq_comm.h"
+#include "iq_parser/RkAiqCalibDbTypes.h"
+#include "algos/again/rk_aiq_types_again_algo.h"
 
 //RKAIQ_BEGIN_DECLARE
 

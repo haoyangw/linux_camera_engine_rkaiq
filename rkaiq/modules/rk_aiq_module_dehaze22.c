@@ -31,7 +31,7 @@ static int ClipValue(float posx, int BitInt, int BitFloat) {
 void rk_aiq_dehaze22_params_cvt(void* attr, struct isp32_isp_params_cfg* isp_cfg)
 {
     int tmp;
-    struct isp32_dhaz_cfg* phwcfg = &isp_cfg->others.dhaz_cfg;
+    struct isp32_dhaz_cfg* phwcfg = &isp_params->isp_cfg->others.dhaz_cfg;
     dehaze_param_t* dehaze_attrib = (dehaze_param_t*) attr;
     dehaze_params_static_t* psta = &dehaze_attrib->sta;
     dehaze_params_dyn_t* pdyn = &dehaze_attrib->dyn;

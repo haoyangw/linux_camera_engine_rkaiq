@@ -188,7 +188,9 @@ XCamReturn RkAiqAldchHandleInt::setAttrib(const rk_aiq_ldch_v21_attrib_t* att) {
     // the new params will be effective later when updateConfig
     // called by RkAiqCore
 #ifdef DISABLE_HANDLE_ATTRIB
+#ifndef USE_NEWSTRUCT
     ret = rk_aiq_uapi_aldch_v21_SetAttrib(mAlgoCtx, *att, false);
+#endif
 #else
     bool isChanged = false;
     if (att->sync.sync_mode == RK_AIQ_UAPI_MODE_ASYNC && \
@@ -217,9 +219,11 @@ XCamReturn RkAiqAldchHandleInt::getAttrib(rk_aiq_ldch_v21_attrib_t* att) {
     ENTER_ANALYZER_FUNCTION();
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 #ifdef DISABLE_HANDLE_ATTRIB
+#ifndef USE_NEWSTRUCT
     mCfgMutex.lock();
     rk_aiq_uapi_aldch_v21_GetAttrib(mAlgoCtx, att);
     mCfgMutex.unlock();
+#endif
 #else
 
     if (att->sync.sync_mode == RK_AIQ_UAPI_MODE_SYNC) {

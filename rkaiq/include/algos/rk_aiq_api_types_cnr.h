@@ -18,11 +18,36 @@
 #ifndef _RK_AIQ_API_TYPES_CNR_H_
 #define _RK_AIQ_API_TYPES_CNR_H_
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 #define CNR_ISO_STEP_MAX 13
 
 RKAIQ_BEGIN_DECLARE
+
+typedef struct {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(enable),
+        M4_TYPE(bool),
+        M4_DEFAULT(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(The strength enable flag))  */
+    bool en;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(percent),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0.0,1.0),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(1),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(strength 0-1.0\n
+        Freq of use: high))  */
+    float percent;
+} acnr_strength_t;
 
 typedef struct cnr_param_auto_s {
     /* M4_GENERIC_DESC(

@@ -19,7 +19,7 @@
 
 #ifndef _RK_AIQ_TYPE_ASHARP_HW_V4_H_
 #define _RK_AIQ_TYPE_ASHARP_HW_V4_H_
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 typedef struct RK_SHARP_Fix_V4_s
 {

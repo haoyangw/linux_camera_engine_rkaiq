@@ -7,6 +7,8 @@
 #include "isp/rk_aiq_isp_dm21.h"
 #elif RKAIQ_HAVE_DEBAYER_V3
 #include "isp/rk_aiq_isp_dm23.h"
+#elif RKAIQ_HAVE_DEBAYER_V4
+#include "isp/rk_aiq_isp_dm24.h"
 #else
 #error "wrong demosaic hw version !"
 #endif
@@ -20,6 +22,9 @@ typedef enum DmHwVersion_e
     DM_HARDWARE_MAX,
 } DmHwVersion_t;
 
+XCAM_BEGIN_DECLARE
+
+#if 0
 XCamReturn
 algo_demosaic_SetAttrib
 (
@@ -33,8 +38,7 @@ algo_demosaic_GetAttrib
     RkAiqAlgoContext*  ctx,
     dm_api_attrib_t *attr
 );
-
-XCAM_BEGIN_DECLARE
+#endif
 extern RkAiqAlgoDescription g_RkIspAlgoDescDemosaic;
 XCAM_END_DECLARE
 

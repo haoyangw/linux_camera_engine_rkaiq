@@ -15,7 +15,7 @@
  */
 #ifndef _RK_AIQ_TYPE_ABLC_ALGO_V32_H_
 #define _RK_AIQ_TYPE_ABLC_ALGO_V32_H_
-#include "ablcV32/rk_aiq_types_ablc_hw_v32.h"
+#include "algos/ablcV32/rk_aiq_types_ablc_hw_v32.h"
 
 RKAIQ_BEGIN_DECLARE
 

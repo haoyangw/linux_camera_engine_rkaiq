@@ -49,23 +49,23 @@ _cam_group_bind(rk_aiq_camgroup_ctx_t* camgroup_ctx, rk_aiq_sys_ctx_t* aiq_ctx)
 #if 0
     // set first one as main cam
     aiq_ctx->_rkAiqManager->setCamGroupManager(aiq_ctx->_camGroupManager,
-                                               camgroup_ctx->cam_ctxs_num == 0 ? true : false);
+            camgroup_ctx->cam_ctxs_num == 0 ? true : false);
 #else
     if (aiq_ctx->_is_1608_sensor) {
         // 1608 sensor.
         aiq_ctx->_rkAiqManager->setCamGroupManager(aiq_ctx->_camGroupManager, false);
         camgroup_ctx->cam_1608_num++;
         LOGD("  >>>>====<<<< sensor name: %s, 1608-sensor(%d), sync mode(isMain): %d. \n", aiq_ctx->_sensor_entity_name,
-                                                                                           aiq_ctx->_is_1608_sensor,
-                                                                                           false);
+             aiq_ctx->_is_1608_sensor,
+             false);
     } else {
         // normal sensor.
         aiq_ctx->_rkAiqManager->setCamGroupManager(aiq_ctx->_camGroupManager,
-                                                   camgroup_ctx->cam_ctxs_num == camgroup_ctx->cam_1608_num ? true : false);
+                camgroup_ctx->cam_ctxs_num == camgroup_ctx->cam_1608_num ? true : false);
         LOGD("  >>>>====<<<< sensor name: %s, 1608-sensor(%d), sync mode(isMain): %d. \n", aiq_ctx->_sensor_entity_name,
-                                                                                           aiq_ctx->_is_1608_sensor,
-                                                                                           camgroup_ctx->cam_ctxs_num == \
-                                                                                           camgroup_ctx->cam_1608_num ? true : false);
+             aiq_ctx->_is_1608_sensor,
+             camgroup_ctx->cam_ctxs_num == \
+             camgroup_ctx->cam_1608_num ? true : false);
     }
 #endif
 
@@ -166,7 +166,7 @@ rk_aiq_uapi2_camgroup_create(rk_aiq_camgroup_instance_cfg_t* cfg)
     if (overlap_map_file.length()) {
         camgroup_ctx->_srcOverlapMap_s = new RK_PS_SrcOverlapMap();
         ret = rk_aiq_uapi2_camgroup_getOverlapMap_from_file(overlap_map_file.c_str(),
-                                                           &camgroup_ctx->_srcOverlapMap_s);
+                &camgroup_ctx->_srcOverlapMap_s);
         if (ret) {
             delete camgroup_ctx->_srcOverlapMap_s;
             camgroup_ctx->_srcOverlapMap_s = NULL;
@@ -193,8 +193,8 @@ rk_aiq_uapi2_camgroup_create(rk_aiq_camgroup_instance_cfg_t* cfg)
         aiq_ctx = rk_aiq_uapi_sysctl_init(cfg->sns_ent_nm_array[i],
                                           cfg->config_file_dir, NULL, NULL);
         if (!aiq_ctx) {
-           LOGE("init aiq ctx %d for %s failed !", i, cfg->sns_ent_nm_array[i]);
-           goto error;
+            LOGE("init aiq ctx %d for %s failed !", i, cfg->sns_ent_nm_array[i]);
+            goto error;
         }
         // notify single cam work as multiple mode
         rk_aiq_uapi_sysctl_setMulCamConc(aiq_ctx, true);
@@ -220,7 +220,7 @@ rk_aiq_uapi2_camgroup_create(rk_aiq_camgroup_instance_cfg_t* cfg)
     }
 
     if (camgroup_iq_file.length())
-        camgroup_ctx->_camgroup_calib = RkAiqCalibDbV2::createCalibDbCamgroup(camgroup_iq_file.c_str());
+        camgroup_ctx->_camgroup_calib = CamCalibDbCreateCalibDbCamgroup(camgroup_iq_file.c_str());
 
     ret = camgroup_ctx->cam_group_manager->setCamgroupCalib(camgroup_ctx->_camgroup_calib);
     if (ret) {
@@ -232,6 +232,13 @@ rk_aiq_uapi2_camgroup_create(rk_aiq_camgroup_instance_cfg_t* cfg)
         LOGE("%s: init failed !", __func__);
         goto error;
     }
+
+#ifdef ISP_HW_V39
+    #ifdef USE_NEWSTRUCT
+    rk_aiq_uapi2_awb_register((rk_aiq_sys_ctx_t*)camgroup_ctx, NULL);
+    rk_aiq_uapi2_ae_register((rk_aiq_sys_ctx_t*)camgroup_ctx, NULL);
+    #endif
+#endif
 
     LOGD("%s: create camgroup 0x%x success !", __func__, camgroup_ctx);
 
@@ -521,7 +528,7 @@ rk_aiq_uapi2_camgroup_destroy(rk_aiq_camgroup_ctx_t* camgroup_ctx)
         camgroup_ctx->cam_group_manager.release();
     }
     if (camgroup_ctx->_camgroup_calib) {
-        RkAiqCalibDbV2::CamCalibDbCamgroupFree(camgroup_ctx->_camgroup_calib);
+        CamCalibDbCamgroupFree(camgroup_ctx->_camgroup_calib);
     }
     if (camgroup_ctx->_srcOverlapMap_s)
         delete camgroup_ctx->_srcOverlapMap_s;

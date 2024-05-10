@@ -18,7 +18,7 @@
 #ifndef __ATMO_UAPI_HEAD_H__
 #define __ATMO_UAPI_HEAD_H__
 
-#include "atmo_head.h"
+#include "iq_parser_v2/atmo_head.h"
 
 typedef struct uapiTmoCurrCtlData_s
 {

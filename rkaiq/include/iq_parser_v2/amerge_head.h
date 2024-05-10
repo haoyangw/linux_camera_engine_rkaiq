@@ -20,8 +20,8 @@
 #ifndef __CALIBDBV2_AMERGE_HEADER_H__
 #define __CALIBDBV2_AMERGE_HEADER_H__
 
-#include "adehaze_head.h"
-#include "rk_aiq_comm.h"
+#include "iq_parser_v2/adehaze_head.h"
+#include "common/rk_aiq_comm.h"
 
 #define MERGE_ENVLV_STEP_MAX 13
 

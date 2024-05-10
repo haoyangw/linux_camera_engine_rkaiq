@@ -18,6 +18,16 @@
 #include "sample_comm.h"
 #include "uAPI2/rk_aiq_user_api2_acsm.h"
 
+#ifdef ISP_HW_V39
+#include "rk_aiq_user_api2_rk3576.h"
+#elif  defined(ISP_HW_V33)
+#include "rk_aiq_user_api2_rv1103B.h"
+#elif  defined(ISP_HW_V32)
+#include "rk_aiq_user_api2_rv1106.h"
+#endif
+#include "uAPI2/rk_aiq_user_api2_helper.h"
+#include <string>
+
 void sample_print_csm_info(const void *arg)
 {
     printf ("enter CSM modult test!\n");
@@ -153,6 +163,43 @@ static int sample_csm_set_attr_sync(const rk_aiq_sys_ctx_t* ctx)
 
   return 0;
 }
+#ifdef USE_NEWSTRUCT
+
+void get_manual_attr(csm_api_attrib_t* attr) {
+    csm_param_t* stMan = &attr->stMan;
+}
+
+void sample_new_csm(const rk_aiq_sys_ctx_t* ctx) {
+    // sample_csm_tuningtool_test(ctx);
+
+    csm_api_attrib_t attr;
+    csm_status_t status;
+    rk_aiq_user_api2_csm_GetAttrib(ctx, &attr);
+    printf("\t attr.opMode:%d attr.en:%d\n\n",
+            attr.opMode, attr.en);
+
+    // reverse en
+    srand(time(0));
+    int rand_num = rand() % 101;
+
+    if (rand_num <70) {
+        printf("update csm arrrib!\n");
+        attr.opMode = RK_AIQ_OP_MODE_MANUAL;
+        get_manual_attr(&attr);
+    }
+    else {
+        // reverse en
+        printf("reverse csm en!\n");
+        attr.en = !attr.en;
+    }
+
+    rk_aiq_user_api2_csm_SetAttrib(ctx, &attr);
+
+    rk_aiq_user_api2_csm_QueryStatus(ctx, &status);
+    printf("\t status.opMode:%d status.en:%d\n\n",
+            status.opMode, status.en);
+}
+#endif
 
 uapi_case_t csm_uapi_list[] = {
   { .desc = "CSM: set csm attr async",

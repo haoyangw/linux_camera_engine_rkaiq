@@ -102,6 +102,9 @@
 #include "algo_handlers/RkAiqAtmoHandle.h"
 #endif
 #include "algo_handlers/RkAiqAwbHandle.h"
+#if RKAIQ_HAVE_AWB_V39
+#include "algo_handlers/RkAiqAwbV39Handle.h"
+#endif
 #if RKAIQ_HAVE_AWB_V32
 #include "algo_handlers/RkAiqAwbV32Handle.h"
 #endif

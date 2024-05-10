@@ -21,9 +21,9 @@
 #ifndef _RK_AIQ_UAPI_AEIS_INT_H_
 #define _RK_AIQ_UAPI_AEIS_INT_H_
 
-#include "aeis/rk_aiq_types_aeis_algo_int.h"
-#include "base/xcam_common.h"
-#include "rk_aiq_algo_des.h"
+#include "algos/aeis/rk_aiq_types_aeis_algo_int.h"
+#include "xcore/base/xcam_common.h"
+#include "algos/rk_aiq_algo_des.h"
 
 // need_sync means the implementation should consider
 // the thread synchronization

@@ -25,6 +25,7 @@ RKAIQ_BEGIN_DECLARE
 #define CHECK_USER_API_ENABLE
 #endif
 
+#ifndef USE_IMPLEMENT_C
 #if RKAIQ_HAVE_AF
 
 XCamReturn
@@ -498,6 +499,7 @@ rk_aiq_user_api2_af_GetFocusPos(const rk_aiq_sys_ctx_t* sys_ctx, int* pos)
     return XCAM_RETURN_ERROR_UNKNOWN;
 }
 
+#endif
 #endif
 
 RKAIQ_END_DECLARE

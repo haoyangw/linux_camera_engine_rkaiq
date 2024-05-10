@@ -20,7 +20,7 @@
 #ifndef __CALIBDBV2_DEBAYER_HEAD_H__
 #define __CALIBDBV2_DEBAYER_HEAD_H__
 
-#include <rk_aiq_comm.h>
+#include "common/rk_aiq_comm.h"
 
 #define DEBAYER_ISO_STEP_MAX 13
 #define RK_DEBAYER_V31_LUMA_POINT_NUM           8

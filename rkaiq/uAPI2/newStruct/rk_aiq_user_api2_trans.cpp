@@ -23,6 +23,7 @@ RKAIQ_BEGIN_DECLARE
 #define CHECK_USER_API_ENABLE
 #endif
 
+#ifndef USE_IMPLEMENT_C
 static XCamReturn
 _trans_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, trans_api_attrib_t* attr)
 {
@@ -171,5 +172,6 @@ rk_aiq_user_api2_trans_QueryStatus(const rk_aiq_sys_ctx_t* sys_ctx, trans_status
 #endif
    return XCAM_RETURN_NO_ERROR;
 }
+#endif
 
 RKAIQ_END_DECLARE

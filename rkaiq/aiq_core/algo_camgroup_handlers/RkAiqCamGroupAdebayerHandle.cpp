@@ -228,7 +228,7 @@ XCamReturn RkAiqCamGroupAdebayerHandleInt::getAttribV2(adebayer_v2lite_attrib_t*
 
 #endif
 
-#if RKAIQ_HAVE_DEBAYER_V3
+#if RKAIQ_HAVE_DEBAYER_V3 && !USE_NEWSTRUCT
 XCamReturn RkAiqCamGroupAdebayerHandleInt::setAttribV3(adebayer_v3_attrib_t att) {
     ENTER_ANALYZER_FUNCTION();
 

@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_CNR_H_
 #define _RK_AIQ_USER_API2_CNR_H_
 
-#include "rk_aiq_api_types_cnr.h"
+#include "algos/rk_aiq_api_types_cnr.h"
 
 RKAIQ_BEGIN_DECLARE
 
@@ -33,6 +33,10 @@ XCamReturn
 rk_aiq_user_api2_cnr_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, cnr_api_attrib_t* attr);
 XCamReturn
 rk_aiq_user_api2_cnr_QueryStatus(const rk_aiq_sys_ctx_t* sys_ctx, cnr_status_t* status);
+XCamReturn
+rk_aiq_user_api2_cnr_SetStrength(const rk_aiq_sys_ctx_t* sys_ctx, acnr_strength_t *strg);
+XCamReturn
+rk_aiq_user_api2_cnr_GetStrength(const rk_aiq_sys_ctx_t* sys_ctx, acnr_strength_t *strg);
 
 RKAIQ_END_DECLARE
 

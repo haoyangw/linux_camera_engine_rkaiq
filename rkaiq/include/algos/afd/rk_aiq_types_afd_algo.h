@@ -41,7 +41,7 @@
  *
  */
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>

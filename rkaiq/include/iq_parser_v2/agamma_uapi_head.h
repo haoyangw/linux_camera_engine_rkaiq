@@ -18,7 +18,7 @@
 #ifndef __AGAMMA_UAPI_HEAD_H__
 #define __AGAMMA_UAPI_HEAD_H__
 
-#include "agamma_head.h"
+#include "iq_parser_v2/agamma_head.h"
 
 typedef struct AgammaApiManualV10_s {
     // M4_BOOL_DESC("Gamma_en", "1")

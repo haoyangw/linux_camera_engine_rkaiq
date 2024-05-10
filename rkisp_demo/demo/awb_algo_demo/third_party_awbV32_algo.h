@@ -2,9 +2,9 @@
 #ifndef _THIRD_PARTY_AWBV32_ALGO_H_
 #define _THIRD_PARTY_AWBV32_ALGO_H_
 
-#include "rk_aiq_types.h"
-#include "rk_aiq_user_api2_custom_awb.h"
-#include "rk_aiq_user_api2_custom_awb_type_v32.h"
+#include "common/rk_aiq_types.h"
+#include "uAPI2/rk_aiq_user_api2_custom_awb.h"
+#include "uAPI2/rk_aiq_user_api2_custom_awb_type_v32.h"
 
 
 int32_t custom_awb_init(void* ctx);

@@ -18,8 +18,8 @@
 #ifndef _RK_AIQ_USER_API2_ADEHAZE_H_
 #define _RK_AIQ_USER_API2_ADEHAZE_H_
 
-#include "adehaze/rk_aiq_uapi_adehaze_int.h"
-#include "adehaze_uapi_compact.h"
+#include "algos/adehaze/rk_aiq_uapi_adehaze_int.h"
+#include "iq_parser_v2/adehaze_uapi_compact.h"
 
 #ifndef RK_AIQ_SYS_CTX_T
 #define RK_AIQ_SYS_CTX_T

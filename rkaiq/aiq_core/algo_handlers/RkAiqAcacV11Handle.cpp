@@ -191,7 +191,9 @@ XCamReturn RkAiqAcacV11HandleInt::setAttrib(const rkaiq_cac_v11_api_attr_t* att)
     mCfgMutex.lock();
 
 #ifdef DISABLE_HANDLE_ATTRIB
+#ifndef USE_NEWSTRUCT
     ret = rk_aiq_uapi_acac_v11_SetAttrib(mAlgoCtx, att, false);
+#endif
 #else
     // check if there is different between att & mCurAtt(sync)/mNewAtt(async)
     // if something changed, set att to mNewAtt, and
@@ -225,9 +227,11 @@ XCamReturn RkAiqAcacV11HandleInt::getAttrib(rkaiq_cac_v11_api_attr_t* att) {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
 #ifdef DISABLE_HANDLE_ATTRIB
+#ifndef USE_NEWSTRUCT
       mCfgMutex.lock();
       ret = rk_aiq_uapi_acac_v11_GetAttrib(mAlgoCtx, att);
       mCfgMutex.unlock();
+#endif
 #else
     if (att->sync.sync_mode == RK_AIQ_UAPI_MODE_SYNC) {
         mCfgMutex.lock();

@@ -18,55 +18,56 @@
 #ifndef _RK_AIQ_UAPI2_IMGPROC_H_
 #define _RK_AIQ_UAPI2_IMGPROC_H_
 
-#include "base/xcam_common.h"
-#include "rk_aiq_user_api2_a3dlut.h"
-#include "rk_aiq_user_api2_abayer2dnr_v2.h"
-#include "rk_aiq_user_api2_abayer2dnr_v23.h"
-#include "rk_aiq_user_api2_abayernr_v2.h"
-#include "rk_aiq_user_api2_abayertnr_v2.h"
-#include "rk_aiq_user_api2_abayertnr_v23.h"
-#include "rk_aiq_user_api2_abayertnr_v30.h"
-#include "rk_aiq_user_api2_ablc.h"
-#include "rk_aiq_user_api2_ablc_v32.h"
-#include "rk_aiq_user_api2_accm.h"
-#include "rk_aiq_user_api2_acgc.h"
-#include "rk_aiq_user_api2_acnr_v1.h"
-#include "rk_aiq_user_api2_acnr_v2.h"
-#include "rk_aiq_user_api2_acnr_v30.h"
-#include "rk_aiq_user_api2_acnr_v31.h"
-#include "rk_aiq_user_api2_acp.h"
-#include "rk_aiq_user_api2_acsm.h"
-#include "rk_aiq_user_api2_adebayer.h"
-#include "rk_aiq_user_api2_adegamma.h"
-#include "rk_aiq_user_api2_adehaze.h"
-#include "rk_aiq_user_api2_adpcc.h"
-#include "rk_aiq_user_api2_adrc.h"
-#include "rk_aiq_user_api2_ae.h"
-#include "rk_aiq_user_api2_af.h"
-#include "rk_aiq_user_api2_afec.h"
-#include "rk_aiq_user_api2_again_v2.h"
-#include "rk_aiq_user_api2_agamma.h"
-#include "rk_aiq_user_api2_aie.h"
-#include "rk_aiq_user_api2_aldch.h"
-#include "rk_aiq_user_api2_aldch_v21.h"
-#include "rk_aiq_user_api2_alsc.h"
-#include "rk_aiq_user_api2_amerge.h"
-#include "rk_aiq_user_api2_anr.h"
-#include "rk_aiq_user_api2_argbir.h"
-#include "rk_aiq_user_api2_asharp_v3.h"
-#include "rk_aiq_user_api2_asharp_v33.h"
-#include "rk_aiq_user_api2_asharp_v4.h"
-#include "rk_aiq_user_api2_asharp_v34.h"
-#include "rk_aiq_user_api2_atmo.h"
-#include "rk_aiq_user_api2_awb.h"
-#include "rk_aiq_user_api2_aynr_v2.h"
-#include "rk_aiq_user_api2_aynr_v22.h"
-#include "rk_aiq_user_api2_aynr_v3.h"
-#include "rk_aiq_user_api2_aynr_v24.h"
-#include "rk_aiq_user_api_common.h"
-#include "rk_aiq_user_api2_ayuvme_v1.h"
+#include "xcore/base/xcam_common.h"
+#include "uAPI2/rk_aiq_user_api2_a3dlut.h"
+#include "uAPI2/rk_aiq_user_api2_abayer2dnr_v2.h"
+#include "uAPI2/rk_aiq_user_api2_abayer2dnr_v23.h"
+#include "uAPI2/rk_aiq_user_api2_abayernr_v2.h"
+#include "uAPI2/rk_aiq_user_api2_abayertnr_v2.h"
+#include "uAPI2/rk_aiq_user_api2_abayertnr_v23.h"
+#include "uAPI2/rk_aiq_user_api2_abayertnr_v30.h"
+#include "uAPI2/rk_aiq_user_api2_ablc.h"
+#include "uAPI2/rk_aiq_user_api2_ablc_v32.h"
+#include "uAPI2/rk_aiq_user_api2_accm.h"
+#include "uAPI2/rk_aiq_user_api2_acgc.h"
+#include "uAPI2/rk_aiq_user_api2_acnr_v1.h"
+#include "uAPI2/rk_aiq_user_api2_acnr_v2.h"
+#include "uAPI2/rk_aiq_user_api2_acnr_v30.h"
+#include "uAPI2/rk_aiq_user_api2_acnr_v31.h"
+#include "uAPI2/rk_aiq_user_api2_acp.h"
+#include "uAPI2/rk_aiq_user_api2_acsm.h"
+#include "uAPI2/rk_aiq_user_api2_adebayer.h"
+#include "uAPI2/rk_aiq_user_api2_adegamma.h"
+#include "uAPI2/rk_aiq_user_api2_adehaze.h"
+#include "uAPI2/rk_aiq_user_api2_adpcc.h"
+#include "uAPI2/rk_aiq_user_api2_adrc.h"
+#include "uAPI2/rk_aiq_user_api2_ae.h"
+#include "uAPI2/rk_aiq_user_api2_af.h"
+#include "uAPI2/rk_aiq_user_api2_afec.h"
+#include "uAPI2/rk_aiq_user_api2_again_v2.h"
+#include "uAPI2/rk_aiq_user_api2_agamma.h"
+#include "uAPI2/rk_aiq_user_api2_aie.h"
+#include "uAPI2/rk_aiq_user_api2_aldch.h"
+#include "uAPI2/rk_aiq_user_api2_aldch_v21.h"
+#include "uAPI2/rk_aiq_user_api2_alsc.h"
+#include "uAPI2/rk_aiq_user_api2_amerge.h"
+#include "uAPI2/rk_aiq_user_api2_anr.h"
+#include "uAPI2/rk_aiq_user_api2_argbir.h"
+#include "uAPI2/rk_aiq_user_api2_asharp_v3.h"
+#include "uAPI2/rk_aiq_user_api2_asharp_v33.h"
+#include "uAPI2/rk_aiq_user_api2_asharp_v4.h"
+#include "uAPI2/rk_aiq_user_api2_asharp_v34.h"
+#include "uAPI2/rk_aiq_user_api2_atmo.h"
+#include "uAPI2/rk_aiq_user_api2_awb.h"
+#include "uAPI2/rk_aiq_user_api2_aynr_v2.h"
+#include "uAPI2/rk_aiq_user_api2_aynr_v22.h"
+#include "uAPI2/rk_aiq_user_api2_aynr_v3.h"
+#include "uAPI2/rk_aiq_user_api2_aynr_v24.h"
+#include "uAPI2/rk_aiq_user_api_common.h"
+#include "uAPI2/rk_aiq_user_api2_ayuvme_v1.h"
 
 RKAIQ_BEGIN_DECLARE
+
 /*
 **********************************************************
 *                        API of AEC module of V2
@@ -192,7 +193,6 @@ XCamReturn rk_aiq_uapi2_getAntiFlickerEn(const rk_aiq_sys_ctx_t* ctx, bool* on);
 */
 XCamReturn rk_aiq_uapi2_setAntiFlickerMode(const rk_aiq_sys_ctx_t* ctx, antiFlickerMode_t mode);
 XCamReturn rk_aiq_uapi2_getAntiFlickerMode(const rk_aiq_sys_ctx_t* ctx, antiFlickerMode_t *mode);
-
 /*
 **********************************************************
 * White balance & Color
@@ -394,7 +394,6 @@ XCamReturn rk_aiq_uapi2_setDehazeModuleEnable(const rk_aiq_sys_ctx_t* ctx, bool 
 *****************************
 */
 XCamReturn rk_aiq_uapi2_setDehazeEnable(const rk_aiq_sys_ctx_t* ctx, bool on);
-
 /*
 *****************************
 *
@@ -407,7 +406,6 @@ XCamReturn rk_aiq_uapi2_setDehazeEnable(const rk_aiq_sys_ctx_t* ctx, bool on);
 */
 XCamReturn rk_aiq_uapi2_setMDehazeStrth(const rk_aiq_sys_ctx_t* ctx, unsigned int level);
 XCamReturn rk_aiq_uapi2_getMDehazeStrth(const rk_aiq_sys_ctx_t* ctx, unsigned int *level);
-
 /*
 *****************************
 *
@@ -417,7 +415,6 @@ XCamReturn rk_aiq_uapi2_getMDehazeStrth(const rk_aiq_sys_ctx_t* ctx, unsigned in
 *****************************
 */
 XCamReturn rk_aiq_uapi2_setEnhanceEnable(const rk_aiq_sys_ctx_t* ctx, bool on);
-
 /*
 *****************************
 *
@@ -443,7 +440,6 @@ XCamReturn rk_aiq_uapi2_getMEnhanceStrth(const rk_aiq_sys_ctx_t* ctx, unsigned i
 */
 XCamReturn rk_aiq_uapi2_setMEnhanceChromeStrth(const rk_aiq_sys_ctx_t* ctx, unsigned int level);
 XCamReturn rk_aiq_uapi2_getMEnhanceChromeStrth(const rk_aiq_sys_ctx_t* ctx, unsigned int* level);
-
 /*
 *****************************
 *
@@ -477,7 +473,6 @@ XCamReturn rk_aiq_uapi2_getDrcLocalTMO(const rk_aiq_sys_ctx_t* ctx, float* Local
 */
 XCamReturn rk_aiq_uapi2_setDrcLocalData(const rk_aiq_sys_ctx_t* ctx, float LocalWeit, float GlobalContrast, float LoLitContrast, int LocalAutoEnable, float LocalAutoWeit);
 XCamReturn rk_aiq_uapi2_getDrcLocalData(const rk_aiq_sys_ctx_t* ctx, float* LocalWeit, float* GlobalContrast, float* LoLitContrast, int* LocalAutoEnable, float* LocalAutoWeit);
-
 /*
 *****************************
 *
@@ -489,9 +484,8 @@ XCamReturn rk_aiq_uapi2_getDrcLocalData(const rk_aiq_sys_ctx_t* ctx, float* Loca
 *
 *****************************
 */
-XCamReturn rk_aiq_uapi2_setDrcHiLit(const rk_aiq_sys_ctx_t* ctx, float Strength);
-XCamReturn rk_aiq_uapi2_getDrcHiLit(const rk_aiq_sys_ctx_t* ctx, float* Strength);
-
+XCamReturn rk_aiq_uapi2_setDrcHiLit(const rk_aiq_sys_ctx_t* ctx, float hw_drcT_midWgt_alpha);
+XCamReturn rk_aiq_uapi2_getDrcHiLit(const rk_aiq_sys_ctx_t* ctx, float* hw_drcT_midWgt_alpha);
 /*
 *****************************
 *
@@ -505,9 +499,8 @@ XCamReturn rk_aiq_uapi2_getDrcHiLit(const rk_aiq_sys_ctx_t* ctx, float* Strength
 *
 *****************************
 */
-XCamReturn rk_aiq_uapi2_setDrcGain(const rk_aiq_sys_ctx_t* ctx, float Gain, float Alpha, float Clip);
-XCamReturn rk_aiq_uapi2_getDrcGain(const rk_aiq_sys_ctx_t* ctx, float* Gain, float* Alpha, float* Clip);
-
+XCamReturn rk_aiq_uapi2_setDrcGain(const rk_aiq_sys_ctx_t* ctx, float sw_drcT_toneGain_maxLimit, float sw_drcT_toneCurveK_coeff, float hw_drcT_toneCurveIdx_scale);
+XCamReturn rk_aiq_uapi2_getDrcGain(const rk_aiq_sys_ctx_t* ctx, float* sw_drcT_toneGain_maxLimit, float* sw_drcT_toneCurveK_coeff, float* hw_drcT_toneCurveIdx_scale);
 /*
 **********************************************************
 * Noise reduction
@@ -526,7 +519,6 @@ XCamReturn rk_aiq_uapi2_getDrcGain(const rk_aiq_sys_ctx_t* ctx, float* Gain, flo
 */
 XCamReturn rk_aiq_uapi2_setNRMode(const rk_aiq_sys_ctx_t* ctx, opMode_t mode);
 XCamReturn rk_aiq_uapi2_getNRMode(const rk_aiq_sys_ctx_t* ctx, opMode_t *mode);
-
 /*
 *****************************
 *
@@ -595,7 +587,6 @@ XCamReturn rk_aiq_uapi2_getSharpness(const rk_aiq_sys_ctx_t* ctx, unsigned int *
 */
 XCamReturn rk_aiq_uapi2_setFocusMode(const rk_aiq_sys_ctx_t* ctx, opMode_t mode);
 XCamReturn rk_aiq_uapi2_getFocusMode(const rk_aiq_sys_ctx_t* ctx, opMode_t *mode);
-
 /*
 *****************************
 *

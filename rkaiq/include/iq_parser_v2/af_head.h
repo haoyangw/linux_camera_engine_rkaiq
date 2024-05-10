@@ -20,7 +20,7 @@
 #ifndef __CALIBDBV2_AF_HEADER_H__
 #define __CALIBDBV2_AF_HEADER_H__
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 RKAIQ_BEGIN_DECLARE
 
@@ -37,13 +37,9 @@ typedef enum CalibDbV2_Af_SearchDir_s {
 } CalibDbV2_Af_SearchDir_t;
 
 typedef enum CalibDbV2_Af_SS_s {
-    CalibDbV2_AFSS_INVALID         = 0,
-    CalibDbV2_AFSS_FULLRANGE       = 1,    /**< scan the full focus range to find the point of best focus */
-    CalibDbV2_AFSS_HILLCLIMBING    = 2,    /**< use hillclimbing search */
-    CalibDbV2_AFSS_ADAPTIVE_RANGE  = 3,    /**< similar to full range search, but with multiple subsequent scans
+    CalibDbV2_AFSS_FULLRANGE       = 0,    /**< scan the full focus range to find the point of best focus */
+    CalibDbV2_AFSS_ADAPTIVE_RANGE  = 1,    /**< similar to full range search, but with multiple subsequent scans
                                                 with decreasing range and step size will be performed. */
-    CalibDbV2_AFSS_MUTIWINDOW      = 4,    /**< search by muti-window statistics */
-    CalibDbV2_AFSS_MAX
 } CalibDbV2_Af_SS_t;
 
 typedef enum CalibDbV2_AF_MODE_s
@@ -126,11 +122,11 @@ typedef struct CalibDbV2_Af_Contrast_s {
     CalibDbV2_Af_SearchDir_t  AdaptiveDir;
     // M4_ARRAY_DESC("AdaptRangeTbl", "u16", M4_SIZE(1,65), M4_RANGE(0,1023), "[0,8,16,24,32,40,48,56,64]", M4_DIGIT(0), M4_DYNAMIC(0))
     unsigned short          AdaptRangeTbl[65];            /**< adaptive range search table*/
-    // M4_NUMBER_DESC("AdaptRangeTbl_len", "s32", M4_RANGE(1,65), "1", M4_DIGIT(0), M4_HIDE(0))
+    // M4_NUMBER_DESC("AdaptRangeTbl_len", "s32", M4_RANGE(1,65), "9", M4_DIGIT(0), M4_HIDE(0))
     int                     AdaptRangeTbl_len;
     // M4_ARRAY_DESC("FineSearchStep", "u16", M4_SIZE(1,65), M4_RANGE(0,1023), "[4,4,4,4,4,4,4,4,4]", M4_DIGIT(0), M4_DYNAMIC(0))
     unsigned short          FineSearchStep[65];
-    // M4_NUMBER_DESC("FineSearchStep_len", "s32", M4_RANGE(1,65), "1", M4_DIGIT(0), M4_HIDE(0))
+    // M4_NUMBER_DESC("FineSearchStep_len", "s32", M4_RANGE(1,65), "9", M4_DIGIT(0), M4_HIDE(0))
     int                     FineSearchStep_len;
     // M4_NUMBER_DESC("SkipCurveFitGain", "f32", M4_RANGE(0, 1000), "0", M4_DIGIT(3))
     float                   SkipCurveFitGain;
@@ -151,7 +147,7 @@ typedef struct CalibDbV2_Af_Contrast_s {
 
     // M4_NUMBER_DESC("StableThers", "f32", M4_RANGE(0,1), "0.02", M4_DIGIT(3),M4_HIDE(0))
     float                   StableThers;                  /**< AF stable threshold */
-    // M4_NUMBER_DESC("StableFrames", "u16", M4_RANGE(0,65535), "3", M4_DIGIT(0),M4_HIDE(0))
+    // M4_NUMBER_DESC("StableFrames", "u16", M4_RANGE(0,1023), "3", M4_DIGIT(0),M4_HIDE(0))
     unsigned short          StableFrames;                 /**< AF stable  status must hold frames */
     // M4_NUMBER_DESC("StableTime", "u16", M4_RANGE(0,65535), "200", M4_DIGIT(3),M4_HIDE(0))
     unsigned short          StableTime;                   /**< AF stable status must hold time */
@@ -172,7 +168,7 @@ typedef struct CalibDbV2_Af_Contrast_s {
 
     // M4_NUMBER_DESC("OutFocusValue", "f32", M4_RANGE(0,1000000), "50", M4_DIGIT(3),M4_HIDE(0))
     float                   OutFocusValue;                /**< out of focus vlaue*/
-    // M4_NUMBER_DESC("OutFocusPos", "u16", M4_RANGE(0,65), "32", M4_DIGIT(0),M4_HIDE(0))
+    // M4_NUMBER_DESC("OutFocusPos", "u16", M4_RANGE(0,1023), "64", M4_DIGIT(0),M4_HIDE(0))
     unsigned short          OutFocusPos;                  /**< out of focus position*/
 
     // M4_NUMBER_DESC("LowLumaValue", "f32", M4_RANGE(0,4095), "0", M4_DIGIT(3),M4_HIDE(0))
@@ -189,7 +185,7 @@ typedef struct CalibDbV2_Af_Contrast_s {
     unsigned char           SearchPauseLumaEnable;
     // M4_NUMBER_DESC("SearchPauseLumaThers", "f32", M4_RANGE(0,1), "0", M4_DIGIT(3),M4_HIDE(0))
     float                   SearchPauseLumaThers;
-    // M4_NUMBER_DESC("StableFrames", "u16", M4_RANGE(0,65535), "0", M4_DIGIT(3),M4_HIDE(0))
+    // M4_NUMBER_DESC("SearchLumaStableFrames", "u16", M4_RANGE(0,1023), "0", M4_DIGIT(0),M4_HIDE(0))
     unsigned short          SearchLumaStableFrames;
     // M4_NUMBER_DESC("SearchLumaStableThers", "f32", M4_RANGE(0,1), "0", M4_DIGIT(3),M4_HIDE(0))
     float                   SearchLumaStableThers;
@@ -232,13 +228,13 @@ typedef struct CalibDbV2_Af_Pdaf_fineSearch_s {
 typedef struct CalibDbV2_Af_PdafIsoPara_s {
     // M4_NUMBER_DESC("iso", "u32", M4_RANGE(0, 1000000), "50", M4_DIGIT(0))
     int iso;
-    // M4_NUMBER_DESC("pdConfdRatio0", "f32", M4_RANGE(0,1), "1", M4_DIGIT(3),M4_HIDE(0))
+    // M4_NUMBER_DESC("pdConfdRatio0", "f32", M4_RANGE(0,256), "1", M4_DIGIT(3),M4_HIDE(0))
     float pdConfdRatio0;
-    // M4_NUMBER_DESC("pdConfdRatio1", "f32", M4_RANGE(0,1), "1", M4_DIGIT(3),M4_HIDE(0))
+    // M4_NUMBER_DESC("pdConfdRatio1", "f32", M4_RANGE(0,256), "1", M4_DIGIT(3),M4_HIDE(0))
     float pdConfdRatio1;
-    // M4_NUMBER_DESC("pdConfdRatio2", "f32", M4_RANGE(0,1), "1", M4_DIGIT(3),M4_HIDE(0))
+    // M4_NUMBER_DESC("pdConfdRatio2", "f32", M4_RANGE(0,256), "1", M4_DIGIT(3),M4_HIDE(0))
     float pdConfdRatio2;
-    // M4_NUMBER_DESC("pdConfdRatio3", "f32", M4_RANGE(0,1), "1", M4_DIGIT(3),M4_HIDE(0))
+    // M4_NUMBER_DESC("pdConfdRatio3", "f32", M4_RANGE(0,256), "1", M4_DIGIT(3),M4_HIDE(0))
     float pdConfdRatio3;
     // M4_NUMBER_DESC("pdConfdRhresh", "f32", M4_RANGE(0,1), "0.4", M4_DIGIT(3),M4_HIDE(0))
     float pdConfdThresh;
@@ -382,11 +378,11 @@ typedef struct CalibDbV2_Af_Pdaf_s {
 } CalibDbV2_Af_Pdaf_t;
 
 typedef struct CalibDbV2_Af_VcmCfg_s {
-    // M4_NUMBER_DESC("max logical pos", "u32", M4_RANGE(0,4095), "64", M4_DIGIT(0))
+    // M4_NUMBER_DESC("max logical pos", "u32", M4_RANGE(0,1023), "64", M4_DIGIT(0))
     unsigned int max_logical_pos;
-    // M4_NUMBER_DESC("start current", "s32", M4_RANGE(-1, 2048), "-1", M4_DIGIT(0))
+    // M4_NUMBER_DESC("start current", "s32", M4_RANGE(-1, 1023), "-1", M4_DIGIT(0))
     int start_current;
-    // M4_NUMBER_DESC("rated current", "s32", M4_RANGE(-1, 2048), "-1", M4_DIGIT(0))
+    // M4_NUMBER_DESC("rated current", "s32", M4_RANGE(-1, 1023), "-1", M4_DIGIT(0))
     int rated_current;
     // M4_NUMBER_DESC("step mode", "s32", M4_RANGE(-1, 1000), "-1", M4_DIGIT(0))
     int step_mode;
@@ -974,168 +970,2508 @@ typedef struct {
     CalibDbV2_AFV32_Tuning_Para_t TuningPara;
 } CalibDbV2_AFV32_t;
 
-typedef enum CalibDbV2_AF_INPUT_SEL_e {
-    AFSEL_DPCCOUT_0  = 0,    // channel 0
-    AFSEL_DPCCOUT_1  = 1,    // channel 1
-    AFSEL_DPCCOUT_2  = 2,    // channel 2
-    AFSEL_DEBAYER_IN = 3,    // debayer in
-    AFSEL_BNR_IN     = 4,    // bnr in
-    AFSEL_YNR_IN     = 5,    // ynr in
-    AFSEL_VICAP_IN   = 6,    // vicap in
-    AFSEL_MAX
-} CalibDbV2_AF_INPUT_SEL_t;
+typedef struct Af_ContrastZoom_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(QuickFoundThersZoomIdx),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,32),
+        M4_RANGE_EX(0,65535),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_DYNAMIC_EX(1),
+        M4_ORDER(0),
+        M4_NOTES(Zoom index to search quick found threshold value.\n
+        Freq of use: low))  */
+    unsigned short          QuickFoundThersZoomIdx[32];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(QuickFoundThersZoomIdx_len),
+        M4_TYPE(u32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,32),
+        M4_DEFAULT(1),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_NOTES(Length of zoom index table to search quick found threshold value.\n
+        Freq of use: low))  */
+    int                     QuickFoundThersZoomIdx_len;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(QuickFoundThers),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,32),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT(0.05),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_DYNAMIC_EX(1),
+        M4_ORDER(2),
+        M4_NOTES(Quick found threshold value table.\n
+        Freq of use: low))  */
+    float                   QuickFoundThers[32];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(QuickFoundThers_len),
+        M4_TYPE(u32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,32),
+        M4_DEFAULT(1),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(3),
+        M4_NOTES(Length of quick found threshold value table.\n
+        Freq of use: low))  */
+    int                     QuickFoundThers_len;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(SearchStepZoomIdx),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,32),
+        M4_RANGE_EX(0,65535),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_DYNAMIC_EX(1),
+        M4_ORDER(4),
+        M4_NOTES(Zoom index to find search step.\n
+        Freq of use: low))  */
+    unsigned short          SearchStepZoomIdx[32];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(SearchStepZoomIdx_len),
+        M4_TYPE(u32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,32),
+        M4_DEFAULT(1),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(5),
+        M4_NOTES(Length of zoom index table to find search step.\n
+        Freq of use: low))  */
+    int                     SearchStepZoomIdx_len;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(SearchStep),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,32),
+        M4_RANGE_EX(0,65535),
+        M4_DEFAULT(16),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_DYNAMIC_EX(1),
+        M4_ORDER(6),
+        M4_NOTES(Search step value table.\n
+        Freq of use: low))  */
+    unsigned short          SearchStep[32];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(SearchStep_len),
+        M4_TYPE(u32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,32),
+        M4_DEFAULT(1),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(7),
+        M4_NOTES(Length of search step value table.\n
+        Freq of use: low))  */
+    int                     SearchStep_len;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(StopStepZoomIdx),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,32),
+        M4_RANGE_EX(0,65535),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_DYNAMIC_EX(1),
+        M4_ORDER(8),
+        M4_NOTES(Zoom index to find stop step.\n
+        Freq of use: low))  */
+    unsigned short          StopStepZoomIdx[32];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(StopStepZoomIdx_len),
+        M4_TYPE(u32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,32),
+        M4_DEFAULT(1),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(9),
+        M4_NOTES(Length of zoom index table to find stop step.\n
+        Freq of use: low))  */
+    int                     StopStepZoomIdx_len;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(StopStep),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,32),
+        M4_RANGE_EX(0,65535),
+        M4_DEFAULT(4),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_DYNAMIC_EX(1),
+        M4_ORDER(10),
+        M4_NOTES(Stop step value table.\n
+        Freq of use: low))  */
+    unsigned short          StopStep[32];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(StopStep_len),
+        M4_TYPE(u32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,32),
+        M4_DEFAULT(1),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(11),
+        M4_NOTES(Length of stop step value table.\n
+        Freq of use: low))  */
+    int                     StopStep_len;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(SwitchDirZoomIdx),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,65535),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(12),
+        M4_NOTES(Zoom index to switch search direction(positive and adaptive).\n
+        Freq of use: low))  */
+    unsigned short          SwitchDirZoomIdx;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(SpotlightHighlightRatio),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT(0.014),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(13),
+        M4_NOTES(Threshold for mean high light value.\n
+        Freq of use: low))  */
+    float                   SpotlightHighlightRatio;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(SpotlightLumaRatio),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,3),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT([0.3, 0.5, 0.8]),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(14),
+        M4_NOTES(Threshold for luma ratio(=cur luma blk/max luma blk), (low/mid/high).\n
+        Freq of use: low))  */
+    float                   SpotlightLumaRatio[3];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(SpotlightBlkCnt),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,3),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT([0.2, 0.5, 0.25]),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(15),
+        M4_NOTES(Threshold for block count ratio(low/mid/high).\n
+        Freq of use: low))  */
+    float                   SpotlightBlkCnt[3];
+} Af_ContrastZoom_t;
 
-typedef struct CalibDbV2_AfV33_MeasCfg_s {
-    // M4_NUMBER_DESC("table index", "u32", M4_RANGE(0, 1000000), "0", M4_DIGIT(0))
-    unsigned int tbl_idx;
-    // M4_ENUM_DESC("input sel", "CalibDbV2_AF_INPUT_SEL_t", "AFSEL_DPCCOUT_0")
-    CalibDbV2_AF_INPUT_SEL_t input_sel;
-    // M4_NUMBER_DESC("bnr in shift", "u8", M4_RANGE(0, 15), "0", M4_DIGIT(0))
-    unsigned char bnr_in_shift;
-    // M4_ENUM_DESC("downscale mode", "CalibDbV2_AF_DNSCL_MODE_t", "CalibDbV2_AF_DNSCL_1")
-    CalibDbV2_AF_DNSCL_MODE_t dnscl_mode;
-    // M4_BOOL_DESC("bls en", "0")
-    bool bls_en;
-    // M4_NUMBER_DESC("bls offset", "s16", M4_RANGE(-256, 255), "0", M4_DIGIT(0))
-    short bls_offset;
-    // M4_BOOL_DESC("v1 max mode", "0")
-    bool v1_maxmode;
-    // M4_BOOL_DESC("v2 max mode", "0")
-    bool v2_maxmode;
-    // M4_BOOL_DESC("h1 max mode", "0")
-    bool h1_maxmode;
-    // M4_BOOL_DESC("h2 max mode", "0")
-    bool h2_maxmode;
-    // M4_BOOL_DESC("hiir left border mode", "0")
-    bool hiir_left_border_mode;
-    // M4_ARRAY_MARK_DESC("Gamma Curve", "u16", M4_SIZE(1,17),  M4_RANGE(0, 1023), "[0,45,108,179,245,344,409,459,500,567,622,676,759,833,896,962,1023]", M4_DIGIT(0), M4_DYNAMIC(0), "curve_table")
-    unsigned short gammaY[17];
-    // M4_ARRAY_DESC("gaus coe", "s16", M4_SIZE(3,3), M4_RANGE(-128, 127), "[0,64,0,0,64,0,0,0,0]", M4_DIGIT(0), M4_DYNAMIC(0))
-    short gaus_coe[9];
-    // M4_ARRAY_DESC("v1 band", "f32", M4_SIZE(1,2), M4_RANGE(0, 1), "[0.042,0.140]", M4_DIGIT(3), M4_DYNAMIC(0))
-    float v1_band[2];
-    // M4_ARRAY_DESC("vertical first iir filter", "s16", M4_SIZE(1,3), M4_RANGE(-255,255), "[-265, 686, 512]", M4_DIGIT(0), M4_DYNAMIC(0))
-    short v1_iir_coe[3];
-    // M4_ARRAY_DESC("vertical first fir filter", "s16", M4_SIZE(1,3), M4_RANGE(-2047,2047), "[-124, 0, 124]", M4_DIGIT(0), M4_DYNAMIC(0))
-    short v1_fir_coe[3];
-    // M4_ARRAY_DESC("v2 band", "f32", M4_SIZE(1,2), M4_RANGE(0, 1), "[0.055, 0.125]", M4_DIGIT(3), M4_DYNAMIC(0))
-    float v2_band[2];
-    // M4_ARRAY_DESC("vertical second iir filter", "s16", M4_SIZE(1,3), M4_RANGE(-2047,2047), "[-325, 724, 512]", M4_DIGIT(0), M4_DYNAMIC(0))
-    short v2_iir_coe[3];
-    // M4_ARRAY_DESC("vertical second fir filter", "s16", M4_SIZE(1,3), M4_RANGE(-2047,2047), "[-94, 0, 94]", M4_DIGIT(0), M4_DYNAMIC(0))
-    short v2_fir_coe[3];
-    // M4_ARRAY_DESC("h1 band", "f32", M4_SIZE(1,2), M4_RANGE(0, 1), "[0.042, 0.14]", M4_DIGIT(3), M4_DYNAMIC(0))
-    float h1_band[2];
-    // M4_ARRAY_DESC("horizontal first iir1 filter", "s16", M4_SIZE(1,6), M4_RANGE(-2047,2047), "[512, 557, -276, 460, 0, -460]", M4_DIGIT(0), M4_DYNAMIC(0))
-    short h1_iir1_coe[6];
-    // M4_ARRAY_DESC("horizontal first iir2 filter", "s16", M4_SIZE(1,6), M4_RANGE(-2047,2047), "[512, 870, -399, 37, 0, -37]", M4_DIGIT(0), M4_DYNAMIC(0))
-    short h1_iir2_coe[6];
-    // M4_ARRAY_DESC("h2 band", "f32", M4_SIZE(1,2), M4_RANGE(0, 1), "[0.055, 0.125]", M4_DIGIT(3), M4_DYNAMIC(0))
-    float h2_band[2];
-    // M4_ARRAY_DESC("horizontal second iir1 filter", "s16", M4_SIZE(1,6), M4_RANGE(-2047,2047), "[512, 648, -344, 327, 0, -327]", M4_DIGIT(0), M4_DYNAMIC(0))
-    short h2_iir1_coe[6];
-    // M4_ARRAY_DESC("horizontal second iir2 filter", "s16", M4_SIZE(1,6), M4_RANGE(-2047,2047), "[512, 854, -409, 29, 0, -29]", M4_DIGIT(0), M4_DYNAMIC(0))
-    short h2_iir2_coe[6];
-    // M4_NUMBER_DESC("ldg enable", "u8", M4_RANGE(0, 1), "0", M4_DIGIT(0))
-    unsigned char ldg_en;
-    // M4_NUMBER_DESC("vertical minluma thresh", "u8", M4_RANGE(0, 255), "64", M4_DIGIT(0))
-    unsigned char ve_ldg_lumth_l;
-    // M4_NUMBER_DESC("vertical gain for minluma", "u8", M4_RANGE(0, 255), "28", M4_DIGIT(0))
-    unsigned char ve_ldg_gain_l;
-    // M4_NUMBER_DESC("vertical slope low", "u16", M4_RANGE(0, 8191), "1286", M4_DIGIT(0))
-    unsigned short ve_ldg_gslp_l;
-    // M4_NUMBER_DESC("vertical maxluma thresh", "u8", M4_RANGE(0, 255), "185", M4_DIGIT(0))
-    unsigned char ve_ldg_lumth_h;
-    // M4_NUMBER_DESC("vertical gain for maxluma", "u8", M4_RANGE(0, 255), "8", M4_DIGIT(0))
-    unsigned char ve_ldg_gain_h;
-    // M4_NUMBER_DESC("vertical slope high", "u16", M4_RANGE(0, 8191), "1400", M4_DIGIT(0))
-    unsigned short ve_ldg_gslp_h;
-    // M4_NUMBER_DESC("horizontal minluma thresh", "u8", M4_RANGE(0, 255), "64", M4_DIGIT(0))
-    unsigned char ho_ldg_lumth_l;
-    // M4_NUMBER_DESC("horizontal gain for minluma", "u8", M4_RANGE(0, 255), "28", M4_DIGIT(0))
-    unsigned char ho_ldg_gain_l;
-    // M4_NUMBER_DESC("horizontal slope low", "u16", M4_RANGE(0, 8191), "1286", M4_DIGIT(0))
-    unsigned short ho_ldg_gslp_l;
-    // M4_NUMBER_DESC("horizontal maxluma thresh", "u8", M4_RANGE(0, 255), "185", M4_DIGIT(0))
-    unsigned char ho_ldg_lumth_h;
-    // M4_NUMBER_DESC("horizontal gain for maxluma", "u8", M4_RANGE(0, 255), "8", M4_DIGIT(0))
-    unsigned char ho_ldg_gain_h;
-    // M4_NUMBER_DESC("horizontal slope high", "u16", M4_RANGE(0, 8191), "1400", M4_DIGIT(0))
-    unsigned short ho_ldg_gslp_h;
-    // M4_NUMBER_DESC("horizontal dilate num", "u8", M4_RANGE(0, 7), "0", M4_DIGIT(0))
-    unsigned char hldg_dilate_num;
-    // M4_NUMBER_DESC("vertical fv thresh", "u16", M4_RANGE(0, 4095), "4", M4_DIGIT(0))
-    unsigned short v_fv_thresh;
-    // M4_NUMBER_DESC("vertical fv limit", "u16", M4_RANGE(0, 1023), "1023", M4_DIGIT(0))
-    unsigned short v_fv_limit;
-    // M4_NUMBER_DESC("vertical fv slope", "u16", M4_RANGE(0, 511), "256", M4_DIGIT(0))
-    unsigned short v_fv_slope;
-    // M4_NUMBER_DESC("horizontal fv thresh", "u16", M4_RANGE(0, 4095), "4", M4_DIGIT(0))
-    unsigned short h_fv_thresh;
-    // M4_NUMBER_DESC("horizontal fv limit", "u16", M4_RANGE(0, 1023), "1023", M4_DIGIT(0))
-    unsigned short h_fv_limit;
-    // M4_NUMBER_DESC("horizontal fv slope", "u16", M4_RANGE(0, 511), "256", M4_DIGIT(0))
-    unsigned short h_fv_slope;
-    // M4_NUMBER_DESC("highlight thresh", "u16", M4_RANGE(0, 1023), "912", M4_DIGIT(0))
-    unsigned short highlit_thresh;
-    // M4_NUMBER_DESC("v1fv reliable", "f32", M4_RANGE(0, 1), "0.5", M4_DIGIT(3))
-    float v1fv_reliable;
-    // M4_NUMBER_DESC("v2fv reliable", "f32", M4_RANGE(0, 1), "0.5", M4_DIGIT(3))
-    float v2fv_reliable;
-    // M4_NUMBER_DESC("vertical fv ratio", "f32", M4_RANGE(0, 1), "0.5", M4_DIGIT(3))
-    float v_fv_ratio;
-} CalibDbV2_AfV33_MeasCfg_t;
+typedef struct Af_Contrast_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(Enable),
+        M4_TYPE(bool),
+        M4_DEFAULT(1),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_GROUP_CTRL(contrast_en_group),
+        M4_NOTES(Enable contrast af algo.\n
+        Freq of use: high))  */
+    bool Enable;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(SearchStrategy),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(CalibDbV2_Af_SS_t),
+        M4_DEFAULT(CalibDbV2_AFSS_ADAPTIVE_RANGE),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_NOTES(Search strategy of contrast af.\n
+        Freq of use: low))  */
+    CalibDbV2_Af_SS_t         Afss;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(FullDir),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(CalibDbV2_Af_SearchDir_t),
+        M4_DEFAULT(CalibDbV2_AF_ADAPTIVE_SEARCH),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(Search direction for full range search.\n
+        Freq of use: low))  */
+    CalibDbV2_Af_SearchDir_t  FullDir;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(FullRangeTbl),
+        M4_TYPE(s16),
+        M4_SIZE_EX(1,3),
+        M4_RANGE_EX(-1023,1023),
+        M4_DEFAULT([0,1,64]),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(3),
+        M4_NOTES(Full range search table(start/step/end).\n
+        Freq of use: low))  */
+    short                   FullRangeTbl[3];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(AdaptiveDir),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(CalibDbV2_Af_SearchDir_t),
+        M4_DEFAULT(CalibDbV2_AF_ADAPTIVE_SEARCH),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(4),
+        M4_NOTES(Search direction for adaptive search.\n
+        Freq of use: low))  */
+    CalibDbV2_Af_SearchDir_t  AdaptiveDir;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(AdaptRangeTbl),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,65),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT([0,8,16,24,32,40,48,56,64]),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_DYNAMIC_EX(1),
+        M4_ORDER(5),
+        M4_NOTES(Rough search table for adaptive search.\n
+        Freq of use: high))  */
+    unsigned short          AdaptRangeTbl[65];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(AdaptRangeTbl_len),
+        M4_TYPE(u32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,65),
+        M4_DEFAULT(9),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(6),
+        M4_NOTES(Length of rough search table for adaptive search.\n
+        Freq of use: high))  */
+    int                     AdaptRangeTbl_len;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(FineSearchStep),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,65),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT([4,4,4,4,4,4,4,4,4]),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_DYNAMIC_EX(1),
+        M4_ORDER(7),
+        M4_NOTES(Fine search table for adaptive search.\n
+        Freq of use: high))  */
+    unsigned short          FineSearchStep[65];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(FineSearchStep_len),
+        M4_TYPE(u32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,65),
+        M4_DEFAULT(9),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(8),
+        M4_NOTES(Length of fine search table for adaptive search.\n
+        Freq of use: high))  */
+    int                     FineSearchStep_len;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(SkipCurveFitGain),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1000),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(9),
+        M4_NOTES(Sensor gain value to skip curve fit.\n
+        Freq of use: low))  */
+    float                   SkipCurveFitGain;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(TrigThers),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,32),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT(0.075),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_DYNAMIC_EX(1),
+        M4_ORDER(10),
+        M4_NOTES(Focus value trigger threshold table.\n
+        Freq of use: high))  */
+    float                   TrigThers[32];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(TrigThers_len),
+        M4_TYPE(u32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,32),
+        M4_DEFAULT(1),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(11),
+        M4_NOTES(Length of focus value trigger threshold table.\n
+        Freq of use: high))  */
+    int                     TrigThers_len;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(TrigThersFv),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,32),
+        M4_RANGE_EX(0,1000000),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_DYNAMIC_EX(1),
+        M4_ORDER(12),
+        M4_NOTES(Focus value table to find focus value trigger threshold.\n
+        Freq of use: high))  */
+    float                   TrigThersFv[32];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(TrigThersFv_len),
+        M4_TYPE(u32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,32),
+        M4_DEFAULT(1),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(13),
+        M4_NOTES(Length of focus value table to find focus value trigger threshold.\n
+        Freq of use: high))  */
+    int                     TrigThersFv_len;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(LumaTrigThers),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT(1),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(14),
+        M4_NOTES(Luma trigger threshold.\n
+        Freq of use: high))  */
+    float                   LumaTrigThers;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ExpTrigThers),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT(1),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(15),
+        M4_NOTES(Exposure trigger threshold.\n
+        Freq of use: high))  */
+    float                   ExpTrigThers;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ChangedFrames),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1000),
+        M4_DEFAULT(10),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(16),
+        M4_NOTES(Changed frames to trigger af search.\n
+        Freq of use: high))  */
+    unsigned short          ChangedFrames;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(StableThers),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT(0.02),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(17),
+        M4_NOTES(Af stable threshold.\n
+        Freq of use: high))  */
+    float                   StableThers;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(StableFrames),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT(3),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(18),
+        M4_NOTES(Af stable status must hold frame number.\n
+        Freq of use: high))  */
+    unsigned short          StableFrames;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ValidMaxMinRatio),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(19),
+        M4_NOTES(Valid block ratio in flat scene.(max-min)/(max+min)\n
+        Freq of use: low))  */
+    float                   ValidMaxMinRatio;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ValidValueThers),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1000000),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(20),
+        M4_NOTES(Valid focus value in flat scene.\n
+        Freq of use: low))  */
+    float                   ValidValueThers;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(OutFocusValue),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1000000),
+        M4_DEFAULT(50),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(21),
+        M4_NOTES(Focus value when out of focus.\n
+        Freq of use: low))  */
+    float                   OutFocusValue;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(OutFocusPos),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT(64),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(22),
+        M4_NOTES(Focus position when out of focus.\n
+        Freq of use: low))  */
+    unsigned short          OutFocusPos;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(LowLumaValue),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,4095),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(23),
+        M4_NOTES(Low luma scene vlaue.\n
+        Freq of use: low))  */
+    float                   LowLumaValue;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(LowLumaPos),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT(64),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(24),
+        M4_NOTES(Focus position when in low luma scene.\n
+        Freq of use: low))  */
+    unsigned short          LowLumaPos;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(WeightEnable),
+        M4_TYPE(bool),
+        M4_DEFAULT(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(25),
+        M4_NOTES(Enable weight matrix.\n
+        Freq of use: low))  */
+    bool                    WeightEnable;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(Weight),
+        M4_TYPE(u16),
+        M4_SIZE_EX(15,15),
+        M4_RANGE_EX(0,32),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_DYNAMIC_EX(0),
+        M4_ORDER(26),
+        M4_NOTES(Weight matrix to get focus value.\n
+        Freq of use: low))  */
+    unsigned char           Weight[225];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(SearchPauseLumaEnable),
+        M4_TYPE(bool),
+        M4_DEFAULT(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(27),
+        M4_NOTES(Enable to check luma change in search.\n
+        Freq of use: low))  */
+    bool                    SearchPauseLumaEnable;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(SearchPauseLumaThers),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT(0.05),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(28),
+        M4_NOTES(Search pause threshold when luma change much in search.\n
+        Freq of use: low))  */
+    float                   SearchPauseLumaThers;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(SearchLumaStableFrames),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT(3),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(29),
+        M4_NOTES(Frame number to judge luma is stable.\n
+        Freq of use: low))  */
+    unsigned short          SearchLumaStableFrames;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(SearchLumaStableThers),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT(0.02),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(30),
+        M4_NOTES(Luma change threshold to judge luma is stable.\n
+        Freq of use: low))  */
+    float                   SearchLumaStableThers;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(Stage1QuickFoundThers),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT(0.02),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(31),
+        M4_NOTES(Quick found threshold value in search stage1.\n
+        Freq of use: high))  */
+    float                   Stage1QuickFoundThers;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(Stage2QuickFoundThers),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT(0.04),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(32),
+        M4_NOTES(Quick found threshold value in search stage2.\n
+        Freq of use: high))  */
+    float                   Stage2QuickFoundThers;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(FlatValue),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1000000),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(33),
+        M4_NOTES(Focus value in centor threshold to judge flat scene.\n
+        Freq of use: low))  */
+    float                   FlatValue;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PointLightLumaTh),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,4095),
+        M4_DEFAULT(4095),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(34),
+        M4_NOTES(Luma threshold in point light scene.\n
+        Freq of use: low))  */
+    unsigned short          PointLightLumaTh;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PointLightCntTh),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,225),
+        M4_DEFAULT(225),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(35),
+        M4_NOTES(Block count threshold in point light scene.\n
+        Freq of use: low))  */
+    unsigned short          PointLightCntTh;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ZoomConfig),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(36),
+        M4_NOTES(Optical zoom config.\n
+        Freq of use: low))  */
+    Af_ContrastZoom_t ZoomCfg;
+} Af_Contrast_t;
 
-typedef struct CalibDbV2_AFV33_Tuning_Para_s {
-    // M4_ENUM_DESC("mode", "CalibDbV2_AF_MODE_t", "CalibDbV2_AFMODE_CONT_PICTURE")
-    CalibDbV2_AF_MODE_t af_mode;
-    // M4_NUMBER_DESC("win_h_offs", "u16", M4_RANGE(0,2000), "0", M4_DIGIT(0),M4_HIDE(0))
-    unsigned short win_h_offs;
-    // M4_NUMBER_DESC("win_v_offs", "u16", M4_RANGE(0,2000), "0", M4_DIGIT(0),M4_HIDE(0))
-    unsigned short win_v_offs;
-    // M4_NUMBER_DESC("win_h_size", "u16", M4_RANGE(0,2000), "0", M4_DIGIT(0),M4_HIDE(0))
-    unsigned short win_h_size;
-    // M4_NUMBER_DESC("win_v_size", "u16", M4_RANGE(0,2000), "0", M4_DIGIT(0),M4_HIDE(0))
-    unsigned short win_v_size;
-    // M4_NUMBER_DESC("win_h_offs in video", "u16", M4_RANGE(0,2000), "0", M4_DIGIT(0),M4_HIDE(0))
-    unsigned short video_win_h_offs;
-    // M4_NUMBER_DESC("win_v_offs in video", "u16", M4_RANGE(0,2000), "0", M4_DIGIT(0),M4_HIDE(0))
-    unsigned short video_win_v_offs;
-    // M4_NUMBER_DESC("win_h_size in video", "u16", M4_RANGE(0,2000), "0", M4_DIGIT(0),M4_HIDE(0))
-    unsigned short video_win_h_size;
-    // M4_NUMBER_DESC("win_v_size in video", "u16", M4_RANGE(0,2000), "0", M4_DIGIT(0),M4_HIDE(0))
-    unsigned short video_win_v_size;
-    // M4_STRUCT_DESC("fixed mode", "normal_ui_style")
-    CalibDbV2_Af_DefCode_t fixed_mode;
-    // M4_STRUCT_DESC("macro mode", "normal_ui_style")
-    CalibDbV2_Af_DefCode_t macro_mode;
-    // M4_STRUCT_DESC("infinity mode", "normal_ui_style")
-    CalibDbV2_Af_DefCode_t infinity_mode;
-    // M4_STRUCT_DESC("contrast af", "normal_ui_style")
-    CalibDbV2_Af_Contrast_t contrast_af;
-    // M4_STRUCT_DESC("video contrast af", "normal_ui_style")
-    CalibDbV2_Af_Contrast_t video_contrast_af;
-    // M4_STRUCT_DESC("laser af", "normal_ui_style")
-    CalibDbV2_Af_Laser_t laser_af;
-    // M4_STRUCT_DESC("pdaf", "normal_ui_style")
-    CalibDbV2_Af_Pdaf_t pdaf;
-    // M4_STRUCT_DESC("vcmcfg", "normal_ui_style")
-    CalibDbV2_Af_VcmCfg_t vcmcfg;
-    // M4_STRUCT_DESC("zoomfocus_tbl", "normal_ui_style")
-    CalibDbV2_Af_ZoomFocusTbl_t zoomfocus_tbl;
-    // M4_STRUCT_LIST_DESC("zoom_meas", M4_SIZE(1,8), "normal_ui_style")
-    CalibDbV2_AfV30_ZoomMeas_t zoom_meas[8];
-    // M4_NUMBER_DESC("zoom_meas_len", "s32", M4_RANGE(1,8), "1", M4_DIGIT(0), M4_HIDE(0))
-    int zoom_meas_len;
-    // M4_STRUCT_LIST_DESC("meas config table", M4_SIZE(1,32), "normal_ui_style")
-    CalibDbV2_AfV33_MeasCfg_t meascfg_tbl[CALIBDBV2_MAX_MEAS_CONFIG_NUM];
-    // M4_NUMBER_DESC("meascfg_tbl_len", "s32", M4_RANGE(1,32), "1", M4_DIGIT(0), M4_HIDE(0))
-    int meascfg_tbl_len;
-} CalibDbV2_AFV33_Tuning_Para_t;
+typedef struct Af_Laser_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(Enable),
+        M4_TYPE(bool),
+        M4_DEFAULT(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_GROUP_CTRL(laser_en_group),
+        M4_NOTES(Enable laser af algo.\n
+        Freq of use: low))  */
+    bool Enable;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(VcmDot),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,7),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT([0, 16, 32, 40, 48, 56, 64]),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_NOTES(Motor position table.\n
+        Freq of use: low))  */
+    float VcmDot[7];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(DistanceDot),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,7),
+        M4_RANGE_EX(0,65535),
+        M4_DEFAULT([0.2, 0.24, 0.34, 0.4, 0.66, 1, 3]),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(Distance table.\n
+        Freq of use: low))  */
+    float DistanceDot[7];
+} Af_Laser_t;
 
-typedef struct {
-    // M4_STRUCT_DESC("TuningPara", "normal_ui_style")
-    CalibDbV2_AFV33_Tuning_Para_t TuningPara;
+typedef struct Af_PdafFineSearch_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(FineSearchTbl_len),
+        M4_TYPE(u32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,10),
+        M4_DEFAULT(1),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(Length of fine search table.\n
+        Freq of use: high))  */
+    int FineSearchTbl_len;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(Confidence),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,10),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT(0.5),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_NOTES(Confidence of pdaf algo.\n
+        Freq of use: high))  */
+    float Confidence[10];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(Range),
+        M4_TYPE(s32),
+        M4_SIZE_EX(1,10),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(Search range in fine search.\n
+        Freq of use: high))  */
+    int Range[10];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(StepPos),
+        M4_TYPE(s32),
+        M4_SIZE_EX(1,10),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT(16),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(3),
+        M4_NOTES(Search step in fine search.\n
+        Freq of use: high))  */
+    int StepPos[10];
+} Af_PdafFineSearch_t;
+
+typedef struct Af_PdafIsoPara_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(Iso),
+        M4_TYPE(s32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1000000),
+        M4_DEFAULT(50),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(Iso value to query.\n
+        Freq of use: high))  */
+    int Iso;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdConfdRatio0),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,256),
+        M4_DEFAULT(1),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_NOTES(Confidence adjust ratio 0.\n
+        Freq of use: high))  */
+    float PdConfdRatio0;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdConfdRatio1),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,256),
+        M4_DEFAULT(1),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(Confidence adjust ratio 1.\n
+        Freq of use: low))  */
+    float PdConfdRatio1;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdConfdRatio2),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,256),
+        M4_DEFAULT(1),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(3),
+        M4_NOTES(Confidence adjust ratio 2.\n
+        Freq of use: low))  */
+    float PdConfdRatio2;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdConfdRatio3),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,256),
+        M4_DEFAULT(1),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(4),
+        M4_NOTES(Confidence adjust ratio 3.\n
+        Freq of use: high))  */
+    float PdConfdRatio3;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdConfdThresh),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT(0.4),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(5),
+        M4_NOTES(Confidence threshold to trust pdaf algo.\n
+        Freq of use: high))  */
+    float PdConfdThresh;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ConvergedInfPdThresh),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT(24),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(6),
+        M4_NOTES(Converged motor position threshold to stop search(infinity side).\n
+        Freq of use: high))  */
+    unsigned short ConvergedInfPdThresh;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ConvergedMacPdThresh),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT(24),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(7),
+        M4_NOTES(Converged motor position threshold to stop search(macro side).\n
+        Freq of use: high))  */
+    unsigned short ConvergedMacPdThresh;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(DefocusInfPdThresh),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT(12),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(8),
+        M4_NOTES(Defocus motor position threshold to stop search(infinity side).\n
+        Freq of use: high))  */
+    unsigned short DefocusInfPdThresh;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(DefocusMacPdThresh),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT(12),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(9),
+        M4_NOTES(Defocus motor position threshold to stop search(macro side).\n
+        Freq of use: high))  */
+    unsigned short DefocusMacPdThresh;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(StablePdRatio),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,255),
+        M4_DEFAULT(0.125),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(10),
+        M4_NOTES(Ratio value to judge pd stable.\n
+        Freq of use: low))  */
+    float StablePdRatio;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(StablePdOffset),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT(8),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(11),
+        M4_NOTES(Offset value to judge pd stable.\n
+        Freq of use: low))  */
+    unsigned short StablePdOffset;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(StableCntRatio),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT(1.5),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(12),
+        M4_NOTES(Ratio to decide stable frame count threshold.\n
+        Freq of use: low))  */
+    float StableCntRatio;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(NoConfCntThresh),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,255),
+        M4_DEFAULT(4),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(13),
+        M4_NOTES(No confidence frame count to turn to contrast af.\n
+        Freq of use: low))  */
+    unsigned short NoConfCntThresh;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(RoiBlkCntW),
+        M4_TYPE(u8),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,10),
+        M4_DEFAULT(3),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(14),
+        M4_NOTES(Block count in roi at width direction.\n
+        Freq of use: low))  */
+    unsigned char RoiBlkCntW;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(RoiBlkCntH),
+        M4_TYPE(u8),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,10),
+        M4_DEFAULT(3),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(15),
+        M4_NOTES(Block count in roi at height direction.\n
+        Freq of use: low))  */
+    unsigned char RoiBlkCntH;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(FineSearchTbl),
+        M4_TYPE(struct),
+        M4_UI_MODULE(array_table_ui),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(16),
+        M4_NOTES(Fine search table.\n
+        Freq of use: low))  */
+    Af_PdafFineSearch_t FineSearchTbl;
+} Af_PdafIsoPara_t;
+
+typedef struct Af_PdafCalibInf_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdGainMapW),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,1000),
+        M4_DEFAULT(32),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(Gainmap width in calibration.\n
+        Freq of use: high))  */
+    unsigned short PdGainMapW;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdGainMapH),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,1000),
+        M4_DEFAULT(32),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_NOTES(Gainmap height in calibration.\n
+        Freq of use: high))  */
+    unsigned short PdGainMapH;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdDccMapW),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,1000),
+        M4_DEFAULT(32),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(Dccmap width in calibration.\n
+        Freq of use: high))  */
+    unsigned short PdDccMapW;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdDccMapH),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,1000),
+        M4_DEFAULT(32),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(3),
+        M4_NOTES(Dccmap height in calibration.\n
+        Freq of use: high))  */
+    unsigned short PdDccMapH;
+} Af_PdafCalibInf_t;
+
+typedef struct Af_PdafResolution_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdType),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(CalibDbV2_PDAF_SENSOR_TYPE_t),
+        M4_DEFAULT(CalibDbV2_PDAF_SENSOR_TYPE2),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(Pdaf sensor type.\n
+        Freq of use: high))  */
+    CalibDbV2_PDAF_SENSOR_TYPE_t PdType;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ImageWidth),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,65535),
+        M4_DEFAULT(4096),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_NOTES(Image width of sensor input.\n
+        Freq of use: high))  */
+    unsigned short ImageWidth;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ImageHeight),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,65535),
+        M4_DEFAULT(3072),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(Image height of sensor input.\n
+        Freq of use: high))  */
+    unsigned short ImageHeight;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdOutWidth),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,65535),
+        M4_DEFAULT(2048),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(3),
+        M4_NOTES(Pd data width of current sensor setting.\n
+        Freq of use: high))  */
+    unsigned short PdOutWidth;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdOutHeight),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,65535),
+        M4_DEFAULT(768),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(4),
+        M4_NOTES(Pd data height of current sensor setting.\n
+        Freq of use: high))  */
+    unsigned short PdOutHeight;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdCropX),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,65535),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(5),
+        M4_NOTES(Pd data start x position of current setting vs calibration setting.\n
+        Freq of use: high))  */
+    unsigned short PdCropX;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdCropY),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,65535),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(6),
+        M4_NOTES(Pd data start y position of current setting vs calibration setting.\n
+        Freq of use: high))  */
+    unsigned short PdCropY;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdBaseWidth),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1000),
+        M4_DEFAULT(2048),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(7),
+        M4_NOTES(Pd data width in calibration.\n
+        Freq of use: high))  */
+    unsigned short PdBaseWidth;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdBaseHeight),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1000),
+        M4_DEFAULT(768),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(8),
+        M4_NOTES(Pd data height in calibration.\n
+        Freq of use: high))  */
+    unsigned short PdBaseHeight;
+} Af_PdafResolution_t;
+
+typedef struct Af_Pdaf_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(Enable),
+        M4_TYPE(bool),
+        M4_DEFAULT(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_GROUP_CTRL(pdaf_en_group),
+        M4_NOTES(Enable pdaf algo.\n
+        Freq of use: high))  */
+    bool Enable;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdVsCdDebug),
+        M4_TYPE(bool),
+        M4_DEFAULT(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_NOTES(Debug flag to compare pdaf and cdaf.\n
+        Freq of use: low))  */
+    bool PdVsCdDebug;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdDumpDebug),
+        M4_TYPE(bool),
+        M4_DEFAULT(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(Debug flag to dump some data.\n
+        Freq of use: low))  */
+    bool PdDumpDebug;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdDumpMaxFrm),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,10000),
+        M4_DEFAULT(300),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(3),
+        M4_NOTES(Max dump frames when debug flag is on.\n
+        Freq of use: low))  */
+    unsigned short PdDumpMaxFrm;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdDataBit),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,16),
+        M4_DEFAULT(10),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(4),
+        M4_NOTES(Bit number of one pd data.\n
+        Freq of use: low))  */
+    unsigned short PdDataBit;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdBlkLevel),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT(64),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(5),
+        M4_NOTES(Black level of pd data.\n
+        Freq of use: low))  */
+    unsigned short PdBlkLevel;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdSearchRadius),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,32),
+        M4_DEFAULT(3),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(6),
+        M4_NOTES(Search radius.\n
+        Freq of use: low))  */
+    unsigned short PdSearchRadius;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdMirrorInCalib),
+        M4_TYPE(u8),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,3),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(7),
+        M4_NOTES(Mirror/flip difference with used setting in calibration.\n
+        Freq of use: high))  */
+    unsigned char PdMirrorInCalib;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdChangeLeftRight),
+        M4_TYPE(bool),
+        M4_DEFAULT(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(8),
+        M4_NOTES(Change left/right pd data when input pd data to pdaf algo.\n
+        Freq of use: high))  */
+    bool PdChangeLeftRight;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdVsImgoutMirror),
+        M4_TYPE(u8),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,3),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(9),
+        M4_NOTES(Mirror/flip difference with normal picture, used in get search roi.\n
+        Freq of use: low))  */
+    unsigned char PdVsImgoutMirror;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdLRInDiffLine),
+        M4_TYPE(bool),
+        M4_DEFAULT(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(10),
+        M4_NOTES(Weather left/right pd data in one line, used to separate left/right pd data.\n
+        Freq of use: high))  */
+    bool PdLRInDiffLine;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdMaxWidth),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,65535),
+        M4_DEFAULT(2048),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(11),
+        M4_NOTES(Max pd data width, used to alloc buffer for pd data.\n
+        Freq of use: high))  */
+    unsigned short PdMaxWidth;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdMaxHeight),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,65535),
+        M4_DEFAULT(768),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(12),
+        M4_NOTES(Max pd data height, used to alloc buffer for pd data.\n
+        Freq of use: high))  */
+    unsigned short PdMaxHeight;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdVerBinning),
+        M4_TYPE(u8),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,255),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(13),
+        M4_NOTES(Vertical binning setting.\n
+        Freq of use: low))  */
+    unsigned char PdVerBinning;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdFrmInValid),
+        M4_TYPE(u8),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,4),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(14),
+        M4_NOTES(Invalid frame number after judge motor is stable.\n
+        Freq of use: low))  */
+    unsigned char PdFrmInValid;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdDgainValid),
+        M4_TYPE(bool),
+        M4_DEFAULT(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(15),
+        M4_NOTES(Weather sensor dgain is valid for pd data.\n
+        Freq of use: low))  */
+    bool PdDgainValid;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdGainMapNormEn),
+        M4_TYPE(bool),
+        M4_DEFAULT(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(16),
+        M4_NOTES(Enable normalize sensor gainmap.\n
+        Freq of use: low))  */
+    bool PdGainMapNormEn;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdConfdMode),
+        M4_TYPE(u8),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(17),
+        M4_NOTES(Mode to caculate confidence.\n
+        Freq of use: low))  */
+    unsigned char PdConfdMode;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdNoiseSn),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,100),
+        M4_DEFAULT(0.207),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(18),
+        M4_NOTES(Pd data noise factor0.\n
+        Freq of use: low))  */
+    float PdNoiseSn;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdNoiseRn),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,2),
+        M4_RANGE_EX(0,100),
+        M4_DEFAULT([0.14, 2.8]),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(19),
+        M4_NOTES(Pd data noise factor1.\n
+        Freq of use: low))  */
+    float PdNoiseRn[2];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdNoisePn),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,100),
+        M4_DEFAULT(0.25),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(20),
+        M4_NOTES(Pd data noise factor2.\n
+        Freq of use: low))  */
+    float PdNoisePn;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdSatValRatio),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT(0.92),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(21),
+        M4_NOTES(Saturation value ratio for pd data.\n
+        Freq of use: low))  */
+    float PdSatValRatio;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdSatCntRatio),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT(0.06),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(22),
+        M4_NOTES(Saturation count ratio for pd data.\n
+        Freq of use: low))  */
+    float PdSatCntRatio;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdDiscardRegionEn),
+        M4_TYPE(bool),
+        M4_DEFAULT(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(23),
+        M4_NOTES(Weather to discard less texture block.\n
+        Freq of use: low))  */
+    bool PdDiscardRegionEn;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdLessTextureRatio),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,5),
+        M4_DEFAULT(0.25),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(24),
+        M4_NOTES(Ratio to judge less texture block.\n
+        Freq of use: low))  */
+    float PdLessTextureRatio;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdTargetOffset),
+        M4_TYPE(s16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(-4096,4096),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(25),
+        M4_NOTES(Offet to adjust infocus position, we should use value in otp.\n
+        Freq of use: low))  */
+    short PdTargetOffset;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdCalibInf),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(26),
+        M4_NOTES(Calibration information.\n
+        Freq of use: high))  */
+    Af_PdafCalibInf_t PdCalibInf;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdConfdMwinFactor),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,225),
+        M4_DEFAULT(3),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(27),
+        M4_NOTES(Confidence adjust factor in muti-window in roi case.\n
+        Freq of use: low))  */
+    unsigned short PdConfdMwinFactor;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdCenterMinFv),
+        M4_TYPE(u32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,100000),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(28),
+        M4_NOTES(Min fv to switch roi, keep 0 generally.\n
+        Freq of use: low))  */
+    unsigned int PdCenterMinFv;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdCenterMinRatio),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(29),
+        M4_NOTES(Ratio to switch roi, keep 0 generally.\n
+        Freq of use: low))  */
+    float PdCenterMinRatio;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdHighlightRatio),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT(0.5),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(30),
+        M4_NOTES(Ratio to judge high light scene.\n
+        Freq of use: low))  */
+    float PdHighlightRatio;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdStepRatio),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,7),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT([1.0, 1.0, 1.0, 0.9, 0.8, 0.7, 0.7]),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(31),
+        M4_NOTES(Discount ratio table for motor move.\n
+        Freq of use: high))  */
+    float PdStepRatio[7];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdStepDefocus),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,7),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT([32, 64, 96, 128, 160, 192, 224]),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(32),
+        M4_NOTES(Defous step table to search PdStepRatio.\n
+        Freq of use: high))  */
+    unsigned short PdStepDefocus[7];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdIsoPara),
+        M4_TYPE(struct_list),
+        M4_SIZE_EX(1,13),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_DYNAMIC_EX(1),
+        M4_ORDER(33),
+        M4_NOTES(Parameter table changed with iso.\n
+        Freq of use: high))  */
+    Af_PdafIsoPara_t PdIsoPara[CALIBDBV2_MAX_ISO_LEVEL];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdIsoPara_len),
+        M4_TYPE(u32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,13),
+        M4_DEFAULT(1),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(34),
+        M4_NOTES(Length of parameter table changed with iso.\n
+        Freq of use: high))  */
+    int PdIsoPara_len;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdResoInf),
+        M4_TYPE(struct_list),
+        M4_SIZE_EX(1,16),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_DYNAMIC_EX(1),
+        M4_ORDER(35),
+        M4_NOTES(Resolution information table.\n
+        Freq of use: high))  */
+    Af_PdafResolution_t PdResoInf[16];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PdResoInf_len),
+        M4_TYPE(u32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,16),
+        M4_DEFAULT(1),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(36),
+        M4_NOTES(Length of resolution information table.\n
+        Freq of use: high))  */
+    int PdResoInf_len;
+} Af_Pdaf_t;
+
+typedef struct Af_VcmCfg_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(MaxLogicalPos),
+        M4_TYPE(u32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT(64),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(1),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(Max logical position.\n
+        Freq of use: low))  */
+    unsigned int MaxLogicalPos;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(StartCurrent),
+        M4_TYPE(s32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(-1, 1023),
+        M4_DEFAULT(-1),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(1),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_NOTES(Start current.\n
+        Freq of use: low))  */
+    int StartCurrent;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(RatedCurrent),
+        M4_TYPE(s32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(-1, 1023),
+        M4_DEFAULT(-1),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(1),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(Rated current.\n
+        Freq of use: low))  */
+    int RatedCurrent;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(StepMode),
+        M4_TYPE(s32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(-1, 1000),
+        M4_DEFAULT(-1),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(1),
+        M4_RO(0),
+        M4_ORDER(3),
+        M4_NOTES(Step mode.\n
+        Freq of use: low))  */
+    int StepMode;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ExtraDelay),
+        M4_TYPE(s32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(-10000,10000),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(4),
+        M4_NOTES(Extra delay to judge motor stable.\n
+        Freq of use: low))  */
+    int ExtraDelay;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(PostureDiff),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(1),
+        M4_RO(0),
+        M4_ORDER(5),
+        M4_NOTES(Posture difference ratio.\n
+        Freq of use: low))  */
+    float PostureDiff;
+} Af_VcmCfg_t;
+
+typedef struct Af_ZoomFocusTbl_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(WidemodDeviate),
+        M4_TYPE(s32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 1000),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(Module deviated length at wide side.\n
+        Freq of use: low))  */
+    int WidemodDeviate;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(TelemodDeviate),
+        M4_TYPE(s32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 1000),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_NOTES(Module deviated length at tele side.\n
+        Freq of use: low))  */
+    int TelemodDeviate;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(FocusBackVal),
+        M4_TYPE(s32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 1000),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(Focue back value when motor change direction.\n
+        Freq of use: low))  */
+    int FocusBackVal;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ZoomMoveDot),
+        M4_TYPE(s32),
+        M4_SIZE_EX(1,32),
+        M4_RANGE_EX(0, 1000000),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_DYNAMIC_EX(1),
+        M4_ORDER(3),
+        M4_NOTES(Zoom index table to search zoom move step.\n
+        Freq of use: low))  */
+    int ZoomMoveDot[32];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ZoomMoveDot_len),
+        M4_TYPE(u32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,32),
+        M4_DEFAULT(1),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(4),
+        M4_NOTES(Length of zoom index table to search zoom move step.\n
+        Freq of use: low))  */
+    int ZoomMoveDot_len;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ZoomMoveStep),
+        M4_TYPE(s32),
+        M4_SIZE_EX(1,32),
+        M4_RANGE_EX(0, 1000000),
+        M4_DEFAULT(16),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_DYNAMIC_EX(1),
+        M4_ORDER(5),
+        M4_NOTES(Zoom move step table when change focal length.\n
+        Freq of use: low))  */
+    int ZoomMoveStep[32];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ZoomMoveStep_len),
+        M4_TYPE(u32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,32),
+        M4_DEFAULT(1),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(6),
+        M4_NOTES(Length of zoom move step table when change focal length.\n
+        Freq of use: low))  */
+    int ZoomMoveStep_len;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ZoomSearchTbl),
+        M4_TYPE(s32),
+        M4_SIZE_EX(1,32),
+        M4_RANGE_EX(-32768,32767),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_DYNAMIC_EX(1),
+        M4_ORDER(7),
+        M4_NOTES(Zoom point table in Calibration.\n
+        Freq of use: low))  */
+    int ZoomSearchTbl[32];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ZoomSearchTbl_len),
+        M4_TYPE(u32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,32),
+        M4_DEFAULT(1),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(8),
+        M4_NOTES(Length of zoom point table in Calibration.\n
+        Freq of use: low))  */
+    int ZoomSearchTbl_len;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ZoomSearchRefCurveIdx),
+        M4_TYPE(s32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,32),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(9),
+        M4_NOTES(Reference curve index in calibration.\n
+        Freq of use: low))  */
+    int ZoomSearchRefCurveIdx;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(FocusSearchMargin),
+        M4_TYPE(s32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,100000),
+        M4_DEFAULT(50),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(10),
+        M4_NOTES(Focus search margin to avoid motor conflict with module in calibration.\n
+        Freq of use: low))  */
+    int FocusSearchMargin;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(FocusSearchPlusRange),
+        M4_TYPE(s32),
+        M4_SIZE_EX(1,32),
+        M4_RANGE_EX(0,32767),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_DYNAMIC_EX(1),
+        M4_ORDER(11),
+        M4_NOTES(Plus range table to search clear point in calibration.\n
+        Freq of use: low))  */
+    int FocusSearchPlusRange[32];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(FocusSearchPlusRange_len),
+        M4_TYPE(u32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,32),
+        M4_DEFAULT(1),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(12),
+        M4_NOTES(Length of plus range table to search clear point in calibration.\n
+        Freq of use: low))  */
+    int FocusSearchPlusRange_len;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(FocusStage1Step),
+        M4_TYPE(s32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 100),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(13),
+        M4_NOTES(Focus step in stage1.\n
+        Freq of use: low))  */
+    int FocusStage1Step;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(QuickFndRate),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 1),
+        M4_DEFAULT(0.2),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(14),
+        M4_NOTES(Focus value drop rate for quick found in calibration.\n
+        Freq of use: low))  */
+    float QuickFndRate;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(QuickFndMinFv),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1000000),
+        M4_DEFAULT(1000),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(15),
+        M4_NOTES(Min focus value for quick found in calibration.\n
+        Freq of use: low))  */
+    float QuickFndMinFv;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(SearchZoomRange),
+        M4_TYPE(s32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 100000),
+        M4_DEFAULT(100),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(16),
+        M4_NOTES(Search zoom range in calibration.\n
+        Freq of use: low))  */
+    int SearchZoomRange;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(SearchFocusRange),
+        M4_TYPE(s32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 100000),
+        M4_DEFAULT(100),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(17),
+        M4_NOTES(Search focus range in calibration.\n
+        Freq of use: low))  */
+    int SearchFocusRange;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(SearchEmax),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,100000),
+        M4_DEFAULT(100),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(18),
+        M4_NOTES(Max error threshold in calibration.\n
+        Freq of use: low))  */
+    float SearchEmax;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(SearchEavg),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,100000),
+        M4_DEFAULT(100),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(19),
+        M4_NOTES(Average error threshold in calibration.\n
+        Freq of use: low))  */
+    float SearchEavg;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(IsZoomFocusRec),
+        M4_TYPE(bool),
+        M4_DEFAULT(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(20),
+        M4_GROUP_CTRL(pdaf_en_group),
+        M4_NOTES(Weather to reaord zoom focus position.\n
+        Freq of use: low))  */
+    bool IsZoomFocusRec;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ZoomInfoDir),
+        M4_TYPE(string),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 64),
+        M4_DEFAULT("/data/"),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(21),
+        M4_NOTES(Zoom information directory.\n
+        Freq of use: low))  */
+    char ZoomInfoDir[64];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ZoomInitIndex),
+        M4_TYPE(s32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 100000),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(22),
+        M4_NOTES(Zoom index when initialization.\n
+        Freq of use: low))  */
+    int ZoomInitIndex;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ZoomCurveFile),
+        M4_TYPE(string),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 64),
+        M4_DEFAULT("/data/zoomcurve.bin"),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(23),
+        M4_NOTES(Zoom curve file.\n
+        Freq of use: low))  */
+    char ZoomCurveFile[64];
+} Af_ZoomFocusTbl_t;
+
+typedef struct Af_Common_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(AfMode),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(CalibDbV2_AF_MODE_t),
+        M4_DEFAULT(CalibDbV2_AFMODE_CONT_PICTURE),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(AF mode.\n
+        Freq of use: low))  */
+    CalibDbV2_AF_MODE_t AfMode;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(WinHOffs),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 2000),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_NOTES(Horizontal offset of roi for af algo in picture mode.\n
+        Freq of use: high))  */
+    unsigned short WinHOffs;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(WinVOffs),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 2000),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(Vertical offset of roi for af algo in picture mode.\n
+        Freq of use: high))  */
+    unsigned short WinVOffs;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(WinHSize),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 2000),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(3),
+        M4_NOTES(Horizontal size of roi for af algo in picture mode.\n
+        Freq of use: high))  */
+    unsigned short WinHSize;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(WinVSize),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 2000),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(4),
+        M4_NOTES(Vertical size of roi for af algo in picture mode.\n
+        Freq of use: high))  */
+    unsigned short WinVSize;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(VideoWinHOffs),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 2000),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(5),
+        M4_NOTES(Horizontal offset of roi for af algo in video mode.\n
+        Freq of use: high))  */
+    unsigned short VideoWinHOffs;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(VideoWinVOffs),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 2000),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(6),
+        M4_NOTES(Vertical offset of roi for af algo in video mode.\n
+        Freq of use: high))  */
+    unsigned short VideoWinVOffs;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(VideoWinHSize),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 2000),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(7),
+        M4_NOTES(Horizontal size of roi for af algo in video mode.\n
+        Freq of use: high))  */
+    unsigned short VideoWinHSize;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(VideoWinVSize),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 2000),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(8),
+        M4_NOTES(Vertical size of roi for af algo in video mode.\n
+        Freq of use: high))  */
+    unsigned short VideoWinVSize;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(FixedModeCode),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 1023),
+        M4_DEFAULT(8),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(9),
+        M4_NOTES(Motor position in fixed mode.\n
+        Freq of use: low))  */
+    unsigned short FixedModeCode;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(MacroModeCode),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 1023),
+        M4_DEFAULT(32),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(10),
+        M4_NOTES(Max motor position in macro mode.\n
+        Freq of use: low))  */
+    unsigned short MacroModeCode;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(InfinityModeCode),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 1023),
+        M4_DEFAULT(32),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(11),
+        M4_NOTES(Min motor position in infinity mode.\n
+        Freq of use: low))  */
+    unsigned short InfinityModeCode;
+} Af_Common_t;
+
+typedef struct AfV33_ZoomMeas_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ZoomIdx),
+        M4_TYPE(s32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,100000),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(Zoom index to get measurement index.\n
+        Freq of use: low))  */
+    int ZoomIdx;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(Iso),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,13),
+        M4_RANGE_EX(50, 10000000),
+        M4_DEFAULT([50, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400, 204800]),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_NOTES(Iso value to get measurement index.\n
+        Freq of use: low))  */
+    float Iso[CALIBDBV2_MAX_ISO_LEVEL];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(MeasIndex),
+        M4_TYPE(s32),
+        M4_SIZE_EX(1,13),
+        M4_RANGE_EX(0,32),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(Index of af measurement table(normal scene).\n
+        Freq of use: low))  */
+    int Idx[CALIBDBV2_MAX_ISO_LEVEL];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(SpotlightMeasIndex),
+        M4_TYPE(s32),
+        M4_SIZE_EX(1,13),
+        M4_RANGE_EX(0,32),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(3),
+        M4_NOTES(Index of af measurement table(spot light scene).\n
+        Freq of use: low))  */
+    int SpotltIdx[CALIBDBV2_MAX_ISO_LEVEL];
+} AfV33_ZoomMeas_t;
+
+#include "isp/rk_aiq_stats_af33.h"
+typedef struct AfV33_MeasCfg_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(TableIndex),
+        M4_TYPE(u32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,31),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(Table index.\n
+        Freq of use: low))  */
+    unsigned int tblIdx;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(V1Band),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,2),
+        M4_RANGE_EX(0, 1),
+        M4_DEFAULT([0.042,0.140]),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_NOTES(Band range for v1 filter(just for understand easily).\n
+        Freq of use: low))  */
+    float V1Band[2];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(V2Band),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,2),
+        M4_RANGE_EX(0, 1),
+        M4_DEFAULT([0.042,0.140]),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(Band range for v2 filter(just for understand easily).\n
+        Freq of use: low))  */
+    float V2Band[2];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(H1Band),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,2),
+        M4_RANGE_EX(0, 1),
+        M4_DEFAULT([0.042,0.140]),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(3),
+        M4_NOTES(Band range for h1 filter(just for understand easily).\n
+        Freq of use: low))  */
+    float H1Band[2];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(H2Band),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,2),
+        M4_RANGE_EX(0, 1),
+        M4_DEFAULT([0.042,0.140]),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(4),
+        M4_NOTES(Band range for h2 filter(just for understand easily).\n
+        Freq of use: low))  */
+    float H2Band[2];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(V1FvReliable),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 1),
+        M4_DEFAULT(0.5),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(5),
+        M4_NOTES(Discount ratio for v1 fv, used in optical zoom.\n
+        Freq of use: low))  */
+    float V1FvReliable;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(V2FvReliable),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 1),
+        M4_DEFAULT(0.5),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(6),
+        M4_NOTES(Discount ratio for v2 fv, used in optical zoom.\n
+        Freq of use: low))  */
+    float V2FvReliable;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(VerfvRatio),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 1),
+        M4_DEFAULT(0.5),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(7),
+        M4_NOTES(Discount ratio for v1/v2 fv, used in non-optical zoom.\n
+        Freq of use: low))  */
+    float VerfvRatio;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(StatsCfg),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(8),
+        M4_NOTES(Hardware measurement config.\n
+        Freq of use: low))  */
+    afStats_cfg_t StatsCfg;
+} AfV33_MeasCfg_t;
+
+typedef struct AfV33_Meas_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ZoomMeas),
+        M4_TYPE(struct_list),
+        M4_SIZE_EX(1,8),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_DYNAMIC_EX(1),
+        M4_ORDER(0),
+        M4_NOTES(Index table for search measurement config table.\n
+        Freq of use: low))  */
+    AfV33_ZoomMeas_t ZoomMeas[8];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ZoomMeas_len),
+        M4_TYPE(u32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,8),
+        M4_DEFAULT(1),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_NOTES(Length of index table for search measurement config table.\n
+        Freq of use: low))  */
+    int ZoomMeas_len;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(MeasCfgTbl),
+        M4_TYPE(struct_list),
+        M4_SIZE_EX(1,32),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_DYNAMIC_EX(1),
+        M4_ORDER(2),
+        M4_NOTES(Measurement config table.\n
+        Freq of use: low))  */
+    AfV33_MeasCfg_t MeasCfgTbl[CALIBDBV2_MAX_MEAS_CONFIG_NUM];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(MeasCfgTbl_len),
+        M4_TYPE(u32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(1,32),
+        M4_DEFAULT(1),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(3),
+        M4_NOTES(Length of measurement config table.\n
+        Freq of use: low))  */
+    int MeasCfgTbl_len;
+} AfV33_Meas_t;
+
+typedef struct CalibDbV2_AFV33_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(Common),
+        M4_TYPE(struct),
+        M4_SIZE_EX(1,1),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(Common config.\n
+        Freq of use: high))  */
+    Af_Common_t Common;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ContrastAf),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_GROUP(contrast_en_group),
+        M4_NOTES(Contrast af config in preview mode.\n
+        Freq of use: high))  */
+    Af_Contrast_t ContrastAf;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(VideoContrastAf),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_GROUP(contrast_en_group),
+        M4_NOTES(Contrast af config in video mode.\n
+        Freq of use: high))  */
+    Af_Contrast_t VideoContrastAf;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(LaserAf),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(1),
+        M4_RO(0),
+        M4_ORDER(3),
+        M4_GROUP(laser_en_group),
+        M4_NOTES(Laser af config.\n
+        Freq of use: high))  */
+    Af_Laser_t LaserAf;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(Pdaf),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(4),
+        M4_GROUP(pdaf_en_group),
+        M4_NOTES(Pdaf config.\n
+        Freq of use: high))  */
+    Af_Pdaf_t Pdaf;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(VcmCfg),
+        M4_TYPE(struct),
+        M4_SIZE_EX(1,1),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(5),
+        M4_NOTES(Vcm config.\n
+        Freq of use: high))  */
+    Af_VcmCfg_t VcmCfg;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(ZoomFocusTbl),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(6),
+        M4_GROUP(contrast_en_group),
+        M4_NOTES(Optical zoom config.\n
+        Freq of use: high))  */
+    Af_ZoomFocusTbl_t ZoomFocusTbl;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(MeasCfg),
+        M4_TYPE(struct),
+        M4_SIZE_EX(1,1),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(7),
+        M4_NOTES(Af measurement config.\n
+        Freq of use: high))  */
+    AfV33_Meas_t MeasCfg;
 } CalibDbV2_AFV33_t;
 
 RKAIQ_END_DECLARE

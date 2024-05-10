@@ -18,60 +18,62 @@
 #ifndef ___RK_AIQ_UAPITYPES_H__
 #define ___RK_AIQ_UAPITYPES_H__
 
-#include "adehaze_uapi_head.h"
-#include "adrc_uapi_head.h"
-#include "aec_uapi_head.h"
-#include "agamma_uapi_head.h"
-#include "amerge_uapi_head.h"
-#include "atmo_uapi_head.h"
-#include "awb_uapi_head.h"
-#include "rk_aiq_user_api_common.h"
-#include "adpcc/rk_aiq_types_adpcc_ext.h"
+#include "iq_parser_v2/adehaze_uapi_head.h"
+#include "iq_parser_v2/adrc_uapi_head.h"
+#include "iq_parser_v2/aec_uapi_head.h"
+#include "iq_parser_v2/agamma_uapi_head.h"
+#include "iq_parser_v2/amerge_uapi_head.h"
+#include "iq_parser_v2/atmo_uapi_head.h"
+#include "iq_parser_v2/awb_uapi_head.h"
+#include "uAPI2/rk_aiq_user_api_common.h"
+#include "algos/adpcc/rk_aiq_types_adpcc_ext.h"
 
-#include "a3dlut/rk_aiq_types_a3dlut_ext.h"
+#include "algos/a3dlut/rk_aiq_types_a3dlut_ext.h"
 #if defined(ISP_HW_V32_LITE) ||  defined(ISP_HW_V39) || defined(ISP_HW_V32) || defined(ISP_HW_V30)
-#include "gain_uapi_head_v2.h"
+#include "iq_parser_v2/gain_uapi_head_v2.h"
 #endif
-#include "ccm_uapi_head.h"
-#include "csm_head.h"
-#include "cgc_head.h"
-#include "agic_uapi_head.h"
-#include "aie_uapi_head.h"
-#include "acp_uapi_head.h"
-#include "alsc_uapi_head.h"
-#include "af_uapi_head.h"
+#include "iq_parser_v2/aie_head.h"
+#include "iq_parser_v2/ccm_head.h"
+#include "iq_parser_v2/ccm_uapi_head.h"
+#include "iq_parser_v2/csm_head.h"
+#include "iq_parser_v2/cgc_head.h"
+#include "iq_parser_v2/agic_uapi_head.h"
+#include "iq_parser_v2/aie_uapi_head.h"
+#include "iq_parser_v2/acp_uapi_head.h"
+#include "iq_parser_v2/alsc_uapi_head.h"
+#include "iq_parser_v2/af_uapi_head.h"
 
 #if defined(ISP_HW_V39) || defined(ISP_HW_V32) || defined(ISP_HW_V30)
-#include "gain_uapi_head_v2.h"
+#include "iq_parser_v2/gain_uapi_head_v2.h"
 #endif
 
 #if defined(ISP_HW_V39)
-#include "bayertnr_uapi_head_v30.h"
-#include "ynr_uapi_head_v24.h"
-#include "cnr_uapi_head_v31.h"
-#include "sharp_uapi_head_v34.h"
-#include "gain_uapi_head_v2.h"
-#include "ablc_uapi_head_v32.h"
-#include "yuvme_uapi_head_v1.h"
+#include "iq_parser_v2/bayertnr_uapi_head_v30.h"
+#include "iq_parser_v2/ynr_uapi_head_v24.h"
+#include "iq_parser_v2/cnr_uapi_head_v31.h"
+#include "iq_parser_v2/sharp_uapi_head_v34.h"
+#include "iq_parser_v2/gain_uapi_head_v2.h"
+#include "iq_parser_v2/ablc_uapi_head_v32.h"
+#include "iq_parser_v2/yuvme_uapi_head_v1.h"
 #endif
 
 #if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
-#include "bayer2dnr_uapi_head_v23.h"
-#include "bayertnr_uapi_head_v23.h"
-#include "ynr_uapi_head_v22.h"
-#include "cnr_uapi_head_v30.h"
-#include "sharp_uapi_head_v33.h"
-#include "gain_uapi_head_v2.h"
-#include "ablc_uapi_head_v32.h"
+#include "iq_parser_v2/bayer2dnr_uapi_head_v23.h"
+#include "iq_parser_v2/bayertnr_uapi_head_v23.h"
+#include "iq_parser_v2/ynr_uapi_head_v22.h"
+#include "iq_parser_v2/cnr_uapi_head_v30.h"
+#include "iq_parser_v2/sharp_uapi_head_v33.h"
+#include "iq_parser_v2/gain_uapi_head_v2.h"
+#include "iq_parser_v2/ablc_uapi_head_v32.h"
 #endif
 
 #if defined(ISP_HW_V30)
-#include "bayer2dnr_uapi_head_v2.h"
-#include "bayertnr_uapi_head_v2.h"
-#include "ynr_uapi_head_v3.h"
-#include "cnr_uapi_head_v2.h"
-#include "sharp_uapi_head_v4.h"
-#include "ablc_uapi_head.h"
+#include "iq_parser_v2/bayer2dnr_uapi_head_v2.h"
+#include "iq_parser_v2/bayertnr_uapi_head_v2.h"
+#include "iq_parser_v2/ynr_uapi_head_v3.h"
+#include "iq_parser_v2/cnr_uapi_head_v2.h"
+#include "iq_parser_v2/sharp_uapi_head_v4.h"
+#include "iq_parser_v2/ablc_uapi_head.h"
 #endif
 
 #ifdef __cplusplus
@@ -79,12 +81,25 @@ extern "C" {
 #endif
 
 #if USE_NEWSTRUCT
+typedef struct __ae_uapi {
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(attr),
+       M4_TYPE(struct),
+       M4_UI_MODULE(tuning_param),
+       M4_REF(/ae)) */
+    ae_param_t attr;
+    // M4_STRUCT_DESC("expswAttr", "normal_ui_style")
+    ae_api_expSwAttr_t expSwAttr;
+    // M4_STRUCT_DESC("queryExpInfo", "normal_ui_style")
+    ae_queryInfo_t queryExpInfo;
+} ae_uapi_t;
+
 typedef struct {
     /* M4_GENERIC_DESC(
        M4_ALIAS(attr),
        M4_TYPE(struct),
        M4_UI_MODULE(tuning_param),
-       M4_REF(/dm)) */
+       M4_REF(/demosaic)) */
     dm_api_attrib_t attr;
     // M4_STRUCT_DESC("info", "tuning_status")
     dm_status_t info;
@@ -95,7 +110,7 @@ typedef struct {
        M4_ALIAS(attr),
        M4_TYPE(struct),
        M4_UI_MODULE(tuning_param),
-       M4_REF(/btnr)) */
+       M4_REF(/bayertnr)) */
     btnr_api_attrib_t attr;
     // M4_STRUCT_DESC("info", "tuning_status")
     btnr_status_t info;
@@ -107,9 +122,9 @@ typedef struct {
        M4_TYPE(struct),
        M4_UI_MODULE(tuning_param),
        M4_REF(/gamma)) */
-    gamma_api_attrib_t gamma_params;
+    gamma_api_attrib_t attr;
     // M4_STRUCT_DESC("info", "tuning_status")
-    gamma_status_t gamma_status;
+    gamma_status_t info;
 } gamma_uapi_t;
 
 typedef struct {
@@ -118,21 +133,47 @@ typedef struct {
        M4_TYPE(struct),
        M4_UI_MODULE(tuning_param),
        M4_REF(/drc)) */
-    drc_api_attrib_t drc_params;
+    drc_api_attrib_t attr;
     // M4_STRUCT_DESC("info", "tuning_status")
-    drc_status_t drc_status;
+    drc_status_t info;
 } drc_uapi_t;
+
+#if defined(ISP_HW_V39)
+typedef struct {
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(attr),
+       M4_TYPE(struct),
+       M4_UI_MODULE(tuning_param),
+       M4_REF(/dhzEhz)) */
+    dehaze_api_attrib_t attr;
+    // M4_STRUCT_DESC("info", "tuning_status")
+    dehaze_status_t info;
+} dehaze_uapi_t;
+#endif
 
 typedef struct {
     /* M4_GENERIC_DESC(
        M4_ALIAS(attr),
        M4_TYPE(struct),
        M4_UI_MODULE(tuning_param),
-       M4_REF(/dehaze)) */
-    dehaze_api_attrib_t dehaze_params;
+       M4_REF(/histEQ)) */
+    histeq_api_attrib_t attr;
     // M4_STRUCT_DESC("info", "tuning_status")
-    dehaze_status_t dehaze_status;
-} dehaze_uapi_t;
+    histeq_status_t info;
+} histeq_uapi_t;
+
+#if defined(ISP_HW_V33)
+typedef struct {
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(attr),
+       M4_TYPE(struct),
+       M4_UI_MODULE(tuning_param),
+       M4_REF(/enh)) */
+    enh_api_attrib_t attr;
+    // M4_STRUCT_DESC("info", "tuning_status")
+    enh_status_t info;
+} enh_uapi_t;
+#endif
 
 typedef struct {
     /* M4_GENERIC_DESC(
@@ -183,30 +224,178 @@ typedef struct {
        M4_ALIAS(attr),
        M4_TYPE(struct),
        M4_UI_MODULE(tuning_param),
-       M4_REF(/trans)) */
-    trans_api_attrib_t attr;
+       M4_REF(/dpc)) */
+    dpc_api_attrib_t attr;
     // M4_STRUCT_DESC("info", "tuning_status")
-    trans_status_t info;
-} trans_uapi_t;
+    dpc_status_t info;
+} dpc_uapi_t;
 
 typedef struct {
     /* M4_GENERIC_DESC(
        M4_ALIAS(attr),
        M4_TYPE(struct),
        M4_UI_MODULE(tuning_param),
-       M4_REF(/dpc)) */
-    dpc_api_attrib_t dpc_params;
+       M4_REF(/gic)) */
+    gic_api_attrib_t attr;
     // M4_STRUCT_DESC("info", "tuning_status")
-    dpc_status_t dpc_status;
-} dpc_uapi_t;
+    gic_status_t info;
+} gic_uapi_t;
+
+typedef struct {
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(attr),
+       M4_TYPE(struct),
+       M4_UI_MODULE(tuning_param),
+       M4_REF(/cac)) */
+    cac_api_attrib_t attr;
+    // M4_STRUCT_DESC("info", "tuning_status")
+    cac_status_t info;
+} cac_uapi_t;
+
+typedef struct {
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(attr),
+       M4_TYPE(struct),
+       M4_UI_MODULE(tuning_param),
+       M4_REF(/ldch)) */
+    ldch_api_attrib_t attr;
+    // M4_STRUCT_DESC("ldch_status", "tuning_status")
+    ldch_status_t ldch_status;
+} ldch_uapi_t;
+
+typedef struct {
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(attr),
+       M4_TYPE(struct),
+       M4_UI_MODULE(tuning_param),
+       M4_REF(/csm)) */
+    csm_api_attrib_t attr;
+    // M4_STRUCT_DESC("info", "tuning_status")
+    csm_status_t info;
+} csm_uapi_t;
+
+typedef struct {
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(attr),
+       M4_TYPE(struct),
+       M4_UI_MODULE(tuning_param),
+       M4_REF(/mge)) */
+    mge_api_attrib_t attr;
+    // M4_STRUCT_DESC("info", "tuning_status")
+    mge_status_t info;
+} merge_uapi_t;
+
+typedef struct {
+    // M4_STRUCT_DESC("info", "normal_ui_style")
+    rk_aiq_version_info_t ver_info;
+} ver_uapi_t;
+
+typedef struct {
+    // M4_STRUCT_DESC("module_ctl", "normal_ui_style")
+    rk_aiq_module_list_t module_ctl;
+} module_ctl_uapi_t;
+
+#if defined(ISP_HW_V39)
+typedef struct {
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(attr),
+       M4_TYPE(struct),
+       M4_UI_MODULE(tuning_param),
+       M4_REF(/rgbir)) */
+    rgbir_api_attrib_t attr;
+    // M4_STRUCT_DESC("info", "tuning_status")
+    rgbir_status_t info;
+} rgbir_uapi_t;
 #endif
 
+typedef struct {
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(attr),
+       M4_TYPE(struct),
+       M4_UI_MODULE(tuning_param),
+       M4_REF(/cgc)) */
+    cgc_api_attrib_t attr;
+    // M4_STRUCT_DESC("info", "tuning_status")
+    cgc_status_t info;
+} cgc_uapi_t;
+
+typedef struct {
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(attr),
+       M4_TYPE(struct),
+       M4_UI_MODULE(tuning_param),
+       M4_REF(/cp)) */
+    cp_api_attrib_t attr;
+    // M4_STRUCT_DESC("info", "tuning_status")
+    cp_status_t info;
+} cp_uapi_t;
+
+typedef struct {
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(attr),
+       M4_TYPE(struct),
+       M4_UI_MODULE(tuning_param),
+       M4_REF(/ie)) */
+    ie_api_attrib_t attr;
+    // M4_STRUCT_DESC("info", "tuning_status")
+    ie_status_t info;
+} ie_uapi_t;
+
+typedef struct {
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(attr),
+       M4_TYPE(struct),
+       M4_UI_MODULE(tuning_param),
+       M4_REF(/gain)) */
+    gain_api_attrib_t attr;
+    // M4_STRUCT_DESC("info", "tuning_status")
+    gain_status_t info;
+} gain_uapi_t;
+
+#if defined(ISP_HW_V39)
+typedef struct {
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(attr),
+       M4_TYPE(struct),
+       M4_UI_MODULE(tuning_param),
+       M4_REF(/lut3d/tunning)) */
+    lut3d_api_attrib_t attr;
+    // M4_STRUCT_DESC("info", "tuning_status")
+    lut3d_status_t info;
+} lut3d_uapi_t;
+#endif
+
+typedef struct {
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(attr),
+       M4_TYPE(struct),
+       M4_UI_MODULE(tuning_param),
+       M4_REF(/lsc/tunning)) */
+    lsc_api_attrib_t attr;
+    // M4_STRUCT_DESC("info", "tuning_status")
+    lsc_status_t info;
+} lsc_uapi_t;
+
+typedef struct {
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(attr),
+       M4_TYPE(struct),
+       M4_UI_MODULE(tuning_param),
+       M4_REF(/ccm/tunning)) */
+    ccm_api_attrib_t attr;
+    // M4_STRUCT_DESC("info", "tuning_status")
+    ccm_status_t info;
+} ccm_uapi_t;
+#endif
+
+#ifndef USE_NEWSTRUCT
 typedef struct __ae_uapi {
     // M4_STRUCT_DESC("expsw_attr", "normal_ui_style")
     uapi_expsw_attr_t expsw_attr;
     // M4_STRUCT_DESC("QueryExpInfo", "normal_ui_style")
     uapi_expinfo_t expinfo;
 } ae_uapi_t;
+#endif
 
 typedef struct __awb_uapi {
     // M4_STRUCT_DESC("mode", "normal_ui_style")
@@ -321,7 +510,7 @@ typedef struct __aiq_measure_info {
     uapi_wbV30_log_t wb_log;
 } aiq_measure_info_t;
 
-#elif defined(ISP_HW_V39) || defined(ISP_HW_V32) || defined(ISP_HW_V30) || defined(ISP_HW_V32_LITE)
+#elif defined(ISP_HW_V39) || defined(ISP_HW_V32) || defined(ISP_HW_V30) || defined(ISP_HW_V32_LITE) || defined(ISP_HW_V33)
 typedef struct __aiq_measure_info {
     // M4_STRUCT_DESC("ae_hwstats", "normal_ui_style")
     uapi_ae_hwstats_t ae_hwstats;
@@ -693,10 +882,12 @@ typedef struct __acp_uapi {
     acp_attrib_t attr;
 } acp_uapi_t;
 
+#if (USE_NEWSTRUCT == 0)
 typedef struct __alsc_uapi {
     // M4_STRUCT_DESC("manual", "normal_ui_style")
     rk_aiq_lsc_table_t manual;
 } alsc_uapi_t;
+#endif
 
 typedef struct __camgroup_uapi {
     // M4_NUMBER_DESC("current_index", "u8", M4_RANGE(0, 8), "0", M4_DIGIT(0), M4_HIDE(1))
@@ -704,12 +895,12 @@ typedef struct __camgroup_uapi {
 } camgroup_uapi_t;
 
 typedef struct __aiq_uapi_t {
+#if (USE_NEWSTRUCT == 0)
     // M4_STRUCT_DESC("ae_uapi", "normal_ui_style")
     ae_uapi_t ae_uapi;
+#endif
     // M4_STRUCT_DESC("awb_uapi", "normal_ui_style")
     awb_uapi_t awb_uapi;
-    // M4_STRUCT_DESC("amerge_uapi", "normal_ui_style")
-    amerge_uapi_t amerge_uapi;
 #if defined(ISP_HW_V20)
     // M4_STRUCT_DESC("atmo_uapi", "normal_ui_style")
     atmo_uapi_t atmo_uapi;
@@ -717,6 +908,8 @@ typedef struct __aiq_uapi_t {
 
 #endif
 #if (USE_NEWSTRUCT == 0)
+    // M4_STRUCT_DESC("amerge_uapi", "normal_ui_style")
+    amerge_uapi_t amerge_uapi;
     // M4_STRUCT_DESC("agamma_uapi", "normal_ui_style")
     agamma_uapi_t agamma_uapi;
     // M4_STRUCT_DESC("adrc_uapi", "normal_ui_style")
@@ -726,29 +919,35 @@ typedef struct __aiq_uapi_t {
 #endif
     // M4_STRUCT_DESC("SystemCtl", "normal_ui_style")
     RkaiqSysCtl_t system;
+#if (USE_NEWSTRUCT == 0)
     // M4_STRUCT_DESC("adpcc_manual", "normal_ui_style")
     Adpcc_Manual_Attr_t adpcc_manual;
     // M4_STRUCT_DESC("a3dlut_uapi", "normal_ui_style")
     a3dlut_uapi_t a3dlut_uapi;
+#endif
 #if !defined(ISP_HW_V32_LITE)
+#if (USE_NEWSTRUCT == 0)
     // M4_STRUCT_DESC("agic_uapi", "normal_ui_style")
     agic_uapi_t agic_uapi;
 #endif
+#endif
+#if (USE_NEWSTRUCT == 0)
     // M4_STRUCT_DESC("aie_uapi", "normal_ui_style")
     aie_uapi_t aie_uapi;
     // M4_STRUCT_DESC("acp_uapi", "normal_ui_style")
     acp_uapi_t acp_uapi;
     // M4_STRUCT_DESC("alsc_uapi", "normal_ui_style")
     alsc_uapi_t alsc_uapi;
+#endif
     // M4_STRUCT_DESC("custom_af_uapi", "normal_ui_style")
     custom_af_uapi_t custom_af_uapi;
 #if defined(ISP_HW_V30)
     // M4_STRUCT_DESC("camgroup_uapi", "normal_ui_style", M4_HIDE(1))
     camgroup_uapi_t camgroup_uapi;
 #endif
+#if (USE_NEWSTRUCT == 0)
     // M4_STRUCT_DESC("ablc_uapi_t", "normal_ui_style")
     ablc_uapi_t ablc_uapi;
-#if (USE_NEWSTRUCT == 0)
     // M4_STRUCT_DESC("abayertnr_uapi", "normal_ui_style")
     abayertnr_uapi_t abayertnr_uapi;
 #endif
@@ -756,6 +955,7 @@ typedef struct __aiq_uapi_t {
     // M4_STRUCT_DESC("abayer2dnr_uapi", "normal_ui_style")
     abayer2dnr_uapi_t abayer2dnr_uapi;
 #endif
+#if (USE_NEWSTRUCT == 0)
     // M4_STRUCT_DESC("aynr_uapi", "normal_ui_style")
     aynr_uapi_t aynr_uapi;
     // M4_STRUCT_DESC("acnr_uapi", "normal_ui_style")
@@ -768,10 +968,12 @@ typedef struct __aiq_uapi_t {
     // M4_STRUCT_DESC("ayuvme_uapi", "normal_ui_style")
     ayuvme_uapi_t ayuvme_uapi;
 #endif
+#endif
 #if !defined (ISP_HW_V20)
     // M4_STRUCT_DESC("measure_info", "normal_ui_style",M4_HIDE(1))
     aiq_measure_info_t measure_info;
 #endif
+#if (USE_NEWSTRUCT == 0)
     // M4_STRUCT_DESC("accm_uapi", "normal_ui_style")
     accm_uapi_t accm_uapi;
     // M4_STRUCT_DESC("acsm_uapi", "normal_ui_style")
@@ -780,8 +982,11 @@ typedef struct __aiq_uapi_t {
     // M4_STRUCT_DESC("acgc_uapi", "normal_ui_style")
     acgc_uapi_t acgc_uapi;
 #endif
+#endif
 
 #if USE_NEWSTRUCT
+    // M4_STRUCT_DESC("ae_uapi", "normal_ui_style")
+    ae_uapi_t ae_uapi;
     // M4_STRUCT_DESC("dm_uapi", "iso_list_template")
     dm_uapi_t dm_uapi;
     // M4_STRUCT_DESC("btnr_uapi", "iso_list_template")
@@ -790,8 +995,16 @@ typedef struct __aiq_uapi_t {
     gamma_uapi_t gamma_uapi;
     // M4_STRUCT_DESC("drc_uapi", "iso_list_template")
     drc_uapi_t drc_uapi;
-    // M4_STRUCT_DESC("dehaze_uapi", "iso_list_template")
-    dehaze_uapi_t dehaze_uapi;
+#if defined(ISP_HW_V39)
+    // M4_STRUCT_DESC("dhzEhz_uapi", "iso_list_template")
+    dehaze_uapi_t dhzEhz_uapi;
+#endif
+    // M4_STRUCT_DESC("histeq_uapi", "iso_list_template")
+    histeq_uapi_t histeq_uapi;
+#if defined(ISP_HW_V33)
+    // M4_STRUCT_DESC("enh_uapi", "iso_list_template")
+    enh_uapi_t enh_uapi;
+#endif
     // M4_STRUCT_DESC("ynr_uapi", "iso_list_template")
     ynr_uapi_t ynr_uapi;
     // M4_STRUCT_DESC("sharp_uapi", "iso_list_template")
@@ -800,10 +1013,42 @@ typedef struct __aiq_uapi_t {
     cnr_uapi_t cnr_uapi;
     // M4_STRUCT_DESC("blc_uapi", "iso_list_template")
     blc_uapi_t blc_uapi;
-    // M4_STRUCT_DESC("trans_uapi", "iso_list_template")
-    trans_uapi_t trans_uapi;
     // M4_STRUCT_DESC("dpc_uapi", "iso_list_template")
     dpc_uapi_t dpc_uapi;
+    // M4_STRUCT_DESC("gic_uapi", "iso_list_template")
+    gic_uapi_t gic_uapi;
+    // M4_STRUCT_DESC("cac_uapi", "iso_list_template")
+    cac_uapi_t cac_uapi;
+    // M4_STRUCT_DESC("ldch_uapi", "iso_list_template")
+    ldch_uapi_t ldch_uapi;
+    // M4_STRUCT_DESC("csm_uapi", "iso_list_template")
+    csm_uapi_t csm_uapi;
+    // M4_STRUCT_DESC("mge_uapi", "iso_list_template")
+    merge_uapi_t mge_uapi;
+#if defined(ISP_HW_V39)
+    // M4_STRUCT_DESC("rgbir_uapi", "iso_list_template")
+    rgbir_uapi_t rgbir_uapi;
+#endif
+    // M4_STRUCT_DESC("cgc_uapi", "iso_list_template")
+    cgc_uapi_t cgc_uapi;
+    // M4_STRUCT_DESC("cp_uapi", "iso_list_template")
+    cp_uapi_t cp_uapi;
+    // M4_STRUCT_DESC("ie_uapi", "iso_list_template")
+    ie_uapi_t ie_uapi;
+    // M4_STRUCT_DESC("gain_uapi", "iso_list_template")
+    gain_uapi_t gain_uapi;
+#if defined(ISP_HW_V39)
+    // M4_STRUCT_DESC("lut3d_uapi", "double_list_template")
+    lut3d_uapi_t lut3d_uapi;
+#endif
+    // M4_STRUCT_DESC("ver_uapi", "normal_ui_style")
+    ver_uapi_t ver_uapi;
+    // M4_STRUCT_DESC("module_ctl_uapi", "normal_ui_style")
+    module_ctl_uapi_t module_ctl_uapi;
+    // M4_STRUCT_DESC("lsc_uapi", "double_list_template")
+    lsc_uapi_t lsc_uapi;
+    // M4_STRUCT_DESC("ccm_uapi", "double_list_template")
+    ccm_uapi_t ccm_uapi;
 #endif
 } RkaiqUapi_t;
 

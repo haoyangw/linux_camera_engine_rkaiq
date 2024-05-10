@@ -23,12 +23,12 @@ int ynrClipFloatValueV24(float posx, int BitInt, int BitFloat) {
     return yOutInt;
 }
 
-void rk_aiq_ynr34_params_cvt(void* attr, struct isp39_isp_params_cfg* isp_cfg,common_cvt_info_t *cvtinfo)
+void rk_aiq_ynr34_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_info_t *cvtinfo)
 {
     int i;
     int tmp;
     int w0, w1, w2;
-    struct isp39_ynr_cfg *pFix = &isp_cfg->others.ynr_cfg;
+    struct isp39_ynr_cfg *pFix = &isp_params->isp_cfg->others.ynr_cfg;
     ynr_param_t *ynr_param = (ynr_param_t *) attr;
     ynr_params_static_t* psta = &ynr_param->sta;
     ynr_params_dyn_t* pdyn = &ynr_param->dyn;
@@ -121,7 +121,7 @@ void rk_aiq_ynr34_params_cvt(void* attr, struct isp39_isp_params_cfg* isp_cfg,co
     // YNR_2700_SGM_DX (0x0040 ~ 0x0060)
     // YNR_2700_luma2sima_val (0x0070 ~ 0x0060)
 
-    if (psta->sw_ynrCfg_sgmCurve_mode == ynr_cfgByCoeff2Curve_mode) {
+    if (pdyn->sw_ynrCfg_sgmCurve_mode == ynr_cfgByCoeff2Curve_mode) {
         for (int i = 0; i < YNR_V24_ISO_CURVE_POINT_NUM; i++) {
             tmp                    = pdyn->hw_ynrC_luma2Sigma_curve.idx[i];
             pFix->luma2sima_idx[i] = CLIP(tmp, 0, 0x400);

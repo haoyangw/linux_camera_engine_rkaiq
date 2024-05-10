@@ -26,25 +26,25 @@ XCamReturn RkAiqCamGroupAwbHandleInt::updateConfig(bool needSync) {
     // if something changed
     if (updateWbV21Attr) {
         mCurWbV21Attr   = mNewWbV21Attr;
-        rk_aiq_uapiV2_camgroup_awbV21_SetAttrib(mAlgoCtx, mCurWbV21Attr, false);
+        rk_aiq_uapiV2_camgroup_awbV21_SetAttrib(mAlgoCtx, &mCurWbV21Attr, false);
         updateWbV21Attr = false;
         sendSignal(mCurWbV21Attr.sync.sync_mode);
     }
     if (updateWbOpModeAttr) {
         mCurWbOpModeAttr   = mNewWbOpModeAttr;
-        rk_aiq_uapiV2_camgroup_awb_SetMwbMode(mAlgoCtx, mCurWbOpModeAttr.mode, false);
+        rk_aiq_uapiV2_camgroup_awb_SetMwbMode(mAlgoCtx, &mCurWbOpModeAttr.mode, false);
         updateWbOpModeAttr = false;
         sendSignal(mCurWbOpModeAttr.sync.sync_mode);
     }
     if (updateWbMwbAttr) {
         mCurWbMwbAttr   = mNewWbMwbAttr;
-        rk_aiq_uapiV2_camgroup_awb_SetMwbAttrib(mAlgoCtx, mCurWbMwbAttr, false);
+        rk_aiq_uapiV2_camgroup_awb_SetMwbAttrib(mAlgoCtx, &mCurWbMwbAttr, false);
         updateWbMwbAttr = false;
         sendSignal(mCurWbMwbAttr.sync.sync_mode);
     }
     if (updateWbAwbWbGainAdjustAttr) {
         mCurWbAwbWbGainAdjustAttr   = mNewWbAwbWbGainAdjustAttr;
-        rk_aiq_uapiV2_camgroup_awb_SetAwbGainAdjust(mAlgoCtx, mCurWbAwbWbGainAdjustAttr, false);
+        rk_aiq_uapiV2_camgroup_awb_SetAwbGainAdjust(mAlgoCtx, &mCurWbAwbWbGainAdjustAttr, false);
         updateWbAwbWbGainAdjustAttr = false;
         sendSignal(mCurWbAwbWbGainAdjustAttr.sync.sync_mode);
     }
@@ -56,20 +56,20 @@ XCamReturn RkAiqCamGroupAwbHandleInt::updateConfig(bool needSync) {
     }
     if (updateWbAwbMultiWindowAttr) {
         mCurWbAwbMultiWindowAttr   = mNewWbAwbMultiWindowAttr;
-        rk_aiq_uapiV2_camgroup_awb_SetAwbMultiwindow(mAlgoCtx, mCurWbAwbMultiWindowAttr.multiWindw, false);
+        rk_aiq_uapiV2_camgroup_awb_SetAwbMultiwindow(mAlgoCtx, &mCurWbAwbMultiWindowAttr.multiWindw, false);
         updateWbAwbMultiWindowAttr = false;
         sendSignal(mCurWbAwbMultiWindowAttr.sync.sync_mode);
     }
     // isp32
     if (updateWbV32Attr) {
         mCurWbV32Attr   = mNewWbV32Attr;
-        rk_aiq_uapiV2_camgroup_awbV32_SetAttrib(mAlgoCtx, mCurWbV32Attr, false);
+        rk_aiq_uapiV2_camgroup_awbV32_SetAttrib(mAlgoCtx, &mCurWbV32Attr, false);
         updateWbV32Attr = false;
         sendSignal(mCurWbV32Attr.sync.sync_mode);
     }
     if (updateWbV32AwbMultiWindowAttr) {
         mCurWbV32AwbMultiWindowAttr   = mNewWbV32AwbMultiWindowAttr;
-        rk_aiq_uapiV2_camgroup_awbV32_SetAwbMultiwindow(mAlgoCtx, mCurWbV32AwbMultiWindowAttr, false);
+        rk_aiq_uapiV2_camgroup_awbV32_SetAwbMultiwindow(mAlgoCtx, &mCurWbV32AwbMultiWindowAttr, false);
         updateWbV32AwbMultiWindowAttr = false;
         sendSignal(mCurWbV32AwbMultiWindowAttr.sync.sync_mode);
     }

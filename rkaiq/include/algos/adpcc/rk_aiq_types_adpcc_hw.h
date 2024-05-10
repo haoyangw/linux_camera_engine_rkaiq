@@ -19,7 +19,7 @@
 
 #ifndef _RK_AIQ_TYPE_ADPCC_HW_H_
 #define _RK_AIQ_TYPE_ADPCC_HW_H_
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 RKAIQ_BEGIN_DECLARE
 

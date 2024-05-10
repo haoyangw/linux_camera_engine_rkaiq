@@ -20,7 +20,7 @@
 #ifndef __CALIBDBV2_YNRV24_UAPI_HEADER_H__
 #define __CALIBDBV2_YNRV24_UAPI_HEADER_H__
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 // clang-format off
 
 RKAIQ_BEGIN_DECLARE

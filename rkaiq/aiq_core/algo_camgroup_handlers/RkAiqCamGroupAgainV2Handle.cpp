@@ -18,7 +18,7 @@
 #include "again2/rk_aiq_uapi_camgroup_again_int_v2.h"
 
 namespace RkCam {
-#if RKAIQ_HAVE_GAIN_V2
+#if RKAIQ_HAVE_GAIN_V2 && (USE_NEWSTRUCT == 0)
 
 XCamReturn RkAiqCamGroupAgainV2HandleInt::updateConfig(bool needSync) {
     ENTER_ANALYZER_FUNCTION();

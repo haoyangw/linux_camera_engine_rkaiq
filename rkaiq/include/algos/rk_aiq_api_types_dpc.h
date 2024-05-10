@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_API_TYPES_DPCC20_H_
 #define _RK_AIQ_API_TYPES_DPCC20_H_
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 // #include "isp/rk_aiq_isp_dpcc20.h"
 #define DPCC_ISO_STEP_MAX 13
 
@@ -26,30 +26,19 @@ RKAIQ_BEGIN_DECLARE
 
 typedef struct{
     /* M4_GENERIC_DESC(
-        M4_ALIAS(iso),
-        M4_TYPE(u32),
-        M4_SIZE_EX(1,13),
-        M4_RANGE_EX(0,10000000),
-        M4_DEFAULT(50),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(2),
-        M4_NOTES(The iso array for dynamic params array))  */
-    int iso[DPCC_ISO_STEP_MAX];
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(dyn),
+        M4_ALIAS(dpcDyn),
         M4_TYPE(struct_list),
         M4_SIZE_EX(1,13),
-        M4_UI_MODULE(dynamic_ui),
+        M4_UI_MODULE(struct_list_dynamic_ui),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
         M4_NOTES(TODO))  */
-    dpc_params_dyn_t dyn[DPCC_ISO_STEP_MAX];
+    dpc_params_dpcDyn_t dyn[DPCC_ISO_STEP_MAX];
     /* M4_GENERIC_DESC(
         M4_ALIAS(static),
         M4_TYPE(struct),
-        M4_UI_MODULE(dynamic_ui),
+        M4_UI_MODULE(static_ui),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),

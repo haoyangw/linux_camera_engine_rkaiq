@@ -17,26 +17,28 @@
 
 namespace RkCam {
 
-#if RKAIQ_HAVE_GIC
+#if RKAIQ_HAVE_GIC && (USE_NEWSTRUCT == 0)
 XCamReturn RkAiqCamGroupAgicHandleInt::updateConfig(bool needSync) {
     ENTER_ANALYZER_FUNCTION();
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
     if (needSync) mCfgMutex.lock();
 
+
+    /*
     if (updateAttV1) {
         mCurAttV1 = mNewAttV1;
         rk_aiq_uapi_agic_v1_SetAttrib(mAlgoCtx, &mCurAttV1, false);
         updateAtt = false;
         sendSignal(mCurAttV1.sync.sync_mode);
     }
-
     if (updateAttV2) {
         mCurAttV2 = mNewAttV2;
         rk_aiq_uapi_agic_v2_SetAttrib(mAlgoCtx, &mCurAttV2, false);
         updateAtt = false;
         sendSignal(mCurAttV2.sync.sync_mode);
     }
+    */
 
     if (needSync) mCfgMutex.unlock();
 

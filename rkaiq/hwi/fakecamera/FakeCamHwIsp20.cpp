@@ -60,6 +60,26 @@ FakeCamHwIsp20::init(const char* sns_ent_name)
     mSensorDev->open();
     mIspStatsStream->set_event_handle_dev(sensorHw);
 
+    std::unordered_map<std::string, SmartPtr<rk_sensor_full_info_t>>::iterator it;
+    if ((it = mSensorHwInfos.find(sns_name)) == mSensorHwInfos.end()) {
+        LOGE_CAMHW_SUBM(ISP20HW_SUBM, "can't find sensor %s", sns_name);
+        return XCAM_RETURN_ERROR_SENSOR;
+    }
+
+    rk_sensor_full_info_t *s_info = it->second.ptr();
+
+    SmartPtr<FakeSensorHw> fakeSensorHw = mSensorDev.dynamic_cast_ptr<FakeSensorHw>();
+    fakeSensorHw->use_rkrawstream = use_rkrawstream;
+
+    if (!use_rkrawstream) {
+        init_mipi_devices(s_info);
+        fakeSensorHw->set_mipi_tx_devs(_mipi_tx_devs);
+
+        mRawCapUnit->set_tx_devices(_mipi_tx_devs);
+        mRawProcUnit->set_rx_devices(_mipi_rx_devs);
+        mRawProcUnit->setPollCallback(this);
+    }
+
     return XCAM_RETURN_NO_ERROR;
 }
 
@@ -70,9 +90,6 @@ FakeCamHwIsp20::prepare(uint32_t width, uint32_t height, int mode, int t_delay, 
     SmartPtr<BaseSensorHw> sensorHw;
 
     ENTER_CAMHW_FUNCTION();
-
-    SmartPtr<FakeSensorHw> fakeSensorHw = mSensorDev.dynamic_cast_ptr<FakeSensorHw>();
-    fakeSensorHw->use_rkrawstream = use_rkrawstream;
 
     std::unordered_map<std::string, SmartPtr<rk_sensor_full_info_t>>::iterator it;
     if ((it = mSensorHwInfos.find(sns_name)) == mSensorHwInfos.end()) {
@@ -85,12 +102,7 @@ FakeCamHwIsp20::prepare(uint32_t width, uint32_t height, int mode, int t_delay, 
 
     if (!use_rkrawstream) {
         setupOffLineLink(isp_index, true);
-        init_mipi_devices(s_info);
-        fakeSensorHw->set_mipi_tx_devs(_mipi_tx_devs);
-
-        mRawCapUnit->set_tx_devices(_mipi_tx_devs);
-        mRawProcUnit->set_rx_devices(_mipi_rx_devs);
-        mRawProcUnit->setPollCallback(this);
+        prepare_mipi_devices(s_info);
     }
 
     ret = CamHwIsp20::prepare(width, height, mode, t_delay, g_delay);
@@ -129,38 +141,40 @@ FakeCamHwIsp20::init_mipi_devices(rk_sensor_full_info_t *s_info)
     //short frame
     _mipi_tx_devs[0] = new FakeV4l2Device ();
     _mipi_tx_devs[0]->open();
-    _mipi_tx_devs[0]->set_mem_type(_tx_memory_type);
     _mipi_tx_devs[0]->set_buf_type(V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
 
     _mipi_rx_devs[0] = new V4l2Device (s_info->isp_info->rawrd2_s_path);//rkisp_rawrd2_s
     _mipi_rx_devs[0]->open();
-    _mipi_rx_devs[0]->set_mem_type(_rx_memory_type);
     //mid frame
     _mipi_tx_devs[1] = new FakeV4l2Device ();
     _mipi_tx_devs[1]->open();
-    _mipi_tx_devs[1]->set_mem_type(_tx_memory_type);
     _mipi_tx_devs[1]->set_buf_type(V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
 
     _mipi_rx_devs[1] = new V4l2Device (s_info->isp_info->rawrd0_m_path);//rkisp_rawrd0_m
     _mipi_rx_devs[1]->open();
-    _mipi_rx_devs[1]->set_mem_type(_rx_memory_type);
     //long frame
     _mipi_tx_devs[2] = new FakeV4l2Device ();
     _mipi_tx_devs[2]->open();
-    _mipi_tx_devs[2]->set_mem_type(_tx_memory_type);
     _mipi_tx_devs[2]->set_buf_type(V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
 
     _mipi_rx_devs[2] = new V4l2Device (s_info->isp_info->rawrd1_l_path);//rkisp_rawrd1_l
     _mipi_rx_devs[2]->open();
-    _mipi_rx_devs[2]->set_mem_type(_rx_memory_type);
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn
+FakeCamHwIsp20::prepare_mipi_devices(rk_sensor_full_info_t *s_info) {
+
     for (int i = 0; i < 3; i++) {
+        _mipi_tx_devs[i]->set_mem_type(_tx_memory_type);
+        _mipi_rx_devs[i]->set_mem_type(_rx_memory_type);
         if (_linked_to_isp) {
             if (_rawbuf_type == RK_AIQ_RAW_FILE) {
-                _mipi_tx_devs[0]->set_use_type(2);
+                _mipi_tx_devs[i]->set_use_type(2);
                 _mipi_tx_devs[i]->set_buffer_count(1);
                 _mipi_rx_devs[i]->set_buffer_count(1);
             } else if (_rawbuf_type == RK_AIQ_RAW_ADDR) {
-                 _mipi_tx_devs[0]->set_use_type(1);
+                _mipi_tx_devs[i]->set_use_type(1);
                 _mipi_tx_devs[i]->set_buffer_count(ISP_TX_BUF_NUM);
                 _mipi_rx_devs[i]->set_buffer_count(ISP_TX_BUF_NUM);
             } else {

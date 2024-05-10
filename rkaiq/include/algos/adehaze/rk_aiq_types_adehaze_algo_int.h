@@ -19,10 +19,10 @@
 
 #ifndef _RK_AIQ_TYPE_ADEHAZE_ALGO_INT_H_
 #define _RK_AIQ_TYPE_ADEHAZE_ALGO_INT_H_
-#include "RkAiqCalibDbTypes.h"
-#include "adehaze/rk_aiq_types_adehaze_algo.h"
-#include "adehaze_head.h"
-#include "adehaze_uapi_head.h"
+#include "iq_parser/RkAiqCalibDbTypes.h"
+#include "algos/adehaze/rk_aiq_types_adehaze_algo.h"
+#include "iq_parser_v2/adehaze_head.h"
+#include "iq_parser_v2/adehaze_uapi_head.h"
 
 #define DEHAZE_DEFAULT_LEVEL         (50)
 #define DEHAZE_DEFAULT_CFG_WT_STEP   (1)

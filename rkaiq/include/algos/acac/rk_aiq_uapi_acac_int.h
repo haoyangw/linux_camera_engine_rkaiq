@@ -20,7 +20,7 @@
 
 #include "algos/acac/rk_aiq_types_acac_algo_int.h"
 #include "algos/rk_aiq_algo_des.h"
-#include "base/xcam_common.h"
+#include "xcore/base/xcam_common.h"
 
 XCamReturn rk_aiq_uapi_acac_v03_SetAttrib(RkAiqAlgoContext* ctx,
                                           const rkaiq_cac_v03_api_attr_t* attr, bool need_sync);

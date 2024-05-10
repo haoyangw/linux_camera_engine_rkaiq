@@ -1,7 +1,7 @@
 #ifndef _RK_AIQ_CALIB_TYPES_ISP20_H_
 #define _RK_AIQ_CALIB_TYPES_ISP20_H_
 
-#include "adpcc/rk_aiq_types_adpcc_ext.h"
+#include "algos/adpcc/rk_aiq_types_adpcc_ext.h"
 
 #pragma pack(4)
 

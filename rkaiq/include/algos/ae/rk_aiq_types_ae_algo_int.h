@@ -40,11 +40,11 @@
  * @{
  *
  */
-#include "moduleinfo_head.h"
-#include "aec_head.h"
-#include "sensorinfo_head.h"
-#include "rk_aiq_types_ae_algo.h"
-
+#include "iq_parser_v2/moduleinfo_head.h"
+#include "iq_parser_v2/aec_head.h"
+#include "iq_parser_v2/sensorinfo_head.h"
+#include "algos/ae/rk_aiq_types_ae_algo.h"
+#include "isp/rk_aiq_isp_ae25.h"
 
 #define MAX_HDR_FRAMENUM  (3)
 /*****************************************************************************/
@@ -94,7 +94,6 @@ typedef enum {
     LDM = 0x10,
     CLM = 0x20,
     ECM = 0x40,
-    HDRECM = 0x80,
 } AecLogLevel_t;
 /*****************************************************************************/
 /**
@@ -241,6 +240,7 @@ typedef enum {
     ISP_HDR_MODE_2_LINE_HDR = AEC_WORKING_MODE_ISP_HDR2 + 2,
     ISP_HDR_MODE_3_FRAME_HDR = AEC_WORKING_MODE_ISP_HDR3 + 1,
     ISP_HDR_MODE_3_LINE_HDR = AEC_WORKING_MODE_ISP_HDR3 + 2,
+    ISP_HDR_MODE_3_BUILT_IN_HDR = AEC_WORKING_MODE_ISP_HDR3 + 3,
 } IspHdrMode_t;
 
 typedef enum {
@@ -406,14 +406,16 @@ typedef enum AecHwVersion_e
        RawAE2 = RawAE big3, addr=0x4700 <=> RawHIST2
        RawAE3 = RawAE big1, addr=0x4400 <=> RawHIST3, extra aebig
 
-    | AEC HW   | RawAE0 | RawAE1 | RawAE2 | RawAE3 | YUVAE | HDR FRAME | Share with AF               | E.G.          |
+    | ISP HW   | RawAE0 | RawAE1 | RawAE2 | RawAE3 | YUVAE | HDR FRAME | NOTES                       | E.G.          |
     |----------|--------|--------|--------|--------|-------|-----------|-----------------------------|---------------|
     | V20      | lite   | big    | big    | big    | Y     | 3         | -                           | RV1126/RV1109 |
     | V21      | lite   | big    | -      | big    | -     | 2         | -                           | RK356X        |
-    | V30      | lite   | big    | big    | big    | -     | 3         | RawAE3                      | RK3588        |
-    | V32      | lite   | big    | -      | big    | -     | 2         | RawAE3                      | RV1106/RV1103 |
-    | V32_LITE | lite   | -      | -      | big    | -     | 2         | RawAE0/3, 3A specify RawAE0 | RK3562        |
-    | V39      | big    | -      | -      | big    | -     | 2         | -                           | RK3576        |
+    | V30      | lite   | big    | big    | big    | -     | 3         | RawAE3 Share with AF        | RK3588        |
+    | V32      | lite   | big    | -      | big    | -     | 2         | RawAE3 Share with AF        | RV1106/RV1103 |
+    | V32_LITE | lite   | -      | -      | big    | -     | 2         | RawAE0/3 can share with AF..| RK3562        |
+    |          |        |        |        |        |       |           | Limit AF only use RAWAE0    |               |
+    | V39      | big    | -      | -      | big    | -     | 2         | RawAE subwin0~4 delete      | RK3576        |
+    | V33      | big    | -      | -      | big    | -     | 2         | -                           | RV1103B       |
     */
     AEC_HARDWARE_V20   = 0,
     AEC_HARDWARE_V21   = 1,
@@ -421,6 +423,7 @@ typedef enum AecHwVersion_e
     AEC_HARDWARE_V32   = 3,
     AEC_HARDWARE_V32_LITE = 4,
     AEC_HARDWARE_V39   = 5,
+    AEC_HARDWARE_V33   = 6,
     AEC_HARDWARE_MAX,
 } AecHwVersion_t;
 
@@ -451,15 +454,24 @@ typedef struct AecStatsCfg_s {
 } AecStatsCfg_t;
 
 typedef struct AecConfig_s {
-
     /*Aec Ctrl Configuration from calibdb, support User Api input Ctrl configuration*/
 
+#ifdef USE_NEWSTRUCT
+    //V3: newStruct json params
+    ae_commCtrl_t CommCtrlV3;
+    ae_linAeCtrl_t LinearAeCtrlV3;
+    ae_hdrAeCtrl_t HdrAeCtrlV3;
+    ae_irisCtrl_t IrisCtrlV3;
+    ae_syncTest_t SyncTestV3;
+#else
     //V2: json params
-    CalibDb_AecCommon_AttrV2_t    CommCtrlV2;
-    CalibDb_LinearAE_AttrV2_t     LinearAeCtrlV2;
-    CalibDb_HdrAE_AttrV2_t        HdrAeCtrlV2;
-    CalibDb_AecIrisCtrlV2_t       IrisCtrl;
-    CalibDb_AeSyncTestV2_t        SyncTest; //special module for debug
+    CalibDb_AecCommon_AttrV2_t CommCtrlV2;
+    CalibDb_LinearAE_AttrV2_t LinearAeCtrlV2;
+    CalibDb_HdrAE_AttrV2_t HdrAeCtrlV2;
+    CalibDb_AecIrisCtrlV2_t IrisCtrlV2;
+    CalibDb_AeSyncTestV2_t SyncTestV2;
+#endif
+
     CalibDb_Sensor_ParaV2_t       SensorInfoV2;
     CalibDb_Module_ParaV2_t       ModuleInfoV2;
 
@@ -513,6 +525,8 @@ typedef struct AecContext_s* AeHandle_t;     /**< handle to AEC context */
 typedef struct AecConfig_s* AeConfig_t;     /**< handle to AEC config */
 
 typedef struct AeInstanceConfig_s {
+    void*                   cbs;
+    bool                    isGrpMode;
     AeHandle_t              hAe;            /**< handle returned by AeInit() */
     AeConfig_t              aecCfg;
     bool                    lockaebyaf;

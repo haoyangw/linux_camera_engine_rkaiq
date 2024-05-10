@@ -18,7 +18,7 @@
 #ifndef __ADRC_UAPI_HEAD_H__
 #define __ADRC_UAPI_HEAD_H__
 
-#include "adrc_head.h"
+#include "iq_parser_v2/adrc_head.h"
 
 // drc v10
 typedef struct mDrcGain_t {

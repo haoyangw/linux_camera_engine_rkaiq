@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_ALDCH_H_
 #define _RK_AIQ_USER_API2_ALDCH_H_
 
-#include "aldch/rk_aiq_uapi_aldch_int.h"
+#include "algos/aldch/rk_aiq_uapi_aldch_int.h"
 
 RKAIQ_BEGIN_DECLARE
 

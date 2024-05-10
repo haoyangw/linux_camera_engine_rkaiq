@@ -25,7 +25,7 @@
 // #define M4_STRING_DESC(ALIAS, SIZE, RANGE, DEFAULT)
 // #define M4_ENUM_DESC(ALIAS, ENUM, DEFAULT)
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 RKAIQ_BEGIN_DECLARE
 
@@ -34,6 +34,8 @@ RKAIQ_BEGIN_DECLARE
  * @brief   ISP2.0 SensorInfo enum Params
  */
 /*****************************************************************************/
+#define AE_GAIN_RANGE_MAX_NUM (70)
+
 typedef enum _CalibDb_ExpGainModeV2_e {
     EXPGAIN_MODE_LINEAR         = 0,
     EXPGAIN_MODE_NONLINEAR_DB   = 1,
@@ -52,11 +54,16 @@ typedef enum  _CalibDb_HdrFrmNumV2_e {
 /*****************************************************************************/
 typedef struct CalibDb_AecGainRangeV2_s {
     // M4_ENUM_DESC("GainMode", "CalibDb_ExpGainModeV2_t","EXPGAIN_MODE_LINEAR")
-    CalibDb_ExpGainModeV2_t     GainMode;
+    CalibDb_ExpGainModeV2_t GainMode;
 
-    // M4_ARRAY_DESC("GainRange", "f32", M4_SIZE(1,7), M4_RANGE(-65535,65535), "0", M4_DIGIT(4), M4_DYNAMIC(2))
-    float*                      GainRange;//contains 7 params per line
-    int                         GainRange_len;
+    // M4_NUMBER_DESC("GainRange_len", "u8", M4_RANGE(7,70), "7", M4_DIGIT(0),M4_HIDE(0))
+    uint8_t GainRange_len;
+
+    // M4_ARRAY_DESC("GainRange", "f32", M4_SIZE(10,7), M4_RANGE(-65535,65535), "0", M4_DIGIT(4))
+    float GainRange[AE_GAIN_RANGE_MAX_NUM];  //contains 7 params per line
+
+    // M4_NUMBER_DESC("GainRegDBUnit", "f32", M4_RANGE(0,1), "0.3", M4_DIGIT(4), M4_HIDE(0))
+    float GainRegDBUnit;
 } CalibDb_AecGainRangeV2_t;
 
 typedef struct CalibDb_CISNormalTimeSetV2_s {
@@ -68,6 +75,9 @@ typedef struct CalibDb_CISNormalTimeSetV2_s {
 
     // M4_STRUCT_DESC("TimeRegOdevity", "normal_ui_style")
     Cam2x1FloatMatrix_t     CISTimeRegOdevity;
+
+    // M4_NUMBER_DESC("CISTimeLinePerReg", "f32", M4_RANGE(0,100), "1", M4_DIGIT(3), M4_HIDE(0))
+    float                   CISTimeLinePerReg;
 } CalibDb_CISNormalTimeSetV2_t;
 
 typedef struct CalibDb_CISHdrTimeSetV2_s {
@@ -77,8 +87,8 @@ typedef struct CalibDb_CISHdrTimeSetV2_s {
     // M4_BOOL_DESC("CISTimeRegUnEqualEn", "0")
     bool                    CISTimeRegUnEqualEn;
 
-    // M4_NUMBER_DESC("CISTimeRegMin", "u16", M4_RANGE(1,100), "1", M4_DIGIT(0),M4_HIDE(0))
-    uint16_t                CISTimeRegMin;
+    // M4_STRUCT_DESC("CISTimeRegMin", "normal_ui_style")
+    Cam1x3ShortMatrix_t     CISTimeRegMin;
 
     // M4_STRUCT_DESC("CISHdrTimeRegSumFac", "normal_ui_style")
     Cam2x1FloatMatrix_t     CISHdrTimeRegSumFac;
@@ -88,6 +98,9 @@ typedef struct CalibDb_CISHdrTimeSetV2_s {
 
     // M4_STRUCT_DESC("CISTimeRegOdevity", "normal_ui_style")
     Cam2x1FloatMatrix_t     CISTimeRegOdevity;
+
+    // M4_NUMBER_DESC("CISTimeLinePerReg", "f32", M4_RANGE(0,100), "1", M4_DIGIT(3), M4_HIDE(0))
+    float                   CISTimeLinePerReg;
 } CalibDb_CISHdrTimeSetV2_t;
 
 typedef struct CalibDb_CISTimeSet_CombV2_s {

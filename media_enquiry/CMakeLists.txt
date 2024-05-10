@@ -14,6 +14,8 @@ include(BuildOptions)
 include(CompileOptions)
 include(GNUInstallDirs)
 
+add_compile_options(${ISP_HW_VERSION})
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMakeTargets")
 
@@ -149,8 +151,8 @@ set(DIR_SRCS
     )
 
 set(XCORE_SRC
-    ${RK_AIQ_SOURCE_DIR}/xcore/xcam_common.cpp
-    ${RK_AIQ_SOURCE_DIR}/xcore/xcam_log.cpp
+    ${RK_AIQ_SOURCE_DIR}/xcore/xcam_common.c
+    ${RK_AIQ_SOURCE_DIR}/xcore/xcam_log.c
     ${RK_AIQ_SOURCE_DIR}/xcore/xcam_buffer.cpp
     ${RK_AIQ_SOURCE_DIR}/xcore/video_buffer.cpp
     ${RK_AIQ_SOURCE_DIR}/xcore/v4l2_buffer_proxy.cpp

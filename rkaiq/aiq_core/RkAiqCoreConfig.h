@@ -57,19 +57,27 @@ inline std::string AlgoTypeToString(RkAiqAlgoType_t type) {
 #else
         { RK_AIQ_ALGO_TYPE_ABLC,        "Ablc"      },
 #endif
-        { RK_AIQ_ALGO_TYPE_AMERGE,      "Amerge"    },
         { RK_AIQ_ALGO_TYPE_ATMO,        "Atmo"      },
         { RK_AIQ_ALGO_TYPE_ANR,         "Anr"       },
-        { RK_AIQ_ALGO_TYPE_ALSC,        "Alsc"      },
-        { RK_AIQ_ALGO_TYPE_AGIC,        "Agic"      },
+        
 #if USE_NEWSTRUCT
         { RK_AIQ_ALGO_TYPE_ADEBAYER,    "Dm"  },
         { RK_AIQ_ALGO_TYPE_ADPCC,       "Dpcc"  },
+        { RK_AIQ_ALGO_TYPE_AMERGE,      "Merge"    },
+        { RK_AIQ_ALGO_TYPE_ALSC,        "Lsc"      },
 #else
         { RK_AIQ_ALGO_TYPE_ADEBAYER,    "Adebayer"  },
         { RK_AIQ_ALGO_TYPE_ADPCC,       "Adpcc"     },
+        { RK_AIQ_ALGO_TYPE_AMERGE,      "Amerge"    },
+        { RK_AIQ_ALGO_TYPE_ALSC,        "Alsc"      },
 #endif
+#if USE_NEWSTRUCT
+        { RK_AIQ_ALGO_TYPE_A3DLUT,      "3dlut"    },
+        { RK_AIQ_ALGO_TYPE_ACCM,        "Ccm"       },
+#else
+        { RK_AIQ_ALGO_TYPE_A3DLUT,      "A3dlut"    },
         { RK_AIQ_ALGO_TYPE_ACCM,        "Accm"      },
+#endif
 #if USE_NEWSTRUCT
         { RK_AIQ_ALGO_TYPE_AGAMMA,      "Gamma"     },
 #else
@@ -81,13 +89,23 @@ inline std::string AlgoTypeToString(RkAiqAlgoType_t type) {
 #else
         { RK_AIQ_ALGO_TYPE_ADHAZ,      "Adehaze"    },
 #endif
-        { RK_AIQ_ALGO_TYPE_A3DLUT,      "A3dlut"    },
+#if USE_NEWSTRUCT
+        { RK_AIQ_ALGO_TYPE_ALDCH,       "Ldch"     },
+#else
         { RK_AIQ_ALGO_TYPE_ALDCH,       "Aldch"     },
+#endif
+#if USE_NEWSTRUCT
+        { RK_AIQ_ALGO_TYPE_ACSM,        "Csm"       },
+        { RK_AIQ_ALGO_TYPE_ACP,         "Cp"       },
+        { RK_AIQ_ALGO_TYPE_ACGC,        "Cgc"      },
+        { RK_AIQ_ALGO_TYPE_AIE,         "Ie"       },
+#else
         { RK_AIQ_ALGO_TYPE_ACSM,        "Acsm"      },
         { RK_AIQ_ALGO_TYPE_ACP,         "Acp"       },
-        { RK_AIQ_ALGO_TYPE_AIE,         "Aie"       },
-        { RK_AIQ_ALGO_TYPE_AORB,        "Aorb"      },
         { RK_AIQ_ALGO_TYPE_ACGC,        "Acgc"      },
+        { RK_AIQ_ALGO_TYPE_AIE,         "Aie"       },
+#endif
+        { RK_AIQ_ALGO_TYPE_AORB,        "Aorb"      },
         { RK_AIQ_ALGO_TYPE_ASD,         "Asd"       },
 #if USE_NEWSTRUCT
         { RK_AIQ_ALGO_TYPE_ADRC,        "Drc"      },
@@ -101,8 +119,9 @@ inline std::string AlgoTypeToString(RkAiqAlgoType_t type) {
         { RK_AIQ_ALGO_TYPE_AYNR,        "Ynr"       },
         { RK_AIQ_ALGO_TYPE_ASHARP,      "Sharp"     },
         { RK_AIQ_ALGO_TYPE_ACNR,        "Cnr"       },
+        { RK_AIQ_ALGO_TYPE_AGIC,        "Gic"      },
 #else
-#if defined(ISP_HW_V39) || defined(ISP_HW_V30) || defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
+#if defined(ISP_HW_V39) || defined(ISP_HW_V33) || defined(ISP_HW_V30) || defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
         { RK_AIQ_ALGO_TYPE_ARAWNR,      "Abayer2dnr"},
         { RK_AIQ_ALGO_TYPE_AMFNR,       "Abayertnr" },
 #else
@@ -112,18 +131,35 @@ inline std::string AlgoTypeToString(RkAiqAlgoType_t type) {
         { RK_AIQ_ALGO_TYPE_ASHARP,      "Asharp"    },
         { RK_AIQ_ALGO_TYPE_AYNR,        "Aynr"      },
         { RK_AIQ_ALGO_TYPE_ACNR,        "Acnr"      },
+        { RK_AIQ_ALGO_TYPE_AGIC,        "Agic"      },
 #endif
         { RK_AIQ_ALGO_TYPE_AEIS,        "Aeis"      },
         { RK_AIQ_ALGO_TYPE_AFEC,        "Afec"      },
 #if defined(ISP_HW_V39)
+#if USE_NEWSTRUCT
+        { RK_AIQ_ALGO_TYPE_AMD,         "Yme"       },
+#else
         { RK_AIQ_ALGO_TYPE_AMD,         "Ayuvme"       },
+#endif
 #else
         { RK_AIQ_ALGO_TYPE_AMD,         "Amd"       },
 #endif
-        { RK_AIQ_ALGO_TYPE_AGAIN,       "Again"     },
+
+#if USE_NEWSTRUCT
+        { RK_AIQ_ALGO_TYPE_ACAC,        "Cac"      },
+        { RK_AIQ_ALGO_TYPE_AGAIN,       "Gain"     },
+#else
         { RK_AIQ_ALGO_TYPE_ACAC,        "Acac"      },
+        { RK_AIQ_ALGO_TYPE_AGAIN,       "Again"     },
+#endif
         { RK_AIQ_ALGO_TYPE_AFD,         "Afd"       },
-        { RK_AIQ_ALGO_TYPE_ARGBIR,        "Argbir"      },
+#if USE_NEWSTRUCT
+        { RK_AIQ_ALGO_TYPE_ARGBIR,      "Rgbir"    },
+#else
+        { RK_AIQ_ALGO_TYPE_ARGBIR,      "Argbir"    },
+#endif
+        { RK_AIQ_ALGO_TYPE_ALDC,        "Aldc"      },
+        { RK_AIQ_ALGO_TYPE_AHISTEQ,     "Ahisteq"  },
         // clang-format oon
     };
 
@@ -155,6 +191,10 @@ inline std::string AlgoTypeToString(RkAiqAlgoType_t type) {
 
 #if defined(ISP_HW_V39)
 #include "RkAiqCoreConfigV39.h"
+#endif
+
+#if defined(ISP_HW_V33)
+#include "RkAiqCoreConfigV33.h"
 #endif
 
 #if defined(__GNUC__) && !defined(__clang__)

@@ -17,6 +17,9 @@ typedef enum DpcHwVersion_e
     DPC_HARDWARE_MAX,
 } DpcHwVersion_t;
 
+XCAM_BEGIN_DECLARE
+
+#if 0
 XCamReturn
 algo_dpc_SetAttrib
 (
@@ -30,8 +33,7 @@ algo_dpc_GetAttrib
     RkAiqAlgoContext*  ctx,
     dpc_api_attrib_t *attr
 );
-
-XCAM_BEGIN_DECLARE
+#endif
 extern RkAiqAlgoDescription g_RkIspAlgoDescDpc;
 XCAM_END_DECLARE
 

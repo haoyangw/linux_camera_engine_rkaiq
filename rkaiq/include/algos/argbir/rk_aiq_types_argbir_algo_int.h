@@ -11,9 +11,9 @@
 #ifndef __RK_AIQ_TYPES_ARGBIR_ALGO_INT_H__
 #define __RK_AIQ_TYPES_ARGBIR_ALGO_INT_H__
 
-#include "RkAiqCalibDbTypes.h"
-#include "argbir_head.h"
-#include "argbir_uapi_head.h"
+#include "iq_parser/RkAiqCalibDbTypes.h"
+#include "iq_parser_v2/argbir_head.h"
+#include "iq_parser_v2/argbir_uapi_head.h"
 
 typedef enum rgbir_OpMode_e {
     RGBIR_OPMODE_AUTO   = 0,  // run auto drc

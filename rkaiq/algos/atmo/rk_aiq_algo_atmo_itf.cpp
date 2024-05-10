@@ -89,11 +89,17 @@ static XCamReturn AtmoPrepare(RkAiqAlgoCom* params)
     else
         pAtmoCtx->FrameNumber = HDR_3X_NUM;
 
+#ifndef USE_NEWSTRUCT
     //get aec delay frame
     CalibDb_Aec_ParaV2_t* aec =
         (CalibDb_Aec_ParaV2_t*)CALIBDBV2_GET_MODULE_PTR((void*)pCalibDbv2, ae_calib);
     pAtmoCtx->CurrAeResult.AecDelayframe = MAX(aec->CommCtrl.AecDelayFrmNum.BlackDelay,
-                                           aec->CommCtrl.AecDelayFrmNum.WhiteDelay);
+                                               aec->CommCtrl.AecDelayFrmNum.WhiteDelay);
+#else
+    ae_param_t* aec = (ae_param_t*)(CALIBDBV2_GET_MODULE_PTR(pCalib, ae_calib));
+    pAtmoCtx->CurrAeResult.AecDelayframe = MAX(aec->commCtrl.delay.sw_aeT_blackDelay_val,
+                                               aec->commCtrl.delay.sw_aeT_whiteDelay_val);
+#endif
 
     LOG1_ATMO("%s:AecDelayframe:%d\n", __FUNCTION__, pAtmoCtx->CurrAeResult.AecDelayframe);
 

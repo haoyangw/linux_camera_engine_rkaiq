@@ -20,8 +20,8 @@
 #ifndef _RK_AIQ_TYPES_SHARP32_H_
 #define _RK_AIQ_TYPES_SHARP32_H_
 
-#include "rk_aiq_comm.h"
-#include "rk_aiq_param_sharp32.h"
+#include "common/rk_aiq_comm.h"
+#include "algos/rk_aiq_param_sharp32.h"
 
 #define sharp_param_calib_t sharp_param_auto_t
 

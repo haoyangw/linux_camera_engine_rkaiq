@@ -28,6 +28,7 @@ RkAiqHandleFactory::map_type* RkAiqHandleFactory::map;
 RkAiqHandle::RkAiqHandle(RkAiqAlgoDesComm* des, RkAiqCore* aiqCore)
     : mDes(des), mAiqCore(aiqCore), mEnable(true), mReConfig(false) {
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
+    sharedCom->ctxCfigs[des->type].cid = aiqCore->mAlogsComSharedParams.mCamPhyId;
     mDes->create_context(&mAlgoCtx, (const _AlgoCtxInstanceCfg*)(&sharedCom->ctxCfigs[des->type]));
     mConfig       = NULL;
     mPreInParam   = NULL;
@@ -59,6 +60,7 @@ XCamReturn RkAiqHandle::configInparamsCom(RkAiqAlgoCom* com, int type) {
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
     xcam_mem_clear(*com);
 
+    com->cid = mAiqCore->mAlogsComSharedParams.mCamPhyId;
     if (type == RKAIQ_CONFIG_COM_PREPARE) {
         com->ctx                     = mAlgoCtx;
         com->frame_id                = shared->frameId;
@@ -189,6 +191,40 @@ RkAiqHandle::sendSignal(rk_aiq_uapi_mode_sync_e sync_mode)
         mUpdateCond.signal();
 }
 
+#if USE_NEWSTRUCT
+XCamReturn RkAiqHandle::do_processing_common(void)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    GlobalParamsManager* globalParamsManager = mAiqCore->getGlobalParamsManager();
+    RkAiqAlgoResCom* proc_res = mProcOutParam;
 
+    if (globalParamsManager && !globalParamsManager->isFullManualMode() &&
+        globalParamsManager->isManual(mResultType)) {
+        rk_aiq_global_params_wrap_t wrap_param;
+        wrap_param.type = mResultType;
+        wrap_param.man_param_size = mResultSize;
+        wrap_param.man_param_ptr = proc_res->algoRes;
+        XCamReturn ret1 = globalParamsManager->getAndClearPending(&wrap_param);
+        if (ret1 == XCAM_RETURN_NO_ERROR) {
+            LOGK("%s: get new manual params success!", Cam3aResultType2Str[mResultType]);
+            proc_res->en = wrap_param.en;
+            proc_res->bypass = wrap_param.bypass;
+            proc_res->cfg_update = true;
+        } else {
+            proc_res->cfg_update = false;
+        }
+    } else {
+        globalParamsManager->lockAlgoParam(mResultType);
+        mProcInParam->u.proc.is_attrib_update = globalParamsManager->getAndClearAlgoParamUpdateFlagLocked(mResultType);
+
+        RkAiqAlgoDescription* des = (RkAiqAlgoDescription*)mDes;
+        ret                       = des->processing(mProcInParam, mProcOutParam);
+        globalParamsManager->unlockAlgoParam(mResultType);
+    }
+
+    return ret;
+}
+
+#endif
 
 }  // namespace RkCam

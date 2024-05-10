@@ -18,10 +18,11 @@
 #ifndef RK_AIQ_USER_API2_SYSCTL_H
 #define RK_AIQ_USER_API2_SYSCTL_H
 
-#include "rk_aiq.h"
-#include "rk_aiq_algo_des.h"
-#include "rk_aiq_offline_raw.h"
-#include "anr/rkpostisp.h"
+#include "common/rk_aiq.h"
+#include "algos/rk_aiq_algo_des.h"
+#include "common/rk_aiq_offline_raw.h"
+#include "algos/anr/rkpostisp.h"
+#include "uAPI2/rk_aiq_user_api_common.h"
 // #include "rk_aiq_user_api_sysctl.h"
 
 RKAIQ_BEGIN_DECLARE
@@ -134,6 +135,8 @@ rk_aiq_uapi2_sysctl_stop(const rk_aiq_sys_ctx_t* ctx, bool keep_ext_hw_st);
  */
 void rk_aiq_uapi2_get_version_info(rk_aiq_ver_info_t* vers);
 
+void rk_aiq_uapi2_get_aiqversion_info(const rk_aiq_sys_ctx_t* ctx, rk_aiq_version_info_t* vers);
+
 /*!
  * \brief apply an new iq file when stream on
  *
@@ -146,6 +149,13 @@ rk_aiq_uapi2_sysctl_updateIq(rk_aiq_sys_ctx_t* sys_ctx, char* iqfile);
 int32_t
 rk_aiq_uapi2_sysctl_getModuleCtl(const rk_aiq_sys_ctx_t* ctx,
                                 rk_aiq_module_id_t mId, bool *mod_en);
+
+XCamReturn
+rk_aiq_uapi2_sysctl_getModuleEn(const rk_aiq_sys_ctx_t* ctx,
+                                rk_aiq_module_list_t* mod);
+XCamReturn
+rk_aiq_uapi2_sysctl_setModuleEn(const rk_aiq_sys_ctx_t* ctx,
+                                rk_aiq_module_list_t* mod);
 
 XCamReturn
 rk_aiq_uapi2_sysctl_setModuleCtl(const rk_aiq_sys_ctx_t* ctx, rk_aiq_module_id_t mId, bool mod_en);
@@ -164,6 +174,9 @@ bool
 rk_aiq_uapi2_sysctl_getAxlibStatus(const rk_aiq_sys_ctx_t* ctx,
                                   const int algo_type,
                                   const int lib_id);
+
+RkAiqAlgoContext*
+rk_aiq_uapi2_sysctl_getAxlibCtx(const rk_aiq_sys_ctx_t* ctx, const int algo_type, const int lib_id);
 
 /*!
  * \brief enable or disable algo lib
@@ -415,6 +428,20 @@ rk_aiq_uapi2_sysctl_release3AStatsRef(const rk_aiq_sys_ctx_t* ctx,
                                      rk_aiq_isp_stats_t *stats);
 
 /*!
+ * \brief new 3a stats interace for C version
+ *
+ * \param[in] ctx             context
+ * \param[in] timeout_ms      -1: wait until next stats comes
+ *                             0: return current stats immediately
+ *                           > 0: wait next stats until timeout
+ * \param[out] stats          stats
+ * \return void
+ */
+XCamReturn
+rk_aiq_uapi2_sysctl_getIspStats(const rk_aiq_sys_ctx_t* ctx,
+                              rk_aiq_isp_stats_t *stats, int timeout_ms);
+
+/*!
  * \brief prepare RK-raw-format data process environment
  *
  * \param[in] ctx             context
@@ -571,6 +598,24 @@ rk_aiq_uapi2_sysctl_initAiisp(rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_aiisp_cfg_t* aii
                                 rk_aiq_aiisp_cb aiisp_cb);
 XCamReturn
 rk_aiq_uapi2_sysctl_ReadAiisp(rk_aiq_sys_ctx_t* sys_ctx);
+
+XCamReturn
+rk_aiq_uapi2_sysctl_register3Aalgo(const rk_aiq_sys_ctx_t* ctx,
+                                  void* algoDes, void *cbs);
+
+XCamReturn
+rk_aiq_uapi2_sysctl_unRegister3Aalgo(const rk_aiq_sys_ctx_t* ctx,
+                                    const int algo_type);
+
+/**
+ * @brief set sensor sync mode
+ *
+ * \param[in] sys_ctx             the context returned by \ref rk_aiq_uapi2_sysctl_init
+ * \note should be called after rk_aiq_uapi2_sysctl_prepare
+ */
+XCamReturn
+rk_aiq_uapi2_sysctl_setSnsSyncMode(const rk_aiq_sys_ctx_t* ctx, enum rkmodule_sync_mode sync_mode);
+
 RKAIQ_END_DECLARE
 
 #endif

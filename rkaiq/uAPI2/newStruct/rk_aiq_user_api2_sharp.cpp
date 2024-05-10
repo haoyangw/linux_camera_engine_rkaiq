@@ -24,6 +24,7 @@ RKAIQ_BEGIN_DECLARE
 #define CHECK_USER_API_ENABLE
 #endif
 
+#ifndef USE_IMPLEMENT_C
 static XCamReturn
 _sharp_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, sharp_api_attrib_t* attr)
 {
@@ -39,7 +40,10 @@ _sharp_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, sharp_api_attrib_t* attr)
     params.aut_param_size = sizeof(sharp_param_auto_t);
     params.aut_param_ptr = &attr->stAuto;
     ret = sys_ctx->_rkAiqManager->getGlobalParamsManager()->set(&params);
-
+    if (ret == XCAM_RETURN_BYPASS) {
+        LOGE("ynr cnr and sharp en should be on or off in the same time, "
+            "please use rk_aiq_uapi2_sysctl_setModuleEn to set them");
+    }
     return ret;
 }
 
@@ -173,5 +177,6 @@ rk_aiq_user_api2_sharp_QueryStatus(const rk_aiq_sys_ctx_t* sys_ctx, sharp_status
 #endif
    return XCAM_RETURN_NO_ERROR;
 }
+#endif
 
 RKAIQ_END_DECLARE

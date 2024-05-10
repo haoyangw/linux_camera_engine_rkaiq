@@ -16,7 +16,7 @@
  * limitations under the License.
  *
  */
-#include "agamma_head.h"
+#include "iq_parser_v2/agamma_head.h"
 
 #ifndef _RK_AIQ_ALGO_AGAMMA_HW_H_
 #define _RK_AIQ_ALGO_AGAMMA_HW_H_

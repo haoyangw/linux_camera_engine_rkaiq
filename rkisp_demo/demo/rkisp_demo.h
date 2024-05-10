@@ -20,7 +20,11 @@
 #define _RKISP_DEMO_H_
 
 #include <linux/videodev2.h>
+#if defined(ISP_HW_V39) || defined(ISP_HW_V33)
+#include "uAPI2/rk_aiq_user_api2_imgproc_v1.h"
+#else
 #include "uAPI2/rk_aiq_user_api2_imgproc.h"
+#endif
 #include "uAPI2/rk_aiq_user_api2_camgroup.h"
 
 #define DBG(...) do { if(!silent) printf(__VA_ARGS__); } while(0)
@@ -74,5 +78,34 @@ typedef struct _demo_context {
     bool                    orpStopped;
     bool                    camGroup;
 } demo_context_t;
+
+#ifndef CAM_STATIC_FPS_CALCULATION
+#define XCAM_STATIC_FPS_CALCULATION(objname, count)                                    \
+    do {                                                                               \
+        static uint32_t num_frame = 0;                                                 \
+        static struct timeval last_sys_time;                                           \
+        static struct timeval first_sys_time;                                          \
+        static bool b_last_sys_time_init = false;                                      \
+        if (!b_last_sys_time_init) {                                                   \
+            gettimeofday(&last_sys_time, NULL);                                        \
+            gettimeofday(&first_sys_time, NULL);                                       \
+            b_last_sys_time_init = true;                                               \
+        } else {                                                                       \
+            if ((num_frame % count) == 0) {                                            \
+                double total, current;                                                 \
+                struct timeval cur_sys_time;                                           \
+                gettimeofday(&cur_sys_time, NULL);                                     \
+                total = (cur_sys_time.tv_sec - first_sys_time.tv_sec) * 1.0f +         \
+                        (cur_sys_time.tv_usec - first_sys_time.tv_usec) / 1000000.0f;  \
+                current = (cur_sys_time.tv_sec - last_sys_time.tv_sec) * 1.0f +        \
+                          (cur_sys_time.tv_usec - last_sys_time.tv_usec) / 1000000.0f; \
+                DBG("%s Current fps: %.2f, Total avg fps: %.2f\n", #objname,           \
+                    ((float)(count)) / current, (float)num_frame / total);             \
+                last_sys_time = cur_sys_time;                                          \
+            }                                                                          \
+        }                                                                              \
+        ++num_frame;                                                                   \
+    } while (0)
+#endif
 
 #endif

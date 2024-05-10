@@ -17,7 +17,7 @@
 #include "RkAiqCamGroupHandleInt.h"
 
 namespace RkCam {
-
+#if (USE_NEWSTRUCT == 0)
 XCamReturn RkAiqCamGroupAmergeHandleInt::updateConfig(bool needSync) {
     ENTER_ANALYZER_FUNCTION();
 
@@ -222,5 +222,5 @@ XCamReturn RkAiqCamGroupAmergeHandleInt::getAttribV12(mergeAttrV12_t* att) {
     return ret;
 }
 #endif
-
+#endif
 }  // namespace RkCam

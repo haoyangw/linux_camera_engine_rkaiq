@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_AYNRV22_H_
 #define _RK_AIQ_USER_API2_AYNRV22_H_
 
-#include "aynrV22/rk_aiq_uapi_aynr_int_v22.h"
+#include "algos/aynrV22/rk_aiq_uapi_aynr_int_v22.h"
 
 typedef struct rk_aiq_sys_ctx_s rk_aiq_sys_ctx_t;
 

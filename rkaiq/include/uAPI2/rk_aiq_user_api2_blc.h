@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_BLC_H_
 #define _RK_AIQ_USER_API2_BLC_H_
 
-#include "rk_aiq_api_types_blc.h"
+#include "algos/rk_aiq_api_types_blc.h"
 
 RKAIQ_BEGIN_DECLARE
 

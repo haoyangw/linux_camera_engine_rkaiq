@@ -24,7 +24,7 @@
 // #define M4_STRING_DESC(ALIAS, SIZE, RANGE, DEFAULT)
 // #define M4_ENUM_DESC(ALIAS, ENUM, DEFAULT)
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 RKAIQ_BEGIN_DECLARE
 

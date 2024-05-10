@@ -19,10 +19,10 @@
 
 #ifndef _RK_AIQ_TYPE_AGAMMA_ALGO_INT_H_
 #define _RK_AIQ_TYPE_AGAMMA_ALGO_INT_H_
-#include "RkAiqCalibDbTypes.h"
-#include "agamma/rk_aiq_types_agamma_algo.h"
-#include "agamma_head.h"
-#include "agamma_uapi_head.h"
+#include "iq_parser/RkAiqCalibDbTypes.h"
+#include "algos/agamma/rk_aiq_types_agamma_algo.h"
+#include "iq_parser_v2/agamma_head.h"
+#include "iq_parser_v2/agamma_uapi_head.h"
 
 typedef enum rk_aiq_gamma_op_mode_s {
     RK_AIQ_GAMMA_MODE_AUTO   = 0, /**< run Auto gamma */

@@ -23,11 +23,13 @@
 #include "include/cnr_algo_api.h"
 
 typedef struct {
-    const RkAiqAlgoCom_prepare_t* prepare_params;
     cnr_api_attrib_t* cnr_attrib;
     int working_mode;
-    int iso;
+    int pre_iso;
+
     bool isReCal_;
+    bool strength_en;
+    float fStrength;
 } CnrContext_t;
 
 #define DEFAULT_RECALCULATE_DELTA_ISO (0.01)

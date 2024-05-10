@@ -730,7 +730,7 @@ XCamReturn interpCCMbywbgain(const CalibDbV2_Ccm_illu_est_Para_t* illu_estim,
             continue;
         //     (1) get IlluProfiles of Candidate illuminants, and calculate fSaturation
         const CalibDbV2_Ccm_Accm_Cof_Para_t* pDomIlluProfile = &aCcmCof[i];
-        interpolation(pDomIlluProfile->gain_sat_curve.gains,
+        interpolation_f(pDomIlluProfile->gain_sat_curve.gains,
                       pDomIlluProfile->gain_sat_curve.sat,
                       4,
                       hAccm->accmSwInfo.sensorGain, &fSaturation);
@@ -811,7 +811,7 @@ XCamReturn selectCCM(const CalibDbV2_Ccm_Accm_Cof_Para_t aCcmCof[],
     // 2)
     const CalibDbV2_Ccm_Accm_Cof_Para_t* pDomIlluProfile = &aCcmCof[dominateIlluProfileIdx];
     LOGI_ACCM("pDomIlluProfile = aCcmCof[%d]: %p\n", dominateIlluProfileIdx, pDomIlluProfile);
-    interpolation(pDomIlluProfile->gain_sat_curve.gains,
+    interpolation_f(pDomIlluProfile->gain_sat_curve.gains,
                   pDomIlluProfile->gain_sat_curve.sat,
                   4,
                   hAccm->accmSwInfo.sensorGain, &fSaturation);

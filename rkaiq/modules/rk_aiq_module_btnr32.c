@@ -14,7 +14,7 @@ void rk_aiq_btnr32_params_cvt(void* attr, struct isp32_isp_params_cfg* isp_cfg, 
 {
     int i;
     int tmp;
-    struct isp32_bay3d_cfg *phwcfg = &isp_cfg->others.bay3d_cfg;
+    struct isp32_bay3d_cfg *phwcfg = &isp_params->isp_cfg->others.bay3d_cfg;
     btnr_param_t *btnr_param = (btnr_param_t *) attr;
     btnr_params_dyn_t *pdyn = &btnr_param->dyn;
     btnr_params_static_t *psta = &btnr_param->sta;

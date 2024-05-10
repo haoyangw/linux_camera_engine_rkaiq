@@ -23,10 +23,14 @@
 
 #include "rk_aiq_algo_types.h"
 #include "RkAiqCalibDbV2Helper.h"
-#include "rk_aiq_types_priv.h"
+#include "algos/algo_types_priv.h"
+//#include "rk_aiq_types_priv.h"
 
 #define IS_UPDATE_MEM(result_ptr, result_offset) \
     *((bool*)((char*)(result_ptr) - (result_offset)))
+
+#define GET_UPDATE_PTR(result_ptr, result_offset) \
+    ((bool*)((char*)(result_ptr) - (result_offset)))
 
 typedef struct rk_aiq_singlecam_3a_result_s {
     uint8_t _camId;
@@ -37,11 +41,24 @@ typedef struct rk_aiq_singlecam_3a_result_s {
         RKAiqAecExpInfo_t* exp_tbl;
         int* exp_tbl_size;
         RKAiqExpI2cParam_t* exp_i2c_params;
+#if USE_NEWSTRUCT
+        aeStats_cfg_t* _aeNewCfg;
+#else
         rk_aiq_ae_meas_params_t* _aeMeasParams;
         rk_aiq_hist_meas_params_t* _aeHistMeasParams;
-        XCamVideoBuffer* _aecStats;
+#endif
+        //XCamVideoBuffer* _aecStats;
+        // TODO
+        union {
+            void* _aecStats;
+            rk_aiq_isp_aec_stats_t* aec_stats;
+            RKAiqAecStatsV25_t*     aec_stats_v25;
+        };
         RkAiqAlgoProcResAeShared_t _aeProcRes;
         XCamVideoBuffer* _aePreRes;
+#ifdef USE_IMPLEMENT_C
+        AlgoRstShared_t* _aePreRes_c;
+#endif
         RKAiqAecExpInfo_t _effAecExpInfo;
         bool _bEffAecExpValid;
         RkAiqSetStatsCfg stats_cfg_to_trans;
@@ -57,54 +74,83 @@ typedef struct rk_aiq_singlecam_3a_result_s {
             rk_aiq_awb_stat_cfg_v201_t*  _awbCfgV201;
             rk_aiq_awb_stat_cfg_v32_t*  _awbCfgV32;
             rk_aiq_isp_awb_meas_cfg_v3x_t* _awbCfgV3x;
+            awbStats_cfg_priv_t* _awbCfgV39;
         };
-        XCamVideoBuffer* _awbStats;
+        //XCamVideoBuffer* _awbStats;
+        //TODO
+        union {
+            void* _awbStats;
+            rk_aiq_awb_stat_res_v200_t* awb_stats;
+            rk_aiq_awb_stat_res_v201_t* awb_stats_v201;
+            rk_aiq_isp_awb_stats_v3x_t* awb_stats_v3x;
+            rk_aiq_isp_awb_stats_v32_t* awb_stats_v32;
+            awbStats_stats_priv_t* awb_stats_v39;
+        };
+        rk_aiq_isp_blc_t blc_cfg_effect;
         RkAiqAlgoProcResAwbShared_t _awbProcRes;
     } awb;
+
+#if USE_NEWSTRUCT
+    gamma_param_t* gamma;
+    rk_aiq_isp_drc_v39_t* drc;
+#if RKAIQ_HAVE_DEHAZE
+    dehaze_param_t* dehaze;
+#endif
+    histeq_param_t* histeq;
+#if RKAIQ_HAVE_ENHANCE
+    enh_param_t* enh;
+#endif
+    dpc_param_t* dpc;
+    mge_param_t* merge;
+#if RKAIQ_HAVE_RGBIR_REMOSAIC
+    rgbir_param_t* rgbir;
+#endif
+#if RKAIQ_HAVE_3DLUT
+    lut3d_param_t *lut3d;
+#endif
+    lsc_param_t* lsc;
+    ccm_param_t* ccm;
+#else
+    AgammaProcRes_t* _agammaConfig;
+    RkAiqAdehazeProcResult_t* _adehazeConfig;
+    RkAiqAdrcProcResult_t* _adrcConfig;
+    AdpccProcResult_t* _dpccConfig;
+    RkAiqAmergeProcResult_t* _amergeConfig;
+    RkAiqArgbirProcResult_t* _aRgbirConfig;
+    rk_aiq_lut3d_cfg_t* _lut3dCfg;
     rk_aiq_lsc_cfg_t* _lscConfig;
+
     struct {
         union {
             rk_aiq_ccm_cfg_t*  _ccmCfg;
             rk_aiq_ccm_cfg_v2_t*  _ccmCfg_v2;
         };
     } accm;
-    rk_aiq_lut3d_cfg_t* _lut3dCfg;
-#if USE_NEWSTRUCT
-    rk_aiq_isp_gamma_params_t* gamma;
-    rk_aiq_isp_drc_params_t* drc;
-    rk_aiq_isp_dehaze_params_t* dehaze;
-    rk_aiq_isp_dpcc_params_t* dpc;
-#else
-    AgammaProcRes_t* _agammaConfig;
-    RkAiqAdehazeProcResult_t* _adehazeConfig;
-    RkAiqAdrcProcResult_t* _adrcConfig;
-    AdpccProcResult_t* _dpccConfig;
 #endif
-    RkAiqAmergeProcResult_t* _amergeConfig;
-    RkAiqArgbirProcResult_t* _aRgbirConfig;
 
     struct {
         union {
             rk_aiq_isp_blc_v21_t * _blcConfig;
             rk_aiq_isp_blc_v32_t * _blcConfig_v32;
-            rk_aiq_isp_blc_params_t *blc;
+#if USE_NEWSTRUCT
+            blc_param_t* blc;
+#endif
         };
     } ablc;
 
 
 #if USE_NEWSTRUCT
-    rk_aiq_isp_ynr_params_t *ynr;
+    ynr_param_t* ynr;
 #else
-    struct aynr_procRes_V3_t {
-        RK_YNR_Fix_V3_t*  _stFix;
-        float  _sigma[YNR_V3_ISO_CURVE_POINT_NUM];
-    };
 
     struct {
         union {
             RK_YNR_Fix_V24_t* _aynr_procRes_v24;
+            struct {
+                RK_YNR_Fix_V3_t*  _stFix;
+                float  _sigma[YNR_V3_ISO_CURVE_POINT_NUM];
+            } _aynr_procRes_v3;
             RK_YNR_Fix_V22_t*  _aynr_procRes_v22;
-            aynr_procRes_V3_t  _aynr_procRes_v3;
             RK_YNR_Fix_V2_t*  _aynr_procRes_v2;
         };
     } aynr;
@@ -119,7 +165,7 @@ typedef struct rk_aiq_singlecam_3a_result_s {
     } aynr_sigma;
 
 #if USE_NEWSTRUCT
-    rk_aiq_isp_cnr_params_t *cnr;
+    cnr_param_t* cnr;
 #else
     struct {
         union {
@@ -140,7 +186,7 @@ typedef struct rk_aiq_singlecam_3a_result_s {
     } abayernr;
 
 #if USE_NEWSTRUCT
-    rk_aiq_isp_btnr_params_t *btnr;
+    btnr_param_t* btnr;
 #else
     struct {
         union {
@@ -154,7 +200,7 @@ typedef struct rk_aiq_singlecam_3a_result_s {
 #endif
 
 #if USE_NEWSTRUCT
-    rk_aiq_isp_sharp_params_t *sharp;
+    sharp_param_t* sharp;
 #else
     struct {
         union {
@@ -165,13 +211,15 @@ typedef struct rk_aiq_singlecam_3a_result_s {
         };
     } asharp;
 #endif
-
+#if USE_NEWSTRUCT
+    gain_param_t* gain;
+#else
     struct {
         union {
             RK_GAIN_Fix_V2_t*  _again_procRes_v2;
         };
     } again;
-
+#endif
     struct {
         union {
             RK_YUVME_Fix_V1_t*  _ayuvme_procRes_v1;
@@ -191,6 +239,8 @@ typedef struct _AlgoCtxInstanceCfgCamGroup {
     CamCalibDbCamgroup_t* pCamgroupCalib;
     int camIdArray[RK_AIQ_CAM_GROUP_MAX_CAMS];
     int camIdArrayLen;
+    // single cam 0 context
+    RkAiqAlgoContext* pSingleAlgoCtx;
 } AlgoCtxInstanceCfgCamGroup;
 
 // camgroup common params

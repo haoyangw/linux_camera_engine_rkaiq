@@ -19,9 +19,9 @@
 
 #ifndef _RK_AIQ_TYPE_ADEGAMMA_ALGO_INT_H_
 #define _RK_AIQ_TYPE_ADEGAMMA_ALGO_INT_H_
-#include "adegamma/rk_aiq_types_adegamma_algo.h"
-#include "RkAiqCalibDbTypes.h"
-#include "adegamma_head.h"
+#include "algos/adegamma/rk_aiq_types_adegamma_algo.h"
+#include "iq_parser/RkAiqCalibDbTypes.h"
+#include "iq_parser_v2/adegamma_head.h"
 
 #define DEGAMMA_CRUVE_KNOTS                   (17)
 #define DEGAMMA_CRUVE_X_KNOTS                 (16)

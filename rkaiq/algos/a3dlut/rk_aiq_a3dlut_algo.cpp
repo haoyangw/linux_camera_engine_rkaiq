@@ -261,7 +261,7 @@ XCamReturn Alut3dAutoConfig
         hAlut3d->restinfo.pLutProfile = &hAlut3d->calibV2_lut3d->ALut3D.lutAll[dominateProfileIdx];
 
         float alp_tmp = 0;
-        interpolation(pLutProfile->gain_alpha.gain, pLutProfile->gain_alpha.alpha, 9, sensorGain,
+        interpolation_f(pLutProfile->gain_alpha.gain, pLutProfile->gain_alpha.alpha, 9, sensorGain,
                       &alp_tmp);
 
         //(3) lut = alpha*lutfile + (1-alpha)*lut0

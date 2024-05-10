@@ -19,7 +19,7 @@
 
 #ifndef _RK_AIQ_TYPE_ACNR_ALGO_V31_H_
 #define _RK_AIQ_TYPE_ACNR_ALGO_V31_H_
-#include "acnrV31/rk_aiq_types_acnr_hw_v31.h"
+#include "algos/acnrV31/rk_aiq_types_acnr_hw_v31.h"
 
 RKAIQ_BEGIN_DECLARE
 

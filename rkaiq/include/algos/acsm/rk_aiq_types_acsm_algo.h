@@ -20,7 +20,7 @@
 #ifndef _RK_AIQ_TYPES_ACSM_ALGO_H_
 #define _RK_AIQ_TYPES_ACSM_ALGO_H_
 
-#include "csm_head.h"
+#include "iq_parser_v2/csm_head.h"
 
 typedef Csm_Param_t rk_aiq_acsm_params_t;
 

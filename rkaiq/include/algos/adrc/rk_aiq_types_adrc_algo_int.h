@@ -11,9 +11,9 @@
 #ifndef __RK_AIQ_TYPES_ADRC_ALGO_INT_H__
 #define __RK_AIQ_TYPES_ADRC_ALGO_INT_H__
 
-#include "RkAiqCalibDbTypes.h"
-#include "adrc_head.h"
-#include "adrc_uapi_head.h"
+#include "iq_parser/RkAiqCalibDbTypes.h"
+#include "iq_parser_v2/adrc_head.h"
+#include "iq_parser_v2/adrc_uapi_head.h"
 
 typedef struct adrc_blcRes_V32_s {
     bool blc_ob_enable;

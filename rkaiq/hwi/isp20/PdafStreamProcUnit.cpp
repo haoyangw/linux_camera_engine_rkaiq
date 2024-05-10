@@ -45,13 +45,14 @@ PdafStreamProcUnit::prepare(rk_sensor_pdaf_info_t *pdaf_inf)
     mPdafStream = new RKPdafStream(mPdafDev, ISP_POLL_PDAF_STATS);
     mPdafStream->setPollCallback (this);
 
+    strcpy(mPdafMeas.snsName, mPdafInf.sns_name);
     mPdafMeas.pdafSensorType = mPdafInf.pdaf_type;
     mPdafMeas.pdLRInDiffLine = mPdafInf.pdaf_lrdiffline;
     mPdafMeas.pdWidth = mPdafInf.pdaf_width;
     mPdafMeas.pdHeight = mPdafInf.pdaf_height;
 
-    LOGD_AF("%s: pd inf: pdaf_vdev %s, pdafSensorType %d, pdLRInDiffLine %d, pdWidth %d, pdHeight %d",
-        __func__, mPdafInf.pdaf_vdev, mPdafMeas.pdafSensorType, mPdafMeas.pdLRInDiffLine,
+    LOGD_AF("pd inf: sns_name %s, pdaf_vdev %s, pdafSensorType %d, pdLRInDiffLine %d, pdWidth %d, pdHeight %d",
+        mPdafInf.sns_name, mPdafInf.pdaf_vdev, mPdafMeas.pdafSensorType, mPdafMeas.pdLRInDiffLine,
         mPdafMeas.pdWidth, mPdafMeas.pdHeight);
     ret = mPdafDev->set_format(mPdafInf.pdaf_width, mPdafInf.pdaf_height,
                                mPdafInf.pdaf_pixelformat, V4L2_FIELD_NONE, 0);
@@ -132,10 +133,8 @@ PdafStreamProcUnit::poll_buffer_ready (SmartPtr<V4l2BufferProxy> &buf, int dev_i
         //LOGD_AF("%s: PDAF_STATS seq: %d, driver_time : %lld, aiq_time: %lld", __func__,
         //    video_buf->get_sequence(), video_buf->get_timestamp(), get_systime_us());
 
-        if (mPdafInf.pdaf_type != PDAF_SENSOR_TYPE3) {
-            // change timestamp as vicap driver set timestamp using fs, we need fe time as 3a stats use fe time.
-            video_buf->set_timestamp(get_systime_us());
-        }
+        // change timestamp as vicap/pdaf driver set timestamp using fs, we need fe time as 3a stats use fe time.
+        video_buf->set_timestamp(get_systime_us());
         mCamHw->mHwResLintener->hwResCb(video_buf);
     }
 

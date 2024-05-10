@@ -13,10 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "sample_cac_module.h"
 
+
+// #define USE_NEWSTRUCT
 #include "sample_comm.h"
+#include "sample_cac_module.h"
 #include "uAPI2/rk_aiq_user_api2_acac.h"
+#ifdef ISP_HW_V39
+#include "rk_aiq_user_api2_rk3576.h"
+#elif  defined(ISP_HW_V33)
+#include "rk_aiq_user_api2_rv1103B.h"
+#elif  defined(ISP_HW_V32)
+#include "rk_aiq_user_api2_rv1106.h"
+#endif
+#include "uAPI2/rk_aiq_user_api2_helper.h"
+#include <string>
 
 static int g_cac_ver = 3;
 
@@ -25,6 +36,7 @@ static void sample_cac_usage() {
     printf("  Module API: \n");
     printf("\t a) CAC:         Set cac Attr & Sync .\n");
     printf("\t b) CAC:         Set cac Attr & Async .\n");
+    printf("\t c) CAC:         sample_cac_test. \n");
     printf("\t v) CAC:         Version selection. \n");
     printf("\n");
     printf("\t h) CAC:         help.\n");
@@ -142,6 +154,124 @@ static void sample_cac_v11_fill_params(rkaiq_cac_v11_api_attr_t* param,
     param->manual_param.expo_adj_b  = 1 << 10;
     param->manual_param.expo_adj_r  = 1 << 10;
 }
+
+#ifdef USE_NEWSTRUCT
+static void sample_cac_tuningtool_test(const rk_aiq_sys_ctx_t* ctx)
+{
+    char *ret_str = NULL;
+
+    printf(">>> start tuning tool test: op attrib get ...\n");
+
+    std::string json_cac_status_str = " \n\
+        [{ \n\
+            \"op\":\"get\", \n\
+            \"path\": \"/uapi/0/cac_uapi/info\", \n\
+            \"value\": \n\
+            { \"opMode\": \"RK_AIQ_OP_MODE_MANUAL\", \"en\": 0,\"bypass\": 3} \n\
+        }]";
+
+    rkaiq_uapi_unified_ctl(const_cast<rk_aiq_sys_ctx_t*>(ctx),
+                           const_cast<char*>(json_cac_status_str.c_str()), &ret_str, RKAIQUAPI_OPMODE_GET);
+
+    if (ret_str) {
+        printf("cac status json str: %s\n", ret_str);
+    }
+
+    printf("  start tuning tool test: op attrib set ...\n");
+    std::string json_cac_str = " \n\
+        [{ \n\
+            \"op\":\"replace\", \n\
+            \"path\": \"/uapi/0/cac_uapi/attr\", \n\
+            \"value\": \n\
+            { \"opMode\": \"RK_AIQ_OP_MODE_MANUAL\", \"en\": 1,\"bypass\": 1} \n\
+        }]";
+    printf("cac json_cmd_str: %s\n", json_cac_str.c_str());
+    ret_str = NULL;
+    rkaiq_uapi_unified_ctl(const_cast<rk_aiq_sys_ctx_t*>(ctx),
+                           const_cast<char*>(json_cac_str.c_str()), &ret_str, RKAIQUAPI_OPMODE_SET);
+
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    cac_status_t status;
+    memset(&status, 0, sizeof(cac_status_t));
+
+    rk_aiq_user_api2_cac_QueryStatus(ctx, &status);
+
+    if (status.opMode != RK_AIQ_OP_MODE_MANUAL || status.en != 1 || status.bypass != 1) {
+        printf("cac op set_attrib failed !\n");
+        printf("cac status: opmode:%d(EXP:%d), en:%d(EXP:%d), bypass:%d(EXP:%d)\n",
+               status.opMode, RK_AIQ_OP_MODE_MANUAL, status.en, 1, status.bypass, 1);
+    } else {
+        printf("cac op set_attrib success !\n");
+    }
+
+    printf(">>> tuning tool test done \n");
+}
+
+void get_auto_attr(cac_api_attrib_t* attr) {
+    cac_param_auto_t* stAuto = &attr->stAuto;
+    for (int i = 0;i < 13;i++) {
+    }
+}
+
+void get_manual_attr(cac_api_attrib_t* attr) {
+    cac_param_t* stMan = &attr->stMan;
+}
+
+int sample_cac_test(const rk_aiq_sys_ctx_t* ctx)
+{
+    // sample_cac_tuningtool_test(ctx);
+    // get cur mode
+    printf("+++++++ cac module test start ++++++++\n");
+
+    cac_api_attrib_t attr;
+    memset(&attr, 0, sizeof(attr));
+
+    rk_aiq_user_api2_cac_GetAttrib(ctx, &attr);
+
+    printf("cac attr: opmode:%d, en:%d, bypass:%d\n", attr.opMode, attr.en, attr.bypass);
+
+    srand(time(0));
+    int rand_num = rand() % 101;
+
+    if (rand_num <70) {
+        printf("update cac arrrib!\n");
+        if (attr.opMode == RK_AIQ_OP_MODE_AUTO) {
+            attr.opMode = RK_AIQ_OP_MODE_MANUAL;
+            get_manual_attr(&attr);
+        }
+        else {
+            get_auto_attr(&attr);
+            attr.opMode = RK_AIQ_OP_MODE_AUTO;
+        }
+    }
+    else {
+        // reverse en
+        printf("reverse cac en!\n");
+        attr.en = !attr.en;
+    }
+
+
+    rk_aiq_user_api2_cac_SetAttrib(ctx, &attr);
+
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    cac_status_t status;
+    memset(&status, 0, sizeof(cac_status_t));
+
+    rk_aiq_user_api2_cac_QueryStatus(ctx, &status);
+
+    printf("cac status: opmode:%d, en:%d, bypass:%d\n", status.opMode, status.en, status.bypass);
+
+    if (status.opMode != attr.opMode || status.en != attr.en)
+        printf("cac test failed\n");
+    printf("-------- cac module test done --------\n");
+
+    return 0;
+}
+#endif
 
 static int sample_cac_setcacAttr(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync) {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
@@ -354,6 +484,11 @@ XCamReturn sample_cac_module(const void* arg) {
                 usleep(40 * 1000);
                 sample_cac_getcacAttr(ctx);
                 break;
+#ifdef USE_NEWSTRUCT
+            case 'c':
+                sample_cac_test(ctx);
+                break;
+#endif
             default:
                 CLEAR();
                 sample_cac_usage();

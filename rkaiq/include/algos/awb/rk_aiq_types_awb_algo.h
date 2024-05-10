@@ -23,9 +23,12 @@
 #ifndef __RK_AIQ_TYPE_AWB_ALGO_H__
 #define __RK_AIQ_TYPE_AWB_ALGO_H__
 
-#include "rk_aiq_types_awb_stat_v200.h"
-#include "rk_aiq_types_awb_stat_v201.h"
-#include "rk_aiq_types_awb_stat_v32.h"
+#include "algos/awb/rk_aiq_types_awb_stat_v200.h"
+#include "algos/awb/rk_aiq_types_awb_stat_v201.h"
+#include "algos/awb/rk_aiq_types_awb_stat_v32.h"
+
+#include "isp/rk_aiq_stats_awb39.h"
+
 typedef struct rk_aiq_wb_gain_s {
     float rgain;
     float grgain;

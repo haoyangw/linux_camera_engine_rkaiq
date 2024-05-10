@@ -19,7 +19,7 @@
 
 #ifndef _RK_AIQ_TYPE_ABAYER2DNR_ALGO_V2_H_
 #define _RK_AIQ_TYPE_ABAYER2DNR_ALGO_V2_H_
-#include "abayer2dnr2/rk_aiq_types_abayer2dnr_hw_v2.h"
+#include "algos/abayer2dnr2/rk_aiq_types_abayer2dnr_hw_v2.h"
 
 RKAIQ_BEGIN_DECLARE
 

@@ -17,7 +17,7 @@
 #ifndef _RK_AIQ_API_TYPES_GAMMA_H_
 #define _RK_AIQ_API_TYPES_GAMMA_H_
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 #include "isp/rk_aiq_isp_gamma21.h"
 
 RKAIQ_BEGIN_DECLARE

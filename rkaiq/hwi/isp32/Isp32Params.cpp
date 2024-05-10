@@ -1091,6 +1091,27 @@ void Isp32Params::convertAiqAfLiteToIsp32Params(struct isp32_isp_params_cfg& isp
 }
 #endif
 #if RKAIQ_HAVE_CAC_V11
+#if USE_NEWSTRUCT
+void Isp32Params::convertAiqCacToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
+        struct isp32_isp_params_cfg& isp_cfg_right,
+        rk_aiq_isp_cac_params_t* cac_attr, bool is_multi_isp) {
+    // hwi_api_cac21_params_check(&cac_attr->result);
+
+    if (cac_attr->en) {
+        isp_cfg.module_ens |= ISP3X_MODULE_CAC;
+        isp_cfg.module_en_update |= ISP3X_MODULE_CAC;
+        isp_cfg.module_cfg_update |= ISP3X_MODULE_CAC;
+    } else {
+        isp_cfg.module_ens &= ~ISP3X_MODULE_CAC;
+        isp_cfg.module_en_update |= ISP3X_MODULE_CAC;
+        return;
+    }
+
+    // hwi_api_cac21_params_cvt(&cac_attr->result, &isp_cfg, &isp_cfg_right, is_multi_isp);
+    // hwi_api_cac21_params_dump(&cac_attr->result, &isp_cfg.others.cac_cfg);
+
+}
+#else
 void Isp32Params::convertAiqCacToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
         struct isp32_isp_params_cfg& isp_cfg_right,
         const rk_aiq_isp_cac_v32_t& cac_cfg, bool is_multi_isp) {
@@ -1145,6 +1166,7 @@ void Isp32Params::convertAiqCacToIsp32Params(struct isp32_isp_params_cfg& isp_cf
     LOGD_ACAC("expo_adj_r : %d",      cfg->expo_adj_r);
 #endif
 }
+#endif
 #endif
 
 #if RKAIQ_HAVE_BAYER2DNR_V23
@@ -1626,6 +1648,7 @@ void Isp32Params::convertAiqAdebayerToIsp32Params(struct isp32_isp_params_cfg& i
 #endif
 
 #if RKAIQ_HAVE_MERGE_V12
+#ifndef USE_NEWSTRUCT
 void Isp32Params::convertAiqMergeToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
         const rk_aiq_isp_merge_v32_t& amerge_data) {
     isp_cfg.module_en_update |= 1LL << RK_ISP2X_HDRMGE_ID;
@@ -1695,6 +1718,25 @@ void Isp32Params::convertAiqMergeToIsp32Params(struct isp32_isp_params_cfg& isp_
     }
 #endif
 }
+#else
+void Isp32Params::convertAiqMergeToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
+                                               rk_aiq_isp_merge_params_t* merge_attr){
+    // hwi_api_merge22_params_check(&merge_attr->result);
+
+    if (merge_attr->en) {
+        isp_cfg.module_ens |= ISP2X_MODULE_HDRMGE;
+        isp_cfg.module_en_update |= ISP2X_MODULE_HDRMGE;
+        isp_cfg.module_cfg_update |= ISP2X_MODULE_HDRMGE;
+    } else {
+        isp_cfg.module_ens &= ~ISP2X_MODULE_HDRMGE;
+        isp_cfg.module_en_update |= ISP2X_MODULE_HDRMGE;
+        return;
+    }
+
+    // hwi_api_merge22_params_cvt(&merge_attr->result, &isp_cfg);
+    // hwi_api_merge22_params_dump(&merge_attr->result, &isp_cfg.others.hdrmge_cfg);
+}
+#endif
 #endif
 
 #if RKAIQ_HAVE_DEHAZE_V12
@@ -2189,6 +2231,28 @@ void Isp32Params::convertAiqBlcToIsp32Params(struct isp32_isp_params_cfg& isp_cf
 #endif
 
 #if RKAIQ_HAVE_LDCH_V21
+#if USE_NEWSTRUCT
+void Isp32Params::convertAiqLdchToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
+        struct isp32_isp_params_cfg& isp_cfg_right,
+        rk_aiq_isp_ldch_params_t* ldch_attr,
+        bool is_multi_isp) {
+    // hwi_api_ldch22_params_check(&ldch_attr->result);
+
+    if (ldch_attr->en) {
+        isp_cfg.module_ens |= ISP32_MODULE_LDCH;
+        isp_cfg.module_en_update |= ISP32_MODULE_LDCH;
+        isp_cfg.module_cfg_update |= ISP32_MODULE_LDCH;
+    } else {
+        isp_cfg.module_ens &= ~ISP32_MODULE_LDCH;
+        isp_cfg.module_en_update |= ISP32_MODULE_LDCH;
+        return;
+    }
+
+    // hwi_api_ldch22_params_cvt(&ldch_attr->result, &isp_cfg, &isp_cfg_right, is_multi_isp);
+    // hwi_api_ldch22_params_dump(&ldch_attr->result, &isp_cfg.others.ldch_cfg);
+
+}
+#else
 void Isp32Params::convertAiqAldchToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
         struct isp32_isp_params_cfg& isp_cfg_right,
         const rk_aiq_isp_ldch_v21_t& ldch_cfg,
@@ -2229,6 +2293,7 @@ void Isp32Params::convertAiqAldchToIsp32Params(struct isp32_isp_params_cfg& isp_
         isp_cfg.module_en_update |= ISP32_MODULE_LDCH;
     }
 }
+#endif
 #endif
 
 void Isp32Params::convertAiqExpIspDgainToIsp32Params(struct isp32_isp_params_cfg& isp_cfg, RKAiqAecExpInfo_t ae_exp)
@@ -2330,7 +2395,30 @@ void Isp32Params::convertAiqGammaToIsp32Params(struct isp32_isp_params_cfg& isp_
         return;
     }
 
-    rk_aiq_gamma21_params_cvt(&gamma_attr->result, &isp_cfg);
+    // rk_aiq_gamma21_params_cvt(&gamma_attr->result, &isp_cfg);
+}
+#endif
+#endif
+
+#if RKAIQ_HAVE_LSC_V3
+#if USE_NEWSTRUCT
+void Isp32Params::convertAiqLscToIsp32Params(struct isp32_isp_params_cfg& isp_cfg,
+                                             rk_aiq_isp_lsc_params_t* lsc_attr) {
+    // hwi_api_lsc21_params_check(&lsc_attr->result);
+
+    if (lsc_attr->en) {
+        isp_cfg.module_ens |= ISP2X_MODULE_LSC;
+        isp_cfg.module_en_update |= ISP2X_MODULE_LSC;
+        isp_cfg.module_cfg_update |= ISP2X_MODULE_LSC;
+    } else {
+        isp_cfg.module_ens &= ~ISP2X_MODULE_LSC;
+        isp_cfg.module_en_update |= ISP2X_MODULE_LSC;
+        return;
+    }
+
+    // hwi_api_lsc21_params_cvt(&lsc_attr->result, &isp_cfg);
+    // hwi_api_lsc21_params_dump(&lsc_attr->result, &isp_cfg.others.lsc_cfg);
+
 }
 #endif
 #endif
@@ -2376,17 +2464,33 @@ bool Isp32Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult>& result, void* 
     break;
     case RESULT_TYPE_GIC_PARAM: {
 #if RKAIQ_HAVE_GIC_V2
+#if USE_NEWSTRUCT
+        RkAiqIspGicParamsProxy* params =
+            result.get_cast_ptr<RkAiqIspGicParamsProxy>();
+        if (params) {
+            convertAiqGicToIsp21Params(isp_cfg_p, params->data().ptr());
+        }
+#else
         RkAiqIspGicParamsProxy* params =
             result.get_cast_ptr<RkAiqIspGicParamsProxy>();
         if (params) convertAiqAgicToIsp21Params(isp_cfg, params->data()->result);
+#endif
 #endif
     }
     break;
     case RESULT_TYPE_LSC_PARAM: {
 #if RKAIQ_HAVE_LSC_V3
+#if USE_NEWSTRUCT
+        RkAiqIspLscParamsProxy* params =
+            result.get_cast_ptr<RkAiqIspLscParamsProxy>();
+        if (params) {
+            convertAiqLscToIsp32Params(isp_cfg, params->data().ptr());
+        }
+#else
         RkAiqIspLscParamsProxy* params =
             result.get_cast_ptr<RkAiqIspLscParamsProxy>();
         if (params) convertAiqLscToIsp20Params(isp_cfg, params->data()->result);
+#endif
 #endif
     }
     break;
@@ -2413,11 +2517,19 @@ bool Isp32Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult>& result, void* 
     break;
     case RESULT_TYPE_CAC_PARAM: {
 #if RKAIQ_HAVE_CAC_V11
+#if USE_NEWSTRUCT
+        RkAiqIspCacParamsProxy* params =
+            result.get_cast_ptr<RkAiqIspCacParamsProxy>();
+        if (params) {
+            convertAiqCacToIsp32Params(isp_cfg, isp_cfg_right, params->data().ptr(), is_multi_isp);
+        }
+#else
         RkAiqIspCacParamsProxy* params =
             result.get_cast_ptr<RkAiqIspCacParamsProxy>();
         if (params) {
             convertAiqCacToIsp32Params(isp_cfg, isp_cfg_right, params->data()->result, is_multi_isp);
         }
+#endif
 #endif
     }
     break;
@@ -2481,9 +2593,15 @@ bool Isp32Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult>& result, void* 
     break;
     case RESULT_TYPE_MERGE_PARAM: {
 #if RKAIQ_HAVE_MERGE_V12
-        RkAiqIspMergeParamsProxy* params =
-            result.get_cast_ptr<RkAiqIspMergeParamsProxy>();
-        if (params) convertAiqMergeToIsp32Params(isp_cfg, params->data()->result);
+#ifdef USE_NEWSTRUCT
+    RkAiqIspMergeParamsProxy* params =
+        result.get_cast_ptr<RkAiqIspMergeParamsProxy>();
+    if (params) convertAiqMergeToIsp32Params(isp_cfg, params->data().ptr());
+#else
+    RkAiqIspMergeParamsProxy* params =
+        result.get_cast_ptr<RkAiqIspMergeParamsProxy>();
+    if (params) convertAiqMergeToIsp32Params(isp_cfg, params->data()->result);
+#endif
 #endif
     }
     break;
@@ -2515,7 +2633,7 @@ bool Isp32Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult>& result, void* 
     }
     break;
     case RESULT_TYPE_LUT3D_PARAM: {
-#if RKAIQ_HAVE_3DLUT_V1
+#if RKAIQ_HAVE_3DLUT_V1 && !USE_NEWSTRUCT
         RkAiqIspLut3dParamsProxy* params =
             result.get_cast_ptr<RkAiqIspLut3dParamsProxy>();
         if (params) convertAiqA3dlutToIsp20Params(isp_cfg, params->data()->result);
@@ -2540,9 +2658,11 @@ bool Isp32Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult>& result, void* 
     break;
 
     case RESULT_TYPE_CSM_PARAM: {
+#ifndef USE_NEWSTRUCT
         RkAiqIspCsmParamsProxy* params =
             result.get_cast_ptr<RkAiqIspCsmParamsProxy>();
         if (params) convertAiqCsmToIsp21Params(isp_cfg, params->data()->result);
+#endif
     }
     break;
     case RESULT_TYPE_RAWNR_PARAM: {
@@ -2609,7 +2729,7 @@ bool Isp32Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult>& result, void* 
     }
     break;
     case RESULT_TYPE_GAIN_PARAM: {
-#if RKAIQ_HAVE_GAIN_V2
+#if RKAIQ_HAVE_GAIN_V2 && (USE_NEWSTRUCT == 0)
         RkAiqIspGainParamsProxy* params =
             result.get_cast_ptr<RkAiqIspGainParamsProxy>();
         if (params) convertAiqGainToIsp3xParams(isp_cfg, params->data()->result);
@@ -2631,7 +2751,7 @@ bool Isp32Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult>& result, void* 
     }
     break;
     case RESULT_TYPE_CGC_PARAM: {
-#if RKAIQ_HAVE_CGC_V1
+#if RKAIQ_HAVE_CGC_V1  && (USE_NEWSTRUCT == 0)
         RkAiqIspCgcParamsProxy* params =
             result.get_cast_ptr<RkAiqIspCgcParamsProxy>();
         if (params) convertAiqCgcToIsp21Params(isp_cfg, params->data()->result);
@@ -2639,7 +2759,7 @@ bool Isp32Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult>& result, void* 
     }
     break;
     case RESULT_TYPE_CP_PARAM: {
-#if RKAIQ_HAVE_ACP_V10
+#if RKAIQ_HAVE_ACP_V10  && (USE_NEWSTRUCT == 0)
         RkAiqIspCpParamsProxy* params =
             result.get_cast_ptr<RkAiqIspCpParamsProxy>();
         if (params) convertAiqCpToIsp20Params(isp_cfg, params->data()->result);
@@ -2647,7 +2767,7 @@ bool Isp32Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult>& result, void* 
     }
     break;
     case RESULT_TYPE_IE_PARAM: {
-#if RKAIQ_HAVE_AIE_V10
+#if RKAIQ_HAVE_AIE_V10 && (USE_NEWSTRUCT == 0)
         RkAiqIspIeParamsProxy* params =
             result.get_cast_ptr<RkAiqIspIeParamsProxy>();
         if (params) convertAiqIeToIsp20Params(isp_cfg, params->data()->result);
@@ -2657,9 +2777,17 @@ bool Isp32Params::convert3aResultsToIspCfg(SmartPtr<cam3aResult>& result, void* 
     case RESULT_TYPE_LDCH_PARAM:
     {
 #if RKAIQ_HAVE_LDCH_V21
+#if USE_NEWSTRUCT
+        RkAiqIspLdchParamsProxy* params =
+            result.get_cast_ptr<RkAiqIspLdchParamsProxy>();
+        if (params) {
+            convertAiqLdchToIsp32Params(isp_cfg, isp_cfg_right, params->data().ptr(), is_multi_isp);
+        }
+#else
         RkAiqIspLdchParamsProxy* params = result.get_cast_ptr<RkAiqIspLdchParamsProxy>();
         if (params)
             convertAiqAldchToIsp32Params(isp_cfg, isp_cfg_right, params->data()->result, is_multi_isp);
+#endif
 #endif
     }
     break;

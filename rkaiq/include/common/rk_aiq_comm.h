@@ -61,9 +61,71 @@ typedef enum RKAiqOPMode_e {
     RK_AIQ_OP_MODE_AUTO               = 1,                   /**< instance is created, but not initialized */
     RK_AIQ_OP_MODE_MANUAL             = 2,                   /**< instance is confiured (ready to start) or stopped */
     RK_AIQ_OP_MODE_MAX                                      /**< max */
-} RKAiqOPMode_t;
+} rk_aiq_op_mode_t;
 
-#define rk_aiq_op_mode_t RKAiqOPMode_t
+typedef enum _camAlgoResultType {
+    RESULT_TYPE_INVALID = -1,
+    RESULT_TYPE_EXPOSURE_PARAM,
+    RESULT_TYPE_AEC_PARAM,
+    RESULT_TYPE_HIST_PARAM,
+    RESULT_TYPE_AWB_PARAM,
+    RESULT_TYPE_AWBGAIN_PARAM,
+    RESULT_TYPE_AF_PARAM,
+    RESULT_TYPE_DPCC_PARAM,
+    RESULT_TYPE_MERGE_PARAM,
+    RESULT_TYPE_TMO_PARAM,
+    RESULT_TYPE_CCM_PARAM,
+    RESULT_TYPE_LSC_PARAM,
+    RESULT_TYPE_BLC_PARAM,
+    RESULT_TYPE_RAWNR_PARAM,
+    RESULT_TYPE_GIC_PARAM,
+    RESULT_TYPE_DEBAYER_PARAM,
+    RESULT_TYPE_LDCH_PARAM,
+    RESULT_TYPE_LUT3D_PARAM = 0x10,
+    RESULT_TYPE_DEHAZE_PARAM,
+    RESULT_TYPE_AGAMMA_PARAM,
+    RESULT_TYPE_ADEGAMMA_PARAM,
+    RESULT_TYPE_WDR_PARAM,
+    RESULT_TYPE_CSM_PARAM,
+    RESULT_TYPE_CGC_PARAM,
+    RESULT_TYPE_CONV422_PARAM,
+    RESULT_TYPE_YUVCONV_PARAM,
+    RESULT_TYPE_GAIN_PARAM,
+    RESULT_TYPE_CP_PARAM,
+    RESULT_TYPE_IE_PARAM,
+    RESULT_TYPE_MOTION_PARAM,
+    RESULT_TYPE_IRIS_PARAM,
+    RESULT_TYPE_CPSL_PARAM,
+    RESULT_TYPE_FLASH_PARAM,
+
+    RESULT_TYPE_TNR_PARAM = 0x20,
+    RESULT_TYPE_YNR_PARAM,
+    RESULT_TYPE_UVNR_PARAM,
+    RESULT_TYPE_CNR_PARAM = RESULT_TYPE_UVNR_PARAM,
+    RESULT_TYPE_SHARPEN_PARAM,
+    RESULT_TYPE_EDGEFLT_PARAM,
+    RESULT_TYPE_FEC_PARAM,
+    RESULT_TYPE_ORB_PARAM,
+
+    RESULT_TYPE_FOCUS_PARAM,
+
+    // isp21 result
+    RESULT_TYPE_DRC_PARAM = 0x28,
+    // isp3x result
+    RESULT_TYPE_CAC_PARAM = 0x29,
+    RESULT_TYPE_AFD_PARAM = 0x2a,
+    // isp39 result
+    RESULT_TYPE_RGBIR_PARAM = 0x2b,
+    RESULT_TYPE_TRANS_PARAM = 0x2c,
+    RESULT_TYPE_LDC_PARAM,
+    // new struct
+    RESULT_TYPE_AESTATS_PARAM,
+    RESULT_TYPE_HISTEQ_PARAM,
+    RESULT_TYPE_ENH_PARAM,
+    RESULT_TYPE_MAX_PARAM,
+} camAlgoResultType;
+
+#define RKAiqOPMode_t rk_aiq_op_mode_t
 
 #define ABS(a) (((a) > 0) ? (a) : (-(a)))
 #ifndef MIN
@@ -80,7 +142,9 @@ typedef enum RKAiqOPMode_e {
 #define CLIPBIT(a,b) ((a)>((1<<(b))-1)?((1<<(b))-1):(a))
 #define SWAP(_T_,A,B)                   { _T_ tmp = (A); (A) = (B); (B) = tmp; }
 #define MIN2(a, b) ((a) > (b) ? (b) : (a))
+#ifndef CLIP
 #define CLIP(a, min_v, max_v)               (((a) < (min_v)) ? (min_v) : (((a) > (max_v)) ? (max_v) : (a)))
+#endif
 #define ROUND_INT(x, shf_bit)               (int)((((x) > 0) ? 1 : -1) * ((ABS(x) + (1<<((shf_bit)-1)))>>(shf_bit)))
 #define LOG2(x)                             (log((double)x)                 / log((double)2))
 
@@ -539,6 +603,9 @@ extern int g_rkaiq_isp_hw_ver;
 
 #define CHECK_ISP_HW_V39() \
     (g_rkaiq_isp_hw_ver == 39 ? true : false)
+
+#define CHECK_ISP_HW_V33() \
+    (g_rkaiq_isp_hw_ver == 33 ? true : false)
 
 #define CHECK_ISP_HW_V3X() \
     (g_rkaiq_isp_hw_ver == 30 ? true : \

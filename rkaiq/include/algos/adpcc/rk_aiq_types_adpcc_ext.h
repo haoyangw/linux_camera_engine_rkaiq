@@ -20,7 +20,7 @@
 #ifndef __RK_AIQ_TYPES_ADPCC_EXT_H__
 #define __RK_AIQ_TYPES_ADPCC_EXT_H__
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 #define CALIBDB_MAX_ISO_LEVEL          13
 #define CALIBDB_NR_SHARP_MAX_ISO_LEVEL CALIBDB_MAX_ISO_LEVEL

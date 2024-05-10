@@ -277,7 +277,8 @@ RkEventPollThread::poll_event_loop ()
     }
     xcam_mem_clear (_event);
 
-    ret = _dev->dequeue_event (_event);
+    ret = _dev->dequeue_event(_event);
+
     if (ret != XCAM_RETURN_NO_ERROR) {
         XCAM_LOG_WARNING ("dequeue event failed on dev:%s", XCAM_STR(_dev->get_device_name()));
         return XCAM_RETURN_ERROR_IOCTL;
@@ -690,6 +691,7 @@ RKAiispEventStream::close_aiisp()
     }
     int mun_ret = munmap(iir_address, bay3dbuf.iir_size);
     mun_ret = munmap(gain_address, bay3dbuf.u.v39.gain_size);
+    mun_ret = munmap(aiisp_address, bay3dbuf.u.v39.aiisp_size);
     LOGK_CAMHW_SUBM(ISP20HW_SUBM, "close aiisp success");
     return XCAM_RETURN_NO_ERROR;
 }
@@ -721,6 +723,14 @@ RKAiispEventStream::get_aiisp_bay3dbuf()
         return XCAM_RETURN_ERROR_FAILED;
     }
     LOGK_CAMHW_SUBM(ISP20HW_SUBM, "gain_fd %d, gain_size %d", gain_fd, gain_size);
+    int aiisp_fd = bay3dbuf.u.v39.aiisp_fd;
+    int aiisp_size = bay3dbuf.u.v39.aiisp_size;
+    aiisp_address = (char*)mmap(NULL, aiisp_size, PROT_READ | PROT_WRITE, MAP_SHARED, aiisp_fd, 0);
+    if (MAP_FAILED == aiisp_address) {
+        LOGE_CAMHW_SUBM(ISP20HW_SUBM, "aiisp_fd mmap failed");
+        return XCAM_RETURN_ERROR_FAILED;
+    }
+    LOGK_CAMHW_SUBM(ISP20HW_SUBM, "aiisp_fd %d, aiisp_size %d", aiisp_fd, aiisp_size);
     return XCAM_RETURN_NO_ERROR;
 }
 
@@ -731,12 +741,14 @@ RKAiispEventStream::new_video_buffer(struct v4l2_event &event,
     ENTER_CAMHW_FUNCTION();
     SmartPtr<VideoBuffer> video_buf = nullptr;
     rkisp_aiisp_ev_info* aiisp_ev_info = (rkisp_aiisp_ev_info*)event.u.data;
+    LOGD_CAMHW_SUBM(ISP20HW_SUBM,"event.type %d _frameid %d\n", event.type, aiisp_ev_info->sequence);
     SmartPtr<AiispEventData> evtdata = new AiispEventData();
     evtdata->_height = aiisp_ev_info->height;
     evtdata->_frameid = aiisp_ev_info->sequence;
     evtdata->bay3dbuf = bay3dbuf;
     evtdata->iir_address = iir_address;
     evtdata->gain_address = gain_address;
+    evtdata->aiisp_address = aiisp_address;
 
     video_buf = new AiispEventBuffer(evtdata, dev);
     if (event.type != RKISP_V4L2_EVENT_AIISP_LINECNT) {

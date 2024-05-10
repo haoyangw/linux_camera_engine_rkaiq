@@ -18,10 +18,10 @@
 #ifndef _SAMPLE_AWB_MODULE_H_
 #define _SAMPLE_AWB_MODULE_H_
 
-#include "base/xcam_common.h"
+#include "xcore/base/xcam_common.h"
 
 void sample_print_awb_info(const void *arg);
-void sample_print_awb32_info(const void *arg);
 XCamReturn sample_awb_module(const void *arg);
-XCamReturn sample_awb32_module(const void *arg);
+void sample_awb_case(const rk_aiq_sys_ctx_t* ctx);
+
 #endif

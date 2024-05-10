@@ -20,7 +20,7 @@
 #ifndef _RK_AIQ_TYPES_ACCM_ALGO_H_
 #define _RK_AIQ_TYPES_ACCM_ALGO_H_
 
-#include "accm/rk_aiq_types_accm_hw.h"
+#include "algos/accm/rk_aiq_types_accm_hw.h"
 
 RKAIQ_BEGIN_DECLARE
 

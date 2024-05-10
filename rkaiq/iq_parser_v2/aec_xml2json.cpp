@@ -279,7 +279,6 @@ void convertSensorinfoCalibV1ToCalibV2(const CamCalibDbContext_t *calib, CalibDb
             sensor_info->Gain2Reg.GainMode = EXPGAIN_MODE_NONLINEAR_DB;
 
         sensor_info->Gain2Reg.GainRange_len = sensor_xml.GainRange.array_size;
-        sensor_info->Gain2Reg.GainRange = (float*)malloc(sensor_info->Gain2Reg.GainRange_len * sizeof(float));
         memcpy(sensor_info->Gain2Reg.GainRange, sensor_xml.GainRange.pGainRange, sensor_info->Gain2Reg.GainRange_len * sizeof(float));
 
         sensor_info->Time2Reg.fCoeff[0] = sensor_xml.TimeFactor[0];
@@ -369,7 +368,6 @@ void convertSensorinfoCalibV1ToCalibV2(const CamCalibDbContext_t *calib, CalibDb
             sensor_info->Gain2Reg.GainMode = EXPGAIN_MODE_NONLINEAR_DB;
 
         sensor_info->Gain2Reg.GainRange_len = sensorinfo_xml.Gain2Reg.array_size;
-        sensor_info->Gain2Reg.GainRange = (float*)malloc(sensor_info->Gain2Reg.GainRange_len * sizeof(float));
         memcpy(sensor_info->Gain2Reg.GainRange, sensorinfo_xml.Gain2Reg.pGainRange, sensor_info->Gain2Reg.GainRange_len * sizeof(float));
 
         sensor_info->Time2Reg.fCoeff[0] = sensorinfo_xml.Time2Reg[0];

@@ -53,15 +53,18 @@
 #include "aynr3/rk_aiq_aynr_algo_itf_v3.h"
 #include "aynrV22/rk_aiq_aynr_algo_itf_v22.h"
 #include "afd/rk_aiq_algo_afd_itf.h"
-#ifdef ISP_HW_V32
+#if defined(ISP_HW_V32) && USE_NEWSTRUCT
 #include "newStruct/demosaic/include/demosaic_algo_api.h"
 #include "newStruct/bayertnr/include/bayertnr_algo_api.h"
 #include "newStruct/gamma/include/gamma_algo_api.h"
 #include "newStruct/ynr/include/ynr_algo_api.h"
 #include "newStruct/drc/include/drc_algo_api.h"
 #include "newStruct/dehaze/include/dehaze_algo_api.h"
+#include "newStruct/cac/include/cac_algo_api.h"
+#include "newStruct/ldch/include/ldch_algo_api.h"
+#include "newStruct/merge/include/merge_algo_api.h"
+#include "newStruct/lsc/include/lsc_algo_api.h"
 #endif
-
 
 #if RKAIQ_ENABLE_CAMGROUP
 #include "algos_camgroup/abayer2dnrV23/rk_aiq_algo_camgroup_abayer2dnr_itf_v23.h"
@@ -178,7 +181,11 @@ static struct RkAiqAlgoDesCommExt g_default_3a_des[] = {
 #endif
 #if defined(ISP_HW_V32)
 #if RKAIQ_HAVE_CAC_V11
+#ifndef USE_NEWSTRUCT
     { &g_RkIspAlgoDescAcac.common,          RK_AIQ_CORE_ANALYZE_GRP0,   0, 0, 11,   grp0Conds          },
+#else
+    { &g_RkIspAlgoDescCac.common,          RK_AIQ_CORE_ANALYZE_GRP0,   0, 0, 0,   grp0Conds          },
+#endif
 #endif
 #endif
 
@@ -208,7 +215,11 @@ static struct RkAiqAlgoDesCommExt g_default_3a_des[] = {
 #endif
 #endif
 #if RKAIQ_HAVE_MERGE_V12
+#ifndef USE_NEWSTRUCT
     { &g_RkIspAlgoDescAmerge.common,        RK_AIQ_CORE_ANALYZE_GRP0,   0, 0, 0,    grp0Conds          },
+#else
+    { &g_RkIspAlgoDescMerge.common,        RK_AIQ_CORE_ANALYZE_GRP0,   0, 0, 0,    grp0Conds          },
+#endif
 #endif
 #if RKAIQ_HAVE_DRC_V12 || RKAIQ_HAVE_DRC_V12_LITE
 #ifndef USE_NEWSTRUCT
@@ -227,7 +238,11 @@ static struct RkAiqAlgoDesCommExt g_default_3a_des[] = {
     { &g_RkIspAlgoDescA3dlut.common,        RK_AIQ_CORE_ANALYZE_GRP1,   0, 0, 0,    grp0Conds          },
 #endif
 #if RKAIQ_HAVE_LSC_V3
+#ifndef USE_NEWSTRUCT
     { &g_RkIspAlgoDescAlsc.common,          RK_AIQ_CORE_ANALYZE_GRP1,   0, 0, 0,    grp0Conds          },
+#else
+    { &g_RkIspAlgoDescLsc.common,           RK_AIQ_CORE_ANALYZE_GRP1,   0, 0, 0,    grp0Conds          },
+#endif
 #endif
 #if RKAIQ_HAVE_DPCC_V1
 #ifndef USE_NEWSTRUCT
@@ -251,7 +266,11 @@ static struct RkAiqAlgoDesCommExt g_default_3a_des[] = {
     { &g_RkIspAlgoDescAie.common,           RK_AIQ_CORE_ANALYZE_OTHER,  0, 0, 0,    otherGrpCondsV3x   },
 #endif
 #if RKAIQ_HAVE_LDCH_V21
-    { &g_RkIspAlgoDescAldch.common,         RK_AIQ_CORE_ANALYZE_OTHER,  0, 0, 0,    otherGrpCondsV3x   },
+#ifndef USE_NEWSTRUCT
+    { &g_RkIspAlgoDescAldch.common,         RK_AIQ_CORE_ANALYZE_OTHER,  0, 0, 0,    otherGrpCondsV3x },
+#else
+    { &g_RkIspAlgoDescLdch.common,         RK_AIQ_CORE_ANALYZE_OTHER,  0, 0, 0,    otherGrpCondsV3x },
+#endif
 #endif
 #if RKAIQ_HAVE_CGC_V1
     { &g_RkIspAlgoDescAcgc.common,          RK_AIQ_CORE_ANALYZE_OTHER,  0, 0, 0,    otherGrpCondsV3x   },
@@ -267,7 +286,11 @@ static struct RkAiqAlgoDesCommExt g_default_3a_des[] = {
 #endif
 #if defined(ISP_HW_V32)
 #if RKAIQ_HAVE_GIC_V2
+#if USE_NEWSTRUCT
+    { &g_RkIspAlgoDescGic.common,           RK_AIQ_CORE_ANALYZE_OTHER,  0, 1, 0,    otherGrpCondsV3x   },
+#else
     { &g_RkIspAlgoDescAgic.common,          RK_AIQ_CORE_ANALYZE_OTHER,  0, 1, 0,    otherGrpCondsV3x   },
+#endif
 #endif
 #endif
 #if defined(ISP_HW_V32)

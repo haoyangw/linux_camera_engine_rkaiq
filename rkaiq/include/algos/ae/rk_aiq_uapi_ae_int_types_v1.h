@@ -1,8 +1,8 @@
 #ifndef _RK_AIQ_UAPI_AE_INT_TYPES_V1_H_
 #define _RK_AIQ_UAPI_AE_INT_TYPES_V1_H_
-#include "rk_aiq_algo_des.h"
-#include "rk_aiq_types_ae_algo_int.h"
-#include "RkAiqCalibDbTypes.h"
+#include "algos/rk_aiq_algo_des.h"
+#include "algos/ae/rk_aiq_types_ae_algo_int.h"
+#include "iq_parser/RkAiqCalibDbTypes.h"
 
 /***************************  ATTENTION:  ************************************/
 /*

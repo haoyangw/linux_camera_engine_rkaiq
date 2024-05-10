@@ -18,56 +18,30 @@
 #ifndef __SCENE_MANAGER_H__
 #define __SCENE_MANAGER_H__
 
-#include <iostream>
-#include <map>
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 #include "RkAiqCalibDbTypesV2.h"
 #include "RkAiqCalibDbV2Helper.h"
 #include "cJSON.h"
 #include "cJSON_Utils.h"
 
-namespace RkCam {
+cJSON *RkAiqSceneManagerLoadIQFile(const char *name);
+CamCalibDbV2Context_t RkAiqSceneManagerRefToScene(CamCalibDbProj_t *calibproj,
+                                                  const char *main_scene,
+                                                  const char *sub_scene);
+cJSON *RkAiqSceneManagerFindMainScene(cJSON *base_json, const char *name);
+cJSON *RkAiqSceneManagerFindSubScene(cJSON *json, const char *main_scene,
+                                     const char *sub_scene);
+CamCalibDbV2Context_t* RkAiqSceneManagerCreateSceneCalib(CamCalibDbProj_t *calibproj,
+                                                         const char *main_scene,
+                                                         const char *sub_scene);
+cJSON *RkAiqSceneManagerMergeMultiSceneIQ(cJSON *base_json);
 
-typedef std::pair<std::string, std::string> AiqScene;
-
-class RkAiqSceneManager {
-public:
-  explicit RkAiqSceneManager() = default;
-  ~RkAiqSceneManager() = default;
-
-public:
-  static cJSON *loadIQFile(const char *name);
-  static int addScene(const char *name, const char *base, const char *fragment);
-  static int addScene(const char *name, AiqScene scene);
-  static AiqScene matchScene(const char *name);
-  static const char *getSceneIQ(AiqScene scene);
-  static const char *getSceneIQ(const char *scene);
-  static const char *getSceneIQ(const char *base, const char *fragment);
-
-  static int addScene(CamCalibDbProj_t *calibproj, const char *main_scene,
-                      const char *sub_scene, CamCalibDbV2Context_t *calib);
-  static CamCalibDbV2Context_t refToScene(CamCalibDbProj_t *calibproj,
-                                           const char *main_scene,
-                                           const char *sub_scene);
-
-  static cJSON *findMainScene(cJSON *base_json, const char *name);
-  static cJSON *findSubScene(cJSON *main_json, const char *name);
-  static cJSON *findSubScene(cJSON *json, const char *main_scene,
-                             const char *sub_scene);
-
-  static CamCalibDbV2Context_t* createSceneCalib(CamCalibDbProj_t *calibproj,
-                                                 const char *main_scene,
-                                                 const char *sub_scene);
-
-  static cJSON *mergeSubMultiScene(cJSON *sub_scene_list,
-                                   cJSON* full_param, bool skip);
-  static cJSON *mergeMainMultiScene(cJSON *main_scene_list);
-  static cJSON *mergeMultiSceneIQ(cJSON *base_json);
-
-private:
-  static std::map<std::string, AiqScene> sceneMap;
-};
-
-} // namespace RkCam
+#ifdef __cplusplus
+}
+#endif
 
 #endif /*__SCENE_MANAGER_H__*/

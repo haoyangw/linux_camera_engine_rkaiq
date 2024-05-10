@@ -37,7 +37,7 @@
 #endif
 #include "thumbnails.h"
 #include "CifScaleStream.h"
-#include "anr/rk_aiisp.h"
+#include "algos/aiisp/rk_aiisp.h"
 
 #include <unordered_map>
 
@@ -115,6 +115,7 @@ public:
     virtual void setCalib(const CamCalibDbV2Context_t* calibv2) override;
     virtual XCamReturn applyAnalyzerResult(SmartPtr<SharedItemBase> base, bool sync) override;
     virtual XCamReturn applyAnalyzerResult(cam3aResultList& list) override;
+    virtual XCamReturn setUserOtpInfo(rk_aiq_user_otp_info_t otp_info) override;
     XCamReturn setModuleCtl(rk_aiq_module_id_t moduleId, bool en) override;
     XCamReturn getModuleCtl(rk_aiq_module_id_t moduleId, bool& en) override;
     XCamReturn notify_capture_raw() override;
@@ -170,6 +171,7 @@ public:
     XCamReturn showOtpAfData(struct rkmodule_af_inf *otp_af);
 #if RKAIQ_HAVE_PDAF
     bool get_pdaf_support() override;
+    PdafSensorType_t get_pdaf_type() override;
 #endif
     virtual XCamReturn setIspStreamMode(rk_isp_stream_mode_t mode) override {
         if (mode == RK_ISP_STREAM_MODE_ONLNIE) {
@@ -203,6 +205,7 @@ public:
     void setListenStrmEvt(bool isListen) {
         mIsListenStrmEvt = isListen;
     }
+    XCamReturn setSnsSyncMode(uint32_t mode);
 private:
     using V4l2Device::start;
 
@@ -322,7 +325,7 @@ protected:
     virtual bool isOnlineByWorkingMode();
     virtual XCamReturn setAiispMode(rk_aiq_aiisp_cfg_t* aiisp_cfg) override;
 #if defined(ISP_HW_V39)
-    virtual XCamReturn process_aiisp_restriction(struct isp39_isp_params_cfg* isp_params);
+    virtual XCamReturn process_restriction(struct isp39_isp_params_cfg* isp_params);
     virtual XCamReturn aiisp_processing(rk_aiq_aiisp_t* aiisp_evt) override;
 #endif
     enum mipi_stream_idx {
@@ -342,6 +345,7 @@ protected:
     rk_aiq_rotation_t _sharp_fbc_rotation;
 
     rk_aiq_ldch_share_mem_info_t ldch_mem_info_array[2 * ISP2X_MESH_BUF_NUM];
+    rk_aiq_ldcv_share_mem_info_t ldcv_mem_info_array[2 * ISP2X_MESH_BUF_NUM];
     rk_aiq_fec_share_mem_info_t fec_mem_info_array[FEC_MESH_BUF_NUM];
     rk_aiq_cac_share_mem_info_t cac_mem_info_array[2 * ISP3X_MESH_BUF_NUM];
     rk_aiq_dbg_share_mem_info_t dbg_mem_info_array[2 * RKISP_INFO2DDR_BUF_MAX];
@@ -351,6 +355,7 @@ protected:
         rk_aiq_drv_share_mem_type_t type;
     } drv_share_mem_ctx_t;
     drv_share_mem_ctx_t _ldch_drv_mem_ctx;
+    drv_share_mem_ctx_t _ldcv_drv_mem_ctx;
     drv_share_mem_ctx_t _fec_drv_mem_ctx;
     drv_share_mem_ctx_t _cac_drv_mem_ctx;
     drv_share_mem_ctx_t _dbg_drv_mem_ctx;

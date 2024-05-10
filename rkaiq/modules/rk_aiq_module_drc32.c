@@ -18,7 +18,7 @@
 
 void rk_aiq_drc32_params_cvt(void* attr, struct isp32_isp_params_cfg* isp_cfg)
 {
-    struct isp32_drc_cfg *phwcfg = &isp_cfg->others.drc_cfg;
+    struct isp32_drc_cfg *phwcfg = &isp_params->isp_cfg->others.drc_cfg;
     drc_param_t *drc_attrib = (drc_param_t*) attr;
     drc_params_static_t* psta = &drc_attrib->sta;
     drc_params_dyn_t* pdyn = &drc_attrib->dyn;

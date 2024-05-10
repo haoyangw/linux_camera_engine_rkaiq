@@ -19,7 +19,7 @@
 
 #ifndef _RK_AIQ_TYPES_A3DLUT_ALGO_H_
 #define _RK_AIQ_TYPES_A3DLUT_ALGO_H_
-#include "a3dlut/rk_aiq_types_a3dlut_hw.h"
+#include "algos/a3dlut/rk_aiq_types_a3dlut_hw.h"
 
 RKAIQ_BEGIN_DECLARE
 

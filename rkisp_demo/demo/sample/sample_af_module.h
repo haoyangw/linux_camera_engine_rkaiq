@@ -18,9 +18,8 @@
 #ifndef _SAMPLE_AF_MODULE_H_
 #define _SAMPLE_AF_MODULE_H_
 
-#include "base/xcam_common.h"
-
+#include "xcore/base/xcam_common.h"
 void sample_print_af_info(const void *arg);
 XCamReturn sample_af_module(const void *arg);
-
+void sample_af_case(const rk_aiq_sys_ctx_t* ctx);
 #endif

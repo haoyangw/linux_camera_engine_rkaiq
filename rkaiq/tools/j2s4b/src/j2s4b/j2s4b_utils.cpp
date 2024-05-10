@@ -17,8 +17,6 @@
 
 #include <sys/stat.h>
 
-using namespace RkCam;
-
 #define J2S_POOL_SIZE (2048 * 1024)
 
 static int aligned_size(int ori_size, int alig) {
@@ -176,16 +174,16 @@ char *j2s_dump_struct(j2s_ctx *ctx, const char *name, void *ptr) {
   if (ctx->dump_enums) {
     item = j2s_enums_to_json(ctx);
     if (item)
-      cJSON_AddItemToObject(json, "@enum", item);
+      RkCam_cJSON_AddItemToObject(json, "@enum", item);
   }
 
   if (ctx->format_json) {
-    buf = cJSON_Print(json);
+    buf = RkCam_cJSON_Print(json);
   } else {
-    buf = cJSON_PrintUnformatted(json);
+    buf = RkCam_cJSON_PrintUnformatted(json);
   }
 
-  cJSON_Delete(json);
+  RkCam_cJSON_Delete(json);
   return buf;
 }
 
@@ -194,14 +192,14 @@ int j2s_modify_struct(j2s_ctx *ctx, const char *str, const char *name,
   cJSON *json;
   int ret = -1;
 
-  json = cJSON_Parse(str);
+  json = RkCam_cJSON_Parse(str);
   DASSERT_MSG(json, return -1, "failed to parse: '%s'\n", str);
 
   DBG("Modify:\n%s\n", str);
 
   ret = j2s_json_to_struct(ctx, json, name, ptr);
 
-  cJSON_Delete(json);
+  RkCam_cJSON_Delete(json);
   return ret;
 }
 
@@ -209,23 +207,23 @@ char *j2s_query_struct(j2s_ctx *ctx, const char *str, void *ptr) {
   cJSON *json;
   char *buf;
 
-  json = cJSON_Parse(str);
+  json = RkCam_cJSON_Parse(str);
   DASSERT_MSG(json, return NULL, "failed to parse: '%s'\n", str);
 
   DBG("Query:\n%s\n", str);
 
   if (j2s_json_from_root_struct(ctx, json, ptr) < 0) {
-    cJSON_Delete(json);
+    RkCam_cJSON_Delete(json);
     return NULL;
   }
 
   if (ctx->format_json) {
-    buf = cJSON_Print(json);
+    buf = RkCam_cJSON_Print(json);
   } else {
-    buf = cJSON_PrintUnformatted(json);
+    buf = RkCam_cJSON_PrintUnformatted(json);
   }
 
-  cJSON_Delete(json);
+  RkCam_cJSON_Delete(json);
   return buf;
 }
 
@@ -246,16 +244,16 @@ char *j2s_dump_template_struct(j2s_ctx *ctx, const char *name) {
   if (ctx->dump_enums) {
     item = j2s_enums_to_json(ctx);
     if (item)
-      cJSON_AddItemToObject(json, "@enum", item);
+      RkCam_cJSON_AddItemToObject(json, "@enum", item);
   }
 
   if (ctx->format_json) {
-    buf = cJSON_Print(json);
+    buf = RkCam_cJSON_Print(json);
   } else {
-    buf = cJSON_PrintUnformatted(json);
+    buf = RkCam_cJSON_PrintUnformatted(json);
   }
 
-  cJSON_Delete(json);
+  RkCam_cJSON_Delete(json);
   return buf;
 }
 
@@ -268,7 +266,7 @@ char *j2s_dump_structs(j2s_ctx *ctx, j2s_struct_info *info) {
 
   DBG("Dump structs\n");
 
-  json = cJSON_CreateObject();
+  json = RkCam_cJSON_CreateObject();
   DASSERT(json, return NULL);
 
   for (; info->name; info++) {
@@ -276,21 +274,21 @@ char *j2s_dump_structs(j2s_ctx *ctx, j2s_struct_info *info) {
     if (!item)
       continue;
 
-    cJSON_AddItemToObject(json, info->name, item);
+    RkCam_cJSON_AddItemToObject(json, info->name, item);
   }
 
   if (ctx->dump_enums) {
     item = j2s_enums_to_json(ctx);
     if (item)
-      cJSON_AddItemToObject(json, "@enum", item);
+      RkCam_cJSON_AddItemToObject(json, "@enum", item);
   }
 
   if (ctx->format_json) {
-    buf = cJSON_Print(json);
+    buf = RkCam_cJSON_Print(json);
   } else {
-    buf = cJSON_PrintUnformatted(json);
+    buf = RkCam_cJSON_PrintUnformatted(json);
   }
 
-  cJSON_Delete(json);
+  RkCam_cJSON_Delete(json);
   return buf;
 }

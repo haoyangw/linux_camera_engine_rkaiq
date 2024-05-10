@@ -38,9 +38,14 @@ protected:
     void convertAiqBlcToIsp21Params(T& isp_cfg,
                                     rk_aiq_isp_blc_v21_t &blc);
 #endif
+#ifdef USE_NEWSTRUCT
+    void convertAiqGicToIsp21Params(void *isp_cfg,
+                                     rk_aiq_isp_gic_params_t *gic_attr);
+#else
     template<class T>
     void convertAiqAgicToIsp21Params(T& isp_cfg,
                                      const rk_aiq_isp_gic_v21_t& gic_cfg);
+#endif
 #if RKAIQ_HAVE_AWB_V21
     template<class T>
     void convertAiqAwbGainToIsp21Params(T& isp_cfg,
@@ -50,9 +55,14 @@ protected:
     template<class T>
     void convertAiqCsmToIsp21Params(T& isp_cfg,
                                     const rk_aiq_acsm_params_t& csm_cfg);
+#ifdef USE_NEWSTRUCT
+    void convertAiqCgcToIsp21Params(void *isp_cfg,
+                                     rk_aiq_isp_cgc_params_t *cgc_attr);
+#else
     template<class T>
     void convertAiqCgcToIsp21Params(T& isp_cfg,
                                     const rk_aiq_acgc_params_t& cgc_param);
+#endif
     void convertAiqExpIspDgainToIspParams(void* isp_cfg_, RKAiqAecExpInfo_t ae_exp);
 
 private:

@@ -18,7 +18,7 @@
 #ifndef __AMERGE_UAPI_HEAD_H__
 #define __AMERGE_UAPI_HEAD_H__
 
-#include "amerge_head.h"
+#include "iq_parser_v2/amerge_head.h"
 
 #ifdef __cplusplus
 extern "C" {

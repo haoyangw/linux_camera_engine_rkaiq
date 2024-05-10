@@ -44,33 +44,83 @@
 #define     RKCNR_V31_CLIP_RADIUS               1
 #define     cnr_422_5x5_gaus                    0 // 422: 5x3 or 5x5 gaussian filter
 
+// global alpha fix bit
+#define     RKCNR_V32_FIX_BIT_GLOBAL_ALPHA      10
+
 #define Math_LOG2(x)    (log((double)x)   / log((double)2))
 
-void rk_aiq_cnr34_params_cvt(void* attr, struct isp39_isp_params_cfg* isp_cfg, common_cvt_info_t *cvtinfo)
+void cnr_gauss7x1_filter_coeff(float sigma, int* gstab, int coef_bit)
+{
+    int halfx = 7;
+    int centerx = halfx / 2;
+    int gausstab[7 * 1];
+    int i, j, sumc;
+    float tmpf0, tmpf1;
+    float tmpf2, gausstabf[7 * 1];
+    int gstabidx[7 * 1] =
+    { 0, 1, 2, 3, 2, 1, 0 };
+
+    tmpf2 = 0;
+    sumc = 0;
+
+    for (j = 0; j < halfx; j++)
+    {
+        tmpf0 = (float)((j - centerx) * (j - centerx));
+        tmpf0 = tmpf0 / (2 * sigma * sigma);
+        tmpf1 = expf(-tmpf0);
+        tmpf2 = tmpf2 + tmpf1;
+        gausstabf[j] = tmpf1;
+    }
+
+    for (j = 0; j < halfx; j++)
+    {
+        gausstab[j] = (int)(gausstabf[j]  * (1 << coef_bit));
+    }
+
+
+    for (j = 0; j < halfx; j++)
+    {
+        gstab[gstabidx[j]] = gausstab[j];
+#if 0
+        printf("gaus7x5 gstabidx[%d]: 0x%x coefMax:0x%x\n", gstabidx[j], gstab[gstabidx[j]], 1 << coef_bit);
+#endif
+    }
+
+}
+
+void rk_aiq_cnr34_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_info_t *cvtinfo)
 {
     float fStrength = 1.0;
     int i, tmp;
-    struct isp39_cnr_cfg *pFix = &isp_cfg->others.cnr_cfg;
+
+#if RKAIQ_HAVE_CNR_V31
+    struct isp39_cnr_cfg *pFix = &isp_params->isp_cfg->others.cnr_cfg;
+#elif RKAIQ_HAVE_CNR_V35
+    struct isp33_cnr_cfg *pFix = &isp_params->isp_cfg->others.cnr_cfg;
+#endif
     cnr_param_t *cnr_param = (cnr_param_t *) attr;
     cnr_params_dyn_t* pdyn = &cnr_param->dyn;
     int rows = cvtinfo->rawHeight;
     int cols = cvtinfo->rawWidth;
 
     // CNR_CTRL
-    pFix->hiflt_wgt0_mode = pdyn->hiNr_bifilt.hw_cnrT_filtWgtZero_mode;
     if (pdyn->loNrGuide_preProc.hw_cnrT_ds_mode == cnr_ds_4x4_mode )  {
         pFix->thumb_mode = 1;
     } else {
         pFix->thumb_mode = 3;
     }
     pFix->yuv422_mode = 0;
-    //pFix->exgain_bypass = pSelect->hw_cnrT_exgain_bypass;
-	pFix->loflt_coeff = (pdyn->loNrGuide_iirFilt.hw_cnrT_filtSpatial_wgt[0]& 0x01 << 0)
-					| ((pdyn->loNrGuide_iirFilt.hw_cnrT_filtSpatial_wgt[1] & 0x01) << 1)
-					| ((pdyn->loNrGuide_iirFilt.hw_cnrT_filtSpatial_wgt[2] & 0x01) << 2)
-					| ((pdyn->loNrGuide_iirFilt.hw_cnrT_filtSpatial_wgt[2] & 0x01) << 3)
-					| ((pdyn->loNrGuide_iirFilt.hw_cnrT_filtSpatial_wgt[1] & 0x01) << 4)
-					| ((pdyn->loNrGuide_iirFilt.hw_cnrT_filtSpatial_wgt[0] & 0x01) << 5);
+    // pFix->exgain_bypass = pSelect->hw_cnrT_exgain_bypass;
+    pFix->hiflt_wgt0_mode = pdyn->hiNr_bifilt.hw_cnrT_filtWgtZero_mode;
+#if RKAIQ_HAVE_CNR_V35
+    pFix->local_alpha_dis = !pdyn->hiNr_locFiltAlpha.hw_cnrT_locFiltAlpha_en;
+#endif
+    pFix->loflt_coeff = (pdyn->loNrGuide_iirFilt.hw_cnrT_filtSpatial_wgt[0] & 0x01 << 0)
+                        | ((pdyn->loNrGuide_iirFilt.hw_cnrT_filtSpatial_wgt[1] & 0x01) << 1)
+                        | ((pdyn->loNrGuide_iirFilt.hw_cnrT_filtSpatial_wgt[2] & 0x01) << 2)
+                        | ((pdyn->loNrGuide_iirFilt.hw_cnrT_filtSpatial_wgt[2] & 0x01) << 3)
+                        | ((pdyn->loNrGuide_iirFilt.hw_cnrT_filtSpatial_wgt[1] & 0x01) << 4)
+                        | ((pdyn->loNrGuide_iirFilt.hw_cnrT_filtSpatial_wgt[0] & 0x01) << 5);
 
     // CNR_EXGAIN
     tmp = pdyn->locSgmStrg.hw_cnrT_locSgmStrg_scale * (1 << RKCNR_V31_GAIN_ISO_FIX_BITS);
@@ -100,6 +150,12 @@ void rk_aiq_cnr34_params_cvt(void* attr, struct isp39_isp_params_cfg* isp_cfg, c
 
     /* CNR_LBF_WEITD */
     if (pdyn->loNrGuide_bifilt.sw_cnrT_filtCfg_mode == cnr_cfgByFiltStrg_mode) {
+        int gaus_tmp[7];
+        cnr_gauss7x1_filter_coeff(pdyn->loNrGuide_bifilt.sw_cnrT_filtSpatial_strg, gaus_tmp, RKCNR_V31_exp2_lut_y);
+        pFix->thumb_bf_coeff0 = CLIP(gaus_tmp[0], 0, 0xff);
+        pFix->thumb_bf_coeff1 = CLIP(gaus_tmp[1], 0, 0xff);
+        pFix->thumb_bf_coeff2 = CLIP(gaus_tmp[2], 0, 0xff);
+        pFix->thumb_bf_coeff3 = CLIP(gaus_tmp[3], 0, 0xff);
     } else {
         tmp = ROUND_F(pdyn->loNrGuide_bifilt.hw_cnrT_filtSpatial_wgt[0] * (1 << RKCNR_V31_exp2_lut_y));
         pFix->thumb_bf_coeff0 = CLIP(tmp, 0, 0xff);
@@ -241,10 +297,14 @@ void rk_aiq_cnr34_params_cvt(void* attr, struct isp39_isp_params_cfg* isp_cfg, c
     pFix->loflt_global_sgm_ratio_alpha = CLIP(tmp, 0, 0x8);
     tmp = pdyn->loNrGuide_iirFilt.hw_cnrT_glbSgm_ratio * (1 << RKCNR_V31_sgmRatio);
     pFix->loflt_global_sgm_ratio = CLIP(tmp, 0, 0xff);
+#if RKAIQ_HAVE_CNR_V35
+    tmp = ROUND_F((1.0 - pdyn->hiNr_locFiltAlpha.hw_cnrT_locFiltAlpha_minLimit) * (1 << RKCNR_V32_FIX_BIT_GLOBAL_ALPHA));
+    pFix->bf_alpha_max_limit = CLIP(tmp, 0, 0x7ff);
+#endif
 
     /* CNR_SIGMA */
     for(int i = 0; i < 13; i++) {
-        tmp = ROUND_F(pdyn->hiNr_bifilt.hw_cnrT_locSgmStrg2CtrPix_wgt[i] * (1 << RKCNR_V31_bfRatio));
+        tmp = ROUND_F(pdyn->hiNr_bifilt.hw_cnrT_locSgmStrg2CtrWgt_scale[i] * (1 << RKCNR_V31_bfRatio));
         pFix->cur_wgt[i] = CLIP(tmp, 0, 0xff);
     }
 

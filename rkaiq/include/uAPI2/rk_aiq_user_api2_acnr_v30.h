@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_ACNRV30_H_
 #define _RK_AIQ_USER_API2_ACNRV30_H_
 
-#include "acnrV30/rk_aiq_uapi_acnr_int_v30.h"
+#include "algos/acnrV30/rk_aiq_uapi_acnr_int_v30.h"
 
 typedef struct rk_aiq_sys_ctx_s rk_aiq_sys_ctx_t;
 

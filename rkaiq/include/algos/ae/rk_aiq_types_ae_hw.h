@@ -149,7 +149,7 @@ typedef struct sihst_cfg {
 typedef struct rk_aiq_ae_meas_params_s {
     bool   ae_meas_en;
     bool   ae_meas_update;
-#if ISP_HW_V39
+#if ISP_HW_V39 || ISP_HW_V33
     rawaebig_meas_cfg_t rawae0;
 #else
     rawaelite_meas_cfg_t rawae0;
@@ -172,7 +172,7 @@ typedef struct rk_aiq_hist_meas_params_s {
     bool   hist_meas_update;
     unsigned char ae_swap; // used to choose LITE & BIG
     unsigned char ae_sel; // used for rawae3 & rawhist3
-#if ISP_HW_V39
+#if ISP_HW_V39 || ISP_HW_V33
     rawhistbig_cfg_t rawhist0;
 #else
     rawhistlite_cfg_t rawhist0;

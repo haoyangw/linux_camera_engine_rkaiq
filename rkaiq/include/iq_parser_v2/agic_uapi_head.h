@@ -19,7 +19,7 @@
 #define __AGIC_UAPI_HEAD_H__
 
 #include "stdint.h"
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 typedef struct rkaiq_gic_v1_param_selected_s {
     // M4_NUMBER_DESC("ISO", "u32", M4_RANGE(50, 65535), "50", M4_DIGIT(0))

@@ -27,6 +27,7 @@ RKAIQ_BEGIN_DECLARE
 XCamReturn rk_aiq_user_api2_alsc_SetAttrib(const rk_aiq_sys_ctx_t *sys_ctx,
                                            rk_aiq_lsc_attrib_t attr) {
   XCamReturn ret = XCAM_RETURN_NO_ERROR;
+#ifndef USE_NEWSTRUCT
   CHECK_USER_API_ENABLE2(sys_ctx);
   CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_ALSC);
   RKAIQ_API_SMART_LOCK(sys_ctx);
@@ -63,7 +64,7 @@ XCamReturn rk_aiq_user_api2_alsc_SetAttrib(const rk_aiq_sys_ctx_t *sys_ctx,
       return algo_handle->setAttrib(attr);
     }
   }
-
+#endif
   return (ret);
 }
 
@@ -71,7 +72,7 @@ XCamReturn rk_aiq_user_api2_alsc_GetAttrib(const rk_aiq_sys_ctx_t *sys_ctx,
                                            rk_aiq_lsc_attrib_t *attr) {
   RKAIQ_API_SMART_LOCK(sys_ctx);
   XCamReturn ret = XCAM_RETURN_NO_ERROR;
-
+#ifndef USE_NEWSTRUCT
   if (sys_ctx->cam_type == RK_AIQ_CAM_TYPE_GROUP) {
 #ifdef RKAIQ_ENABLE_CAMGROUP
     RkAiqCamGroupAlscHandleInt *algo_handle =
@@ -104,7 +105,7 @@ XCamReturn rk_aiq_user_api2_alsc_GetAttrib(const rk_aiq_sys_ctx_t *sys_ctx,
       return algo_handle->getAttrib(attr);
     }
   }
-
+#endif
   return (ret);
 }
 
@@ -112,7 +113,7 @@ XCamReturn
 rk_aiq_user_api2_alsc_QueryLscInfo(const rk_aiq_sys_ctx_t *sys_ctx,
                                    rk_aiq_lsc_querry_info_t *lsc_querry_info) {
   RKAIQ_API_SMART_LOCK(sys_ctx);
-
+#ifndef USE_NEWSTRUCT
   if (sys_ctx->cam_type == RK_AIQ_CAM_TYPE_GROUP) {
 #ifdef RKAIQ_ENABLE_CAMGROUP
     RkAiqCamGroupAlscHandleInt *algo_handle =
@@ -145,7 +146,7 @@ rk_aiq_user_api2_alsc_QueryLscInfo(const rk_aiq_sys_ctx_t *sys_ctx,
       return algo_handle->queryLscInfo(lsc_querry_info);
     }
   }
-
+#endif
   return XCAM_RETURN_NO_ERROR;
 }
 
@@ -153,7 +154,7 @@ XCamReturn rk_aiq_user_api2_alsc_SetAcolorSwInfo(const rk_aiq_sys_ctx_t* sys_ctx
                                               rk_aiq_color_info_t aColor_sw_info)
 {
     RKAIQ_API_SMART_LOCK(sys_ctx);
-
+#ifndef USE_NEWSTRUCT
     if (sys_ctx->cam_type == RK_AIQ_CAM_TYPE_GROUP) {
 
     } else {
@@ -164,7 +165,7 @@ XCamReturn rk_aiq_user_api2_alsc_SetAcolorSwInfo(const rk_aiq_sys_ctx_t* sys_ctx
             return algo_handle->setAcolorSwInfo(aColor_sw_info);
         }
     }
-
+#endif
     return XCAM_RETURN_NO_ERROR;
 }
 

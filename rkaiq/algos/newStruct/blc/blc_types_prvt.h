@@ -57,6 +57,8 @@ typedef struct BlcContext_s {
     bool isAiIsp;
 } BlcContext_t;
 
+XCAM_BEGIN_DECLARE
 XCamReturn BlcSelectParam(BlcContext_t *pBlcCtx, blc_param_t* out, int iso);
+XCAM_END_DECLARE
 
 #endif//__RKAIQ_TYPES_BLC_ALGO_PRVT_H__

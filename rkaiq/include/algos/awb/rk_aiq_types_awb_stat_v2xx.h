@@ -22,7 +22,8 @@
 
 #ifndef __RK_AIQ_TYPE_AWB_STAT_V2XX_H__
 #define __RK_AIQ_TYPE_AWB_STAT_V2XX_H__
-#include "rk_aiq_comm.h"
+
+#include "common/rk_aiq_comm.h"
 //#define TIME_SHARE_TEST
 #define TIME_SHARE_MODE
 #define RK_AIQ_AWB_STAT_YUV_ILL_OFF 7
@@ -36,7 +37,7 @@
 #define AWB_UV_RANGE_SLOVE_FRACTION 10
 #define AWB_UV_RANGE_SLOVE_SINTER 9
 
-#if RKAIQ_HAVE_AWB_V32LT||ISP_HW_V39
+#if RKAIQ_HAVE_AWB_V32LT||ISP_HW_V39 ||ISP_HW_V33
 typedef enum rk_aiq_down_scale_mode_e {
     RK_AIQ_AWB_DS_INVALIED = -1,
     RK_AIQ_AWB_DS_4X4 = 0,

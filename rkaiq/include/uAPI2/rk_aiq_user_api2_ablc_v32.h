@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_ABLCV32_H_
 #define _RK_AIQ_USER_API2_ABLCV32_H_
 
-#include "ablcV32/rk_aiq_uapi_ablc_int_v32.h"
+#include "algos/ablcV32/rk_aiq_uapi_ablc_int_v32.h"
 
 typedef struct rk_aiq_sys_ctx_s rk_aiq_sys_ctx_t;
 

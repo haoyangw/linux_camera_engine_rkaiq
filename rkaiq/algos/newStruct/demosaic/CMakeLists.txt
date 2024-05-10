@@ -1,4 +1,4 @@
 set(ADEBAYER_SRC
-    algo_demosaic.cpp
+    algo_demosaic.c
     )
-dec_algo(demosaic algo_demosaic.cpp ${ADEBAYER_SRC})
+dec_algo(demosaic algo_demosaic.c ${ADEBAYER_SRC})

@@ -131,7 +131,7 @@ XCamReturn AccmAutoConfig
         float fScale = 1.0;
     #if 1
         //real use
-        interpolation(hAccm->ccm_v1->lumaCCM.gain_alphaScale_curve.gain,
+        interpolation_f(hAccm->ccm_v1->lumaCCM.gain_alphaScale_curve.gain,
                       hAccm->ccm_v1->lumaCCM.gain_alphaScale_curve.scale,
                       9,
                       sensorGain, &fScale);
@@ -150,7 +150,7 @@ XCamReturn AccmAutoConfig
         }
     #endif
     // 5) color inhibition adjust for api
-        interpolation(hAccm->mCurAtt.stAuto.color_inhibition.sensorGain,
+        interpolation_f(hAccm->mCurAtt.stAuto.color_inhibition.sensorGain,
                       hAccm->mCurAtt.stAuto.color_inhibition.level,
                       RK_AIQ_ACCM_COLOR_GAIN_NUM,
                       sensorGain, &hAccm->accmRest.color_inhibition_level);
@@ -164,7 +164,7 @@ XCamReturn AccmAutoConfig
 
     // 6)   saturation adjust for api
         float saturation_level = 100;
-        interpolation(hAccm->mCurAtt.stAuto.color_saturation.sensorGain,
+        interpolation_f(hAccm->mCurAtt.stAuto.color_saturation.sensorGain,
                       hAccm->mCurAtt.stAuto.color_saturation.level,
                       RK_AIQ_ACCM_COLOR_GAIN_NUM,
                       sensorGain, &saturation_level );
@@ -182,22 +182,7 @@ XCamReturn AccmAutoConfig
                     fabs(fScale - hAccm->accmRest.fScale) > DIVMIN ||
                     fabs(saturation_level - hAccm->accmRest.color_saturation_level) > DIVMIN;
         updUndampMat = false;
-        if (flag || (!hAccm->invarMode)) {
-            if (flag) {
-                hAccm->accmRest.fScale = fScale;
-                hAccm->accmRest.color_saturation_level = saturation_level;
-                Saturationadjust(fScale, saturation_level, hAccm->accmRest.undampedCcmMatrix);
-                LOGD_ACCM("Adjust ccm by sat: %d, undampedCcmMatrix[0]: %f", hAccm->isReCal_, hAccm->accmRest.undampedCcmMatrix[0]);
-            }
 
-            updUndampMat = true;
-        }
-        if (!hAccm->invarMode) {
-            hAccm->ccmHwConf.bound_bit = hAccm->ccm_v1->lumaCCM.low_bound_pos_bit;
-            memcpy(hAccm->ccmHwConf.rgb2y_para, hAccm->ccm_v1->lumaCCM.rgb2y_para,
-                    sizeof(hAccm->ccm_v1->lumaCCM.rgb2y_para));
-            updateYAlp = true;
-        }
         float iso = sensorGain * 50;
         bool yalp_flag = false;
         YAlpSymAutoCfg(CCM_YALP_ISO_STEP_MAX, hAccm->ccm_v1->lumaCCM.gain_yalp_curve,
@@ -205,6 +190,26 @@ XCamReturn AccmAutoConfig
                     hAccm->accmRest.yalp_tbl_info.tbl_idx,
                     iso, (!hAccm->invarMode || hAccm->calib_update), hAccm->ccmHwConf.alp_y, &yalp_flag);
         updateYAlp = updateYAlp || yalp_flag;
+
+        if (flag || (!hAccm->invarMode)) {
+            if (flag) {
+                hAccm->accmRest.fScale = fScale;
+                hAccm->accmRest.color_saturation_level = saturation_level;
+                Saturationadjust(fScale, saturation_level, hAccm->accmRest.undampedCcmMatrix);
+                for(int i = 0; i < CCM_CURVE_DOT_NUM; i++) { //set to ic  to do bit check
+                    hAccm->ccmHwConf.alp_y[i] *= fScale;
+                }
+                LOGD_ACCM("Adjust ccm by sat: %d, undampedCcmMatrix[0]: %f", hAccm->isReCal_, hAccm->accmRest.undampedCcmMatrix[0]);
+            }
+
+            if (!hAccm->invarMode) {
+                hAccm->ccmHwConf.bound_bit = hAccm->ccm_v1->lumaCCM.low_bound_pos_bit;
+                memcpy(hAccm->ccmHwConf.rgb2y_para, hAccm->ccm_v1->lumaCCM.rgb2y_para,
+                        sizeof(hAccm->ccm_v1->lumaCCM.rgb2y_para));
+            }
+            updateYAlp = true;
+            updUndampMat = true;
+        }
     }
     // 7) . Damping
     float dampCoef = (pCcm->damp_enable && hAccm->count > 1 && hAccm->invarMode > 0) ? hAccm->accmSwInfo.awbIIRDampCoef : 0;

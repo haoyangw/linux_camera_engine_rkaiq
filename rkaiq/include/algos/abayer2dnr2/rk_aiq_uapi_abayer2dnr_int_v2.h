@@ -1,9 +1,9 @@
 #ifndef _RK_AIQ_UAPI_ABAYER2DNR_INT_V2_H_
 #define _RK_AIQ_UAPI_ABAYER2DNR_INT_V2_H_
 
-#include "base/xcam_common.h"
-#include "rk_aiq_algo_des.h"
-#include "abayer2dnr2/rk_aiq_types_abayer2dnr_algo_int_v2.h"
+#include "xcore/base/xcam_common.h"
+#include "algos/rk_aiq_algo_des.h"
+#include "algos/abayer2dnr2/rk_aiq_types_abayer2dnr_algo_int_v2.h"
 
 // need_sync means the implementation should consider
 // the thread synchronization

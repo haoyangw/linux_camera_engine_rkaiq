@@ -29,7 +29,10 @@ void RkAiqDmHandleInt::init() {
     RkAiqHandle::deInit();
     mConfig       = (RkAiqAlgoCom*)(new RkAiqAlgoCom());
     mProcInParam  = (RkAiqAlgoCom*)(new RkAiqAlgoCom());
-    mProcOutParam = (RkAiqAlgoResCom*)(new RkAiqAlgoProcResDm());
+    mProcOutParam = (RkAiqAlgoResCom*)(new RkAiqAlgoResCom());
+
+    mResultType = RESULT_TYPE_DEBAYER_PARAM;
+    mResultSize = sizeof(dm_param_t);
 
     EXIT_ANALYZER_FUNCTION();
 }
@@ -110,8 +113,8 @@ XCamReturn RkAiqDmHandleInt::processing() {
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
-    RkAiqAlgoProcResDm* dm_proc_res_int =
-            (RkAiqAlgoProcResDm*)mProcOutParam;
+    RkAiqAlgoResCom* dm_proc_res_int =
+            (RkAiqAlgoResCom*)mProcOutParam;
     RkAiqCore::RkAiqAlgosGroupShared_t* shared =
             (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
@@ -121,7 +124,7 @@ XCamReturn RkAiqDmHandleInt::processing() {
         RKAIQCORE_CHECK_RET(ret, "adebayer handle processing failed");
     }
 
-    dm_proc_res_int->dmRes =  &shared->fullParams->mDmParams->data()->result;
+    dm_proc_res_int->algoRes =  &shared->fullParams->mDmParams->data()->result;
 
     GlobalParamsManager* globalParamsManager = mAiqCore->getGlobalParamsManager();
 
@@ -130,15 +133,15 @@ XCamReturn RkAiqDmHandleInt::processing() {
         rk_aiq_global_params_wrap_t wrap_param;
         wrap_param.type = RESULT_TYPE_DEBAYER_PARAM;
         wrap_param.man_param_size = sizeof(dm_param_t);
-        wrap_param.man_param_ptr = dm_proc_res_int->dmRes;
+        wrap_param.man_param_ptr = dm_proc_res_int->algoRes;
         XCamReturn ret1 = globalParamsManager->getAndClearPending(&wrap_param);
         if (ret1 == XCAM_RETURN_NO_ERROR) {
             LOGK_ADEBAYER("get new manual params success !");
-            dm_proc_res_int->res_com.en = wrap_param.en;
-            dm_proc_res_int->res_com.bypass = wrap_param.bypass;
-            dm_proc_res_int->res_com.cfg_update = true;
+            dm_proc_res_int->en = wrap_param.en;
+            dm_proc_res_int->bypass = wrap_param.bypass;
+            dm_proc_res_int->cfg_update = true;
         } else {
-            dm_proc_res_int->res_com.cfg_update = false;
+            dm_proc_res_int->cfg_update = false;
         }
     } else {
         globalParamsManager->lockAlgoParam(RESULT_TYPE_DEBAYER_PARAM);
@@ -163,7 +166,7 @@ XCamReturn RkAiqDmHandleInt::genIspResult(RkAiqFullParams* params,
     RkAiqCore::RkAiqAlgosGroupShared_t* shared =
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
-    RkAiqAlgoProcResDm* dm_res = (RkAiqAlgoProcResDm*)mProcOutParam;
+    RkAiqAlgoResCom* dm_res = (RkAiqAlgoResCom*)mProcOutParam;
 
     rk_aiq_isp_dm_params_t* dm_param = params->mDmParams->data().ptr();
 
@@ -179,11 +182,11 @@ XCamReturn RkAiqDmHandleInt::genIspResult(RkAiqFullParams* params,
             dm_param->frame_id = shared->frameId;
         }
 
-        if (dm_res->res_com.cfg_update) {
+        if (dm_res->cfg_update) {
             mSyncFlag = shared->frameId;
             dm_param->sync_flag = mSyncFlag;
-            dm_param->en = dm_res->res_com.en;
-            dm_param->bypass = dm_res->res_com.bypass;
+            dm_param->en = dm_res->en;
+            dm_param->bypass = dm_res->bypass;
             // copy from algo result
             // set as the latest result
             cur_params->mDmParams = params->mDmParams;

@@ -1,21 +1,21 @@
 set(THIRDAF_SRC
-    rk_aiq_algo_af_itf_thirdalgo.cpp
-    rk_aiq_uapi_af_int_thirdalgo.cpp
+    rk_aiq_algo_af_itf_thirdalgo.c
+    rk_aiq_uapi_af_int_thirdalgo.c
     )
 
-dec_algo(thirdaf rk_aiq_algo_af_itf_thirdalgo.cpp ${THIRDAF_SRC})
+dec_algo(thirdaf rk_aiq_algo_af_itf_thirdalgo.c ${THIRDAF_SRC})
 
 if (RKAIQ_HAVE_AF_V20 OR RKAIQ_HAVE_AF_V30 OR RKAIQ_HAVE_AF_V31 OR RKAIQ_HAVE_AF_V32_LITE OR RKAIQ_HAVE_AF_V33)
 set(AF_SRC
-    rk_aiq_algo_af_itf.cpp
-    af.cpp
-    af_search.cpp
-    af_trigger.cpp
-    af_utils.cpp
-    rk_aiq_uapi_af_int.cpp
+    rk_aiq_algo_af_itf.c
+    af.c
+    af_search.c
+    af_trigger.c
+    af_utils.c
+    rk_aiq_uapi_af_int.c
     )
 
-dec_algo(af rk_aiq_algo_af_itf.cpp ${AF_SRC})
+dec_algo(af rk_aiq_algo_af_itf.c ${AF_SRC})
 
 if(RKAIQ_HAVE_PDAF)
     if (${CMAKE_SYSTEM_NAME} STREQUAL "Android")

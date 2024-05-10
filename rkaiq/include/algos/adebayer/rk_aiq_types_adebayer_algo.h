@@ -41,8 +41,8 @@
  *
  */
 
-#include "rk_aiq_comm.h"
-#include "rk_aiq_types_adebayer_hw.h"
+#include "common/rk_aiq_comm.h"
+#include "algos/adebayer/rk_aiq_types_adebayer_hw.h"
 
 /* @} ADEBAYER */
 #endif //__RK_AIQ_TYPES_ADEBAYER_ALGO_H__

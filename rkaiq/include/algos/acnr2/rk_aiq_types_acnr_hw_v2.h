@@ -19,7 +19,7 @@
 
 #ifndef _RK_AIQ_TYPE_ACNR_HW_V2_H_
 #define _RK_AIQ_TYPE_ACNR_HW_V2_H_
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 typedef struct RK_CNR_Fix_V2_s {
     //ISP_CNR_2800_CTRL

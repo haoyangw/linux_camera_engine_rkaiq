@@ -19,7 +19,7 @@ RKAIQ_BEGIN_DECLARE
 #define CHECK_USER_API_ENABLE
 #endif
 
-#if RKAIQ_HAVE_AE_V1
+#if RKAIQ_HAVE_AE_V1 && !USE_NEWSTRUCT
 
 XCamReturn rk_aiq_user_api_ae_setExpSwAttr
 (

@@ -29,7 +29,7 @@ void RkAiqSharpHandleInt::init() {
     RkAiqHandle::deInit();
     mConfig       = (RkAiqAlgoCom*)(new RkAiqAlgoCom());
     mProcInParam  = (RkAiqAlgoCom*)(new RkAiqAlgoProcSharp());
-    mProcOutParam = (RkAiqAlgoResCom*)(new RkAiqAlgoProcResSharp());
+    mProcOutParam = (RkAiqAlgoResCom*)(new RkAiqAlgoResCom());
 
     EXIT_ANALYZER_FUNCTION();
 }
@@ -39,7 +39,7 @@ XCamReturn RkAiqSharpHandleInt::setAttrib(sharp_api_attrib_t* attr) {
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
     mCfgMutex.lock();
-    ret = algo_sharp_SetAttrib(mAlgoCtx, attr, false);
+    ret = algo_sharp_SetAttrib(mAlgoCtx, attr);
     mCfgMutex.unlock();
 
     mIsUpdateGrpAttr = true;
@@ -122,14 +122,13 @@ XCamReturn RkAiqSharpHandleInt::processing() {
     RkAiqAlgoProcSharp* sharp_proc_param = (RkAiqAlgoProcSharp*)mProcInParam;
     sharp_proc_param->blc_ob_predgain = 1.0;
 #else
-    AblcProc_V32_t* blc_res = shared->res_comb.ablcV32_proc_res;
+    AblcProc_V32_t* blc_res = shared->.ablcV32_proc_res;
     float ob_predgain = blc_res->isp_ob_predgain;
     RkAiqAlgoProcSharp* sharp_proc_param = (RkAiqAlgoProcSharp*)mProcInParam;
     sharp_proc_param->blc_ob_predgain = ob_predgain;
 #endif
 
-    RkAiqAlgoProcResSharp* sharp_proc_res_int = (RkAiqAlgoProcResSharp*)mProcOutParam;
-    sharp_proc_res_int->sharpRes =  &shared->fullParams->mSharpParams->data()->result;
+    mProcOutParam->algoRes =  &shared->fullParams->mSharpParams->data()->result;
 
     GlobalParamsManager* globalParamsManager = mAiqCore->getGlobalParamsManager();
 
@@ -138,15 +137,15 @@ XCamReturn RkAiqSharpHandleInt::processing() {
         rk_aiq_global_params_wrap_t wrap_param;
         wrap_param.type = RESULT_TYPE_SHARPEN_PARAM;
         wrap_param.man_param_size = sizeof(sharp_param_t);
-        wrap_param.man_param_ptr = sharp_proc_res_int->sharpRes;
+        wrap_param.man_param_ptr = mProcOutParam->algoRes;
         XCamReturn ret1 = globalParamsManager->getAndClearPending(&wrap_param);
         if (ret1 == XCAM_RETURN_NO_ERROR) {
             LOGK_ASHARP("get new sharp manual params success !");
-            sharp_proc_res_int->res_com.en = wrap_param.en;
-            sharp_proc_res_int->res_com.bypass = wrap_param.bypass;
-            sharp_proc_res_int->res_com.cfg_update = true;
+            mProcOutParam->en = wrap_param.en;
+            mProcOutParam->bypass = wrap_param.bypass;
+            mProcOutParam->cfg_update = true;
         } else {
-            sharp_proc_res_int->res_com.cfg_update = false;
+            mProcOutParam->cfg_update = false;
         }
     } else {
         // skip processing if is group algo
@@ -175,7 +174,7 @@ XCamReturn RkAiqSharpHandleInt::genIspResult(RkAiqFullParams* params,
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
-    RkAiqAlgoProcResSharp* sharp_res = (RkAiqAlgoProcResSharp*)mProcOutParam;
+    RkAiqAlgoResCom* sharp_res = (RkAiqAlgoResCom*)mProcOutParam;
 
     rk_aiq_isp_sharp_params_t* sharp_param = params->mSharpParams->data().ptr();
 
@@ -195,11 +194,11 @@ XCamReturn RkAiqSharpHandleInt::genIspResult(RkAiqFullParams* params,
             sharp_param->frame_id = shared->frameId;
         }
 
-        if (sharp_res->res_com.cfg_update) {
+        if (sharp_res->cfg_update) {
             mSyncFlag = shared->frameId;
             sharp_param->sync_flag = mSyncFlag;
-            sharp_param->en = sharp_res->res_com.en;
-            sharp_param->bypass = sharp_res->res_com.bypass;
+            sharp_param->en = sharp_res->en;
+            sharp_param->bypass = sharp_res->bypass;
             // copy from algo result
             // set as the latest result
             cur_params->mSharpParams = params->mSharpParams;

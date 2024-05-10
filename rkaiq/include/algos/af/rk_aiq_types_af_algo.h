@@ -3,7 +3,7 @@
 
 #include <sys/time.h>
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 #include "isp/rk_aiq_stats_af33.h"
 
 RKAIQ_BEGIN_DECLARE
@@ -547,7 +547,8 @@ typedef struct {
     unsigned short *pdRData;
 } rk_aiq_pdaf_algo_stat_t;
 
-typedef struct {
+typedef struct rk_aiq_pdaf_algo_meas_s {
+    char snsName[32];
     PdafSensorType_t pdafSensorType;
     unsigned char pdMirrorInCalib;
     unsigned char pdChangeLeftRight;

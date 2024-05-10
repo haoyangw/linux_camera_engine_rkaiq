@@ -23,7 +23,7 @@
 #include "xcam_mutex.h"
 
 namespace RkCam {
-#if RKAIQ_HAVE_YUVME_V1
+#if RKAIQ_HAVE_YUVME_V1 && (USE_NEWSTRUCT == 0)
 
 class RkAiqAyuvmeV1HandleInt : virtual public RkAiqHandle {
 public:

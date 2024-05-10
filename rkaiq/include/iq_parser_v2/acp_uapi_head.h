@@ -18,7 +18,7 @@
 #ifndef __ACP_UAPI_HEAD_H__
 #define __ACP_UAPI_HEAD_H__
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 typedef struct acp_attrib_s {
   // M4_STRUCT_DESC("sync", "normal_ui_style", M4_HIDE(1))

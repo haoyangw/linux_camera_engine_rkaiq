@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 #ifdef __cplusplus
 extern "C" {

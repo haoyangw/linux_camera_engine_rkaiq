@@ -20,12 +20,16 @@
 #ifndef _RK_AIQ_USER_API2_BTNR_H_
 #define _RK_AIQ_USER_API2_BTNR_H_
 
-#ifdef _RK_AIQ_USER_API2_ISP39_H_
-#include "rk_aiq_api_types_btnr40.h"
+#if defined(ISP_HW_V39)
+#include "algos/rk_aiq_api_types_btnr40.h"
 #endif
 
-#ifdef _RK_AIQ_USER_API2_ISP32_H_
-#include "rk_aiq_api_types_btnr32.h"
+#if defined(ISP_HW_V33)
+#include "algos/rk_aiq_api_types_btnr41.h"
+#endif
+
+#if defined(ISP_HW_V32)
+#include "algos/rk_aiq_api_types_btnr32.h"
 #endif
 
 RKAIQ_BEGIN_DECLARE
@@ -41,6 +45,10 @@ XCamReturn
 rk_aiq_user_api2_btnr_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, btnr_api_attrib_t* attr);
 XCamReturn
 rk_aiq_user_api2_btnr_QueryStatus(const rk_aiq_sys_ctx_t* sys_ctx, btnr_status_t* status);
+XCamReturn
+rk_aiq_user_api2_btnr_SetStrength(const rk_aiq_sys_ctx_t* sys_ctx, abtnr_strength_t *strg);
+XCamReturn
+rk_aiq_user_api2_btnr_GetStrength(const rk_aiq_sys_ctx_t* sys_ctx, abtnr_strength_t *strg);
 
 RKAIQ_END_DECLARE
 

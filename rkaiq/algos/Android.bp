@@ -5,6 +5,30 @@ cc_defaults {
 
     defaults: [ "rkaiq-defaults", "rkaiq-defaults-flags", ],
 
+    cflags: [
+        "-fPIC",
+        "-Wall",
+        "-Wno-error",
+        "-Os",
+        "-g",
+        "-Wno-unused-value",
+        "-Wno-unused-variable",
+        "-Wno-unused-private-field",
+        "-Wno-unused-but-set-variable",
+        "-Wno-unused-function",
+        "-Wno-unused-label",
+        "-Wno-implicit-fallthrough",
+        "-Wno-ignored-qualifiers",
+        "-Wno-reorder",
+        "-Wno-address-of-packed-member",
+        "-Wno-unused-parameter",
+        "-Wno-overloaded-virtual",
+        "-Wno-extern-c-compat",
+        "-fno-strict-aliasing",
+        "-frtti",
+        "-DGENMESH_ONLINE"
+    ],
+
     cppflags: [
         "-ffast-math",
         "-funroll-loops",
@@ -29,6 +53,7 @@ cc_defaults {
         "-Wno-missing-field-initializers",
         "-DGENMESH_ONLINE"
     ],
+
     include_dirs: [
         "external/camera_engine_rkaiq",
         "external/camera_engine_rkaiq/iq_parser",
@@ -42,6 +67,7 @@ cc_defaults {
         "external/camera_engine_rkaiq/include/iq_parser_v2",
         "external/camera_engine_rkaiq/include/iq_parser_v2/j2s",
         "external/camera_engine_rkaiq/include/common",
+        "external/camera_engine_rkaiq/include/isp",
         "external/camera_engine_rkaiq/uAPI/include",
         "external/camera_engine_rkaiq/include/uAPI2",
         "external/camera_engine_rkaiq/common",
@@ -49,6 +75,8 @@ cc_defaults {
         "external/camera_engine_rkaiq/xcore",
         "external/camera_engine_rkaiq/aiq_core",
         "external/camera_engine_rkaiq/algos_camgroup",
+        "external/camera_engine_rkaiq/c_base",
+        "external/camera_engine_rkaiq/modules",
     ],
 }
 
@@ -58,6 +86,7 @@ subdirs = [
     "algos/af",
     "algos/asd",
     "algos/afd",
+    "algos/newStruct",
 ]
 
 cc_rkaiq_library_static {

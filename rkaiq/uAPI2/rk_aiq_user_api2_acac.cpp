@@ -211,7 +211,7 @@ XCamReturn rk_aiq_user_api2_acac_v10_GetAttrib(const rk_aiq_sys_ctx_t* /* sys_ct
 }
 #endif
 
-#if RKAIQ_HAVE_CAC_V11
+#if RKAIQ_HAVE_CAC_V11 && (USE_NEWSTRUCT == 0)
 XCamReturn rk_aiq_user_api2_acac_v11_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
                                            const rkaiq_cac_v11_api_attr_t* attr) {
     CHECK_USER_API_ENABLE2(sys_ctx);

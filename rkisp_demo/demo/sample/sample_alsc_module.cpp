@@ -17,9 +17,19 @@
 
 #include "sample_comm.h"
 
+#ifdef USE_NEWSTRUCT
 #include "uAPI2/rk_aiq_user_api2_alsc.h"
-
-/*
+#ifdef ISP_HW_V39
+#include "rk_aiq_user_api2_rk3576.h"
+#elif  defined(ISP_HW_V33)
+#include "rk_aiq_user_api2_rv1103B.h"
+#elif  defined(ISP_HW_V32)
+#include "rk_aiq_user_api2_rv1106.h"
+#endif
+#include "uAPI2/rk_aiq_user_api2_helper.h"
+#include <string>
+#endif
+ /*
  ******************************
  *
  * Module level API Sample Func
@@ -109,7 +119,122 @@ static int sample_lsc_set_attr_sync(const rk_aiq_sys_ctx_t* ctx)
 
   return 0;
 }
+#ifdef USE_NEWSTRUCT
+static void sample_lsc_tuningtool_test(const rk_aiq_sys_ctx_t* ctx)
+{
+    char *ret_str = NULL;
 
+    printf(">>> start tuning tool test: op attrib get ...\n");
+
+    std::string json_lsc_status_str = " \n\
+        [{ \n\
+            \"op\":\"get\", \n\
+            \"path\": \"/uapi/0/lsc_uapi/info\", \n\
+            \"value\": \n\
+            { \"opMode\": \"RK_AIQ_OP_MODE_MANUAL\", \"en\": 0,\"bypass\": 3} \n\
+        }]";
+
+    rkaiq_uapi_unified_ctl(const_cast<rk_aiq_sys_ctx_t*>(ctx),
+                           const_cast<char*>(json_lsc_status_str.c_str()), &ret_str, RKAIQUAPI_OPMODE_GET);
+
+    if (ret_str) {
+        printf("lsc status json str: %s\n", ret_str);
+    }
+
+    printf("  start tuning tool test: op attrib set ...\n");
+    std::string json_lsc_str = " \n\
+        [{ \n\
+            \"op\":\"replace\", \n\
+            \"path\": \"/uapi/0/lsc_uapi/attr\", \n\
+            \"value\": \n\
+            { \"opMode\": \"RK_AIQ_OP_MODE_MANUAL\", \"en\": 1,\"bypass\": 1} \n\
+        }]";
+    printf("lsc json_cmd_str: %s\n", json_lsc_str.c_str());
+    ret_str = NULL;
+    rkaiq_uapi_unified_ctl(const_cast<rk_aiq_sys_ctx_t*>(ctx),
+                           const_cast<char*>(json_lsc_str.c_str()), &ret_str, RKAIQUAPI_OPMODE_SET);
+
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    lsc_status_t status;
+    memset(&status, 0, sizeof(lsc_status_t));
+
+    rk_aiq_user_api2_lsc_QueryStatus(ctx, &status);
+
+    if (status.opMode != RK_AIQ_OP_MODE_MANUAL || status.en != 1 || status.bypass != 1) {
+        printf("lsc op set_attrib failed !\n");
+        printf("lsc status: opmode:%d(EXP:%d), en:%d(EXP:%d), bypass:%d(EXP:%d)\n",
+               status.opMode, RK_AIQ_OP_MODE_MANUAL, status.en, 1, status.bypass, 1);
+    } else {
+        printf("lsc op set_attrib success !\n");
+    }
+
+    printf(">>> tuning tool test done \n");
+}
+
+void get_auto_attr(lsc_api_attrib_t* attr) {
+    lsc_param_auto_t* stAuto = &attr->stAuto;
+    for (int i = 0;i < 13;i++) {
+    }
+}
+
+void get_manual_attr(lsc_api_attrib_t* attr) {
+    lsc_param_t* stMan = &attr->stMan;
+}
+
+int sample_lsc_test(const rk_aiq_sys_ctx_t* ctx)
+{
+    // sample_lsc_tuningtool_test(ctx);
+    // get cur mode
+    printf("+++++++ lsc module test start ++++++++\n");
+
+    lsc_api_attrib_t attr;
+    memset(&attr, 0, sizeof(attr));
+
+    rk_aiq_user_api2_lsc_GetAttrib(ctx, &attr);
+
+    printf("lsc attr: opmode:%d, en:%d, bypass:%d\n", attr.opMode, attr.en, attr.bypass);
+
+    srand(time(0));
+    int rand_num = rand() % 101;
+
+    if (rand_num <70) {
+        printf("update lsc arrrib!\n");
+        if (attr.opMode == RK_AIQ_OP_MODE_AUTO) {
+            attr.opMode = RK_AIQ_OP_MODE_MANUAL;
+            get_manual_attr(&attr);
+        }
+        else {
+            get_auto_attr(&attr);
+            attr.opMode = RK_AIQ_OP_MODE_AUTO;
+        }
+    }
+    else {
+        // reverse en
+        printf("reverse lsc en!\n");
+        attr.en = !attr.en;
+    }
+
+    rk_aiq_user_api2_lsc_SetAttrib(ctx, &attr);
+
+    // wait more than 2 frames
+    usleep(180 * 1000);
+
+    lsc_status_t status;
+    memset(&status, 0, sizeof(lsc_status_t));
+
+    rk_aiq_user_api2_lsc_QueryStatus(ctx, &status);
+
+    printf("lsc status: opmode:%d, en:%d, bypass:%d\n", status.opMode, status.en, status.bypass);
+
+    if (status.opMode != attr.opMode || status.en != attr.en)
+        printf("lsc test failed\n");
+    printf("-------- lsc module test done --------\n");
+
+    return 0;
+}
+#endif
 uapi_case_t lsc_uapi_list[] = {
   { .desc = "ALSC: set lsc gain table async",
     .func = (uapi_case_func)sample_lsc_set_attr_async
@@ -120,6 +245,11 @@ uapi_case_t lsc_uapi_list[] = {
   { .desc = "ALSC: get lsc gain table",
     .func = (uapi_case_func)sample_lsc_get_attr
   },
+#ifdef USE_NEWSTRUCT
+  { .desc = "LSC: sample_lsc_test",
+    .func = (uapi_case_func)sample_lsc_test
+  },
+  #endif
   {
     .desc = NULL,
     .func = NULL,

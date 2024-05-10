@@ -18,7 +18,7 @@
  */
 #ifndef _RK_AIQ_TYPES_ASHARP_HW_V33_H_
 #define _RK_AIQ_TYPES_ASHARP_HW_V33_H_
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 typedef struct RK_SHARP_Fix_V33_s {
     // SHARP_SHARP_EN (0X0000)

@@ -17,24 +17,13 @@
 #ifndef _RK_AIQ_API_TYPES_DRC_H_
 #define _RK_AIQ_API_TYPES_DRC_H_
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 #define DRC_ISO_STEP_MAX 13
 
 RKAIQ_BEGIN_DECLARE
 
 typedef struct drc_param_auto_s {
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(iso),
-        M4_TYPE(u32),
-        M4_SIZE_EX(1,13),
-        M4_RANGE_EX(0,10000000),
-        M4_DEFAULT(50),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(2),
-        M4_NOTES(The iso array for dynamic params array))  */
-    uint32_t iso[DRC_ISO_STEP_MAX];
     /* M4_GENERIC_DESC(
         M4_ALIAS(dynamic_param),
         M4_TYPE(struct_list),

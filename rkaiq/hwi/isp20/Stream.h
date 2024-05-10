@@ -201,6 +201,7 @@ protected:
     rkisp_bay3dbuf_info_t bay3dbuf;
     void* iir_address;
     void* gain_address;
+    void* aiisp_address;
     static std::atomic<bool> _is_subscribed;
     XCAM_DEAD_COPY (RKAiispEventStream);
 };

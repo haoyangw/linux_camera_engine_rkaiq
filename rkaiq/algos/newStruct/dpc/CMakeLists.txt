@@ -1,4 +1,4 @@
 set(DPC_SRC
-    algo_dpc.cpp
+    algo_dpc.c
     )
-dec_algo(dpc algo_dpc.cpp ${DPC_SRC})
+dec_algo(dpc algo_dpc.c ${DPC_SRC})

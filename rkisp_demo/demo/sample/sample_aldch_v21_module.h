@@ -20,5 +20,9 @@
 
 void sample_print_aldch_v21_info(const void *arg);
 XCamReturn sample_aldch_v21_module (const void *arg);
-
+#if RKAIQ_HAVE_LDCH_V21
+#ifdef USE_NEWSTRUCT
+void sample_ldch_test(const rk_aiq_sys_ctx_t* ctx);
+#endif
+#endif
 #endif

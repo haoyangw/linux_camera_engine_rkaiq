@@ -1,7 +1,7 @@
 #ifndef _RK_AIQ_UAPI_AE_INT_TYPES_V2_H_
 #define _RK_AIQ_UAPI_AE_INT_TYPES_V2_H_
-#include "rk_aiq_algo_des.h"
-#include "rk_aiq_types_ae_algo_int.h"
+#include "algos/rk_aiq_algo_des.h"
+#include "algos/ae/rk_aiq_types_ae_algo_int.h"
 
 /***************************  ATTENTION:  ************************************/
 /*
@@ -256,6 +256,8 @@ typedef struct Uapi_ExpQueryInfo_s {
     float             Fps;
 
 } Uapi_ExpQueryInfo_t;
+
+typedef RkAiqAecHwStatsRes_t Uapi_RkAeStats_t;
 
 /*****************************************************************************/
 /**

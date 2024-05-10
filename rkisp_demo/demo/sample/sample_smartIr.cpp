@@ -393,9 +393,15 @@ static void sample_smartIr_calib(const void* arg)
 
         float Rvalue = 0, Gvalue = 0, Bvalue = 0, RGgain = 0, BGgain = 0;
         for (int i = 0; i < RK_AIQ_AWB_GRID_NUM_TOTAL; i++) {
+#ifdef ISP_HW_V39
+            Rvalue = (float)stats_ref->awb_stats_v39.com.pixEngine.zonePix[i].hw_awbCfg_rSum_val;
+            Gvalue = (float)stats_ref->awb_stats_v39.com.pixEngine.zonePix[i].hw_awbCfg_gSum_val;
+            Bvalue = (float)stats_ref->awb_stats_v39.com.pixEngine.zonePix[i].hw_awbCfg_bSum_val;
+#else
             Rvalue = (float)blockResult[i].Rvalue;
             Gvalue = (float)blockResult[i].Gvalue;
             Bvalue = (float)blockResult[i].Bvalue;
+#endif
             RGgain = RGgain + Rvalue / Gvalue;
             BGgain = BGgain + Bvalue / Gvalue;
         }

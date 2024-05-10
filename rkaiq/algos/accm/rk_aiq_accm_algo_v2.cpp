@@ -193,7 +193,7 @@ XCamReturn AccmAutoConfig(accm_handle_t hAccm) {
         float fScale = 1.0;
 #if 1
         // real use
-        interpolation(calib->lumaCCM.gain_alphaScale_curve.gain,
+        interpolation_f(calib->lumaCCM.gain_alphaScale_curve.gain,
                       calib->lumaCCM.gain_alphaScale_curve.scale, 9, sensorGain, &fScale);
 #else
         // for test, to be same with demo
@@ -212,17 +212,17 @@ XCamReturn AccmAutoConfig(accm_handle_t hAccm) {
         float flevel2;
         // 5) color inhibition / saturation adjust for api
 #if RKAIQ_HAVE_CCM_V2
-        interpolation(hAccm->mCurAttV2.stAuto.color_inhibition.sensorGain,
+        interpolation_f(hAccm->mCurAttV2.stAuto.color_inhibition.sensorGain,
                       hAccm->mCurAttV2.stAuto.color_inhibition.level, RK_AIQ_ACCM_COLOR_GAIN_NUM,
                       sensorGain, &flevel2);
-        interpolation(hAccm->mCurAttV2.stAuto.color_saturation.sensorGain,
+        interpolation_f(hAccm->mCurAttV2.stAuto.color_saturation.sensorGain,
                       hAccm->mCurAttV2.stAuto.color_saturation.level, RK_AIQ_ACCM_COLOR_GAIN_NUM,
                       sensorGain, &flevel1);
 #elif RKAIQ_HAVE_CCM_V3
-        interpolation(hAccm->mCurAttV3.stAuto.color_inhibition.sensorGain,
+        interpolation_f(hAccm->mCurAttV3.stAuto.color_inhibition.sensorGain,
                       hAccm->mCurAttV3.stAuto.color_inhibition.level, RK_AIQ_ACCM_COLOR_GAIN_NUM,
                       sensorGain, &flevel2);
-        interpolation(hAccm->mCurAttV3.stAuto.color_saturation.sensorGain,
+        interpolation_f(hAccm->mCurAttV3.stAuto.color_saturation.sensorGain,
                       hAccm->mCurAttV3.stAuto.color_saturation.level, RK_AIQ_ACCM_COLOR_GAIN_NUM,
                       sensorGain, &flevel1);
 #endif
@@ -244,25 +244,6 @@ XCamReturn AccmAutoConfig(accm_handle_t hAccm) {
                   updUndampMat, hAccm->accmRest.fScale, fScale,
                   hAccm->accmRest.color_saturation_level, flevel1);
 
-        bool flag = updUndampMat ||
-                    fabs(fScale - hAccm->accmRest.fScale) > DIVMIN ||
-                    fabs(flevel1 - hAccm->accmRest.color_saturation_level) > DIVMIN;
-
-        if (flag || (!hAccm->invarMode)) {
-            if (flag) {
-                hAccm->accmRest.fScale = fScale;
-                hAccm->accmRest.color_saturation_level = flevel1;
-                Saturationadjust(fScale, flevel1, hAccm->accmRest.undampedCcmMatrix);
-                LOGD_ACCM("Adjust ccm by sat: %d, undampedCcmMatrix[0]: %f", hAccm->isReCal_, hAccm->accmRest.undampedCcmMatrix[0]);
-            }
-
-            updUndampMat = true;
-        }
-        if (!hAccm->invarMode) {
-            ConfigHwbyCalib(calib, &hAccm->ccmHwConf_v2);
-            updateYAlp = true;
-        }
-
         float iso = sensorGain * 50;
         bool yalp_flag = false;
         if (calib->lumaCCM.asym_enable) {
@@ -281,6 +262,26 @@ XCamReturn AccmAutoConfig(accm_handle_t hAccm) {
         }
         updateYAlp = updateYAlp || yalp_flag;
 
+        bool flag = updUndampMat ||
+                    fabs(fScale - hAccm->accmRest.fScale) > DIVMIN ||
+                    fabs(flevel1 - hAccm->accmRest.color_saturation_level) > DIVMIN;
+
+        if (flag || (!hAccm->invarMode)) {
+            if (flag) {
+                hAccm->accmRest.fScale = fScale;
+                hAccm->accmRest.color_saturation_level = flevel1;
+                Saturationadjust(fScale, flevel1, hAccm->accmRest.undampedCcmMatrix);
+                for (int i = 0; i < CCM_CURVE_DOT_NUM_V2; i++) {
+                    hAccm->ccmHwConf_v2.alp_y[i] *= fScale;
+                }
+                LOGD_ACCM("Adjust ccm by sat: %d, undampedCcmMatrix[0]: %f", hAccm->isReCal_, hAccm->accmRest.undampedCcmMatrix[0]);
+            }
+            if (!hAccm->invarMode) {
+                ConfigHwbyCalib(calib, &hAccm->ccmHwConf_v2);
+            }
+            updateYAlp = true;
+            updUndampMat = true;
+        }
     }
     // 7) . Damping
     float dampCoef = (pCcm->damp_enable && hAccm->count > 1 && hAccm->invarMode > 0) ? hAccm->accmSwInfo.awbIIRDampCoef : 0;
@@ -299,7 +300,7 @@ XCamReturn AccmAutoConfig(accm_handle_t hAccm) {
     if (hAccm->update || (!hAccm->invarMode)) {
         float enh_rat_max = 0;
         if (calib->enhCCM.enh_adj_en) {
-            interpolation(calib->enhCCM.enh_rat.gains, calib->enhCCM.enh_rat.enh_rat_max, 9,
+            interpolation_f(calib->enhCCM.enh_rat.gains, calib->enhCCM.enh_rat.enh_rat_max, 9,
                           sensorGain, &enh_rat_max);
         }
         updateEnh = (calib->enhCCM.enh_adj_en != hAccm->ccmHwConf_v2.enh_adj_en) ||

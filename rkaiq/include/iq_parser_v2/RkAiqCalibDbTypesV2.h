@@ -16,26 +16,29 @@
 #ifndef ___RK_AIQ_CALIB_DB_TYPES_V2_H__
 #define ___RK_AIQ_CALIB_DB_TYPES_V2_H__
 
-#include "moduleinfo_head.h"
-#include "sensorinfo_head.h"
-#include "sys_static_cfg_head.h"
+#include "iq_parser_v2/moduleinfo_head.h"
+#include "iq_parser_v2/sensorinfo_head.h"
+#include "iq_parser_v2/sys_static_cfg_head.h"
 
 #ifdef ISP_HW_V20
-#include "RkAiqCalibDbV2TypesIsp20.h"
+#include "iq_parser_v2/RkAiqCalibDbV2TypesIsp20.h"
 #endif
 #ifdef ISP_HW_V21
-#include "RkAiqCalibDbV2TypesIsp21.h"
+#include "iq_parser_v2/RkAiqCalibDbV2TypesIsp21.h"
 #endif
 #ifdef ISP_HW_V30
-#include "RkAiqCalibDbV2TypesIsp3x.h"
+#include "iq_parser_v2/RkAiqCalibDbV2TypesIsp3x.h"
 #endif
 #if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
-#include "RkAiqCalibDbV2TypesIsp32.h"
+#include "iq_parser_v2/RkAiqCalibDbV2TypesIsp32.h"
 #endif
 #ifdef ISP_HW_V39
-#include "RkAiqCalibDbV2TypesIsp39.h"
+#include "iq_parser_v2/RkAiqCalibDbV2TypesIsp39.h"
 #endif
-#include "RkAiqUapitypes.h"
+#ifdef ISP_HW_V33
+#include "iq_parser_v2/RkAiqCalibDbV2TypesIsp33.h"
+#endif
+#include "iq_parser_v2/RkAiqUapitypes.h"
 
 RKAIQ_BEGIN_DECLARE
 
@@ -156,6 +159,8 @@ typedef struct CamCalibDbV2Tuning_s {
     CamCalibDbV2ContextIsp32_t calib_scene;
 #elif defined(ISP_HW_V39)
     CamCalibDbV2ContextIsp39_t calib_scene;
+#elif defined(ISP_HW_V33)
+    CamCalibDbV2ContextIsp33_t calib_scene;
 #else
 #error "WRONG ISP_HW_VERSION, ONLY SUPPORT V20 AND V21 AND V30 NOW !"
 #endif
@@ -180,6 +185,8 @@ typedef struct CamCalibSubSceneList_s {
     CamCalibDbV2ContextIsp32_t scene_isp32;
 #elif defined(ISP_HW_V39)
     CamCalibDbV2ContextIsp39_t scene_isp39;
+#elif defined(ISP_HW_V33)
+    CamCalibDbV2ContextIsp33_t scene_isp33;
 #else
 #error "WRONG ISP_HW_VERSION, ONLY SUPPORT V20 AND V21 AND V30 NOW !"
 #endif
@@ -214,6 +221,29 @@ typedef struct CamCalibDbCamgroup_s {
     //test
     int group_awb;
 } CamCalibDbCamgroup_t;
+
+typedef struct calib2bin_block_s {
+    char name[32];
+    uint32_t size;
+    uint32_t offset;
+} __attribute__((aligned(4))) calib2bin_block_t;
+
+typedef struct calib2bin_header_s {
+    uint64_t mask;
+    uint32_t bin_size;
+    uint8_t block_len;
+    uint32_t block_offset;
+    uint32_t bin_offset;
+} __attribute__((aligned(4))) calib2bin_header_t;
+
+typedef struct rk_aiq_rtt_share_info_s {
+    uint8_t type;
+    uint8_t iq_bin_mode;
+    bool flip;
+    bool mirror;
+    uint32_t vts;
+    char* aiq_iq_addr;
+} __attribute__((aligned(4))) rk_aiq_rtt_share_info_t;
 
 RKAIQ_END_DECLARE
 

@@ -53,11 +53,17 @@ include_directories(
     include
     ${ROOT_PROJ_DIR}/include/iq_parser_v2/j2s/
     ${ROOT_PROJ_DIR}
+    ${ROOT_PROJ_DIR}/xcore
+    ${ROOT_PROJ_DIR}/include/xcore
+    ${ROOT_PROJ_DIR}/include/common
     )
 
-set(CXX_SRCS
-    ${ROOT_PROJ_DIR}/iq_parser_v2/j2s/cJSON.cpp
-    ${ROOT_PROJ_DIR}/iq_parser_v2/j2s/cJSON_Utils.cpp
+set(J2S4B_SRCS
+    ${ROOT_PROJ_DIR}/iq_parser_v2/j2s/cJSON.c
+    ${ROOT_PROJ_DIR}/iq_parser_v2/j2s/cJSON_Utils.c
+    ${ROOT_PROJ_DIR}/c_base/aiq_base.c
+    ${ROOT_PROJ_DIR}/c_base/aiq_mutex.c
+    ${ROOT_PROJ_DIR}/xcore/xcam_log.c
     src/j2s4b/BinRecord.cpp
     src/j2s4b/RkAiqsceneManager.cpp
     src/j2s4b/j2s.cpp
@@ -67,9 +73,15 @@ set(CXX_SRCS
 add_definitions(-DGIT_VERSION="${GIT_VERSION}")
 
 if (NOT RKAIQ_J2S4B_DEV)
-ADD_EXECUTABLE(j2s4b ${CXX_SRCS})
+ADD_EXECUTABLE(j2s4b ${J2S4B_SRCS})
+target_link_libraries(j2s4b
+	PRIVATE
+	pthread)
 else()
-ADD_EXECUTABLE(j2s4b_dev ${CXX_SRCS})
+ADD_EXECUTABLE(j2s4b_dev ${J2S4B_SRCS})
+target_link_libraries(j2s4b_dev
+	PRIVATE
+	pthread)
 endif()
 
 if (RKAIQ_TARGET_ARCH STREQUAL "arm")

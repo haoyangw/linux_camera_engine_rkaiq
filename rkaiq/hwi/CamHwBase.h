@@ -178,8 +178,15 @@ public:
     {
         return XCAM_RETURN_ERROR_FAILED;
     }
-    virtual XCamReturn aiisp_processing(rk_aiq_aiisp_t *aiisp_evt)
+    virtual XCamReturn aiisp_processing(rk_aiq_aiisp_t* aiisp_evt)
     {
+        return XCAM_RETURN_ERROR_FAILED;
+    }
+    virtual void setRkAiqManager(RkAiqManager *rkAiqManager)
+    {
+        this->rkAiqManager = rkAiqManager;
+    }
+    virtual XCamReturn setUserOtpInfo(rk_aiq_user_otp_info_t otp_info) {
         return XCAM_RETURN_ERROR_FAILED;
     }
     HwResListener* mHwResLintener;
@@ -209,6 +216,7 @@ protected:
     RkAiqTbInfo_t mTbInfo;
     std::map<std::string, int> mDevBufCntMap;
     rk_aiq_rkrawstream_info_t mRawStreamInfo;
+    RkAiqManager* rkAiqManager;
 
  private:
     XCAM_DEAD_COPY (CamHwBase);

@@ -20,7 +20,7 @@
 #ifndef __RK_AIQ_TYPES_ADEBAYER_EXT_H__
 #define __RK_AIQ_TYPES_ADEBAYER_EXT_H__
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 #define UAPI_DEBAYER_ISO_LEN 13
 

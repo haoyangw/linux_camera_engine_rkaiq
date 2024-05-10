@@ -1,7 +1,7 @@
 #ifndef __RK_AIQ_TYPES_ALSC_COMMON_H__
 #define __RK_AIQ_TYPES_ALSC_COMMON_H__
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_SHARP_H_
 #define _RK_AIQ_USER_API2_SHARP_H_
 
-#include "rk_aiq_api_types_sharp.h"
+#include "algos/rk_aiq_api_types_sharp.h"
 
 RKAIQ_BEGIN_DECLARE
 
@@ -33,6 +33,10 @@ XCamReturn
 rk_aiq_user_api2_sharp_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, sharp_api_attrib_t* attr);
 XCamReturn
 rk_aiq_user_api2_sharp_QueryStatus(const rk_aiq_sys_ctx_t* sys_ctx, sharp_status_t* status);
+XCamReturn
+rk_aiq_user_api2_sharp_SetStrength(const rk_aiq_sys_ctx_t* sys_ctx, asharp_strength_t *strg);
+XCamReturn
+rk_aiq_user_api2_sharp_GetStrength(const rk_aiq_sys_ctx_t* sys_ctx, asharp_strength_t *strg);
 
 RKAIQ_END_DECLARE
 

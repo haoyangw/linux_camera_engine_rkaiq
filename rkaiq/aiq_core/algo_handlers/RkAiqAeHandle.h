@@ -61,6 +61,9 @@ public:
         memset(&mCurExpWinAttr, 0, sizeof(Uapi_ExpWin_t));
         memset(&mNewExpWinAttr, 0, sizeof(Uapi_ExpWin_t));
 #endif
+        useStatsApiCfg = false;
+        updateStatsApiCfg = false;
+
     };
     virtual ~RkAiqAeHandleInt() {
         RkAiqHandle::deInit();
@@ -71,6 +74,7 @@ public:
     virtual XCamReturn processing();
     virtual XCamReturn postProcess();
 
+#ifndef USE_NEWSTRUCT
     // TODO: calibv1
     virtual XCamReturn setExpSwAttr(Uapi_ExpSwAttr_t ExpSwAttr);
     virtual XCamReturn getExpSwAttr(Uapi_ExpSwAttr_t* pExpSwAttr);
@@ -97,6 +101,26 @@ public:
     virtual XCamReturn setSyncTestAttr(Uapi_AecSyncTest_t SyncTestAttr);
     virtual XCamReturn getSyncTestAttr(Uapi_AecSyncTest_t* pSyncTestAttr);
     virtual XCamReturn queryExpInfo(Uapi_ExpQueryInfo_t* pExpQueryInfo);
+
+#else
+    // TODO: calibv3
+    virtual XCamReturn setExpSwAttr(ae_api_expSwAttr_t ExpSwAttr);
+    virtual XCamReturn getExpSwAttr(ae_api_expSwAttr_t* pExpSwAttr);
+    virtual XCamReturn setLinExpAttr(ae_api_linExpAttr_t LinExpAttr);
+    virtual XCamReturn getLinExpAttr(ae_api_linExpAttr_t* pLinExpAttr);
+    virtual XCamReturn setHdrExpAttr(ae_api_hdrExpAttr_t HdrExpAttr);
+    virtual XCamReturn getHdrExpAttr(ae_api_hdrExpAttr_t* pHdrExpAttr);
+    virtual XCamReturn setIrisAttr(ae_api_irisAttr_t IrisAttr);
+    virtual XCamReturn getIrisAttr(ae_api_irisAttr_t* pIrisAttr);
+    virtual XCamReturn setSyncTestAttr(ae_api_syncTestAttr_t SyncTestAttr);
+    virtual XCamReturn getSyncTestAttr(ae_api_syncTestAttr_t* pSyncTestAttr);
+    virtual XCamReturn queryExpInfo(ae_api_queryInfo_t* pExpQueryInfo);
+
+    virtual XCamReturn getRkAeStats(Uapi_RkAeStats_t* pRkAeStats);
+#endif
+
+    virtual XCamReturn setStatsApiCfg(rk_aiq_op_mode_t mode, aeStats_cfg_t* cfg);
+
     virtual XCamReturn setLockAeForAf(bool lock_ae);
     virtual XCamReturn getAfdResForAE(AfdPeakRes_t AfdRes);
     virtual XCamReturn setExpWinAttr(Uapi_ExpWin_t ExpWinAttr);
@@ -176,6 +200,9 @@ private:
     SmartPtr<RkAiqHandle>* mAdrc_handle;
     uint32_t mMeasSyncFlag{(uint32_t)(-1)};
     uint32_t mHistSyncFlag{(uint32_t)(-1)};
+    bool useStatsApiCfg;
+    bool updateStatsApiCfg;
+    aeStats_cfg_t mStatsApiCfg;
 private:
     DECLARE_HANDLE_REGISTER_TYPE(RkAiqAeHandleInt);
 };

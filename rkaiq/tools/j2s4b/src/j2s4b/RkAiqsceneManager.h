@@ -10,8 +10,6 @@
 #include <map>
 #include <string>
 
-using namespace RkCam;
-
 class RkAiqsceneManager {
 public:
   explicit RkAiqsceneManager() = default;

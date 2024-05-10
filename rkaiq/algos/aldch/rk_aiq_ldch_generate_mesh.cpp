@@ -289,6 +289,12 @@ bool aiqGenMesh(LDCHContext_t* ldchCtx, int32_t level, uint8_t isp_id)
 
     return success;
 }
+#else
+XCamReturn aiqGenLdchMeshInit(LDCHContext_t* ldchCtx) { return XCAM_RETURN_ERROR_FAILED; }
+
+XCamReturn aiqGenLdchMeshDeInit(LDCHContext_t* ldchCtx) { return XCAM_RETURN_ERROR_FAILED; }
+
+bool aiqGenMesh(LDCHContext_t* ldchCtx, int32_t level, uint8_t isp_id) { return false; }
 #endif
 
 RKAIQ_END_DECLARE

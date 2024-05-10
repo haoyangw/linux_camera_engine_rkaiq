@@ -20,7 +20,7 @@
 #ifndef _RK_AIQ_TYPE_ALSC_HW_H_
 #define _RK_AIQ_TYPE_ALSC_HW_H_
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 #define LSC_DATA_TBL_V_SIZE         17
 #define LSC_DATA_TBL_H_SIZE         17
 //MEMO: rkisp2-config.h/rkisp3-config.h -> ISP2X_LSC_DATA_TBL_SIZE is 290

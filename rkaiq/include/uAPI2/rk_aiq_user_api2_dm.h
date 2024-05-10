@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_DM_H_
 #define _RK_AIQ_USER_API2_DM_H_
 
-#include "rk_aiq_api_types_dm.h"
+#include "algos/rk_aiq_api_types_dm.h"
 
 RKAIQ_BEGIN_DECLARE
 

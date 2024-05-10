@@ -82,7 +82,7 @@ protected:
     } aeAlgoStatsCfg_t;
     aeAlgoStatsCfg_t _aeAlgoStatsCfg;
     uint16_t _lastHistMean[3] {0, 0, 0};
-    RkAiqAecHwStatsRes_t _lastAeStats;
+    RKAiqAecStats_t _lastAeStats;
 
 #if RKAIQ_HAVE_PDAF
     int mPdafDumpCnt;

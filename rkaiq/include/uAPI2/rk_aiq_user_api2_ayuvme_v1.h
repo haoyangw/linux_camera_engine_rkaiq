@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_AYUVMEV1_H_
 #define _RK_AIQ_USER_API2_AYUVMEV1_H_
 
-#include "ayuvmeV1/rk_aiq_uapi_ayuvme_int_v1.h"
+#include "algos/ayuvmeV1/rk_aiq_uapi_ayuvme_int_v1.h"
 
 typedef struct rk_aiq_sys_ctx_s rk_aiq_sys_ctx_t;
 

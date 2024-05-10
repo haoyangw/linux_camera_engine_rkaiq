@@ -24,7 +24,7 @@ RKAIQ_BEGIN_DECLARE
 #define CHECK_USER_API_ENABLE
 #endif
 
-#if (RKAIQ_HAVE_BAYERTNR_V30 )
+#if (RKAIQ_HAVE_BAYERTNR_V30 ) && (USE_NEWSTRUCT == 0)
 
 XCamReturn
 rk_aiq_user_api_abayertnrV30_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, const rk_aiq_bayertnr_attrib_v30_t* attr)

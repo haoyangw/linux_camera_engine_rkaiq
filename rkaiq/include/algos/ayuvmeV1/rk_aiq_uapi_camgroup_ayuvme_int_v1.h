@@ -1,9 +1,9 @@
 #ifndef _RK_AIQ_UAPI_CAMGROUP_AYUVME_INT_V1_H_
 #define _RK_AIQ_UAPI_CAMGROUP_AYUVME_INT_V1_H_
 
-#include "base/xcam_common.h"
-#include "rk_aiq_algo_des.h"
-#include "ayuvmeV1/rk_aiq_types_ayuvme_algo_int_v1.h"
+#include "xcore/base/xcam_common.h"
+#include "algos/rk_aiq_algo_des.h"
+#include "algos/ayuvmeV1/rk_aiq_types_ayuvme_algo_int_v1.h"
 
 // need_sync means the implementation should consider
 // the thread synchronization

@@ -50,7 +50,6 @@
 #define ISP_PREDGAIN_DEFAULT  (1.0f)
 #define FUNCTION_ENABLE (1)
 #define FUNCTION_DISABLE (0)
-#define YNR_CURVE_STEP             (16)
 #define LIMIT_VALUE(value,max_value,min_value)      (value > max_value? max_value : value < min_value ? min_value : value)
 #define LIMIT_VALUE_UNSIGNED(value, max_value) (value > max_value ? max_value : value)
 #define DEHAZE_GAUS_H0                              (2)
@@ -71,17 +70,18 @@ typedef struct DehazeContext_s {
     bool isReCal_;
     int width;
     int height;
-    int strength;
     int working_mode;
-    float YnrProcRes_sigma[YNR_ISO_CURVE_POINT_NUM];
+    adehaze_strength_t strg;
 } DehazeContext_t;
 
+XCAM_BEGIN_DECLARE
 #if RKAIQ_HAVE_DEHAZE_V12
 XCamReturn DehazeSelectParam(DehazeContext_t *pDehazeCtx, dehaze_param_t* out, int iso, bool stats_true,
     dehaze_stats_v12_t* pStats);
 #endif
 #if RKAIQ_HAVE_DEHAZE_V14
-XCamReturn DehazeSelectParam(DehazeContext_t *pDehazeCtx, dehaze_param_t* out, int iso);
+XCamReturn DehazeSelectParam(DehazeContext_t* pDehazeCtx, dehaze_param_t* out, int iso);
 #endif
+XCAM_END_DECLARE
 
 #endif//__RKAIQ_TYPES_Dehaze_ALGO_PRVT_H__

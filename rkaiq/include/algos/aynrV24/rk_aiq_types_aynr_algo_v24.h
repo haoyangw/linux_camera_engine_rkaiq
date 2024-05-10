@@ -19,7 +19,7 @@
 
 #ifndef _RK_AIQ_TYPE_AYNR_ALGO_V24_H_
 #define _RK_AIQ_TYPE_AYNR_ALGO_V24_H_
-#include "aynrV24/rk_aiq_types_aynr_hw_v24.h"
+#include "algos/aynrV24/rk_aiq_types_aynr_hw_v24.h"
 
 RKAIQ_BEGIN_DECLARE
 

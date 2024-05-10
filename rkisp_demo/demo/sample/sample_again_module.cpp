@@ -16,6 +16,16 @@
  */
 
 #include "sample_comm.h"
+// #define USE_NEWSTRUCT
+#ifdef ISP_HW_V39
+#include "rk_aiq_user_api2_rk3576.h"
+#elif  defined(ISP_HW_V33)
+#include "rk_aiq_user_api2_rv1103B.h"
+#elif  defined(ISP_HW_V32)
+#include "rk_aiq_user_api2_rv1106.h"
+#endif
+#include "uAPI2/rk_aiq_user_api2_helper.h"
+#include <string>
 
 #define RK_AGAIN_GAIN2DDR_MODE_4X8      0
 #define RK_AGAIN_GAIN2DDR_MODE_2X8      1
@@ -35,6 +45,7 @@ static void sample_again_usage()
     printf("\t 8) AGAIN:         set local gain write mode 4*8.\n");
     printf("\t 9) AGAIN:         set local gain write mode 2*8.\n");
     printf("\t a) AGAIN:         set local gain write mode 1*8.\n");
+    printf("\t b) AGAIN:         newstruct test.\n");
     printf("\t q) AGAIN:         press key q or Q to quit.\n");
 
 }
@@ -145,7 +156,125 @@ XCamReturn sample_agin_WriteLocalGain(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_m
 
     return ret;
 }
-XCamReturn sample_again_module (const void *arg)
+
+#ifdef USE_NEWSTRUCT
+static void sample_gain_tuningtool_test(const rk_aiq_sys_ctx_t* ctx)
+{
+    char *ret_str = NULL;
+
+    printf(">>> start tuning tool test: op attrib get ...\n");
+
+    std::string json_gain_status_str = " \n\
+        [{ \n\
+            \"op\":\"get\", \n\
+            \"path\": \"/uapi/0/gain_uapi/info\", \n\
+            \"value\": \n\
+            { \"opMode\": \"RK_AIQ_OP_MODE_MANUAL\", \"en\": 0,\"bypass\": 3} \n\
+        }]";
+
+    rkaiq_uapi_unified_ctl(const_cast<rk_aiq_sys_ctx_t*>(ctx),
+                           const_cast<char*>(json_gain_status_str.c_str()), &ret_str, RKAIQUAPI_OPMODE_GET);
+
+    if (ret_str) {
+        printf("gain status json str: %s\n", ret_str);
+    }
+
+    printf("  start tuning tool test: op attrib set ...\n");
+    std::string json_gain_str = " \n\
+        [{ \n\
+            \"op\":\"replace\", \n\
+            \"path\": \"/uapi/0/gain_uapi/attr\", \n\
+            \"value\": \n\
+            { \"opMode\": \"RK_AIQ_OP_MODE_MANUAL\", \"en\": 1,\"bypass\": 1} \n\
+        }]";
+    printf("gain json_cmd_str: %s\n", json_gain_str.c_str());
+    ret_str = NULL;
+    rkaiq_uapi_unified_ctl(const_cast<rk_aiq_sys_ctx_t*>(ctx),
+                           const_cast<char*>(json_gain_str.c_str()), &ret_str, RKAIQUAPI_OPMODE_SET);
+
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    gain_status_t status;
+    memset(&status, 0, sizeof(gain_status_t));
+
+    rk_aiq_user_api2_gain_QueryStatus(ctx, &status);
+
+    if (status.opMode != RK_AIQ_OP_MODE_MANUAL || status.en != 1 || status.bypass != 1) {
+        printf("gain op set_attrib failed !\n");
+        printf("gain status: opmode:%d(EXP:%d), en:%d(EXP:%d), bypass:%d(EXP:%d)\n",
+               status.opMode, RK_AIQ_OP_MODE_MANUAL, status.en, 1, status.bypass, 1);
+    } else {
+        printf("gain op set_attrib success !\n");
+    }
+
+    printf(">>> tuning tool test done \n");
+}
+
+void get_auto_attr(gain_api_attrib_t* attr) {
+    gain_param_auto_t* stAuto = &attr->stAuto;
+    for (int i = 0;i < 13;i++) {
+    }
+}
+
+void get_manual_attr(gain_api_attrib_t* attr) {
+    gain_param_t* stMan = &attr->stMan;
+}
+
+int sample_gain_test(const rk_aiq_sys_ctx_t* ctx)
+{
+    // sample_gain_tuningtool_test(ctx);
+    // get cur mode
+    printf("+++++++ gain module test start ++++++++\n");
+
+    gain_api_attrib_t attr;
+    memset(&attr, 0, sizeof(attr));
+
+    rk_aiq_user_api2_gain_GetAttrib(ctx, &attr);
+
+    printf("gain attr: opmode:%d, en:%d, bypass:%d\n", attr.opMode, attr.en, attr.bypass);
+
+    srand(time(0));
+    int rand_num = rand() % 101;
+
+    if (rand_num <70) {
+        printf("update gain arrrib!\n");
+        if (attr.opMode == RK_AIQ_OP_MODE_AUTO) {
+            attr.opMode = RK_AIQ_OP_MODE_MANUAL;
+            get_manual_attr(&attr);
+        }
+        else {
+            get_auto_attr(&attr);
+            attr.opMode = RK_AIQ_OP_MODE_AUTO;
+        }
+    }
+    else {
+        // reverse en
+        printf("reverse gain en!\n");
+        attr.en = !attr.en;
+    }
+
+    rk_aiq_user_api2_gain_SetAttrib(ctx, &attr);
+
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    gain_status_t status;
+    memset(&status, 0, sizeof(gain_status_t));
+
+    rk_aiq_user_api2_gain_QueryStatus(ctx, &status);
+
+    printf("gain status: opmode:%d, en:%d, bypass:%d\n", status.opMode, status.en, status.bypass);
+
+    if (status.opMode != attr.opMode || status.en != attr.en)
+        printf("gain test failed\n");
+    printf("-------- gain module test done --------\n");
+
+    return 0;
+}
+#endif
+
+XCamReturn sample_again_module(const void* arg)
 {
     int key = -1;
     CLEAR();
@@ -236,6 +365,11 @@ XCamReturn sample_again_module (const void *arg)
                 sample_agin_WriteLocalGain(ctx, RK_AIQ_UAPI_MODE_SYNC, RK_AGAIN_GAIN2DDR_MODE_1X8);
             }
             break;
+#ifdef USE_NEWSTRUCT
+        case 'b':
+            sample_gain_test(ctx);
+            break;
+#endif
         default:
             printf("not support test\n\n");
             break;

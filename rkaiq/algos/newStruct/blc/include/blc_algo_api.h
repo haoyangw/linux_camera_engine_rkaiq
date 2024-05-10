@@ -17,6 +17,9 @@ typedef enum BlcHwVersion_e
     BLC_HARDWARE_MAX,
 } BlcHwVersion_t;
 
+XCAM_BEGIN_DECLARE
+
+#if 0
 XCamReturn
 algo_blc_SetAttrib
 (
@@ -30,8 +33,7 @@ algo_blc_GetAttrib
     RkAiqAlgoContext*  ctx,
     blc_api_attrib_t *attr
 );
-
-XCAM_BEGIN_DECLARE
+#endif
 extern RkAiqAlgoDescription g_RkIspAlgoDescBlc;
 XCAM_END_DECLARE
 

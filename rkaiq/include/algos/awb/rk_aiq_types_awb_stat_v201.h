@@ -23,7 +23,7 @@
 #ifndef __RK_AIQ_TYPE_AWB_STAT_V201_H__
 #define __RK_AIQ_TYPE_AWB_STAT_V201_H__
 
-#include "rk_aiq_types_awb_stat_v2xx.h"
+#include "algos/awb/rk_aiq_types_awb_stat_v2xx.h"
 
 #ifdef ISP_HW_V30 //for rk3588
 #define AWB_MULTI_WINDOW_EN

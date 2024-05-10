@@ -19,9 +19,9 @@
 #ifndef _RK_AIQ_UAPIV2_CAMGROUP_AWB_INT_H_
 #define _RK_AIQ_UAPIV2_CAMGROUP_AWB_INT_H_
 
-#include "base/xcam_common.h"
-#include "rk_aiq_algo_des.h"
-#include "awb/rk_aiq_types_awb_algo_int.h"
+#include "xcore/base/xcam_common.h"
+#include "algos/rk_aiq_algo_des.h"
+#include "algos/awb/rk_aiq_types_awb_algo_int.h"
 
 // need_sync means the implementation should consider
 // the thread synchronization
@@ -30,10 +30,11 @@
 // sync should be done in inner. now we just need implement
 // the case of need_sync == false; need_sync is for future usage.
 
+RKAIQ_BEGIN_DECLARE
 
 XCamReturn
 rk_aiq_uapiV2_camgroup_awbV21_SetAttrib(RkAiqAlgoContext *ctx,
-                          const rk_aiq_uapiV2_wbV21_attrib_t &attr,
+                          const rk_aiq_uapiV2_wbV21_attrib_t *attr,
                           bool need_sync);
 XCamReturn
 rk_aiq_uapiV2_camgroup_awbV21_GetAttrib(RkAiqAlgoContext *ctx,
@@ -41,7 +42,7 @@ rk_aiq_uapiV2_camgroup_awbV21_GetAttrib(RkAiqAlgoContext *ctx,
 
 XCamReturn
 rk_aiq_uapiV2_camgroup_awb_SetMwbMode(RkAiqAlgoContext *ctx,
-                          const rk_aiq_wb_op_mode_t &mode,
+                          const rk_aiq_wb_op_mode_t *mode,
                           bool need_sync);
 
 XCamReturn
@@ -50,7 +51,7 @@ rk_aiq_uapiV2_camgroup_awb_GetMwbMode(RkAiqAlgoContext *ctx,
 
 XCamReturn
 rk_aiq_uapiV2_camgroup_awb_SetMwbAttrib(RkAiqAlgoContext *ctx,
-                          const rk_aiq_wb_mwb_attrib_t &attr,
+                          const rk_aiq_wb_mwb_attrib_t *attr,
                           bool need_sync);
 
 XCamReturn
@@ -59,7 +60,7 @@ rk_aiq_uapiV2_camgroup_awb_GetMwbAttrib(RkAiqAlgoContext *ctx,
 
 XCamReturn
 rk_aiq_uapiV2_camgroup_awbV21_SetAwbAttrib(RkAiqAlgoContext *ctx,
-                          const rk_aiq_uapiV2_wbV21_awb_attrib_t &attr,
+                          const rk_aiq_uapiV2_wbV21_awb_attrib_t *attr,
                           bool need_sync);
 
 XCamReturn
@@ -68,7 +69,7 @@ rk_aiq_uapiV2_camgroup_awbV21_GetAwbAttrib(RkAiqAlgoContext *ctx,
 
 XCamReturn
 rk_aiq_uapiV2_camgroup_awb_SetAwbGainAdjust(RkAiqAlgoContext *ctx,
-                          const rk_aiq_uapiV2_wb_awb_wbGainAdjust_t &wbGainAdjust,
+                          const rk_aiq_uapiV2_wb_awb_wbGainAdjust_t *wbGainAdjust,
                           bool need_sync);
 XCamReturn
 rk_aiq_uapiV2_camgroup_awb_GetAwbGainAdjust(RkAiqAlgoContext *ctx,
@@ -87,7 +88,7 @@ rk_aiq_uapiV2_camgroup_awb_GetCCT(const RkAiqAlgoContext *ctx,
 
 XCamReturn
 rk_aiq_uapiV2_camgroup_awb_SetAwbMultiwindow(RkAiqAlgoContext *ctx,
-                         const CalibDbV2_Awb_Mul_Win_t  &multiWindow,
+                         const CalibDbV2_Awb_Mul_Win_t  *multiWindow,
                          bool need_sync);
 XCamReturn
 rk_aiq_uapiV2_camgroup_awb_GetAwbMultiwindow(RkAiqAlgoContext *ctx,
@@ -109,21 +110,21 @@ rk_aiq_uapiV2_camgroup_awb_GetStrategyResult(const RkAiqAlgoContext *ctx,
                             rk_tool_awb_strategy_result_t *awb_strategy_result);
 XCamReturn
 rk_aiq_uapiV2_camgroup_awbV32_SetAwbMultiwindow(RkAiqAlgoContext *ctx,
-                         const rk_aiq_uapiV2_wbV32_awb_mulWindow_t  &multiWindow,
+                         const rk_aiq_uapiV2_wbV32_awb_mulWindow_t  *multiWindow,
                          bool need_sync);
 XCamReturn
 rk_aiq_uapiV2_camgroup_awbV32_GetAwbMultiwindow(RkAiqAlgoContext *ctx,
                          rk_aiq_uapiV2_wbV32_awb_mulWindow_t  *multiWindow);
 XCamReturn
 rk_aiq_uapiV2_camgroup_awbV32_SetAwbAttrib(RkAiqAlgoContext *ctx,
-                          const rk_aiq_uapiV2_wbV32_awb_attrib_t &attr,
+                          const rk_aiq_uapiV2_wbV32_awb_attrib_t *attr,
                           bool need_sync);
 XCamReturn
 rk_aiq_uapiV2_camgroup_awbV32_GetAwbAttrib(RkAiqAlgoContext *ctx,
                           rk_aiq_uapiV2_wbV32_awb_attrib_t *attr);
 XCamReturn
 rk_aiq_uapiV2_camgroup_awbV32_SetAttrib(RkAiqAlgoContext *ctx,
-                          const rk_aiq_uapiV2_wbV32_attrib_t &attr,
+                          const rk_aiq_uapiV2_wbV32_attrib_t *attr,
                           bool need_sync);
 XCamReturn
 rk_aiq_uapiV2_camgroup_awbV32_GetAttrib(RkAiqAlgoContext *ctx,
@@ -142,5 +143,6 @@ XCamReturn
 rk_aiq_uapiV2_camgroup_awb_SetIQAutoPara(RkAiqAlgoContext *ctx,
                           const rk_aiq_uapiV2_Wb_Awb_IqAtPa_V32_t *autoPara,
                           bool need_sync);
+RKAIQ_END_DECLARE
 #endif
 

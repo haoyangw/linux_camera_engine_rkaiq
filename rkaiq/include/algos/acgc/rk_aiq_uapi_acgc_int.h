@@ -20,9 +20,9 @@
 #ifndef _RK_AIQ_UAPI_ACGC_INT_H_
 #define _RK_AIQ_UAPI_ACGC_INT_H_
 
-#include "base/xcam_common.h"
-#include "rk_aiq_algo_des.h"
-#include "rk_aiq_types_acgc_algo.h"
+#include "xcore/base/xcam_common.h"
+#include "algos/rk_aiq_algo_des.h"
+#include "algos/acgc/rk_aiq_types_acgc_algo.h"
 
 // need_sync means the implementation should consider
 // the thread synchronization

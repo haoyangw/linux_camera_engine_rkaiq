@@ -799,6 +799,25 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStats(const SmartPtr<Vid
     struct rkisp32_isp_stat_buffer* right_stats;
     SmartPtr<RkAiqAecStats> statsInt = to->data();
 
+    // expsoure params
+    if (_expParams.ptr()) {
+        statsInt->aec_stats.ae_exp = _expParams->data()->aecExpInfo;
+        /*printf("frame[%d],gain=%d,time=%d\n", stats->frame_id,
+               expParams->data()->aecExpInfo.LinearExp.exp_sensor_params.analog_gain_code_global,
+               expParams->data()->aecExpInfo.LinearExp.exp_sensor_params.coarse_integration_time);*/
+
+        /*
+         * printf("%s: L: [0x%x-0x%x], M: [0x%x-0x%x], S: [0x%x-0x%x]\n",
+         *        __func__,
+         *        expParams->data()->aecExpInfo.HdrExp[2].exp_sensor_params.coarse_integration_time,
+         *        expParams->data()->aecExpInfo.HdrExp[2].exp_sensor_params.analog_gain_code_global,
+         *        expParams->data()->aecExpInfo.HdrExp[1].exp_sensor_params.coarse_integration_time,
+         *        expParams->data()->aecExpInfo.HdrExp[1].exp_sensor_params.analog_gain_code_global,
+         *        expParams->data()->aecExpInfo.HdrExp[0].exp_sensor_params.coarse_integration_time,
+         *        expParams->data()->aecExpInfo.HdrExp[0].exp_sensor_params.analog_gain_code_global);
+         */
+    }
+
     left_stats = (struct rkisp32_isp_stat_buffer*)(buf->get_v4l2_userptr());
     if (left_stats == NULL) {
         LOGE("fail to get stats ,ignore\n");
@@ -900,8 +919,12 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStats(const SmartPtr<Vid
 
     HistMean[0] = (uint16_t)(SumHistBin[0] / MAX(SumHistPix[0], 1));
     HistMean[1] = (uint16_t)(SumHistBin[1] / MAX(SumHistPix[1], 1));
-    bool run_flag = getAeStatsRunFlag(HistMean);
-    run_flag |= _aeAlgoStatsCfg.UpdateStats;
+    bool run_flag = true;
+
+    if(memcmp(&_lastAeStats.ae_exp, &statsInt->aec_stats.ae_exp, sizeof(RKAiqAecExpInfo_t)) == 0) {
+        run_flag = getAeStatsRunFlag(HistMean);
+        run_flag |= _aeAlgoStatsCfg.UpdateStats;
+    }
 
     if (run_flag) {
         //AE-LITE (RAWAE0)
@@ -999,9 +1022,9 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStats(const SmartPtr<Vid
                 return XCAM_RETURN_ERROR_PARAM;
             }
         }
-        _lastAeStats =  statsInt->aec_stats.ae_data;
+        _lastAeStats.ae_data =  statsInt->aec_stats.ae_data;
     } else {
-        statsInt->aec_stats.ae_data = _lastAeStats;
+        statsInt->aec_stats.ae_data = _lastAeStats.ae_data;
     }
 
 #ifdef AE_STATS_DEBUG
@@ -1057,24 +1080,7 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStats(const SmartPtr<Vid
      *                 chn1_mean/ISP3X_RAWAEBIG_MEAN_NUM);
      */
 
-    // expsoure params
-    if (_expParams.ptr()) {
-        statsInt->aec_stats.ae_exp = _expParams->data()->aecExpInfo;
-        /*printf("frame[%d],gain=%d,time=%d\n", stats->frame_id,
-               expParams->data()->aecExpInfo.LinearExp.exp_sensor_params.analog_gain_code_global,
-               expParams->data()->aecExpInfo.LinearExp.exp_sensor_params.coarse_integration_time);*/
-
-        /*
-         * printf("%s: L: [0x%x-0x%x], M: [0x%x-0x%x], S: [0x%x-0x%x]\n",
-         *        __func__,
-         *        expParams->data()->aecExpInfo.HdrExp[2].exp_sensor_params.coarse_integration_time,
-         *        expParams->data()->aecExpInfo.HdrExp[2].exp_sensor_params.analog_gain_code_global,
-         *        expParams->data()->aecExpInfo.HdrExp[1].exp_sensor_params.coarse_integration_time,
-         *        expParams->data()->aecExpInfo.HdrExp[1].exp_sensor_params.analog_gain_code_global,
-         *        expParams->data()->aecExpInfo.HdrExp[0].exp_sensor_params.coarse_integration_time,
-         *        expParams->data()->aecExpInfo.HdrExp[0].exp_sensor_params.analog_gain_code_global);
-         */
-    }
+    _lastAeStats.ae_exp = statsInt->aec_stats.ae_exp;
 
     // iris params
     if (irisParams.ptr()) {
@@ -2291,6 +2297,25 @@ XCamReturn RkAiqResourceTranslatorV32::translateAecStats(const SmartPtr<VideoBuf
 
     SmartPtr<RkAiqIrisParamsProxy> irisParams = buf->get_iris_params();
 
+    // expsoure params
+    if (_expParams.ptr()) {
+        statsInt->aec_stats.ae_exp = _expParams->data()->aecExpInfo;
+        /*printf("frame[%d],gain=%d,time=%d\n", stats->frame_id,
+               expParams->data()->aecExpInfo.LinearExp.exp_sensor_params.analog_gain_code_global,
+               expParams->data()->aecExpInfo.LinearExp.exp_sensor_params.coarse_integration_time);*/
+
+        /*
+         * printf("%s: L: [0x%x-0x%x], M: [0x%x-0x%x], S: [0x%x-0x%x]\n",
+         *        __func__,
+         *        expParams->data()->aecExpInfo.HdrExp[2].exp_sensor_params.coarse_integration_time,
+         *        expParams->data()->aecExpInfo.HdrExp[2].exp_sensor_params.analog_gain_code_global,
+         *        expParams->data()->aecExpInfo.HdrExp[1].exp_sensor_params.coarse_integration_time,
+         *        expParams->data()->aecExpInfo.HdrExp[1].exp_sensor_params.analog_gain_code_global,
+         *        expParams->data()->aecExpInfo.HdrExp[0].exp_sensor_params.coarse_integration_time,
+         *        expParams->data()->aecExpInfo.HdrExp[0].exp_sensor_params.analog_gain_code_global);
+         */
+    }
+
     switch (AeSwapMode) {
     case AEC_RAWSWAP_MODE_S_LITE:
         meas_type = ((stats->meas_type >> 7) & (0x01)) & ((stats->meas_type >> 11) & (0x01));
@@ -2339,8 +2364,12 @@ XCamReturn RkAiqResourceTranslatorV32::translateAecStats(const SmartPtr<VideoBuf
 
     HistMean[0] = (uint16_t)(SumHistBin[0] / MAX(SumHistPix[0], 1));
     HistMean[1] = (uint16_t)(SumHistBin[1] / MAX(SumHistPix[1], 1));
-    bool run_flag = getAeStatsRunFlag(HistMean);
-    run_flag |= _aeAlgoStatsCfg.UpdateStats;
+    bool run_flag = true;
+
+    if(memcmp(&_lastAeStats.ae_exp, &statsInt->aec_stats.ae_exp, sizeof(RKAiqAecExpInfo_t)) == 0) {
+        run_flag = getAeStatsRunFlag(HistMean);
+        run_flag |= _aeAlgoStatsCfg.UpdateStats;
+    }
 
     if (run_flag) {
         if (is_hdr || AeSwapMode == AEC_RAWSWAP_MODE_S_LITE) {
@@ -2429,9 +2458,9 @@ XCamReturn RkAiqResourceTranslatorV32::translateAecStats(const SmartPtr<VideoBuf
                 break;
             }
         }
-        _lastAeStats = statsInt->aec_stats.ae_data;
+        _lastAeStats.ae_data = statsInt->aec_stats.ae_data;
     } else {
-        statsInt->aec_stats.ae_data = _lastAeStats;
+        statsInt->aec_stats.ae_data = _lastAeStats.ae_data;
     }
 
 #ifdef AE_STATS_DEBUG
@@ -2485,25 +2514,7 @@ XCamReturn RkAiqResourceTranslatorV32::translateAecStats(const SmartPtr<VideoBuf
      *                 stats->frame_id, chn0_mean/ISP3X_RAWAEBIG_MEAN_NUM,
      *                 chn1_mean/ISP3X_RAWAEBIG_MEAN_NUM);
      */
-
-    // expsoure params
-    if (_expParams.ptr()) {
-        statsInt->aec_stats.ae_exp = _expParams->data()->aecExpInfo;
-        /*printf("frame[%d],gain=%d,time=%d\n", stats->frame_id,
-               expParams->data()->aecExpInfo.LinearExp.exp_sensor_params.analog_gain_code_global,
-               expParams->data()->aecExpInfo.LinearExp.exp_sensor_params.coarse_integration_time);*/
-
-        /*
-         * printf("%s: L: [0x%x-0x%x], M: [0x%x-0x%x], S: [0x%x-0x%x]\n",
-         *        __func__,
-         *        expParams->data()->aecExpInfo.HdrExp[2].exp_sensor_params.coarse_integration_time,
-         *        expParams->data()->aecExpInfo.HdrExp[2].exp_sensor_params.analog_gain_code_global,
-         *        expParams->data()->aecExpInfo.HdrExp[1].exp_sensor_params.coarse_integration_time,
-         *        expParams->data()->aecExpInfo.HdrExp[1].exp_sensor_params.analog_gain_code_global,
-         *        expParams->data()->aecExpInfo.HdrExp[0].exp_sensor_params.coarse_integration_time,
-         *        expParams->data()->aecExpInfo.HdrExp[0].exp_sensor_params.analog_gain_code_global);
-         */
-    }
+    _lastAeStats.ae_exp = statsInt->aec_stats.ae_exp;
 
     // iris params
     if (irisParams.ptr()) {
@@ -2546,6 +2557,25 @@ XCamReturn RkAiqResourceTranslatorV32::translateAecStats(const SmartPtr<VideoBuf
                   stats->meas_type);
 
     SmartPtr<RkAiqIrisParamsProxy> irisParams = buf->get_iris_params();
+
+    // expsoure params
+    if (_expParams.ptr()) {
+        statsInt->aec_stats.ae_exp = _expParams->data()->aecExpInfo;
+        /*printf("frame[%d],gain=%d,time=%d\n", stats->frame_id,
+               expParams->data()->aecExpInfo.LinearExp.exp_sensor_params.analog_gain_code_global,
+               expParams->data()->aecExpInfo.LinearExp.exp_sensor_params.coarse_integration_time);*/
+
+        /*
+         * printf("%s: L: [0x%x-0x%x], M: [0x%x-0x%x], S: [0x%x-0x%x]\n",
+         *        __func__,
+         *        expParams->data()->aecExpInfo.HdrExp[2].exp_sensor_params.coarse_integration_time,
+         *        expParams->data()->aecExpInfo.HdrExp[2].exp_sensor_params.analog_gain_code_global,
+         *        expParams->data()->aecExpInfo.HdrExp[1].exp_sensor_params.coarse_integration_time,
+         *        expParams->data()->aecExpInfo.HdrExp[1].exp_sensor_params.analog_gain_code_global,
+         *        expParams->data()->aecExpInfo.HdrExp[0].exp_sensor_params.coarse_integration_time,
+         *        expParams->data()->aecExpInfo.HdrExp[0].exp_sensor_params.analog_gain_code_global);
+         */
+    }
 
     switch (AeSwapMode) {
     case AEC_RAWSWAP_MODE_S_LITE:
@@ -2617,8 +2647,12 @@ XCamReturn RkAiqResourceTranslatorV32::translateAecStats(const SmartPtr<VideoBuf
 
     HistMean[0] = (uint16_t)(SumHistBin[0] / MAX(SumHistPix[0], 1));
     HistMean[1] = (uint16_t)(SumHistBin[1] / MAX(SumHistPix[1], 1));
-    bool run_flag = getAeStatsRunFlag(HistMean);
-    run_flag |= _aeAlgoStatsCfg.UpdateStats;
+    bool run_flag = true;
+
+    if(memcmp(&_lastAeStats.ae_exp, &statsInt->aec_stats.ae_exp, sizeof(RKAiqAecExpInfo_t)) == 0) {
+        run_flag = getAeStatsRunFlag(HistMean);
+        run_flag |= _aeAlgoStatsCfg.UpdateStats;
+    }
 
     if (run_flag) {
         if (!AfUseRawAE0 && is_hdr) {
@@ -2682,9 +2716,9 @@ XCamReturn RkAiqResourceTranslatorV32::translateAecStats(const SmartPtr<VideoBuf
             LOGE("wrong AeSelMode=%d\n", AeSelMode);
             return XCAM_RETURN_ERROR_PARAM;
         }
-        _lastAeStats = statsInt->aec_stats.ae_data;
+        _lastAeStats.ae_data = statsInt->aec_stats.ae_data;
     } else {
-        statsInt->aec_stats.ae_data = _lastAeStats;
+        statsInt->aec_stats.ae_data = _lastAeStats.ae_data;
     }
 
 #ifdef AE_STATS_DEBUG
@@ -2774,25 +2808,7 @@ XCamReturn RkAiqResourceTranslatorV32::translateAecStats(const SmartPtr<VideoBuf
      *                 stats->frame_id, chn0_mean/ISP3X_RAWAEBIG_MEAN_NUM,
      *                 chn1_mean/ISP3X_RAWAEBIG_MEAN_NUM);
      */
-
-    // expsoure params
-    if (_expParams.ptr()) {
-        statsInt->aec_stats.ae_exp = _expParams->data()->aecExpInfo;
-        /*printf("frame[%d],gain=%d,time=%d\n", stats->frame_id,
-               expParams->data()->aecExpInfo.LinearExp.exp_sensor_params.analog_gain_code_global,
-               expParams->data()->aecExpInfo.LinearExp.exp_sensor_params.coarse_integration_time);*/
-
-        /*
-         * printf("%s: L: [0x%x-0x%x], M: [0x%x-0x%x], S: [0x%x-0x%x]\n",
-         *        __func__,
-         *        expParams->data()->aecExpInfo.HdrExp[2].exp_sensor_params.coarse_integration_time,
-         *        expParams->data()->aecExpInfo.HdrExp[2].exp_sensor_params.analog_gain_code_global,
-         *        expParams->data()->aecExpInfo.HdrExp[1].exp_sensor_params.coarse_integration_time,
-         *        expParams->data()->aecExpInfo.HdrExp[1].exp_sensor_params.analog_gain_code_global,
-         *        expParams->data()->aecExpInfo.HdrExp[0].exp_sensor_params.coarse_integration_time,
-         *        expParams->data()->aecExpInfo.HdrExp[0].exp_sensor_params.analog_gain_code_global);
-         */
-    }
+    _lastAeStats.ae_exp = statsInt->aec_stats.ae_exp;
 
     // iris params
     if (irisParams.ptr()) {
@@ -3952,6 +3968,25 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStatsV32Lite(const Smart
     struct rkisp32_lite_stat_buffer* bottom_right_stats;
     SmartPtr<RkAiqAecStats> statsInt = to->data();
 
+    // expsoure params
+    if (_expParams.ptr()) {
+        statsInt->aec_stats.ae_exp = _expParams->data()->aecExpInfo;
+        /*printf("frame[%d],gain=%d,time=%d\n", stats->frame_id,
+               expParams->data()->aecExpInfo.LinearExp.exp_sensor_params.analog_gain_code_global,
+               expParams->data()->aecExpInfo.LinearExp.exp_sensor_params.coarse_integration_time);*/
+
+        /*
+         * printf("%s: L: [0x%x-0x%x], M: [0x%x-0x%x], S: [0x%x-0x%x]\n",
+         *        __func__,
+         *        expParams->data()->aecExpInfo.HdrExp[2].exp_sensor_params.coarse_integration_time,
+         *        expParams->data()->aecExpInfo.HdrExp[2].exp_sensor_params.analog_gain_code_global,
+         *        expParams->data()->aecExpInfo.HdrExp[1].exp_sensor_params.coarse_integration_time,
+         *        expParams->data()->aecExpInfo.HdrExp[1].exp_sensor_params.analog_gain_code_global,
+         *        expParams->data()->aecExpInfo.HdrExp[0].exp_sensor_params.coarse_integration_time,
+         *        expParams->data()->aecExpInfo.HdrExp[0].exp_sensor_params.analog_gain_code_global);
+         */
+    }
+
     top_left_stats = (struct rkisp32_lite_stat_buffer*)(buf->get_v4l2_userptr());
     if (top_left_stats == NULL) {
         LOGE("fail to get stats ,ignore\n");
@@ -4054,12 +4089,12 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStatsV32Lite(const Smart
 
         if (ispUnitedMode == RK_AIQ_ISP_UNITED_MODE_FOUR_GRID) {
             MergeAecHistBinStats(bottom_left_stats->params.rawhist0.hist_bin,
-                             bottom_right_stats->params.rawhist0.hist_bin,
-                             bottom_stats,
-                             AeWinSplitMode[index0], rawhist_mode,
-                             isp_ob_offset_rb, isp_ob_offset_g,
-                             bls1_ori_val, awb1_gain, is_hdr,
-                             ISP32L_HIST_LITE_BIN_N_MAX);
+                                 bottom_right_stats->params.rawhist0.hist_bin,
+                                 bottom_stats,
+                                 AeWinSplitMode[index0], rawhist_mode,
+                                 isp_ob_offset_rb, isp_ob_offset_g,
+                                 bls1_ori_val, awb1_gain, is_hdr,
+                                 ISP32L_HIST_LITE_BIN_N_MAX);
 
             switch (AeWinSplitModeV[index0])
             {
@@ -4096,12 +4131,12 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStatsV32Lite(const Smart
 
         if (ispUnitedMode == RK_AIQ_ISP_UNITED_MODE_FOUR_GRID) {
             MergeAecHistBinStats(bottom_left_stats->params.rawhist3.hist_bin,
-                             bottom_right_stats->params.rawhist3.hist_bin,
-                             bottom_stats,
-                             AeWinSplitMode[AeSelMode], rawhist3_mode,
-                             isp_ob_offset_rb, isp_ob_offset_g,
-                             bls1_ori_val, awb1_gain, is_hdr,
-                             ISP32_HIST_BIN_N_MAX);
+                                 bottom_right_stats->params.rawhist3.hist_bin,
+                                 bottom_stats,
+                                 AeWinSplitMode[AeSelMode], rawhist3_mode,
+                                 isp_ob_offset_rb, isp_ob_offset_g,
+                                 bls1_ori_val, awb1_gain, is_hdr,
+                                 ISP32_HIST_BIN_N_MAX);
 
             switch (AeWinSplitModeV[AeSelMode])
             {
@@ -4162,8 +4197,13 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStatsV32Lite(const Smart
 
     HistMean[0] = (uint16_t)(SumHistBin[0] / MAX(SumHistPix[0], 1));
     HistMean[1] = (uint16_t)(SumHistBin[1] / MAX(SumHistPix[1], 1));
-    bool run_flag = getAeStatsRunFlag(HistMean);
-    run_flag |= _aeAlgoStatsCfg.UpdateStats;
+
+    bool run_flag = true;
+
+    if(memcmp(&_lastAeStats.ae_exp, &statsInt->aec_stats.ae_exp, sizeof(RKAiqAecExpInfo_t)) == 0) {
+        run_flag = getAeStatsRunFlag(HistMean);
+        run_flag |= _aeAlgoStatsCfg.UpdateStats;
+    }
 
     if (run_flag) {
         //AE-LITE (RAWAE0)
@@ -4178,12 +4218,12 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStatsV32Lite(const Smart
 
             if (ispUnitedMode == RK_AIQ_ISP_UNITED_MODE_FOUR_GRID)
 
-            MergeAecWinLiteStatsVerticalV32Lite(&rawae_lite_top,
-                                                &rawae_lite_bottom,
-                                                &statsInt->aec_stats.ae_data.chn[index0].rawae_lite,
-                                                &statsInt->aec_stats.ae_data.raw_mean[index0],
-                                                _aeAlgoStatsCfg.LiteWeight, _aeAlgoStatsCfg.RawStatsChnSel, _aeAlgoStatsCfg.YRangeMode,
-                                                AeWinSplitModeV[0], bls1_val, awb1_gain);
+                MergeAecWinLiteStatsVerticalV32Lite(&rawae_lite_top,
+                                                    &rawae_lite_bottom,
+                                                    &statsInt->aec_stats.ae_data.chn[index0].rawae_lite,
+                                                    &statsInt->aec_stats.ae_data.raw_mean[index0],
+                                                    _aeAlgoStatsCfg.LiteWeight, _aeAlgoStatsCfg.RawStatsChnSel, _aeAlgoStatsCfg.YRangeMode,
+                                                    AeWinSplitModeV[0], bls1_val, awb1_gain);
         }
 
         switch (AeSelMode) {
@@ -4285,9 +4325,9 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStatsV32Lite(const Smart
             LOGE("wrong AeSelMode=%d\n", AeSelMode);
             return XCAM_RETURN_ERROR_PARAM;
         }
-        _lastAeStats = statsInt->aec_stats.ae_data;
+        _lastAeStats.ae_data = statsInt->aec_stats.ae_data;
     } else {
-        statsInt->aec_stats.ae_data = _lastAeStats;
+        statsInt->aec_stats.ae_data = _lastAeStats.ae_data;
     }
 
 #ifdef AE_STATS_DEBUG
@@ -4343,24 +4383,8 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAecStatsV32Lite(const Smart
      *                 chn1_mean/ISP3X_RAWAEBIG_MEAN_NUM);
      */
 
-    // expsoure params
-    if (_expParams.ptr()) {
-        statsInt->aec_stats.ae_exp = _expParams->data()->aecExpInfo;
-        /*printf("frame[%d],gain=%d,time=%d\n", stats->frame_id,
-               expParams->data()->aecExpInfo.LinearExp.exp_sensor_params.analog_gain_code_global,
-               expParams->data()->aecExpInfo.LinearExp.exp_sensor_params.coarse_integration_time);*/
+    _lastAeStats.ae_exp = statsInt->aec_stats.ae_exp;
 
-        /*
-         * printf("%s: L: [0x%x-0x%x], M: [0x%x-0x%x], S: [0x%x-0x%x]\n",
-         *        __func__,
-         *        expParams->data()->aecExpInfo.HdrExp[2].exp_sensor_params.coarse_integration_time,
-         *        expParams->data()->aecExpInfo.HdrExp[2].exp_sensor_params.analog_gain_code_global,
-         *        expParams->data()->aecExpInfo.HdrExp[1].exp_sensor_params.coarse_integration_time,
-         *        expParams->data()->aecExpInfo.HdrExp[1].exp_sensor_params.analog_gain_code_global,
-         *        expParams->data()->aecExpInfo.HdrExp[0].exp_sensor_params.coarse_integration_time,
-         *        expParams->data()->aecExpInfo.HdrExp[0].exp_sensor_params.analog_gain_code_global);
-         */
-    }
 
     // iris params
     if (irisParams.ptr()) {
@@ -4497,14 +4521,14 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAwbStatsV32Lite(const Smart
 
     if (ispUnitedMode == RK_AIQ_ISP_UNITED_MODE_FOUR_GRID) {
         MergeAwbWinStats(top_stats->light, &top_left_stats->params.rawawb, &top_right_stats->params.rawawb,
-                        statsInt->awb_stats_v32.awb_cfg_effect_v32.lightNum, AwbWinSplitMode);
+                         statsInt->awb_stats_v32.awb_cfg_effect_v32.lightNum, AwbWinSplitMode);
         MergeAwbWinStats(bottom_stats->light, &bottom_left_stats->params.rawawb, &bottom_right_stats->params.rawawb,
-                        statsInt->awb_stats_v32.awb_cfg_effect_v32.lightNum, AwbWinSplitMode);
+                         statsInt->awb_stats_v32.awb_cfg_effect_v32.lightNum, AwbWinSplitMode);
         MergeAwbWinStatsVertical(statsInt->awb_stats_v32.light, top_stats->light, bottom_stats->light,
-                                statsInt->awb_stats_v32.awb_cfg_effect_v32.lightNum, AwbWinSplitModeV);
+                                 statsInt->awb_stats_v32.awb_cfg_effect_v32.lightNum, AwbWinSplitModeV);
     } else {
         MergeAwbWinStats(statsInt->awb_stats_v32.light, &top_left_stats->params.rawawb, &top_right_stats->params.rawawb,
-                        statsInt->awb_stats_v32.awb_cfg_effect_v32.lightNum, AwbWinSplitMode);
+                         statsInt->awb_stats_v32.awb_cfg_effect_v32.lightNum, AwbWinSplitMode);
     }
 
     struct isp2x_window top_left_win;
@@ -4581,7 +4605,7 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAwbStatsV32Lite(const Smart
         MergeAwbExcWpStats(top_stats->excWpRangeResult, &top_left_stats->params.rawawb, &top_right_stats->params.rawawb, AwbWinSplitMode);
         MergeAwbExcWpStats(bottom_stats->excWpRangeResult, &bottom_left_stats->params.rawawb, &bottom_right_stats->params.rawawb, AwbWinSplitMode);
         MergeAwbExcWpStatsVertical(statsInt->awb_stats_v32.excWpRangeResult, top_stats->excWpRangeResult,
-                                bottom_stats->excWpRangeResult, AwbWinSplitModeV);
+                                   bottom_stats->excWpRangeResult, AwbWinSplitModeV);
     } else {
         MergeAwbBlkStatsV32Lite(&ori_win, &top_left_win, &top_right_win, statsInt->awb_stats_v32.blockResult, &top_left_stats->params.rawawb, &top_right_stats->params.rawawb, AwbWinSplitMode);
         MergeAwbHistBinStats(statsInt->awb_stats_v32.WpNoHist, top_left_stats->params.rawawb.yhist_bin, top_right_stats->params.rawawb.yhist_bin, AwbWinSplitMode);

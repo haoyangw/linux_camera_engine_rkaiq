@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_DPC_H_
 #define _RK_AIQ_USER_API2_DPC_H_
 
-#include "rk_aiq_api_types_dpc.h"
+#include "algos/rk_aiq_api_types_dpc.h"
 
 RKAIQ_BEGIN_DECLARE
 

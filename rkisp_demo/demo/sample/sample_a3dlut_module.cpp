@@ -16,6 +16,15 @@
  */
 
 #include "sample_comm.h"
+// #define USE_NEWSTRUCT
+#ifdef ISP_HW_V39
+#include "uAPI2/rk_aiq_user_api2_rk3576.h"
+#elif  defined(ISP_HW_V33)
+#include "uAPI2/rk_aiq_user_api2_rv1103B.h"
+#elif  defined(ISP_HW_V32)
+#include "uAPI2/rk_aiq_user_api2_rv1106.h"
+#endif
+
 
 static void sample_a3dlut_usage()
 {
@@ -38,6 +47,7 @@ static void sample_a3dlut_usage()
     printf("\t g) 3DLUT:         Set Manual attr & Sync.\n");
     printf("\t i) 3DLUT:         Set Manual attr & Async.\n");
     printf("\t j) 3DLUT:         Query A3DLUT Info.\n");
+    printf("\t k) 3DLUT:         newstruct test.\n");
     printf("\n");
     printf("\t h) 3DLUT:         help.\n");
     printf("\t q) 3DLUT:         return to main sample screen.\n");
@@ -52,7 +62,7 @@ void sample_print_a3dlut_info(const void *arg)
 {
     printf ("enter 3DLUT modult test!\n");
 }
-
+#if USE_NEWSTRUCT && !defined(ISP_HW_V33)
 /*
 ******************************
 *
@@ -305,6 +315,70 @@ static int sample_query_a3dlut_info(const rk_aiq_sys_ctx_t* ctx)
     return 0;
 }
 
+
+void get_auto_attr(lut3d_api_attrib_t* attr) {
+    lut3d_param_auto_t* stAuto = &attr->stAuto;
+    for (int i = 0;i < 13;i++) {
+    }
+}
+
+void get_manual_attr(lut3d_api_attrib_t* attr) {
+    lut3d_param_t* stMan = &attr->stMan;
+}
+
+
+int sample_3dlut_test(const rk_aiq_sys_ctx_t* ctx)
+{
+    // get cur mode
+    printf("+++++++ 3dlut module test start ++++++++\n");
+
+    lut3d_api_attrib_t attr;
+    memset(&attr, 0, sizeof(attr));
+
+    rk_aiq_user_api2_3dlut_GetAttrib(ctx, &attr);
+
+    printf("3dlut attr: opmode:%d, en:%d, bypass:%d\n", attr.opMode, attr.en, attr.bypass);
+
+    srand(time(0));
+    int rand_num = rand() % 101;
+
+    if (rand_num <70) {
+        printf("update lut3d arrrib!\n");
+        if (attr.opMode == RK_AIQ_OP_MODE_AUTO) {
+            attr.opMode = RK_AIQ_OP_MODE_MANUAL;
+            get_manual_attr(&attr);
+        }
+        else {
+            get_auto_attr(&attr);
+            attr.opMode = RK_AIQ_OP_MODE_AUTO;
+        }
+    }
+    else {
+        // reverse en
+        printf("reverse lut3d en!\n");
+        attr.en = !attr.en;
+    }
+
+    rk_aiq_user_api2_3dlut_SetAttrib(ctx, &attr);
+
+    // wait more than 2 frames
+    usleep(180 * 1000);
+
+    lut3d_status_t status;
+    memset(&status, 0, sizeof(lut3d_status_t));
+
+    rk_aiq_user_api2_3dlut_QueryStatus(ctx, &status);
+
+    printf("lut3d status: opmode:%d, en:%d, bypass:%d\n", status.opMode, status.en, status.bypass);
+
+    if (status.opMode != attr.opMode || status.en != attr.en)
+        printf("lut3d test failed\n");
+    printf("-------- lut3d module test done --------\n");
+
+    return 0;
+}
+#endif
+
 XCamReturn sample_a3dlut_module(const void *arg)
 {
     int key = -1;
@@ -339,6 +413,7 @@ XCamReturn sample_a3dlut_module(const void *arg)
                 CLEAR();
                 sample_a3dlut_usage ();
                 break;
+#if USE_NEWSTRUCT && !defined(ISP_HW_V33)
             case '0':
                 sample_set_a3dlut_manual(ctx);
                 printf("Set 3DLUT MANUAL Mode\n\n");
@@ -406,6 +481,11 @@ XCamReturn sample_a3dlut_module(const void *arg)
             case 'j':
                 sample_query_a3dlut_info(ctx);
                 break;
+
+            case 'k':
+                sample_3dlut_test(ctx);
+                break;
+#endif
             default:
                 break;
         }

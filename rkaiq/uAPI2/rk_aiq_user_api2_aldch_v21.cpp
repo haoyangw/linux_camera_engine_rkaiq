@@ -23,7 +23,7 @@ RKAIQ_BEGIN_DECLARE
 #define CHECK_USER_API_ENABLE
 #endif
 
-#if RKAIQ_HAVE_LDCH_V21
+#if RKAIQ_HAVE_LDCH_V21 && (USE_NEWSTRUCT == 0)
 XCamReturn
 rk_aiq_user_api2_aldch_v21_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, const rk_aiq_ldch_v21_attrib_t* attr)
 {

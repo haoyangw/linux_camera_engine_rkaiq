@@ -23,10 +23,10 @@
 #ifndef __RK_AIQ_TYPE_AWB_ALGO_INT_H__
 #define __RK_AIQ_TYPE_AWB_ALGO_INT_H__
 
-#include "awb/rk_aiq_types_awb_algo.h"
-#include "RkAiqCalibDbTypes.h"
-#include "awb_head.h"
-#include "awb_uapi_head.h"
+#include "algos/awb/rk_aiq_types_awb_algo.h"
+#include "iq_parser/RkAiqCalibDbTypes.h"
+#include "iq_parser_v2/awb_head.h"
+#include "iq_parser_v2/awb_uapi_head.h"
 #define RK_UAPI_AWB_CT_GRID_NUM 15
 #define RK_UAPI_AWB_CT_LUT_NUM 8
 #define RK_UAPI_AWB_LWR_NUM_MAX 8
@@ -123,9 +123,9 @@ typedef enum rk_aiq_wb_op_mode_s {
 } rk_aiq_wb_op_mode_t;
 
 typedef struct rk_aiq_uapiV2_wb_opMode_s {
-  rk_aiq_uapi_sync_t sync;
+    rk_aiq_uapi_sync_t sync;
 
-  rk_aiq_wb_op_mode_t mode;
+    rk_aiq_wb_op_mode_t mode;
 } rk_aiq_uapiV2_wb_opMode_t;
 
 typedef struct rk_aiq_wb_attrib_s {
@@ -156,6 +156,7 @@ typedef enum awb_hardware_version_e
     AWB_HARDWARE_V200 = 0,
     AWB_HARDWARE_V201 = 1,
     AWB_HARDWARE_V32 = 2,
+    AWB_HARDWARE_V39 = 2,
     AWB_HARDWARE_VMAX
 } awb_hardware_version_t;
 
@@ -168,50 +169,50 @@ typedef enum {
 } awb_channel_t;
 
 typedef struct rk_aiq_uapiV2_wb_awb_wbGainAdjustLut_s {
-  // M4_NUMBER_DESC("lumaValue", "f32", M4_RANGE(0, 255000), "0", M4_DIGIT(0))
-  float lumaValue;
-  // M4_NUMBER_DESC("ct_grid_num", "s32", M4_RANGE(0, 32), "0", M4_DIGIT(0))
-  int ct_grid_num;
-  // M4_NUMBER_DESC("cri_grid_num", "s32", M4_RANGE(0, 32), "0", M4_DIGIT(0))
-  int cri_grid_num;
-  // M4_ARRAY_DESC("ct_in_range", "f32", M4_SIZE(1,2), M4_RANGE(0,10000), "0", M4_DIGIT(0), M4_DYNAMIC(0))
-  float ct_in_range[2];//min,max, equal distance sapmle
-  // M4_ARRAY_DESC("cri_in_range", "f32", M4_SIZE(1,2), M4_RANGE(-2,2), "0", M4_DIGIT(4), M4_DYNAMIC(0))
-  float cri_in_range[2];//min,max
-  // M4_ARRAY_DESC("ct_lut_out", "f32", M4_SIZE(9,7), M4_RANGE(0,10000), "0", M4_DIGIT(0), M4_DYNAMIC(0))
-  float *ct_lut_out;//size is ct_grid_num*cri_grid_num
-  // M4_ARRAY_DESC("cri_lut_out", "f32", M4_SIZE(9,7), M4_RANGE(-2,2), "0", M4_DIGIT(4), M4_DYNAMIC(0))
-  float *cri_lut_out;
+    // M4_NUMBER_DESC("lumaValue", "f32", M4_RANGE(0, 255000), "0", M4_DIGIT(0))
+    float lumaValue;
+    // M4_NUMBER_DESC("ct_grid_num", "s32", M4_RANGE(0, 32), "0", M4_DIGIT(0))
+    int ct_grid_num;
+    // M4_NUMBER_DESC("cri_grid_num", "s32", M4_RANGE(0, 32), "0", M4_DIGIT(0))
+    int cri_grid_num;
+    // M4_ARRAY_DESC("ct_in_range", "f32", M4_SIZE(1,2), M4_RANGE(0,10000), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+    float ct_in_range[2];//min,max, equal distance sapmle
+    // M4_ARRAY_DESC("cri_in_range", "f32", M4_SIZE(1,2), M4_RANGE(-2,2), "0", M4_DIGIT(4), M4_DYNAMIC(0))
+    float cri_in_range[2];//min,max
+    // M4_ARRAY_DESC("ct_lut_out", "f32", M4_SIZE(9,7), M4_RANGE(0,10000), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+    float *ct_lut_out;//size is ct_grid_num*cri_grid_num
+    // M4_ARRAY_DESC("cri_lut_out", "f32", M4_SIZE(9,7), M4_RANGE(-2,2), "0", M4_DIGIT(4), M4_DYNAMIC(0))
+    float *cri_lut_out;
 } rk_aiq_uapiV2_wb_awb_wbGainAdjustLut_t;
 
 typedef struct rk_aiq_uapiV2_wb_awb_wbGainAdjust_s {
-  rk_aiq_uapi_sync_t sync;
+    rk_aiq_uapi_sync_t sync;
 
-  // M4_BOOL_DESC("enable", "1")
-  bool enable;
-  // M4_STRUCT_LIST_DESC("lutAll", M4_SIZE(1,8), "normal_ui_style")
-  rk_aiq_uapiV2_wb_awb_wbGainAdjustLut_t *lutAll;
-  int lutAll_len;
+    // M4_BOOL_DESC("enable", "1")
+    bool enable;
+    // M4_STRUCT_LIST_DESC("lutAll", M4_SIZE(1,8), "normal_ui_style")
+    rk_aiq_uapiV2_wb_awb_wbGainAdjustLut_t *lutAll;
+    int lutAll_len;
 } rk_aiq_uapiV2_wb_awb_wbGainAdjust_t;
 
-typedef struct rk_aiq_uapiV2_wb_awb_wbGainOffset_s{
-  rk_aiq_uapi_sync_t sync;
+typedef struct rk_aiq_uapiV2_wb_awb_wbGainOffset_s {
+    rk_aiq_uapi_sync_t sync;
 
-  CalibDbV2_Awb_gain_offset_cfg_t gainOffset;
-}rk_aiq_uapiV2_wb_awb_wbGainOffset_t;
+    CalibDbV2_Awb_gain_offset_cfg_t gainOffset;
+} rk_aiq_uapiV2_wb_awb_wbGainOffset_t;
 
 
 typedef struct rk_aiq_uapiV2_wb_awb_mulWindow_s {
-  rk_aiq_uapi_sync_t sync;
+    rk_aiq_uapi_sync_t sync;
 
-  CalibDbV2_Awb_Mul_Win_t multiWindw;
+    CalibDbV2_Awb_Mul_Win_t multiWindw;
 } rk_aiq_uapiV2_wb_awb_mulWindow_t;
 
 
 typedef struct rk_aiq_uapiV2_wbV21_awb_attrib_s {
     rk_aiq_uapiV2_wb_awb_wbGainAdjust_t wbGainAdjust;
     CalibDbV2_Awb_gain_offset_cfg_t wbGainOffset;
-} rk_aiq_uapiV2_wbV21_awb_attrib_t,rk_aiq_uapiV2_wbV30_awb_attrib_t;
+} rk_aiq_uapiV2_wbV21_awb_attrib_t, rk_aiq_uapiV2_wbV30_awb_attrib_t;
 
 typedef struct rk_aiq_uapiV2_wbV20_awb_attrib_s {
     rk_aiq_uapiV2_wb_awb_wbGainAdjust_t wbGainAdjust;
@@ -238,10 +239,15 @@ typedef struct rk_aiq_uapiV2_wbV20_attrib_s {
 typedef rk_aiq_uapiV2_wbV21_attrib_t rk_aiq_uapiV2_wbV30_attrib_t;
 
 typedef struct rk_aiq_uapiV2_wbV32_awb_mulWindow_s {
-  rk_aiq_uapi_sync_t sync;
-  bool  enable;
-  float window[4][4];//percent
+    rk_aiq_uapi_sync_t sync;
+    bool  enable;
+    float window[4][4];//percent
 } rk_aiq_uapiV2_wbV32_awb_mulWindow_t;
+
+typedef struct rk_aiq_uapiV2_wbV39_awb_nonROI_s {
+    bool hw_awbCfg_nonROI_en;
+    awbStats_nonROI_t nonROI[AWBSTATS_NONROI_NUM];
+} rk_aiq_uapiV2_wbV39_awb_nonROI_t;
 
 typedef struct rk_aiq_uapiV2_wb_awb_cctClipCfg_s {
     bool enable;
@@ -283,6 +289,27 @@ typedef struct rk_aiq_uapiV2_wbV32_awb_attrib_s {
 
 } rk_aiq_uapiV2_wbV32_awb_attrib_t;
 
+typedef struct rk_aiq_uapiV2_wbV39_awb_attrib_s {
+    rk_aiq_wb_awb_alg_method_t algMtdTp;
+    bool algMtdTp_valid;
+    rk_aiq_uapiV2_wb_awb_dampFactor_t dampFactor;
+    bool dampFactor_valid;
+    CalibDbV2_Awb_gain_offset_cfg_t wbGainOffset;
+    bool wbGainOffset_valid;
+    CalibDbV2_Awb_DaylgtClip_Cfg_t wbGainDaylightClip;
+    bool wbGainDaylightClip_valid;
+    rk_aiq_uapiV2_wb_awb_cctClipCfg_t wbGainClip;
+    bool wbGainClip_valid;
+    rk_aiq_uapiV2_wbV32_awb_gainAdjust_t wbGainAdjust;
+    bool wbGainAdjust_valid;
+} rk_aiq_uapiV2_wbV39_awb_attrib_t;
+
+typedef struct rk_aiq_uapiV2_wbV39_awb_attrib2_s {
+    rk_aiq_uapiV2_wbV39_awb_nonROI_t nonROI;
+    bool nonROI_valid;
+
+} rk_aiq_uapiV2_wbV39_awb_attrib2_t;
+
 typedef struct rk_aiq_uapiV2_wbV32_attrib_t {
     rk_aiq_uapi_sync_t sync;
 
@@ -292,6 +319,16 @@ typedef struct rk_aiq_uapiV2_wbV32_attrib_t {
     rk_aiq_uapiV2_wbV32_awb_attrib_t stAuto;
 } rk_aiq_uapiV2_wbV32_attrib_t;
 
+typedef struct rk_aiq_uapiV2_wbV39_attrib_t {
+    rk_aiq_uapi_sync_t sync;
+
+    bool byPass;
+    rk_aiq_wb_op_mode_t mode;
+    rk_aiq_wb_mwb_attrib_t stManual;
+    rk_aiq_uapiV2_wbV39_awb_attrib_t stAuto;
+    rk_aiq_uapiV2_wbV39_awb_attrib2_t stAuto2;
+} rk_aiq_uapiV2_wbV39_attrib_t;
+
 typedef struct rk_aiq_uapiV2_awb_wrtIn_attr_s {
     rk_aiq_uapi_sync_t sync;
     bool en;
@@ -300,10 +337,10 @@ typedef struct rk_aiq_uapiV2_awb_wrtIn_attr_s {
     int call_cnt;
 } rk_aiq_uapiV2_awb_wrtIn_attr_t;
 
-typedef struct rk_aiq_uapiV2_awb_ffwbgain_attr_s{
+typedef struct rk_aiq_uapiV2_awb_ffwbgain_attr_s {
     rk_aiq_uapi_sync_t sync;
     rk_aiq_wb_gain_t wggain;
-}rk_aiq_uapiV2_awb_ffwbgain_attr_t;
+} rk_aiq_uapiV2_awb_ffwbgain_attr_t;
 
 typedef struct rk_aiq_uapiV2_awb_ExtR_Wei_V32_s {
     float lumaValue[CALD_AWB_LV_NUM_MAX];

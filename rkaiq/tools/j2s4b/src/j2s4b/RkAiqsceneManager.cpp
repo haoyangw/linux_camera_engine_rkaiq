@@ -15,14 +15,14 @@ cJSON *RkAiqsceneManager::mergeSubMultiScene(cJSON *sub_scene_list,
   }
 
   // need skip first full param scene
-  if (cJSON_GetArraySize(sub_scene_list) <= skip) {
+  if (RkCam_cJSON_GetArraySize(sub_scene_list) <= skip) {
     printf("%s %d only one sub scene, ignore!\n", __func__, __LINE__);
     return NULL;
   }
 
   json_item = sub_scene_list->child;
 
-  sub_scene_sum = cJSON_GetArraySize(sub_scene_list);
+  sub_scene_sum = RkCam_cJSON_GetArraySize(sub_scene_list);
   for (i = 0; i < sub_scene_sum; i++) {
     if (json_item) {
       cJSON *temp_item = json_item;
@@ -31,9 +31,9 @@ cJSON *RkAiqsceneManager::mergeSubMultiScene(cJSON *sub_scene_list,
       if (i == 0 && skip) {
         continue;
       }
-      new_item = cJSON_Duplicate(full_param, 1);
-      new_item = cJSONUtils_MergePatch(new_item, temp_item);
-      cJSON_ReplaceItemInArray(sub_scene_list, i, new_item);
+      new_item = RkCam_cJSON_Duplicate(full_param, 1);
+      new_item = RkCam_cJSONUtils_MergePatch(new_item, temp_item);
+      RkCam_cJSON_ReplaceItemInArray(sub_scene_list, i, new_item);
     } else {
       break;
     }
@@ -53,20 +53,20 @@ cJSON *RkAiqsceneManager::mergeMainMultiScene(cJSON *main_scene_list) {
     return NULL;
   }
 
-  if (cJSON_GetArraySize(main_scene_list) <= 0) {
+  if (RkCam_cJSON_GetArraySize(main_scene_list) <= 0) {
     printf("invalid main scene len!\n");
     return NULL;
   }
 
-  main_first = cJSON_GetArrayItem(main_scene_list, 0);
-  first_sub_scene_list = cJSONUtils_GetPointer(main_first, "/sub_scene");
+  main_first = RkCam_cJSON_GetArrayItem(main_scene_list, 0);
+  first_sub_scene_list = RkCam_cJSONUtils_GetPointer(main_first, "/sub_scene");
 
-  if (cJSON_GetArraySize(first_sub_scene_list) <= 0) {
+  if (RkCam_cJSON_GetArraySize(first_sub_scene_list) <= 0) {
     printf("%s %d invalid sub scene len!\n", __func__, __LINE__);
     return NULL;
   }
 
-  full_param = cJSON_GetArrayItem(first_sub_scene_list, 0);
+  full_param = RkCam_cJSON_GetArrayItem(first_sub_scene_list, 0);
 
   if (!full_param) {
     printf("invalid full param scene!\n");
@@ -75,12 +75,12 @@ cJSON *RkAiqsceneManager::mergeMainMultiScene(cJSON *main_scene_list) {
 
   json_item = main_scene_list->child;
 
-  int main_scene_sum = cJSON_GetArraySize(main_scene_list);
+  int main_scene_sum = RkCam_cJSON_GetArraySize(main_scene_list);
   for (int i = 0; i < main_scene_sum; i++) {
     // need skip first main scene's sub scene
     if (json_item == NULL)
       break;
-    cJSON *sub_scene_list = cJSONUtils_GetPointer(json_item, "/sub_scene");
+    cJSON *sub_scene_list = RkCam_cJSONUtils_GetPointer(json_item, "/sub_scene");
     if (sub_scene_list) {
       mergeSubMultiScene(sub_scene_list, full_param, i == 0);
     }
@@ -101,13 +101,13 @@ cJSON *RkAiqsceneManager::mergeMultiSceneIQ(cJSON *base_json) {
     return NULL;
   }
 
-  main_scene_list_json = cJSONUtils_GetPointer(base_json, "/main_scene");
+  main_scene_list_json = RkCam_cJSONUtils_GetPointer(base_json, "/main_scene");
   if (!main_scene_list_json) {
     printf("invalid main scene!\n");
     return NULL;
   }
 
-  if (cJSON_GetArraySize(main_scene_list_json) <= 0) {
+  if (RkCam_cJSON_GetArraySize(main_scene_list_json) <= 0) {
     printf("invalid main scene len!\n");
     return NULL;
   }
@@ -129,13 +129,13 @@ cJSON *RkAiqsceneManager::findMainScene(cJSON *base_json, const char *name) {
     return NULL;
   }
 
-  main_scene_json = cJSONUtils_GetPointer(base_json, "/main_scene");
+  main_scene_json = RkCam_cJSONUtils_GetPointer(base_json, "/main_scene");
   if (!main_scene_json) {
     printf("invalid main scene!\n");
     return NULL;
   }
 
-  int main_scene_sum = cJSON_GetArraySize(main_scene_json);
+  int main_scene_sum = RkCam_cJSON_GetArraySize(main_scene_json);
   if (main_scene_sum <= 0) {
     printf("invalid main scene len!\n");
     return NULL;
@@ -145,7 +145,7 @@ cJSON *RkAiqsceneManager::findMainScene(cJSON *base_json, const char *name) {
 
   for (int i = 0; i <= (main_scene_sum - 1); ++i) {
     if (json_item) {
-      char *name_str = cJSON_GetObjectItem(json_item, "name")->valuestring;
+      char *name_str = RkCam_cJSON_GetObjectItem(json_item, "name")->valuestring;
       if (name_str && strstr(name_str, name)) {
         found_main_json = json_item;
         break;
@@ -167,13 +167,13 @@ cJSON *RkAiqsceneManager::findSubScene(cJSON *main_json, const char *name) {
     return NULL;
   }
 
-  sub_scene_json = cJSONUtils_GetPointer(main_json, "/sub_scene");
+  sub_scene_json = RkCam_cJSONUtils_GetPointer(main_json, "/sub_scene");
   if (!sub_scene_json) {
     printf("invalid sub scene!\n");
     return NULL;
   }
 
-  int sub_scene_sum = cJSON_GetArraySize(sub_scene_json);
+  int sub_scene_sum = RkCam_cJSON_GetArraySize(sub_scene_json);
   if (sub_scene_sum <= 0) {
     printf("%s %d invalid sub scene len!\n", __func__, __LINE__);
     return NULL;
@@ -183,7 +183,7 @@ cJSON *RkAiqsceneManager::findSubScene(cJSON *main_json, const char *name) {
 
   for (int i = 0; i < sub_scene_sum; ++i) {
     if (json_item) {
-      char *name_str = cJSON_GetObjectItem(json_item, "name")->valuestring;
+      char *name_str = RkCam_cJSON_GetObjectItem(json_item, "name")->valuestring;
       if (name_str && strstr(name_str, name)) {
         found_sub_json = json_item;
         break;
@@ -212,13 +212,13 @@ RkAiqsceneManager::getMainSceneList(cJSON *root_js) {
     return {};
   }
 
-  main_scene_json = cJSONUtils_GetPointer(root_js, "/main_scene");
+  main_scene_json = RkCam_cJSONUtils_GetPointer(root_js, "/main_scene");
   if (!main_scene_json) {
     printf("invalid main scene!\n");
     return {};
   }
 
-  int main_scene_sum = cJSON_GetArraySize(main_scene_json);
+  int main_scene_sum = RkCam_cJSON_GetArraySize(main_scene_json);
   if (main_scene_sum <= 0) {
     printf("invalid main scene len!\n");
     return {};
@@ -228,7 +228,7 @@ RkAiqsceneManager::getMainSceneList(cJSON *root_js) {
 
   for (int i = 0; i <= (main_scene_sum - 1); ++i) {
     if (json_item) {
-      char *name_str = cJSON_GetObjectItem(json_item, "name")->valuestring;
+      char *name_str = RkCam_cJSON_GetObjectItem(json_item, "name")->valuestring;
       if (name_str && strlen(name_str) > 0) {
         mMap[std::string(name_str)] = json_item;
       }
@@ -250,13 +250,13 @@ RkAiqsceneManager::getSubSceneList(cJSON *main_js, const std::string name) {
     return {};
   }
 
-  sub_scene_json = cJSONUtils_GetPointer(main_js, "/sub_scene");
+  sub_scene_json = RkCam_cJSONUtils_GetPointer(main_js, "/sub_scene");
   if (!sub_scene_json) {
     printf("invalid sub scene!\n");
     return {};
   }
 
-  int sub_scene_sum = cJSON_GetArraySize(sub_scene_json);
+  int sub_scene_sum = RkCam_cJSON_GetArraySize(sub_scene_json);
   if (sub_scene_sum <= 0) {
     printf("%s %d invalid sub scene len!\n", __func__, __LINE__);
     return {};
@@ -266,7 +266,7 @@ RkAiqsceneManager::getSubSceneList(cJSON *main_js, const std::string name) {
 
   for (int i = 0; i < sub_scene_sum; ++i) {
     if (json_item) {
-      char *name_str = cJSON_GetObjectItem(json_item, "name")->valuestring;
+      char *name_str = RkCam_cJSON_GetObjectItem(json_item, "name")->valuestring;
       if (name_str && strlen(name_str) > 0) {
         mMap[std::string(name + "/" + std::string(name_str))] = json_item;
       }
@@ -297,7 +297,7 @@ cJSON *RkAiqsceneManager::splitScene(cJSON *root_js, const char *main_scene,
 
   scene_index = std::string(main_scene) + "/" + std::string(sub_scene);
 
-  new_json = cJSON_Duplicate(root_js, 1);
+  new_json = RkCam_cJSON_Duplicate(root_js, 1);
 
   if (!new_json) {
     printf("clone json failed!\n");
@@ -309,7 +309,7 @@ cJSON *RkAiqsceneManager::splitScene(cJSON *root_js, const char *main_scene,
   for (auto mScene : main_scene_list) {
     // delete main scene witch we don't want.
     if (0 != std::string(main_scene).compare(mScene.first) && mScene.second) {
-      cJSON_DetachItemViaPointer(new_json, mScene.second);
+      RkCam_cJSON_DetachItemViaPointer(new_json, mScene.second);
       main_scene_list.erase(mScene.first);
     }
   }

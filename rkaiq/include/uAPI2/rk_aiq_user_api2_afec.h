@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_AFEC_H_
 #define _RK_AIQ_USER_API2_AFEC_H_
 
-#include "afec/rk_aiq_uapi_afec_int.h"
+#include "algos/afec/rk_aiq_uapi_afec_int.h"
 
 RKAIQ_BEGIN_DECLARE
 

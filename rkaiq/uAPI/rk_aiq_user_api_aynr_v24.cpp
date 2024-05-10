@@ -24,7 +24,7 @@ RKAIQ_BEGIN_DECLARE
 #define CHECK_USER_API_ENABLE
 #endif
 
-#if RKAIQ_HAVE_YNR_V24
+#if RKAIQ_HAVE_YNR_V24 && (USE_NEWSTRUCT == 0)
 
 XCamReturn
 rk_aiq_user_api_aynrV24_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, const rk_aiq_ynr_attrib_v24_t* attr)

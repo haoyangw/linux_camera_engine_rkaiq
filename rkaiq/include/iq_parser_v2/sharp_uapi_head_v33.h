@@ -18,7 +18,7 @@
 #ifndef _CALIBDBV2_SHARP_UAPI_HEAD_V33_H_
 #define _CALIBDBV2_SHARP_UAPI_HEAD_V33_H_
 
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 
 RKAIQ_BEGIN_DECLARE

@@ -25,13 +25,15 @@
 #include "include/bayertnr_algo_api.h"
 
 typedef struct {
-    const RkAiqAlgoCom_prepare_t* prepare_params;
     btnr_api_attrib_t* btnr_attrib;
     int working_mode;
-    int iso;
+    int pre_iso;
+
     bool isReCal_;
+    bool strength_en;
+    float fStrength;
 } BtnrContext_t;
 
-#define DEFAULT_RECALCULATE_DELTA_ISO (0.01)
+#define DEFAULT_RECALCULATE_DELTA_ISO (10.0)
 
 #endif

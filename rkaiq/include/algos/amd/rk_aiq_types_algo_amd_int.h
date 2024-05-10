@@ -1,7 +1,7 @@
 #ifndef __RKAIQ_TYPES_ALGO_AMD_INT_H__
 #define __RKAIQ_TYPES_ALGO_AMD_INT_H__
 
-#include "xcam_buffer.h"
+#include "xcore/base/xcam_buffer.h"
 
 typedef struct {
         XCamVideoBuffer* spImage;

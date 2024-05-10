@@ -15,10 +15,10 @@
  */
 #ifndef _RK_AIQ_TYPES_ABLC_ALGO_INT_V32_H_
 #define _RK_AIQ_TYPES_ABLC_ALGO_INT_V32_H_
-#include "RkAiqCalibDbTypes.h"
-#include "ablcV32/rk_aiq_types_ablc_algo_v32.h"
-#include "ablc_head_V32.h"
-#include "ablc_uapi_head_v32.h"
+#include "iq_parser/RkAiqCalibDbTypes.h"
+#include "algos/ablcV32/rk_aiq_types_ablc_algo_v32.h"
+#include "iq_parser_v2/ablc_head_V32.h"
+#include "iq_parser_v2/ablc_uapi_head_v32.h"
 
 #define ABLC_V32_RECALCULATE_DELTE_ISO (10)
 

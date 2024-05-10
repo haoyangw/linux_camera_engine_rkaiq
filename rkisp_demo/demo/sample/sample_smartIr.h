@@ -18,7 +18,7 @@
 #ifndef _SAMPLE_SMART_IR_H_
 #define _SAMPLE_SMART_IR_H_
 
-#include "base/xcam_common.h"
+#include "xcore/base/xcam_common.h"
 
 void sample_print_smartIr_info(const void *arg);
 XCamReturn sample_smartIr_module(const void *arg);

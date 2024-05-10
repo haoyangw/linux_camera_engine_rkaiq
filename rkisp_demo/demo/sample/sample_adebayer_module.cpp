@@ -19,6 +19,8 @@
 
 #ifdef ISP_HW_V39
 #include "rk_aiq_user_api2_rk3576.h"
+#elif  defined(ISP_HW_V33)
+#include "rk_aiq_user_api2_rv1103B.h"
 #elif  defined(ISP_HW_V32)
 #include "rk_aiq_user_api2_rv1106.h"
 #endif
@@ -727,12 +729,22 @@ static void sample_dm_tuningtool_test(const rk_aiq_sys_ctx_t* ctx)
     printf(">>> tuning tool test done \n");
 }
 
-static void sample_dm_test(const rk_aiq_sys_ctx_t* ctx)
+void get_auto_attr(dm_api_attrib_t* attr) {
+    dm_param_auto_t* stAuto = &attr->stAuto;
+    for (int i = 0;i < 13;i++) {
+    }
+}
+
+void get_manual_attr(dm_api_attrib_t* attr) {
+    dm_param_t* stMan = &attr->stMan;
+}
+
+void sample_dm_test(const rk_aiq_sys_ctx_t* ctx)
 {
     // get cur mode
     printf("+++++++ DM module test start ++++++++\n");
 
-    sample_dm_tuningtool_test(ctx);
+    // sample_dm_tuningtool_test(ctx);
 
     dm_api_attrib_t attr;
     memset(&attr, 0, sizeof(attr));
@@ -741,13 +753,25 @@ static void sample_dm_test(const rk_aiq_sys_ctx_t* ctx)
 
     printf("dm attr: opmode:%d, en:%d, bypass:%d\n", attr.opMode, attr.en, attr.bypass);
 
-    if (attr.opMode == RK_AIQ_OP_MODE_AUTO)
-        attr.opMode = RK_AIQ_OP_MODE_MANUAL;
-    else
-        attr.opMode = RK_AIQ_OP_MODE_AUTO;
+    srand(time(0));
+    int rand_num = rand() % 101;
 
-    // reverse en
-    attr.en = !attr.en;
+    if (rand_num <70) {
+        printf("update dm arrrib!\n");
+        if (attr.opMode == RK_AIQ_OP_MODE_AUTO) {
+            attr.opMode = RK_AIQ_OP_MODE_MANUAL;
+            get_manual_attr(&attr);
+        }
+        else {
+            get_auto_attr(&attr);
+            attr.opMode = RK_AIQ_OP_MODE_AUTO;
+        }
+    }
+    else {
+        // reverse en
+        printf("reverse dm en!\n");
+        attr.en = !attr.en;
+    }
 
     rk_aiq_user_api2_dm_SetAttrib(ctx, &attr);
 

@@ -20,12 +20,13 @@
 
 #ifdef ISP_HW_V39
 #include "rk_aiq_user_api2_rk3576.h"
+#elif  defined(ISP_HW_V33)
+#include "rk_aiq_user_api2_rv1103B.h"
 #elif  defined(ISP_HW_V32)
 #include "rk_aiq_user_api2_rv1106.h"
 #endif
 #include "uAPI2/rk_aiq_user_api2_helper.h"
 #include <string>
-
 static void sample_adehaze_usage()
 {
     printf("Usage : \n");
@@ -76,7 +77,7 @@ void sample_print_adehaze_info(const void *arg)
     printf ("enter ADEHAZE modult test!\n");
 }
 
-#ifdef USE_NEWSTRUCT
+#if USE_NEWSTRUCT && !defined(ISP_HW_V33)
 
 static void sample_dehaze_tuningtool_test(const rk_aiq_sys_ctx_t* ctx)
 {
@@ -131,25 +132,49 @@ static void sample_dehaze_tuningtool_test(const rk_aiq_sys_ctx_t* ctx)
     printf(">>> tuning tool test done \n");
 }
 
-static void sample_new_dehaze(const rk_aiq_sys_ctx_t* ctx)
+void get_auto_attr(dehaze_api_attrib_t* attr) {
+    dehaze_param_auto_t* stAuto = &attr->stAuto;
+    for (int i = 0;i < 13;i++) {
+    }
+}
+
+void get_manual_attr(dehaze_api_attrib_t* attr) {
+    dehaze_param_t* stMan = &attr->stMan;
+}
+
+void sample_new_dehaze(const rk_aiq_sys_ctx_t* ctx)
 {
-    sample_dehaze_tuningtool_test(ctx);
-    dehaze_api_attrib_t attr_dehaze;
+    // sample_dehaze_tuningtool_test(ctx);
+    dehaze_api_attrib_t attr;
     dehaze_status_t status;
-    rk_aiq_user_api2_dehaze_GetAttrib(ctx, &attr_dehaze);
-    printf("\t attr_dehaze.opMode:%d attr_dehaze.en:%d\n\n",
-            attr_dehaze.opMode, attr_dehaze.en);
+    rk_aiq_user_api2_dehaze_GetAttrib(ctx, &attr);
+    printf("\t attr.opMode:%d attr.en:%d\n\n",
+            attr.opMode, attr.en);
 
-    printf("\t attr_dehaze.opMode:%d attr_dehaze.en:%d\n\n",
-            attr_dehaze.opMode, attr_dehaze.en);
+    printf("\t attr.opMode:%d attr.en:%d\n\n",
+            attr.opMode, attr.en);
 
-    // attr_dehaze.opMode = RK_AIQ_OP_MODE_MANUAL;
-    // attr_dehaze.stMan.sta.cfg_alpha += 0.1;
-    // rk_aiq_user_api2_dehaze_SetAttrib(ctx, &attr_dehaze);
+    srand(time(0));
+    int rand_num = rand() % 101;
 
-    attr_dehaze.opMode = RK_AIQ_OP_MODE_AUTO;
-    // attr_dehaze.stAuto.dyn[0].cfg_alpha += 0.1;
-    rk_aiq_user_api2_dehaze_SetAttrib(ctx, &attr_dehaze);
+    if (rand_num <70) {
+        printf("update dehaze arrrib!\n");
+        if (attr.opMode == RK_AIQ_OP_MODE_AUTO) {
+            attr.opMode = RK_AIQ_OP_MODE_MANUAL;
+            get_manual_attr(&attr);
+        }
+        else {
+            get_auto_attr(&attr);
+            attr.opMode = RK_AIQ_OP_MODE_AUTO;
+        }
+    }
+    else {
+        // reverse en
+        printf("reverse dehaze en!\n");
+        attr.en = !attr.en;
+    }
+
+    rk_aiq_user_api2_dehaze_SetAttrib(ctx, &attr);
 
     rk_aiq_user_api2_dehaze_QueryStatus(ctx, &status);
     printf("\t status.opMode:%d status.en:%d\n\n",
@@ -808,7 +833,7 @@ XCamReturn sample_adehaze_module(const void *arg)
         case 'f': {
             printf("\t ADEHAZE test rk_aiq_uapi2_setMEnhanceStrth\n\n");
             rk_aiq_uapi2_setDehazeModuleEnable(ctx, true);
-            rk_aiq_uapi2_setMEnhanceStrth(ctx, true);
+            rk_aiq_uapi2_setEnhanceEnable(ctx, true);
             unsigned int level = 70;
             rk_aiq_uapi2_setMEnhanceStrth(ctx, level);
             printf("\t rk_aiq_uapi2_setMEnhanceStrth level: %u\n\n", level);
@@ -824,13 +849,13 @@ XCamReturn sample_adehaze_module(const void *arg)
         case 'h': {
             printf("\t ADEHAZE test rk_aiq_uapi2_setMEnhanceChromeStrth\n\n");
             rk_aiq_uapi2_setDehazeModuleEnable(ctx, true);
-            rk_aiq_uapi2_setMEnhanceStrth(ctx, true);
+            rk_aiq_uapi2_setEnhanceEnable(ctx, true);
             unsigned int level = 70;
             rk_aiq_uapi2_setMEnhanceChromeStrth(ctx, level);
             printf("\t rk_aiq_uapi2_setMEnhanceChromeStrth level: %u\n\n", level);
             break;
         }
-#ifdef USE_NEWSTRUCT
+#if USE_NEWSTRUCT && !defined(ISP_HW_V33)
         case 'l': {
             printf("\t sample_new_dehaze\n\n");
             sample_new_dehaze(ctx);

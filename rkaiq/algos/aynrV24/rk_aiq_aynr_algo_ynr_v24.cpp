@@ -698,6 +698,8 @@ Aynr_result_V24_t ynr_init_params_json_V24(RK_YNR_Params_V24_t* pYnrParams,
             } else {
                 pYnrParams->arYnrParamsISO[j].lumaPoint[i] <<= ABS(bit_shift);
             }
+            uint16_t tmp = pYnrParams->arYnrParamsISO[j].sigma[i];
+            pYnrParams->arYnrParamsISO[j].sigma[i] = tmp;
         }
     }
 

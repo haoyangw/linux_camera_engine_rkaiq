@@ -397,7 +397,7 @@ destroy_context(RkAiqAlgoContext *context)
     }
 
     if (ldchCtx->user_config.update_lut_mode == RK_AIQ_LDCH_UPDATE_LUT_ON_LINE) {
-        genLdchMeshDeInit(ldchCtx->ldchParams);
+        aiqGenLdchMeshDeInit(ldchCtx);
     }
 
     release_ldch_buf(ldchCtx, 0);

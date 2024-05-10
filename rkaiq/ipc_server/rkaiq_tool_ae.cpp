@@ -5,7 +5,7 @@
 #endif
 #define LOG_TAG "rkaiq_tool_ae.cpp"
 
-
+#ifndef USE_NEWSTRUCT
 int setExpSwAttr(rk_aiq_sys_ctx_t* ctx, char* data) {
     return rk_aiq_user_api2_ae_setExpSwAttr(ctx, *(Uapi_ExpSwAttrV2_t*)data);
 }
@@ -47,3 +47,40 @@ int setHdrExpAttr(rk_aiq_sys_ctx_t* ctx, char* data) {
 int getHdrExpAttr(rk_aiq_sys_ctx_t* ctx, char* data) {
     return rk_aiq_user_api2_ae_getHdrExpAttr(ctx, (Uapi_HdrExpAttrV2_t*)data);
 }
+
+#else
+int setExpSwAttr(rk_aiq_sys_ctx_t* ctx, char* data)
+{
+    return rk_aiq_user_api2_ae_setExpSwAttr(ctx, *(ae_api_expSwAttr_t*)data);
+}
+
+int getExpSwAttr(rk_aiq_sys_ctx_t* ctx, char* data)
+{
+    return rk_aiq_user_api2_ae_getExpSwAttr(ctx, (ae_api_expSwAttr_t*)data);
+}
+
+int queryExpResInfo(rk_aiq_sys_ctx_t* ctx, char* data)
+{
+    return rk_aiq_user_api2_ae_queryExpResInfo(ctx, (ae_api_queryInfo_t*)data);
+}
+
+int setLinExpAttr(rk_aiq_sys_ctx_t* ctx, char* data)
+{
+    return rk_aiq_user_api2_ae_setLinExpAttr(ctx, *(ae_api_linExpAttr_t*)data);
+}
+
+int getLinExpAttr(rk_aiq_sys_ctx_t* ctx, char* data)
+{
+    return rk_aiq_user_api2_ae_getLinExpAttr(ctx, (ae_api_linExpAttr_t*)data);
+}
+
+int setHdrExpAttr(rk_aiq_sys_ctx_t* ctx, char* data)
+{
+    return rk_aiq_user_api2_ae_setHdrExpAttr(ctx, *(ae_api_hdrExpAttr_t*)data);
+}
+
+int getHdrExpAttr(rk_aiq_sys_ctx_t* ctx, char* data)
+{
+    return rk_aiq_user_api2_ae_getHdrExpAttr(ctx, (ae_api_hdrExpAttr_t*)data);
+}
+#endif

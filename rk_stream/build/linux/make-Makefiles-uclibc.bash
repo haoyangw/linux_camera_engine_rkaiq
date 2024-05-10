@@ -30,7 +30,7 @@ cmake -G "Ninja" \
     -DRKAIQ_TARGET_SOC=${RKAIQ_TARGET_SOC} \
     -DARCH=${AIQ_BUILD_ARCH} \
     -DRKVIDEMO_HAVE_AIQ=ON \
-    -DRKAIQ_TEST=ON \
+    -DISP_HW_VERSION=${ISP_HW_VERSION} \
     $SOURCE_PATH \
 && ninja -j$(nproc)
 

@@ -18,9 +18,9 @@
 #ifndef __AEC_UAPI_HEAD_H__
 #define __AEC_UAPI_HEAD_H__
 
-#include "aec_head.h"
-#include "ae/rk_aiq_types_ae_hw.h"
-#include "rk_aiq_comm.h"
+#include "iq_parser_v2/aec_head.h"
+#include "algos/ae/rk_aiq_types_ae_hw.h"
+#include "common/rk_aiq_comm.h"
 
 #define MAX_HDR_FRAMENUM (3)
 #define RAWAEBIG_SUBWIN_NUM 4
@@ -313,11 +313,14 @@ typedef struct uapi_ae_hwstats_s {
     uapi_raw_stats_t chn[3];
     // M4_STRUCT_DESC("extra", "normal_ui_style")
     uapi_raw_stats_t extra;
+#if ISP_HW_V20 || ISP_HW_V21
     // M4_STRUCT_DESC("yuvae", "normal_ui_style",M4_HIDE(1))
     uapi_yuvae_stats_t yuvae;
     // M4_STRUCT_DESC("sihist", "normal_ui_style",M4_HIDE(1))
     uapi_sihist_stats_t sihist;
+#endif
+    // M4_ARRAY_DESC("raw_mean", "u16", M4_SIZE(1,4), M4_RANGE(0,256), "0", M4_DIGIT(0), M4_DYNAMIC(0),M4_HIDE(1))
+    uint16_t raw_mean[4];  //not HW! The last 8bits are decimal places, raw_mean[3] = extra-chn-mean
 } uapi_ae_hwstats_t;
-
 
 #endif /*__AEC_UAPI_HEAD_H__*/

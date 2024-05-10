@@ -1,13 +1,12 @@
 set (AE_SRC
-    rk_aiq_algo_ae_itf.cpp
-    rk_aiq_ae_algo.cpp
-    rk_aiq_ae_algo_hdrecm.cpp
-    rk_aiq_ae_algo_ecm.cpp
-    rk_aiq_ae_algo_clm.cpp
-    rk_aiq_ae_algo_ldm.cpp
-    rk_aiq_ae_algo_pid.cpp
-    rk_aiq_uapi_ae_int.cpp
-    rk_aiq_ae_algo_iris.cpp
+    rk_aiq_algo_ae_itf.c
+    rk_aiq_ae_algo.c
+    rk_aiq_ae_algo_ecm.c
+    rk_aiq_ae_algo_clm.c
+    rk_aiq_ae_algo_ldm.c
+    rk_aiq_ae_algo_pid.c
+    rk_aiq_uapi_ae_int.c
+    rk_aiq_ae_algo_iris.c
     )
 
-dec_algo(ae rk_aiq_algo_ae_itf.cpp ${AE_SRC})
+dec_algo(ae rk_aiq_algo_ae_itf.c ${AE_SRC})

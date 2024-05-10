@@ -18,8 +18,8 @@
 #ifndef _RK_AIQ_H_
 #define _RK_AIQ_H_
 
-#include "base/xcam_common.h"
-#include "rk_aiq_types.h"
+#include "xcore/base/xcam_common.h"
+#include "common/rk_aiq_types.h"
 
 XCAM_BEGIN_DECLARE
 
@@ -77,6 +77,7 @@ typedef struct rk_aiq_aiisp_s {
     rkisp_bay3dbuf_info_t bay3dbuf;
     void* iir_address;
     void* gain_address;
+    void* aiisp_address;
 } rk_aiq_aiisp_t;
 
 typedef XCamReturn(*rk_aiq_error_cb)(rk_aiq_err_msg_t* err_msg);
@@ -98,13 +99,6 @@ typedef struct rk_aiq_iq_buffer_info_s {
     void* addr;
     size_t len;
 } rk_aiq_iq_buffer_info_t;
-
-typedef enum rk_aiq_prd_type_e {
-    RK_AIQ_PRD_TYPE_NORMAL,
-    RK_AIQ_PRD_TYPE_TB_BATIPC,
-    RK_AIQ_PRD_TYPE_TB_DOORLOCK,
-    RK_AIQ_PRD_TYPE_SINGLE_FRAME,
-} rk_aiq_prd_type_t;
 
 typedef enum rk_aiq_iq_bin_mode_s {
     RK_AIQ_META_FULL_IQ_BIN = 0,

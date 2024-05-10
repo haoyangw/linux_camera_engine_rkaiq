@@ -15,6 +15,8 @@
 #define YNR_ISO_CURVE_POINT_BIT          4
 #define YNR_ISO_CURVE_POINT_NUM          ((1 << YNR_ISO_CURVE_POINT_BIT)+1)
 
+XCAM_BEGIN_DECLARE
+#if 0
 XCamReturn
 algo_dehaze_SetAttrib
 (
@@ -28,9 +30,15 @@ algo_dehaze_GetAttrib
     RkAiqAlgoContext*  ctx,
     dehaze_api_attrib_t *attr
 );
+#endif
+XCamReturn
+algo_dehaze_SetStrength(RkAiqAlgoContext *ctx, adehaze_strength_t *strg);
 
+XCamReturn
+algo_dehaze_GetStrength(RkAiqAlgoContext *ctx, adehaze_strength_t *strg);
 
-XCAM_BEGIN_DECLARE
+XCamReturn Adehaze_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams, int iso);
+
 extern RkAiqAlgoDescription g_RkIspAlgoDescDehaze;
 XCAM_END_DECLARE
 

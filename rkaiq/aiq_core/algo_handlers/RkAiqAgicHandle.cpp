@@ -281,15 +281,17 @@ XCamReturn RkAiqAgicHandleInt::processing() {
 
     RKAiqAecExpInfo_t* aeCurExp = &shared->curExp;
     if (aeCurExp != NULL) {
-        if((rk_aiq_working_mode_t)sharedCom->working_mode == RK_AIQ_WORKING_MODE_NORMAL) {
+        if (agic_proc_int->hdr_mode == RK_AIQ_WORKING_MODE_NORMAL) {
             agic_proc_int->iso = aeCurExp->LinearExp.exp_real_params.analog_gain * aeCurExp->LinearExp.exp_real_params.isp_dgain * 50;
             LOGD_AGIC("%s:NORMAL:iso=%d,again=%f\n", __FUNCTION__, agic_proc_int->iso,
                       aeCurExp->LinearExp.exp_real_params.analog_gain);
-        } else if ((rk_aiq_working_mode_t)sharedCom->working_mode == RK_AIQ_WORKING_MODE_ISP_HDR2) {
+        } else if (agic_proc_int->hdr_mode == RK_AIQ_ISP_HDR_MODE_2_FRAME_HDR
+                  || agic_proc_int->hdr_mode == RK_AIQ_ISP_HDR_MODE_2_LINE_HDR) {
             agic_proc_int->iso = aeCurExp->HdrExp[1].exp_real_params.analog_gain * 50;
             LOGD_AGIC("%s:HDR2:iso=%d,again=%f\n", __FUNCTION__, agic_proc_int->iso,
                       aeCurExp->HdrExp[1].exp_real_params.analog_gain);
-        } else if ((rk_aiq_working_mode_t)sharedCom->working_mode == RK_AIQ_WORKING_MODE_ISP_HDR3) {
+        } else if (agic_proc_int->hdr_mode  == RK_AIQ_ISP_HDR_MODE_3_FRAME_HDR
+                  || agic_proc_int->hdr_mode == RK_AIQ_ISP_HDR_MODE_3_LINE_HDR) {
             agic_proc_int->iso = aeCurExp->HdrExp[2].exp_real_params.analog_gain * 50;
             LOGD_AGIC("%s:HDR3:iso=%d,again=%f\n", __FUNCTION__, agic_proc_int->iso,
                       aeCurExp->HdrExp[2].exp_real_params.analog_gain);

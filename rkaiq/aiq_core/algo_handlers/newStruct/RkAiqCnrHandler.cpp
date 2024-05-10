@@ -29,7 +29,7 @@ void RkAiqCnrHandleInt::init() {
     RkAiqHandle::deInit();
     mConfig       = (RkAiqAlgoCom*)(new RkAiqAlgoCom());
     mProcInParam  = (RkAiqAlgoCom*)(new RkAiqAlgoProcCnr());
-    mProcOutParam = (RkAiqAlgoResCom*)(new RkAiqAlgoProcResCnr());
+    mProcOutParam = (RkAiqAlgoResCom*)(new RkAiqAlgoResCom());
 
     EXIT_ANALYZER_FUNCTION();
 }
@@ -118,14 +118,13 @@ XCamReturn RkAiqCnrHandleInt::processing() {
     RkAiqAlgoProcCnr* cnr_proc_param = (RkAiqAlgoProcCnr*)mProcInParam;
     cnr_proc_param->blc_ob_predgain = 1.0;
 #else
-    AblcProc_V32_t* blc_res = shared->res_comb.ablcV32_proc_res;
+    AblcProc_V32_t* blc_res = shared->.ablcV32_proc_res;
     float ob_predgain = blc_res->isp_ob_predgain;
     RkAiqAlgoProcCnr* cnr_proc_param = (RkAiqAlgoProcCnr*)mProcInParam;
     cnr_proc_param->blc_ob_predgain = ob_predgain;
 #endif
 
-    RkAiqAlgoProcResCnr* cnr_proc_res_int = (RkAiqAlgoProcResCnr*)mProcOutParam;
-    cnr_proc_res_int->cnrRes =  &shared->fullParams->mCnrParams->data()->result;
+    mProcOutParam->algoRes =  &shared->fullParams->mCnrParams->data()->result;
 
     GlobalParamsManager* globalParamsManager = mAiqCore->getGlobalParamsManager();
 
@@ -134,15 +133,15 @@ XCamReturn RkAiqCnrHandleInt::processing() {
         rk_aiq_global_params_wrap_t wrap_param;
         wrap_param.type = RESULT_TYPE_UVNR_PARAM;
         wrap_param.man_param_size = sizeof(cnr_param_t);
-        wrap_param.man_param_ptr = cnr_proc_res_int->cnrRes;
+        wrap_param.man_param_ptr = mProcOutParam->algoRes;
         XCamReturn ret1 = globalParamsManager->getAndClearPending(&wrap_param);
         if (ret1 == XCAM_RETURN_NO_ERROR) {
             LOGK_ANR("get new cnr manual params success !");
-            cnr_proc_res_int->res_com.en = wrap_param.en;
-            cnr_proc_res_int->res_com.bypass = wrap_param.bypass;
-            cnr_proc_res_int->res_com.cfg_update = true;
+            mProcOutParam->en = wrap_param.en;
+            mProcOutParam->bypass = wrap_param.bypass;
+            mProcOutParam->cfg_update = true;
         } else {
-            cnr_proc_res_int->res_com.cfg_update = false;
+            mProcOutParam->cfg_update = false;
         }
     } else {
         // skip processing if is group algo
@@ -170,7 +169,7 @@ XCamReturn RkAiqCnrHandleInt::genIspResult(RkAiqFullParams* params,
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
     RkAiqCore::RkAiqAlgosComShared_t* sharedCom = &mAiqCore->mAlogsComSharedParams;
 
-    RkAiqAlgoProcResCnr* cnr_res = (RkAiqAlgoProcResCnr*)mProcOutParam;
+    RkAiqAlgoResCom* cnr_res = (RkAiqAlgoResCom*)mProcOutParam;
 
     rk_aiq_isp_cnr_params_t* cnr_param = params->mCnrParams->data().ptr();
 
@@ -190,11 +189,11 @@ XCamReturn RkAiqCnrHandleInt::genIspResult(RkAiqFullParams* params,
             cnr_param->frame_id = shared->frameId;
         }
 
-        if (cnr_res->res_com.cfg_update) {
+        if (cnr_res->cfg_update) {
             mSyncFlag = shared->frameId;
             cnr_param->sync_flag = mSyncFlag;
-            cnr_param->en = cnr_res->res_com.en;
-            cnr_param->bypass = cnr_res->res_com.bypass;
+            cnr_param->en = cnr_res->en;
+            cnr_param->bypass = cnr_res->bypass;
             // copy from algo result
             // set as the latest result
             cur_params->mCnrParams = params->mCnrParams;

@@ -18,7 +18,7 @@
 
 #include <stdio.h>
 #include "rkisp_demo.h"
-#include "rk_aiq_comm.h"
+#include "common/rk_aiq_comm.h"
 
 #define CLEAR() printf("\x1b[2J\x1b[H");
 #define RESET_CURSOR() printf("\033[H");
@@ -58,6 +58,7 @@ enum RK_ISP_HW_MODULE_e {
     RK_ISP_ACCM_V2,
     RK_ISP_ALDCH_V21,
     RK_SMARTIR,
+    RK_ISP_ALDC,
     RK_AINR,
     RK_ISP_MAX,
 };

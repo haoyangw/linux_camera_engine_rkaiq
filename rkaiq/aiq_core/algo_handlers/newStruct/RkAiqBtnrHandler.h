@@ -40,6 +40,8 @@ public:
     XCamReturn setAttrib(btnr_api_attrib_t* attr);
     XCamReturn getAttrib(btnr_api_attrib_t* attr);
     XCamReturn queryStatus(btnr_status_t* status);
+    XCamReturn setStrength(float strg, bool strg_en);
+    XCamReturn getStrength(float *strg, bool *strg_en);
 
 protected:
     virtual void init();

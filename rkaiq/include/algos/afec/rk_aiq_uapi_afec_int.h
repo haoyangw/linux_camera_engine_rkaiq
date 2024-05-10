@@ -1,9 +1,9 @@
 #ifndef _RK_AIQ_UAPI_AFEC_INT_H_
 #define _RK_AIQ_UAPI_AFEC_INT_H_
 
-#include "base/xcam_common.h"
-#include "rk_aiq_algo_des.h"
-#include "afec/rk_aiq_types_afec_algo_int.h"
+#include "xcore/base/xcam_common.h"
+#include "algos/rk_aiq_algo_des.h"
+#include "algos/afec/rk_aiq_types_afec_algo_int.h"
 
 typedef rk_aiq_fec_cfg_t rk_aiq_fec_attrib_t;
 

@@ -18,7 +18,7 @@
 
 #include <stdint.h>
 
-#include "acac/rk_aiq_types_acac_algo.h"
+#include "algos/acac/rk_aiq_types_acac_algo.h"
 #include "common/rk_aiq_comm.h"
 #include "iq_parser_v2/cac_head.h"
 

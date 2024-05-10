@@ -20,7 +20,7 @@
 #ifndef _RK_AIQ_TYPES_AIE_ALGO_INT_H_
 #define _RK_AIQ_TYPES_AIE_ALGO_INT_H_
 
-#include "rk_aiq_types_aie_algo.h"
+#include "algos/aie/rk_aiq_types_aie_algo.h"
 
 typedef struct rk_aiq_aie_params_int_s {
     unsigned char mode_coeffs[9];

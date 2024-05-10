@@ -18,7 +18,7 @@
 #ifndef _RK_AIQ_USER_API2_ADEGAMMA_H_
 #define _RK_AIQ_USER_API2_ADEGAMMA_H_
 
-#include "adegamma/rk_aiq_uapi_adegamma_int.h"
+#include "algos/adegamma/rk_aiq_uapi_adegamma_int.h"
 
 #ifndef RK_AIQ_SYS_CTX_T
 #define RK_AIQ_SYS_CTX_T

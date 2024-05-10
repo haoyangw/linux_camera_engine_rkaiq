@@ -16,9 +16,9 @@
 #ifndef _RK_AIQ_TYPE_ABLC_ALGO_INT_V32_H_
 #define _RK_AIQ_TYPE_ABLC_ALGO_INT_V32_H_
 
-#include "ablcV32/rk_aiq_types_ablc_algo_int_v32.h"
-#include "base/xcam_common.h"
-#include "rk_aiq_algo_des.h"
+#include "algos/ablcV32/rk_aiq_types_ablc_algo_int_v32.h"
+#include "xcore/base/xcam_common.h"
+#include "algos/rk_aiq_algo_des.h"
 
 // need_sync means the implementation should consider
 // the thread synchronization

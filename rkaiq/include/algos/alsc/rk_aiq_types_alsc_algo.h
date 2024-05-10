@@ -19,7 +19,7 @@
 
 #ifndef _RK_AIQ_TYPE_ALSC_ALGO_H_
 #define _RK_AIQ_TYPE_ALSC_ALGO_H_
-#include "alsc/rk_aiq_types_alsc_hw.h"
+#include "algos/alsc/rk_aiq_types_alsc_hw.h"
 
 RKAIQ_BEGIN_DECLARE
 

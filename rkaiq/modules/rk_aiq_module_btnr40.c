@@ -17,240 +17,6 @@
 #define FIXBITWFWGT     8
 #define FIXBITDGAIN     8
 
-void bayertnr_logtrans_init_V30(int bayertnr_trans_mode,  int bayertnr_trans_mode_scale, btnr_trans_params_v30_t *pTransPrarms)
-{
-    int i, j;
-    int bayertnr_logprecision;
-    int bayertnr_logfixbit;
-    int bayertnr_logtblbit;
-    int bayertnr_logscalebit;
-    int bayertnr_logfixmul;
-    int bayertnr_logtblmul;
-
-    if(bayertnr_trans_mode)
-    {
-        bayertnr_logprecision = 6;
-        bayertnr_logfixbit = 12;
-        bayertnr_logtblbit = 12;
-        bayertnr_logscalebit = 6;
-        bayertnr_logfixmul = (1 << bayertnr_logfixbit);
-        bayertnr_logtblmul = (1 << bayertnr_logtblbit);
-        {
-            double tmp, tmp1;
-            for (i = 0; i < (1 << bayertnr_logprecision); i++)
-            {
-                tmp1 = ( 1 << bayertnr_logprecision);
-                tmp = i;
-                tmp = 1 + tmp * 3 / tmp1;
-                tmp = sqrt(tmp);
-                pTransPrarms->bayertnr_logtablef[i] = (int)(tmp * bayertnr_logtblmul);
-
-                tmp = i;
-                tmp = 1 + tmp / tmp1;
-                tmp = pow(tmp, 2);
-                pTransPrarms->bayertnr_logtablei[i] = (int)(tmp * bayertnr_logtblmul);
-            }
-            pTransPrarms->bayertnr_logtablef[i - 1] = 2 * bayertnr_logtblmul;
-            pTransPrarms->bayertnr_logtablei[i - 1] = 4 * bayertnr_logtblmul;
-        }
-    }
-    else
-    {
-        bayertnr_logprecision = 6;
-        bayertnr_logfixbit = 12;
-        bayertnr_logtblbit = 12;
-        bayertnr_logscalebit = bayertnr_trans_mode_scale + 8;
-        bayertnr_logfixmul = (1 << bayertnr_logfixbit);
-        bayertnr_logtblmul = (1 << bayertnr_logtblbit);
-        {
-            double tmp, tmp1;
-            for (i = 0; i < (1 << bayertnr_logprecision); i++)
-            {
-                tmp1 = (1 << bayertnr_logprecision);
-                tmp = i;
-                tmp = 1 + tmp / tmp1;
-                tmp = log(tmp)  /  log(2.0);
-                pTransPrarms->bayertnr_logtablef[i] = (int)(tmp * bayertnr_logtblmul);
-                tmp = i;
-                tmp = tmp / tmp1;
-                tmp = pow(2, tmp);
-                pTransPrarms->bayertnr_logtablei[i] = (int)(tmp * bayertnr_logtblmul);
-            }
-            pTransPrarms->bayertnr_logtablef[i - 1] = 1 * bayertnr_logtblmul;
-            pTransPrarms->bayertnr_logtablei[i - 1] = 2 * bayertnr_logtblmul;
-        }
-    }
-
-    pTransPrarms->bayertnr_logprecision = bayertnr_logprecision;
-    pTransPrarms->bayertnr_logfixbit = bayertnr_logfixbit;
-    pTransPrarms->bayertnr_logtblbit = bayertnr_logtblbit;
-    pTransPrarms->bayertnr_logscalebit = bayertnr_logscalebit;
-    pTransPrarms->bayertnr_logfixmul = bayertnr_logfixmul;
-    pTransPrarms->bayertnr_logtblmul = bayertnr_logtblmul;
-}
-
-int  bayertnr_find_top_one_pos_V30(int data)
-{
-    int i, j = 1;
-    int pos = 0;
-
-    for(i = 0; i < 32; i++)
-    {
-        if(data & j)
-        {
-            pos = i;
-        }
-        j = j << 1;
-    }
-
-    return pos;
-}
-
-int  bayertnr_logtrans_V30(uint32_t tmpfix, struct isp39_bay3d_cfg* pFix, btnr_trans_params_v30_t *pTransPrarms)
-{
-    long long x8, one = 1;
-    long long gx, n, ix1, ix2, dp;
-    long long lt1, lt2, dx, fx;
-    int bayertnr_logprecision = pTransPrarms->bayertnr_logprecision;
-    int bayertnr_logfixbit = pTransPrarms->bayertnr_logfixbit;
-    int bayertnr_logtblbit = pTransPrarms->bayertnr_logtblbit;
-    int bayertnr_logscalebit = pTransPrarms->bayertnr_logscalebit;
-    int bayertnr_logfixmul = pTransPrarms->bayertnr_logfixmul;
-    int bayertnr_logtblmul = pTransPrarms->bayertnr_logtblmul;
-
-    if(pFix->transf_mode)
-    {
-        long long dn;
-
-        x8 = MIN((tmpfix + pFix->transf_mode_offset), pFix->transf_data_max_limit);
-
-        // find highest bit
-        n  = (long long)bayertnr_find_top_one_pos_V30((int)x8);
-        n  = n >> 1;
-        dn = n * 2;
-
-        gx = x8 - (one << dn);
-        gx = gx * (one << bayertnr_logprecision) * bayertnr_logfixmul;
-        gx = gx / (one << dn);
-        gx = gx / 3;
-
-        ix1 = gx >> bayertnr_logfixbit;
-        dp = gx - ix1 * bayertnr_logfixmul;
-
-        dp = dp / 64;       // opt
-        ix2 = ix1 + 1;
-
-        lt1 = pTransPrarms->bayertnr_logtablef[ix1];
-        lt2 = pTransPrarms->bayertnr_logtablef[ix2];
-
-        dx = lt1 * (bayertnr_logfixmul / 64 - dp) + lt2 * dp;   // opt
-        dp = dp * 64;       // opt
-
-        fx = dx + (one << (bayertnr_logfixbit + bayertnr_logtblbit - bayertnr_logscalebit - n - 1));
-        fx = fx >> (bayertnr_logfixbit + bayertnr_logtblbit - bayertnr_logscalebit - n);
-
-        fx = fx - pFix->itransf_mode_offset;
-    }
-    else
-    {
-        x8 = MIN((tmpfix + pFix->transf_mode_offset), pFix->transf_data_max_limit);
-
-        // find highest bit
-        n = (long long)bayertnr_find_top_one_pos_V30((int)x8);
-
-        gx = x8 - (one << n);
-        gx = gx * (one << bayertnr_logprecision) * bayertnr_logfixmul;
-        gx = gx / (one << n);
-
-        ix1 = gx >> bayertnr_logfixbit;
-        dp = gx - ix1 * bayertnr_logfixmul;
-
-        dp = (dp + 32) / 64;        // opt
-        ix2 = ix1 + 1;
-
-        lt1 = pTransPrarms->bayertnr_logtablef[ix1];
-        lt2 = pTransPrarms->bayertnr_logtablef[ix2];
-
-        dx = lt1 * (bayertnr_logfixmul / 64 - dp) + lt2 * dp; // opt
-        dx = dx * 64;       // opt
-
-        fx = dx + n * (one << (bayertnr_logfixbit + bayertnr_logtblbit));
-        fx = fx + (one << (bayertnr_logfixbit + bayertnr_logtblbit - bayertnr_logscalebit - 1));
-        fx = fx >> (bayertnr_logfixbit + bayertnr_logtblbit - bayertnr_logscalebit);
-
-        fx = fx - pFix->itransf_mode_offset;
-    }
-
-    return (int)fx;
-}
-
-int bayertnr_kalm_bitcut_V30(int datain, int bitsrc, int bitdst)
-{
-    int out;
-    out = bitsrc == bitdst ? datain : ((datain + (1 << (bitsrc - bitdst - 1))) >> (bitsrc - bitdst));
-    return out;
-}
-
-int bayertnr_tnr_noise_curve_V30(int data, int isHdrShort, struct isp39_bay3d_cfg* pFix, btnr_trans_params_v30_t *pTransPrarms)
-{
-    int sigbins = 20;
-    int dbl_en  = pFix->sigma_curve_double_en;
-    int dbl_pos = pTransPrarms->bayertnr_tnr_sigma_curve_double_pos;
-    int i, sigma;
-    int ratio;
-
-    for(i = 0; i < sigbins; i++)
-    {
-        if(data < pFix->tnr_luma_sigma_x[i])
-            break;
-    }
-
-    if(isHdrShort && dbl_en && i <= dbl_pos)
-        sigma = pFix->tnr_luma_sigma_y[dbl_pos];
-    else if(dbl_en && i == dbl_pos)
-        sigma = pFix->tnr_luma_sigma_y[dbl_pos];
-    else if(i <= 0)
-        sigma = pFix->tnr_luma_sigma_y[0];
-    else if(i > (sigbins - 1))
-        sigma = pFix->tnr_luma_sigma_y[sigbins - 1];
-    else
-    {
-        ratio = (data - pFix->tnr_luma_sigma_x[i - 1]) * (pFix->tnr_luma_sigma_y[i] - pFix->tnr_luma_sigma_y[i - 1]);
-        ratio = ratio / (pFix->tnr_luma_sigma_x[i] - pFix->tnr_luma_sigma_x[i - 1]);
-
-        sigma = pFix->tnr_luma_sigma_y[i - 1] + ratio;
-    }
-
-    return sigma;
-}
-
-int bayertnr_wgt_sqrt_tab_V30(int index)
-{
-    int i, res, ratio;
-    int len = 10;
-    int tab_x[10] = {0, 1, 2, 4, 8, 16, 32, 64, 128, 256};
-    int tab_y[10] = {0, 16, 23, 32, 45, 64, 91, 128, 181, 256};
-
-    for(i = 0; i < len; i++)
-    {
-        if(index < tab_x[i])
-            break;
-    }
-
-    if(i <= 0)
-        res = tab_y[0];
-    else if(i > len - 1)
-        res = tab_y[len - 1];
-    else
-    {
-        ratio = (index - tab_x[i - 1]);
-        ratio = ratio * (tab_y[i] - tab_y[i - 1]);
-        ratio = ratio / (tab_x[i] - tab_x[i - 1]);
-        res = (int)(tab_y[i - 1] + ratio);
-    }
-
-    return res;
-}
 
 static void bay_bifilt13x9_filter_coeff(int graymode, float sigma, int halftaby, int halftabx, uint16_t*rbtab, uint16_t *ggtab)
 {
@@ -389,158 +155,96 @@ void bay_gauss7x5_filter_coeff(float sigma, int halftaby, int halftabx, int strd
     }
 }
 
-int bayertnr_autosigma_config_V30(bool isFirstFrame,
-                                  struct isp39_bay3d_stat  *pStats,
-                                  btnr_trans_params_v30_t *pTransPrarms)
+void bayertnr_luma2sigmax_config_v30(btnr_trans_params_t *pTransParams)
 {
-    bool auto_en = pTransPrarms->bayertnr_auto_sig_count_en;
-    // update auto sigma curve
-    if(auto_en  && !isFirstFrame)
-    {
-        int sigma_bins = 20;
-        uint16_t tmp = 0;
-        uint16_t *sigmay_data = pStats->tnr_auto_sigma_calc;
-        uint16_t *sigmay_curve = pTransPrarms->tnr_luma_sigma_y;
-        int iir_wgt  = pTransPrarms->bayertnr_auto_sig_count_filt_wgt;
-        int filt_coef[5] = {0, 0, 1, 0, 0};
-        int sigmay_calc[24 + 2 + 2], sigmay_tmp[24];
-        int i = 0, j = 0, tmp0 = 0, tmp1 = 0, coefacc = 0;
+    int pix_max;
+    int i, tmp, tmp0, tmp1;
+    int sigbins = 20;
 
-        sigmay_calc[0] = sigmay_data[0];
-        sigmay_calc[1] = sigmay_data[0];
-        for (j = 0; j < sigma_bins; j++)
-        {
-            sigmay_calc[j + 2] = sigmay_data[j];
-        }
-        sigmay_calc[2 + sigma_bins + 0] = sigmay_data[sigma_bins - 1];
-        sigmay_calc[2 + sigma_bins + 1] = sigmay_data[sigma_bins - 1];
+    bool transf_bypass_en = pTransParams->isTransfBypass;
 
-        for (j = 0; j < 5; j++)
-            coefacc += filt_coef[j];
-        for (j = 2; j < sigma_bins + 2; j++)
-        {
-            tmp1 = sigmay_calc[j - 2] * filt_coef[0] + sigmay_calc[j - 1] * filt_coef[1];
-            tmp1 = tmp1 + sigmay_calc[j] * filt_coef[2] + sigmay_calc[j + 1] * filt_coef[3];
-            tmp1 = tmp1 + sigmay_calc[j + 2] * filt_coef[4];
-            sigmay_tmp[j - 2] = tmp1 / coefacc;
+    pix_max = transf_bypass_en ? ((1 << 12) - 1) : bayertnr_logtrans((1 << 12) - 1, pTransParams);
+    if(pTransParams->isHdrMode) {
+        pTransParams->bayertnr_tnr_sigma_curve_double_en = 1;
+        pTransParams->bayertnr_tnr_sigma_curve_double_pos = 10;
+        // hdr long bins
+        int lgbins = 10;
+        for(i = 0; i < lgbins; i++) {
+            pTransParams->tnr_luma_sigma_x[i] = 128 * (i + 1);
         }
 
-        // calc special point
-        for (j = 0; j < sigma_bins; j++)
-        {
-            if(sigmay_tmp[j] == 0)
-            {
-                for (i = 1; i < sigma_bins + 1; i++)
-                {
-                    tmp0 = CLIP((j - i), 0, sigma_bins);
-                    if(sigmay_tmp[tmp0])
-                        break;
-                    tmp0 = CLIP((j + i), 0, sigma_bins);
-                    if(sigmay_tmp[tmp0])
-                        break;
-                }
-                sigmay_tmp[j] = sigmay_tmp[tmp0];
-                if(i >= sigma_bins)
-                {
-                    //printf("sigmay_curve no point use!\n");
-                    pTransPrarms->bayertnr_auto_sig_count_valid = 0;
-                    break;
-                }
-            }
+        // hdr short bins
+        int shbins = sigbins - lgbins;
+        /*
+        for(i = 0; i < 8; i++) {
+            if(frameDGain0 <= (1 << i))
+                break;
         }
-
-        // sigma iir
-        for (j = 1; j < sigma_bins; j++)
-        {
-            sigmay_tmp[j] = MAX(sigmay_tmp[j], sigmay_tmp[j - 1]);
+        */
+        i = 8;
+        tmp = (1 << (12 + i)) - 1; // luma
+        tmp1 = transf_bypass_en ? tmp : bayertnr_logtrans(tmp, pTransParams);
+        tmp = tmp1 - pix_max;
+        for(i = lgbins; i < lgbins + 6; i++) {
+            tmp = 128 * (i - lgbins + 1)  + pTransParams->tnr_luma_sigma_x[lgbins - 1]; //pParser->bayertnr_tnr_lum[i];
+            pTransParams->tnr_luma_sigma_x[i] = tmp;
         }
-
-        if(pStats->tnr_auto_sigma_count < pTransPrarms->bayertnr_auto_sig_count_max)
-        {
-            LOGD_ANR("sigma_curve capture 0x%x point not enough, sigma_cout_max:0x%x !\n",
-                     pStats->tnr_auto_sigma_count, pTransPrarms->bayertnr_auto_sig_count_max);
-            pTransPrarms->bayertnr_auto_sig_count_valid = 0;
+        for(i = lgbins + 6; i < sigbins; i++) {
+            tmp = 256 * (i - lgbins - 6 + 1)  + pTransParams->tnr_luma_sigma_x[lgbins + 6 - 1]; //pParser->bayertnr_tnr_lum[i];
+            pTransParams->tnr_luma_sigma_x[i] = tmp;
         }
-        else
-            pTransPrarms->bayertnr_auto_sig_count_valid = 1;
-
-        if(pTransPrarms->bayertnr_auto_sig_count_valid == 0)
-            iir_wgt = 1024;
-        for (j = 0; j < sigma_bins; j++)
-        {
-            tmp = (iir_wgt * sigmay_curve[j] + (1024 - iir_wgt) * sigmay_tmp[j]) >> 10;
-
-            LOGD_ANR("%s:%d  iir_wgt:%d sigma[%d]: auto:0x%x  pre:0x%x sigmay_tmp:0x%x reg:0x%x\n",
-                     __FUNCTION__, __LINE__,
-                     iir_wgt, j, pStats->tnr_auto_sigma_calc[j],
-                     sigmay_curve[j], sigmay_tmp[j], tmp);
-
-            sigmay_curve[j] = tmp;
+        pTransParams->tnr_luma_sigma_x[sigbins - 1] = tmp1;
+        for(i = 0; i < 20; i++) {
         }
-
-    }
-
-    return 0;
-}
-
-void rk_aiq_btnr40_update_sq(struct isp39_isp_params_cfg* isp_cfg, btnr_cvt_info_t *pBtnrInfo, uint32_t frameId)
-{
-    int tmp, tmp0, tmp1;
-    struct isp39_bay3d_cfg *pFix = &isp_cfg->others.bay3d_cfg;
-    btnr_trans_params_v30_t *pTransPrarms = &pBtnrInfo->mBtnrTransParams;
-
-    /* BAY3D_TNRSIGORG */
-    // noise balance update info
-    int pre_wk_stat, pre_pk_stat, wk_stat;
-    int sigorg, sigsta, wsta;
-    long long pkp1_sq, tmpL0, tmpL1;
-    sigorg = 256;
-    if(frameId == 0)
-    {
-        pTransPrarms->bayertnr_pk_stat  = sigorg;
-        pTransPrarms->bayertnr_wgt_stat = 0;
-        pre_wk_stat = pTransPrarms->bayertnr_wgt_stat;
-        pre_pk_stat = pTransPrarms->bayertnr_pk_stat;
+    } else if(!transf_bypass_en)   {
+        int segs = 6;
+        pTransParams->bayertnr_tnr_sigma_curve_double_en = 0;
+        pTransParams->bayertnr_tnr_sigma_curve_double_pos = 0;
+        for(i = 0; i < segs; i++) {
+            pTransParams->tnr_luma_sigma_x[i] = 32 * (i + 1);
+        }
+        for(i = segs; i < sigbins; i++) {
+            pTransParams->tnr_luma_sigma_x[i] = 64 * (i - segs + 1) + 32 * segs;
+        }
+        pTransParams->tnr_luma_sigma_x[sigbins - 1] = pix_max;
     }
     else
     {
-        pre_wk_stat = pTransPrarms->bayertnr_wgt_stat;
-        pre_pk_stat = pTransPrarms->bayertnr_pk_stat;
-
-        wk_stat = (1 << FIXTNRWWW) * (1 << FIXTNRWWW) / ((2 << FIXTNRWWW) - pre_wk_stat);
-        wk_stat = CLIP(wk_stat, pFix->tnr_lo_wgt_clip_min_limit, pFix->tnr_lo_wgt_clip_max_limit);
-
-        tmp0 = bayertnr_kalm_bitcut_V30(wk_stat, FIXTNRWWW, FIXTNRKAL);
-        tmp1  = bayertnr_wgt_sqrt_tab_V30((1 << FIXTNRKAL) - tmp0);
-        tmp1  = (tmp1 * sigorg) >> FIXTNRKAL;
-        tmp1  = CLIP(tmp1, 1, (1 << FIXTNRKAL));
-
-        pTransPrarms->bayertnr_wgt_stat = wk_stat;
-        pTransPrarms->bayertnr_pk_stat  = tmp1;
+        pTransParams->bayertnr_tnr_sigma_curve_double_en = 0;
+        pTransParams->bayertnr_tnr_sigma_curve_double_pos = 0;
+        for(i = 0; i < sigbins / 2; i++) {
+            pTransParams->tnr_luma_sigma_x[i] = 128 * (i + 1);
+            pTransParams->tnr_luma_sigma_x[i + sigbins / 2] = 256 * (i + 1) + 128 * 10;
+        }
+        pTransParams->tnr_luma_sigma_x[sigbins - 1] = pix_max;
     }
 
-    sigorg = 256;
-    sigsta = pre_pk_stat;
-    wsta   = bayertnr_kalm_bitcut_V30(pTransPrarms->bayertnr_wgt_stat, FIXTNRWWW, FIXTNRWGT);
-    pkp1_sq  = (long long)(sigsta * sigsta);
-    tmpL0 = (long long)((wsta * wsta) / (1 << FIXTNRWGT));
-    tmpL0 = (long long)(tmpL0 * pkp1_sq);
-    tmpL1 = (long long)((((1 << FIXTNRWGT) - wsta) * ((1 << FIXTNRWGT) - wsta)) / (1 << FIXTNRWGT));
-    tmp = tmpL0 + tmpL1 * sigorg * sigorg;
-    pFix->tnr_out_sigma_sq = CLIP(tmp, 0, 0x3ffffff);
-
-    //LOGK("rk_aiq_btnr40_update_sq %d, tnr_out_sigma_sq 0x%lx", frameId, pFix->tnr_out_sigma_sq);
 }
 
-void rk_aiq_btnr40_params_cvt(void* attr, struct isp39_isp_params_cfg* isp_cfg, common_cvt_info_t *cvtinfo, btnr_cvt_info_t *pBtnrInfo)
+#define trans_mode2str(mode) \
+    (mode) == 0 ? "btnr_pixInBw15b_mode" : \
+    (mode) == 1 ? "btnr_pixInBw20b_mode" : \
+    "INVALID MODE"
+
+void rk_aiq_btnr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_info_t* cvtinfo, btnr_cvt_info_t* pBtnrInfo)
 {
-    btnr_trans_params_v30_t *pTransPrarms = &pBtnrInfo->mBtnrTransParams;
-    struct isp39_bay3d_stat *btnr_stats = &pBtnrInfo->mBtnrStats;
+    btnr_trans_params_t *pTransParams = &pBtnrInfo->mBtnrTransParams;
+    btnr_stats_t *btnr_stats = &pBtnrInfo->mBtnrStats[0];
     bool bypass = pBtnrInfo->bypass;
+
+    if (cvtinfo->isFirstFrame) {
+        memset(pBtnrInfo, 0, sizeof(btnr_cvt_info_t));
+    } else {
+        btnr_stats = bayertnr_get_stats(pBtnrInfo, cvtinfo->frameId);
+        if (cvtinfo->frameId-BAYERTNR_STATS_DELAY != btnr_stats->id) {
+            LOGE_ANR("Btnr stats miss match! (%d %d)", cvtinfo->frameId, btnr_stats->id);
+        }
+    }
 
     int i;
     int tmp, tmp0, tmp1;
-    struct isp39_bay3d_cfg *pFix = &isp_cfg->others.bay3d_cfg;
+    int pix_max, sigbins = 20;
+    struct isp39_bay3d_cfg *pFix = &isp_params->isp_cfg->others.bay3d_cfg;
 
     btnr_param_t *btnr_param = (btnr_param_t *) attr;
     btnr_params_static_t* psta = &btnr_param->sta;
@@ -548,12 +252,34 @@ void rk_aiq_btnr40_params_cvt(void* attr, struct isp39_isp_params_cfg* isp_cfg, 
     btnr_md_dyn_t* pmdDyn = &btnr_param->mdDyn;
 
     bool bayertnr_default_noise_curve_use = false;
-    int bayertnr_iso_cur = cvtinfo->frameIso[cvtinfo->frameNum- 1];
-    bayertnr_default_noise_curve_use = bayertnr_find_top_one_pos_V30(bayertnr_iso_cur) != bayertnr_find_top_one_pos_V30(pTransPrarms->bayertnr_iso_pre);
+    int bayertnr_iso_cur = cvtinfo->frameIso[cvtinfo->frameNum - 1];
+    bayertnr_default_noise_curve_use = bayertnr_find_top_one_pos(bayertnr_iso_cur) != bayertnr_find_top_one_pos(pTransParams->bayertnr_iso_pre);
+    pTransParams->bayertnr_iso_pre = bayertnr_iso_cur;
+    pTransParams->isFirstFrame = cvtinfo->isFirstFrame;
+    pTransParams->isHdrMode = cvtinfo->frameNum == 2;
 
     // BAY3D_CTRL0 0x2c00
     pFix->bypass_en = bypass;
     pFix->iirsparse_en = 0;
+
+    if (cvtinfo->frameNum > 1 || cvtinfo->preDGain > 1.0) {
+        if (psta->hw_btnrCfg_pixDomain_mode != btnr_pixLog2Domain_mode) {
+            LOGE_ANR("Btnr must run in pixLog2Domain when isp is HDR mode or preDGain > 1, btnr_pixLog2Domain_mode is be forcibly set to hw_btnrCfg_pixDomain_mode in HWI\n"
+                     "You can set by btnr.static.hw_btnrCfg_pixDomain_mode, but change hw_btnrCfg_pixDomain_mode in running time may cause abnormal image transitions\n");
+            psta->hw_btnrCfg_pixDomain_mode = btnr_pixLog2Domain_mode;
+        }
+        if (psta->transCfg.hw_btnr_trans_mode != btnr_pixInBw20b_mode) {
+            LOGE_ANR("hw_btnr_trans_mode == %s(0x%x) is error, It is be set to btnr_pixInBw20b_mode in HWI", trans_mode2str(psta->transCfg.hw_btnr_trans_mode), psta->transCfg.hw_btnr_trans_mode);
+            psta->transCfg.hw_btnr_trans_mode = btnr_pixInBw20b_mode;
+        }
+    }
+
+    if (!cvtinfo->isFirstFrame) {
+        if (pBtnrInfo->hw_btnrCfg_pixDomain_mode != (int)psta->hw_btnrCfg_pixDomain_mode) {
+            LOGW_ANR("change hw_btnrCfg_pixDomain_mode in running time may cause abnormal image transitions");
+        }
+    }
+    pBtnrInfo->hw_btnrCfg_pixDomain_mode = (int)psta->hw_btnrCfg_pixDomain_mode;
 
     //BAY3D_CTRL1 0x2c04
     switch (psta->hw_btnrCfg_pixDomain_mode) {
@@ -561,10 +287,10 @@ void rk_aiq_btnr40_params_cvt(void* attr, struct isp39_isp_params_cfg* isp_cfg, 
         pFix->transf_bypass_en = 0;
         pFix->transf_mode  = 0;
         break;
-    case btnr_pixSqrtDomain_mode:
-        pFix->transf_bypass_en = 0;
-        pFix->transf_mode  = 1;
-        break;
+    // case btnr_pixSqrtDomain_mode:
+    //     pFix->transf_bypass_en = 0;
+    //     pFix->transf_mode  = 1;
+    //     break;
     case btnr_pixLinearDomain_mode:
         pFix->transf_bypass_en = 1;
         break;
@@ -572,7 +298,7 @@ void rk_aiq_btnr40_params_cvt(void* attr, struct isp39_isp_params_cfg* isp_cfg, 
 
     if (cvtinfo->preDGain > 1.0 || cvtinfo->frameNum > 1) {
         if (pFix->transf_bypass_en) {
-            LOGE_ANR("%s:: pFix->transf_bypass_en error !\n");
+            LOGW_ANR("pFix->transf_bypass_en error !");
             pFix->transf_bypass_en = 0;
         }
     }
@@ -584,7 +310,7 @@ void rk_aiq_btnr40_params_cvt(void* attr, struct isp39_isp_params_cfg* isp_cfg, 
     pFix->pre_spnr_bypass_en = !pdyn->preFrmSpNr.hw_btnrT_spNr_en;
     pFix->pre_spnr_sigma_idxfilt_bypass_en = !pdyn->preFrmSpNr.hw_btnrT_sigmaIdxLpf_en;
     pFix->pre_spnr_sigma_curve_double_en = (pdyn->preFrmSpNr.hw_btnrT_sigmaCurve_mode == btnr_midSegmInterpOff_mode);
-    pFix->lpf_hi_bypass_en = !pmdDyn->loAsHiRatioMd.hw_btnrT_hfLpf_en;
+    pFix->lpf_hi_bypass_en = !pmdDyn->loAsRatio_hiByMskMd.hw_btnrT_hfLpf_en;
     pFix->lo_diff_vfilt_bypass_en = !pmdDyn->subLoMd0_diffCh.hw_btnrT_vFilt_en;
     pFix->lpf_lo_bypass_en = !pmdDyn->subLoMd1.hw_btnrT_lpf_en;
     pFix->lo_wgt_hfilt_en = pmdDyn->subLoMd1.hw_btnrT_hFilt_en;
@@ -592,11 +318,6 @@ void rk_aiq_btnr40_params_cvt(void* attr, struct isp39_isp_params_cfg* isp_cfg, 
     pFix->sig_hfilt_en = pmdDyn->subLoMd0_sgmCh.hw_btnrT_hFilt_en;
     //pFix->gkalman_en = pSelect->hw_btnr_gKalman_en;
     pFix->spnr_pre_sigma_use_en = (pdyn->preFrmSpNr.hw_btnrT_sigma_mode == btnr_kalPkSgm_mode);
-
-    if (pmdDyn->loMd.hw_btnrT_loMd_en)
-        pFix->lo_detection_mode = pmdDyn->loMd.hw_btnrT_loMd_mode;
-    else
-        pFix->lo_detection_mode = 3;
 
     pFix->md_bypass_en = !pmdDyn->hw_btnrT_md_en;
     if (psta->debug.sw_btnrT_dbgOut_en) {
@@ -622,57 +343,104 @@ void rk_aiq_btnr40_params_cvt(void* attr, struct isp39_isp_params_cfg* isp_cfg, 
         pFix->curdbg_out_en = 0;
         pFix->md_wgt_out_en = 0;
     }
-    if (pmdDyn->hw_btnrT_md_mode == btnr_loMdOnly_mode)
+
+    switch (pmdDyn->loMd.hw_btnrT_loMd_mode) {
+    case btnr_subLoMd01Mix_mode:
+        pFix->lo_detection_mode = 0;
+        break;
+    case btnr_subLoMd0Only_mode:
+        pFix->lo_detection_mode = 1;
+        break;
+    case btnr_subLoMd1Only_mode:
+        pFix->lo_detection_mode = 2;
+        break;
+    }
+
+    pFix->lomdwgt_dbg_en = 0;
+    switch (pmdDyn->hw_btnrT_md_mode) {
+    case btnr_loAsRatio_hiByMsk_mode:
+        pFix->wgt_cal_mode = 0;
+        break;
+    case btnr_loAsBias_hiBySgm_mode:
+        pFix->wgt_cal_mode = 1;
+        break;
+    case btnr_loOnly_dbg_mode:
         pFix->lomdwgt_dbg_en = 1;
-    pFix->noisebal_mode = pdyn->hw_btnrT_frmAlpha_mode;
+        pFix->wgt_cal_mode = 1;
+        break;
+    case btnr_hiByMskOnly_dbg_mode:
+        pFix->wgt_cal_mode = 0;
+        pFix->lo_detection_mode = 3;
+        break;
+    case btnr_hiBySgmOnly_dbg_mode:
+        pFix->wgt_cal_mode = 1;
+        pFix->lo_detection_mode = 3;
+        pFix->lomdwgt_dbg_en = 0;
+        break;
+    }
+
+    pFix->noisebal_mode = pdyn->hw_btnrT_noiseBal_mode;
 
     if (cvtinfo->frameNum > 1) {
         if (pFix->cur_spnr_sigma_curve_double_en == 0) {
-            LOGE_ANR("%s:: cur_spnr_sigma_curve_double_en error !\n");
-            pFix->cur_spnr_sigma_curve_double_en = 1;
+            LOGW_ANR("When isp is HDR mode, hw_btnrT_sigmaCurve_mode recommends using btnr_midSegmInterpOff_mode. "
+                     "You can set by dyn.curFrmSpNr.hw_btnrT_sigmaCurve_mode\n");
+            // pFix->cur_spnr_sigma_curve_double_en = 1;
         }
         if (pFix->pre_spnr_sigma_curve_double_en == 0) {
-            LOGE_ANR("%s:: pre_spnr_sigma_curve_double_en error !\n");
-            pFix->pre_spnr_sigma_curve_double_en  = 1;
+            LOGW_ANR("When isp is HDR mode, hw_btnrT_sigmaCurve_mode recommends using btnr_midSegmInterpOff_mode. "
+                     "You can set by dyn.curFrmSpNr.hw_btnrT_sigmaCurve_mode\n");
+            // pFix->pre_spnr_sigma_curve_double_en  = 1;
         }
     }
 
     // BAY3D_CTRL2 0x2c08
-    int last_transf_mode = pFix->transf_mode;
-    int last_transf_mode_scale = pFix->transf_mode_scale;
-    if (pmdDyn->hw_btnrT_md_mode == btnr_loAsRatioForHi_mode)
-        pFix->wgt_cal_mode = 0;
-    if (pmdDyn->hw_btnrT_md_mode == btnr_loAsBiasForHi_mode)
-        pFix->wgt_cal_mode = 1;
     pFix->mge_wgt_ds_mode = 0;
     pFix->kalman_wgt_ds_mode = 0;
     pFix->mge_wgt_hdr_sht_thred = (1 << MERGEWGBIT) - 1;
     pFix->sigma_calc_mge_wgt_hdr_sht_thred = (1 << MERGEWGBIT) - 1;
 
     // BAY3D_TRANS0 0x2c0c
-    tmp = psta->transCfg.hw_btnr_trans_offset;
-    pFix->transf_mode_offset = CLIP(tmp, 0, 0x1fff);
-
-    tmp = psta->transCfg.hw_btnr_trans_scale;
-    pFix->transf_mode_scale = CLIP(tmp, 0, 0x01);
-    if (cvtinfo->frameNum > 1)
+    if (psta->transCfg.hw_btnr_trans_mode == btnr_pixInBw15b_mode)
+        pFix->transf_mode_scale = 1;
+    else
         pFix->transf_mode_scale = 0;
 
-    if (pFix->transf_mode_scale == 0 && pFix->transf_bypass_en == 0) {
-        if (pFix->transf_mode_offset == 512)
-            pFix->itransf_mode_offset = 4096;
-        else if (pFix->transf_mode_offset == 1024)
-            pFix->itransf_mode_offset = 8192;
-        else
-            pFix->itransf_mode_offset = 2048;
+    tmp = psta->transCfg.hw_btnr_trans_offset;
+    int n  = bayertnr_find_top_one_pos(tmp);
+    if(pFix->transf_mode_scale == 1) {
+        n = 8;
     } else {
-        pFix->itransf_mode_offset = 2048;
+        if(n < 8)
+            n = 8;
+        if(n > 12)
+            n = 12;
+    }
+    tmp = (1 << n);
+    pFix->transf_mode_offset = CLIP(tmp, 0, 0x1fff);
+
+
+
+    if (pFix->transf_mode_scale == 1) {
+        pFix->itransf_mode_offset = (1 << 9) * n;
+    } else {
+        pFix->itransf_mode_offset = (1 << 8) * n;
     }
 
     // BAY3D_TRANS1 0x2c10
-    tmp = psta->transCfg.hw_btnr_transData_maxLimit;
-    pFix->transf_data_max_limit = 1048575;
-
+    // mode scale只有0和1两种选择，对应log域的小数精度，
+    // 0对应8bit小数，4bit整数， 4bit整数导致最大线性输入数据位宽为20bit->transData_maxlimit为2的20次方-1
+    // 1对应9bit小数，3bit整数， 3bit整数限制最大线性输入数据位宽为15bit->transData_maxlimit为2的15次方-1
+    if(pFix->transf_bypass_en == 1) {
+        pFix->transf_data_max_limit = ((1 << 12) - 1);
+    } else {
+        if (pFix->transf_mode_scale == 1) {
+            pFix->transf_data_max_limit = ((1 << 15) - 1);
+        }
+        else {
+            pFix->transf_data_max_limit = ((1 << 20) - 1);
+        }
+    }
 
     // BAY3D_CURDGAIN 0x2c14
     tmp = pdyn->curFrmSpNr.hw_btnrT_sigmaHdrS_scale * (1 << FIXBITDGAIN);
@@ -681,122 +449,53 @@ void rk_aiq_btnr40_params_cvt(void* attr, struct isp39_isp_params_cfg* isp_cfg, 
     pFix->cur_spnr_sigma_scale = CLIP(tmp, 0, 0xffff);
 
     // tnr sigma curve must calculate before spnr sigma
-    float kcoef0, kcoef1;
-    int max_sig, pix_max;
-    if(cvtinfo->isFirstFrame|| (last_transf_mode != pFix->transf_mode) || (last_transf_mode_scale != pFix->transf_mode_scale)) {
-        bayertnr_logtrans_init_V30(pFix->transf_mode, pFix->transf_mode_scale, pTransPrarms);
+    if(cvtinfo->isFirstFrame || (pTransParams->transf_mode != pFix->transf_mode) ||
+            (pTransParams->transf_mode_scale != pFix->transf_mode_scale)) {
+        pTransParams->transf_mode = pFix->transf_mode;
+        pTransParams->transf_mode_scale = pFix->transf_mode_scale;
+        pTransParams->transf_mode_offset = pFix->transf_mode_offset;
+        pTransParams->transf_data_max_limit = pFix->transf_data_max_limit;
+        pTransParams->itransf_mode_offset = pFix->itransf_mode_offset;
+        bayertnr_logtrans_init(pFix->transf_mode, pFix->transf_mode_scale, pTransParams);
     }
 
-    int sigbins = 20;
-    pix_max = pFix->transf_bypass_en ? ((1 << 12) - 1) : bayertnr_logtrans_V30((1 << 12) - 1, pFix, pTransPrarms);
-    if(cvtinfo->frameNum == 2 ) {
-        //pFix->sigma_curve_double_en = 1;
-        pTransPrarms->bayertnr_tnr_sigma_curve_double_pos = 10;
-        // hdr long bins
-        int lgbins = 10;
-        for(i = 0; i < lgbins; i++) {
-            pFix->tnr_luma_sigma_x[i] = 128 * (i + 1);
-        }
-
-        // hdr short bins
-        int shbins = sigbins - lgbins;
-        for(i = 0; i < 8; i++) {
-            if(cvtinfo->frameDGain[0] <= (1 << i))
-                break;
-        }
-        i = 8;
-        tmp = (1 << (12 + i)) - 1; // luma
-        tmp1 = pFix->transf_bypass_en ? tmp : bayertnr_logtrans_V30(tmp, pFix, pTransPrarms);
-        tmp = tmp1 - pix_max;
-        for(i = lgbins; i < lgbins + 6; i++) {
-            tmp = 128 * (i - lgbins + 1)  + pFix->tnr_luma_sigma_x[lgbins - 1]; //pParser->bayertnr_tnr_lum[i];
-            pFix->tnr_luma_sigma_x[i] = tmp;
-            //printf("tnr sigma x idx:%d 0x%x\n", i,pFix->tnr_luma_sigma_x[i]);
-        }
-        for(i = lgbins + 6; i < sigbins; i++) {
-            tmp = 256 * (i - lgbins - 6 + 1)  + pFix->tnr_luma_sigma_x[lgbins + 6 - 1]; //pParser->bayertnr_tnr_lum[i];
-            pFix->tnr_luma_sigma_x[i] = tmp;
-            //printf("tnr sigma x idx:%d 0x%x\n", i,pFix->tnr_luma_sigma_x[i]);
-        }
-        pFix->tnr_luma_sigma_x[sigbins - 1] = tmp1;
-        for(i = 0; i < 20; i++) {
-            //printf("tnr sigma x idx:%d 0x%x\n", i,pFix->tnr_luma_sigma_x[i]);
-        }
-    } else if(!pFix->transf_bypass_en)   {
-        int segs = 6;
-        //pTransPrarms->bayertnr_tnr_sigma_curve_double_en = 0;
-        pTransPrarms->bayertnr_tnr_sigma_curve_double_pos = 0;
-        for(i = 0; i < segs; i++) {
-            pFix->tnr_luma_sigma_x[i] = 32 * (i + 1);
-        }
-        for(i = segs; i < sigbins; i++) {
-            pFix->tnr_luma_sigma_x[i] = 64 * (i - segs + 1) + 32 * segs;
-        }
-        pFix->tnr_luma_sigma_x[sigbins - 1] = pix_max;
-    }
-    else
-    {
-        //pFix->sigma_curve_double_en = 0;
-        pTransPrarms->bayertnr_tnr_sigma_curve_double_pos = 0;
-        for(i = 0; i < sigbins / 2; i++) {
-            pFix->tnr_luma_sigma_x[i] = 128 * (i + 1);
-            pFix->tnr_luma_sigma_x[i + sigbins / 2] = 256 * (i + 1) + 128 * 10;
-        }
-        pFix->tnr_luma_sigma_x[sigbins - 1] = pix_max;
+    pTransParams->isTransfBypass = pFix->transf_bypass_en;
+    bayertnr_luma2sigmax_config_v30(pTransParams);
+    for(i = 0; i < sigbins; i++) {
+        pFix->tnr_luma_sigma_x[i] = pTransParams->tnr_luma_sigma_x[i];
     }
 
-    // if auto sigma count??  use update params?
-    if((psta->sigmaEnv.sw_btnrCfg_sigma_mode == btnr_autoSigma_mode ) && !(cvtinfo->isFirstFrame)) {
-        pTransPrarms->bayertnr_auto_sig_count_en = 1;
-        pTransPrarms->bayertnr_auto_sig_count_filt_wgt = pdyn->sigmaEnv.sw_btnrT_autoSgmIIR_alpha * (1 << 10);
-        pTransPrarms->bayertnr_auto_sig_count_max = cvtinfo->rawWidth * cvtinfo->rawHeight / 3;
-        bayertnr_autosigma_config_V30(cvtinfo->isFirstFrame, btnr_stats, pTransPrarms);
-    }
-
+    float kcoef0 = 1.0;
+    float kcoef1 = 1.0;
+    int max_sig = ((1 << 12) - 1);
     if(psta->sigmaEnv.sw_btnrCfg_sigma_mode == btnr_manualSigma_mode || cvtinfo->isFirstFrame || bayertnr_default_noise_curve_use) {
-        kcoef0 = 1.0;
-        max_sig = ((1 << 12) - 1);
+        pTransParams->bayertnr_auto_sig_count_en = 0;
         for(i = 0; i < sigbins; i++) {
-            pFix->tnr_luma_sigma_y[i] = CLIP((int)(pdyn->sigmaEnv.hw_btnrC_mdSigma_curve.val[i] * kcoef0), 0, max_sig);
-            pTransPrarms->tnr_luma_sigma_y[i] = pFix->tnr_luma_sigma_y[i];
+            pTransParams->tnr_luma_sigma_y[i] = pdyn->sigmaEnv.hw_btnrC_mdSigma_curve.val[i];
         }
     } else {
-        kcoef0 = 1.0;
-        max_sig = ((1 << 12) - 1);
-        for(i = 0; i < sigbins; i++)
-            pFix->tnr_luma_sigma_y[i] = CLIP((int)(pTransPrarms->tnr_luma_sigma_y[i] * kcoef0), 0, max_sig);
+        pTransParams->bayertnr_auto_sig_count_en = 1;
+        pTransParams->bayertnr_auto_sig_count_filt_wgt = pdyn->sigmaEnv.sw_btnrT_autoSgmIIR_alpha * (1 << 10);
+        pTransParams->bayertnr_auto_sig_count_max = cvtinfo->rawWidth * cvtinfo->rawHeight / 3;
+        bayertnr_autosigma_config(btnr_stats, pTransParams);
+    }
+
+    kcoef0 = 1.0;
+    max_sig = ((1 << 12) - 1);
+    for(i = 0; i < sigbins; i++) {
+        pFix->tnr_luma_sigma_y[i] = CLIP((int)(pTransParams->tnr_luma_sigma_y[i] * kcoef0), 0, max_sig);
     }
 
     int spnrsigbins = 16;
     bool auto_sig_curve_spnruse = psta->sigmaEnv.sw_btnrCfg_sigma_mode == btnr_autoSigma_mode;
-    pix_max = pFix->transf_bypass_en ? ((1 << 12) - 1) : bayertnr_logtrans_V30((1 << 12) - 1, pFix, pTransPrarms);
+    pix_max = pFix->transf_bypass_en ? ((1 << 12) - 1) : bayertnr_logtrans((1 << 12) - 1, pTransParams);
     if(cvtinfo->frameNum == 2) {
-        //pFix->cur_spnr_sigma_curve_double_en = 1;
-        //pFix->pre_spnr_sigma_curve_double_en = 1;
-        //pTransPrarms->bayertnr_cur_spnr_sigma_curve_double_pos = 8;
-        //pTransPrarms->bayertnr_pre_spnr_sigma_curve_double_pos = 8;
         int lgbins = 8;
-        float kcoef0 = 1.0;
-        float kcoef1 = 1.0;
-        int max_sig = ((1 << 12) - 1);
         // hdr long bins
         for(i = 0; i < lgbins; i++) {
             pFix->cur_spnr_luma_sigma_x[i] = 128 * (i + 1);
             pFix->pre_spnr_luma_sigma_x[i] = 128 * (i + 1);
         }
-        for(i = 0; i < lgbins; i++) {
-            if(!auto_sig_curve_spnruse || cvtinfo->isFirstFrame) {
-                pFix->cur_spnr_luma_sigma_y[i] = CLIP((int)(pdyn->sigmaEnv.hw_btnrC_curSpNrSgm_curve.val[i] * kcoef0), 0, max_sig);
-                pFix->pre_spnr_luma_sigma_y[i] = CLIP((int)(pdyn->sigmaEnv.hw_btnrC_iirSpNrSgm_curve.val[i] * kcoef1), 0, max_sig);
-            }
-            else {
-                tmp = bayertnr_tnr_noise_curve_V30(pFix->cur_spnr_luma_sigma_x[i], 0, pFix, pTransPrarms);
-                pFix->cur_spnr_luma_sigma_y[i]  = CLIP((int)(tmp * kcoef0), 0, max_sig);
-                tmp = bayertnr_tnr_noise_curve_V30(pFix->pre_spnr_luma_sigma_x[i], 0, pFix, pTransPrarms);
-                pFix->pre_spnr_luma_sigma_y[i] = CLIP((int)(tmp * kcoef1), 0, max_sig);
-            }
-        }
-
         // hdr short bins, max gain 256
         int shbins = spnrsigbins - lgbins;
         for(i = 0; i < 8; i++) {
@@ -805,7 +504,7 @@ void rk_aiq_btnr40_params_cvt(void* attr, struct isp39_isp_params_cfg* isp_cfg, 
         }
         i = 8;//MIN(i, 8);
         tmp = (1 << (12 + i)) - 1;
-        tmp1 =  pFix->transf_bypass_en ? tmp : bayertnr_logtrans_V30(tmp, pFix, pTransPrarms);
+        tmp1 =  pFix->transf_bypass_en ? tmp : bayertnr_logtrans(tmp, pTransParams);
         tmp = tmp1 - pix_max;
         for(i = lgbins; i < spnrsigbins ; i++) {
             pFix->cur_spnr_luma_sigma_x[i] = 256 * (i - lgbins + 1) + pFix->cur_spnr_luma_sigma_x[lgbins - 1];
@@ -813,27 +512,8 @@ void rk_aiq_btnr40_params_cvt(void* attr, struct isp39_isp_params_cfg* isp_cfg, 
         }
         pFix->cur_spnr_luma_sigma_x[spnrsigbins - 1] = tmp1;
         pFix->pre_spnr_luma_sigma_x[spnrsigbins - 1] = tmp1;
-
-        for(i = lgbins; i < spnrsigbins; i++)
-        {
-            if(!auto_sig_curve_spnruse || cvtinfo->isFirstFrame)
-            {
-                pFix->cur_spnr_luma_sigma_y[i] = CLIP((int)(pdyn->sigmaEnv.hw_btnrC_curSpNrSgm_curve.val[i] * kcoef0), 0, max_sig);
-                pFix->pre_spnr_luma_sigma_y[i] = CLIP((int)(pdyn->sigmaEnv.hw_btnrC_iirSpNrSgm_curve.val[i] * kcoef1), 0, max_sig);
-            }
-            else
-            {
-                tmp = bayertnr_tnr_noise_curve_V30(pFix->cur_spnr_luma_sigma_x[i], 0, pFix, pTransPrarms);
-                pFix->cur_spnr_luma_sigma_y[i] = CLIP((int)(tmp * kcoef0), 0, max_sig);
-                tmp = bayertnr_tnr_noise_curve_V30(pFix->pre_spnr_luma_sigma_x[i], 0, pFix, pTransPrarms);
-                pFix->pre_spnr_luma_sigma_y[i] = CLIP((int)(tmp * kcoef1), 0, max_sig);
-            }
-        }
     }
     else if(!pFix->transf_bypass_en) {
-        float kcoef0 = 1.0;
-        float kcoef1 = 1.0;
-        max_sig = ((1 << 12) - 1);
         // hdr long bins
         for(i = 0; i < spnrsigbins; i++)
         {
@@ -843,26 +523,7 @@ void rk_aiq_btnr40_params_cvt(void* attr, struct isp39_isp_params_cfg* isp_cfg, 
         pFix->cur_spnr_luma_sigma_x[spnrsigbins - 1] = pix_max;
         pFix->pre_spnr_luma_sigma_x[spnrsigbins - 1] = pix_max;
 
-        for(i = 0; i < spnrsigbins; i++)
-        {
-            if(!auto_sig_curve_spnruse || cvtinfo->isFirstFrame)
-            {
-                pFix->cur_spnr_luma_sigma_y[i] = CLIP((int)(pdyn->sigmaEnv.hw_btnrC_curSpNrSgm_curve.val[i] * kcoef0), 0, max_sig);
-                pFix->pre_spnr_luma_sigma_y[i] = CLIP((int)(pdyn->sigmaEnv.hw_btnrC_iirSpNrSgm_curve.val[i] * kcoef1), 0, max_sig);
-            }
-            else
-            {
-                tmp = bayertnr_tnr_noise_curve_V30(pFix->cur_spnr_luma_sigma_x[i], 0, pFix, pTransPrarms);
-                pFix->cur_spnr_luma_sigma_y[i] = CLIP((int)(tmp * kcoef0), 0, max_sig);
-                tmp = bayertnr_tnr_noise_curve_V30(pFix->pre_spnr_luma_sigma_x[i], 0, pFix, pTransPrarms);
-                pFix->pre_spnr_luma_sigma_y[i] = CLIP((int)(tmp * kcoef1), 0, max_sig);
-            }
-        }
     } else {
-        int lgbins = 0;
-        float kcoef0 = 1.0;
-        float kcoef1 = 1.0;
-        int max_sig = ((1 << 12) - 1);
         for(i = 0; i < spnrsigbins; i++)
         {
             pFix->cur_spnr_luma_sigma_x[i] = 256 * (i + 1);
@@ -870,21 +531,18 @@ void rk_aiq_btnr40_params_cvt(void* attr, struct isp39_isp_params_cfg* isp_cfg, 
         }
         pFix->cur_spnr_luma_sigma_x[spnrsigbins - 1] = pix_max;
         pFix->pre_spnr_luma_sigma_x[spnrsigbins - 1] = pix_max;
+    }
 
-        for(i = 0; i < spnrsigbins; i++)
-        {
-            if(!auto_sig_curve_spnruse || cvtinfo->isFirstFrame )
-            {
-                pFix->cur_spnr_luma_sigma_y[i] = CLIP((int)(pdyn->sigmaEnv.hw_btnrC_curSpNrSgm_curve.val[i] * kcoef0), 0, max_sig);
-                pFix->pre_spnr_luma_sigma_y[i] = CLIP((int)(pdyn->sigmaEnv.hw_btnrC_iirSpNrSgm_curve.val[i] * kcoef1), 0, max_sig);
-            }
-            else
-            {
-                tmp = bayertnr_tnr_noise_curve_V30(pFix->cur_spnr_luma_sigma_x[i], 0, pFix, pTransPrarms);
-                pFix->cur_spnr_luma_sigma_y[i] = CLIP((int)(tmp * kcoef0), 0, max_sig);
-                tmp = bayertnr_tnr_noise_curve_V30(pFix->pre_spnr_luma_sigma_x[i], 0, pFix, pTransPrarms);
-                pFix->pre_spnr_luma_sigma_y[i] = CLIP((int)(tmp * kcoef1), 0, max_sig);
-            }
+    for(i = 0; i < 16; i++) {
+        if(!auto_sig_curve_spnruse || cvtinfo->isFirstFrame) {
+            pFix->cur_spnr_luma_sigma_y[i] = CLIP((int)(pdyn->sigmaEnv.hw_btnrC_curSpNrSgm_curve.val[i] * kcoef0), 0, max_sig);
+            pFix->pre_spnr_luma_sigma_y[i] = CLIP((int)(pdyn->sigmaEnv.hw_btnrC_iirSpNrSgm_curve.val[i] * kcoef1), 0, max_sig);
+        }
+        else {
+            tmp = bayertnr_tnr_noise_curve(pFix->cur_spnr_luma_sigma_x[i], 0, pTransParams);
+            pFix->cur_spnr_luma_sigma_y[i] = CLIP((int)(tmp * kcoef0), 0, max_sig);
+            tmp = bayertnr_tnr_noise_curve(pFix->pre_spnr_luma_sigma_x[i], 0, pTransParams);
+            pFix->pre_spnr_luma_sigma_y[i] = CLIP((int)(tmp * kcoef1), 0, max_sig);
         }
     }
 
@@ -952,10 +610,24 @@ void rk_aiq_btnr40_params_cvt(void* attr, struct isp39_isp_params_cfg* isp_cfg, 
     //tnr sigma curve must calculate befor spnr sigma curve
 
     /* BAY3D_TNRHIW */
-    bay_gauss7x5_filter_coeff(pmdDyn->loAsHiRatioMd.sw_btnrT_hfLpf_strg, 5, 7, 7, pFix->tnr_lpf_hi_coeff);
+    if (pmdDyn->loAsRatio_hiByMskMd.sw_btnrT_hfLpfCfg_mode == btnr_cfgByFiltStrg_mode) {
+        bay_gauss7x5_filter_coeff(pmdDyn->loAsRatio_hiByMskMd.sw_btnrT_hfLpf_strg, 5, 7, 7, pFix->tnr_lpf_hi_coeff);
+    } else {
+        for(i = 0; i < 9; i++) {
+            tmp = pmdDyn->loAsRatio_hiByMskMd.hw_btnrT_hfLpfSpatial_wgt[i] * (1 << 10);
+            pFix->tnr_lpf_hi_coeff[i] = CLIP(tmp, 0, 0x3ff);
+        }
+    }
 
     /* BAY3D_TNRLOW*/
-    bay_gauss7x5_filter_coeff(pmdDyn->subLoMd1.sw_btnrT_lpf_strg, 5, 7, 7, pFix->tnr_lpf_lo_coeff);
+    if (pmdDyn->subLoMd1.sw_btnrT_lpfCfg_mode == btnr_cfgByFiltStrg_mode) {
+        bay_gauss7x5_filter_coeff(pmdDyn->subLoMd1.sw_btnrT_lpf_strg, 5, 7, 7, pFix->tnr_lpf_lo_coeff);
+    } else {
+        for(i = 0; i < 9; i++) {
+            tmp = pmdDyn->subLoMd1.hw_btnrT_lpfSpatial_wgt[i] * (1 << 10);
+            pFix->tnr_lpf_lo_coeff[i] = CLIP(tmp, 0, 0x3ff);
+        }
+    }
 
     /* BAY3D_TNRGF3 */
     tmp = pmdDyn->mdWgtPost.hw_btnr_lpfSpatial_wgt[0] * (1 << 6);
@@ -967,6 +639,7 @@ void rk_aiq_btnr40_params_cvt(void* attr, struct isp39_isp_params_cfg* isp_cfg, 
     tmp =  1024 - pFix->tnr_wgt_filt_coeff1 * 4 - pFix->tnr_wgt_filt_coeff2 * 4;
     if(tmp < 0) {
         LOGE_ANR("%s:%d: hw_tnrWgtFltCoef:%f + 4*%f + 4*%f = %f should less than 16, use[4,2,1]instead, please check iq params!\n",
+                 __FUNCTION__, __LINE__,
                  pmdDyn->mdWgtPost.hw_btnr_lpfSpatial_wgt[0], pmdDyn->mdWgtPost.hw_btnr_lpfSpatial_wgt[1], pmdDyn->mdWgtPost.hw_btnr_lpfSpatial_wgt[2],
                  pmdDyn->mdWgtPost.hw_btnr_lpfSpatial_wgt[0] + 4 * pmdDyn->mdWgtPost.hw_btnr_lpfSpatial_wgt[1] + 4 * pmdDyn->mdWgtPost.hw_btnr_lpfSpatial_wgt[2]);
         pFix->tnr_wgt_filt_coeff0 = 4 * (1 << 6);
@@ -1003,7 +676,7 @@ void rk_aiq_btnr40_params_cvt(void* attr, struct isp39_isp_params_cfg* isp_cfg, 
     /* BAY3D_TNRLFSCLTH */
     tmp = pmdDyn->subLoMd1.hw_btnrT_mdWgt_maxLimit * (1 << 10);
     pFix->tnr_low_wgt_cal_max_limit  = CLIP(tmp, 0, 0x3fff);
-    tmp = pmdDyn->loAsHiRatioMd.hw_btnrT_hiMdWgt_scale * (1 << 10);
+    tmp = pmdDyn->loAsRatio_hiByMskMd.hw_btnrT_hiMdWgt_scale * (1 << 10);
     pFix->tnr_mode0_base_ratio  = CLIP(tmp, 0, 0x3fff);
 
     /* BAY3D_TNRDSWGTSCL */
@@ -1019,71 +692,75 @@ void rk_aiq_btnr40_params_cvt(void* attr, struct isp39_isp_params_cfg* isp_cfg, 
     pFix->tnr_lo_mge_pre_wgt_scale  = CLIP(tmp, 0, 0x3fff);
 
     /* BAY3D_TNRWGT0SCL0 */
-    tmp = pmdDyn->loAsHiRatioMd.hw_btnrT_loWgtStat_scale * (1 << 10);
+    tmp = pmdDyn->loAsRatio_hiByMskMd.hw_btnrT_loWgtStat_scale * (1 << 10);
     pFix->tnr_mode0_lo_wgt_scale  = CLIP(tmp, 0, 0x3fff);
-    tmp = pmdDyn->loAsHiRatioMd.hw_btnrT_loWgtStatHdrS_scale * (1 << 10);
+    tmp = pmdDyn->loAsRatio_hiByMskMd.hw_btnrT_loWgtStatHdrS_scale * (1 << 10);
     pFix->tnr_mode0_lo_wgt_hdr_sht_scale  = CLIP(tmp, 0, 0x3fff);
 
     /* BAY3D_TNRWGT1SCL1 */
-    tmp = pmdDyn->loAsHiBiasMd.hw_btnrT_loWgtStat_scale * (1 << 10);
+    tmp = pmdDyn->loAsBias_hiBySgmMd.hw_btnrT_loWgtStat_scale * (1 << 10);
     pFix->tnr_mode1_lo_wgt_scale  = CLIP(tmp, 0, 0x3fff);
-    tmp = pmdDyn->loAsHiBiasMd.hw_btnrT_loWgtStatHdrS_scale * (1 << 10);
+    tmp = pmdDyn->loAsBias_hiBySgmMd.hw_btnrT_loWgtStatHdrS_scale * (1 << 10);
     pFix->tnr_mode1_lo_wgt_hdr_sht_scale  = CLIP(tmp, 0, 0x3fff);
 
     /* BAY3D_TNRWGT1SCL2 */
-    tmp = pmdDyn->loAsHiBiasMd.hw_btnrT_mdWgt_scale * (1 << 10);
+    tmp = pmdDyn->loAsBias_hiBySgmMd.hw_btnrT_mdWgt_scale * (1 << 10);
     pFix->tnr_mode1_wgt_scale  = CLIP(tmp, 0, 0x3fff);
-    tmp = pmdDyn->loAsHiBiasMd.hw_btnrT_mdWgtHdrS_scale  * (1 << 10);
+    tmp = pmdDyn->loAsBias_hiBySgmMd.hw_btnrT_mdWgtHdrS_scale  * (1 << 10);
     pFix->tnr_mode1_wgt_hdr_sht_scale  = CLIP(tmp, 0, 0x3fff);
 
     /* BAY3D_TNRWGTOFF */
-    tmp = pmdDyn->loAsHiBiasMd.hw_btnrT_loWgtStat_negOff * (1 << 10);
+    tmp = pmdDyn->loAsBias_hiBySgmMd.hw_btnrT_loWgtStat_negOff * (1 << 10);
     pFix->tnr_mode1_lo_wgt_offset  = CLIP(tmp, 0, 0x3fff);
-    tmp = pmdDyn->loAsHiBiasMd.hw_btnrT_loWgtStatHdrS_negOff * (1 << 10);
+    tmp = pmdDyn->loAsBias_hiBySgmMd.hw_btnrT_loWgtStatHdrS_negOff * (1 << 10);
     pFix->tnr_mode1_lo_wgt_hdr_sht_offset  = CLIP(tmp, 0, 0x3fff);
 
     /* BAY3D_TNRWGT1OFF */
     tmp = pdyn->sigmaEnv.hw_btnrT_statsPixAlpha_thred * (1 << 10);
     pFix->tnr_auto_sigma_count_wgt_thred  = CLIP(tmp, 0, 0x3ff);
-    tmp = pmdDyn->loAsHiBiasMd.hw_btnrT_loWgtStat_minLimit * (1 << 10);
+    tmp = pmdDyn->loAsBias_hiBySgmMd.hw_btnrT_mdWgt_minLimit * (1 << 10);
     pFix->tnr_mode1_wgt_min_limit  = CLIP(tmp, 0, 0x3ff);
-    tmp = pmdDyn->loAsHiBiasMd.hw_btnrT_loWgtStat_offset * (1 << 10);
+    tmp = pmdDyn->loAsBias_hiBySgmMd.hw_btnrT_mdWgt_offset * (1 << 10);
     pFix->tnr_mode1_wgt_offset  = CLIP(tmp, 0, 0xfff);
 
     /* BAY3D_TNRWLO_THL */
-    tmp =  pdyn->frmAlpha_lo.hw_btnrT_loAlpha_minLimit == 0  ?  0 : (int)((1.0 - 1.0 / pdyn->frmAlpha_lo.hw_btnrT_loAlpha_minLimit) * (1 << FIXTNRWWW));
+    tmp =  pmdDyn->frmAlpha.hw_btnrT_loAlpha_minLimit == 0  ?  0 : (int)((1.0 - 1.0 / pmdDyn->frmAlpha.hw_btnrT_loAlpha_minLimit) * (1 << FIXTNRWWW));
     pFix->tnr_lo_wgt_clip_min_limit  = CLIP(tmp, 0, 0x3fff);
-    tmp =  pdyn->frmAlpha_lo.hw_btnrT_loAlphaHdrS_minLimit == 0  ?  0 : (int)((1.0 - 1.0 / pdyn->frmAlpha_lo.hw_btnrT_loAlphaHdrS_minLimit) * (1 << FIXTNRWWW));
+    tmp =  pmdDyn->frmAlpha.hw_btnrT_loAlphaHdrS_minLimit == 0  ?  0 : (int)((1.0 - 1.0 / pmdDyn->frmAlpha.hw_btnrT_loAlphaHdrS_minLimit) * (1 << FIXTNRWWW));
     pFix->tnr_lo_wgt_clip_hdr_sht_min_limit  = CLIP(tmp, 0, 0x3fff);
 
     /* BAY3D_TNRWLO_THH */
-    tmp =  pdyn->frmAlpha_lo.hw_btnrT_loAlpha_maxLimit == 0  ?  0 : (int)((1.0 - 1.0 / pdyn->frmAlpha_lo.hw_btnrT_loAlpha_maxLimit) * (1 << FIXTNRWWW));
+    tmp =  pmdDyn->frmAlpha.hw_btnrT_loAlpha_maxLimit == 0  ?  0 : (int)((1.0 - 1.0 / pmdDyn->frmAlpha.hw_btnrT_loAlpha_maxLimit) * (1 << FIXTNRWWW));
     pFix->tnr_lo_wgt_clip_max_limit  = CLIP(tmp, 0, 0x3fff);
-    tmp =  pdyn->frmAlpha_lo.hw_btnrT_loAlphaHdrS_maxLimit == 0  ?  0 : (int)((1.0 - 1.0 / pdyn->frmAlpha_lo.hw_btnrT_loAlphaHdrS_maxLimit) * (1 << FIXTNRWWW));
+    tmp =  pmdDyn->frmAlpha.hw_btnrT_loAlphaHdrS_maxLimit == 0  ?  0 : (int)((1.0 - 1.0 / pmdDyn->frmAlpha.hw_btnrT_loAlphaHdrS_maxLimit) * (1 << FIXTNRWWW));
     pFix->tnr_lo_wgt_clip_hdr_sht_max_limit  = CLIP(tmp, 0, 0x3fff);
 
     /* BAY3D_TNRWHI_THL */
-    tmp =  pdyn->frmAlpha_hiByHi.hw_btnrT_hiAlpha_minLimit == 0  ?  0 : (int)((1.0 - 1.0 / pdyn->frmAlpha_hiByHi.hw_btnrT_hiAlpha_minLimit) * (1 << FIXTNRWWW));
+    tmp =  pmdDyn->frmAlpha.hw_btnrT_hiAlpha_minLimit == 0  ?  0 : (int)((1.0 - 1.0 / pmdDyn->frmAlpha.hw_btnrT_hiAlpha_minLimit) * (1 << FIXTNRWWW));
     pFix->tnr_hi_wgt_clip_min_limit  = CLIP(tmp, 0, 0x3fff);
-    tmp =  pdyn->frmAlpha_hiByHi.hw_btnrT_hiAlphaHdrS_minLimit == 0  ?  0 : (int)((1.0 - 1.0 / pdyn->frmAlpha_hiByHi.hw_btnrT_hiAlphaHdrS_minLimit) * (1 << FIXTNRWWW));
+    tmp =  pmdDyn->frmAlpha.hw_btnrT_hiAlphaHdrS_minLimit == 0  ?  0 : (int)((1.0 - 1.0 / pmdDyn->frmAlpha.hw_btnrT_hiAlphaHdrS_minLimit) * (1 << FIXTNRWWW));
     pFix->tnr_hi_wgt_clip_hdr_sht_min_limit  = CLIP(tmp, 0, 0x3fff);
 
     /* BAY3D_TNRWHI_THH */
-    tmp =  pdyn->frmAlpha_hiByHi.hw_btnrT_hiAlpha_maxLimit == 0  ?  0 : (int)((1.0 - 1.0 / pdyn->frmAlpha_hiByHi.hw_btnrT_hiAlpha_maxLimit) * (1 << FIXTNRWWW));
+    tmp =  pmdDyn->frmAlpha.hw_btnrT_hiAlpha_maxLimit == 0  ?  0 : (int)((1.0 - 1.0 / pmdDyn->frmAlpha.hw_btnrT_hiAlpha_maxLimit) * (1 << FIXTNRWWW));
     pFix->tnr_hi_wgt_clip_max_limit  = CLIP(tmp, 0, 0x3fff);
-    tmp =  pdyn->frmAlpha_hiByHi.hw_btnrT_hiAlphaHdrS_maxLimit == 0  ?  0 : (int)((1.0 - 1.0 / pdyn->frmAlpha_hiByHi.hw_btnrT_hiAlphaHdrS_maxLimit) * (1 << FIXTNRWWW));
+    tmp =  pmdDyn->frmAlpha.hw_btnrT_hiAlphaHdrS_maxLimit == 0  ?  0 : (int)((1.0 - 1.0 / pmdDyn->frmAlpha.hw_btnrT_hiAlphaHdrS_maxLimit) * (1 << FIXTNRWWW));
     pFix->tnr_hi_wgt_clip_hdr_sht_max_limit  = CLIP(tmp, 0, 0x3fff);
 
     /* BAY3D_TNRKEEP */
-    tmp =  pdyn->frmAlpha_hiByHi.hw_btnrT_curHiOrg_alpha * (1 << FIXBITWFWGT);
+    tmp =  pdyn->noiseBal_byHiAlpha.hw_btnrT_curHiOrg_alpha * (1 << FIXBITWFWGT);
     pFix->tnr_cur_spnr_hi_wgt_min_limit  = CLIP(tmp, 0, 0xff);
-    tmp =  pdyn->frmAlpha_hiByHi.hw_btnrT_iirHiOrg_alpha * (1 << FIXBITWFWGT);
+    tmp =  pdyn->noiseBal_byHiAlpha.hw_btnrT_iirHiOrg_alpha * (1 << FIXBITWFWGT);
     pFix->tnr_pre_spnr_hi_wgt_min_limit  = CLIP(tmp, 0, 0xff);
 
     if(pFix->transf_bypass_en) {
-        pFix->tnr_pix_max = 0xfff;
+        pFix->tnr_pix_max = ((1 << 12) - 1);
     } else {
-        pFix->tnr_pix_max = 0xc00;
+        if(pFix->transf_mode_scale) {
+            pFix->tnr_pix_max = bayertnr_logtrans(((1 << 15) - 1), pTransParams);
+        } else {
+            pFix->tnr_pix_max = bayertnr_logtrans(((1 << 20) - 1), pTransParams);;
+        }
     }
 
     tmp = psta->sigmaEnv.hw_btnrCfg_statsPixCnt_thred;
@@ -1094,10 +771,14 @@ void rk_aiq_btnr40_params_cvt(void* attr, struct isp39_isp_params_cfg* isp_cfg, 
     tmp = pmdDyn->subLoMd1.hw_btnrT_mdWgtFstLn_negOff;
     pFix->lowgt_offint = CLIP(tmp, 0, 0x3ff);
 
-    tmp = MIN(((float)1.0 / (float)(pdyn->frmAlpha_hiByLo.hw_btnrT_hiMotionNr_strg) * (1 << FIXTNRWGT)), (1 << FIXTNRWGT)); //(1<<FIXTNRWGT);
+    tmp = MIN(((float)1.0 / (float)(pdyn->noiseBal_byLoAlpha.hw_btnrT_noiseBal_strg) * (1 << FIXTNRWGT)), (1 << FIXTNRWGT)); //(1<<FIXTNRWGT);
     pFix->tnr_motion_nr_strg = CLIP(tmp, 0, 0x7ff);
     tmp = MIN((pdyn->locSgmStrg.hw_bnrT_locSgmStrg_maxLimit * (1 << FIXGAINOUT)), ((1 << FIXGAINOUT) - 1));
     pFix->tnr_gain_max = CLIP(tmp, 0, 0xff);
 
+
+    pTransParams->bayertnr_lo_wgt_clip_min_limit = pFix->tnr_lo_wgt_clip_min_limit;
+    pTransParams->bayertnr_lo_wgt_clip_max_limit = pFix->tnr_lo_wgt_clip_max_limit;
+    pFix->tnr_out_sigma_sq = bayertnr_update_sq(pTransParams);
     return;
 }

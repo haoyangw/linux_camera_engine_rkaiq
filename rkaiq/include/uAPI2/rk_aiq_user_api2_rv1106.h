@@ -18,6 +18,6 @@
 #ifndef _RK_AIQ_USER_API2_RV1106_H_
 #define _RK_AIQ_USER_API2_RV1106_H_
 
-#include "rk_aiq_user_api2_isp32.h"
+#include "uAPI2/rk_aiq_user_api2_isp32.h"
 
 #endif
