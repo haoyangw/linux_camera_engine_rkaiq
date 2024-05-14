@@ -4,7 +4,7 @@
 #include <sys/time.h>
 
 #include "rk_aiq_comm.h"
-#include "rk_aiq_stats_af33.h"
+#include "isp/rk_aiq_stats_af33.h"
 
 RKAIQ_BEGIN_DECLARE
 
