@@ -12,6 +12,7 @@ set(CMAKE_C_EXTENSIONS ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "")
 if (ARCH STREQUAL "arm")
     add_compile_options(
         -march=armv7-a
@@ -22,6 +23,7 @@ if (ARCH STREQUAL "aarch64")
     add_compile_options(
         -march=armv8-a
         )
+endif()
 endif()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
