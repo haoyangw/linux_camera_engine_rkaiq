@@ -14,8 +14,10 @@
  * limitations under the License.
  *
  */
-
+//
+#if defined(ISP_HW_V32) || defined(ISP_HW_V30) || defined(ISP_HW_V32_LITE)||defined(ISP_HW_V21)
 #include "sample_comm.h"
+#include "uAPI2/rk_aiq_user_api2_awb.h"
 
 #define safe_free(x) if(NULL!=(x))\
                            free(x); x=NULL;
@@ -179,7 +181,7 @@ static int sample_get_awb_gain_adjust(const rk_aiq_sys_ctx_t* ctx)
 *
 ******************************
 */
-#if ISP_HW_V21 
+#if ISP_HW_V21
 static int sample_awb_awbv21_setAllAttr(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync)
 {
     rk_aiq_uapiV2_wbV21_attrib_t attr;
@@ -196,12 +198,12 @@ static int sample_awb_awbv21_setAllAttr(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi
         safe_free(attr.stAuto.wbGainAdjust.lutAll[i].cri_lut_out);
         safe_free(attr.stAuto.wbGainAdjust.lutAll[i].ct_lut_out);
     }
-    safe_free(attr.stAuto.wbGainAdjust.lutAll);    
+    safe_free(attr.stAuto.wbGainAdjust.lutAll);
     printf("set Awbv21 AllAttr\n\n");
     return 0;
 }
 #endif
-#if ISP_HW_V21 
+#if ISP_HW_V21
 static int sample_awb_awbv21_getAllAttr(const rk_aiq_sys_ctx_t* ctx)
 {
     rk_aiq_uapiV2_wbV21_attrib_t attr ;
@@ -253,7 +255,7 @@ static int sample_awb_awbv21_getAllAttr(const rk_aiq_sys_ctx_t* ctx)
         safe_free(attr.stAuto.wbGainAdjust.lutAll[i].cri_lut_out);
         safe_free(attr.stAuto.wbGainAdjust.lutAll[i].ct_lut_out);
     }
-    safe_free(attr.stAuto.wbGainAdjust.lutAll);    
+    safe_free(attr.stAuto.wbGainAdjust.lutAll);
     return 0;
 }
 #endif
@@ -274,7 +276,7 @@ static int sample_awb_awbv30_setAllAttr(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi
         safe_free(attr.stAuto.wbGainAdjust.lutAll[i].cri_lut_out);
         safe_free(attr.stAuto.wbGainAdjust.lutAll[i].ct_lut_out);
     }
-    safe_free(attr.stAuto.wbGainAdjust.lutAll);   
+    safe_free(attr.stAuto.wbGainAdjust.lutAll);
     printf("set Awbv30 AllAttr\n\n");
     return 0;
 }
@@ -331,7 +333,7 @@ static int sample_awb_awbv30_getAllAttr(const rk_aiq_sys_ctx_t* ctx)
         safe_free(attr.stAuto.wbGainAdjust.lutAll[i].cri_lut_out);
         safe_free(attr.stAuto.wbGainAdjust.lutAll[i].ct_lut_out);
     }
-    safe_free(attr.stAuto.wbGainAdjust.lutAll);   
+    safe_free(attr.stAuto.wbGainAdjust.lutAll);
     return 0;
 }
 #endif
@@ -534,7 +536,7 @@ static int sample_awb_getMwbAttr(const rk_aiq_sys_ctx_t* ctx)
 
     return 0;
 }
-#if ISP_HW_V21||ISP_HW_V30 
+#if ISP_HW_V21||ISP_HW_V30
 static int sample_awb_setWbGainAdjust(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync)
 {
     rk_aiq_uapiV2_wb_awb_wbGainAdjust_t attr;
@@ -560,7 +562,7 @@ static int sample_awb_setWbGainAdjust(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_m
     return 0;
 }
 #endif
-#if ISP_HW_V21||ISP_HW_V30 
+#if ISP_HW_V21||ISP_HW_V30
 static int sample_awb_getWbGainAdjust(const rk_aiq_sys_ctx_t* ctx)
 {
     rk_aiq_uapiV2_wb_awb_wbGainAdjust_t attr;
@@ -619,7 +621,7 @@ static int sample_awb_getWbGainOffset(const rk_aiq_sys_ctx_t* ctx)
            attr.gainOffset.offset[3]);
     return 0;
 }
-#if ISP_HW_V21||ISP_HW_V30 
+#if ISP_HW_V21||ISP_HW_V30
 static int sample_awb_setWbAwbMultiWindow(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync)
 {
     rk_aiq_uapiV2_wb_awb_mulWindow_t attr;
@@ -637,7 +639,7 @@ static int sample_awb_setWbAwbMultiWindow(const rk_aiq_sys_ctx_t* ctx, rk_aiq_ua
     return 0;
 }
 #endif
-#if ISP_HW_V21||ISP_HW_V30 
+#if ISP_HW_V21||ISP_HW_V30
 static int sample_awb_getWbAwbMultiWindow(const rk_aiq_sys_ctx_t* ctx)
 {
     rk_aiq_uapiV2_wb_awb_mulWindow_t attr;
@@ -795,7 +797,7 @@ static int sample_awb_printflog(const rk_aiq_sys_ctx_t* ctx)
 
 static int sample_awb_getStrategyResult(const rk_aiq_sys_ctx_t* ctx)
 {
-    rk_tool_awb_strategy_result_t attr;    
+    rk_tool_awb_strategy_result_t attr;
     memset(&attr, 0, sizeof(attr));
     rk_aiq_user_api2_awb_getStrategyResult(ctx, &attr);
     return 0;
@@ -834,54 +836,18 @@ static int sample_awb_getWbV32AwbMultiWindow(const rk_aiq_sys_ctx_t* ctx)
     return 0;
 }
 #endif
-#if ISP_HW_V39
-static int sample_awb_setWbV39AwbMultiWindow(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync)
-{
-    rk_aiq_uapiV2_wbV39_awb_nonROI_t attr;
-    memset(&attr, 0, sizeof(rk_aiq_uapiV2_wbV39_awb_nonROI_t));
-    //get
-    rk_aiq_user_api2_awbV39_GetMultiWindowAttrib(ctx, &attr);
-    //modify
-    attr.hw_awbCfg_nonROI_en = !attr.hw_awbCfg_nonROI_en;
-    attr.nonROI[0].hw_awbCfg_nonROI_x = 10;
-    attr.nonROI[0].hw_awbCfg_nonROI_y = 20;
-    attr.nonROI[0].hw_awbCfg_nonROI_width = 600;
-    attr.nonROI[0].hw_awbCfg_nonROI_height = 800;
-    //set
-    rk_aiq_user_api2_awbV39_SetMultiWindowAttrib(ctx, attr);
-    printf("set Awb MultiWindow\n\n");
-
-    return 0;
-}
-#endif
-#if ISP_HW_V39
-static int sample_awb_getWbV39AwbMultiWindow(const rk_aiq_sys_ctx_t* ctx)
-{
-    rk_aiq_uapiV2_wbV39_awb_nonROI_t attr;
-    memset(&attr, 0, sizeof(rk_aiq_uapiV2_wbV39_awb_nonROI_t));
-    //get
-    rk_aiq_user_api2_awbV39_GetMultiWindowAttrib(ctx, &attr);
-    printf("get Awb MultiWindow:\n\n");
-    printf("\t hw_awbCfg_nonROI_en = %s\n\n", (attr.hw_awbCfg_nonROI_en ? "true" : "false"));
-    return 0;
-}
-#endif
 
 
-#if ISP_HW_V39||ISP_HW_V32||ISP_HW_V32_LITE
+
+
+#if ISP_HW_V32||ISP_HW_V32_LITE
 static int sample_awb_setAllAttr(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync)
 {
-#if ISP_HW_V39
-    rk_aiq_uapiV2_wbV39_attrib_t attr;
-    memset(&attr, 0, sizeof(rk_aiq_uapiV2_wbV39_attrib_t));
-    //get
-    rk_aiq_user_api2_awbV39_GetAllAttrib(ctx, &attr);
-#else
+
     rk_aiq_uapiV2_wbV32_attrib_t attr;
     memset(&attr, 0, sizeof(rk_aiq_uapiV2_wbV32_attrib_t));
     //get
     rk_aiq_user_api2_awbV32_GetAllAttrib(ctx, &attr);
-#endif
     //modify
     attr.sync.sync_mode = sync;
     attr.stAuto.wbGainOffset.enable = !attr.stAuto.wbGainOffset.enable;
@@ -923,7 +889,7 @@ static int sample_awb_setAllAttr(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_s
         attr.stAuto.wbGainClip.enable = false;
     }
     if(attr.stAuto.wbGainAdjust.enable == false) {
-        attr.stAuto.wbGainAdjust.enable = true;   
+        attr.stAuto.wbGainAdjust.enable = true;
         attr.stAuto.wbGainAdjust.lutAll_len += 1;
         attr.stAuto.wbGainAdjust.lutAll_len = attr.stAuto.wbGainAdjust.lutAll_len > 8 ? 2 : attr.stAuto.wbGainAdjust.lutAll_len;
         memcpy(&attr.stAuto.wbGainAdjust.lutAll[attr.stAuto.wbGainAdjust.lutAll_len - 1],
@@ -940,7 +906,7 @@ static int sample_awb_setAllAttr(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_s
                 attr.stAuto.wbGainAdjust.lutAll[i].bgcri_lut_out[j] -= 0.1;
             }
         }
-   
+
     } else {
         attr.stAuto.wbGainAdjust.enable = false;
     }
@@ -949,32 +915,23 @@ static int sample_awb_setAllAttr(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_s
     attr.stAuto.multiWindow_valid = false;
 #endif
     //set
-#if ISP_HW_V39
-    rk_aiq_user_api2_awbV39_SetAllAttrib(ctx, attr);
-    printf("set Awbv39 AllAttr\n\n");
-#else
+
     rk_aiq_user_api2_awbV32_SetAllAttrib(ctx, attr);
     printf("set Awbv32 AllAttr\n\n");
-#endif
+
     return 0;
 }
 #endif
-#if ISP_HW_V39||ISP_HW_V32||ISP_HW_V32_LITE
+#if ISP_HW_V32||ISP_HW_V32_LITE
 static int sample_awb_getAllAttr(const rk_aiq_sys_ctx_t* ctx)
 {
-#if ISP_HW_V39
-    rk_aiq_uapiV2_wbV39_attrib_t attr ;
-    memset(&attr, 0, sizeof(rk_aiq_uapiV2_wbV39_attrib_t));
-    //get
-    rk_aiq_user_api2_awbV39_GetAllAttrib(ctx, &attr);
-    printf("get Awbv39 AllAttr:\n");
-#else
+
     rk_aiq_uapiV2_wbV32_attrib_t attr ;
     memset(&attr, 0, sizeof(rk_aiq_uapiV2_wbV32_attrib_t));
     //get
     rk_aiq_user_api2_awbV32_GetAllAttrib(ctx, &attr);
     printf("get Awbv32 AllAttr:\n");
-#endif
+
     printf("\t sync = %d, done = %d\n", attr.sync.sync_mode, attr.sync.done);
     printf("\t bypass = %d\n", attr.byPass);
     printf("\t mode = %s\n", (attr.mode > 0 ? "auto" : "manual"));
@@ -1039,7 +996,7 @@ static int sample_awb_setFFWbgain(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_
 
     return 0;
 }
-#if ISP_HW_V39||ISP_HW_V32||ISP_HW_V32_LITE
+#if ISP_HW_V32||ISP_HW_V32_LITE
 static int sample_awb_setIqPara(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_mode_sync_e sync)
 {
     //get
@@ -1093,14 +1050,14 @@ static void sample_awb_usage()
     printf("\t a) AWB: getWBCT.\n");
     printf("\t b) AWB: setWbGainOffset.\n");
     printf("\t c) AWB: getWbGainOffset.\n");
-#if ISP_HW_V21||ISP_HW_V30     
+#if ISP_HW_V21||ISP_HW_V30
     printf("\t d) AWB: setAwbGainAdjust.\n");
     printf("\t e) AWB: getAwbGainAdjust.\n");
 #endif
-#if ISP_HW_V32||ISP_HW_V32_LITE||ISP_HW_V39       
+#if ISP_HW_V32||ISP_HW_V32_LITE||ISP_HW_V39
     printf("\t f) AWB: setAwbPreWbgain.\n");
     printf("\t g) AWB: Slave2Main.\n");
-#endif    
+#endif
     printf("\n");
     printf("  Module API: \n");
     printf("\t A) AWB: set Awb AllAttr & Sync.\n");
@@ -1113,21 +1070,21 @@ static void sample_awb_usage()
     printf("\t J) AWB: set Mode Manual & Sync.\n");
     printf("\t L) AWB: set Mode Auto & Sync.\n");
     printf("\t N) AWB: set Manual attr & Sync.\n");
-#if ISP_HW_V21||ISP_HW_V30       
+#if ISP_HW_V21||ISP_HW_V30
     printf("\t P) AWB: set AwbGainAdjust & Sync.\n");
-#endif    
+#endif
     printf("\t S) AWB: set WbGainOffset & Sync.\n");
     printf("\t U) AWB: set MultiWindow & Sync.\n");
-#if ISP_HW_V32|| ISP_HW_V39   
-    printf("\t Y) AWB: WriteAwbIn.\n");  
-#endif    
-    printf("\t Z) AWB: setFFWbgain.\n");  
+#if ISP_HW_V32|| ISP_HW_V39
+    printf("\t Y) AWB: WriteAwbIn.\n");
+#endif
+    printf("\t Z) AWB: setFFWbgain.\n");
     printf("\n");
     printf("\t h) AWB: help.\n");
     printf("\t q) AWB: return to main sample screen.\n");
 
 }
-#ifndef ISP_HW_V33
+#if defined(ISP_HW_V32) || defined(ISP_HW_V30) || defined(ISP_HW_V32_LITE)||defined(ISP_HW_V21)
 void sample_awb_case(const rk_aiq_sys_ctx_t* ctx) {
             sample_set_wbmode_manual(ctx);
             printf("setWBMode manual\n\n");
@@ -1149,19 +1106,19 @@ void sample_awb_case(const rk_aiq_sys_ctx_t* ctx) {
             sample_set_awb_gainoffset(ctx);
             printf("setAWBGainOffset\n\n");
             sample_get_awb_gainoffset(ctx);
-#if ISP_HW_V21||ISP_HW_V30 
-            sample_set_awb_gain_adjust(ctx);            
+#if ISP_HW_V21||ISP_HW_V30
+            sample_set_awb_gain_adjust(ctx);
 #endif
-#if ISP_HW_V21||ISP_HW_V30 
+#if ISP_HW_V21||ISP_HW_V30
             sample_get_awb_gain_adjust(ctx);
 #endif
-#if ISP_HW_V32||ISP_HW_V32_LITE||ISP_HW_V39     
+#if ISP_HW_V32||ISP_HW_V32_LITE||ISP_HW_V39
             float attr[4] = { 0.97, 1, 1, 0.94};
             rk_aiq_user_api2_awb_setAwbPreWbgain(ctx, attr);
             printf("setAwbPreWbgain\n\n");
-#endif    
+#endif
 
-#if ISP_HW_V32||ISP_HW_V32_LITE||ISP_HW_V39               
+#if ISP_HW_V32||ISP_HW_V32_LITE||ISP_HW_V39
             // rk_aiq_uapiV2_awb_Slave2Main_Cfg_t slave2Main;
             // slave2Main.enable = true;
             // slave2Main.camM.wbgain.rgain = 1.6480  ;
@@ -1175,24 +1132,24 @@ void sample_awb_case(const rk_aiq_sys_ctx_t* ctx) {
             // rk_aiq_user_api2_awb_IqMap2Main(ctx, slave2Main);
             // rk_aiq_user_api2_awb_freeConvertLut(&slave2Main.cct_lut_cfg);
             // printf("IqMap2Main\n\n");
-#endif            
-             
-#if ISP_HW_V32||ISP_HW_V32_LITE||ISP_HW_V39                     
-            sample_awb_setAllAttr(ctx, RK_AIQ_UAPI_MODE_DEFAULT);  
+#endif
+
+#if ISP_HW_V32||ISP_HW_V32_LITE||ISP_HW_V39
+            sample_awb_setAllAttr(ctx, RK_AIQ_UAPI_MODE_DEFAULT);
 #elif ISP_HW_V30
             sample_awb_awbv30_setAllAttr(ctx, RK_AIQ_UAPI_MODE_DEFAULT);
 #elif ISP_HW_V21
-            sample_awb_awbv21_setAllAttr(ctx, RK_AIQ_UAPI_MODE_DEFAULT);                                   
-#endif                  
-#if ISP_HW_V32||ISP_HW_V32_LITE||ISP_HW_V39                        
+            sample_awb_awbv21_setAllAttr(ctx, RK_AIQ_UAPI_MODE_DEFAULT);
+#endif
+#if ISP_HW_V32||ISP_HW_V32_LITE||ISP_HW_V39
             sample_awb_getAllAttr(ctx);
 #elif ISP_HW_V30
             sample_awb_awbv30_getAllAttr(ctx);
 #elif ISP_HW_V21
-            sample_awb_awbv21_getAllAttr(ctx);                                   
-#endif              
+            sample_awb_awbv21_getAllAttr(ctx);
+#endif
             sample_awb_printflog(ctx);
-            
+
             sample_awb_getCct(ctx);
             sample_query_wb_info(ctx);
             sample_awb_lock(ctx);
@@ -1203,7 +1160,7 @@ void sample_awb_case(const rk_aiq_sys_ctx_t* ctx) {
             sample_awb_getMode(ctx);
             sample_awb_setMwb(ctx, RK_AIQ_UAPI_MODE_DEFAULT);
             sample_awb_getMwbAttr(ctx);
-#if ISP_HW_V21|| ISP_HW_V30      
+#if ISP_HW_V21|| ISP_HW_V30
             sample_awb_setWbGainAdjust(ctx, RK_AIQ_UAPI_MODE_DEFAULT);
             sample_awb_getWbGainAdjust(ctx);
 #endif
@@ -1219,9 +1176,9 @@ void sample_awb_case(const rk_aiq_sys_ctx_t* ctx) {
             sample_awb_setWbAwbMultiWindow(ctx, RK_AIQ_UAPI_MODE_DEFAULT);
             sample_awb_getWbAwbMultiWindow(ctx);
 #endif
-#if ISP_HW_V32|| ISP_HW_V39         
+#if ISP_HW_V32|| ISP_HW_V39
             sample_awb_WriteAwbIn(ctx, RK_AIQ_UAPI_MODE_ASYNC);
-#endif            
+#endif
             sample_awb_setFFWbgain(ctx, RK_AIQ_UAPI_MODE_DEFAULT);
 }
 #endif
@@ -1306,25 +1263,25 @@ XCamReturn sample_awb_module(const void *arg)
             sample_get_awb_gainoffset(ctx);
             break;
         case 'd':
-#if ISP_HW_V21||ISP_HW_V30 
-            sample_set_awb_gain_adjust(ctx);            
+#if ISP_HW_V21||ISP_HW_V30
+            sample_set_awb_gain_adjust(ctx);
 #endif
             break;
         case 'e':
-#if ISP_HW_V21||ISP_HW_V30 
+#if ISP_HW_V21||ISP_HW_V30
             sample_get_awb_gain_adjust(ctx);
-#endif    
+#endif
             break;
         case 'f': {
-#if ISP_HW_V32||ISP_HW_V32_LITE||ISP_HW_V39     
+#if ISP_HW_V32||ISP_HW_V32_LITE||ISP_HW_V39
             float attr[4] = { 0.97, 1, 1, 0.94};
             rk_aiq_user_api2_awb_setAwbPreWbgain(ctx, attr);
             printf("setAwbPreWbgain\n\n");
-#endif    
+#endif
             break;
         }
         case 'g': {
-#if ISP_HW_V32||ISP_HW_V32_LITE||ISP_HW_V39               
+#if ISP_HW_V32||ISP_HW_V32_LITE||ISP_HW_V39
             rk_aiq_uapiV2_awb_Slave2Main_Cfg_t slave2Main;
             slave2Main.enable = true;
             slave2Main.camM.wbgain.rgain = 1.6480  ;
@@ -1338,30 +1295,30 @@ XCamReturn sample_awb_module(const void *arg)
             rk_aiq_user_api2_awb_IqMap2Main(ctx, slave2Main);
             rk_aiq_user_api2_awb_freeConvertLut(&slave2Main.cct_lut_cfg);
             printf("IqMap2Main\n\n");
-#endif            
+#endif
             break;
         }
-        case 'A': 
-#if ISP_HW_V32||ISP_HW_V32_LITE||ISP_HW_V39                     
-            sample_awb_setAllAttr(ctx, RK_AIQ_UAPI_MODE_DEFAULT);  
+        case 'A':
+#if ISP_HW_V32||ISP_HW_V32_LITE||ISP_HW_V39
+            sample_awb_setAllAttr(ctx, RK_AIQ_UAPI_MODE_DEFAULT);
 #elif ISP_HW_V30
             sample_awb_awbv30_setAllAttr(ctx, RK_AIQ_UAPI_MODE_DEFAULT);
 #elif ISP_HW_V21
-            sample_awb_awbv21_setAllAttr(ctx, RK_AIQ_UAPI_MODE_DEFAULT);                                   
-#endif                  
+            sample_awb_awbv21_setAllAttr(ctx, RK_AIQ_UAPI_MODE_DEFAULT);
+#endif
             break;
         case 'B':
-#if ISP_HW_V32||ISP_HW_V32_LITE||ISP_HW_V39                        
+#if ISP_HW_V32||ISP_HW_V32_LITE||ISP_HW_V39
             sample_awb_getAllAttr(ctx);
 #elif ISP_HW_V30
             sample_awb_awbv30_getAllAttr(ctx);
 #elif ISP_HW_V21
-            sample_awb_awbv21_getAllAttr(ctx);                                   
-#endif              
+            sample_awb_awbv21_getAllAttr(ctx);
+#endif
             break;
         case 'C':
             sample_awb_printflog(ctx);
-            break;    
+            break;
         case 'E':
             sample_awb_getCct(ctx);
             break;
@@ -1388,7 +1345,7 @@ XCamReturn sample_awb_module(const void *arg)
             sample_awb_getMwbAttr(ctx);
             break;
         case 'P':
-#if ISP_HW_V21|| ISP_HW_V30      
+#if ISP_HW_V21|| ISP_HW_V30
             sample_awb_setWbGainAdjust(ctx, RK_AIQ_UAPI_MODE_DEFAULT);
             sample_awb_getWbGainAdjust(ctx);
 #endif
@@ -1411,9 +1368,9 @@ XCamReturn sample_awb_module(const void *arg)
 #endif
             break;
         case 'Y':
-#if ISP_HW_V32|| ISP_HW_V39         
+#if ISP_HW_V32|| ISP_HW_V39
             sample_awb_WriteAwbIn(ctx, RK_AIQ_UAPI_MODE_ASYNC);
-#endif            
+#endif
             break;
         case 'Z':
             sample_awb_setFFWbgain(ctx, RK_AIQ_UAPI_MODE_DEFAULT);
@@ -1425,5 +1382,5 @@ XCamReturn sample_awb_module(const void *arg)
     return XCAM_RETURN_NO_ERROR;
 }
 
-
+#endif
 

@@ -41,7 +41,6 @@
 #include "uAPI2/rk_aiq_user_api2_adehaze.h"
 #include "uAPI2/rk_aiq_user_api2_adpcc.h"
 #include "uAPI2/rk_aiq_user_api2_adrc.h"
-#include "uAPI2/rk_aiq_user_api2_ae.h"
 #include "uAPI2/rk_aiq_user_api2_af.h"
 #include "uAPI2/rk_aiq_user_api2_afec.h"
 #include "uAPI2/rk_aiq_user_api2_again_v2.h"
@@ -58,7 +57,7 @@
 #include "uAPI2/rk_aiq_user_api2_asharp_v4.h"
 #include "uAPI2/rk_aiq_user_api2_asharp_v34.h"
 #include "uAPI2/rk_aiq_user_api2_atmo.h"
-#include "uAPI2/rk_aiq_user_api2_awb.h"
+#include "algos/awb/rk_aiq_types_awb_algo_int.h"
 #include "uAPI2/rk_aiq_user_api2_aynr_v2.h"
 #include "uAPI2/rk_aiq_user_api2_aynr_v22.h"
 #include "uAPI2/rk_aiq_user_api2_aynr_v3.h"
@@ -473,6 +472,26 @@ XCamReturn rk_aiq_uapi2_getDrcLocalTMO(const rk_aiq_sys_ctx_t* ctx, float* Local
 */
 XCamReturn rk_aiq_uapi2_setDrcLocalData(const rk_aiq_sys_ctx_t* ctx, float LocalWeit, float GlobalContrast, float LoLitContrast, int LocalAutoEnable, float LocalAutoWeit);
 XCamReturn rk_aiq_uapi2_getDrcLocalData(const rk_aiq_sys_ctx_t* ctx, float* LocalWeit, float* GlobalContrast, float* LoLitContrast, int* LocalAutoEnable, float* LocalAutoWeit);
+
+/*
+*****************************
+*
+* Desc: set/get manual drc Local Data
+*     this function is active for DRC is Auto mode
+*     use in RK3576, rv1103b
+* Argument:
+*   hw_drcT_bifiltOut_alpha: [0, 16]
+*   hw_drcT_loDetail_strg: [0, 4095]
+*   hw_drcT_drcStrg_alpha: [0, 4095]
+*   hw_drcT_softThd_en: [0, 1]
+*   hw_drcT_softThd_thred: [0, 2047]
+*
+*****************************
+*/
+XCamReturn rk_aiq_uapi2_setDrcLocalDataV2(const rk_aiq_sys_ctx_t* ctx, float hw_drcT_bifiltOut_alpha, float hw_drcT_loDetail_strg,
+        float hw_drcT_drcStrg_alpha, int hw_drcT_softThd_en, float hw_drcT_softThd_thred);
+XCamReturn rk_aiq_uapi2_getDrcLocalDataV2(const rk_aiq_sys_ctx_t* ctx, float* hw_drcT_bifiltOut_alpha, float* hw_drcT_loDetail_strg,
+        float* hw_drcT_drcStrg_alpha, int* hw_drcT_softThd_en, float* hw_drcT_softThd_thred);
 /*
 *****************************
 *

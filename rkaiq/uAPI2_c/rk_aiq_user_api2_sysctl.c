@@ -34,18 +34,16 @@
 #include "RkAiqVersion.h"
 #include "common/rkaiq_ini.h"
 #include "hwi_c/aiq_fake_camhw.h"
-#include "uAPI2/rk_aiq_user_api2_aec.h"
-#include "uAPI2/rk_aiq_user_api2_awb.h"
+#include "uAPI2/rk_aiq_user_api2_ae.h"
+
 #include "uAPI2/rk_aiq_user_api2_ablc_v32.h"
 #include "common/rkisp32-config.h"
 #include "RkAiqCalibVersion.h"
-#include "uAPI2/rk_aiq_user_api2_imgproc_v1.h"
+#include "uAPI2/rk_aiq_user_api2_imgproc.h"
 
-#if USE_NEWSTRUCT
 #include "uAPI2/rk_aiq_user_api2_custom2_awb.h"
-#else
-#include "uAPI2/rk_aiq_user_api2_custom_awb.h"
-#endif
+#include "uAPI2/rk_aiq_user_api2_awb_v3.h"
+
 #include "uAPI2/rk_aiq_user_ae_thread_v25_itf.h"
 
 int g_rkaiq_isp_hw_ver = 0;
@@ -139,7 +137,7 @@ rk_aiq_uapi2_sysctl_preInit(const char* sns_ent_name,
 
 	XCAM_ASSERT(pPreinitCfg);
 
-	pPreinitCfg->mode = mode; 
+	pPreinitCfg->mode = mode;
 
     if (force_iq_file)
         strcpy(pPreinitCfg->force_iq_file, force_iq_file);
@@ -156,8 +154,8 @@ rk_aiq_uapi2_sysctl_regHwEvtCb(const char* sns_ent_name,
 
 	XCAM_ASSERT(pPreinitCfg);
 
-	pPreinitCfg->hwevt_cb = hwevt_cb; 
-	pPreinitCfg->hwevt_cb_ctx = cb_ctx; 
+	pPreinitCfg->hwevt_cb = hwevt_cb;
+	pPreinitCfg->hwevt_cb_ctx = cb_ctx;
 
     return XCAM_RETURN_NO_ERROR;
 }
@@ -191,8 +189,8 @@ rk_aiq_uapi2_sysctl_preInit_iq_addr(const char* sns_ent_name, void *addr, size_t
 
 	XCAM_ASSERT(pPreinitCfg);
 
-	pPreinitCfg->iq_buffer.addr = addr; 
-	pPreinitCfg->iq_buffer.len = len; 
+	pPreinitCfg->iq_buffer.addr = addr;
+	pPreinitCfg->iq_buffer.len = len;
 
     return XCAM_RETURN_NO_ERROR;
 }
@@ -204,7 +202,7 @@ rk_aiq_uapi2_sysctl_preInit_calibproj(const char* sns_ent_name, void *addr)
 
 	XCAM_ASSERT(pPreinitCfg);
 
-	pPreinitCfg->calib_proj = addr; 
+	pPreinitCfg->calib_proj = addr;
 
     return XCAM_RETURN_NO_ERROR;
 }
@@ -229,7 +227,7 @@ XCamReturn rk_aiq_uapi2_sysctl_preInit_devBufCnt(const char* sns_ent_name, const
 		prev = tmp;
 		tmp = tmp->next;
 	}
-	
+
 	if (!tmp) {
 		tmp = (dev_buf_cfg_t*)aiq_mallocz(sizeof(dev_buf_cfg_t));
 		strcpy(tmp->dev_ent, dev_ent);
@@ -854,7 +852,7 @@ rk_aiq_uapi2_sysctl_init(const char* sns_ent_name,
         rk_aiq_init_lib();
         g_rk_aiq_init_lib = true;
     }
-	
+
 	//check if group mode
 	int lens = strlen(sns_ent_name);
 	bool is_group_mode = false;
@@ -2340,7 +2338,7 @@ rk_aiq_uapi2_sysctl_get3AStatsBlk(const rk_aiq_sys_ctx_t* ctx,
                               rk_aiq_isp_stats_t **stats, int timeout_ms)
 {
 	LOGE("Deprecated func !");
-	return XCAM_RETURN_ERROR_FAILED; 
+	return XCAM_RETURN_ERROR_FAILED;
 }
 
 XCamReturn
@@ -2348,7 +2346,7 @@ rk_aiq_uapi2_sysctl_get3AStats(const rk_aiq_sys_ctx_t* ctx,
                               rk_aiq_isp_stats_t *stats)
 {
 	LOGE("Deprecated func !");
-	return XCAM_RETURN_ERROR_FAILED; 
+	return XCAM_RETURN_ERROR_FAILED;
 }
 
 void
@@ -2491,6 +2489,8 @@ rk_aiq_uapi2_sysctl_setSnsSyncMode(const rk_aiq_sys_ctx_t* ctx, enum rkmodule_sy
 #endif
 #if defined(ISP_HW_V33)
 #include "rk_aiq_user_api2_enh.c"
+#include "rk_aiq_user_api2_hsv.c"
+#include "rk_aiq_user_api2_texEst.c"
 #endif
 #include "rk_aiq_user_api2_aeMeas.c"
 #include "rk_aiq_user_api2_blc.c"
@@ -2516,7 +2516,7 @@ rk_aiq_uapi2_sysctl_setSnsSyncMode(const rk_aiq_sys_ctx_t* ctx, enum rkmodule_sy
 #include "rk_aiq_user_api2_trans.c"
 #include "rk_aiq_user_api2_ynr.c"
 #include "rk_aiq_user_api2_ae.c"
-#include "rk_aiq_user_api2_awb.c"
+#include "rk_aiq_user_api2_awb_v3.c"
 #include "rk_aiq_user_api2_imgproc.c"
 #include "rk_aiq_user_api2_camgroup.c"
 #include "../uAPI2/rk_aiq_user_ae_thread_v25_itf.c"

@@ -50,6 +50,9 @@
 #include "newStruct/yme/include/yme_algo_api.h"
 #include "newStruct/3dlut/include/3dlut_algo_api.h"
 #endif
+#ifdef ISP_HW_V33
+#include "newStruct/hsv/include/hsv_algo_api.h"
+#endif
 #endif
 
 #include "rk_aiq_types.h"
@@ -374,18 +377,6 @@ typedef struct {
 } RkAiqAlgoProcYnr;
 
 typedef struct {
-    RkAiqAlgoResCom res_com;
-#if USE_NEWSTRUCT
-    sharp_param_t* sharpRes;
-#endif
-} RkAiqAlgoProcResSharp;
-
-typedef struct {
-    RkAiqAlgoCom com;
-    float blc_ob_predgain;
-} RkAiqAlgoProcSharp;
-
-typedef struct {
     RkAiqAlgoCom com;
     float blc_ob_predgain;
 } RkAiqAlgoProcCnr;
@@ -434,30 +425,11 @@ typedef struct _RkAiqAlgoProcResCac {
 
 // to do  define  isp_drv_share_mem_ops_s and rk_aiq_lut_share_mem_info_t
 typedef struct isp_drv_share_mem_ops_s isp_drv_share_mem_ops_t;
-
 //#define RkAiqAwbStats // todo
-
-
-typedef struct _RkAiqAlgoConfigCac {
-    RkAiqAlgoCom com;
-    isp_drv_share_mem_ops_t* mem_ops;
-    uint32_t width;
-    uint32_t height;
-    bool is_multi_sensor;
-    bool is_multi_isp;
-    uint8_t multi_isp_extended_pixel;
-    char iqpath[255];
-    uint32_t LutHCount;
-    uint32_t LutVCount;
-    uint16_t PsfCfgCount;
-    int Fd0;
-    int Fd1;
-} RkAiqAlgoConfigCac;
 
 typedef struct _RkAiqAlgoProcCac {
     RkAiqAlgoCom com;
     int iso;
-    float hdr_ratio;
 } RkAiqAlgoProcCac;
 
 typedef struct _RkAiqAlgoProcResLdch {
@@ -618,6 +590,7 @@ typedef struct {
     float varianceLuma;
     bool grayMode;
     bool awbConverged;
+    uint32_t count;
 } illu_estm_info_t;
 
 
@@ -625,6 +598,11 @@ typedef struct {
     RkAiqAlgoCom com;
     illu_estm_info_t illu_info;
 } RkAiqAlgoProcLut3d;
+
+typedef struct {
+    RkAiqAlgoCom com;
+    illu_estm_info_t illu_info;
+} RkAiqAlgoProcHsv;
 
 typedef struct {
     RkAiqAlgoCom com;

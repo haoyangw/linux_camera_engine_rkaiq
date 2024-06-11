@@ -19,15 +19,24 @@
 #define _RK_AIQ_USER_API2_ISP39_H_
 
 #ifndef ISP_HW_V39
-#define ISP_HW_V39
+#define ISP_HW_V39 1
 #endif
 
-// demosaic head
-// real types are defined in isp/rk_aiq_isp_dm23.h, algos/rk_aiq_api_types_dm.h
-#include "uAPI2/rk_aiq_user_api2_imgproc_v1.h"
+#ifndef USE_NEWSTRUCT
+#define USE_NEWSTRUCT 1
+#endif
+
+#include "uAPI2/rk_aiq_user_api2_imgproc.h"
+
 #include "isp/rk_aiq_isp_ae25.h"
-#include "uAPI2/rk_aiq_user_api2_aec.h"
+#include "uAPI2/rk_aiq_user_api2_ae.h"
+#include "uAPI2/rk_aiq_user_ae_thread_v25_itf.h"
 #include "isp/rk_aiq_stats_aeStats25.h"
+
+
+#include "isp/rk_aiq_stats_af33.h"
+#include "uAPI2/rk_aiq_user_api2_af.h"
+
 #include "isp/rk_aiq_isp_dm23.h"
 #include "uAPI2/rk_aiq_user_api2_dm.h"
 #include "isp/rk_aiq_isp_btnr40.h"
@@ -80,4 +89,6 @@
 #include "uAPI2/rk_aiq_user_api2_3dlut.h"
 #include "isp/rk_aiq_isp_ccm22.h"
 #include "uAPI2/rk_aiq_user_api2_ccm.h"
+#include "isp/awb_head2.h"
+#include "uAPI2/rk_aiq_user_api2_awb_v3.h"
 #endif

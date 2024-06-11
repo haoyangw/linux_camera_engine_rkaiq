@@ -764,22 +764,32 @@ func rkaiq_getStaticLibSrcs(name string, macros_map map[string]bool) []string {
                 srcs = append(srcs, "color_space_convert.c")
                 srcs = append(srcs, "fixfloat.c")
                 srcs = append(srcs, "rk_aiq_algo_awb_itf.c")
-                srcs = append(srcs, "rk_aiq_awb_algo_com1.c")
                 srcs = append(srcs, "rk_aiq_awb_algo_com2.c")
-                srcs = append(srcs, "rk_aiq_awb_algo_sgc.c")
-                srcs = append(srcs, "rk_aiq_uapi_awb_int.c")
-                srcs = append(srcs, "rk_aiq_uapiv2_awb_int.c")
+
+
                 if flag0 {
                     srcs = append(srcs, "rk_aiq_awb_algo_v200.c")
+                    srcs = append(srcs, "rk_aiq_awb_algo_sgc.c")
+                    srcs = append(srcs, "rk_aiq_awb_algo_com1.c")
+                    srcs = append(srcs, "rk_aiq_uapi_awb_int.c")
                 }
                 if flag1 {
                     srcs = append(srcs, "rk_aiq_awb_algo_v201.c")
+                    srcs = append(srcs, "rk_aiq_awb_algo_sgc.c")
+                    srcs = append(srcs, "rk_aiq_awb_algo_com1.c")
+                    srcs = append(srcs, "rk_aiq_uapiv2_awb_int.c")
                 }
                 if flag2 || flag3 {
                     srcs = append(srcs, "rk_aiq_awb_algo_v32.c")
+                    srcs = append(srcs, "rk_aiq_awb_algo_sgc.c")
+                    srcs = append(srcs, "rk_aiq_awb_algo_com1.c")
+                    srcs = append(srcs, "rk_aiq_uapiv2_awb_int.c")
                 }
                 if flag4 {
                     srcs = append(srcs, "rk_aiq_awb_algo_v39.c")
+                    srcs = append(srcs, "rk_aiq_awb_algo_sgc2.c")
+                    srcs = append(srcs, "rk_aiq_awb_algo_com3.c")
+                    srcs = append(srcs, "rk_aiq_uapiv3_awb_int.c")
                 }
             }
             break

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "uAPI2/rk_aiq_user_api2_aec.h"
+#include "uAPI2/rk_aiq_user_api2_ae.h"
 #include "aiq_core_c/algo_handlers/RkAiqAeHandler.h"
 #include "base/xcam_common.h"
 

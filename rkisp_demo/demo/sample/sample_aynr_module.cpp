@@ -17,15 +17,6 @@
 
 #include "sample_comm.h"
 
-// #define USE_NEWSTRUCT
-#ifdef ISP_HW_V39
-#include "rk_aiq_user_api2_rk3576.h"
-#elif  defined(ISP_HW_V33)
-#include "rk_aiq_user_api2_rv1103B.h"
-#elif  defined(ISP_HW_V32)
-#include "rk_aiq_user_api2_rv1106.h"
-#endif
-
 static void sample_aynr_usage()
 {
     printf("Usage : \n");

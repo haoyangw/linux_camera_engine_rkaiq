@@ -270,7 +270,7 @@ static XCamReturn _handlerAf_genIspResult(AiqAlgoHandler_t* pAlgoHandler, AiqFul
         pFocusBase->sync_flag = pAfHdl->mAfFocusResSyncFalg;
         // copy from latest result
         if (cur_params->pParamsArray[RESULT_TYPE_FOCUS_PARAM]) {
-            pFocusBase->is_update = true;
+            pFocusBase->is_update = false;
             *(rk_aiq_focus_params_t*)(pFocusBase->_data) =
                 *(rk_aiq_focus_params_t*)(cur_params->pParamsArray[RESULT_TYPE_FOCUS_PARAM]->_data);
         } else {

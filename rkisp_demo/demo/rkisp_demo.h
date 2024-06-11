@@ -20,11 +20,7 @@
 #define _RKISP_DEMO_H_
 
 #include <linux/videodev2.h>
-#if defined(ISP_HW_V39) || defined(ISP_HW_V33)
-#include "uAPI2/rk_aiq_user_api2_imgproc_v1.h"
-#else
 #include "uAPI2/rk_aiq_user_api2_imgproc.h"
-#endif
 #include "uAPI2/rk_aiq_user_api2_camgroup.h"
 
 #define DBG(...) do { if(!silent) printf(__VA_ARGS__); } while(0)

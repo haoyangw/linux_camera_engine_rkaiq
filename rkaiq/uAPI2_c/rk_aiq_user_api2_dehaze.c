@@ -17,7 +17,7 @@
 #include "newStruct/dehaze/include/dehaze_algo_api.h"
 #include "uAPI2/rk_aiq_user_api2_dehaze.h"
 #include "aiq_core_c/algo_handlers/RkAiqDehazeHandler.h"
-#include "include/uAPI2/rk_aiq_user_api2_imgproc_v1.h"
+#include "include/uAPI2/rk_aiq_user_api2_imgproc.h"
 #include "uAPI2_c/rk_aiq_user_api2_common.h"
 
 RKAIQ_BEGIN_DECLARE

@@ -15,12 +15,9 @@
  *
  */
 
-#ifndef USE_NEWSTRUCT
 #include "include/uAPI2/rk_aiq_user_api2_imgproc.h"
-#else
-#include "include/uAPI2/rk_aiq_user_api2_imgproc_v1.h"
-#endif
-
+#include "uAPI2/rk_aiq_user_api2_ae.h"
+#include "uAPI2/rk_aiq_user_api2_awb.h"
 #ifdef RK_SIMULATOR_HW
 #define CHECK_USER_API_ENABLE
 #endif
@@ -3810,7 +3807,7 @@ XCamReturn rk_aiq_uapi2_getAwbGainOffsetAttrib(const rk_aiq_sys_ctx_t* ctx, rk_a
 XCamReturn rk_aiq_uapi2_setAwbGainAdjustAttrib(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapiV2_wb_awb_wbGainAdjust_t adjust)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-#if ISP_HW_V21||ISP_HW_V30       
+#if ISP_HW_V21||ISP_HW_V30
     IMGPROC_FUNC_ENTER
     if (ctx == NULL) {
         ret = XCAM_RETURN_ERROR_PARAM;
@@ -3826,7 +3823,7 @@ XCamReturn rk_aiq_uapi2_setAwbGainAdjustAttrib(const rk_aiq_sys_ctx_t* ctx, rk_a
     ret = rk_aiq_user_api2_awb_SetWbGainAdjustAttrib(ctx, adjust);
     RKAIQ_IMGPROC_CHECK_RET(ret, "setWbGainAdjustAttrib failed!");
     IMGPROC_FUNC_EXIT
- #endif   
+ #endif
     return ret;
 
 }
@@ -3834,7 +3831,7 @@ XCamReturn rk_aiq_uapi2_setAwbGainAdjustAttrib(const rk_aiq_sys_ctx_t* ctx, rk_a
 XCamReturn rk_aiq_uapi2_getAwbGainAdjustAttrib(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapiV2_wb_awb_wbGainAdjust_t *adjust)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-#if ISP_HW_V21||ISP_HW_V30     
+#if ISP_HW_V21||ISP_HW_V30
     IMGPROC_FUNC_ENTER
     if ((ctx == NULL) || (adjust == NULL)) {
         ret = XCAM_RETURN_ERROR_PARAM;
@@ -3844,7 +3841,7 @@ XCamReturn rk_aiq_uapi2_getAwbGainAdjustAttrib(const rk_aiq_sys_ctx_t* ctx, rk_a
     RKAIQ_IMGPROC_CHECK_RET(ret, "getWbGainAdjustAttrib failed!");
 
     IMGPROC_FUNC_EXIT
-#endif      
+#endif
     return ret;
 }
 
@@ -3852,7 +3849,7 @@ XCamReturn rk_aiq_uapi2_getAwbGainAdjustAttrib(const rk_aiq_sys_ctx_t* ctx, rk_a
 XCamReturn rk_aiq_uapi2_setAwbMultiWindowAttrib(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapiV2_wb_awb_mulWindow_t multiwindow)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-#if ISP_HW_V21||ISP_HW_V30      
+#if ISP_HW_V21||ISP_HW_V30
     IMGPROC_FUNC_ENTER
     if (ctx == NULL) {
         ret = XCAM_RETURN_ERROR_PARAM;
@@ -3867,7 +3864,7 @@ XCamReturn rk_aiq_uapi2_setAwbMultiWindowAttrib(const rk_aiq_sys_ctx_t* ctx, rk_
     ret = rk_aiq_user_api2_awb_SetMultiWindowAttrib(ctx, multiwindow);
     RKAIQ_IMGPROC_CHECK_RET(ret, "setAwbMultiWindowAttrib failed!");
     IMGPROC_FUNC_EXIT
-#endif       
+#endif
     return ret;
 
 }
@@ -3875,7 +3872,7 @@ XCamReturn rk_aiq_uapi2_setAwbMultiWindowAttrib(const rk_aiq_sys_ctx_t* ctx, rk_
 XCamReturn rk_aiq_uapi2_getAwbMultiWindowAttrib(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapiV2_wb_awb_mulWindow_t *multiwindow)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-#if ISP_HW_V21||ISP_HW_V30    
+#if ISP_HW_V21||ISP_HW_V30
     IMGPROC_FUNC_ENTER
     if ((ctx == NULL) || (multiwindow == NULL)) {
         ret = XCAM_RETURN_ERROR_PARAM;
@@ -3885,14 +3882,14 @@ XCamReturn rk_aiq_uapi2_getAwbMultiWindowAttrib(const rk_aiq_sys_ctx_t* ctx, rk_
     RKAIQ_IMGPROC_CHECK_RET(ret, "getAwbMultiWindowAttrib failed!");
 
     IMGPROC_FUNC_EXIT
-#endif    
+#endif
     return ret;
 }
 
 XCamReturn rk_aiq_uapi2_setAwbV30AllAttrib(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapiV2_wbV30_attrib_t attr)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-#if ISP_HW_V30     
+#if ISP_HW_V30
     IMGPROC_FUNC_ENTER
     if (ctx == NULL) {
         ret = XCAM_RETURN_ERROR_PARAM;
@@ -3901,7 +3898,7 @@ XCamReturn rk_aiq_uapi2_setAwbV30AllAttrib(const rk_aiq_sys_ctx_t* ctx, rk_aiq_u
     ret = rk_aiq_user_api2_awbV30_SetAllAttrib(ctx, attr);
     RKAIQ_IMGPROC_CHECK_RET(ret, "setAwbV30AllAttrib failed!");
     IMGPROC_FUNC_EXIT
-#endif    
+#endif
     return ret;
 
 }
@@ -3909,7 +3906,7 @@ XCamReturn rk_aiq_uapi2_setAwbV30AllAttrib(const rk_aiq_sys_ctx_t* ctx, rk_aiq_u
 XCamReturn rk_aiq_uapi2_getAwbV30AllAttrib(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapiV2_wbV30_attrib_t *attr)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-#if ISP_HW_V30     
+#if ISP_HW_V30
     IMGPROC_FUNC_ENTER
     if ((ctx == NULL) || (attr == NULL)) {
         ret = XCAM_RETURN_ERROR_PARAM;
@@ -3926,7 +3923,7 @@ XCamReturn rk_aiq_uapi2_getAwbV30AllAttrib(const rk_aiq_sys_ctx_t* ctx, rk_aiq_u
 XCamReturn rk_aiq_uapi2_setAwbV21AllAttrib(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapiV2_wbV21_attrib_t attr)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-#if ISP_HW_V21    
+#if ISP_HW_V21
     IMGPROC_FUNC_ENTER
     if (ctx == NULL) {
         ret = XCAM_RETURN_ERROR_PARAM;
@@ -3935,7 +3932,7 @@ XCamReturn rk_aiq_uapi2_setAwbV21AllAttrib(const rk_aiq_sys_ctx_t* ctx, rk_aiq_u
     ret = rk_aiq_user_api2_awbV21_SetAllAttrib(ctx, attr);
     RKAIQ_IMGPROC_CHECK_RET(ret, "setAwbV21AllAttrib failed!");
     IMGPROC_FUNC_EXIT
-#endif    
+#endif
     return ret;
 
 }
@@ -3943,7 +3940,7 @@ XCamReturn rk_aiq_uapi2_setAwbV21AllAttrib(const rk_aiq_sys_ctx_t* ctx, rk_aiq_u
 XCamReturn rk_aiq_uapi2_getAwbV21AllAttrib(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapiV2_wbV21_attrib_t *attr)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-#if ISP_HW_V21     
+#if ISP_HW_V21
     IMGPROC_FUNC_ENTER
     if ((ctx == NULL) || (attr == NULL)) {
         ret = XCAM_RETURN_ERROR_PARAM;
@@ -3953,7 +3950,7 @@ XCamReturn rk_aiq_uapi2_getAwbV21AllAttrib(const rk_aiq_sys_ctx_t* ctx, rk_aiq_u
     RKAIQ_IMGPROC_CHECK_RET(ret, "getAwbV21AllAttrib failed!");
 
     IMGPROC_FUNC_EXIT
-#endif    
+#endif
     return ret;
 }
 
@@ -5331,5 +5328,20 @@ XCamReturn rk_aiq_uapi2_getColorSpace(const rk_aiq_sys_ctx_t* ctx, int *Cspace)
 }
 #endif
 #endif
+
+XCamReturn rk_aiq_uapi2_setDrcLocalDataV2(const rk_aiq_sys_ctx_t* ctx, float hw_drcT_bifiltOut_alpha, float hw_drcT_loDetail_strg,
+        float hw_drcT_drcStrg_alpha, int hw_drcT_softThd_en, float hw_drcT_softThd_thred)
+{
+   LOGE("not supported !");
+   return XCAM_RETURN_ERROR_PARAM;
+}
+
+XCamReturn rk_aiq_uapi2_getDrcLocalDataV2(const rk_aiq_sys_ctx_t* ctx, float* hw_drcT_bifiltOut_alpha, float* hw_drcT_loDetail_strg,
+        float* hw_drcT_drcStrg_alpha, int* hw_drcT_softThd_en, float* hw_drcT_softThd_thred)
+{
+   LOGE("not supported !");
+   return XCAM_RETURN_ERROR_PARAM;
+}
+
 
 RKAIQ_END_DECLARE

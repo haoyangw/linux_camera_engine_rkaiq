@@ -201,6 +201,9 @@ typedef struct rk_aiq_singlecam_3a_result_s {
 
 #if USE_NEWSTRUCT
     sharp_param_t* sharp;
+#if RKAIQ_HAVE_SHARP_V40
+    texEst_param_t* texEst;
+#endif
 #else
     struct {
         union {

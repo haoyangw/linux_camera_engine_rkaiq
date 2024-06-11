@@ -46,6 +46,7 @@
 #include "algo_handlers/RkAiqCacHandler.h"
 #include "algo_handlers/RkAiqHisteqHandler.h"
 #include "algo_handlers/RkAiqEnhHandler.h"
+#include "algo_handlers/RkAiqHsvHandler.h"
 
 typedef AiqAlgoHandler_t* (*pAiqAlgoHandler_construct)(RkAiqAlgoDesComm* des, AiqCore_t* aiqCore);
 typedef void (*pAiqAlgoHandler_destruct)(AiqAlgoHandler_t* pAlgoHandler);
@@ -81,6 +82,9 @@ struct {
     {RK_AIQ_ALGO_TYPE_AHISTEQ, AiqAlgoHandlerHisteq_constructor, AiqAlgoHandler_destructor},
 #if RKAIQ_HAVE_ENHANCE
     {RK_AIQ_ALGO_TYPE_AENH, AiqAlgoHandlerEnh_constructor, AiqAlgoHandler_destructor},
+#endif
+#if RKAIQ_HAVE_HSV
+    {RK_AIQ_ALGO_TYPE_AHSV, AiqAlgoHandlerHsv_constructor, AiqAlgoHandler_destructor},
 #endif
 #ifndef ISP_HW_V33
     {RK_AIQ_ALGO_TYPE_ADHAZ, AiqAlgoHandlerDehaze_constructor, AiqAlgoHandler_destructor},
@@ -408,17 +412,14 @@ XCamReturn AiqAlgoHandler_do_processing_common(AiqAlgoHandler_t* pAlgoHandler)
     return ret;
 }
 
-XCamReturn AiqAlgoHandler_genIspResult_common(AiqAlgoHandler_t* pAlgoHandler,
-        AiqFullParams_t* params, AiqFullParams_t* cur_params)
+XCamReturn AiqAlgoHandler_genIspResult_byType(AiqAlgoHandler_t* pAlgoHandler,
+        AiqFullParams_t* params, AiqFullParams_t* cur_params, int restype, int size)
 {
-    ENTER_ANALYZER_FUNCTION();
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
     RkAiqAlgosGroupShared_t* shared =
         (RkAiqAlgosGroupShared_t*)(pAlgoHandler->mAlogsGroupSharedParams);
     RkAiqAlgosComShared_t* sharedCom = &pAlgoHandler->mAiqCore->mAlogsComSharedParams;
-
-    int restype = pAlgoHandler->mResultType;
     RkAiqAlgoResCom* proc_res = pAlgoHandler->mProcOutParam;
     aiq_params_base_t* pBase = params->pParamsArray[restype];
     const char *ResTypeStr = Cam3aResultType2Str[restype];
@@ -470,7 +471,7 @@ XCamReturn AiqAlgoHandler_genIspResult_common(AiqAlgoHandler_t* pAlgoHandler,
         pBase->sync_flag = pAlgoHandler->mSyncFlag;
         // copy from latest result
         if (pCurBase) {
-            memcpy(algo_param, cur_algo_param, pAlgoHandler->mResultSize);
+            memcpy(algo_param, cur_algo_param, size);
             pBase->en        = pCurBase->en;
             pBase->bypass    = pCurBase->bypass;
             pBase->is_update = true;
@@ -484,6 +485,19 @@ XCamReturn AiqAlgoHandler_genIspResult_common(AiqAlgoHandler_t* pAlgoHandler,
         pBase->is_update = false;
         LOGV("%s: [%d] params needn't update", ResTypeStr, shared->frameId);
     }
+
+    return ret;
+}
+
+XCamReturn AiqAlgoHandler_genIspResult_common(AiqAlgoHandler_t* pAlgoHandler,
+        AiqFullParams_t* params, AiqFullParams_t* cur_params)
+{
+    ENTER_ANALYZER_FUNCTION();
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    int restype = pAlgoHandler->mResultType;
+    int size = pAlgoHandler->mResultSize;
+    ret = AiqAlgoHandler_genIspResult_byType(pAlgoHandler, params, cur_params, restype, size);
 
     EXIT_ANALYZER_FUNCTION();
     return ret;

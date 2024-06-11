@@ -41,6 +41,9 @@ typedef btnr_param_t                    rk_aiq_isp_btnr_params_t;
 typedef gamma_param_t                   rk_aiq_isp_gamma_params_t;
 typedef ynr_param_t                     rk_aiq_isp_ynr_params_t;
 typedef sharp_param_t                   rk_aiq_isp_sharp_params_t;
+#if RKAIQ_HAVE_SHARP_V40
+typedef texEst_param_t                   rk_aiq_isp_texEst_params_t;
+#endif
 typedef cnr_param_t                     rk_aiq_isp_cnr_params_t;
 typedef rk_aiq_isp_drc_v39_t            rk_aiq_isp_drc_params_t;
 typedef dpc_param_t                     rk_aiq_isp_dpcc_params_t;
@@ -73,6 +76,9 @@ typedef dehaze_param_t                  rk_aiq_isp_dehaze_params_t;
 typedef histeq_param_t                  rk_aiq_isp_histeq_params_t;
 #if RKAIQ_HAVE_ENHANCE_V10
 typedef enh_param_t                  rk_aiq_isp_enh_params_t;
+#endif
+#if RKAIQ_HAVE_HSV_V10
+typedef hsv_param_t                  rk_aiq_isp_hsv_params_t;
 #endif
 typedef rk_aiq_isp_degamma_t            rk_aiq_isp_adegamma_params_t;
 typedef rk_aiq_isp_afd_t                rk_aiq_isp_afd_params_t;
@@ -446,6 +452,7 @@ static const char* Cam3aResultType2Str[RESULT_TYPE_MAX_PARAM] = {
     [RESULT_TYPE_DEHAZE_PARAM]   = "DEHAZE",
     [RESULT_TYPE_HISTEQ_PARAM]   = "HISTEQ",
     [RESULT_TYPE_ENH_PARAM]   = "ENH",
+    [RESULT_TYPE_HSV_PARAM]   = "HSV",
     [RESULT_TYPE_AGAMMA_PARAM]   = "AGAMMA",
     [RESULT_TYPE_ADEGAMMA_PARAM] = "ADEGAMMA",
     [RESULT_TYPE_WDR_PARAM]      = "WDR",

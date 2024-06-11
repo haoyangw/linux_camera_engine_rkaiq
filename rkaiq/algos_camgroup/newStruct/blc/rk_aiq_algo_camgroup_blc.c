@@ -57,6 +57,8 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
 
     if (pBlcCtx->isReCal_) {
         BlcSelectParam(pBlcCtx, blc_param, iso);
+        outparams->en = blc_attrib->en;
+        outparams->bypass = blc_attrib->bypass;
 		outparams->cfg_update = true;
         LOGD_ABLC("%s:%d processing ABLC recalculate delta_iso:%d \n", __FUNCTION__, __LINE__, delta_iso);
 	} else {

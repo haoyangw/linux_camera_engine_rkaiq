@@ -17,18 +17,8 @@
 
 #include "sample_comm.h"
 
-#ifdef USE_NEWSTRUCT
-#include "uAPI2/rk_aiq_user_api2_alsc.h"
-#ifdef ISP_HW_V39
-#include "rk_aiq_user_api2_rk3576.h"
-#elif  defined(ISP_HW_V33)
-#include "rk_aiq_user_api2_rv1103B.h"
-#elif  defined(ISP_HW_V32)
-#include "rk_aiq_user_api2_rv1106.h"
-#endif
 #include "uAPI2/rk_aiq_user_api2_helper.h"
 #include <string>
-#endif
  /*
  ******************************
  *
@@ -234,6 +224,133 @@ int sample_lsc_test(const rk_aiq_sys_ctx_t* ctx)
 
     return 0;
 }
+
+int sample_query_lsc_status(const rk_aiq_sys_ctx_t* ctx)
+{
+    lsc_status_t info;
+    rk_aiq_user_api2_lsc_QueryStatus(ctx, &info);
+    printf("Query lsc status:\n\n");
+    printf("  opMode: %d, en: %d, bypass: %d,\n"
+           "  stMan: {\n    sta: [%d,%d,...], [%d,%d,...]; "
+           "    dyn: {r: [%d,...,%d], gr: [%d,...,%d], b: [%d,...,%d], gb: [%d,...,%d]}\n"
+           "  }\n  astatus: {illu: %s, vig: %f}\n", 
+            info.opMode, info.en, info.bypass,
+            info.stMan.sta.meshGrid.width[0], 
+            info.stMan.sta.meshGrid.width[1],
+            info.stMan.sta.meshGrid.height[0],
+            info.stMan.sta.meshGrid.height[1],
+            info.stMan.dyn.meshGain.hw_lscC_gainR_val[0],
+            info.stMan.dyn.meshGain.hw_lscC_gainR_val[288],
+            info.stMan.dyn.meshGain.hw_lscC_gainGr_val[0],
+            info.stMan.dyn.meshGain.hw_lscC_gainGr_val[288],
+            info.stMan.dyn.meshGain.hw_lscC_gainB_val[0],
+            info.stMan.dyn.meshGain.hw_lscC_gainB_val[288],
+            info.stMan.dyn.meshGain.hw_lscC_gainGb_val[0],
+            info.stMan.dyn.meshGain.hw_lscC_gainGb_val[288],
+            info.alscStatus.sw_lscC_illuUsed_name,
+            info.alscStatus.sw_lscT_vignetting_val);
+    return 0;
+}
+
+int sample_lsc_setCalib_test(const rk_aiq_sys_ctx_t* ctx)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    alsc_lscCalib_t calib;
+    memset(&calib, 0, sizeof(alsc_lscCalib_t));
+    //get
+    ret = rk_aiq_user_api2_lsc_GetCalib(ctx, &calib);
+    RKAIQ_SAMPLE_CHECK_RET(ret, "Get LSC CALIB failed!");
+    printf("GetCALIB:\n\n");
+    printf("\t effect Table_len = %d\n", calib.sw_lscC_tblAll_len);
+    for (int i = 0; i < calib.sw_lscC_tblAll_len; i++) {
+        printf("\t %s_%f = {r = [%d,...,%d], gr = [%d,...,%d], b = [%d,...,%d], gb = [%d,...,%d]}, \n",
+                calib.tableAll[i].sw_lscC_illu_name,
+                calib.tableAll[i].sw_lscC_vignetting_val,
+                calib.tableAll[i].meshGain.hw_lscC_gainR_val[0],
+                calib.tableAll[i].meshGain.hw_lscC_gainR_val[288],
+                calib.tableAll[i].meshGain.hw_lscC_gainGr_val[0],
+                calib.tableAll[i].meshGain.hw_lscC_gainGr_val[288],
+                calib.tableAll[i].meshGain.hw_lscC_gainB_val[0],
+                calib.tableAll[i].meshGain.hw_lscC_gainB_val[288],
+                calib.tableAll[i].meshGain.hw_lscC_gainGb_val[0],
+                calib.tableAll[i].meshGain.hw_lscC_gainGb_val[288]);
+    }
+    //modify
+    srand(time(0));
+    int rand_num = rand() % 101;
+
+    if (rand_num <70) {
+        printf("update lsc calib!\n");
+        calib.tableAll[0].meshGain.hw_lscC_gainR_val[0] = 8191;
+        calib.tableAll[0].meshGain.hw_lscC_gainR_val[16] = 8191;
+        calib.tableAll[0].meshGain.hw_lscC_gainR_val[272] = 8191;
+        calib.tableAll[0].meshGain.hw_lscC_gainR_val[288] = 8191;
+        calib.tableAll[0].meshGain.hw_lscC_gainGr_val[0] = 1024;
+        calib.tableAll[0].meshGain.hw_lscC_gainGr_val[16] = 1024;
+        calib.tableAll[0].meshGain.hw_lscC_gainGr_val[272] = 1024;
+        calib.tableAll[0].meshGain.hw_lscC_gainGr_val[288] = 1024;
+        calib.tableAll[0].meshGain.hw_lscC_gainB_val[0] = 8191;
+        calib.tableAll[0].meshGain.hw_lscC_gainB_val[16] = 8191;
+        calib.tableAll[0].meshGain.hw_lscC_gainB_val[272] = 8191;
+        calib.tableAll[0].meshGain.hw_lscC_gainB_val[288] = 8191;
+        calib.tableAll[0].meshGain.hw_lscC_gainGb_val[0] = 1024;
+        calib.tableAll[0].meshGain.hw_lscC_gainGb_val[16] = 1024;
+        calib.tableAll[0].meshGain.hw_lscC_gainGb_val[272] = 1024;
+        calib.tableAll[0].meshGain.hw_lscC_gainGb_val[288] = 1024;
+
+        calib.tableAll[1].meshGain.hw_lscC_gainR_val[0] = 1024;
+        calib.tableAll[1].meshGain.hw_lscC_gainR_val[16] = 1024;
+        calib.tableAll[1].meshGain.hw_lscC_gainR_val[272] = 1024;
+        calib.tableAll[1].meshGain.hw_lscC_gainR_val[288] = 1024;
+        calib.tableAll[1].meshGain.hw_lscC_gainGr_val[0] = 4096;
+        calib.tableAll[1].meshGain.hw_lscC_gainGr_val[16] = 4096;
+        calib.tableAll[1].meshGain.hw_lscC_gainGr_val[272] = 4096;
+        calib.tableAll[1].meshGain.hw_lscC_gainGr_val[288] = 4096;
+        calib.tableAll[1].meshGain.hw_lscC_gainB_val[0] = 1024;
+        calib.tableAll[1].meshGain.hw_lscC_gainB_val[16] = 1024;
+        calib.tableAll[1].meshGain.hw_lscC_gainB_val[272] = 1024;
+        calib.tableAll[1].meshGain.hw_lscC_gainB_val[288] = 1024;
+        calib.tableAll[1].meshGain.hw_lscC_gainGb_val[0] = 4096;
+        calib.tableAll[1].meshGain.hw_lscC_gainGb_val[16] = 4096;
+        calib.tableAll[1].meshGain.hw_lscC_gainGb_val[272] = 4096;
+        calib.tableAll[1].meshGain.hw_lscC_gainGb_val[288] = 4096;
+    } else {
+        memcpy(&calib.tableAll[0], &calib.tableAll[calib.sw_lscC_tblAll_len-1], sizeof(alsc_tableAll_t));
+        if (calib.sw_lscC_tblAll_len > 1)
+          calib.sw_lscC_tblAll_len -= 1;
+    }
+
+    rk_aiq_user_api2_lsc_SetCalib(ctx, &calib);
+    
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    alsc_lscCalib_t calib_new;
+    memset(&calib_new, 0, sizeof(alsc_lscCalib_t));
+
+    rk_aiq_user_api2_lsc_GetCalib(ctx, &calib_new);
+
+    printf("\t new table_len = %d\n", calib_new.sw_lscC_tblAll_len);
+    for (int i = 0; i < calib_new.sw_lscC_tblAll_len; i++) {
+        printf("\t %s_%f = {r = [%d,...,%d], gr = [%d,...,%d], b = [%d,...,%d], gb = [%d,...,%d]}, \n",
+                calib_new.tableAll[i].sw_lscC_illu_name,
+                calib_new.tableAll[i].sw_lscC_vignetting_val,
+                calib_new.tableAll[i].meshGain.hw_lscC_gainR_val[0],
+                calib_new.tableAll[i].meshGain.hw_lscC_gainR_val[288],
+                calib_new.tableAll[i].meshGain.hw_lscC_gainGr_val[0],
+                calib_new.tableAll[i].meshGain.hw_lscC_gainGr_val[288],
+                calib_new.tableAll[i].meshGain.hw_lscC_gainB_val[0],
+                calib_new.tableAll[i].meshGain.hw_lscC_gainB_val[288],
+                calib_new.tableAll[i].meshGain.hw_lscC_gainGb_val[0],
+                calib_new.tableAll[i].meshGain.hw_lscC_gainGb_val[288]);
+    }
+    if (calib_new.sw_lscC_tblAll_len != calib.sw_lscC_tblAll_len || 
+        calib_new.tableAll[0].meshGain.hw_lscC_gainR_val[0] != calib.tableAll[0].meshGain.hw_lscC_gainR_val[0])
+        printf("lsc calib test failed\n");
+    printf("-------- lsc module calib test done --------\n");  
+
+    return 0;
+}
 #endif
 uapi_case_t lsc_uapi_list[] = {
   { .desc = "ALSC: set lsc gain table async",
@@ -248,6 +365,12 @@ uapi_case_t lsc_uapi_list[] = {
 #ifdef USE_NEWSTRUCT
   { .desc = "LSC: sample_lsc_test",
     .func = (uapi_case_func)sample_lsc_test
+  },
+  { .desc = "LSC: sample_query_lsc_status",
+    .func = (uapi_case_func)sample_query_lsc_status
+  },
+  { .desc = "LSC: sample_lsc_setCalib_test",
+    .func = (uapi_case_func)sample_lsc_setCalib_test
   },
   #endif
   {

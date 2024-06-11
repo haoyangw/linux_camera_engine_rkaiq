@@ -230,13 +230,12 @@ void rk_aiq_btnr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
 {
     btnr_trans_params_t *pTransParams = &pBtnrInfo->mBtnrTransParams;
     btnr_stats_t *btnr_stats = &pBtnrInfo->mBtnrStats[0];
-    bool bypass = pBtnrInfo->bypass;
 
     if (cvtinfo->isFirstFrame) {
         memset(pBtnrInfo, 0, sizeof(btnr_cvt_info_t));
     } else {
         btnr_stats = bayertnr_get_stats(pBtnrInfo, cvtinfo->frameId);
-        if (cvtinfo->frameId-BAYERTNR_STATS_DELAY != btnr_stats->id) {
+        if (cvtinfo->frameId - BAYERTNR_STATS_DELAY != btnr_stats->id) {
             LOGE_ANR("Btnr stats miss match! (%d %d)", cvtinfo->frameId, btnr_stats->id);
         }
     }
@@ -259,13 +258,14 @@ void rk_aiq_btnr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
     pTransParams->isHdrMode = cvtinfo->frameNum == 2;
 
     // BAY3D_CTRL0 0x2c00
-    pFix->bypass_en = bypass;
+    //pFix->bypass_en = bypass;
     pFix->iirsparse_en = 0;
 
     if (cvtinfo->frameNum > 1 || cvtinfo->preDGain > 1.0) {
         if (psta->hw_btnrCfg_pixDomain_mode != btnr_pixLog2Domain_mode) {
-            LOGE_ANR("Btnr must run in pixLog2Domain when isp is HDR mode or preDGain > 1, btnr_pixLog2Domain_mode is be forcibly set to hw_btnrCfg_pixDomain_mode in HWI\n"
-                     "You can set by btnr.static.hw_btnrCfg_pixDomain_mode, but change hw_btnrCfg_pixDomain_mode in running time may cause abnormal image transitions\n");
+            LOGE_ANR("Btnr must run in pixLog2Domain(ori mode is %d) when isp is HDR mode(framenum=%d) or preDGain(%f) > 1, btnr_pixLog2Domain_mode is be forcibly set to hw_btnrCfg_pixDomain_mode in HWI\n"
+                     "You can set by btnr.static.hw_btnrCfg_pixDomain_mode, but change hw_btnrCfg_pixDomain_mode in running time may cause abnormal image transitions\n",
+                     psta->hw_btnrCfg_pixDomain_mode, cvtinfo->frameNum, cvtinfo->preDGain, psta->hw_btnrCfg_pixDomain_mode);
             psta->hw_btnrCfg_pixDomain_mode = btnr_pixLog2Domain_mode;
         }
         if (psta->transCfg.hw_btnr_trans_mode != btnr_pixInBw20b_mode) {

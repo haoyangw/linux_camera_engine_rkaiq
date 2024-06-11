@@ -23,11 +23,9 @@ RKAIQ_BEGIN_DECLARE
 typedef AiqAlgoHandler_t AiqAlgoHandlerCcm_t;
 
 AiqAlgoHandler_t* AiqAlgoHandlerCcm_constructor(RkAiqAlgoDesComm* des, AiqCore_t* aiqCore);
-#if 0
-XCamReturn AiqAlgoHandlerCcm_setAttrib(AiqAlgoHandlerCcm_t* pHdlCcm, ccm_api_attrib_t* attr);
-XCamReturn AiqAlgoHandlerCcm_getAttrib(AiqAlgoHandlerCcm_t* pHdlCcm, ccm_api_attrib_t* attr);
-XCamReturn AiqAlgoHandlerCcm_queryStatus(AiqAlgoHandlerCcm_t* pHdlCcm, ccm_status_t* status);
-#endif
+XCamReturn AiqAlgoHandlerCcm_queryaccmStatus(AiqAlgoHandlerCcm_t* pHdlCcm, accm_status_t* status);
+XCamReturn AiqAlgoHandlerCcm_setCalib(AiqAlgoHandlerCcm_t* pHdlCcm, accm_ccmCalib_t* calib);
+XCamReturn AiqAlgoHandlerCcm_getCalib(AiqAlgoHandlerCcm_t* pHdlCcm, accm_ccmCalib_t* calib);
 
 RKAIQ_END_DECLARE
 

@@ -257,6 +257,11 @@ static XCamReturn newAiqParamPool(AiqCore_t* pAiqCore, int type) {
             NEW_PARAMS_POOL(RESULT_TYPE_ENH_PARAM, rk_aiq_isp_enh_params_t);
             break;
 #endif
+#if RKAIQ_HAVE_HSV_V10
+        case RK_AIQ_ALGO_TYPE_AHSV:
+            NEW_PARAMS_POOL(RESULT_TYPE_HSV_PARAM, rk_aiq_isp_hsv_params_t);
+            break;
+#endif
         case RK_AIQ_ALGO_TYPE_AGAMMA:
 #if USE_NEWSTRUCT
             NEW_PARAMS_POOL(RESULT_TYPE_AGAMMA_PARAM, rk_aiq_isp_gamma_params_t);
@@ -354,6 +359,10 @@ static XCamReturn newAiqParamPool(AiqCore_t* pAiqCore, int type) {
             NEW_PARAMS_POOL(RESULT_TYPE_SHARPEN_PARAM, rk_aiq_isp_sharp_params_t);
 #else
             NEW_PARAMS_POOL(RESULT_TYPE_SHARPEN_PARAM, rk_aiq_isp_sharpen_params_t);
+#endif
+
+#if RKAIQ_HAVE_SHARP_V40
+            NEW_PARAMS_POOL(RESULT_TYPE_TEXEST_PARAM, rk_aiq_isp_texEst_params_t);
 #endif
             break;
         case RK_AIQ_ALGO_TYPE_AFEC:
@@ -613,6 +622,9 @@ static uint64_t getReqAlgoResMask(AiqCore_t* pAiqCore, int algoType) {
             break;
         case RK_AIQ_ALGO_TYPE_AENH:
             tmp |= 1ULL << RESULT_TYPE_ENH_PARAM;
+            break;
+        case RK_AIQ_ALGO_TYPE_AHSV:
+            tmp |= 1ULL << RESULT_TYPE_HSV_PARAM;
             break;
         case RK_AIQ_ALGO_TYPE_AGAMMA:
             tmp |= 1ULL << RESULT_TYPE_AGAMMA_PARAM;
@@ -1469,6 +1481,9 @@ static XCamReturn getAiqParamsBuffer(AiqCore_t* pAiqCore, AiqFullParams_t* aiqPa
         case RK_AIQ_ALGO_TYPE_AENH:
             NEW_PARAMS_BUFFER(ENH);
             break;
+        case RK_AIQ_ALGO_TYPE_AHSV:
+            NEW_PARAMS_BUFFER(HSV);
+            break;
         case RK_AIQ_ALGO_TYPE_A3DLUT:
             NEW_PARAMS_BUFFER(LUT3D);
             break;
@@ -1507,6 +1522,9 @@ static XCamReturn getAiqParamsBuffer(AiqCore_t* pAiqCore, AiqFullParams_t* aiqPa
             break;
         case RK_AIQ_ALGO_TYPE_ASHARP:
             NEW_PARAMS_BUFFER(SHARPEN);
+#if RKAIQ_HAVE_SHARP_V40
+            NEW_PARAMS_BUFFER(TEXEST);
+#endif
             break;
         case RK_AIQ_ALGO_TYPE_AFEC:
         case RK_AIQ_ALGO_TYPE_AEIS:
@@ -2675,7 +2693,7 @@ static void RkAiqCore_copyIspStats(AiqCore_t* pAiqCore, rk_aiq_isp_stats_t* to) 
     }
 
     if (pAiqCore->mIspHwVer == 5) {
-#if defined(ISP_HW_V39)
+#if defined(ISP_HW_V39) || defined(ISP_HW_V33)
         to->awb_hw_ver = 5;
         if (pAiqCore->mCurAwbStats) {
             pAwbStats            = (aiq_awb_stats_wrapper_t*)pAiqCore->mCurAwbStats->_data;
@@ -2882,6 +2900,7 @@ static struct iqModStrToAlgoMap_s iqModuleStrToAlgoEnumMap[] = {
     {"dehaze", RK_AIQ_ALGO_TYPE_ADHAZ},
     {"histeq", RK_AIQ_ALGO_TYPE_AHISTEQ},
     {"enh", RK_AIQ_ALGO_TYPE_AENH},
+    {"hsv", RK_AIQ_ALGO_TYPE_AHSV},
     {"adpcc", RK_AIQ_ALGO_TYPE_ADPCC},
     {"dpc", RK_AIQ_ALGO_TYPE_ADPCC},
     {"aldch", RK_AIQ_ALGO_TYPE_ALDCH},

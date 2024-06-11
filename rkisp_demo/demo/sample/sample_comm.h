@@ -20,6 +20,12 @@
 #include "rkisp_demo.h"
 #include "common/rk_aiq_comm.h"
 
+#if ISP_HW_V33
+#include "uAPI2/rk_aiq_user_api2_isp33.h"
+#elif ISP_HW_V39
+#include "uAPI2/rk_aiq_user_api2_isp39.h"
+#endif
+
 #define CLEAR() printf("\x1b[2J\x1b[H");
 #define RESET_CURSOR() printf("\033[H");
 

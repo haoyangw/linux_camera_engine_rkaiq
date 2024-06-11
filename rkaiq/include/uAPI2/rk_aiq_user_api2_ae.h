@@ -28,6 +28,23 @@ typedef struct rk_aiq_sys_ctx_s rk_aiq_sys_ctx_t;
 
 RKAIQ_BEGIN_DECLARE
 
+#if USE_NEWSTRUCT
+XCamReturn rk_aiq_user_api2_ae_setExpSwAttr(const rk_aiq_sys_ctx_t* ctx, const ae_api_expSwAttr_t expSwAttr);
+XCamReturn rk_aiq_user_api2_ae_getExpSwAttr(const rk_aiq_sys_ctx_t* ctx, ae_api_expSwAttr_t* pExpSwAttr);
+XCamReturn rk_aiq_user_api2_ae_setLinExpAttr(const rk_aiq_sys_ctx_t* ctx, const ae_api_linExpAttr_t linExpAttr);
+XCamReturn rk_aiq_user_api2_ae_getLinExpAttr(const rk_aiq_sys_ctx_t* ctx, ae_api_linExpAttr_t* pLinExpAttr);
+XCamReturn rk_aiq_user_api2_ae_setHdrExpAttr(const rk_aiq_sys_ctx_t* ctx, const ae_api_hdrExpAttr_t hdrExpAttr);
+XCamReturn rk_aiq_user_api2_ae_getHdrExpAttr(const rk_aiq_sys_ctx_t* ctx, ae_api_hdrExpAttr_t* pHdrExpAttr);
+XCamReturn rk_aiq_user_api2_ae_setIrisAttr(const rk_aiq_sys_ctx_t* ctx, const ae_api_irisAttr_t irisAttr);
+XCamReturn rk_aiq_user_api2_ae_getIrisAttr(const rk_aiq_sys_ctx_t* ctx, ae_api_irisAttr_t* pIrisAttr);
+XCamReturn rk_aiq_user_api2_ae_setSyncTestAttr(const rk_aiq_sys_ctx_t* ctx, const ae_api_syncTestAttr_t syncTestAttr);
+XCamReturn rk_aiq_user_api2_ae_getSyncTestAttr(const rk_aiq_sys_ctx_t* ctx, ae_api_syncTestAttr_t* psyncTestAttr);
+XCamReturn rk_aiq_user_api2_ae_queryExpResInfo(const rk_aiq_sys_ctx_t* ctx, ae_api_queryInfo_t* pExpResInfo);
+XCamReturn rk_aiq_user_api2_aeMeas_setStatsCfg(const rk_aiq_sys_ctx_t* ctx, rk_aiq_op_mode_t opMode, aeStats_cfg_t* cfg);
+XCamReturn rk_aiq_user_api2_ae_getRKAeStats(const rk_aiq_sys_ctx_t* ctx, Uapi_RkAeStats_t* pAeHwStats);
+XCamReturn rk_aiq_user_api2_ae_setAttr(const rk_aiq_sys_ctx_t* sys_ctx, ae_param_t attr);
+XCamReturn rk_aiq_user_api2_ae_getAttr(const rk_aiq_sys_ctx_t* sys_ctx, ae_param_t* attr);
+#else
 XCamReturn rk_aiq_user_api2_ae_setExpSwAttr(const rk_aiq_sys_ctx_t* ctx, const Uapi_ExpSwAttrV2_t expSwAttr);
 XCamReturn rk_aiq_user_api2_ae_getExpSwAttr(const rk_aiq_sys_ctx_t* ctx, Uapi_ExpSwAttrV2_t* pExpSwAttr);
 XCamReturn rk_aiq_user_api2_ae_setLinExpAttr(const rk_aiq_sys_ctx_t* ctx, const Uapi_LinExpAttrV2_t linExpAttr);
@@ -43,6 +60,7 @@ XCamReturn rk_aiq_user_api2_ae_getIrisAttr(const rk_aiq_sys_ctx_t* ctx, Uapi_Iri
 XCamReturn rk_aiq_user_api2_ae_setSyncTestAttr(const rk_aiq_sys_ctx_t* ctx, const Uapi_AecSyncTest_t syncTestAttr);
 XCamReturn rk_aiq_user_api2_ae_getSyncTestAttr(const rk_aiq_sys_ctx_t* ctx, Uapi_AecSyncTest_t* psyncTestAttr);
 XCamReturn rk_aiq_user_api2_ae_queryExpResInfo(const rk_aiq_sys_ctx_t* ctx, Uapi_ExpQueryInfo_t* pExpResInfo);
+#endif
 
 XCamReturn rk_aiq_user_api2_ae_setExpWinAttr(const rk_aiq_sys_ctx_t* ctx, const Uapi_ExpWin_t ExpWinAttr);
 XCamReturn rk_aiq_user_api2_ae_getExpWinAttr(const rk_aiq_sys_ctx_t* ctx, Uapi_ExpWin_t* pExpWinAttr);

@@ -20,7 +20,9 @@ typedef struct {
 } lut3d_sw_info_t;
 
 XCAM_BEGIN_DECLARE
-
+XCamReturn algo_lut3d_queryalut3dStatus(RkAiqAlgoContext* ctx, alut3d_status_t* status);
+XCamReturn algo_lut3d_SetCalib(RkAiqAlgoContext* ctx, alut3d_lut3dCalib_t* calib);
+XCamReturn algo_lut3d_GetCalib(RkAiqAlgoContext* ctx, alut3d_lut3dCalib_t* calib);
 #if 0
 XCamReturn
 algo_lut3d_SetAttrib

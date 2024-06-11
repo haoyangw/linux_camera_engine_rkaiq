@@ -17,14 +17,6 @@
 
 #include "sample_comm.h"
 
-
-#ifdef ISP_HW_V39
-#include "rk_aiq_user_api2_rk3576.h"
-#elif  defined(ISP_HW_V33)
-#include "rk_aiq_user_api2_rv1103B.h"
-#elif  defined(ISP_HW_V32)
-#include "rk_aiq_user_api2_rv1106.h"
-#endif
 #include "uAPI2/rk_aiq_user_api2_helper.h"
 #include <string>
 static void sample_adehaze_usage()
@@ -64,6 +56,8 @@ static void sample_adehaze_usage()
     printf("\t g) ADEHAZE:         test rk_aiq_uapi2_getMEnhanceChromeStrth.\n");
     printf("\t h) ADEHAZE:         test rk_aiq_uapi2_setMEnhanceChromeStrth.\n");
     printf("\t l) ADEHAZE:         sample_new_dehaze.\n");
+    printf("\t n) HISTEQ:         sample_new_histeq.\n");
+    printf("\t m) ENHANCE:         sample_new_enh.\n");
     printf("\t q) ADEHAZE:         return to main sample screen.\n");
 
     printf("\n");
@@ -182,7 +176,84 @@ void sample_new_dehaze(const rk_aiq_sys_ctx_t* ctx)
 }
 #endif
 
-XCamReturn sample_adehaze_module(const void *arg)
+#if USE_NEWSTRUCT && defined(RKAIQ_HAVE_HISTEQ)
+void sample_new_histeq(const rk_aiq_sys_ctx_t* ctx)
+{
+    histeq_api_attrib_t attr;
+    histeq_status_t status;
+    rk_aiq_user_api2_histeq_GetAttrib(ctx, &attr);
+
+    printf("\t attr.opMode:%d attr.en:%d\n\n",
+            attr.opMode, attr.en);
+
+    srand(time(0));
+    int rand_num = rand() % 101;
+
+    if (rand_num <70) {
+        printf("update histeq arrrib!\n");
+        if (attr.opMode == RK_AIQ_OP_MODE_AUTO) {
+            attr.opMode = RK_AIQ_OP_MODE_MANUAL;
+        }
+        else {
+            attr.opMode = RK_AIQ_OP_MODE_AUTO;
+        }
+    }
+    else {
+        // reverse en
+        printf("reverse histeq en!\n");
+        attr.en = !attr.en;
+    }
+
+    rk_aiq_user_api2_histeq_SetAttrib(ctx, &attr);
+
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    rk_aiq_user_api2_histeq_QueryStatus(ctx, &status);
+    printf("\t status.opMode:%d status.en:%d\n\n",
+            status.opMode, status.en);
+}
+#endif
+
+#if USE_NEWSTRUCT && defined(RKAIQ_HAVE_ENHANCE)
+void sample_new_enh(const rk_aiq_sys_ctx_t* ctx)
+{
+    enh_api_attrib_t attr;
+    enh_status_t status;
+    rk_aiq_user_api2_enh_GetAttrib(ctx, &attr);
+
+    printf("\t attr.opMode:%d attr.en:%d\n\n",
+            attr.opMode, attr.en);
+
+    srand(time(0));
+    int rand_num = rand() % 101;
+
+    if (rand_num <70) {
+        printf("update enh arrrib!\n");
+        if (attr.opMode == RK_AIQ_OP_MODE_AUTO) {
+            attr.opMode = RK_AIQ_OP_MODE_MANUAL;
+        }
+        else {
+            attr.opMode = RK_AIQ_OP_MODE_AUTO;
+        }
+    }
+    else {
+        // reverse en
+        printf("reverse enh en!\n");
+        attr.en = !attr.en;
+    }
+
+    rk_aiq_user_api2_enh_SetAttrib(ctx, &attr);
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    rk_aiq_user_api2_enh_QueryStatus(ctx, &status);
+    printf("\t status.opMode:%d status.en:%d\n\n",
+            status.opMode, status.en);
+}
+#endif
+
+XCamReturn sample_adehaze_module(const void* arg)
 {
     int key = -1;
     CLEAR();
@@ -861,6 +932,20 @@ XCamReturn sample_adehaze_module(const void *arg)
             sample_new_dehaze(ctx);
             break;
         }
+#endif
+#if USE_NEWSTRUCT && defined(RKAIQ_HAVE_HISTEQ)
+        case 'n': {
+            printf("\t sample_new_histeq\n\n");
+            sample_new_histeq(ctx);
+            break;
+        }
+#endif
+#if USE_NEWSTRUCT && defined(RKAIQ_HAVE_ENHANCE)
+        case 'm': {
+            printf("\t sample_new_enh\n\n");
+            sample_new_enh(ctx);
+            break;
+        }       
 #endif
         default:
             break;

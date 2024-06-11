@@ -8,6 +8,7 @@
 #include "isp/rk_aiq_isp_sharp34.h"
 #elif RKAIQ_HAVE_SHARP_V40
 #include "isp/rk_aiq_isp_sharp40.h"
+#include "isp/rk_aiq_isp_texEst40.h"
 #else
 #error "wrong sharp hw version !"
 #endif
@@ -37,6 +38,7 @@ XCamReturn
 algo_sharp_GetStrength(RkAiqAlgoContext *ctx, float *strg, bool *strg_en);
 
 XCamReturn Asharp_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams, int iso);
+XCamReturn AtexEst_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams, int iso);
 
 extern RkAiqAlgoDescription g_RkIspAlgoDescSharp;
 RKAIQ_END_DECLARE

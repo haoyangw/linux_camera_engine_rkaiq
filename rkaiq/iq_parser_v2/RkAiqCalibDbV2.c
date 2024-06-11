@@ -905,6 +905,7 @@ RkAiqAlgoType_t CamCalibDbString2algostype(const char *str) {
         {"dehaze", RK_AIQ_ALGO_TYPE_ADHAZ},
         {"histeq", RK_AIQ_ALGO_TYPE_AHISTEQ},
         {"enh", RK_AIQ_ALGO_TYPE_AENH},
+        {"hsv", RK_AIQ_ALGO_TYPE_AHSV},
         {"lut3d_calib", RK_AIQ_ALGO_TYPE_A3DLUT},
         {"aldch", RK_AIQ_ALGO_TYPE_ALDCH},
         {"ldch", RK_AIQ_ALGO_TYPE_ALDCH},

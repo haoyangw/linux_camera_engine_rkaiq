@@ -175,6 +175,19 @@ typedef struct {
 } enh_uapi_t;
 #endif
 
+#if defined(ISP_HW_V33)
+typedef struct {
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(attr),
+       M4_TYPE(struct),
+       M4_UI_MODULE(tuning_param),
+       M4_REF(/texEst)) */
+    texEst_api_attrib_t attr;
+    // M4_STRUCT_DESC("info", "tuning_status")
+    texEst_status_t info;
+} texEst_uapi_t;
+#endif
+
 typedef struct {
     /* M4_GENERIC_DESC(
        M4_ALIAS(attr),
@@ -360,9 +373,34 @@ typedef struct {
        M4_UI_MODULE(tuning_param),
        M4_REF(/lut3d/tunning)) */
     lut3d_api_attrib_t attr;
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(calibdb),
+       M4_TYPE(struct),
+       M4_UI_MODULE(calib_param),
+       M4_REF(/lut3d/calibdb)) */
+    alut3d_lut3dCalib_t calibdb;
     // M4_STRUCT_DESC("info", "tuning_status")
     lut3d_status_t info;
 } lut3d_uapi_t;
+#endif
+
+#if defined(ISP_HW_V33)
+typedef struct {
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(attr),
+       M4_TYPE(struct),
+       M4_UI_MODULE(tuning_param),
+       M4_REF(/hsv/tunning)) */
+    hsv_api_attrib_t attr;
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(calibdb),
+       M4_TYPE(struct),
+       M4_UI_MODULE(calib_param),
+       M4_REF(/hsv/calibdb)) */
+    ahsv_hsvCalib_t calibdb;
+    // M4_STRUCT_DESC("info", "tuning_status")
+    hsv_status_t info;
+} hsv_uapi_t;
 #endif
 
 typedef struct {
@@ -372,6 +410,12 @@ typedef struct {
        M4_UI_MODULE(tuning_param),
        M4_REF(/lsc/tunning)) */
     lsc_api_attrib_t attr;
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(calibdb),
+       M4_TYPE(struct),
+       M4_UI_MODULE(calib_param),
+       M4_REF(/lsc/calibdb)) */
+    alsc_lscCalib_t calibdb;
     // M4_STRUCT_DESC("info", "tuning_status")
     lsc_status_t info;
 } lsc_uapi_t;
@@ -383,6 +427,12 @@ typedef struct {
        M4_UI_MODULE(tuning_param),
        M4_REF(/ccm/tunning)) */
     ccm_api_attrib_t attr;
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(calibdb),
+       M4_TYPE(struct),
+       M4_UI_MODULE(calib_param),
+       M4_REF(/ccm/calibdb)) */
+    accm_ccmCalib_t calibdb;
     // M4_STRUCT_DESC("info", "tuning_status")
     ccm_status_t info;
 } ccm_uapi_t;
@@ -1004,6 +1054,8 @@ typedef struct __aiq_uapi_t {
 #if defined(ISP_HW_V33)
     // M4_STRUCT_DESC("enh_uapi", "iso_list_template")
     enh_uapi_t enh_uapi;
+    // M4_STRUCT_DESC("texEst_uapi", "iso_list_template")
+    texEst_uapi_t texEst_uapi;
 #endif
     // M4_STRUCT_DESC("ynr_uapi", "iso_list_template")
     ynr_uapi_t ynr_uapi;
@@ -1040,6 +1092,10 @@ typedef struct __aiq_uapi_t {
 #if defined(ISP_HW_V39)
     // M4_STRUCT_DESC("lut3d_uapi", "double_list_template")
     lut3d_uapi_t lut3d_uapi;
+#endif
+#if defined(ISP_HW_V33)
+    // M4_STRUCT_DESC("hsv_uapi", "double_list_template")
+    hsv_uapi_t hsv_uapi;
 #endif
     // M4_STRUCT_DESC("ver_uapi", "normal_ui_style")
     ver_uapi_t ver_uapi;

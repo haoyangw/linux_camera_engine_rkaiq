@@ -2307,8 +2307,8 @@ void Isp32Params::convertAiqExpIspDgainToIsp32Params(struct isp32_isp_params_cfg
     if(_working_mode == RK_AIQ_WORKING_MODE_NORMAL) {
 
         float isp_dgain = MAX(1.0f, ae_exp.LinearExp.exp_real_params.isp_dgain);
-        if (isp_dgain < 1.0000001f)
-            return;
+        if (!((isp_dgain != mLatestIspDgain) || (isp_dgain != 1.0f))) return;
+        mLatestIspDgain = isp_dgain;
         dest_cfg->gain0_red = MIN(cfg->gain0_red * isp_dgain + 0.5, max_wb_gain);
         dest_cfg->gain0_green_r = MIN(cfg->gain0_green_r * isp_dgain + 0.5, max_wb_gain);
         dest_cfg->gain0_green_b = MIN(cfg->gain0_green_b * isp_dgain + 0.5, max_wb_gain);
@@ -2331,10 +2331,10 @@ void Isp32Params::convertAiqExpIspDgainToIsp32Params(struct isp32_isp_params_cfg
         float isp_dgain0 = MAX(1.0f, ae_exp.HdrExp[0].exp_real_params.isp_dgain);
         float isp_dgain1 = MAX(1.0f, ae_exp.HdrExp[1].exp_real_params.isp_dgain);
         float isp_dgain2 = MAX(1.0f, ae_exp.HdrExp[2].exp_real_params.isp_dgain);
-        if (isp_dgain0 < 1.0000001f &&
-            isp_dgain1 < 1.0000001f &&
-            isp_dgain2 < 1.0000001f )
-            return;
+
+        float isp_dgain = isp_dgain0 + isp_dgain1 + isp_dgain2;
+        if (!((isp_dgain != mLatestIspDgain) || (isp_dgain != 3.0f))) return;
+        mLatestIspDgain = isp_dgain;
 
         dest_cfg->gain0_red = MIN(cfg->gain0_red * isp_dgain0 + 0.5, max_wb_gain);
         dest_cfg->gain0_green_r = MIN(cfg->gain0_green_r * isp_dgain0 + 0.5, max_wb_gain);

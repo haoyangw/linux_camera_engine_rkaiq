@@ -70,6 +70,8 @@ static XCamReturn groupDpccProcessing(const RkAiqAlgoCom* inparams, RkAiqAlgoRes
     if (pDpcGroupCtx->isReCal_) {
         DpcSelectParam(pDpcGroupCtx, dpc_param, iso);
 		outparams->cfg_update = true;
+        outparams->en = pDpcGroupCtx->dpc_attrib->en;
+        outparams->bypass = pDpcGroupCtx->dpc_attrib->bypass;
 	} else {
 		outparams->cfg_update = false;
 	}

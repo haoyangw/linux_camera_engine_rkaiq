@@ -300,7 +300,7 @@ protected:
 #if defined(ISP_HW_V30) || defined(ISP_HW_V21)
     struct isp21_awb_gain_cfg mLatestWbGainCfg;
 #endif
-
+    float mLatestIspDgain;
     void getCommonCvtInfo(cam3aResultList &results, bool use_aiisp);
     common_cvt_info_t mCommonCvtInfo;
 };

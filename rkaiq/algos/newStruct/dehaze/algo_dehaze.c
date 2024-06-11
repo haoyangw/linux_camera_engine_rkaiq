@@ -26,13 +26,6 @@
 #include "interpolation.h"
 #include "xcam_log.h"
 
-#define DEHAZE_DEFAULT_LEVEL         (50)
-#define DEHAZE_DEFAULT_CFG_WT_STEP   (1)
-#define DEHAZE_DEFAULT_CFG_AIR_STEP  (0)
-#define DEHAZE_DEFAULT_CFG_TMAX_STEP (0)
-#define ENHANCE_DEFAULT_LEVEL        (50)
-#define ENHANCE_VALUE_DEFAULT_STEP   (80)
-
 #define BIT_MIN    (0)
 #define BIT_3_MAX  (7)
 #define BIT_4_MAX  (15)
@@ -621,32 +614,32 @@ static XCamReturn DehazeApplyStrength(DehazeContext_t* pDehazeCtx, dehaze_param_
     // add for rk_aiq_uapi2_setMDehazeStrth
     if (strg->MDehazeStrth != DEHAZE_DEFAULT_LEVEL) {
         LOG1_ADEHAZE("MDehazeStrth %d\n", strg->MDehazeStrth);
-        out->dyn.hw_dhazT_paramMerge_alpha = BIT_8_MAX;
+        out->dyn.hw_dhazT_paramMerge_alpha = 1.0f;
         level_diff                         = strg->MDehazeStrth > DEHAZE_DEFAULT_LEVEL
                          ? (strg->MDehazeStrth - DEHAZE_DEFAULT_LEVEL)
                          : (DEHAZE_DEFAULT_LEVEL - strg->MDehazeStrth);
         level_up = strg->MDehazeStrth > DEHAZE_DEFAULT_LEVEL;
         if (level_up) {
             out->dyn.dehaze_wgtMax.hw_dhazT_userWgtMax_val +=
-                level_diff * DEHAZE_DEFAULT_CFG_WT_STEP;
+                level_diff * DEHAZE_DEFAULT_CFG_WT_STEP_FLOAT;
             out->dyn.dehaze_airLight.hw_dhazT_userAirLight_val +=
                 level_diff * DEHAZE_DEFAULT_CFG_AIR_STEP;
             out->dyn.dehaze_transRatMin.hw_dhazT_userTransRatMin_val +=
                 level_diff * DEHAZE_DEFAULT_CFG_TMAX_STEP;
         } else {
             out->dyn.dehaze_wgtMax.hw_dhazT_userWgtMax_val -=
-                level_diff * DEHAZE_DEFAULT_CFG_WT_STEP;
+                level_diff * DEHAZE_DEFAULT_CFG_WT_STEP_FLOAT;
             out->dyn.dehaze_airLight.hw_dhazT_userAirLight_val -=
                 level_diff * DEHAZE_DEFAULT_CFG_AIR_STEP;
             out->dyn.dehaze_transRatMin.hw_dhazT_userTransRatMin_val -=
                 level_diff * DEHAZE_DEFAULT_CFG_TMAX_STEP;
         }
         out->dyn.dehaze_wgtMax.hw_dhazT_userWgtMax_val =
-            LIMIT_VALUE(out->dyn.dehaze_wgtMax.hw_dhazT_userWgtMax_val, 0, BIT_8_MAX);
+            LIMIT_VALUE(out->dyn.dehaze_wgtMax.hw_dhazT_userWgtMax_val, 1.0f, 0.0f);
         out->dyn.dehaze_airLight.hw_dhazT_userAirLight_val =
-            LIMIT_VALUE(out->dyn.dehaze_airLight.hw_dhazT_userAirLight_val, 0, BIT_8_MAX);
+            LIMIT_VALUE(out->dyn.dehaze_airLight.hw_dhazT_userAirLight_val, BIT_8_MAX, 0);
         out->dyn.dehaze_transRatMin.hw_dhazT_userTransRatMin_val =
-            LIMIT_VALUE(out->dyn.dehaze_transRatMin.hw_dhazT_userTransRatMin_val, 0, BIT_8_MAX);
+            LIMIT_VALUE(out->dyn.dehaze_transRatMin.hw_dhazT_userTransRatMin_val, 1.0f, 0.0f);
     }
 
     // add for rk_aiq_uapi2_setMEnhanceStrth
@@ -660,26 +653,28 @@ static XCamReturn DehazeApplyStrength(DehazeContext_t* pDehazeCtx, dehaze_param_
             if (level_up) {
                 for (int j = 0; j < DHAZ_V14_ENH_LUMA_NUM; j++) {
                     out->dyn.enhance.hw_dhazT_luma2strg_val[j] +=
-                        level_diff * ENH_LUMA_DEFAULT_STEP;
+                        level_diff * ENH_LUMA_DEFAULT_STEP_FLOAT;
                     out->dyn.enhance.hw_dhazT_luma2strg_val[j] =
-                        LIMIT_VALUE(out->dyn.enhance.hw_dhazT_luma2strg_val[j], 0, BIT_10_MAX);
+                        LIMIT_VALUE(out->dyn.enhance.hw_dhazT_luma2strg_val[j], 16.0f, 0.0f);
                 }
             } else {
                 for (int j = 0; j < DHAZ_V14_ENH_LUMA_NUM; j++) {
                     out->dyn.enhance.hw_dhazT_luma2strg_val[j] -=
-                        level_diff * ENH_LUMA_DEFAULT_STEP;
+                        level_diff * ENH_LUMA_DEFAULT_STEP_FLOAT;
                     out->dyn.enhance.hw_dhazT_luma2strg_val[j] =
-                        LIMIT_VALUE(out->dyn.enhance.hw_dhazT_luma2strg_val[j], 0, BIT_10_MAX);
+                        LIMIT_VALUE(out->dyn.enhance.hw_dhazT_luma2strg_val[j], 16.0f, 0.0f);
                 }
             }
         } else {
             if (level_up) {
-                out->dyn.enhance.hw_dhazT_contrast_strg += level_diff * ENHANCE_VALUE_DEFAULT_STEP;
+                out->dyn.enhance.hw_dhazT_contrast_strg +=
+                    level_diff * ENHANCE_VALUE_DEFAULT_STEP_FLOAT;
             } else {
-                out->dyn.enhance.hw_dhazT_contrast_strg -= level_diff * ENHANCE_VALUE_DEFAULT_STEP;
+                out->dyn.enhance.hw_dhazT_contrast_strg -=
+                    level_diff * ENHANCE_VALUE_DEFAULT_STEP_FLOAT;
             }
             out->dyn.enhance.hw_dhazT_contrast_strg =
-                LIMIT_VALUE(out->dyn.enhance.hw_dhazT_contrast_strg, 0, BIT_14_MAX);
+                LIMIT_VALUE(out->dyn.enhance.hw_dhazT_contrast_strg, 16.0f, 0.0f);
         }
     }
 
@@ -691,12 +686,14 @@ static XCamReturn DehazeApplyStrength(DehazeContext_t* pDehazeCtx, dehaze_param_
                          : (ENHANCE_DEFAULT_LEVEL - strg->MEnhanceChromeStrth);
         level_up = strg->MEnhanceChromeStrth > ENHANCE_DEFAULT_LEVEL;
         if (level_up) {
-            out->dyn.enhance.hw_dhazT_saturate_strg += level_diff * ENHANCE_VALUE_DEFAULT_STEP;
+            out->dyn.enhance.hw_dhazT_saturate_strg +=
+                level_diff * ENHANCE_VALUE_DEFAULT_STEP_FLOAT;
         } else {
-            out->dyn.enhance.hw_dhazT_saturate_strg -= level_diff * ENHANCE_VALUE_DEFAULT_STEP;
+            out->dyn.enhance.hw_dhazT_saturate_strg -=
+                level_diff * ENHANCE_VALUE_DEFAULT_STEP_FLOAT;
         }
         out->dyn.enhance.hw_dhazT_saturate_strg =
-            LIMIT_VALUE(out->dyn.enhance.hw_dhazT_saturate_strg, 0, BIT_14_MAX);
+            LIMIT_VALUE(out->dyn.enhance.hw_dhazT_saturate_strg, 16.0f, 0.0f);
     }
     return XCAM_RETURN_NO_ERROR;
 }

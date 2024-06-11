@@ -28,43 +28,41 @@ RKAIQ_BEGIN_DECLARE
     struct isp33_enh_cfg *pFix = &isp_params->isp_cfg->others.enh_cfg;
     enh_param_t* enh_attrib = (enh_param_t*) attr;
     enh_params_dyn_t *pdyn = &enh_attrib->dyn;
-    enh_params_static_t* psta = &enh_attrib->sta;
     int tmp;
     int rows = cvtinfo->rawHeight;
     int cols = cvtinfo->rawWidth;
 
     /* CTRL */
-    pFix->blf3_bypass = psta->hw_enhT_blf3_bypass;
+    pFix->blf3_bypass = pdyn->blf3.hw_enhT_blf3_bypass;
     /* IIR_FLT */
-    tmp = ClipFloatValue(pdyn->hw_enhT_iir_inv_sigma, 0, 8, true);
+    tmp                 = ClipFloatValue(pdyn->iir.hw_enhT_iir_inv_sigma, 0, 8, true);
     pFix->iir_inv_sigma = tmp;
-    tmp = ClipFloatValue(pdyn->hw_enhT_iir_soft_thed, 5, 0, false);
+    tmp                 = ClipFloatValue(pdyn->iir.hw_enhT_iir_soft_thed, 5, 0, false);
     pFix->iir_soft_thed = tmp;
-    tmp = ClipFloatValue(pdyn->hw_enhT_iir_cur_wgt, 0, 5, true);
+    tmp                 = ClipFloatValue(pdyn->iir.hw_enhT_iir_cur_wgt, 0, 5, true);
     pFix->iir_cur_wgt = tmp;
     /* BILAT_FLT3X3 */
-    tmp = ClipFloatValue(pdyn->hw_enhT_blf3_inv_sigma, 0, 8, true);
+    tmp                      = ClipFloatValue(pdyn->blf3.hw_enhT_blf3_inv_sigma, 0, 8, true);
     pFix->blf3_inv_sigma = tmp;
-    tmp = ClipFloatValue(pdyn->hw_enhT_blf3_cur_wgt, 0, 8, true);
+    tmp                      = ClipFloatValue(pdyn->blf3.hw_enhT_blf3_cur_wgt, 0, 8, true);
     pFix->blf3_cur_wgt = tmp;
-    tmp = ClipFloatValue(pdyn->hw_enhT_blf3_thumb_cur_wgt, 4, 0, false);
+    tmp                      = ClipFloatValue(pdyn->blf3.hw_enhT_blf3_thumb_cur_wgt, 4, 0, false);
     pFix->blf3_thumb_cur_wgt = tmp;
     /* BILAT_FLT5X5 */
-    tmp = ClipFloatValue(pdyn->hw_enhT_blf5_cur_wgt, 0, 8, true);
+    tmp                  = ClipFloatValue(pdyn->blf5.hw_enhT_blf5_cur_wgt, 0, 5, true);
     pFix->blf5_cur_wgt = tmp;
-    tmp = ClipFloatValue(pdyn->hw_enhT_blf5_inv_sigma, 0, 8, true);
+    tmp                  = ClipFloatValue(pdyn->blf5.hw_enhT_blf5_inv_sigma, 0, 8, true);
     pFix->blf5_inv_sigma = tmp;
     /* GLOBAL_STRG */
-    tmp = ClipFloatValue(pdyn->hw_enhT_global_strg, 4, 10, false);
+    tmp               = ClipFloatValue(pdyn->strg.hw_enhT_global_strg, 4, 10, false);
     pFix->global_strg = tmp;
     /* LUMA_LUT */
-    if (psta->hw_enhT_luma2strg_en) {
+    if (pdyn->strg.hw_enhT_luma2strg_en) {
         for (int i = 0; i < ISP33_ENH_LUMA_NUM; i++) {
-            tmp = ClipFloatValue(pdyn->hw_enhT_lum2strg[i], 0, 10, true);
+            tmp               = ClipFloatValue(pdyn->strg.hw_enhT_lum2strg[i], 0, 10, true);
             pFix->lum2strg[i] = tmp;
         }
-    }
-    else {
+    } else {
         for (int i = 0; i < ISP33_ENH_LUMA_NUM; i++) {
             pFix->lum2strg[i] = LUMA2STRG_VAL_DEFAULT;
         }
@@ -72,10 +70,11 @@ RKAIQ_BEGIN_DECLARE
 
     /* DETAIL_IDX */
     for (int i = 0; i < ISP33_ENH_DETAIL_NUM - 1; i++) {
-        tmp = ClipFloatValue(pdyn->hw_enhT_detail2strg_idx[i], 10, 0, false);
+        tmp = ClipFloatValue(pdyn->strg.hw_enhT_detail2strg_curve.idx[i], 10, 0, false);
         pFix->detail2strg_idx[i] = tmp;
     }
-    tmp = ClipFloatValue(pdyn->hw_enhT_detail2strg_idx[ISP33_ENH_DETAIL_NUM - 1], 10, 0, true);
+    tmp = ClipFloatValue(pdyn->strg.hw_enhT_detail2strg_curve.idx[ISP33_ENH_DETAIL_NUM - 1], 10, 0,
+                         true);
     pFix->detail2strg_idx[7] = tmp;
     /* DETAIL_POWER */
     float tmp_float;
@@ -93,13 +92,12 @@ RKAIQ_BEGIN_DECLARE
     pFix->detail2strg_power5 = detail2strg_power[5];
     pFix->detail2strg_power6 = detail2strg_power[6];
     /* DETAIL_VALUE */
-    if (psta->hw_enhT_diff2strg_en) {
+    if (pdyn->strg.hw_enhT_detail2strg_en) {
         for (int i = 0; i < ISP33_ENH_DETAIL_NUM; i++) {
-            tmp = ClipFloatValue(pdyn->hw_enhT_detail2strg_val[i], 0, 10, true);
+            tmp = ClipFloatValue(pdyn->strg.hw_enhT_detail2strg_curve.val[i], 0, 10, true);
             pFix->detail2strg_val[i] = tmp;
         }
-    }
-    else {
+    } else {
         for (int i = 0; i < ISP33_ENH_DETAIL_NUM; i++) {
             pFix->detail2strg_val[i] = DETAIL2STRG_VAL_DEFAULT;
         }

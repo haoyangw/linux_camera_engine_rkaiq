@@ -853,7 +853,7 @@ static XCamReturn AeDemoPreProcess(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom
                              * algo_ctx->aeInfo.pfn_info.cisRkExp.hdr_exp[i].exp_real_params.analog_gain \
                              * algo_ctx->aeInfo.pfn_info.cisRkExp.hdr_exp[i].exp_real_params.isp_dgain;
                 }
-#ifdef ISP_HW_V39
+#if defined(ISP_HW_V39) || defined(ISP_HW_V33)
                 for(int i = 0; i < AESTATS_ZONE_15x15_NUM; i++) {
                     luma[0] += (float)(algo_ctx->aeInfo.pfn_info.pHwEnt0->mainWin.hw_ae_meanBayerGrGb_val[i] >> 4); //channelg is 12bit, channelr/channelb is 10bit
                     luma[1] += (float)(algo_ctx->aeInfo.pfn_info.pHwEnt3->mainWin.hw_ae_meanBayerGrGb_val[i] >> 4); //channelg is 12bit, channelr/channelb is 10bit

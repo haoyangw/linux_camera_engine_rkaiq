@@ -47,59 +47,8 @@ typedef struct cac_psfParam_s {
         Freq of use: low))  */
     // @reg: sw_cac_psf_sft_bit
     uint8_t hw_cacT_psfShift_bits;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_cac_cfg_num),
-        M4_TYPE(u8),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,10),
-        M4_DEFAULT(2),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(TODO.
-        Freq of use: low))  */
-    // @reg: sw_cac_cfg_num
-    uint16_t hw_cacCfg_psfBlock_num;
 } cac_psfParam_t;
 
-typedef struct cac_lutBuf_s {
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_cacT_lutBuf_fd),
-        M4_TYPE(s32),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,65535),
-        M4_DEFAULT(2),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(TODO.
-        Freq of use: low))  */
-    int32_t sw_cacCfg_lutBuf_fd;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_cacT_lutBufSize_height),
-        M4_TYPE(u32),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,65535),
-        M4_DEFAULT(2),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(TODO.
-        Freq of use: low))  */
-    uint32_t sw_cacCfg_lutBufSize_height;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_cacT_lutBufSize_width),
-        M4_TYPE(u32),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,65535),
-        M4_DEFAULT(2),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(TODO.
-        Freq of use: low))  */
-    uint32_t sw_cacCfg_lutBufSize_width;
-} cac_lutBuf_t;
 
 typedef struct cac_strgCenter_s {
     /* M4_GENERIC_DESC(
@@ -161,17 +110,7 @@ typedef struct {
         M4_ORDER(0),
         M4_NOTES(...\n
         Freq of use: low))  */
-    cac_strgCenter_t strgCenter[2];
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(lutBuf),
-        M4_TYPE(struct),
-        M4_UI_MODULE(normal_ui_style),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(...\n
-        Freq of use: low))  */
-    cac_lutBuf_t lutBuf[2];
+    cac_strgCenter_t strgCenter;
 } cac_params_static_t;
 
 typedef struct cac_strgInterp_s {
@@ -217,6 +156,7 @@ typedef struct cac_strgInterp_s {
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0, 1.00),
         M4_DEFAULT(0),
+        M4_DIGIT_EX(4f4),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
@@ -231,6 +171,7 @@ typedef struct cac_strgInterp_s {
         M4_RANGE_EX(0, 1.00),
         M4_DEFAULT(0),
         M4_HIDE_EX(0),
+        M4_DIGIT_EX(4f4),
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(TODO.

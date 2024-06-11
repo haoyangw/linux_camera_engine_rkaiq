@@ -33,6 +33,10 @@ XCamReturn
 rk_aiq_user_api2_lsc_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, lsc_api_attrib_t* attr);
 XCamReturn
 rk_aiq_user_api2_lsc_QueryStatus(const rk_aiq_sys_ctx_t* sys_ctx, lsc_status_t* status);
+XCamReturn
+rk_aiq_user_api2_lsc_SetCalib(const rk_aiq_sys_ctx_t* sys_ctx, alsc_lscCalib_t* calib);
+XCamReturn
+rk_aiq_user_api2_lsc_GetCalib(const rk_aiq_sys_ctx_t* sys_ctx, alsc_lscCalib_t* calib);
 
 RKAIQ_END_DECLARE
 

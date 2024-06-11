@@ -58,7 +58,7 @@ typedef struct CcmContext_s {
     ccm_calib_attrib_t* ccm_attrib;
 
     uint8_t illu_mesh_len;
-    uint8_t illu_mesh_all[ALSC_CALIBDB_LEN];
+    uint8_t illu_mesh_all[ACCM_CALIBDB_LEN];
 
     uint8_t pre_illu_idx;
     float pre_saturation;
@@ -70,7 +70,7 @@ typedef struct CcmContext_s {
     ccm_matrix_t undamped_matrix;
     ccm_matrix_t damped_matrix;
 
-    bool isReCal_;
+    bool is_calib_update;
 } CcmContext_t;
 
 XCamReturn Accm_prepare(RkAiqAlgoCom* params);

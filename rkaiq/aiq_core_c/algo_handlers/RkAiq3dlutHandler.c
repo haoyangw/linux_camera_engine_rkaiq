@@ -74,7 +74,8 @@ static XCamReturn _handler3dlut_processing(AiqAlgoHandler_t* pAlgoHandler) {
     if (awb_proc_res) {
         awb_res = (RkAiqAlgoProcResAwbShared_t*)awb_proc_res->_data;
     }
-    get_illu_estm_info(&proc_int->illu_info, awb_res, pCurExp, sharedCom->working_mode);
+    if (!AiqCore_isGroupAlgo(pAlgoHandler->mAiqCore, pAlgoHandler->mDes->type))
+        get_illu_estm_info(&proc_int->illu_info, awb_res, pCurExp, sharedCom->working_mode);
 
     ret = AiqAlgoHandler_do_processing_common(pAlgoHandler);
 
@@ -97,34 +98,49 @@ AiqAlgoHandler_t* AiqAlgoHandler3dlut_constructor(RkAiqAlgoDesComm* des, AiqCore
 	return pHdl;
 }
 
+XCamReturn AiqAlgoHandler3dlut_queryalut3dStatus(AiqAlgoHandler3dlut_t* pHdl3dlut, alut3d_status_t* status) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    aiqMutex_lock(&pHdl3dlut->mCfgMutex);
+
+    ret = algo_lut3d_queryalut3dStatus(pHdl3dlut->mAlgoCtx, status);
+
+    aiqMutex_unlock(&pHdl3dlut->mCfgMutex);
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn AiqAlgoHandler3dlut_setCalib(AiqAlgoHandler3dlut_t* pHdl3dlut, alut3d_lut3dCalib_t* calib) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    aiqMutex_lock(&pHdl3dlut->mCfgMutex);
+    ret = algo_lut3d_SetCalib(pHdl3dlut->mAlgoCtx, calib);
+    aiqMutex_unlock(&pHdl3dlut->mCfgMutex);
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn AiqAlgoHandler3dlut_getCalib(AiqAlgoHandler3dlut_t* pHdl3dlut, alut3d_lut3dCalib_t* calib) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    aiqMutex_lock(&pHdl3dlut->mCfgMutex);
+
+    ret = algo_lut3d_GetCalib(pHdl3dlut->mAlgoCtx, calib);
+
+    aiqMutex_unlock(&pHdl3dlut->mCfgMutex);
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
 #if 0
-XCamReturn AiqAlgoHandler3dlut_setAttrib(AiqAlgoHandler3dlut_t* pHdl3dlut, lut3d_api_attrib_t* attr) {
-    ENTER_ANALYZER_FUNCTION();
-
-    XCamReturn ret = XCAM_RETURN_NO_ERROR;
-    aiqMutex_lock(&pHdl3dlut->mCfgMutex);
-    ret = algo_lut3d_SetAttrib(pHdl3dlut->mAlgoCtx, attr);
-    aiqMutex_unlock(&pHdl3dlut->mCfgMutex);
-
-    EXIT_ANALYZER_FUNCTION();
-    return ret;
-}
-
-XCamReturn AiqAlgoHandler3dlut_getAttrib(AiqAlgoHandler3dlut_t* pHdl3dlut, lut3d_api_attrib_t* attr) {
-    ENTER_ANALYZER_FUNCTION();
-
-    XCamReturn ret = XCAM_RETURN_NO_ERROR;
-
-    aiqMutex_lock(&pHdl3dlut->mCfgMutex);
-
-    ret = algo_lut3d_GetAttrib(pHdl3dlut->mAlgoCtx, attr);
-
-    aiqMutex_unlock(&pHdl3dlut->mCfgMutex);
-
-    EXIT_ANALYZER_FUNCTION();
-    return ret;
-}
-
 XCamReturn AiqAlgoHandler3dlut_queryStatus(AiqAlgoHandler3dlut_t* pHdl3dlut, lut3d_status_t* status) {
     ENTER_ANALYZER_FUNCTION();
 

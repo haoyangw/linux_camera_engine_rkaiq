@@ -31,12 +31,6 @@
 #include "uAPI2/rk_aiq_user_api2_agic.h"
 #include "uAPI2/rk_aiq_user_api2_wrapper.h"
 
-#ifdef ISP_HW_V39
-#include "rk_aiq_user_api2_rk3576.h"
-#elif  defined(ISP_HW_V32)
-#include "rk_aiq_user_api2_rv1106.h"
-#endif
-
 #include "rk_aiq_tool_api.h"
 
 #if defined(__GNUC__) && !defined(__clang__)
@@ -403,6 +397,7 @@ RkAiqUapiDesc_t rkaiq_uapidesc_list[] = {
     __RKAIQUAPI_DESC_DEF("/uapi/0/measure_info/wb_log/info/awb_strategy_result",
                          rk_tool_awb_strategy_result_t, NULL,
                          rk_aiq_user_api2_awb_getStrategyResult),
+
     __RKAIQUAPI_DESC_DEF("/uapi/0/accm_uapi/mode", uapi_wb_mode_t, rk_aiq_set_tool_accm_mode,
                          rk_aiq_get_accm_mode),
 #if defined(ISP_HW_V21) || defined(ISP_HW_V30)

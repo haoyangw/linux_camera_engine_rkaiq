@@ -218,6 +218,7 @@ XCamReturn AiqAlgoCamGroupHandler_processing(AiqAlgoCamGroupHandler_t* pAlgoCamG
     com->frame_id    = params_res_array[0]->_frameId;
     // TODO: remove init info ? algo can maintain the state itself
     com->u.proc.init = pAlgoCamGroupHandler->mGroupMg->mInit;
+    com->u.proc.iso = procIn->camgroupParmasArray[0]->hdrIso;
     AiqAlgoHandler_t* pSglHdl = pAlgoCamGroupHandler->mSingleHdl;
     GlobalParamsManager_t * globalParamsManager = pSglHdl->mAiqCore->mGlobalParamsManger;
     if (pSglHdl->mResultType != -1)

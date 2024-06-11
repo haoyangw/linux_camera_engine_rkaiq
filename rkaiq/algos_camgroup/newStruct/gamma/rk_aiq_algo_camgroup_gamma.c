@@ -54,6 +54,8 @@ static XCamReturn groupGammaProcessing(const RkAiqAlgoCom* inparams, RkAiqAlgoRe
     if (pGammaGroupCtx->isReCal_) {
         GammaSelectParam(&pGammaGroupCtx->gamma_attrib->stAuto, gamma_param);
 		outparams->cfg_update = true;
+        outparams->en = pGammaGroupCtx->gamma_attrib->en;
+        outparams->bypass = pGammaGroupCtx->gamma_attrib->bypass;
 	} else {
 		outparams->cfg_update = false;
 	}

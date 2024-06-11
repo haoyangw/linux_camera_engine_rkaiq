@@ -20,7 +20,7 @@
 
 #include "common/rk_aiq_comm.h"
 
-#define CAC_ISO_STEP_MAX 14
+#define CAC_ISO_STEP_MAX 13
 
 RKAIQ_BEGIN_DECLARE
 

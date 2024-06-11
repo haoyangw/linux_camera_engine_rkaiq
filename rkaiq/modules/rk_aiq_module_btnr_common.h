@@ -45,14 +45,21 @@ typedef struct {
     uint16_t sigma_y[20];
 } btnr_stats_t;
 
+typedef struct {
+    bool isValid;
+    uint32_t id;
+    uint16_t noise_curve[17];
+} sharp_stats_t;
+
 #define RK_AIQ_BTNR_STATS_CNT 3
 #define BAYERTNR_STATS_DELAY 2
 
 typedef struct {
-    bool bypass;
-    //uint32_t mBtnrStatsId[RK_AIQ_BTNR_STATS_CNT];
-    //struct isp39_bay3d_stat mBtnrStats[RK_AIQ_BTNR_STATS_CNT];
     btnr_stats_t mBtnrStats[RK_AIQ_BTNR_STATS_CNT];
+#if RKAIQ_HAVE_SHARP_V40
+    sharp_stats_t mSharpStats[RK_AIQ_BTNR_STATS_CNT];
+    uint16_t sharp_noise_curve_pre[17];
+#endif
     btnr_trans_params_t mBtnrTransParams;
     int hw_btnrCfg_pixDomain_mode;
 } btnr_cvt_info_t;

@@ -13,7 +13,11 @@
 #include "include/uAPI2/rk_aiq_user_api2_adpcc.h"
 #include "include/uAPI2/rk_aiq_user_api2_helper.h"
 #include "include/uAPI2/rk_aiq_user_api2_sysctl.h"
+#if USE_NEWSTRUCT
+#include "include/uAPI2/rk_aiq_user_api2_awb_v3.h"
+#else
 #include "include/uAPI2/rk_aiq_user_api2_awb.h"
+#endif
 #include "rk_aiq_user_api2_ae.h"
 #include "rk_aiq_user_api_ae.h"
 #include "rkaiq_tool_ae.h"

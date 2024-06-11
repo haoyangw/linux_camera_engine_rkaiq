@@ -12,6 +12,9 @@
 #elif RKAIQ_HAVE_HISTEQ_V10
 #include "rk_aiq_isp_histeq30.h"
 #endif
+#if RKAIQ_HAVE_SHARP_V40
+#include "rk_aiq_isp_texEst40.h"
+#endif
 
 typedef struct RKAiqAecExpInfo_s RKAiqAecExpInfo_t;
 
@@ -55,16 +58,19 @@ typedef struct {
     RKAiqAecExpInfo_t *ae_exp;
     blc_res_cvt_t blc_res;
     bool use_aiisp;
-    bool cnr_ynr_sharp_same;
+    bool cnr_path_valid;
     int ynr_count;
     int sharp_count;
     float L2S_Ratio;
-#if USE_NEWSTRUCT
+#ifdef USE_NEWSTRUCT
     float ynr_sigma[HIST_SIGMA_LUT_NUM];
 #endif
     bool cmps_on;
     bool dehaze_en;
     bool histeq_en;
+#if defined(ISP_HW_V33)
+    texEst_param_t texEst_param;
+#endif
 } common_cvt_info_t;
 
 typedef struct {

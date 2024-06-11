@@ -50,6 +50,8 @@ typedef struct LscContext_s {
     lsc_meshGain_t undamped_matrix;
     lsc_meshGain_t damped_matrix;
 
+    bool is_calib_update;
+
 } LscContext_t;
 
 XCamReturn Alsc_prepare(RkAiqAlgoCom* params);

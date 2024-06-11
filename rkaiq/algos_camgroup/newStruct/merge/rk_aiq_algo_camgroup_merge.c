@@ -190,6 +190,8 @@ static XCamReturn groupMergeProcessing(const RkAiqAlgoCom* inparams, RkAiqAlgoRe
         if (pMergeGroupCtx->isReCal_ || !bypass_expo_process) {
             MergeSelectParam(pMergeGroupCtx, merge_param, iso);
 			outparams->cfg_update = true;
+            outparams->en         = pMergeGroupCtx->merge_attrib->en;
+            outparams->bypass     = pMergeGroupCtx->merge_attrib->bypass;
 		} else {
 			outparams->cfg_update = false;
 		}

@@ -32,7 +32,7 @@
 #include "amerge_head.h"
 #include "argbir_head.h"
 #include "atmo_head.h"
-#include "awb_head.h"
+//#include "awb_head.h"
 #include "bayertnr_head_v30.h"
 #include "cac_head.h"
 #include "ccm_head.h"
@@ -52,8 +52,6 @@
 #include "ynr_head_v24.h"
 #include "yuvme_head_v1.h"
 
-#if defined(ISP_HW_V39)
-#ifdef USE_NEWSTRUCT
 #include "isp/rk_aiq_isp_ae25.h"
 #include "algos/rk_aiq_api_types_ae.h"
 #include "isp/rk_aiq_isp_dm23.h"
@@ -108,8 +106,8 @@
 #include "algos/rk_aiq_api_types_3dlut.h"
 #include "isp/rk_aiq_isp_ccm22.h"
 #include "algos/rk_aiq_api_types_ccm.h"
-#endif
-#endif
+#include "isp/awb_head2.h"
+#include "algos/rk_aiq_api_types_awb.h"
 
 RKAIQ_BEGIN_DECLARE
 
@@ -141,7 +139,9 @@ typedef struct CamCalibDbV2ContextIsp39_s {
     CalibDb_Aec_ParaV2_t ae_calib;
 #endif
     // M4_STRUCT_DESC("wb_v32", "normal_ui_style")
-    CalibDbV2_Wb_Para_V32_t wb_v32;
+    //CalibDbV2_Wb_Para_V32_t wb_v32;
+    // M4_STRUCT_DESC("wb", "normal_ui_style")
+    awb_api_attrib_t wb;
 #if USE_NEWSTRUCT
     // M4_STRUCT_DESC("blc", "normal_ui_style")
     blc_api_attrib_t blc;

@@ -33,20 +33,27 @@ rk_aiq_user_api2_enh_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, enh_api_attrib_t
     CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_AENH);
     RKAIQ_API_SMART_LOCK(sys_ctx);
 
-	const rk_aiq_sys_ctx_t* ctx = rk_aiq_user_api2_common_getSysCtx(sys_ctx);
+	rk_aiq_sys_ctx_array_t ctx_array = rk_aiq_user_api2_common_getSysCtxArray(sys_ctx);
 
 	int type = RESULT_TYPE_ENH_PARAM;
 	int man_param_size = sizeof(enh_param_t);
 	int aut_param_size = sizeof(enh_param_auto_t);
 
-    if (attr->opMode == RK_AIQ_OP_MODE_MANUAL || attr->opMode == RK_AIQ_OP_MODE_AUTO) {
-        ret = rk_aiq_user_api2_common_processParams(ctx, true,
+	for (int i = 0; i < ctx_array.num; i++) {
+		if (attr->opMode == RK_AIQ_OP_MODE_MANUAL || attr->opMode == RK_AIQ_OP_MODE_AUTO) {
+			ret = rk_aiq_user_api2_common_processParams(ctx_array.ctx[i], true,
 				&attr->opMode, &attr->en, &attr->bypass,
-				type, man_param_size, &attr->stMan, aut_param_size,  &attr->stAuto);
-    } else {
-		ret = XCAM_RETURN_ERROR_FAILED;
-        LOGE_ADEHAZE("wrong mode %d !", attr->opMode);
-    }
+				type, man_param_size, &attr->stMan, aut_param_size, &attr->stAuto);
+			if (ret == XCAM_RETURN_BYPASS) {
+                LOGE("ynr, cnr, sharp and enh en should be on or off in the same time, "
+                     "please use rk_aiq_uapi2_sysctl_setModuleEn to set them");
+            }
+		}
+		else {
+			ret = XCAM_RETURN_ERROR_FAILED;
+			LOGE_ADEHAZE("wrong mode %d !", attr->opMode);
+		}
+	}
 
     return ret;
 }

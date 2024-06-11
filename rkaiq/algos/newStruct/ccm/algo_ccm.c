@@ -336,8 +336,8 @@ CcmSelectParam(CcmContext_t *pCcmCtx, ccm_param_t* out, int iso)
     out->dyn.ccmAlpha_satFac.hw_ccmT_facMax_thred = interpolation_u8(
         isoLink[ilow].ccmAlpha_satFac.hw_ccmT_facMax_thred, isoLink[ihigh].ccmAlpha_satFac.hw_ccmT_facMax_thred, uratio);
     out->dyn.ccmAlpha_satFac.hw_ccmT_satIdx_scale = interpolation_f32(
-        isoLink[ilow].ccmAlpha_satFac.hw_ccmT_satIdx_scale, isoLink[ihigh].ccmAlpha_satFac.hw_ccmT_satIdx_scale, uratio);
-    for (i=0; i<17; i++) {
+        isoLink[ilow].ccmAlpha_satFac.hw_ccmT_satIdx_scale, isoLink[ihigh].ccmAlpha_satFac.hw_ccmT_satIdx_scale, ratio);
+    for (i = 0; i < 17; i++) {
         out->dyn.ccmAlpha_satFac.hw_ccmT_sat2Alpha_fac1[i] = interpolation_u16(
             isoLink[ilow].ccmAlpha_satFac.hw_ccmT_sat2Alpha_fac1[i], isoLink[ihigh].ccmAlpha_satFac.hw_ccmT_sat2Alpha_fac1[i], uratio);
     }
@@ -362,6 +362,7 @@ XCamReturn Accm_prepare(RkAiqAlgoCom* params)
 
     pCcmCtx->fScale = 0.0;
     pCcmCtx->damp_converged = false;
+    pCcmCtx->is_calib_update = false;
     return XCAM_RETURN_NO_ERROR;
 }
 
@@ -377,8 +378,8 @@ XCamReturn Accm_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outpar
 
     bool need_recal = false;
 
-    pCcmCtx->isReCal_ = inparams->u.proc.is_attrib_update || inparams->u.proc.init;
-    if (pCcmCtx->isReCal_) {
+    bool isReCal_ = inparams->u.proc.is_attrib_update || inparams->u.proc.init;
+    if (isReCal_) {
         need_recal = true;
     }
 
@@ -389,10 +390,11 @@ XCamReturn Accm_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outpar
     }
     accm_param_illuLink_t *pIlluCase = &pdyn->illuLink[illu_idx];
 
-    if (illu_idx != pCcmCtx->pre_illu_idx) {
-        pCcmCtx->pre_illu_idx  = illu_idx;
-        need_recal = true;
-
+    if (illu_idx != pCcmCtx->pre_illu_idx || pCcmCtx->is_calib_update) {
+        if (illu_idx != pCcmCtx->pre_illu_idx) {
+            pCcmCtx->pre_illu_idx  = illu_idx;
+            need_recal = true;
+        }
         pCcmCtx->illu_mesh_len =
             get_all_mesh_by_name(pCcmCtx, pIlluCase->sw_ccmC_illu_name);
     }
@@ -403,7 +405,8 @@ XCamReturn Accm_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outpar
         need_recal = true;
     }
 
-    if (need_recal) {
+    if (need_recal || pCcmCtx->is_calib_update) {
+        pCcmCtx->is_calib_update = false;
         int mesh_out[2] = {-1, -1};
         int ret = get_mesh_by_sat(pCcmCtx, sat, mesh_out);
         if (ret == 0) {
@@ -416,10 +419,19 @@ XCamReturn Accm_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outpar
         } else {
             mesh_interpolation(pCcmCtx, sat, mesh_out);
         }
+        need_recal = true;
     }
 
+    // TODO 
+    bool damp_en = tunning->stAuto.sta.sw_ccmT_damp_en;
+    if (damp_en) {
+        if (need_recal || !pCcmCtx->damp_converged) {
+            need_recal = true;
+        }
+    }
     int delta_iso = abs(iso - pCcmCtx->pre_iso);
-    if(delta_iso > 1 || pCcmCtx->isReCal_) {
+    //if(delta_iso > 1 || pCcmCtx->isReCal_) {
+    if(delta_iso > 1 || need_recal) {
         CcmSelectParam(pCcmCtx, outparams->algoRes, iso);
         pCcmCtx->pre_iso = iso;
         need_recal = true;
@@ -431,7 +443,7 @@ XCamReturn Accm_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outpar
         need_recal = true;
     }
 
-    bool damp_en = tunning->stAuto.sta.sw_ccmT_damp_en;
+    // bool damp_en = tunning->stAuto.sta.sw_ccmT_damp_en;
     if (damp_en) {
         if (need_recal || !pCcmCtx->damp_converged) {
             float dampCoef = swinfo->awbIIRDampCoef;
@@ -517,71 +529,77 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
     return XCAM_RETURN_NO_ERROR;
 }
 
-#if 0
 XCamReturn
-algo_ccm_SetAttrib
+algo_ccm_queryaccmStatus
 (
     RkAiqAlgoContext* ctx,
-    ccm_api_attrib_t *attr
-) {
-    if(ctx == NULL || attr == NULL) {
-        LOGE_ACCM("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
+    accm_status_t* status
+)
+{
+    if(ctx == NULL || status == NULL) {
+        LOGE_ACCM("have no accm status info !");
         return XCAM_RETURN_ERROR_PARAM;
     }
 
     CcmContext_t* pCcmCtx = (CcmContext_t*)ctx;
-    ccm_api_attrib_t* ccm_attrib = &pCcmCtx->ccm_attrib->tunning;
+    ccm_param_auto_t* stAuto = &pCcmCtx->ccm_attrib->tunning.stAuto;
 
-    if (attr->opMode != RK_AIQ_OP_MODE_AUTO) {
-        LOGE_ACCM("not auto mode: %d", attr->opMode);
-        return XCAM_RETURN_ERROR_PARAM;
-    }
-
-    ccm_attrib->opMode = attr->opMode;
-    ccm_attrib->en = attr->en;
-    ccm_attrib->bypass = attr->bypass;
-
-    if (attr->opMode == RK_AIQ_OP_MODE_AUTO)
-        ccm_attrib->stAuto = attr->stAuto;
-    else if (attr->opMode == RK_AIQ_OP_MODE_MANUAL)
-        ccm_attrib->stMan = attr->stMan;
-    else {
-        LOGW_ACCM("wrong mode: %d\n", attr->opMode);
-    }
+    strncpy(status->sw_ccmC_illuUsed_name, 
+            stAuto->dyn.illuLink[pCcmCtx->pre_illu_idx].sw_ccmC_illu_name, 
+            ACCM_ILLUM_NAME_LEN - 1);
+    
+    status->sw_ccmC_ccmSat_val = pCcmCtx->pre_saturation;
+    status->sw_ccmT_glbCcm_scale = pCcmCtx->pre_scale;
 
     return XCAM_RETURN_NO_ERROR;
 }
 
 XCamReturn
-algo_ccm_GetAttrib
+algo_ccm_SetCalib
 (
     RkAiqAlgoContext* ctx,
-    ccm_api_attrib_t* attr
-)
-{
-    if(ctx == NULL || attr == NULL) {
-        LOGE_ACCM("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
+    accm_ccmCalib_t* calib
+) {
+    if(ctx == NULL || calib == NULL) {
+        LOGE_ACCM("%s: null pointer\n", __FUNCTION__);
         return XCAM_RETURN_ERROR_PARAM;
     }
 
     CcmContext_t* pCcmCtx = (CcmContext_t*)ctx;
     ccm_api_attrib_t* ccm_attrib = &pCcmCtx->ccm_attrib->tunning;
+    accm_ccmCalib_t* accm_calib = &pCcmCtx->ccm_attrib->calibdb;
 
-#if 0
     if (ccm_attrib->opMode != RK_AIQ_OP_MODE_AUTO) {
         LOGE_ACCM("not auto mode: %d", ccm_attrib->opMode);
         return XCAM_RETURN_ERROR_PARAM;
     }
-#endif
 
-    attr->opMode = ccm_attrib->opMode;
-    attr->en = ccm_attrib->en;
-    attr->bypass = ccm_attrib->bypass;
-    memcpy(&attr->stAuto, &ccm_attrib->stAuto, sizeof(ccm_param_auto_t));
+    memcpy(accm_calib, calib, sizeof(accm_ccmCalib_t));
+    pCcmCtx->is_calib_update = true;
 
     return XCAM_RETURN_NO_ERROR;
 }
-#endif
+
+XCamReturn
+algo_ccm_GetCalib
+(
+    RkAiqAlgoContext* ctx,
+    accm_ccmCalib_t* calib
+)
+{
+    if(ctx == NULL || calib == NULL) {
+        LOGE_ACCM("%s: null pointer\n", __FUNCTION__);
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+
+    CcmContext_t* pCcmCtx = (CcmContext_t*)ctx;
+    accm_ccmCalib_t* accm_calib = &pCcmCtx->ccm_attrib->calibdb;
+
+    memcpy(calib, accm_calib, sizeof(accm_ccmCalib_t));
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
 #define RKISP_ALGO_CCM_VERSION     "v0.0.1"
 #define RKISP_ALGO_CCM_VENDOR      "Rockchip"
 #define RKISP_ALGO_CCM_DESCRIPTION "Rockchip ccm algo for ISP2.0"

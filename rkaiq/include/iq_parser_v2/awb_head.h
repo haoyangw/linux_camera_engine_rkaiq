@@ -33,7 +33,7 @@ RKAIQ_BEGIN_DECLARE
 #define CALD_AWB_RGCT_GRID_NUM 9
 #define CALD_AWB_BGCRI_GRID_NUM 11
 
-#if ISP_HW_V32_LITE||ISP_HW_V39
+#if ISP_HW_V32_LITE||ISP_HW_V39 || ISP_HW_V33
 typedef enum CalibDbV2_Awb_Down_Scale_Mode_e {
     CALIB_AWB_DS_4X4 = 0,
     CALIB_AWB_DS_8X8 = 1,
@@ -311,7 +311,7 @@ typedef struct CalibDbV2_Awb_Sgc_s {
     float updateDpWbgnTh;
     // M4_NUMBER_DESC("updateDpWbgnTh2", "f32", M4_RANGE(0,1), "0.8", M4_DIGIT(4))
     float updateDpWbgnTh2;
-    // M4_NUMBER_DESC("updateDpWbgnTh", "f32", M4_RANGE(0,100000), "2000", M4_DIGIT(0))
+    // M4_NUMBER_DESC("updateEstWbgnTh", "f32", M4_RANGE(0,100000), "2000", M4_DIGIT(0))
     float updateEstWbgnTh;
 
 
@@ -630,7 +630,7 @@ typedef struct CalibDbV2_Awb_Ava_Site_Rec_s{
     bool  avaEnable;
     // M4_ARRAY_DESC("wbgainTh", "f32", M4_SIZE(1,1), M4_RANGE(0,8), "0.2", M4_DIGIT(4), M4_DYNAMIC(0))
     float wbgainTh;
-    // M4_ARRAY_DESC("wbgainTh", "f32", M4_SIZE(1,1), M4_RANGE(0,255), "2", M4_DIGIT(4), M4_DYNAMIC(0))
+    // M4_ARRAY_DESC("lvValueTh", "f32", M4_SIZE(1,1), M4_RANGE(0,255), "2", M4_DIGIT(4), M4_DYNAMIC(0))
     float lvValueTh;
 }CalibDbV2_Awb_Ava_Site_Rec_t;
 
@@ -1077,7 +1077,7 @@ typedef struct CalibDbV2_Wb_Awb_Para_V32_t {
 #if ISP_HW_V32_LITE
     // M4_ARRAY_DESC("wpDiffBlkWeight", "u16", M4_SIZE(5,5), M4_RANGE(0,63), "0", M4_DIGIT(0), M4_DYNAMIC(0))
     unsigned short wpDiffBlkWeight[CALD_AWB_GRID_NUM_TOTAL_LITE];
-#elif ISP_HW_V39
+#elif ISP_HW_V39 || ISP_HW_V33
     // M4_ARRAY_DESC("wpDiffBlkWeight", "u8", M4_SIZE(15,15), M4_RANGE(0,63), "0", M4_DIGIT(0), M4_DYNAMIC(0))
     unsigned char wpDiffBlkWeight[CALD_AWB_GRID_NUM_TOTAL];
 #else

@@ -18,7 +18,7 @@
 #ifndef ___RK_AIQ_CALIB_DB_V2_TYPES_ISP33_H__
 #define ___RK_AIQ_CALIB_DB_V2_TYPES_ISP33_H__
 
-#include "awb_head.h"
+//#include "awb_head.h"
 #include "cproc_head.h"
 #include "cpsl_head.h"
 #include "af_head.h"
@@ -31,6 +31,8 @@
 #include "algos/rk_aiq_api_types_btnr41.h"
 #include "isp/rk_aiq_isp_gamma21.h"
 #include "algos/rk_aiq_api_types_gamma.h"
+#include "isp/rk_aiq_isp_texEst40.h"
+#include "algos/rk_aiq_api_types_texEst.h"
 #include "isp/rk_aiq_isp_ynr40.h"
 #include "algos/rk_aiq_api_types_ynr.h"
 #include "isp/rk_aiq_isp_sharp40.h"
@@ -41,6 +43,8 @@
 #include "algos/rk_aiq_api_types_drc.h"
 #include "isp/rk_aiq_isp_enh30.h"
 #include "algos/rk_aiq_api_types_enh.h"
+#include "isp/rk_aiq_isp_hsv10.h"
+#include "algos/rk_aiq_api_types_hsv.h"
 #include "isp/rk_aiq_isp_blc30.h"
 #include "algos/rk_aiq_api_types_blc.h"
 #include "isp/rk_aiq_isp_trans10.h"
@@ -71,7 +75,8 @@
 #include "algos/rk_aiq_api_types_gain.h"
 #include "isp/rk_aiq_isp_ccm22.h"
 #include "algos/rk_aiq_api_types_ccm.h"
-
+#include "isp/awb_head2.h"
+#include "algos/rk_aiq_api_types_awb.h"
 RKAIQ_BEGIN_DECLARE
 
 typedef struct CalibDbV2_ColorAsGrey_Param_s {
@@ -89,8 +94,8 @@ typedef struct CalibDbV2_ColorAsGrey_s {
 typedef struct {
     // M4_STRUCT_DESC("ae_calib", "normal_ui_style")
     ae_param_t ae_calib;
-    // M4_STRUCT_DESC("wb_v32", "normal_ui_style")
-    CalibDbV2_Wb_Para_V32_t wb_v32;
+    // M4_STRUCT_DESC("wb", "normal_ui_style")
+    awb_api_attrib_t wb;
     // M4_STRUCT_DESC("blc", "normal_ui_style")
     blc_api_attrib_t blc;
     // M4_STRUCT_DESC("ccm", "normal_ui_style")
@@ -109,6 +114,8 @@ typedef struct {
     trans_api_attrib_t trans;
     // M4_STRUCT_DESC("enh", "normal_ui_style")
     enh_api_attrib_t enh;
+    // M4_STRUCT_DESC("hsv", "normal_ui_style")
+    hsv_calib_attrib_t hsv;
     // M4_STRUCT_DESC("histEQ", "normal_ui_style")
     histeq_api_attrib_t histEQ;
     // M4_STRUCT_DESC("dpc", "normal_ui_style")
@@ -127,6 +134,8 @@ typedef struct {
     lsc_calib_attrib_t lsc;
     // M4_STRUCT_DESC("bayertnr", "normal_ui_style")
     btnr_api_attrib_t bayertnr;
+    // M4_STRUCT_DESC("texEst", "normal_ui_style")
+    texEst_api_attrib_t texEst;
     // M4_STRUCT_DESC("ynr", "normal_ui_style")
     ynr_api_attrib_t ynr;
     // M4_STRUCT_DESC("cnr", "normal_ui_style")

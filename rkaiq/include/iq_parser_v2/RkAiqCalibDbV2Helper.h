@@ -243,7 +243,7 @@ static calibdb_ctx_member_offset_info_t info_CamCalibDbV2ContextIsp32_t[] = {
 #if defined(ISP_HW_V39)
 static calibdb_ctx_member_offset_info_t info_CamCalibDbV2ContextIsp39_t[] = {
     {"ae_calib", CALIBV2_MODULE_RELATIVE_OFFSET_ISP39(ae_calib)},
-    {"wb_v32", CALIBV2_MODULE_RELATIVE_OFFSET_ISP39(wb_v32)},
+    {"wb", CALIBV2_MODULE_RELATIVE_OFFSET_ISP39(wb)},
 #ifdef USE_NEWSTRUCT
     {"blc", CALIBV2_MODULE_RELATIVE_OFFSET_ISP39(blc)},
 #else
@@ -343,7 +343,7 @@ static calibdb_ctx_member_offset_info_t info_CamCalibDbV2ContextIsp39_t[] = {
 #if defined(ISP_HW_V33)
 static calibdb_ctx_member_offset_info_t info_CamCalibDbV2ContextIsp33_t[] = {
     {"ae_calib", CALIBV2_MODULE_RELATIVE_OFFSET_ISP33(ae_calib)},
-    {"wb_v32", CALIBV2_MODULE_RELATIVE_OFFSET_ISP33(wb_v32)},
+    {"wb", CALIBV2_MODULE_RELATIVE_OFFSET_ISP33(wb)},
     {"blc", CALIBV2_MODULE_RELATIVE_OFFSET_ISP33(blc)},
     {"demosaic", CALIBV2_MODULE_RELATIVE_OFFSET_ISP33(demosaic)},
     {"colorAsGrey", CALIBV2_MODULE_RELATIVE_OFFSET_ISP33(colorAsGrey)},
@@ -358,11 +358,13 @@ static calibdb_ctx_member_offset_info_t info_CamCalibDbV2ContextIsp33_t[] = {
     {"trans", CALIBV2_MODULE_RELATIVE_OFFSET_ISP33(trans)},
     {"lsc", CALIBV2_MODULE_RELATIVE_OFFSET_ISP33(lsc)},
     {"bayertnr", CALIBV2_MODULE_RELATIVE_OFFSET_ISP33(bayertnr)},
+    {"texEst", CALIBV2_MODULE_RELATIVE_OFFSET_ISP33(texEst)},
     {"ynr", CALIBV2_MODULE_RELATIVE_OFFSET_ISP33(ynr)},
     {"sharp", CALIBV2_MODULE_RELATIVE_OFFSET_ISP33(sharp)},
     {"cnr", CALIBV2_MODULE_RELATIVE_OFFSET_ISP33(cnr)},
     {"gamma", CALIBV2_MODULE_RELATIVE_OFFSET_ISP33(gamma)},
     {"enh", CALIBV2_MODULE_RELATIVE_OFFSET_ISP33(enh)},
+    {"hsv", CALIBV2_MODULE_RELATIVE_OFFSET_ISP33(hsv)},
     {"gic", CALIBV2_MODULE_RELATIVE_OFFSET_ISP33(gic)},
     {"histEQ", CALIBV2_MODULE_RELATIVE_OFFSET_ISP33(histEQ)},
     {"cac", CALIBV2_MODULE_RELATIVE_OFFSET_ISP33(cac)},

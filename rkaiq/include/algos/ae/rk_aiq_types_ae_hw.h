@@ -149,21 +149,34 @@ typedef struct sihst_cfg {
 typedef struct rk_aiq_ae_meas_params_s {
     bool   ae_meas_en;
     bool   ae_meas_update;
-#if ISP_HW_V39 || ISP_HW_V33
-    rawaebig_meas_cfg_t rawae0;
-#else
-    rawaelite_meas_cfg_t rawae0;
-#endif
-#if ISP_HW_V20 || ISP_HW_V21 || ISP_HW_V30 || ISP_HW_V32
-    rawaebig_meas_cfg_t rawae1;
-#endif
-#if ISP_HW_V20 || ISP_HW_V30
-    rawaebig_meas_cfg_t rawae2;
-#endif
-    rawaebig_meas_cfg_t rawae3;
+
 #if ISP_HW_V20
+    rawaelite_meas_cfg_t rawae0;
+    rawaebig_meas_cfg_t rawae1;
+    rawaebig_meas_cfg_t rawae2;
+    rawaebig_meas_cfg_t rawae3;
     yuvae_meas_cfg_t yuvae;
 #endif
+#if ISP_HW_V21 || ISP_HW_V32
+    rawaelite_meas_cfg_t rawae0;
+    rawaebig_meas_cfg_t rawae1;
+    rawaebig_meas_cfg_t rawae3;
+#endif
+#if ISP_HW_V30
+    rawaelite_meas_cfg_t rawae0;
+    rawaebig_meas_cfg_t rawae1;
+    rawaebig_meas_cfg_t rawae2;
+    rawaebig_meas_cfg_t rawae3;
+#endif
+#if ISP_HW_V32_LITE
+    rawaelite_meas_cfg_t rawae0;
+    rawaebig_meas_cfg_t rawae3;
+#endif
+#if ISP_HW_V39 || ISP_HW_V33
+    rawaebig_meas_cfg_t rawae0;
+    rawaebig_meas_cfg_t rawae3;
+#endif
+
 } rk_aiq_ae_meas_params_t;
 
 /* Differentiate structure according to hardware version */
@@ -172,21 +185,34 @@ typedef struct rk_aiq_hist_meas_params_s {
     bool   hist_meas_update;
     unsigned char ae_swap; // used to choose LITE & BIG
     unsigned char ae_sel; // used for rawae3 & rawhist3
-#if ISP_HW_V39 || ISP_HW_V33
-    rawhistbig_cfg_t rawhist0;
-#else
-    rawhistlite_cfg_t rawhist0;
-#endif
-#if ISP_HW_V20 || ISP_HW_V21 || ISP_HW_V30 || ISP_HW_V32
-    rawhistbig_cfg_t rawhist1;
-#endif
-#if ISP_HW_V20 || ISP_HW_V30
-    rawhistbig_cfg_t rawhist2;
-#endif
-    rawhistbig_cfg_t rawhist3;
+
 #if ISP_HW_V20
+    rawhistlite_cfg_t rawhist0;
+    rawhistbig_cfg_t rawhist1;
+    rawhistbig_cfg_t rawhist2;
+    rawhistbig_cfg_t rawhist3;
     sihst_cfg_t sihist;
 #endif
+#if ISP_HW_V21 || ISP_HW_V32
+    rawhistlite_cfg_t rawhist0;
+    rawhistbig_cfg_t rawhist1;
+    rawhistbig_cfg_t rawhist3;
+#endif
+#if ISP_HW_V30
+    rawhistlite_cfg_t rawhist0;
+    rawhistbig_cfg_t rawhist1;
+    rawhistbig_cfg_t rawhist2;
+    rawhistbig_cfg_t rawhist3;
+#endif
+#if ISP_HW_V32_LITE
+    rawhistlite_cfg_t rawhist0;
+    rawhistbig_cfg_t rawhist3;
+#endif
+#if ISP_HW_V39 || ISP_HW_V33
+    rawhistbig_cfg_t rawhist0;
+    rawhistbig_cfg_t rawhist3;
+#endif
+
 } rk_aiq_hist_meas_params_t;
 
 /*****************************************************************************/

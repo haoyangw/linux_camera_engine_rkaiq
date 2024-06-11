@@ -28,5 +28,6 @@ XCamReturn AiqSharpHandler_queryStatus(AiqSharpHandler_t* pHdlSharp, sharp_statu
 #endif
 XCamReturn AiqSharpHandler_setStrength(AiqSharpHandler_t* pHdlSharp, asharp_strength_t* strg);
 XCamReturn AiqSharpHandler_getStrength(AiqSharpHandler_t* pHdlSharp, asharp_strength_t* strg);
+XCamReturn AiqSharpHandler_queryStatus_texEst(AiqAlgoHandler_t* pHdl, void *buf);
 
 #endif

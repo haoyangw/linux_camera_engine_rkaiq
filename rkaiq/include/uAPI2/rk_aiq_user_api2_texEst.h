@@ -15,9 +15,25 @@
  *
  */
 
-#ifndef _RK_AIQ_USER_API2_RV1103B_H_
-#define _RK_AIQ_USER_API2_RV1103B_H_
+#ifndef _RK_AIQ_USER_API2_TEXEST_H_
+#define _RK_AIQ_USER_API2_TEXEST_H_
 
-#include "uAPI2/rk_aiq_user_api2_isp33.h"
+#include "algos/rk_aiq_api_types_texEst.h"
+
+RKAIQ_BEGIN_DECLARE
+
+#ifndef RK_AIQ_SYS_CTX_T
+#define RK_AIQ_SYS_CTX_T
+typedef struct rk_aiq_sys_ctx_s rk_aiq_sys_ctx_t;
+#endif
+
+XCamReturn
+rk_aiq_user_api2_texEst_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, texEst_api_attrib_t* attr);
+XCamReturn
+rk_aiq_user_api2_texEst_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, texEst_api_attrib_t* attr);
+XCamReturn
+rk_aiq_user_api2_texEst_QueryStatus(const rk_aiq_sys_ctx_t* sys_ctx, texEst_status_t* status);
+
+RKAIQ_END_DECLARE
 
 #endif

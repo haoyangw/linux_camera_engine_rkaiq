@@ -183,8 +183,8 @@ void rk_aiq_histeq23_params_cvt(void* attr, isp_params_t* isp_params, common_cvt
     pFix->cfg_k_alpha = ClipFloatValue(pdyn->sw_hist_mapMerge_alpha, 1, 8);
     pFix->cfg_k_alpha = LIMIT_VALUE_UNSIGNED(pFix->cfg_k_alpha, BIT_8_MAX + 1);
     // k_gain
-    pFix->k_gain = ClipFloatValue(pdyn->sw_hist_mapCount_scale, 3, 8);
-    pFix->k_gain = LIMIT_VALUE_UNSIGNED(pFix->k_gain, 0x400);
+    pFix->k_gain = ClipFloatValue(pdyn->sw_hist_mapCount_scale, 1, 8);
+    pFix->k_gain = LIMIT_VALUE_UNSIGNED(pFix->k_gain, 0x100);
     // blend_wet
     for (int j = 0; j < DHAZ_V14_BLEND_WET_NUM; j++) {
         int tmp_int = ClipFloatValue(pdyn->sw_dehaze_outputMerge_alpha[j], 1, 8);

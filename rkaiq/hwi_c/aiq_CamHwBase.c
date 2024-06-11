@@ -96,7 +96,7 @@ static XCamReturn _setIspConfig(AiqCamHwBase_t* pCamHw, AiqList_t* result_list);
 static XCamReturn _setFastAeExp(AiqCamHwBase_t* pCamHw, uint32_t frameId);
 static XCamReturn _setIrcutParams(AiqCamHwBase_t* pCamHw, bool on);
 static XCamReturn AiqCamHw_process_restriction(AiqCamHwBase_t* pCamHw,
-                                               struct isp39_isp_params_cfg* isp_params);
+                                               void* isp_params);
 static XCamReturn AiqCamHw_setAiispMode(AiqCamHwBase_t* pCamHw, rk_aiq_aiisp_cfg_t* aiisp_cfg);
 static XCamReturn AiqCamHw_read_aiisp_result(AiqCamHwBase_t* pCamHw);
 static XCamReturn AiqCamHw_get_aiisp_bay3dbuf(AiqCamHwBase_t* pCamHw);
@@ -3380,7 +3380,21 @@ XCamReturn AiqCamHw_getSensorModeData(AiqCamHwBase_t* pCamHw, const char* sns_en
 
     pCamHw->_mIspParamsCvt->mCommonCvtInfo.rawWidth  = sns_des->isp_acq_width;
     pCamHw->_mIspParamsCvt->mCommonCvtInfo.rawHeight = sns_des->isp_acq_height;
-
+#if ISP_HW_V39
+    pCamHw->_mIspParamsCvt->mCacInfo.mem_ops =
+        pCamHw->rkAiqManager->mRkAiqAnalyzer->mShareMemOps;
+    pCamHw->_mIspParamsCvt->mCacInfo.is_multi_sensor =
+        pCamHw->rkAiqManager->mRkAiqAnalyzer->mAlogsComSharedParams.is_multi_sensor;
+    pCamHw->_mIspParamsCvt->mCacInfo.is_multi_isp =
+        pCamHw->rkAiqManager->mRkAiqAnalyzer->mAlogsComSharedParams.is_multi_isp_mode;
+    pCamHw->_mIspParamsCvt->mCacInfo.multi_isp_extended_pixel =
+        pCamHw->rkAiqManager->mRkAiqAnalyzer->mAlogsComSharedParams.multi_isp_extended_pixels;
+    if (pCamHw->rkAiqManager->mRkAiqAnalyzer->mAlogsComSharedParams.resourcePath) {
+        strcpy(pCamHw->_mIspParamsCvt->mCacInfo.iqpath, pCamHw->rkAiqManager->mRkAiqAnalyzer->mAlogsComSharedParams.resourcePath);
+    } else {
+        strcpy(pCamHw->_mIspParamsCvt->mCacInfo.iqpath, "/etc/iqfiles");
+    }
+#endif
     xcam_mem_clear(isp_info);
 
     if (pCamHw->mIspCoreDev->_v4l_base.io_control(&pCamHw->mIspCoreDev->_v4l_base,
@@ -4671,7 +4685,8 @@ static XCamReturn _setIspConfig(AiqCamHwBase_t* pCamHw, AiqList_t* result_list) 
         if (pCamHw->mAweekId == frameId) {
             isp_params->module_cfg_update |= ISP32_MODULE_RTT_FST;
         }
-#if defined(ISP_HW_V39)
+
+#if defined(ISP_HW_V39) || defined(ISP_HW_V33)
         AiqCamHw_process_restriction(pCamHw, isp_params);
 #endif
 
@@ -5479,8 +5494,13 @@ fail:
     return XCAM_RETURN_ERROR_FAILED;
 }
 
-static XCamReturn AiqCamHw_process_restriction(AiqCamHwBase_t* pCamHw, struct isp39_isp_params_cfg* isp_params)
+static XCamReturn AiqCamHw_process_restriction(AiqCamHwBase_t* pCamHw, void* isp_cfg)
 {
+#if ISP_HW_V39
+    struct isp39_isp_params_cfg* isp_params = (struct isp39_isp_params_cfg*)isp_cfg;
+#elif ISP_HW_V33
+    struct isp33_isp_params_cfg* isp_params = (struct isp33_isp_params_cfg*)isp_cfg;
+#endif
 #if defined(ISP_HW_V39)
     if (pCamHw->use_aiisp) {
         if (isp_params->others.bls_cfg.isp_ob_predgain != 0 ||
@@ -5494,16 +5514,18 @@ static XCamReturn AiqCamHw_process_restriction(AiqCamHwBase_t* pCamHw, struct is
             isp_params->others.bay3d_cfg.transf_bypass_en = 1;
         }
     }
+#endif
 
+#if ISP_HW_V39
     int state = AiqManager_getAiqState(pCamHw->rkAiqManager);
     if (state != AIQ_STATE_INITED && state != AIQ_STATE_STOPED) {
-		uint64_t mask = (ISP2X_MODULE_YNR | ISP2X_MODULE_CNR | ISP2X_MODULE_SHARP);
-		uint64_t ens_up = isp_params->module_en_update & mask;
+        uint64_t mask = (ISP2X_MODULE_YNR | ISP2X_MODULE_CNR | ISP2X_MODULE_SHARP);
+        uint64_t ens_up = isp_params->module_en_update & mask;
 
         if (ens_up) {
 			bool old_en_ynr = !!(pCamHw->_isp_module_ens & ISP2X_MODULE_YNR);
 			bool old_en_cnr = !!(pCamHw->_isp_module_ens & ISP2X_MODULE_CNR);
-			bool old_en_sharp = !!(pCamHw->_isp_module_ens & ISP2X_MODULE_SHARP);
+            bool old_en_sharp = !!(pCamHw->_isp_module_ens & ISP2X_MODULE_SHARP);
 
 			bool new_en_ynr =
 				 !!(isp_params->module_en_update & ISP2X_MODULE_YNR) ? !!(isp_params->module_ens & ISP2X_MODULE_YNR) : old_en_ynr;
@@ -5528,13 +5550,52 @@ static XCamReturn AiqCamHw_process_restriction(AiqCamHwBase_t* pCamHw, struct is
 				"please use bypass instead");
 			isp_params->module_en_update &= ~ISP3X_MODULE_CNR;
 			isp_params->module_en_update &= ~ISP3X_MODULE_SHARP;
-			isp_params->module_en_update &= ~ISP3X_MODULE_YNR;
+            isp_params->module_en_update &= ~ISP3X_MODULE_YNR;
         }
     }
-    return XCAM_RETURN_NO_ERROR;
-#else
-    return XCAM_RETURN_ERROR_FAILED;
+#elif ISP_HW_V33
+    int state = AiqManager_getAiqState(pCamHw->rkAiqManager);
+    if (state != AIQ_STATE_INITED && state != AIQ_STATE_STOPED) {
+        uint64_t mask = (ISP2X_MODULE_YNR | ISP2X_MODULE_CNR | ISP2X_MODULE_SHARP | ISP33_MODULE_ENH);
+        uint64_t ens_up = isp_params->module_en_update & mask;
+
+        if (ens_up) {
+			bool old_en_ynr = !!(pCamHw->_isp_module_ens & ISP2X_MODULE_YNR);
+			bool old_en_cnr = !!(pCamHw->_isp_module_ens & ISP2X_MODULE_CNR);
+            bool old_en_sharp = !!(pCamHw->_isp_module_ens & ISP2X_MODULE_SHARP);
+            bool old_en_enh = !!(pCamHw->_isp_module_ens & ISP33_MODULE_ENH);
+
+			bool new_en_ynr =
+				 !!(isp_params->module_en_update & ISP2X_MODULE_YNR) ? !!(isp_params->module_ens & ISP2X_MODULE_YNR) : old_en_ynr;
+			bool new_en_cnr =
+				 !!(isp_params->module_en_update & ISP2X_MODULE_CNR) ? !!(isp_params->module_ens & ISP2X_MODULE_CNR) : old_en_cnr;
+			bool new_en_sharp =
+				 !!(isp_params->module_en_update & ISP2X_MODULE_SHARP) ? !!(isp_params->module_ens & ISP2X_MODULE_SHARP) : old_en_sharp;
+            bool new_en_enh =
+				 !!(isp_params->module_en_update & ISP33_MODULE_ENH) ? !!(isp_params->module_ens & ISP33_MODULE_ENH) : old_en_enh;
+
+			// check if all true or all false
+            if (new_en_ynr && new_en_cnr && new_en_sharp && new_en_enh) {
+                isp_params->module_ens |= ISP3X_MODULE_GAIN;
+                isp_params->module_en_update |= ISP3X_MODULE_GAIN;
+                return XCAM_RETURN_NO_ERROR;
+            }
+            if (!new_en_ynr && !new_en_cnr && !new_en_sharp && !new_en_enh) {
+                isp_params->module_ens &= ~ISP3X_MODULE_GAIN;
+                isp_params->module_en_update |= ISP3X_MODULE_GAIN;
+                return XCAM_RETURN_NO_ERROR;
+            }
+
+			LOGW_CAMHW_SUBM(ISP20HW_SUBM, "ynr, cnr and sharp'en can't be turn on/off in running time!"
+				"please use bypass instead");
+			isp_params->module_en_update &= ~ISP3X_MODULE_CNR;
+			isp_params->module_en_update &= ~ISP3X_MODULE_SHARP;
+            isp_params->module_en_update &= ~ISP3X_MODULE_YNR;
+            isp_params->module_en_update &= ~ISP33_MODULE_ENH;
+        }
+    }
 #endif
+    return XCAM_RETURN_NO_ERROR;
 }
 
 static XCamReturn AiqCamHw_read_aiisp_result(AiqCamHwBase_t* pCamHw) {

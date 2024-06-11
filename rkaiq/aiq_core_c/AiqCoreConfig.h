@@ -195,6 +195,7 @@ static const char* algo_str_map_array[RK_AIQ_ALGO_TYPE_MAX] = {
     [RK_AIQ_ALGO_TYPE_ALDC]=        "Aldc"       ,
     [RK_AIQ_ALGO_TYPE_AHISTEQ]=        "Histeq"       ,
     [RK_AIQ_ALGO_TYPE_AENH]=        "Enh"       ,
+    [RK_AIQ_ALGO_TYPE_AHSV]=        "Hsv"       ,
     // clang-format oon
 };
 

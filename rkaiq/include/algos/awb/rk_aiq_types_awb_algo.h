@@ -27,8 +27,6 @@
 #include "algos/awb/rk_aiq_types_awb_stat_v201.h"
 #include "algos/awb/rk_aiq_types_awb_stat_v32.h"
 
-#include "isp/rk_aiq_stats_awb39.h"
-
 typedef struct rk_aiq_wb_gain_s {
     float rgain;
     float grgain;

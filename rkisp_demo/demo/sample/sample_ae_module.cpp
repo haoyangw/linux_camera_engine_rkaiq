@@ -16,6 +16,7 @@
  */
 
 #include "sample_comm.h"
+#include "uAPI2/rk_aiq_user_api2_ae.h"
 
 void sample_print_ae_info(const void* arg)
 {

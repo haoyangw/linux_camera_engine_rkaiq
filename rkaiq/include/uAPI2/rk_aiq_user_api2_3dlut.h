@@ -33,7 +33,10 @@ XCamReturn
 rk_aiq_user_api2_3dlut_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, lut3d_api_attrib_t* attr);
 XCamReturn
 rk_aiq_user_api2_3dlut_QueryStatus(const rk_aiq_sys_ctx_t* sys_ctx, lut3d_status_t* status);
-
+XCamReturn
+rk_aiq_user_api2_3dlut_SetCalib(const rk_aiq_sys_ctx_t* sys_ctx, alut3d_lut3dCalib_t* calib);
+XCamReturn
+rk_aiq_user_api2_3dlut_GetCalib(const rk_aiq_sys_ctx_t* sys_ctx, alut3d_lut3dCalib_t* calib);
 RKAIQ_END_DECLARE
 
 #endif

@@ -68,6 +68,8 @@ typedef struct {
     bool damp_converged;
     lut3d_meshGain_t undamped_matrix;
     lut3d_meshGain_t damped_matrix;
+
+    bool is_calib_update;
 } Lut3dContext_t;
 
 XCamReturn A3dlut_prepare(RkAiqAlgoCom* params);

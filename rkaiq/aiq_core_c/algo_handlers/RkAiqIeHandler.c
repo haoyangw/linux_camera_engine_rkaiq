@@ -56,12 +56,12 @@ static XCamReturn _handlerIe_processing(AiqAlgoHandler_t* pAlgoHandler) {
 
     ret = AiqAlgoHandler_processing(pAlgoHandler);
     if (ret) {
-        RKAIQCORE_CHECK_RET(ret, "ccm handle processing failed");
+        RKAIQCORE_CHECK_RET(ret, "ie handle processing failed");
     }
 
     ret = AiqAlgoHandler_do_processing_common(pAlgoHandler);
 
-    RKAIQCORE_CHECK_RET(ret, "adebayer algo processing failed");
+    RKAIQCORE_CHECK_RET(ret, "ie algo processing failed");
 
     EXIT_ANALYZER_FUNCTION();
     return ret;

@@ -81,11 +81,12 @@ static XCamReturn _handlerCcm_processing(AiqAlgoHandler_t* pAlgoHandler) {
     if (awb_proc_res) {
         awb_res = (RkAiqAlgoProcResAwbShared_t*)awb_proc_res->_data;
     }
-    get_illu_estm_info(&proc_int->illu_info, awb_res, pCurExp, sharedCom->working_mode);
+    if (!AiqCore_isGroupAlgo(pAlgoHandler->mAiqCore, pAlgoHandler->mDes->type))
+        get_illu_estm_info(&proc_int->illu_info, awb_res, pCurExp, sharedCom->working_mode);
 
     ret = AiqAlgoHandler_do_processing_common(pAlgoHandler);
 
-    RKAIQCORE_CHECK_RET(ret, "adebayer algo processing failed");
+    RKAIQCORE_CHECK_RET(ret, "ccm algo processing failed");
 
     EXIT_ANALYZER_FUNCTION();
     return ret;
@@ -104,63 +105,43 @@ AiqAlgoHandler_t* AiqAlgoHandlerCcm_constructor(RkAiqAlgoDesComm* des, AiqCore_t
 	return pHdl;
 }
 
-#if 0
-XCamReturn AiqAlgoHandlerCcm_setAttrib(AiqAlgoHandlerCcm_t* pHdlCcm, ccm_api_attrib_t* attr) {
+XCamReturn AiqAlgoHandlerCcm_queryaccmStatus(AiqAlgoHandlerCcm_t* pHdlCcm, accm_status_t* status) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    aiqMutex_lock(&pHdlCcm->mCfgMutex);  
+    
+    ret = algo_ccm_queryaccmStatus(pHdlCcm->mAlgoCtx, status);
+
+    aiqMutex_unlock(&pHdlCcm->mCfgMutex);
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn AiqAlgoHandlerCcm_setCalib(AiqAlgoHandlerCcm_t* pHdlCcm, accm_ccmCalib_t* calib) {
     ENTER_ANALYZER_FUNCTION();
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
     aiqMutex_lock(&pHdlCcm->mCfgMutex);
-    ret = algo_ccm_SetAttrib(pHdlCcm->mAlgoCtx, attr);
+    ret = algo_ccm_SetCalib(pHdlCcm->mAlgoCtx, calib);
     aiqMutex_unlock(&pHdlCcm->mCfgMutex);
 
     EXIT_ANALYZER_FUNCTION();
     return ret;
 }
 
-XCamReturn AiqAlgoHandlerCcm_getAttrib(AiqAlgoHandlerCcm_t* pHdlCcm, ccm_api_attrib_t* attr) {
+XCamReturn AiqAlgoHandlerCcm_getCalib(AiqAlgoHandlerCcm_t* pHdlCcm, accm_ccmCalib_t* calib) {
     ENTER_ANALYZER_FUNCTION();
 
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
     aiqMutex_lock(&pHdlCcm->mCfgMutex);
 
-    ret = algo_ccm_GetAttrib(pHdlCcm->mAlgoCtx, attr);
+    ret = algo_ccm_GetCalib(pHdlCcm->mAlgoCtx, calib);
 
     aiqMutex_unlock(&pHdlCcm->mCfgMutex);
 
     EXIT_ANALYZER_FUNCTION();
     return ret;
 }
-
-XCamReturn AiqAlgoHandlerCcm_queryStatus(AiqAlgoHandlerCcm_t* pHdlCcm, ccm_status_t* status) {
-    ENTER_ANALYZER_FUNCTION();
-
-    XCamReturn ret = XCAM_RETURN_NO_ERROR;
-
-    aiqMutex_lock(&pHdlCcm->mCfgMutex);
-
-    AiqAlgoHandler_t* pHdl = (AiqAlgoHandler_t*)pHdlCcm;
-    aiq_params_base_t* pCurBase =
-        pHdl->mAiqCore->mAiqCurParams->pParamsArray[RESULT_TYPE_CCM_PARAM];
-
-    if (pCurBase) {
-        rk_aiq_isp_ccm_params_t* ccm_param = (rk_aiq_isp_ccm_params_t*)pCurBase->_data;
-        if (ccm_param) {
-            status->stMan = *ccm_param; 
-            status->en     = pCurBase->en;
-            status->bypass = pCurBase->bypass;
-            status->opMode = pHdlCcm->mOpMode;
-        } else {
-            ret = XCAM_RETURN_ERROR_FAILED;
-            LOGE_ACCM("have no status info !");
-        }
-    } else {
-        ret = XCAM_RETURN_ERROR_FAILED;
-        LOGE_ACCM("have no status info !");
-    }
-
-    aiqMutex_unlock(&pHdlCcm->mCfgMutex);
-    EXIT_ANALYZER_FUNCTION();
-    return ret;
-}
-#endif

@@ -25,18 +25,18 @@
 #include "stdlib.h"
 #include "string.h"
 #include "rk_aiq_user_api2_sysctl.h"
-#include "uAPI2/rk_aiq_user_api2_aec.h"
-#include "uAPI2/rk_aiq_user_api2_imgproc_v1.h"
+#include "uAPI2/rk_aiq_user_api2_ae.h"
+#include "uAPI2/rk_aiq_user_api2_imgproc.h"
 #include "uAPI2/rk_aiq_user_api2_wrapper.h"
 #include "uAPI2/rk_aiq_user_api2_agic.h"
 #include "uAPI2/rk_aiq_user_api2_wrapper.h"
 
 #ifdef ISP_HW_V39
-#include "rk_aiq_user_api2_rk3576.h"
+#include "rk_aiq_user_api2_isp39.h"
 #elif  defined(ISP_HW_V32)
-#include "rk_aiq_user_api2_rv1106.h"
+#include "rk_aiq_user_api2_isp32.h"
 #elif  defined(ISP_HW_V33)
-#include "rk_aiq_user_api2_rv1103B.h"
+#include "rk_aiq_user_api2_isp33.h"
 #endif
 
 #include "socket_client.h"
@@ -530,6 +530,7 @@ RkAiqUapiDesc_t rkaiq_uapidesc_list[] = {
     __RKAIQUAPI_DESC_DEF("/uapi/0/ver_uapi/ver_info", rk_aiq_version_info_t, NULL, rk_aiq_uapi2_get_aiqversion_info),
     __RKAIQUAPI_DESC_DEF("/uapi/0/module_ctl_uapi/module_ctl", rk_aiq_module_list_t, rk_aiq_uapi2_sysctl_setModuleEn, rk_aiq_uapi2_sysctl_getModuleEn),
     __RKAIQUAPI_DESC_DEF("/uapi/0/lsc_uapi/attr", lsc_api_attrib_t, rk_aiq_user_api2_lsc_SetAttrib, rk_aiq_user_api2_lsc_GetAttrib),
+    __RKAIQUAPI_DESC_DEF("/uapi/0/lsc_uapi/calibdb", alsc_lscCalib_t, rk_aiq_user_api2_lsc_SetCalib, rk_aiq_user_api2_lsc_GetCalib),
     __RKAIQUAPI_DESC_DEF("/uapi/0/lsc_uapi/info", lsc_status_t, NULL, rk_aiq_user_api2_lsc_QueryStatus),
 #if RKAIQ_HAVE_RGBIR_REMOSAIC
     __RKAIQUAPI_DESC_DEF("/uapi/0/rgbir_uapi/attr", rgbir_api_attrib_t, rk_aiq_user_api2_rgbir_SetAttrib, rk_aiq_user_api2_rgbir_GetAttrib),
@@ -545,10 +546,21 @@ RkAiqUapiDesc_t rkaiq_uapidesc_list[] = {
     __RKAIQUAPI_DESC_DEF("/uapi/0/gain_uapi/info", gain_status_t, NULL, rk_aiq_user_api2_gain_QueryStatus),
 #if RKAIQ_HAVE_3DLUT
     __RKAIQUAPI_DESC_DEF("/uapi/0/lut3d_uapi/attr", lut3d_api_attrib_t, rk_aiq_user_api2_3dlut_SetAttrib, rk_aiq_user_api2_3dlut_GetAttrib),
+    __RKAIQUAPI_DESC_DEF("/uapi/0/lut3d_uapi/calibdb", alut3d_lut3dCalib_t, rk_aiq_user_api2_3dlut_SetCalib, rk_aiq_user_api2_3dlut_GetCalib),
     __RKAIQUAPI_DESC_DEF("/uapi/0/lut3d_uapi/info", lut3d_status_t, NULL, rk_aiq_user_api2_3dlut_QueryStatus),
 #endif
+#if RKAIQ_HAVE_HSV
+    __RKAIQUAPI_DESC_DEF("/uapi/0/hsv_uapi/attr", hsv_api_attrib_t, rk_aiq_user_api2_hsv_SetAttrib, rk_aiq_user_api2_hsv_GetAttrib),
+    __RKAIQUAPI_DESC_DEF("/uapi/0/hsv_uapi/calibdb", ahsv_hsvCalib_t, rk_aiq_user_api2_hsv_SetCalib, rk_aiq_user_api2_hsv_GetCalib),
+    __RKAIQUAPI_DESC_DEF("/uapi/0/hsv_uapi/info", hsv_status_t, NULL, rk_aiq_user_api2_hsv_QueryStatus),
+#endif
     __RKAIQUAPI_DESC_DEF("/uapi/0/ccm_uapi/attr", ccm_api_attrib_t, rk_aiq_user_api2_ccm_SetAttrib, rk_aiq_user_api2_ccm_GetAttrib),
+    __RKAIQUAPI_DESC_DEF("/uapi/0/ccm_uapi/calibdb", accm_ccmCalib_t, rk_aiq_user_api2_ccm_SetCalib, rk_aiq_user_api2_ccm_GetCalib),
     __RKAIQUAPI_DESC_DEF("/uapi/0/ccm_uapi/info", ccm_status_t, NULL, rk_aiq_user_api2_ccm_QueryStatus),
+#endif
+#if defined(ISP_HW_V33)
+    __RKAIQUAPI_DESC_DEF("/uapi/0/texEst_uapi/attr", texEst_api_attrib_t, rk_aiq_user_api2_texEst_SetAttrib, rk_aiq_user_api2_texEst_GetAttrib),
+    __RKAIQUAPI_DESC_DEF("/uapi/0/texEst_uapi/info", texEst_status_t, NULL, rk_aiq_user_api2_texEst_QueryStatus),
 #endif
 };
 /***********************END OF CUSTOM AREA**************************/

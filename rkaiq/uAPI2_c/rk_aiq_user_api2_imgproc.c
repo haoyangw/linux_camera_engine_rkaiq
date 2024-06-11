@@ -15,16 +15,17 @@
  *
  */
 
-#include "include/uAPI2/rk_aiq_user_api2_imgproc_v1.h"
+#include "include/uAPI2/rk_aiq_user_api2_imgproc.h"
 #include "uAPI2_c/rk_aiq_user_api2_common.h"
+#include "uAPI2/rk_aiq_user_api2_ae.h"
 
 #ifdef USE_NEWSTRUCT
 #ifdef ISP_HW_V39
-#include "rk_aiq_user_api2_rk3576.h"
+#include "rk_aiq_user_api2_isp39.h"
 #elif  defined(ISP_HW_V33)
-#include "rk_aiq_user_api2_rv1103B.h"
+#include "rk_aiq_user_api2_isp33.h"
 #elif  defined(ISP_HW_V32)
-#include "rk_aiq_user_api2_rv1106.h"
+#include "rk_aiq_user_api2_isp32.h"
 #endif
 #endif
 
@@ -1577,6 +1578,18 @@ XCamReturn rk_aiq_uapi2_getMEnhanceChromeStrth(const rk_aiq_sys_ctx_t* ctx, unsi
     return ret;
 }
 
+XCamReturn rk_aiq_uapi2_setDrcLocalData(const rk_aiq_sys_ctx_t* ctx, float LocalWeit, float GlobalContrast, float LoLitContrast, int LocalAutoEnable, float LocalAutoWeit)
+{
+   LOGE("not supported !");
+   return XCAM_RETURN_ERROR_PARAM;
+}
+
+XCamReturn rk_aiq_uapi2_getDrcLocalData(const rk_aiq_sys_ctx_t* ctx, float* LocalWeit, float* GlobalContrast, float* LoLitContrast, int* LocalAutoEnable, float* LocalAutoWeit)
+{
+   LOGE("not supported !");
+   return XCAM_RETURN_ERROR_PARAM;
+}
+
 /*
 *****************************
 *
@@ -1592,7 +1605,7 @@ XCamReturn rk_aiq_uapi2_getMEnhanceChromeStrth(const rk_aiq_sys_ctx_t* ctx, unsi
 *
 *****************************
 */
-XCamReturn rk_aiq_uapi2_setDrcLocalData(const rk_aiq_sys_ctx_t* ctx, float hw_drcT_bifiltOut_alpha, float hw_drcT_loDetail_strg,
+XCamReturn rk_aiq_uapi2_setDrcLocalDataV2(const rk_aiq_sys_ctx_t* ctx, float hw_drcT_bifiltOut_alpha, float hw_drcT_loDetail_strg,
                                         float hw_drcT_drcStrg_alpha, int hw_drcT_softThd_en, float hw_drcT_softThd_thred)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
@@ -1650,7 +1663,7 @@ XCamReturn rk_aiq_uapi2_setDrcLocalData(const rk_aiq_sys_ctx_t* ctx, float hw_dr
     return ret;
 }
 
-XCamReturn rk_aiq_uapi2_getDrcLocalData(const rk_aiq_sys_ctx_t* ctx, float * hw_drcT_bifiltOut_alpha, float * hw_drcT_loDetail_strg,
+XCamReturn rk_aiq_uapi2_getDrcLocalDataV2(const rk_aiq_sys_ctx_t* ctx, float * hw_drcT_bifiltOut_alpha, float * hw_drcT_loDetail_strg,
                                         float * hw_drcT_drcStrg_alpha, int* hw_drcT_softThd_en, float* hw_drcT_softThd_thred)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
@@ -2962,7 +2975,6 @@ XCamReturn rk_aiq_uapi2_getSharpness(const rk_aiq_sys_ctx_t* ctx, unsigned int *
 * White balance & Color
 **********************************************************
 */
-
 /*
 *****************************
 *
@@ -2975,37 +2987,39 @@ XCamReturn rk_aiq_uapi2_getSharpness(const rk_aiq_sys_ctx_t* ctx, unsigned int *
 XCamReturn rk_aiq_uapi2_setWBMode(const rk_aiq_sys_ctx_t* ctx, opMode_t mode)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-    rk_aiq_uapiV2_wb_opMode_t attr;
-    memset(&attr, 0, sizeof(attr));
+    rk_aiq_op_mode_t mode2;
     IMGPROC_FUNC_ENTER
     if (mode >= OP_INVAL || mode < OP_AUTO) {
         ret = XCAM_RETURN_ERROR_PARAM;
         RKAIQ_IMGPROC_CHECK_RET(ret, "mode is invalid!");
     }
     if (mode == OP_AUTO) {
-        attr.mode = RK_AIQ_WB_MODE_AUTO;
+        mode2 = RK_AIQ_OP_MODE_AUTO;
     } else if (mode == OP_MANUAL) {
-        attr.mode = RK_AIQ_WB_MODE_MANUAL;
+        mode2 = RK_AIQ_OP_MODE_MANUAL;
     } else {
         ret = XCAM_RETURN_ERROR_PARAM;
         RKAIQ_IMGPROC_CHECK_RET(ret, "Not supported mode!");
     }
-    ret = rk_aiq_user_api2_awb_SetWpModeAttrib(ctx, attr);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "setWbMode failed!");
+    awb_gainCtrl_t attr;
+    ret =rk_aiq_user_api2_awb_GetWbGainCtrlAttrib(ctx,&attr );
+    RKAIQ_IMGPROC_CHECK_RET(ret, "GetWbGainCtrlAttrib failed!");
+    attr.opMode=mode2;
+    ret = rk_aiq_user_api2_awb_SetWbGainCtrlAttrib(ctx,&attr );
+    RKAIQ_IMGPROC_CHECK_RET(ret, "GetWbGainCtrlAttrib failed!");
     IMGPROC_FUNC_EXIT
     return ret;
 }
-
 XCamReturn rk_aiq_uapi2_getWBMode(const rk_aiq_sys_ctx_t* ctx, opMode_t *mode)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-    rk_aiq_uapiV2_wb_opMode_t attr;
     IMGPROC_FUNC_ENTER
-    ret = rk_aiq_user_api2_awb_GetWpModeAttrib(ctx, &attr);
+    awb_gainCtrl_t attr;
+    ret =rk_aiq_user_api2_awb_GetWbGainCtrlAttrib(ctx,&attr );
     RKAIQ_IMGPROC_CHECK_RET(ret, "getWBMode failed!");
-    if (attr.mode == RK_AIQ_WB_MODE_AUTO) {
+    if (attr.opMode == RK_AIQ_OP_MODE_AUTO) {
         *mode = OP_AUTO;
-    } else if (attr.mode == RK_AIQ_WB_MODE_MANUAL) {
+    } else if (attr.opMode == RK_AIQ_OP_MODE_MANUAL) {
         *mode = OP_MANUAL;
     } else {
         *mode = OP_INVAL;
@@ -3054,52 +3068,14 @@ XCamReturn rk_aiq_uapi2_unlockAWB(const rk_aiq_sys_ctx_t* ctx)
 */
 XCamReturn rk_aiq_uapi2_setMWBScene(const rk_aiq_sys_ctx_t* ctx, rk_aiq_wb_scene_t scene)
 {
-    XCamReturn ret = XCAM_RETURN_NO_ERROR;
-    rk_aiq_wb_mwb_attrib_t attr;
-    memset(&attr, 0, sizeof(attr));
-    IMGPROC_FUNC_ENTER
-    if (ctx == NULL) {
-        ret = XCAM_RETURN_ERROR_PARAM;
-        RKAIQ_IMGPROC_CHECK_RET(ret, "param error, setMWBScene failed!");
-    }
-
-    if (scene < RK_AIQ_WBCT_INCANDESCENT || scene > RK_AIQ_WBCT_SHADE) {
-        ret = XCAM_RETURN_ERROR_PARAM;
-        RKAIQ_IMGPROC_CHECK_RET(ret, "invalid scene mode, setMWBScene failed!");
-    }
-    rk_aiq_uapiV2_wb_opMode_t opMode;
-    memset(&opMode, 0, sizeof(opMode));
-    opMode.mode = RK_AIQ_WB_MODE_MANUAL;
-    ret = rk_aiq_user_api2_awb_SetWpModeAttrib(ctx, opMode);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "setWbMode failed!");
-    attr.mode = RK_AIQ_MWB_MODE_SCENE;
-    attr.para.scene = scene;
-    ret = rk_aiq_user_api2_awb_SetMwbAttrib(ctx, attr);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "setMWBScene failed!");
-    IMGPROC_FUNC_EXIT
-    return ret;
+    LOGE("not support to call %s for current chip", __FUNCTION__);
+    return XCAM_RETURN_ERROR_UNKNOWN;
 }
 
 XCamReturn rk_aiq_uapi2_getMWBScene(const rk_aiq_sys_ctx_t* ctx, rk_aiq_wb_scene_t *scene)
 {
-    XCamReturn ret = XCAM_RETURN_NO_ERROR;
-    rk_aiq_wb_mwb_attrib_t attr;
-    memset(&attr, 0, sizeof(attr));
-    IMGPROC_FUNC_ENTER
-    if ((ctx == NULL) || (scene == NULL)) {
-        ret = XCAM_RETURN_ERROR_PARAM;
-        RKAIQ_IMGPROC_CHECK_RET(ret, "param error, getMWBScene failed!");
-    }
-    //attr.mode = RK_AIQ_WB_MODE_MANUAL;
-    ret = rk_aiq_user_api2_awb_GetMwbAttrib(ctx, &attr);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "getMWBScene failed!");
-    if(attr.mode == RK_AIQ_MWB_MODE_SCENE) {
-        *scene = attr.para.scene;
-    } else {
-        LOGE("get manual wb scene failed, since current manual mode is not RK_AIQ_MWB_MODE_SCENE ");
-    }
-    IMGPROC_FUNC_EXIT
-    return ret;
+    LOGE("not support to call %s for current chip", __FUNCTION__);
+    return XCAM_RETURN_ERROR_UNKNOWN;
 }
 
 
@@ -3115,22 +3091,23 @@ XCamReturn rk_aiq_uapi2_getMWBScene(const rk_aiq_sys_ctx_t* ctx, rk_aiq_wb_scene
 XCamReturn rk_aiq_uapi2_setMWBGain(const rk_aiq_sys_ctx_t* ctx, rk_aiq_wb_gain_t *gain)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-    rk_aiq_wb_mwb_attrib_t attr;
-    memset(&attr, 0, sizeof(attr));
+
     IMGPROC_FUNC_ENTER
     if ((ctx == NULL) || (gain == NULL)) {
         ret = XCAM_RETURN_ERROR_PARAM;
         RKAIQ_IMGPROC_CHECK_RET(ret, "param error, setMWBGain failed!");
     }
-    rk_aiq_uapiV2_wb_opMode_t opMode;
-    memset(&opMode, 0, sizeof(opMode));
-    opMode.mode = RK_AIQ_WB_MODE_MANUAL;
-    ret = rk_aiq_user_api2_awb_SetWpModeAttrib(ctx, opMode);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "setWbMode failed!");
-    attr.mode = RK_AIQ_MWB_MODE_WBGAIN;
-    attr.para.gain = *gain;
-    ret = rk_aiq_user_api2_awb_SetMwbAttrib(ctx, attr);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "setMWBGain failed!");
+    awb_gainCtrl_t attr;
+    ret =rk_aiq_user_api2_awb_GetWbGainCtrlAttrib(ctx,&attr );
+    RKAIQ_IMGPROC_CHECK_RET(ret, "GetWbGainCtrlAttrib failed!");
+    attr.opMode=RK_AIQ_OP_MODE_MANUAL;
+    attr.manualPara.mode = mwb_mode_wbgain;
+    attr.manualPara.cfg.manual_wbgain[0]=gain->rgain;
+    attr.manualPara.cfg.manual_wbgain[1]=gain->grgain;
+    attr.manualPara.cfg.manual_wbgain[2]=gain->gbgain;
+    attr.manualPara.cfg.manual_wbgain[3]=gain->bgain;
+    ret =rk_aiq_user_api2_awb_SetWbGainCtrlAttrib(ctx,&attr );
+    RKAIQ_IMGPROC_CHECK_RET(ret, "GetWbGainCtrlAttrib failed!");
     IMGPROC_FUNC_EXIT
     return ret;
 }
@@ -3152,7 +3129,6 @@ XCamReturn rk_aiq_uapi2_getWBGain(const rk_aiq_sys_ctx_t* ctx, rk_aiq_wb_gain_t 
 
     return ret;
 }
-
 /*
 *****************************
 *
@@ -3164,230 +3140,74 @@ XCamReturn rk_aiq_uapi2_getWBGain(const rk_aiq_sys_ctx_t* ctx, rk_aiq_wb_gain_t 
 */
 XCamReturn rk_aiq_uapi2_setMWBCT(const rk_aiq_sys_ctx_t* ctx, unsigned int ct)
 {
-    XCamReturn ret = XCAM_RETURN_NO_ERROR;
-    rk_aiq_wb_mwb_attrib_t attr;
-    memset(&attr, 0, sizeof(attr));
-    IMGPROC_FUNC_ENTER
-    if (ctx == NULL) {
-        ret = XCAM_RETURN_ERROR_PARAM;
-        RKAIQ_IMGPROC_CHECK_RET(ret, "param error, setMWBCT failed!");
-    }
-    rk_aiq_uapiV2_wb_opMode_t opMode;
-    memset(&opMode, 0, sizeof(opMode));
-    opMode.mode = RK_AIQ_WB_MODE_MANUAL;
-    ret = rk_aiq_user_api2_awb_SetWpModeAttrib(ctx, opMode);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "setWbMode failed!");
-    attr.mode = RK_AIQ_MWB_MODE_CCT;
-    attr.para.cct.CCT = (float)ct;
-    attr.para.cct.CCRI = 0.0f;
-    ret = rk_aiq_user_api2_awb_SetMwbAttrib(ctx, attr);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "setMWBCT failed!");
-    IMGPROC_FUNC_EXIT
-    return ret;
-
+    LOGE("not support to call %s for current chip", __FUNCTION__);
+    return XCAM_RETURN_ERROR_UNKNOWN;
 }
 
 XCamReturn rk_aiq_uapi2_getWBCT(const rk_aiq_sys_ctx_t* ctx, unsigned int *ct)
 {
-    XCamReturn ret = XCAM_RETURN_NO_ERROR;
-    rk_aiq_wb_cct_t cct;
-    IMGPROC_FUNC_ENTER
-    if ((ctx == NULL) || (ct == NULL)) {
-        ret = XCAM_RETURN_ERROR_PARAM;
-        RKAIQ_IMGPROC_CHECK_RET(ret, "param error, getMWBCT failed!");
-    }
-    ret = rk_aiq_user_api2_awb_GetCCT(ctx, &cct);
-    *ct = (unsigned int)cct.CCT;
-
-    IMGPROC_FUNC_EXIT
-    return ret;
+    LOGE("not support to call %s for current chip", __FUNCTION__);
+    return XCAM_RETURN_ERROR_UNKNOWN;
 }
 
 
 XCamReturn rk_aiq_uapi2_setAwbGainOffsetAttrib(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapiV2_wb_awb_wbGainOffset_t offset)
 {
-    XCamReturn ret = XCAM_RETURN_NO_ERROR;
-    IMGPROC_FUNC_ENTER
-    if (ctx == NULL) {
-        ret = XCAM_RETURN_ERROR_PARAM;
-        RKAIQ_IMGPROC_CHECK_RET(ret, "param error, setWbGainOffsetAttrib failed!");
-    }
-    rk_aiq_uapiV2_wb_opMode_t opMode;
-    memset(&opMode, 0, sizeof(opMode));
-    opMode.mode = RK_AIQ_WB_MODE_AUTO;
-    opMode.sync.sync_mode = offset.sync.sync_mode;
-    ret = rk_aiq_user_api2_awb_SetWpModeAttrib(ctx, opMode);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "setWbMode failed!");
-    ret = rk_aiq_user_api2_awb_SetWbGainOffsetAttrib(ctx, offset);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "setWbGainOffsetAttrib failed!");
-    IMGPROC_FUNC_EXIT
-    return ret;
-
+    LOGE("not support to call %s for current chip", __FUNCTION__);
+    return XCAM_RETURN_ERROR_UNKNOWN;
 }
 
 XCamReturn rk_aiq_uapi2_getAwbGainOffsetAttrib(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapiV2_wb_awb_wbGainOffset_t *offset)
 {
-    XCamReturn ret = XCAM_RETURN_NO_ERROR;
-    IMGPROC_FUNC_ENTER
-    if ((ctx == NULL) || (offset == NULL)) {
-        ret = XCAM_RETURN_ERROR_PARAM;
-        RKAIQ_IMGPROC_CHECK_RET(ret, "param error, getWbGainOffsetAttrib( failed!");
-    }
-    ret = rk_aiq_user_api2_awb_GetWbGainOffsetAttrib(ctx, offset);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "getWbGainOffsetAttrib failed!");
-
-    IMGPROC_FUNC_EXIT
-    return ret;
+    LOGE("not support to call %s for current chip", __FUNCTION__);
+    return XCAM_RETURN_ERROR_UNKNOWN;
 }
-
 XCamReturn rk_aiq_uapi2_setAwbGainAdjustAttrib(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapiV2_wb_awb_wbGainAdjust_t adjust)
 {
-    XCamReturn ret = XCAM_RETURN_NO_ERROR;
-#if ISP_HW_V21||ISP_HW_V30       
-    IMGPROC_FUNC_ENTER
-    if (ctx == NULL) {
-        ret = XCAM_RETURN_ERROR_PARAM;
-        RKAIQ_IMGPROC_CHECK_RET(ret, "param error, setWbGainAdjustAttrib failed!");
-    }
-    rk_aiq_uapiV2_wb_opMode_t opMode;
-
-    memset(&opMode, 0, sizeof(opMode));
-    opMode.sync.sync_mode = adjust.sync.sync_mode;
-    opMode.mode = RK_AIQ_WB_MODE_AUTO;
-    ret = rk_aiq_user_api2_awb_SetWpModeAttrib(ctx, opMode);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "setWbMode failed!");
-    ret = rk_aiq_user_api2_awb_SetWbGainAdjustAttrib(ctx, adjust);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "setWbGainAdjustAttrib failed!");
-    IMGPROC_FUNC_EXIT
- #endif   
-    return ret;
-
+    LOGE("not support to call %s for current chip", __FUNCTION__);
+    return XCAM_RETURN_ERROR_UNKNOWN;
 }
 
 XCamReturn rk_aiq_uapi2_getAwbGainAdjustAttrib(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapiV2_wb_awb_wbGainAdjust_t *adjust)
 {
-    XCamReturn ret = XCAM_RETURN_NO_ERROR;
-#if ISP_HW_V21||ISP_HW_V30     
-    IMGPROC_FUNC_ENTER
-    if ((ctx == NULL) || (adjust == NULL)) {
-        ret = XCAM_RETURN_ERROR_PARAM;
-        RKAIQ_IMGPROC_CHECK_RET(ret, "param error, getWbGainAdjustAttrib failed!");
-    }
-    ret = rk_aiq_user_api2_awb_GetWbGainAdjustAttrib(ctx, adjust);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "getWbGainAdjustAttrib failed!");
-
-    IMGPROC_FUNC_EXIT
-#endif      
-    return ret;
+    LOGE("not support to call %s for current chip", __FUNCTION__);
+    return XCAM_RETURN_ERROR_UNKNOWN;
 }
-
 
 XCamReturn rk_aiq_uapi2_setAwbMultiWindowAttrib(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapiV2_wb_awb_mulWindow_t multiwindow)
 {
-    XCamReturn ret = XCAM_RETURN_NO_ERROR;
-#if ISP_HW_V21||ISP_HW_V30      
-    IMGPROC_FUNC_ENTER
-    if (ctx == NULL) {
-        ret = XCAM_RETURN_ERROR_PARAM;
-        RKAIQ_IMGPROC_CHECK_RET(ret, "param error, setAwbMultiWindowAttrib failed!");
-    }
-    rk_aiq_uapiV2_wb_opMode_t opMode;
-    memset(&opMode, 0, sizeof(opMode));
-    opMode.mode = RK_AIQ_WB_MODE_AUTO;
-    opMode.sync.sync_mode = multiwindow.sync.sync_mode;
-    ret = rk_aiq_user_api2_awb_SetWpModeAttrib(ctx, opMode);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "setWbMode failed!");
-    ret = rk_aiq_user_api2_awb_SetMultiWindowAttrib(ctx, multiwindow);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "setAwbMultiWindowAttrib failed!");
-    IMGPROC_FUNC_EXIT
-#endif       
-    return ret;
-
+    LOGE("not support to call %s for current chip", __FUNCTION__);
+    return XCAM_RETURN_ERROR_UNKNOWN;
 }
 
 XCamReturn rk_aiq_uapi2_getAwbMultiWindowAttrib(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapiV2_wb_awb_mulWindow_t *multiwindow)
 {
-    XCamReturn ret = XCAM_RETURN_NO_ERROR;
-#if ISP_HW_V21||ISP_HW_V30    
-    IMGPROC_FUNC_ENTER
-    if ((ctx == NULL) || (multiwindow == NULL)) {
-        ret = XCAM_RETURN_ERROR_PARAM;
-        RKAIQ_IMGPROC_CHECK_RET(ret, "param error, getAwbMultiWindowAttrib failed!");
-    }
-    ret = rk_aiq_user_api2_awb_GetMultiWindowAttrib(ctx, multiwindow);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "getAwbMultiWindowAttrib failed!");
-
-    IMGPROC_FUNC_EXIT
-#endif    
-    return ret;
+    LOGE("not support to call %s for current chip", __FUNCTION__);
+    return XCAM_RETURN_ERROR_UNKNOWN;
 }
 
 XCamReturn rk_aiq_uapi2_setAwbV30AllAttrib(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapiV2_wbV30_attrib_t attr)
 {
-    XCamReturn ret = XCAM_RETURN_NO_ERROR;
-#if ISP_HW_V30     
-    IMGPROC_FUNC_ENTER
-    if (ctx == NULL) {
-        ret = XCAM_RETURN_ERROR_PARAM;
-        RKAIQ_IMGPROC_CHECK_RET(ret, "param error, setAwbV30AllAttrib failed!");
-    }
-    ret = rk_aiq_user_api2_awbV30_SetAllAttrib(ctx, attr);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "setAwbV30AllAttrib failed!");
-    IMGPROC_FUNC_EXIT
-#endif    
-    return ret;
-
+    LOGE("not support to call %s for current chip", __FUNCTION__);
+    return XCAM_RETURN_ERROR_UNKNOWN;
 }
 
 XCamReturn rk_aiq_uapi2_getAwbV30AllAttrib(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapiV2_wbV30_attrib_t *attr)
 {
-    XCamReturn ret = XCAM_RETURN_NO_ERROR;
-#if ISP_HW_V30     
-    IMGPROC_FUNC_ENTER
-    if ((ctx == NULL) || (attr == NULL)) {
-        ret = XCAM_RETURN_ERROR_PARAM;
-        RKAIQ_IMGPROC_CHECK_RET(ret, "param error, getAwbV30AllAttrib failed!");
-    }
-    ret = rk_aiq_user_api2_awbV30_GetAllAttrib(ctx, attr);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "getAwbV30AllAttrib failed!");
-
-    IMGPROC_FUNC_EXIT
-#endif
-    return ret;
+    LOGE("not support to call %s for current chip", __FUNCTION__);
+    return XCAM_RETURN_ERROR_UNKNOWN;
 }
 
 XCamReturn rk_aiq_uapi2_setAwbV21AllAttrib(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapiV2_wbV21_attrib_t attr)
 {
-    XCamReturn ret = XCAM_RETURN_NO_ERROR;
-#if ISP_HW_V21    
-    IMGPROC_FUNC_ENTER
-    if (ctx == NULL) {
-        ret = XCAM_RETURN_ERROR_PARAM;
-        RKAIQ_IMGPROC_CHECK_RET(ret, "param error, setAwbV21AllAttrib failed!");
-    }
-    ret = rk_aiq_user_api2_awbV21_SetAllAttrib(ctx, attr);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "setAwbV21AllAttrib failed!");
-    IMGPROC_FUNC_EXIT
-#endif    
-    return ret;
-
+    LOGE("not support to call %s for current chip", __FUNCTION__);
+    return XCAM_RETURN_ERROR_UNKNOWN;
 }
 
 XCamReturn rk_aiq_uapi2_getAwbV21AllAttrib(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapiV2_wbV21_attrib_t *attr)
 {
-    XCamReturn ret = XCAM_RETURN_NO_ERROR;
-#if ISP_HW_V21     
-    IMGPROC_FUNC_ENTER
-    if ((ctx == NULL) || (attr == NULL)) {
-        ret = XCAM_RETURN_ERROR_PARAM;
-        RKAIQ_IMGPROC_CHECK_RET(ret, "param error, getAwbV21AllAttrib failed!");
-    }
-    ret = rk_aiq_user_api2_awbV21_GetAllAttrib(ctx, attr);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "getAwbV21AllAttrib failed!");
-
-    IMGPROC_FUNC_EXIT
-#endif    
-    return ret;
+    LOGE("not support to call %s for current chip", __FUNCTION__);
+    return XCAM_RETURN_ERROR_UNKNOWN;
 }
 
 
@@ -4212,7 +4032,7 @@ XCamReturn rk_aiq_uapi2_getA3dLutName(const rk_aiq_sys_ctx_t* ctx, char* name)
 }
 #endif
 #endif
-#ifdef USE_NEWSTRUCT 
+#ifdef USE_NEWSTRUCT
 XCamReturn rk_aiq_uapi2_setLdchEn(const rk_aiq_sys_ctx_t* ctx, bool en)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;

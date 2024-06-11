@@ -15,39 +15,296 @@
  *
  */
 
-#ifndef _RK_AIQ_PARAM_SHARP34_H_
-#define _RK_AIQ_PARAM_SHARP34_H_
+#ifndef _RK_AIQ_PARAM_SHARP40_H_
+#define _RK_AIQ_PARAM_SHARP40_H_
 
 #define SHARP_ISO_STEP_MAX                  13
 #define SHARP_FILTPIXGAINCURVE_SEGMENT_MAX     14
 #define SHARP_RADIDISTCURVE_SEGMENT_MAX        22
 #define SHARP_TXETCURVE_SEGMENT_MAX        17
 
-typedef enum sharp_locSgmStrg_mode_e {
-    // @reg: hw_sharp_localGain_bypass == 0
-    // @note: "Mixed mode of local and global input pix sigma"
-    sharp_locGlbSgmStrgMix_mode = 0,
-    // @reg: hw_sharp_localGain_bypass == 1
-    // @note: "Only global input pix sigma"
-    sharp_glbSgmStrgOnly_mode = 1
-} sharp_locSgmStrg_mode_t;
+typedef enum shp_radiusStep_mode_e{
+	// @reg: hw_shp_radiusStep_mode == 0
+    shp_step_128_mode = 0,
+    // @reg: hw_shp_radiusStep_mode == 1
+    shp_step_256_mode = 1,
+}shp_radiusStep_mode_t;
 
-typedef struct sharp_locSgmStrg_dyn_s {
+typedef struct shp_radiDist_static_s {
     /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_sharp_localGain_bypass),
+        M4_ALIAS(hw_shp_center_x),
+        M4_TYPE(s16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(-1000,1000),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(1),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_NOTES( The x-coordinates of the optical center in the image\n
+        (0,0) is the img center. (-1000,-1000) is the img left top corner. (1000,1000) is the img right bottom corner\n
+        Freq of use: low))  */
+    // @reg: hw_shp_center_x
+    // @para: Center_Mode
+    int16_t hw_shpCfg_opticCenter_x;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(hw_shp_center_y),
+        M4_TYPE(s16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(-1000,1000),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(1),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_NOTES( The y-coordinates of the optical center in the image\n
+        (0,0) is the img center. (-1000,-1000) is the img left top corner. (1000,1000) is the img right bottom corner\n
+        Freq of use: low))  */
+    // @reg: hw_shp_center_y
+    // @para: Center_Mode
+    int16_t hw_shpCfg_opticCenter_y;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(hw_shpT_radiusStep_mode),
         M4_TYPE(enum),
-        M4_ENUM_DEF(sharp_locSgmStrg_mode_t),
-        M4_DEFAULT(sharp_locGlbSgmStrgMix_mode),
+        M4_ENUM_DEF(shp_radiusStep_mode_t),
+        M4_DEFAULT(shp_step_128_mode),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_NOTES( Reference enum types.\n
+        Freq of use: high))  */
+    shp_radiusStep_mode_t hw_shpT_radiusStep_mode;
+} shp_radiDist_static_t;
+
+typedef enum shp_dbgOutMux_mode_e{
+	// @reg: hw_shp_debug_mode == 1
+    shp_texEst_mode = 1,
+    // @reg: hw_shp_debug_mode == 2
+    shp_detailLocShpStrg_mode = 2,
+	// @reg: hw_shp_debug_mode == 3
+    shp_edgeShpStrg_mode = 3,
+	// @reg: hw_shp_debug_mode == 4
+    shp_detailLocStrgContrast_mode = 4,
+	// @reg: hw_shp_debug_mode == 5
+    shp_detailClipLimit_mode = 5,
+}shp_dbgOutMux_mode_t;
+
+typedef struct shp_debug_static_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(sw_shpT_dbgOut_en),
+        M4_TYPE(bool),
+        M4_DEFAULT(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_GROUP_CTRL(dbgOut_en_group),
+        M4_NOTES(The enable bit for debugging data to replace pixel data output\n
+        Freq of use: high))  */
+    // reg: hw_shp_debug_mode == 0  which means disable debug mode
+    bool sw_shpT_dbgOut_en;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(hw_shpT_dbgOut_mode),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(shp_dbgOutMux_mode_t),
+        M4_DEFAULT(shp_texEst_mode),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_GROUP(dbgOut_en_group),
+        M4_NOTES( Reference enum types.\n
+        Freq of use: high))  */
+    shp_dbgOutMux_mode_t hw_shpT_dbgOut_mode;
+} shp_debug_static_t;
+
+typedef struct texRegionShpStrgLP_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(detail_lp_en),
+        M4_TYPE(bool),
+        M4_DEFAULT(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_GROUP_CTRL(dbgOut_en_group),
+        M4_NOTES(IIR frame low freq channel averge low power mode enable.\n
+        Freq of use: low))  */
+    // reg: sw_detail_lp_en
+    bool hw_shpCfg_lp_en;
+} texRegionShpStrgLP_t;
+
+typedef struct shp_detailLP_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(texRegionShpStrgLP),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO.\n
+        Freq of use: low))  */
+    texRegionShpStrgLP_t texRegionShpStrgLP;
+} shp_detailLP_t;
+
+typedef struct shp_cfgLP_s{
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(preSpnrLP),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO.\n
+        Freq of use: low))  */
+    shp_detailLP_t detailShpLP;
+} shp_cfgLP_t;
+
+typedef struct shp_lumaLutIdx_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(luma_dx),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,8),
+        M4_RANGE_EX(0.0,1.0),
+        M4_DIGIT_EX(3),
+        M4_FP_EX(0,1,7),
+        M4_DEFAULT([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
+        M4_HIDE_EX(0),
+        M4_UI_MODULE(curve),
+        M4_DATAX([0, 64, 128, 256, 384, 640, 896, 1024]),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(The brightness weight0 mapped by lo_nr, the x-axis is hw_shp_luma2Table_idx. \n
+        Freq of use: low))  */
+    // @reg: hw_shp_luma_dx0~7
+    float hw_shpT_lumaLutIdx_val[8];
+} shp_lumaLutIdx_t;
+
+typedef struct sharp_params_static_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(shpScl_radiDist),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(TODO))  */
+    shp_radiDist_static_t locShpStrg_radiDist;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(shpScl_radiDist),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(TODO))  */
+    shp_lumaLutIdx_t lumaLutCfg;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(shpScl_radiDist),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(TODO))  */
+    shp_debug_static_t debug;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(lowPower),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_cfgLP_t lowPowerCfg;
+} sharp_params_static_t;
+
+typedef struct shp_texRegionClsf_s{
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(flat_maxLimit),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT(100),
+        M4_DIGIT_EX(3),
+        M4_FP_EX(0,10,0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_NOTES(the upper limit value of flat area.\n
+        Freq of use: low))  */
+    // @reg: hw_shp_flat_maxLimit
+    uint16_t hw_shpT_flatRegion_maxThred;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(edge_minLimit),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT(300),
+        M4_DIGIT_EX(3),
+        M4_FP_EX(0,10,0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_NOTES(the lower limit value of edge area.\n
+		The hw_shp_edge_minLimit must be bigger than hw_shp_flat_maxLimit.\n
+        Freq of use: low))  */
+    // @reg: hw_shp_edge_minLimit
+    uint16_t hw_shpT_edgeRegion_minThred;
+}shp_texRegionClsf_t;
+
+typedef enum shp_locSgmStrg_mode_e {
+    // @reg: hw_shp_localGain_bypass == 0
+    // @note: "Mixed mode of local and global input pix sigma"
+    shp_locGlbSgmStrgMix_mode = 0,
+    // @reg: hw_shp_localGain_bypass == 1
+    // @note: "Only global input pix sigma"
+    shp_glbSgmStrgOnly_mode = 1
+} shp_locSgmStrg_mode_t;
+
+typedef enum shp_locSgmStrg2Mot_mode_e {
+	// @reg: hw_shp_gainWgt_mode == 0
+    // @note: "use noise balance curve"
+    // @para: MotionWgt_mode = 0
+	shp_toMotionStrg1_mode = 0,
+	// @reg: hw_shp_gainWgt_mode == 1
+    // @note: "use manually configured curve"
+    // @para: MotionWgt_mode = 1
+	shp_toMotionStrg2_mode = 1
+}shp_locSgmStrg2Mot_mode_t;
+
+typedef struct shp_motionStrg_dyn_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(hw_shp_localGain_bypass),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(shp_locSgmStrg_mode_t),
+        M4_DEFAULT(shp_locGlbSgmStrgMix_mode),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_GROUP_CTRL(localSgmStrg_mode_group),
         M4_NOTES(The mode of sharp input pix sigma. Reference enum types.\n
         Freq of use: low))  */
-    // @reg: hw_sharp_localGain_bypass
+    // @reg: hw_shp_localGain_bypass
     // @para: exgain_bypass
-    sharp_locSgmStrg_mode_t hw_sharpT_locSgmStrg_mode;
+    shp_locSgmStrg_mode_t hw_shpT_locSgmStrg_mode;
     /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_sharp_global_gain),
+        M4_ALIAS(sw_shp_local_gainscale),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1.0),
+        M4_DEFAULT(1.0),
+        M4_DIGIT_EX(2),
+        M4_FP_EX(0,1,7),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_GROUP(localSgmStrg_mode_group:shp_locGlbSgmStrgMix_mode),
+        M4_NOTES(The scaling factor of the local input pix sigma.\n
+        Higher the value, the higher the local input pix sigma value.\n
+        Freq of use: high))  */
+    // @reg: sw_shp_local_gainscale
+    // @para: local_gainscale
+    float hw_shpT_localSgmStrg_scale;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(sw_shp_global_gain),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0,64.0),
@@ -58,334 +315,882 @@ typedef struct sharp_locSgmStrg_dyn_s {
         M4_RO(0),
         M4_ORDER(1),
         M4_NOTES(The value of the global input pix sigma.\n
-        Higher the value, the higher the global input pix sigma value.
+        Higher the value, the higher the global input pix sigma value.\n
         Freq of use: low))  */
-    // @reg: sw_sharp_global_gain
+    // @reg: sw_shp_global_gain
     // @para: global_gain
-    float hw_sharpT_glbSgmStrg_val;
+    float hw_shpT_glbSgmStrg_val;
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_cnr_global_gain_alpha),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0,1.0),
-        M4_DEFAULT(1.0),
+        M4_DEFAULT(0.0),
         M4_DIGIT_EX(2),
         M4_FP_EX(0,1,3),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
+        M4_GROUP(localSgmStrg_mode_group:shp_locGlbSgmStrgMix_mode),
         M4_NOTES(The wgt of the global input pix sigma is used in the fusion operation with the local input pix sigma.\n
         The higher the value, the wgt of bifilted pixel is higher.\n
         Freq of use: low))  */
     // @reg: sw_cnr_global_gain_alpha
     // @para: global_gain_alpha
-    float hw_sharpT_glbSgmStrg_alpha;
+    float hw_shpT_glbSgmStrg_alpha;
     /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_sharp_local_gainscale),
+        M4_ALIAS(gainWgt_mode),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(shp_locSgmStrg2Mot_mode_t),
+        M4_DEFAULT(shp_toMotionStrg1_mode),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_GROUP_CTRL(motionWgt_mode_group),
+        M4_NOTES(The mode of gain weight generation method. Reference enum types.\n
+        Freq of use: low))  */
+    // @reg: hw_shp_gainWgt_mode
+    shp_locSgmStrg2Mot_mode_t hw_shpT_locSgmStrg2Mot_mode;
+} shp_motionStrg_dyn_t;
+
+typedef struct shp_lumaShpStrg_dyn_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(luma_en),
+        M4_TYPE(bool),
+        M4_DEFAULT(1),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_GROUP_CTRL(miNr_en_group),
+        M4_NOTES(Enable the miNr filter for lo freq noise.Turn on by setting this bit to 1.
+        Freq of use: low))  */    
+    bool sw_shpT_luma_en;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(luma2strg_val),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,8),
+        M4_RANGE_EX(0.0,1.0),
+        M4_DIGIT_EX(3),
+        M4_FP_EX(0,1,7),
+        M4_DEFAULT([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
+        M4_HIDE_EX(0),
+        M4_UI_MODULE(curve),
+        M4_DATAX([0, 64, 128, 256, 384, 640, 896, 1024]),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(The brightness weight0 mapped by lo_nr, the x-axis is hw_shp_luma2Table_idx. \n
+        Freq of use: low))  */
+    // @reg: hw_shp_luma2strg_val0~7
+    float hw_shpT_luma2ShpStrg_val[8];
+}shp_lumaShpStrg_dyn_t;
+
+typedef enum shp_lumaShpStrgEn_mode_e {
+    shp_lumaShpStrgEn_mode = 0
+} shp_lumaShpStrgEn_mode_t;
+
+typedef struct shp_lumaShpStrgEn_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(locShpStrg_mode),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(shp_lumaShpStrgEn_mode_t),
+        M4_DEFAULT(shp_lumaShpStrgEn_mode),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_GROUP_CTRL(motionWgt_mode_group),
+        M4_NOTES(The mode of gain weight generation method. Reference enum types.\n
+        Freq of use: low))  */
+    shp_lumaShpStrgEn_mode_t sw_shpT_locShpStrg_mode;
+} shp_lumaShpStrgEn_t;
+
+typedef struct shp_radiDistShpWgt_dyn_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(radiDist_en),
+        M4_TYPE(bool),
+        M4_DEFAULT(1),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_GROUP_CTRL(miNr_en_group),
+        M4_NOTES(Enable the miNr filter for lo freq noise.Turn on by setting this bit to 1.
+        Freq of use: low))  */    
+    bool hw_shpT_radiDist_en;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(distance2strg),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,11),
+        M4_RANGE_EX(0.0,1.0),
+		M4_DIGIT_EX(3),
+		M4_FP_EX(0,1,7),
+        M4_DEFAULT([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
+        M4_HIDE_EX(0),
+        M4_UI_MODULE(curve),
+        M4_DATAX([0, 8, 24, 56, 88, 120, 184, 248, 312, 376, 440]),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(Radial distance weight based on the distance from the center point. \n
+		distance_power2_ratio = [0, 8, 24, 56, 88, 120, 184, 248, 312, 376, 440].\n
+        Freq of use: low))  */
+    // @reg: hw_shp_distance2strg_val0~10
+    float hw_shpT_radiDist2ShpStrg_val[11];
+} shp_radiDistShpStrg_dyn_t;
+
+typedef enum shp_radiDistShpStrgEn_mode_s {
+    shp_radiDistShpStrgEn_mode = 0
+} shp_radiDistShpStrgEn_mode_t;
+
+typedef struct shp_radiDistShpStrgEn_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(locShpStrg_mode),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(shp_radiDistShpStrgEn_mode_t),
+        M4_DEFAULT(shp_radiDistShpStrgEn_mode),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_GROUP_CTRL(motionWgt_mode_group),
+        M4_NOTES(The mode of gain weight generation method. Reference enum types.\n
+        Freq of use: low))  */
+    shp_radiDistShpStrgEn_mode_t sw_shpT_locShpStrg_mode;
+} shp_radiDistShpStrgEn_t;
+
+typedef struct shp_hueShpStrg_dyn_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(hue_en),
+        M4_TYPE(bool),
+        M4_DEFAULT(1),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_GROUP_CTRL(miNr_en_group),
+        M4_NOTES(Enable the miNr filter for lo freq noise.Turn on by setting this bit to 1.
+        Freq of use: low))  */    
+    bool sw_shpT_hue_en;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(luma2strg_val),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,9),
+        M4_RANGE_EX(0.0,2.0),
+		M4_DIGIT_EX(3),
+		M4_FP_EX(0,1,9),
+        M4_DEFAULT([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
+        M4_HIDE_EX(0),
+        M4_UI_MODULE(curve),
+        M4_DATAX([0, 128, 256, 384, 512, 640, 768, 896, 1024]),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(The brightness weight0 mapped by lo_nr, the x-axis is hw_shp_luma2Table_idx. \n
+        Freq of use: low))  */
+    // @reg: hw_shp_hue2strg_val0~8
+    float sw_shpT_hue2ShpStrg_val[9];
+}shp_hueShpStrg_dyn_t;
+
+typedef enum shp_hueShpStrgEn_mode_s {
+    shp_hueShpStrgEn_mode = 0
+} shp_hueShpStrgEn_mode_t;
+
+typedef struct shp_hueShpStrgEn_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(locShpStrg_mode),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(shp_hueShpStrgEn_mode_t),
+        M4_DEFAULT(shp_hueShpStrgEn_mode),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_GROUP_CTRL(motionWgt_mode_group),
+        M4_NOTES(The mode of gain weight generation method. Reference enum types.\n
+        Freq of use: low))  */
+    shp_hueShpStrgEn_mode_t sw_shpT_locShpStrg_mode;
+} shp_hueShpStrgEn_t;
+
+typedef struct shp_locShpStrg_dyn_s{
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(texDct_dyn),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(TODO))  */
+    shp_texRegionClsf_t texRegion_clsfBaseTex;
+	 /* M4_GENERIC_DESC(
+        M4_ALIAS(localGain),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_GROUP(shpOpt_mode_group:shp_allShpSclEn_mode|shp_texShpSclDis_othrEn_mode),
+        M4_NOTES(TODO))  */
+    shp_motionStrg_dyn_t motionStrg;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(luma),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_GROUP(shpOpt_mode_group:shp_allShpSclEn_mode|shp_texShpSclDis_othrEn_mode),
+        M4_NOTES(TODO))  */
+    shp_lumaShpStrg_dyn_t luma;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(radiDist),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_GROUP(shpOpt_mode_group:shp_allShpSclEn_mode|shp_texShpSclDis_othrEn_mode),
+        M4_NOTES(TODO))  */
+    shp_radiDistShpStrg_dyn_t radiDist;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(hue),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_GROUP(shpOpt_mode_group:shp_allShpSclEn_mode|shp_texShpSclDis_othrEn_mode),
+        M4_NOTES(TODO))  */
+    shp_hueShpStrg_dyn_t hue;
+}shp_locShpStrg_dyn_t;
+
+typedef struct shp_texRegionShpStrg_s{
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(tex2detailStrg_val0),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,4),
+        M4_RANGE_EX(0,1.0),
+        M4_DEFAULT([0.4, 0.6, 0.8, 1.0]),
+        M4_HIDE_EX(0),
+        M4_UI_MODULE(curve),
+        M4_DATAX([0, 100, 300, 1023]),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(The local weight of the detail layer generated based on texture weight,\n
+		with an x-axis of [0, hw_shp_flat_maxLimit, hw_shp_edge_minLimit, 1024]. \n
+        Freq of use: high))  */
+    // @reg: hw_shp_tex2detailStrg_val0
+    float hw_shpT_flatRegionL_strg;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(tex2detailStrg_val1),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,4),
+        M4_RANGE_EX(0,1.0),
+        M4_DEFAULT([0.4, 0.6, 0.8, 1.0]),
+        M4_HIDE_EX(0),
+        M4_UI_MODULE(curve),
+        M4_DATAX([0, 100, 300, 1023]),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(The local weight of the detail layer generated based on texture weight,\n
+		with an x-axis of [0, hw_shp_flat_maxLimit, hw_shp_edge_minLimit, 1024]. \n
+        Freq of use: high))  */
+    // @reg: hw_shp_tex2detailStrg_val1
+    float hw_shpT_flatRegionR_strg;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(tex2detailStrg_val2),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,4),
+        M4_RANGE_EX(0,1.0),
+        M4_DEFAULT([0.4, 0.6, 0.8, 1.0]),
+        M4_HIDE_EX(0),
+        M4_UI_MODULE(curve),
+        M4_DATAX([0, 100, 300, 1023]),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(The local weight of the detail layer generated based on texture weight,\n
+		with an x-axis of [0, hw_shp_flat_maxLimit, hw_shp_edge_minLimit, 1024]. \n
+        Freq of use: high))  */
+    // @reg: hw_shp_tex2detailStrg_val2
+    float hw_shpT_edgeRegionL_strg;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(tex2detailStrg_val3),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,4),
+        M4_RANGE_EX(0,1.0),
+        M4_DEFAULT([0.4, 0.6, 0.8, 1.0]),
+        M4_HIDE_EX(0),
+        M4_UI_MODULE(curve),
+        M4_DATAX([0, 100, 300, 1023]),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(The local weight of the detail layer generated based on texture weight,\n
+		with an x-axis of [0, hw_shp_flat_maxLimit, hw_shp_edge_minLimit, 1024]. \n
+        Freq of use: high))  */
+    // @reg: hw_shp_tex2detailStrg_val3
+    float hw_shpT_edgeRegionR_strg;
+}shp_texRegionShpStrg_t;
+
+typedef enum shp_motionStrg1_mode_e{
+	// line slope is positive, the larger local gain, the larger sharp strength.
+	shp_baseStatThd_posCorr_mode = 0,
+	// line slope is negative, the larger local gain, the smaller sharp strength.
+	shp_baseMotThd_negCorr_mode = 1,
+} shp_motionStrg1_mode_t;
+
+typedef struct shp_motionStrg1_s{
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(shp_motionStrg1_mode_t),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(shp_slope_mode_t),
+        M4_DEFAULT(shp_baseStatThd_posCorr_mode),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+		M4_GROUP(motionWgt_mode_group:shp_foldLine_mode),
+        M4_NOTES(The mode of the noise curve. \n
+        Reference enum types.\n
+        Freq of use: low))  */
+    // @para: sw_shp_detailMotionWgt_sel
+    shp_motionStrg1_mode_t sw_shpT_motionStrg_mode;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(sw_shp_detailStaticRegion_thred),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,1.0),
+        M4_RANGE_EX(0,64.0),
+        M4_DEFAULT(0.2),
+        M4_DIGIT_EX(2),
+        M4_FP_EX(0,6,4),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+		M4_GROUP(motionWgt_mode_group:shp_foldLine_mode),
+        M4_NOTES(The max static region thred of the detail gain.\n
+        Freq of use: low))  */
+    float sw_shpT_locSgmStrgStat_maxThred;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(sw_shp_detailMotionRegion_thred),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,64.0),
+        M4_DEFAULT(0.5),
+        M4_DIGIT_EX(2),
+        M4_FP_EX(0,6,4),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+		M4_GROUP(motionWgt_mode_group:shp_foldLine_mode),
+        M4_NOTES(The min motion region thred of the detail gain.\n
+        Freq of use: low))  */
+    float sw_shpT_locSgmStrgMot_minThred;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(detailGain_minLimit),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,2.0),
+        M4_DEFAULT(0.0),
+        M4_DIGIT_EX(2),
+        M4_FP_EX(0,1,7),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+		M4_GROUP(motionWgt_mode_group:shp_foldLine_mode),
+        M4_NOTES(the lower limit of detail gain weight.\n
+		The hw_shp_detailGain_maxLimit must be bigger than hw_shp_detailGain_minLimit.\n
+        Freq of use: low))  */
+    // para: detailMotionWgt_maxLimit, edgeMotionWgt_maxLimit, hifreqMotionWgt_maxLimit
+    float hw_shpT_statRegionShp_strg;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(detailGain_minLimit),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,2.0),
         M4_DEFAULT(1.0),
         M4_DIGIT_EX(2),
         M4_FP_EX(0,1,7),
         M4_HIDE_EX(0),
         M4_RO(0),
-        M4_ORDER(1),
-        M4_NOTES(The scaling factor of the local input pix sigma.\n
-        Higher the value, the higher the local input pix sigma value.
-        Freq of use: high))  */
-    // @reg: sw_sharp_local_gainscale
-    // @para: local_gainscale
-    float hw_sharpT_localSgmStrg_scale;
-} sharp_locSgmStrg_dyn_t;
+        M4_ORDER(0),
+		M4_GROUP(motionWgt_mode_group:shp_foldLine_mode),
+        M4_NOTES(the uppper limit of detail gain weight.\n
+		The hw_shp_detailGain_maxLimit must be bigger than hw_shp_detailGain_minLimit.\n
+        Freq of use: low))  */
+    // para: detailMotionWgt_minLimit, edgeMotionWgt_minLimit, hifreqMotionWgt_minLimit
+    float hw_shpT_motRegionShp_strg;
+}shp_motionStrg1_t;
 
-typedef enum sharp_filtCfg_mode_e {
+typedef struct shp_motionStrg2_s {
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(detailGain_sigma),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,2.0),
+        M4_DEFAULT(0.25),
+        M4_DIGIT_EX(2),
+        M4_FP_EX(0,1,7),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_GROUP(motionWgt_mode_group:shp_sigmaDivison_mode),
+        M4_NOTES(the sigma of detail gain weight.\n
+        Freq of use: low))  */
+    float hw_shpT_motionStrg_sigma;
+}shp_motionStrg2_t;
+
+typedef enum shp_filtCfg_mode_e {
     // @note: The filter coefficients for configuring filters are generated by inputting  filter strength into the formula
     // @para: kernel_sigma_enable == 1
-    sharp_cfgByFiltStrg_mode = 0,
+    shp_cfgByFiltStrg_mode = 0,
     // @note: The filter coefficients for configuring filters are directly input.
     // @para: kernel_sigma_enable == 0
-    sharp_cfgByFiltCoeff_mode = 1
-} sharp_filtCfg_mode_t;
+    shp_cfgByFiltCoeff_mode = 1
+} shp_filtCfg_mode_t;
 
-typedef enum sharp_shpSrc_mode_e {
-    // @para: hw_sharp_baseImg_sel == 0
-    sharp_hfExactPreBfOut_mode = 0,
-    // @para: hw_sharp_baseImg_sel == 1
-    sharp_sharpIn_mode = 1,
-} sharp_shpSrc_mode_t;
-
-typedef enum sharp_shpOpt_mode_s {
-    // @para: hw_sharp_texWgt_mode == 0
-    sharp_allShpSclEn_mode = 0,
-    // @para: hw_sharp_texWgt_mode == 1
-    sharp_texShpSclDis_othrEn_mode = 1,
-    // @para: hw_sharp_texWgt_mode == 2
-    sharp_texShpScl_othrDis_mode = 2,
-    // @para: hw_sharp_texWgt_mode == 3
-    sharp_texShpSclDebugOut_mode = 3
-} sharp_shpOpt_mode_t;
-
-typedef enum sharp_bwEdg_mode_e {
-    // @para: hw_sharp_clipIdx_sel == 0"
-    sharp_orgPix_mode = 0,
-    // @para: hw_sharp_clipIdx_sel == 1
-    sharp_lpfPix_mode,
-} sharp_bwEdg_mode_t;
-
-typedef struct sharp_sigmaCurve_s {
+typedef struct shp_sigmaCurve_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(idx),
         M4_TYPE(u16),
         M4_UI_PARAM(data_x),
         M4_SIZE_EX(1,8),
-        M4_RANGE_EX(0,4096),
-        M4_DEFAULT(0),
+        M4_RANGE_EX(0,1024),
+        M4_DEFAULT([0, 64, 128, 256, 384, 640, 896, 1024]),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_NOTES(TODO))  */
+        M4_NOTES(TODO.\n
+        Freq of use: low))  */
     uint16_t idx[8];
     /* M4_GENERIC_DESC(
         M4_ALIAS(val),
         M4_TYPE(u16),
-        M4_UI_PARAM(data_x),
+        M4_UI_PARAM(data_y),
         M4_SIZE_EX(1,8),
-        M4_RANGE_EX(10,512),
-        M4_DEFAULT(0),
+        M4_RANGE_EX(1,1023),
+        M4_DEFAULT([32, 40, 48, 56, 64, 56, 48, 40]),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_NOTES(TODO))  */
+        M4_NOTES(TODO.\n
+        Freq of use: low))  */
     uint16_t val[8];
-} sharp_sigmaCurve_t;
+} shp_sigmaCurve_t;
 
-typedef struct sharp_sharpOpt_dyn_s {
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_sharp_baseImg_sel),
-        M4_TYPE(enum),
-        M4_ENUM_DEF(sharp_shpSrc_mode_t),
-        M4_DEFAULT(sharp_hfExactPreBfOut_mode),
+typedef enum shp_edge_filtRadius_mode_e {
+    // @note: radius = 1
+    shp_edgeFiltRadius3_mode = 1,
+    // @note: radius = 2
+    shp_edgeFiltRadius5_mode = 2,
+    // @note: radius = 3
+    shp_edgeFiltRadius7_mode = 3
+} shp_edge_filtRadius_mode_t;
+
+typedef struct shp_edge_glbShpStrg_s{
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(posDetail_strg),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,16.0),
+        M4_DEFAULT(8),
+        M4_DIGIT_EX(2),
+        M4_FP_EX(0,4,2),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_NOTES(The clip mode of hf data after sharp operation.\n
-        Reference enum types.\n
-        Freq of use: high))  */
-    // @reg: hw_sharp_baseImg_sel
-    sharp_shpSrc_mode_t hw_sharpT_shpSrc_mode;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_sharp_texWgt_mode),
-        M4_TYPE(enum),
-        M4_ENUM_DEF(sharp_shpOpt_mode_t),
-        M4_DEFAULT(sharp_allShpSclEn_mode),
+        M4_NOTES(positive detail global strength.\n
+        Freq of use: low))  */
+    // @reg: hw_shp_posEdge_strg
+    // @para: posEdge_strg
+    float hw_shpT_edgePos_strg;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(posDetail_strg),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,16.0),
+        M4_DEFAULT(8),
+        M4_DIGIT_EX(2),
+        M4_FP_EX(0,4,2),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_NOTES(The clip mode of hf data after sharp operation.\n
+        M4_NOTES(negative detail global strength.\n
+        Freq of use: low))  */
+    // @reg: hw_shp_negEdge_strg
+    // @para: negEdge_strg
+    float hw_shpT_edgeNeg_strg;
+}shp_edge_glbShpStrg_t;
+
+typedef struct shp_edgeExtra_s{
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(edgeLpf_radius),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(shp_edge_filtRadius_mode_t),
+        M4_DEFAULT(shp_edgeFiltRadius3_mode),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(The radius of edge low pass filter kernel.\n
         Reference enum types.\n
         Freq of use: low))  */
-    // @reg: hw_sharp_texWgt_mode
-    sharp_shpOpt_mode_t hw_sharpT_shpOpt_mode;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(imgLpf0_strg),
+    shp_edge_filtRadius_mode_t sw_shpT_filtRadius_mode;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(filtCfg_mode),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(shp_filtCfg_mode_t),
+        M4_DEFAULT(shp_cfgByFiltStrg_mode),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_GROUP_CTRL(edgeLpf_filtCfg_mode_group),
+        M4_NOTES(The config mode of lpf used for hi-freq pre filtering processing of input pixels of the sharp module.\n
+        Reference enum types.\n
+        Freq of use: low))  */
+    shp_filtCfg_mode_t sw_shpT_filtCfg_mode;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(edgeLpf_rsigma),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,31.275),
-        M4_DEFAULT(8.0),
+        M4_RANGE_EX(0,256.0),
+        M4_DEFAULT(2.0),
         M4_DIGIT_EX(2),
-        M4_FP_EX(0,5,2),
+        M4_FP_EX(0,7,8),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_NOTES(The sharp strength is positively correlated with hfGlbSharpWgt, pixSgm2ShpWgt_val, radiDistSharpWgt and textureSharpWgt.\n
-        The para control the local sharp strg of the img based on the pix radius distance.
+        M4_GROUP(edgeLpf_filtCfg_mode_group:shp_cfgByFiltStrg_mode),
+        M4_NOTES(The spatial wgt of pre bifilter is operator from the strength value. Only valid on shp_cfgByFiltStrg_mode.\n
+        Higher the value, the higher spatial denoise strength.\n
         Freq of use: high))  */
-    // @reg: hw_sharp_globalSharp_strg
-    // @para: sharp_ratio
-    float hw_sharpT_hfHiGlbShpScl_val;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(imgLpf1_strg),
+    // @reg: hw_shp_edgeLpf_coeff0~hw_shp_edgeLpf_coeff9
+    float sw_shpT_filtSpatial_strg;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(edgeLpf_coeff),
         M4_TYPE(f32),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,31.275),
-        M4_DEFAULT(8.0),
-        M4_DIGIT_EX(2),
-        M4_FP_EX(0,5,2),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(1),
-        M4_NOTES(The sharp strength is positively correlated with hfGlbSharpWgt, pixSgm2ShpWgt_val, radiDistSharpWgt and textureSharpWgt.\n
-        The para control the local sharp strg of the img based on the pix radius distance.
-        Freq of use: high))  */
-    // @reg: hw_sharp_globalSharp_strg
-    // @para: sharp_ratio
-    float hw_sharpT_hfMidGlbShpScl_val;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_sharp_gain2strg_val),
-        M4_TYPE(f32),
-        M4_SIZE_EX(1,14),
-        M4_RANGE_EX(0,32.0),
-        M4_DEFAULT(0),
-        M4_DIGIT_EX(4),
-        M4_FP_EX(0,6,9),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(1),
-        M4_NOTES(The sharp strength is positively correlated with hfGlbSharpWgt, pixSgm2ShpWgt_val, radiDistSharpWgt and textureSharpWgt.\n
-        The para control the local sharp strg of the img based on the pix radius distance.
-        Freq of use: high))  */
-    // @reg: hw_sharp_gain2strg_val0~13
-    float hw_sharpT_locSgmStrg2ShpScl_val[SHARP_FILTPIXGAINCURVE_SEGMENT_MAX];
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_sharp_distance2strg_val),
-        M4_TYPE(f32),
-        M4_SIZE_EX(1,22),
+        M4_SIZE_EX(1,10),
         M4_RANGE_EX(0,1.0),
-        M4_DEFAULT(0),
-        M4_DIGIT_EX(4),
+        M4_DEFAULT([0.0467, 0.0412, 0.0364, 0.0283, 0.0250, 0.0172, 0.0152, 0.0134, 0.0092, 0.0049]),
+        M4_DIGIT_EX(3),
         M4_FP_EX(0,1,7),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_NOTES(The sharp strength is positively correlated with hfGlbSharpWgt, pixSgm2ShpWgt_val, radiDistSharpWgt and textureSharpWgt.\n
-        Higher the value, the local sharp strg of the img is higher.
-        Freq of use: high))  */
-    // @reg: hw_sharp_distance2strg_val0~21
-    // @para: dis_adj_sharp_strength
-    float hw_sharpT_radiDist2ShpScl_val[SHARP_RADIDISTCURVE_SEGMENT_MAX];
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_sharp_detail2strg_val),
-        M4_TYPE(u16),
-        M4_SIZE_EX(1,17),
-        M4_RANGE_EX(10,512),
-        M4_DEFAULT(0),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(1),
-        M4_NOTES(TODO\n
-        Freq of use: high))  */
-    // @reg: hw_sharp_detail2strg_val0~7
-    uint16_t hw_sharpT_hfScl2ShpScl_val[17];
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_sharp_texReserve_level),
+        M4_GROUP(edgeLpf_filtCfg_mode_group:shp_cfgByFiltCoeff_mode),
+        M4_NOTES(The spatial filter kernel of bifilter . Only valid on shp_cfgByFiltCoeff_mode.\n
+        coeff[0] + 4*coeff[1] + 4*coeff[2] == 1.0 .\n
+        Freq of use: low))  */
+    // @reg: hw_shp_edgeLpf_coeff0~hw_shp_edgeLpf_coeff9
+    float hw_shpT_filtSpatial_wgt[10];
+}shp_edgeExtra_t;
+
+typedef enum shp_curveCfg_mode_e {
+    shp_cfgCurveDirect_mode    = 0,
+    shp_cfgCurveCtrlCoeff_mode = 1
+} shp_curveCfg_mode_t;
+
+typedef enum shp_maxMinFlt_mode_e{
+	// 5x5 window of hi nr filter
+	// reg: hw_shp_maxminFlt_mode == 0
+	shp_maxMinFiltRadius5_mode = 0,
+	// 7x7 window of hi nr filter
+	// reg: hw_shp_maxminFlt_mode == 1
+	shp_maxMinFiltRadius7_mode = 1
+}shp_maxMinFlt_mode_t;
+
+typedef struct shp_edgeStrgCurveCtrl_s {
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(edgeWgtCurve_power),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,9),
-        M4_DEFAULT(3),
-        M4_DIGIT_EX(1),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(1),
-        M4_NOTES( POW(2, hw_sharpT_texture2SharpWgt_norizeMax) is the max limit of texture in the normalization operation for texture wgt.\n
-        Higher the value, the lower the sharpening intersity of the weak texture.\n
-        Freq of use: high))  */
-    // @reg: hw_sharp_texReserve_level, hw_sharp_tex_scale
-    float hw_sharpT_tex2ShpScl_scale;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_sharp_tex2wgt_en),
-        M4_TYPE(bool),
-        M4_DEFAULT(0),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(1),
-        M4_NOTES(....
-        Freq of use: high))  */
-    // reg: hw_sharp_tex2wgt_en;
-    bool hw_sharpT_texShpSclRemap_en;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_sharp_tex2wgt_val),
-        M4_TYPE(u16),
-        M4_SIZE_EX(1,17),
-        M4_RANGE_EX(0,9),
-        M4_DEFAULT(3),
-        M4_DIGIT_EX(1),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(1),
-        M4_NOTES( ....\n
-        Higher the value, the lower the sharpening intersity of the weak texture.\n
-        Freq of use: high))  */
-    // @reg: sw_sharp_tex2wgt_val0~16
-    uint16_t hw_sharpT_texShpSclRemap_val[SHARP_TXETCURVE_SEGMENT_MAX];
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_sharp_clipIdx_sel),
-        M4_TYPE(enum),
-        M4_ENUM_DEF(),
-        M4_DEFAULT(sharp_orgPix_mode),
+        M4_RANGE_EX(0,15.0),
+        M4_DEFAULT(6.0),
+        M4_DIGIT_EX(2),
+        M4_FP_EX(0,10,2),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_NOTES(The clip mode of hf data after sharp operation.\n
+		M4_GROUP(edgeWgtCurve_mode_group:shp_formuleCurve_mode),
+        M4_NOTES(The edgewgtCurve power value. Only valid on shp_formuleCurve_mode.\n
+		Formule: val = MIN(1023, edgeWgt_minLimit + ROUND_F(1024 * (1 - pow(1 - pow(i / 16 , power), power)))).\n
+        Freq of use: low))  */
+	//reg: hw_shp_edgeWgt_val0~16
+	//para: edgeWgtCurve_power
+    float sw_shpT_curvePower_val;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(edgeWgt_minLimit),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1023.0),
+        M4_DEFAULT(0.0),
+        M4_DIGIT_EX(2),
+        M4_FP_EX(0,10,0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+		M4_GROUP(edgeWgtCurve_mode_group:shp_formuleCurve_mode),
+        M4_NOTES(the lower limit for edge weight. Only valid on shp_formuleCurve_mode\n
+		Formule: val = MIN(1023, edgeWgt_minLimit + ROUND_F(1024 * (1 - pow(1 - pow(i / 16 , power), power)))).\n
+        Freq of use: low))  */
+	//reg: hw_shp_edgeWgt_val0~16
+	//para: edgeWgtCurve_power
+    float sw_shpT_edgeStrg_minLimit;
+} shp_edgeStrgCurveCtrl_t;
+
+typedef struct shp_edgeShpStrg_s{
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(filtCfg_mode),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(shp_curveCfg_mode_t),
+        M4_DEFAULT(shp_cfgCurveDirect_mode),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_GROUP_CTRL(edgeWgtCurve_mode_group),
+        M4_NOTES(The config mode of lpf used for hi-freq pre filtering processing of input pixels of the sharp module.\n
         Reference enum types.\n
         Freq of use: low))  */
-    // @reg: hw_sharp_clipIdx_sel
-    sharp_bwEdg_mode_t sw_sharpT_bwEdgClipIdx_mode;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_sharp_luma2posClip_val),
-        M4_TYPE(u16),
+    shp_curveCfg_mode_t sw_shpT_edgeStrgCurve_mode;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(posEdgeWgt_scale),
+        M4_TYPE(f32),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,8),
-        M4_DEFAULT(3),
-        M4_DIGIT_EX(1),
+        M4_RANGE_EX(0,1023.0),
+        M4_DEFAULT(10.0),
+        M4_DIGIT_EX(2),
+        M4_FP_EX(0,10,2),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_GROUP(edgeLpf_filtCfg_mode_group:shp_cfgByFiltStrg_mode),
+        M4_NOTES(The scaling coefficient for the estimated edge probability, as the x-value for the positive edge signal weight.\n
+        Freq of use: low))  */
+    // @reg: hw_shp_posEdgeWgt_scale
+    float hw_shpT_edgePosIdx_scale;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(negEdgeWgt_scale),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1023.0),
+        M4_DEFAULT(12.0),
+        M4_DIGIT_EX(2),
+        M4_FP_EX(0,10,2),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_GROUP(edgeLpf_filtCfg_mode_group:shp_cfgByFiltStrg_mode),
+        M4_NOTES(The scaling coefficient for the estimated edge probability, as the x-value for the negative edge signal weight.\n
+        Freq of use: low))  */
+    // @reg: hw_shp_negEdgeWgt_scale
+    float hw_shpT_edgeNegIdx_scale;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(toneCurveCtrl),
+        M4_TYPE(struct),
+        M4_UI_MODULE(drc_coeff_curve),
+        M4_DATAX([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(TODO))  */
+    shp_edgeStrgCurveCtrl_t edgeStrgCurveCtrl;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(edgeWgt_val),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,17),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT([2,4,6,8,10,12,17,42,92,180,316,500,708,890,995,1023,1023]),
+        M4_DIGIT_EX(0),
+        M4_FP_EX(0,10,0),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_NOTES( The limit of hf data is based on luma in the clip operation.\n
-        The higher value, the higer range for sharp.\n
-        Freq of use: high))  */
-    // @reg: hw_sharp_luma2posClip_val0~7
-    uint16_t hw_sharpT_luma2WhtEdg_maxLimit[8];
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_sharp_luma2negClip_val),
-        M4_TYPE(u16),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,8),
-        M4_DEFAULT(3),
-        M4_DIGIT_EX(1),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(1),
-        M4_NOTES( The limit of hf data is based on luma in the clip operation.\n
-        The higher value, the higer range for sharp.\n
-        Freq of use: high))  */
-    // @reg: hw_sharp_luma2negClip_val0~7
-    uint16_t hw_sharpT_luma2BkEdg_maxLimit[8];
-} sharp_sharpOpt_dyn_t;
+        M4_GROUP(edgeWgtCurve_mode_group:shp_manualCurve_mode),
+        M4_NOTES(The manual edgeWgt curve value . Only valid on shp_manualCurve_mode.\n
+        Freq of use: low))  */
+    // @reg: hw_shp_edgeWgt_val0~16
+    uint16_t hw_shpT_edgeStrg_val[17];
+} shp_edgeShpStrg_t;
 
-typedef struct sharp_hfExtra_preBifilt_dyn_s {
+typedef struct shp_edgeShoot_s{
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(filtCfg_mode),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(shp_maxMinFlt_mode_t),
+        M4_DEFAULT(shp_maxMinFiltRadius7_mode),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(SHARP maxmin filter mode.\n
+        Reference enum types.\n
+        Freq of use: low))  */
+    //@reg: hw_sharp_maxminFlt_mode
+    //@para: maxminFlt_mode
+    shp_maxMinFlt_mode_t sw_shpT_maxMinFlt_mode;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(edgeWgt_minLimit),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1.0),
+        M4_DEFAULT(1.0),
+        M4_DIGIT_EX(3),
+        M4_FP_EX(0,1,5),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+		M4_GROUP(edgeWgtCurve_mode_group:shp_formuleCurve_mode),
+        M4_NOTES(linear scaling ratio of the difference between edge overshoot signal and local extremum.\n
+        Freq of use: low))  */
+	//reg: hw_shp_overshoot_alpha
+    float sw_shpT_overShoot_alpha;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(edgeWgt_minLimit),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1.0),
+        M4_DEFAULT(1.0),
+        M4_DIGIT_EX(3),
+        M4_FP_EX(0,1,5),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+		M4_GROUP(edgeWgtCurve_mode_group:shp_formuleCurve_mode),
+        M4_NOTES(linear scaling ratio of the difference between edge undershoot signal and local extremum.\n
+        Freq of use: low))  */
+	//reg: hw_shp_undershoot_alpha
+    float sw_shpT_underShoot_alpha;
+}shp_edgeShoot_t;
+
+typedef struct shp_edge_dyn_s{
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(edgeLpf),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(TODO))  */
+    shp_edgeExtra_t edgeExtra;	
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(glbShpStrg),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(TODO))  */
+    shp_edge_glbShpStrg_t glbShpStrg;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(edgeShpStrg),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(TODO))  */
+    shp_edgeShpStrg_t locShpStrg_edge;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(edgeShoot),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(TODO))  */
+    shp_edgeShoot_t shootReduction;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(edgeMotionWgt1),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(TODO))  */
+        //@para: edgeMotionWgt_sel
+    // @para: edgeStaticRegion_thred
+    // @para: edgeMotionRegion_thred
+    // @para: edgeMotionWgt_minLimit
+    // @para: edgeMotionWgt_maxLimit
+    shp_motionStrg1_t locShpStrg_motionStrg1;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(edgeMotionWgt2),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(TODO))  */
+    //para: edgeMotionWgt_sigma
+    shp_motionStrg2_t locShpStrg_motionStrg2;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(motionWgt),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_lumaShpStrgEn_t locShpStrg_luma;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(motionWgt),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_radiDistShpStrgEn_t locShpStrg_radiDist;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(motionWgt),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_hueShpStrgEn_t locShpStrg_hue;
+}shp_edge_dyn_t;
+
+
+typedef struct shp_detailSigmaEnv_dyn_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(hw_shp_detailBifilt_vsigma),
+        M4_TYPE(struct),
+        M4_UI_MODULE(curve_ui),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(The range sigma curve of bifilter.\n
+        Freq of use: low))  */
+    // @reg: hw_shp_preBifilt_vsigma_inv0~7, hw_shp_detailBifilt_vsigma_inv0~7
+    shp_sigmaCurve_t sw_shpC_luma2Sigma_curve;
+} shp_detailSigmaEnv_dyn_t;
+
+
+
+typedef struct shp_detailPreBifilt_dyn_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(kernel_sigma_enable),
         M4_TYPE(enum),
-        M4_ENUM_DEF(sharp_filtCfg_mode_t),
-        M4_DEFAULT(sharp_cfgByFiltStrg_mode),
+        M4_ENUM_DEF(shp_filtCfg_mode_t),
+        M4_DEFAULT(shp_cfgByFiltStrg_mode),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP_CTRL(pbft_filtCfg_mode_group),
         M4_NOTES(The config mode of pre bifilter used for hi-freq pre filtering processing of input pixels of the sharp module.\n
         Reference enum types.\n
         Freq of use: low))  */
-    // @para: kernel_sigma_enable  (kernel_sigma_enable == true) ->  sharp_cfgByFiltStrg_mode
-    sharp_filtCfg_mode_t sw_sharpT_filtCfg_mode;
+    // @para: kernel_sigma_enable  (kernel_sigma_enable == true) ->  shp_cfgByFiltStrg_mode
+    shp_filtCfg_mode_t sw_shpT_filtCfg_mode;
     /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_sharp_preBifilt_strg),
+        M4_ALIAS(sw_shp_preBifilt_strg),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,100.0),
+        M4_RANGE_EX(0,256.0),
         M4_DEFAULT(1.0),
         M4_DIGIT_EX(2),
         M4_FP_EX(0,7,8),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_NOTES(The spatial wgt of pre bifilter is operator from the strength value. Only valid on sharp_cfgByFiltStrg_mode.\n
+        M4_GROUP(pbft_filtCfg_mode_group:shp_cfgByFiltStrg_mode),
+        M4_NOTES(The spatial wgt of pre bifilter is operator from the strength value. Only valid on shp_cfgByFiltStrg_mode.\n
         Higher the value, the higher spatial denoise strength.\n
         Freq of use: high))  */
-    // @reg: sw_sharp_preBifilt_coeff0~sw_sharp_preBifilt_coeff2
-    // @para: prefilter_sigma
-    float sw_sharpT_filtSpatial_strg;
+    // @reg: sw_shp_preBifilt_coeff0~sw_shp_preBifilt_coeff2
+    // @para: preBifilt_rsigma
+    float sw_shpT_filtSpatial_strg;
     /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_sharp_preBifilt_coeff),
+        M4_ALIAS(sw_shp_preBifilt_coeff),
         M4_TYPE(f32),
         M4_SIZE_EX(1,3),
         M4_RANGE_EX(0,1.0),
@@ -395,14 +1200,15 @@ typedef struct sharp_hfExtra_preBifilt_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_NOTES(The spatial filter kernel of bifilter . Only valid on sharp_cfgByFiltCoeff_mode.\n
+        M4_GROUP(pbft_filtCfg_mode_group:shp_cfgByFiltCoeff_mode),
+        M4_NOTES(The spatial filter kernel of bifilter . Only valid on shp_cfgByFiltCoeff_mode.\n
         coeff[0] + 4*coeff[1] + 4*coeff[2] == 1.0 .\n
         Freq of use: low))  */
-    // @reg: sw_sharp_preBifilt_coeff0~sw_sharp_preBifilt_coeff2
+    // @reg: sw_shp_preBifilt_coeff0~sw_shp_preBifilt_coeff2
     // @para: prefilter_coeff
-    float hw_sharpT_filtSpatial_wgt[3];
+    float hw_shpT_filtSpatial_wgt[3];
     /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_sharp_preBifilt_scale),
+        M4_ALIAS(sw_shp_preBifilt_scale),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0,4.0),
@@ -415,14 +1221,14 @@ typedef struct sharp_hfExtra_preBifilt_dyn_s {
         M4_NOTES(The scaling factor of the range sigma of pre bifilter.\n
         Higher the value, the stronger denoise strength of pre bifilter.
         Freq of use: high))  */
-    // @reg: hw_sharp_preBifilt_vsigma_inv0~7
-    // @para: sw_sharp_preBifilt_scale
-    float sw_sharpT_rgeSgm_scale;
+    // @reg: hw_shp_preBifilt_vsigma_inv0~7
+    // @para: sw_shp_preBifiltVsigma_scale
+    float sw_shpT_rgeSgm_scale;
     /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_sharp_preBifilt_offset),
+        M4_ALIAS(sw_shp_preBifilt_offset),
         M4_TYPE(u8),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(4,15),
+        M4_RANGE_EX(0,1023),
         M4_DEFAULT(1),
         M4_DIGIT_EX(2),
         M4_FP_EX(0,1,3),
@@ -432,11 +1238,30 @@ typedef struct sharp_hfExtra_preBifilt_dyn_s {
         M4_NOTES(The offset of the range sigma of pre bifilter.\n
         Higher the value, the stronger denoise strength of pre bifilter.
         Freq of use: low))  */
-    // @reg: hw_sharp_preBifilt_vsigma_inv0~7
-    // @para: sw_sharp_preBifilt_offset
-    uint8_t sw_sharpT_rgeSgm_offset;
+    // @reg: hw_shp_preBifilt_vsigma_inv0~7
+    // @para: sw_shp_preBifiltVsigma_offset
+    uint8_t sw_shpT_rgeSgm_offset;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(preBifilt_slope),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,4.0),
+        M4_DEFAULT(1.0),
+        M4_DIGIT_EX(3),
+        M4_FP_EX(0,3,8),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_NOTES(The slope of the range weight curve.\n
+        Freq of use: high))  */
+    // @reg: hw_shp_preBifilt_slope_fix
+    float hw_shpT_rgeWgt_slope;
+    
+} shp_detailPreBifilt_dyn_t;
+
+typedef struct shp_detail_lpfSrc_s {
     /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_sharp_preBifilt_alpha),
+        M4_ALIAS(sw_shp_preBifilt_alpha),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0,1.0),
@@ -449,445 +1274,820 @@ typedef struct sharp_hfExtra_preBifilt_dyn_s {
         M4_NOTES(The wgt of pre bifilted pixel is used in the fusion operation between the pre bifilted pixel and the original pixel.\n
         Higher the value, the stronger denoise strength of pre bilateral filter.
         Freq of use: high))  */
-    // @reg: sw_sharp_preBifilt_alpha
-    // @para: sw_sharp_preBifilt_alpha
-    float hw_sharpT_bifiltOut_alpha;
-}sharp_hfExtra_preBifilt_dyn_t;
+    // @reg: 1 - sw_shp_preBifilt_alpha
+    // @para: 1 - sw_shp_preBifilt_alpha
+    float hw_shpT_detailSrcHf_alpha;
 
-typedef enum sharp_hfExtra_lpfCfg_mode_e {
-    // @note: Users can control the generation of the final hardware low-pass filter operator by configuring the low-pass filter strengths of two different frequency bands.
-    sharp_cfgBy2SwLpfStrg_mode = 0,
-    // @note: The filter coefficients for configuring filters are directly input.
-    sharp_cfgByHwLpfCoeff_mode = 1
-} sharp_hfExtra_lpfCfg_mode_t;
-
-typedef struct sharp_hfExtra_lpf_dyn_s {
     /* M4_GENERIC_DESC(
-        M4_ALIAS(kernel_sigma_enable),
+        M4_ALIAS(sw_shp_preBifilt_alpha),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1.0),
+        M4_DEFAULT(0.3),
+        M4_DIGIT_EX(4),
+        M4_FP_EX(0,1,7),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_NOTES(The wgt of pre bifilted pixel is used in the fusion operation between the pre bifilted pixel and the original pixel.\n
+        Higher the value, the stronger denoise strength of pre bilateral filter.
+        Freq of use: high))  */
+    // @reg: sw_shp_detailIn_alpha
+    // @para: detailLpfData_alpha
+    float hw_shpT_detailSrcMf_alpha;
+} shp_detail_lpfSrc_t;
+
+typedef enum shp_filtRadius_mode_e {
+    // @note: radius = 1
+    shp_filtRadius3_mode = 1,
+    // @note: radius = 2
+    shp_filtRadius5_mode = 2
+} shp_filtRadius_mode_t;
+
+typedef struct shp_hiDetailFilt_dyn_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(filtCfg_mode),
         M4_TYPE(enum),
-        M4_ENUM_DEF(sharp_hfExtra_lpfCfg_mode_t),
-        M4_DEFAULT(sharp_cfgBy2SwLpfStrg_mode),
+        M4_ENUM_DEF(shp_filtCfg_mode_t),
+        M4_DEFAULT(shp_cfgByFiltStrg_mode),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_NOTES(The config mode of gaus filter is lpf for input pixels  of the sharp module.\n
+        M4_GROUP_CTRL(lpf_filtCfg_mode_group),
+        M4_NOTES(The config mode of gaus filter is lpf for input pixels of the sharp module.\n
         Reference enum types.\n
         Freq of use: low))  */
-    // @para: kernel_sigma_enable  (kernel_sigma_enable == true) ->  sharp_cfgBy2SwLpfStrg_mode
-    sharp_hfExtra_lpfCfg_mode_t sw_sharpT_filtCfg_mode;
+    shp_filtCfg_mode_t sw_shpT_filtCfg_mode;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(hiDetailLpf_radius),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(shp_filtRadius_mode_t),
+        M4_DEFAULT(shp_filtRadius3_mode),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(The radius of hi detail gaus filter .\n
+        Reference enum types.\n
+        Freq of use: low))  */
+    shp_filtRadius_mode_t sw_shpT_filtRadius_mode;
     /* M4_GENERIC_DESC(
-        M4_ALIAS(imgLpf0_rsigma),
+        M4_ALIAS(hiDetailLpf_rsigma),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,100.0),
+        M4_RANGE_EX(0,256.0),
         M4_DEFAULT(1.0),
         M4_DIGIT_EX(2),
         M4_FP_EX(0,7,8),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_NOTES(The spatial wgt of gaus filter is operator from the strength value. Only valid on sharp_cfgBy2SwLpfStrg_mode.\n
+        M4_GROUP(lpf_filtCfg_mode_group:shp_cfgBy2SwLpfStrg_mode),
+        M4_NOTES(The spatial wgt of gaus filter is operator from the strength value. Only valid on shp_cfgBy2SwLpfStrg_mode.\n
         Higher the value, the higher spatial denoise strength.\n
         Freq of use: high))  */
-    // @reg: sw_sharp_imgLpf_coeff0~5
-    // @para: GaussianFilter_sigma
-    float sw_sharpT_hfHi_strg;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(imgLpf1_rsigma),
-        M4_TYPE(f32),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,100.0),
-        M4_DEFAULT(1.0),
-        M4_DIGIT_EX(2),
-        M4_FP_EX(0,7,8),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(1),
-        M4_NOTES(The spatial wgt of gaus filter is operator from the strength value. Only valid on sharp_cfgBy2SwLpfStrg_mode.\n
-        Higher the value, the higher spatial denoise strength.\n
-        Freq of use: high))  */
-    // @reg: sw_sharp_imgLpf_coeff0~5
-    // @para: GaussianFilter_sigma
-    float sw_sharpT_hfMid_strg;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_sharp_imgLpf_coeff),
+    // @reg: hw_shp_hiDetailLpf_coeff0~5
+    float sw_shpT_filtSpatial_strg;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(hiDetailLpf_coeff),
         M4_TYPE(f32),
         M4_SIZE_EX(1,6),
         M4_RANGE_EX(0,1.0),
-        M4_DEFAULT([0.2042,0.1238,0.0751,0,0,0]),
+        M4_DEFAULT([0.0632, 0.0558, 0.0492, 0.0383, 0.0338,0.0232]),
         M4_DIGIT_EX(4),
         M4_FP_EX(0,0,7),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_NOTES(The spatial filter kernel of gaus filter . Only valid on sharp_cfgByHwLpfCoeff_mode.\n
+        M4_GROUP(lpf_filtCfg_mode_group:shp_cfgByHwLpfCoeff_mode),
+        M4_NOTES(The spatial filter kernel of gaus filter . Only valid on shp_cfgByHwLpfCoeff_mode.\n
         coeff[0] + 4*coeff[1] + 4*coeff[2] + 4*coeff[3] + 8*coeff[4] + 4*coeff[5] == 1.\n
         Freq of use: low))  */
-    // @reg: sw_sharp_imgLpf_coef_0~5
-    // @para: GaussianFilter_coeff
-    float hw_sharpT_lpf_wgt[6];
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_sharp_guideFilt_alpha),
-        M4_TYPE(f32),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,1.0),
-        M4_DEFAULT(0.3),
-        M4_DIGIT_EX(4),
-        M4_FP_EX(0,1,7),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(1),
-        M4_NOTES(The wgt of gaus filted pixel is used in the fusion operation between the filted pixel and the original pixel.\n
-        Higher the value, the stronger denoise strength of gaus filter.
-        Freq of use: high))  */
-    // @reg: sw_sharp_guideFilt_alpha
-    float hw_sharpT_lpfOut_alpha;
-} sharp_hfExtra_lpf_dyn_t;
+    // @reg: hw_shp_hiDetailLpf_coeff0~5
+    float hw_shpT_filtSpatial_wgt[6];
+} shp_hiDetailFilt_dyn_t;
 
-typedef struct sharp_hfExtra_hfBifilt_dyn_s {
+
+typedef struct shp_midDetailFilt_dyn_s {
     /* M4_GENERIC_DESC(
-        M4_ALIAS(kernel_sigma_enable),
+        M4_ALIAS(filtCfg_mode),
         M4_TYPE(enum),
-        M4_ENUM_DEF(sharp_filtCfg_mode_t),
-        M4_DEFAULT(sharp_cfgByFiltStrg_mode),
+        M4_ENUM_DEF(shp_filtCfg_mode_t),
+        M4_DEFAULT(shp_cfgByFiltStrg_mode),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_NOTES(The config mode of bifilter used for hi-freq data that generated from pre bifilter and gaus filter.\n
+        M4_GROUP_CTRL(lpf_filtCfg_mode_group),
+        M4_NOTES(The config mode of gaus filter is lpf for input pixels of the sharp module.\n
         Reference enum types.\n
         Freq of use: low))  */
-    // @para: kernel_sigma_enable  (kernel_sigma_enable == true) ->  sharp_cfgByFiltStrg_mode
-    sharp_filtCfg_mode_t sw_sharpT_filtCfg_mode;
+    shp_filtCfg_mode_t sw_shpT_filtCfg_mode;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(hiDetailLpf_radius),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(shp_filtRadius_mode_t),
+        M4_DEFAULT(shp_filtRadius3_mode),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(The radius of hi detail gaus filter .\n
+        Reference enum types.\n
+        Freq of use: low))  */
+    shp_filtRadius_mode_t sw_shpT_filtRadius_mode;
     /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_sharp_detailBifilt_strg),
+        M4_ALIAS(hiDetailLpf_rsigma),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,100.0),
+        M4_RANGE_EX(0,256.0),
         M4_DEFAULT(1.0),
         M4_DIGIT_EX(2),
         M4_FP_EX(0,7,8),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_NOTES(The spatial wgt of bifilter is operator from the strength value. Only valid on sharp_cfgByFiltStrg_mode.\n
+        M4_GROUP(lpf_filtCfg_mode_group:shp_cfgBy2SwLpfStrg_mode),
+        M4_NOTES(The spatial wgt of gaus filter is operator from the strength value. Only valid on shp_cfgBy2SwLpfStrg_mode.\n
         Higher the value, the higher spatial denoise strength.\n
         Freq of use: high))  */
-    // @reg: sw_sharp_detailBifilt_coeff0~sw_sharp_detailBifilt_coeff2
-    // @para: sw_sharp_detailBifilt_rsigma
-    float sw_sharpT_filtSpatial_strg;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_sharp_detailBifilt_coeff),
+    // @reg: hw_shp_miDetailLpf_coeff0~5
+    float sw_shpT_filt_strg;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(hiDetailLpf_coeff),
         M4_TYPE(f32),
-        M4_SIZE_EX(1,3),
+        M4_SIZE_EX(1,6),
         M4_RANGE_EX(0,1.0),
-        M4_DEFAULT([0.2042,0.1238,0.0751]),
-        M4_DIGIT_EX(3),
-        M4_FP_EX(0,1,7),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(1),
-        M4_NOTES(The spatial filter kernel of bifilter . Only valid on sharp_cfgByFiltCoeff_mode.\n
-        coeff[0] + 4*coeff[1] + 4*coeff[2] == 1.0.\n
-        Freq of use: low))  */
-    // @reg: sw_sharp_detailBifilt_coeff0~sw_sharp_detailBifilt_coeff2
-    // @para: hfBilateralFilter_coeff
-    float hw_sharpT_filtSpatial_wgt[3];
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_sharp_detailBifilt_scale),
-        M4_TYPE(f32),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,4.0),
-        M4_DEFAULT(1.0),
+        M4_DEFAULT([0.0632, 0.0558, 0.0492, 0.0383, 0.0338,0.0232]),
         M4_DIGIT_EX(4),
-        M4_FP_EX(0,3,7),
+        M4_FP_EX(0,0,7),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_NOTES(The scaling factor of the range sigma of bilateral filter.\n
-        Higher the value, the stronger denoise strength of bilateral filter.
-        Freq of use: high))  */
-    // @reg: hw_sharp_detailBifilt_vsigma_inv0~7
-    // @para: sw_sharp_detailBifilt_scale
-    float sw_sharpT_rgeSgm_scale;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_sharp_detailBifilt_offset),
-        M4_TYPE(uint8_t),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(4,15),
-        M4_DEFAULT(1.0),
-        M4_DIGIT_EX(2),
-        M4_FP_EX(0,1,3),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(1),
-        M4_NOTES(The offset of the range sigma of bilateral filter.\n
-        Higher the value, the stronger denoise strength of bilateral filter.
+        M4_GROUP(lpf_filtCfg_mode_group:shp_cfgByHwLpfCoeff_mode),
+        M4_NOTES(The spatial filter kernel of gaus filter . Only valid on shp_cfgByHwLpfCoeff_mode.\n
+        coeff[0] + 4*coeff[1] + 4*coeff[2] + 4*coeff[3] + 8*coeff[4] + 4*coeff[5] == 1.\n
         Freq of use: low))  */
-    // @reg: hw_sharp_detailBifilt_vsigma_inv0~7
-    // @para: sw_sharp_detailBifilt_offset
-    uint8_t sw_sharpT_rgeSgm_offset;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_sharp_detailBifilt_alpha),
-        M4_TYPE(f32),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,1.0),
-        M4_DEFAULT(0.3),
-        M4_DIGIT_EX(4),
-        M4_FP_EX(0,1,7),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(1),
-        M4_NOTES(The wgt of bifilted pixel is used in the fusion operation between the filted pixel and the original pixel.\n
-        Higher the value, the stronger denoise strength of bilateral filter.\n
-        Freq of use: high))  */
-    // @reg: sw_sharp_detailBifilt_alpha
-    // @para: detail_bifilt_alpha
-    float hw_sharpT_biFiltOut_alpha;
-} sharp_hfExtra_hfBifilt_dyn_t;
-
-typedef struct sharp_hfExtra_sigmaEnv_dyn_s {
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_sharp_detailBifilt_vsigma),
-        M4_TYPE(struct),
-        M4_UI_MODULE(curve_ui),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(2),
-        M4_NOTES(The range sigma curve of bifilter.\n
-        Freq of use: high))  */
-   // @reg: hw_sharp_preBifilt_vsigma_inv0~7, hw_sharp_detailBifilt_vsigma_inv0~7
-    sharp_sigmaCurve_t sw_sharpC_luma2Sigma_curve;
-} sharp_hfExtra_sigmaEnv_dyn_t;
+    // @reg: hw_shp_miDetailLpf_coeff0~5
+    float hw_shpT_filtSpatial_wgt[6];
+} shp_midDetailFilt_dyn_t;
 
 
-typedef enum sharp_estNsClip_mode_s {
-    // @note: sw_sharp_noiseClip_sel == 0
-    sharp_preNsSgmStats_mode = 0,
-    // @note: sw_sharp_noiseClip_sel == 1
-    sharp_setManual_mode = 1
-} sharp_estNsClip_mode_t;
+typedef enum shp_tex2DetailAlpha_mode_e{
+	// hw_shp_detailFusionWgt_mode == 0,  The larger the texture weight, the greater the weight of using hi_hf
+	shp_tex2AlphaPosCorr_mode = 0,
+	// hw_shp_detailFusionWgt_mode == 1,  The larger the texture weight, the smaller the weight of using hi_hf
+	shp_tex2AlphaNegCorr_mode = 1
+}shp_tex2DetailAlpha_mode_t;
 
-typedef enum sharp_estNsFilt_mode_s {
-    // @note: sw_sharp_noiseFilt_sel == 0
-    sharp_allFilt_mode = 0,
-    // @note: sw_sharp_noiseFilt_sel == 1
-    sharp_nhoodFiltOnly_mode = 1
-} sharp_estNsFilt_mode_t;
-
-typedef struct sharp_shpScl_texDct_dyn_s {
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_sharp_noiseclip_mode),
+typedef struct shp_detailAlpha_s{
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(freqBlending_mode),
         M4_TYPE(enum),
-        M4_ENUM_DEF(hw_sharpT_nsPredFilt_mode),
-        M4_DEFAULT(sharp_nhoodFiltOnly_mode),
+        M4_ENUM_DEF(shp_tex2DetailAlpha_mode_t),
+        M4_DEFAULT(shp_tex2AlphaPosCorr_mode),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_NOTES(The mode of the noise sigma limit source. The noise sigma is used in formulas: Texture  = Pix sigma - Noise sigma. \n
+		M4_GROUP_CTRL(noiseCurve_mode_group),
+        M4_NOTES(The mode of the noise curve. \n
         Reference enum types.\n
         Freq of use: low))  */
-    // @reg: hw_sharp_noiseclip_mode
-    sharp_estNsFilt_mode_t hw_sharpT_estNsFilt_mode;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_sharp_noiseNorm_bit),
-        M4_TYPE(uint16_t),
+    // @para: freqBlending_mode
+    shp_tex2DetailAlpha_mode_t hw_shpT_detailAlpha_mode;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(fusionWgt_minLimit),
+        M4_TYPE(u8),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,1023),
-        M4_DEFAULT(1.0),
-        M4_DIGIT_EX(1),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_FP_EX(0,1,0),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_NOTES(TODO\n
+        M4_NOTES(the lower limit of detail fusion weight.\n
+		Fusion weight is equal to 1024 when this bit set 1.\n
         Freq of use: low))  */
-    // @reg: hw_sharp_noiseNorm_bit
-    uint16_t hw_sharpT_estNsNorize_shift;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_sharp_noiseclip_mode),
-        M4_TYPE(enum),
-        M4_ENUM_DEF(sharp_nsPredClip_mode_t),
-        M4_DEFAULT(sharp_preNsSgmStats_mode),
+    // @reg: hw_shp_fusionWgt_minLimit
+    uint8_t hw_shpT_hiDetailAlpha_minLimit;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(fusionWgt_maxLimit),
+        M4_TYPE(u8),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT(1),
+        M4_DIGIT_EX(0),
+        M4_FP_EX(0,1,0),
         M4_HIDE_EX(0),
         M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(The mode of the noise sigma limit source. The noise sigma is used in formulas: Texture  = Pix sigma - Noise sigma. \n
-        Reference enum types.\n
+        M4_ORDER(1),
+        M4_NOTES(the upper limit of detail fusion weight.\n
+		Fusion weight is equal to 0 when this bit set 0.\n
         Freq of use: low))  */
-    // @reg: hw_sharp_noiseclip_mode
-    sharp_estNsClip_mode_t hw_sharpT_estNsClip_mode;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_sharp_noise_maxLimit),
+    // @reg: hw_shp_fusionWgt_maxLimit
+    uint8_t hw_shpT_hiDetailAlpha_maxLimit;
+}shp_detailAlpha_t;
+
+
+
+typedef struct shp_detailContrast_s{
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(contrast2posStrg_val),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,4),
+        M4_RANGE_EX(0,1.0),
+        M4_DEFAULT([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
+        M4_HIDE_EX(0),
+        M4_UI_MODULE(curve),
+        M4_DATAX([0, 128, 256, 384, 512, 650, 768, 896, 1024]),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(the scale of detail positive signal based on local dynamic range. \n
+        Freq of use: low))  */
+    // @reg: hw_shp_contrast2posStrg_val0~8
+    float hw_shpT_contrast2posStrg_val[9];
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(contrast2negStrg_val),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,4),
+        M4_RANGE_EX(0,1.0),
+        M4_DEFAULT([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
+        M4_HIDE_EX(0),
+        M4_UI_MODULE(curve),
+        M4_DATAX([0, 128, 256, 384, 512, 650, 768, 896, 1024]),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(the scale0 of detail negative signal based on local dynamic range. \n
+        Freq of use: low))  */
+    // @reg: hw_shp_contrast2negStrg_val0~8
+    float hw_shpT_contrast2negStrg_val[9];
+}shp_detailContrast_t;
+
+typedef struct shp_detailShootReduction_s{
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(tex2detailPosClip_val),
         M4_TYPE(u16),
-        M4_SIZE_EX(1,1),
+        M4_SIZE_EX(1,9),
         M4_RANGE_EX(0,1023),
-        M4_DEFAULT(1.0),
-        M4_DIGIT_EX(1),
+        M4_DEFAULT([1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023]),
         M4_HIDE_EX(0),
+        M4_UI_MODULE(curve),
+        M4_DATAX([0, 128, 256, 384, 512, 650, 768, 896, 1024]),
         M4_RO(0),
-        M4_ORDER(1),
-        M4_NOTES(The max limit of noise sigma is used in formulas: Texture  = Pix sigma - Noise sigma. Only valid on  sharp_fromSetManual_mode\n
-        Higher the value, the harder it is to classify as texture.\n
-        Freq of use: high))  */
-    // @reg: hw_sharp_noise_maxLimit
-    uint16_t hw_sharpT_estNsManual_maxLimit;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_sharp_noise_strg),
-        M4_TYPE(f32),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,10.0),
-        M4_DEFAULT(1.0),
-        M4_DIGIT_EX(4),
-        M4_FP_EX(0,4,10),
+        M4_ORDER(0),
+        M4_NOTES(the clip value of positive detail signals based on texture weight. \n
+        Freq of use: low))  */
+    // @reg: hw_shp_tex2detailPosClip_val0~8
+    uint16_t hw_shpT_tex2DetailPosClip_val[9];
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(tex2detailNegClip_val),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,9),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT([1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023]),
         M4_HIDE_EX(0),
+        M4_UI_MODULE(curve),
+        M4_DATAX([0, 128, 256, 384, 512, 650, 768, 896, 1024]),
         M4_RO(0),
-        M4_ORDER(1),
-        M4_NOTES(The scaling factor of noise sigma is used in formulas: Texture  = Pix sigma - Noise sigma.\n
-        Higher the value, the lower the sharpening intersity of the texture.\n
-        Freq of use: high))  */
-    // @reg: hw_sharp_noise_strg
-    float hw_sharpT_estNs_scale;
-} sharp_shpScl_texDct_dyn_t;
-
-typedef struct sharp_shpScl_hf_dyn_s {
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_sharp_luma2strg_val),
-        M4_TYPE(f32),
+        M4_ORDER(0),
+        M4_NOTES(the clip value of negative  detail signals based on texture weight. \n
+        Freq of use: low))  */
+    // @reg: hw_shp_tex2detailNegClip_val0~8
+    uint16_t hw_shpT_tex2DetailNegClip_val[9];
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(tex2detailPosClip_val),
+        M4_TYPE(u16),
         M4_SIZE_EX(1,8),
         M4_RANGE_EX(0,1023),
-        M4_DEFAULT(0),
+        M4_DEFAULT([64, 100, 160, 256, 256, 160, 96, 64]),
+        M4_HIDE_EX(0),
+        M4_UI_MODULE(curve),
+        M4_DATAX([0, 128, 256, 384, 512, 650, 768, 896, 1024]),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(the clip value of positive detail signals based on lo_nr. \n
+        Freq of use: low))  */
+    // @reg: hw_shp_luma2detailPosClip_val0~7
+    uint16_t hw_shpT_luma2DetailPosClip_val[8];
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(luma2detailNegClip_val),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,8),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT([256, 256, 256, 256, 256, 256, 256, 256]),
+        M4_HIDE_EX(0),
+        M4_UI_MODULE(curve),
+        M4_DATAX([0, 64, 128, 256, 384, 640, 896, 1024]),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(the clip value of negative detail signals based on lo_nr. \n
+        Freq of use: low))  */
+    // @reg: hw_shp_luma2detailNegClip_val0~7
+    uint16_t hw_shpT_luma2DetailNegClip_val[8];
+} shp_detailShootReduction_t;
+
+typedef struct shp_detail_glbShpStrg_s{
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(posDetail_strg),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,16.0),
+        M4_DEFAULT(8),
+        M4_DIGIT_EX(2),
+        M4_FP_EX(0,4,2),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_NOTES(TODO\n
+        M4_NOTES(positive detail global strength.\n
+        Freq of use: low))  */
+    // @reg: hw_shp_posDetail_strg
+    float hw_shpT_detailPos_strg;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(posDetail_strg),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,16.0),
+        M4_DEFAULT(8),
+        M4_DIGIT_EX(2),
+        M4_FP_EX(0,4,2),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(negative detail global strength.\n
+        Freq of use: low))  */
+    // @reg: hw_shp_negDetail_strg
+    float hw_shpT_detailNeg_strg;
+}shp_detail_glbShpStrg_t;
+
+typedef struct shp_detail_dyn_s{
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(sgmEnv),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_detailSigmaEnv_dyn_t sgmEnv;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(preBifilt),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_detailPreBifilt_dyn_t detailExtra_preBifilt;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(detailExtra_lpfSrc),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_detail_lpfSrc_t detailExtra_lpfSrc;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(lpf),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_hiDetailFilt_dyn_t hiDetailExtra_lpf;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(lpf),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_midDetailFilt_dyn_t midDetailExtra_lpf;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(fusionWgt),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_detailAlpha_t detailFusion;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(fusionWgt),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_detail_glbShpStrg_t glbShpStrg;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(tex2DetailStrg),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+		M4_GROUP(texWgt_mode_group:shp_fstWgt_x_secWgt_mode|shp_fstWgtOnly_mode|shp_secWgtOnly_mode),
+        M4_NOTES(TODO))  */
+    shp_texRegionShpStrg_t locShpStrg_texRegion;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(shootScale),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_detailContrast_t locShpStrg_contrast;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(shootReduce),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_detailShootReduction_t shootReduction;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(motionWgt),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    //@para: detailMotionWgt_sel
+    // @para: detailStaticRegion_thred
+    // @para: detailMotionRegion_thred
+    // @para: detailMotionWgt_minLimit
+    // @para: detailMotionWgt_maxLimit
+    shp_motionStrg1_t locShpStrg_motionStrg1;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(motionWgt),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    //para: detailMotionWgt_sigma
+    shp_motionStrg2_t locShpStrg_motionStrg2;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(motionWgt),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_lumaShpStrgEn_t locShpStrg_luma;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(motionWgt),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_radiDistShpStrgEn_t locShpStrg_radiDist;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(motionWgt),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_hueShpStrgEn_t locShpStrg_hue;
+}shp_detail_dyn_t;
+
+typedef struct shp_dHiDetail_glbShpStrg_s{
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(posDetail_strg),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,16.0),
+        M4_DEFAULT(8),
+        M4_DIGIT_EX(2),
+        M4_FP_EX(0,4,2),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(positive detail global strength.\n
+        Freq of use: low))  */
+    // @reg: hw_shp_lossTexInHinr_strg
+    float hw_shpT_dHiDetail_strg;
+}shp_dHiDetail_glbShpStrg_t;
+
+typedef struct shp_deepHfDetailExtra_s{
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(noiseSigma_scale),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,16.0),
+        M4_DEFAULT(8),
+        M4_DIGIT_EX(2),
+        M4_FP_EX(0,4,2),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(noise threshold for lossTexInHinr. The scale of ynr_lo_noise_sigma curve.\n
+        Freq of use: low))  */
+    // @reg: hw_shp_hi_tex_threshold0-8
+    float hw_shp_noiseThred_scale;
+} shp_deepHfDetailExtra_t;
+
+typedef enum shp_deepHfDetailMotStrg2_mode_e {
+    shp_deepHfDetailSyncDetail_mode = 0
+} shp_deepHfDetailMotStrg2_mode_t;
+
+typedef struct shp_deepHfDetail_motionStrg2_s {
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(motionStrg_mode),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(shp_deepHfDetailMotStrg2_mode_t),
+        M4_DEFAULT(shp_deepHfDetailSyncDetail_mode),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+		M4_GROUP(motionWgt_mode_group:shp_foldLine_mode),
+        M4_NOTES(The mode of the noise curve. \n
+        Reference enum types.\n
+        Freq of use: low))  */
+    shp_deepHfDetailMotStrg2_mode_t sw_shpT_motionStrg_mode;
+} shp_deepHfDetail_motionStrg2_t;
+
+typedef struct shp_deepHfDetail_dyn_s{
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(detailExtra),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_deepHfDetailExtra_t detailExtra;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(glbShpStrg),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_dHiDetail_glbShpStrg_t glbShpStrg;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(fusionWgt),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_texRegionShpStrg_t locShpStrg_texRegion;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(motionWgt1),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    //@para: hiFreqMotionWgt_sel
+    // @para: hiFreqStaticRegion_thred
+    // @para: hiFreqMotionRegion_thred
+    // @para: hiFreqMotionWgt_minLimit
+    // @para: hiFreqMotionWgt_maxLimit
+    shp_motionStrg1_t locShpStrg_motionStrg1;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(motionWgt2),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_deepHfDetail_motionStrg2_t locShpStrg_motionStrg2;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(motionWgt),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_lumaShpStrgEn_t locShpStrg_luma;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(motionWgt),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_radiDistShpStrgEn_t locShpStrg_radiDist;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(motionWgt),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_hueShpStrgEn_t locShpStrg_hue;
+}shp_deepHfDetail_dyn_t;
+
+typedef struct shp_extHfDetail_glbShpStrg_s{
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(posDetail_strg),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,16.0),
+        M4_DEFAULT(8),
+        M4_DIGIT_EX(2),
+        M4_FP_EX(0,4,2),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(positive detail global strength.\n
+        Freq of use: low))  */
+    // @reg: hw_shp_grain_strg
+    float hw_shpT_eHfDetail_strg;
+}shp_extHfDetail_glbShpStrg_t;
+
+typedef struct shp_extHfDetailExtra_Hpf_s{
+	 /* M4_GENERIC_DESC(
+        M4_ALIAS(grainHpf_filtCfg_mode),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(shp_filtCfg_mode_t),
+        M4_DEFAULT(shp_cfgByFiltStrg_mode),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_GROUP_CTRL(grainHpf_filtCfg_mode_group),
+        M4_NOTES(The config mode of gaus filter is lpf for input pixels of the sharp module.\n
+        Reference enum types.\n
+        Freq of use: low))  */
+    shp_filtCfg_mode_t sw_shpT_filtCfg_mode;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(imgHpf_rsigma),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,256.0),
+        M4_DEFAULT(1.0),
+        M4_DIGIT_EX(2),
+        M4_FP_EX(0,7,8),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_GROUP(grainHpf_filtCfg_mode_group:shp_cfgBy2SwLpfStrg_mode),
+        M4_NOTES(The spatial wgt of high-pass filter is operator from the strength value. Only valid on shp_cfgBy2SwLpfStrg_mode.\n
+        Higher the value, the higher spatial denoise strength.\n
         Freq of use: high))  */
-    // @reg: hw_sharp_luma2strg_val0~7
-    float hw_sharpT_luma2hfScl_val[8];
-} sharp_shpScl_hf_dyn_t;
-
-typedef struct sharp_radiDist_static_s {
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_sharp_center_x),
-        M4_TYPE(s16),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(-1000,1000),
-        M4_DEFAULT(0),
-        M4_DIGIT_EX(1),
+    // @reg: hw_shp_hiDetailLpf_coeff0~5
+    float sw_shpT_filtSpatial_strg;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(imgHpf_coeff0),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,6),
+        M4_RANGE_EX(0,1.0),
+        M4_DEFAULT([0.6838, -0.1759, -0.0943, 0.0339, 0.0264, 0.0125]),
+        M4_DIGIT_EX(4),
+        M4_FP_EX(0,0,7),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_NOTES( The x-coordinates of the optical center in the image\n
-        (0,0) is the img center. (-1000,-1000) is the img left top corner. (1000,1000) is the img right bottom corner\n
+        M4_GROUP(grainHpf_filtCfg_mode_group:shp_cfgByHwLpfCoeff_mode),
+        M4_NOTES(5*5 high pass filter coefficient . Only valid on shp_cfgByHwLpfCoeff_mode.\n
+        coeff[0] + 4*coeff[1] + 4*coeff[2] + 4*coeff[3] + 8*coeff[4] + 4*coeff[5] == 0.\n
         Freq of use: low))  */
-    // @reg: hw_sharp_center_x
-    // @para: Center_Mode
-    int16_t hw_sharpCfg_opticCenter_x;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_sharp_center_y),
-        M4_TYPE(s16),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(-1000,1000),
-        M4_DEFAULT(0),
-        M4_DIGIT_EX(1),
+    // @reg: hw_shp_imgHpf_coeff0~5
+    float hw_shpT_filtSpatial_wgt[6];
+}shp_extHfDetailExtra_t;
+
+typedef struct shp_extHfDetail_shoot_s{
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(tex2detailPosClip_val),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,9),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT([153, 153, 153, 153, 153, 153, 153, 153, 153]),
         M4_HIDE_EX(0),
+        M4_UI_MODULE(curve),
+        M4_DATAX([0, 128, 256, 384, 512, 650, 768, 896, 1024]),
         M4_RO(0),
-        M4_ORDER(1),
-        M4_NOTES( The y-coordinates of the optical center in the image\n
-        (0,0) is the img center. (-1000,-1000) is the img left top corner. (1000,1000) is the img right bottom corner\n
+        M4_ORDER(0),
+        M4_NOTES(The clip value of positive grain signals based on texture weight. \n
         Freq of use: low))  */
-    // @reg: hw_sharp_center_y
-    // @para: Center_Mode
-    int16_t hw_sharpCfg_opticCenter_y;
-} sharp_radiDist_static_t;
+    // @reg: hw_shp_tex2GrainPosClip_val0~8
+    uint16_t hw_shpT_tex2DetailPosClip_val[9];
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(tex2detailNegClip_val),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,9),
+        M4_RANGE_EX(0,1023),
+        M4_DEFAULT([153, 153, 153, 153, 153, 153, 153, 153, 153]),
+        M4_HIDE_EX(0),
+        M4_UI_MODULE(curve),
+        M4_DATAX([0, 128, 256, 384, 512, 650, 768, 896, 1024]),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(The clip value of negative grain signals based on texture weight. \n
+        Freq of use: low))  */
+    // @reg: hw_shp_tex2GrainNegClip_val0~8
+    uint16_t hw_shpT_tex2DetailNegClip_val[9];
+}shp_extHfDetail_shoot_t;
 
+typedef struct shp_extHfDetail_dyn_s{
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(fusionWgt),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_extHfDetailExtra_t detailExtra_hpf;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(fusionWgt),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_extHfDetail_glbShpStrg_t glbShpStrg;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(fusionWgt),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_extHfDetail_shoot_t shootReduction;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(locShpStrg_luma),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    shp_lumaShpStrgEn_t locShpStrg_luma;
+}shp_extHfDetail_dyn_t;
 
-typedef struct sharp_params_static_s {
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(shpScl_radiDist),
+typedef struct shp_dyn_s {
+	 /* M4_GENERIC_DESC(
+        M4_ALIAS(localShpStrg),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_GROUP(shpOpt_mode_group:shp_allShpSclEn_mode|shp_texShpSclDis_othrEn_mode),
+        M4_NOTES(TODO))  */
+    shp_locShpStrg_dyn_t locShpStrg;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(grain_dyn),
         M4_TYPE(struct),
         M4_UI_MODULE(normal_ui_style),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
         M4_NOTES(TODO))  */
-    sharp_radiDist_static_t shpScl_radiDist;
-} sharp_params_static_t;
-
-typedef struct sharp_params_dyn_s {
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(sigmaEnv),
+    shp_extHfDetail_dyn_t eHfDetailShp;
+	/* M4_GENERIC_DESC(
+        M4_ALIAS(hiFreq_dyn),
         M4_TYPE(struct),
         M4_UI_MODULE(normal_ui_style),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
         M4_NOTES(TODO))  */
-    sharp_hfExtra_sigmaEnv_dyn_t hfExtra_sgmEnv;
+    shp_deepHfDetail_dyn_t dHfDetailShp;
     /* M4_GENERIC_DESC(
-        M4_ALIAS(hfExtra_preBifilt),
+        M4_ALIAS(detail_dyn),
         M4_TYPE(struct),
         M4_UI_MODULE(normal_ui_style),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
         M4_NOTES(TODO))  */
-    sharp_hfExtra_preBifilt_dyn_t hfExtra_preBifilt;
+    shp_detail_dyn_t detailShp;
     /* M4_GENERIC_DESC(
-        M4_ALIAS(hfExtra_lpf),
+        M4_ALIAS(edge_dyn),
         M4_TYPE(struct),
         M4_UI_MODULE(normal_ui_style),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
         M4_NOTES(TODO))  */
-    sharp_hfExtra_lpf_dyn_t hfExtra_lpf;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hfExtra_hfBifilt),
-        M4_TYPE(struct),
-        M4_UI_MODULE(normal_ui_style),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(2),
-        M4_NOTES(TODO))  */
-    sharp_hfExtra_hfBifilt_dyn_t hfExtra_hfBifilt;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(shpScl_hf),
-        M4_TYPE(struct),
-        M4_UI_MODULE(normal_ui_style),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(2),
-        M4_NOTES(TODO))  */
-    sharp_shpScl_hf_dyn_t shpScl_hf;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(shpScl_inPixSgm),
-        M4_TYPE(struct),
-        M4_UI_MODULE(normal_ui_style),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(2),
-        M4_NOTES(TODO))  */
-    sharp_locSgmStrg_dyn_t shpScl_locSgmStrg;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(shpScl_texDct),
-        M4_TYPE(struct),
-        M4_UI_MODULE(normal_ui_style),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(2),
-        M4_NOTES(TODO))  */
-    sharp_shpScl_texDct_dyn_t shpScl_texDetect;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(sharpOpt),
-        M4_TYPE(struct),
-        M4_UI_MODULE(normal_ui_style),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(2),
-        M4_NOTES(TODO))  */
-    sharp_sharpOpt_dyn_t sharpOpt;
+    shp_edge_dyn_t edgeShp;
 } sharp_params_dyn_t;
 
-typedef struct sharp_param_s {
+typedef struct shp_param_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(sta),
         M4_TYPE(struct),
@@ -897,10 +2097,10 @@ typedef struct sharp_param_s {
         M4_ORDER(2),
         M4_NOTES(TODO))  */
     sharp_params_static_t sta;
-    /* M4_GENERIC_DESC(
+	/* M4_GENERIC_DESC(
         M4_ALIAS(dyn),
         M4_TYPE(struct),
-        M4_UI_MODULE(dynamic_ui),
+        M4_UI_MODULE(static_ui),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
@@ -909,3 +2109,5 @@ typedef struct sharp_param_s {
 } sharp_param_t;
 
 #endif
+
+

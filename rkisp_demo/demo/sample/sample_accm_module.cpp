@@ -16,14 +16,6 @@
  */
 
 #include "sample_comm.h"
-// #define USE_NEWSTRUCT
-#ifdef ISP_HW_V39
-#include "rk_aiq_user_api2_rk3576.h"
-#elif  defined(ISP_HW_V33)
-#include "rk_aiq_user_api2_rv1103B.h"
-#elif  defined(ISP_HW_V32)
-#include "rk_aiq_user_api2_rv1106.h"
-#endif
 
 static void sample_accm_usage()
 {
@@ -1227,6 +1219,197 @@ int sample_ccm_test(const rk_aiq_sys_ctx_t* ctx)
 
     return 0;
 }
+
+int sample_query_ccm_status(const rk_aiq_sys_ctx_t* ctx)
+{
+    ccm_status_t info;
+    rk_aiq_user_api2_ccm_QueryStatus(ctx, &info);
+    printf("Query CCM status:\n\n");
+    printf("  opMode: %d, en: %d, bypass: %d,\n"
+           "  stMan: {\n    sta: [%d %d %d]; "
+           "    dyn: {\n      alpy: {[2^%d, 4095-2^%d], " 
+           "[%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d]"
+           "[%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d]}\n"
+           "      alpsat: {[-%d, %d]*%f, "
+           "[%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d]}\n"
+           "      enh: {en: %d, ratio_max: %f}\n"
+           "      matrix: [%f, %f, %f, %f, %f, %f, %f, %f, %f] + [%f, %f, %f]\n"
+           "    }\n  }\n  astatus: {illu: %s, sat: %f, scl: %f}\n", 
+            info.opMode, info.en, info.bypass,
+            info.stMan.sta.hw_ccmCfg_rgb2y_coeff[0],
+            info.stMan.sta.hw_ccmCfg_rgb2y_coeff[1],
+            info.stMan.sta.hw_ccmCfg_rgb2y_coeff[2],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_facMax_minThred,
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_facMax_maxThred,
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_loY2Alpha_fac0[0],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_loY2Alpha_fac0[1],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_loY2Alpha_fac0[2],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_loY2Alpha_fac0[3],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_loY2Alpha_fac0[4],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_loY2Alpha_fac0[5],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_loY2Alpha_fac0[6],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_loY2Alpha_fac0[7],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_loY2Alpha_fac0[8],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_loY2Alpha_fac0[9],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_loY2Alpha_fac0[10],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_loY2Alpha_fac0[11],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_loY2Alpha_fac0[12],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_loY2Alpha_fac0[13],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_loY2Alpha_fac0[14],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_loY2Alpha_fac0[15],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_loY2Alpha_fac0[16],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_loY2Alpha_fac0[17],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_hiY2Alpha_fac0[0],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_hiY2Alpha_fac0[1],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_hiY2Alpha_fac0[2],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_hiY2Alpha_fac0[3],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_hiY2Alpha_fac0[4],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_hiY2Alpha_fac0[5],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_hiY2Alpha_fac0[6],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_hiY2Alpha_fac0[7],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_hiY2Alpha_fac0[8],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_hiY2Alpha_fac0[9],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_hiY2Alpha_fac0[10],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_hiY2Alpha_fac0[11],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_hiY2Alpha_fac0[12],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_hiY2Alpha_fac0[13],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_hiY2Alpha_fac0[14],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_hiY2Alpha_fac0[15],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_hiY2Alpha_fac0[16],
+            info.stMan.dyn.ccmAlpha_yFac.hw_ccmT_hiY2Alpha_fac0[17],
+            info.stMan.dyn.ccmAlpha_satFac.hw_ccmT_satIdx_maxLimit,
+            info.stMan.dyn.ccmAlpha_satFac.hw_ccmT_facMax_thred,
+            info.stMan.dyn.ccmAlpha_satFac.hw_ccmT_satIdx_scale,
+            info.stMan.dyn.ccmAlpha_satFac.hw_ccmT_sat2Alpha_fac1[0],
+            info.stMan.dyn.ccmAlpha_satFac.hw_ccmT_sat2Alpha_fac1[1],
+            info.stMan.dyn.ccmAlpha_satFac.hw_ccmT_sat2Alpha_fac1[2],
+            info.stMan.dyn.ccmAlpha_satFac.hw_ccmT_sat2Alpha_fac1[3],
+            info.stMan.dyn.ccmAlpha_satFac.hw_ccmT_sat2Alpha_fac1[4],
+            info.stMan.dyn.ccmAlpha_satFac.hw_ccmT_sat2Alpha_fac1[5],
+            info.stMan.dyn.ccmAlpha_satFac.hw_ccmT_sat2Alpha_fac1[6],
+            info.stMan.dyn.ccmAlpha_satFac.hw_ccmT_sat2Alpha_fac1[7],
+            info.stMan.dyn.ccmAlpha_satFac.hw_ccmT_sat2Alpha_fac1[8],
+            info.stMan.dyn.ccmAlpha_satFac.hw_ccmT_sat2Alpha_fac1[9],
+            info.stMan.dyn.ccmAlpha_satFac.hw_ccmT_sat2Alpha_fac1[10],
+            info.stMan.dyn.ccmAlpha_satFac.hw_ccmT_sat2Alpha_fac1[11],
+            info.stMan.dyn.ccmAlpha_satFac.hw_ccmT_sat2Alpha_fac1[12],
+            info.stMan.dyn.ccmAlpha_satFac.hw_ccmT_sat2Alpha_fac1[13],
+            info.stMan.dyn.ccmAlpha_satFac.hw_ccmT_sat2Alpha_fac1[14],
+            info.stMan.dyn.ccmAlpha_satFac.hw_ccmT_sat2Alpha_fac1[15],
+            info.stMan.dyn.ccmAlpha_satFac.hw_ccmT_sat2Alpha_fac1[16],
+            info.stMan.dyn.enhance.hw_ccmT_enhance_en,
+            info.stMan.dyn.enhance.hw_ccmT_enhanceRat_maxLimit,
+            info.stMan.dyn.ccMatrix.hw_ccmC_matrix_coeff[0],
+            info.stMan.dyn.ccMatrix.hw_ccmC_matrix_coeff[1],
+            info.stMan.dyn.ccMatrix.hw_ccmC_matrix_coeff[2],
+            info.stMan.dyn.ccMatrix.hw_ccmC_matrix_coeff[3],
+            info.stMan.dyn.ccMatrix.hw_ccmC_matrix_coeff[4],
+            info.stMan.dyn.ccMatrix.hw_ccmC_matrix_coeff[5],
+            info.stMan.dyn.ccMatrix.hw_ccmC_matrix_coeff[6],
+            info.stMan.dyn.ccMatrix.hw_ccmC_matrix_coeff[7],
+            info.stMan.dyn.ccMatrix.hw_ccmC_matrix_coeff[8],
+            info.stMan.dyn.ccMatrix.hw_ccmC_matrix_offset[0],
+            info.stMan.dyn.ccMatrix.hw_ccmC_matrix_offset[1],
+            info.stMan.dyn.ccMatrix.hw_ccmC_matrix_offset[2],
+            info.accmStatus.sw_ccmC_illuUsed_name,
+            info.accmStatus.sw_ccmC_ccmSat_val,
+            info.accmStatus.sw_ccmT_glbCcm_scale);
+    return 0;
+}
+
+int sample_ccm_setCalib_test(const rk_aiq_sys_ctx_t* ctx)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    accm_ccmCalib_t calib;
+    memset(&calib, 0, sizeof(accm_ccmCalib_t));
+    //get
+    ret = rk_aiq_user_api2_ccm_GetCalib(ctx, &calib);
+    RKAIQ_SAMPLE_CHECK_RET(ret, "Get CCM CALIB failed!");
+    printf("GetCALIB:\n\n");
+    printf("\t effect matrix_len = %d\n", calib.sw_ccmC_matrixAll_len);
+    for (int i = 0; i < calib.sw_ccmC_matrixAll_len; i++) {
+        printf("\t %s_%f = {[%f, %f, %f, %f, %f, %f, %f, %f, %f] + [%f, %f, %f]}, \n",
+                calib.matrixAll[i].sw_ccmC_illu_name,
+                calib.matrixAll[i].sw_ccmC_ccmSat_val,
+                calib.matrixAll[i].ccMatrix.hw_ccmC_matrix_coeff[0],
+                calib.matrixAll[i].ccMatrix.hw_ccmC_matrix_coeff[1],
+                calib.matrixAll[i].ccMatrix.hw_ccmC_matrix_coeff[2],
+                calib.matrixAll[i].ccMatrix.hw_ccmC_matrix_coeff[3],
+                calib.matrixAll[i].ccMatrix.hw_ccmC_matrix_coeff[4],
+                calib.matrixAll[i].ccMatrix.hw_ccmC_matrix_coeff[5],
+                calib.matrixAll[i].ccMatrix.hw_ccmC_matrix_coeff[6],
+                calib.matrixAll[i].ccMatrix.hw_ccmC_matrix_coeff[7],
+                calib.matrixAll[i].ccMatrix.hw_ccmC_matrix_coeff[8],
+                calib.matrixAll[i].ccMatrix.hw_ccmC_matrix_offset[0],
+                calib.matrixAll[i].ccMatrix.hw_ccmC_matrix_offset[1],
+                calib.matrixAll[i].ccMatrix.hw_ccmC_matrix_offset[2]);
+    }
+    //modify
+    srand(time(0));
+    int rand_num = rand() % 101;
+
+    if (rand_num <70) {
+        printf("update ccm calib!\n");
+        calib.matrixAll[0].ccMatrix.hw_ccmC_matrix_coeff[0] += 0.5;
+        calib.matrixAll[0].ccMatrix.hw_ccmC_matrix_coeff[1] -= 0.2;
+        calib.matrixAll[0].ccMatrix.hw_ccmC_matrix_coeff[2] -= 0.3;
+        calib.matrixAll[0].ccMatrix.hw_ccmC_matrix_coeff[3] += 0.1;
+        calib.matrixAll[0].ccMatrix.hw_ccmC_matrix_coeff[4] += 0.5;
+        calib.matrixAll[0].ccMatrix.hw_ccmC_matrix_coeff[5] -= 0.6;
+        calib.matrixAll[0].ccMatrix.hw_ccmC_matrix_coeff[6] -= 0.02;
+        calib.matrixAll[0].ccMatrix.hw_ccmC_matrix_coeff[7] -= 0.04;
+        calib.matrixAll[0].ccMatrix.hw_ccmC_matrix_coeff[8] += 0.06;
+
+        calib.matrixAll[1].ccMatrix.hw_ccmC_matrix_coeff[0] += 0.8;
+        calib.matrixAll[1].ccMatrix.hw_ccmC_matrix_coeff[1] -= 0.2;
+        calib.matrixAll[1].ccMatrix.hw_ccmC_matrix_coeff[2] -= 0.6;
+        calib.matrixAll[1].ccMatrix.hw_ccmC_matrix_coeff[3] += 0.11;
+        calib.matrixAll[1].ccMatrix.hw_ccmC_matrix_coeff[4] += 0.5;
+        calib.matrixAll[1].ccMatrix.hw_ccmC_matrix_coeff[5] -= 0.61;
+        calib.matrixAll[1].ccMatrix.hw_ccmC_matrix_coeff[6] -= 0.03;
+        calib.matrixAll[1].ccMatrix.hw_ccmC_matrix_coeff[7] -= 0.045;
+        calib.matrixAll[1].ccMatrix.hw_ccmC_matrix_coeff[8] += 0.075;
+    } else {
+        memcpy(&calib.matrixAll[0], &calib.matrixAll[calib.sw_ccmC_matrixAll_len-1], sizeof(accm_matrixAll_t));
+        if (calib.sw_ccmC_matrixAll_len > 2)
+            calib.sw_ccmC_matrixAll_len -= 2;
+    }
+
+    rk_aiq_user_api2_ccm_SetCalib(ctx, &calib);
+    
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    accm_ccmCalib_t calib_new;
+    memset(&calib_new, 0, sizeof(accm_ccmCalib_t));
+
+    rk_aiq_user_api2_ccm_GetCalib(ctx, &calib_new);
+
+    printf("\t new matrix_len = %d\n", calib_new.sw_ccmC_matrixAll_len);
+    for (int i = 0; i < calib_new.sw_ccmC_matrixAll_len; i++) {
+        printf("\t %s_%f = {[%f, %f, %f, %f, %f, %f, %f, %f, %f] + [%f, %f, %f]}, \n",
+                calib_new.matrixAll[i].sw_ccmC_illu_name,
+                calib_new.matrixAll[i].sw_ccmC_ccmSat_val,
+                calib_new.matrixAll[i].ccMatrix.hw_ccmC_matrix_coeff[0],
+                calib_new.matrixAll[i].ccMatrix.hw_ccmC_matrix_coeff[1],
+                calib_new.matrixAll[i].ccMatrix.hw_ccmC_matrix_coeff[2],
+                calib_new.matrixAll[i].ccMatrix.hw_ccmC_matrix_coeff[3],
+                calib_new.matrixAll[i].ccMatrix.hw_ccmC_matrix_coeff[4],
+                calib_new.matrixAll[i].ccMatrix.hw_ccmC_matrix_coeff[5],
+                calib_new.matrixAll[i].ccMatrix.hw_ccmC_matrix_coeff[6],
+                calib_new.matrixAll[i].ccMatrix.hw_ccmC_matrix_coeff[7],
+                calib_new.matrixAll[i].ccMatrix.hw_ccmC_matrix_coeff[8],
+                calib_new.matrixAll[i].ccMatrix.hw_ccmC_matrix_offset[0],
+                calib_new.matrixAll[i].ccMatrix.hw_ccmC_matrix_offset[1],
+                calib_new.matrixAll[i].ccMatrix.hw_ccmC_matrix_offset[2]);
+    }
+    if (calib_new.sw_ccmC_matrixAll_len != calib.sw_ccmC_matrixAll_len || 
+        calib_new.matrixAll[0].ccMatrix.hw_ccmC_matrix_coeff[0] != calib.matrixAll[0].ccMatrix.hw_ccmC_matrix_coeff[0])
+        printf("ccm calib test failed\n");
+    printf("-------- ccm module calib test done --------\n");  
+
+    return 0;
+}
 #endif
 
 XCamReturn sample_accm_v3_module(const void *arg)
@@ -1319,6 +1502,12 @@ XCamReturn sample_accm_v3_module(const void *arg)
                 case 'l':
                     sample_query_ccm_info_V2(ctx);
                     break;
+#ifdef USE_NEWSTRUCT
+                case 'm':
+                    sample_query_ccm_status(ctx);
+                    sample_ccm_setCalib_test(ctx);
+                    break;
+#endif
                 default:
                     break;
             }

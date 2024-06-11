@@ -300,6 +300,8 @@ void rk_aiq_cnr34_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
 #if RKAIQ_HAVE_CNR_V35
     tmp = ROUND_F((1.0 - pdyn->hiNr_locFiltAlpha.hw_cnrT_locFiltAlpha_minLimit) * (1 << RKCNR_V32_FIX_BIT_GLOBAL_ALPHA));
     pFix->bf_alpha_max_limit = CLIP(tmp, 0, 0x7ff);
+    tmp = ROUND_F((1.0 / sqrt(pdyn->hiNr_locFiltAlpha.hw_cnrT_locFiltAlpha_maxLimit) * (1 << 14)));
+    pFix->bf_merge_max_limit = CLIP(tmp, 0, 0x3fff);
 #endif
 
     /* CNR_SIGMA */

@@ -9,7 +9,7 @@
  *
  *****************************************************************************/
 
-#include "uAPI2/rk_aiq_user_api2_aec.h"
+#include "uAPI2/rk_aiq_user_api2_ae.h"
 
 //#include "RkAiqCamGroupHandleInt.h"
 #include "aiq_core_c/algo_handlers/RkAiqAeHandler.h"

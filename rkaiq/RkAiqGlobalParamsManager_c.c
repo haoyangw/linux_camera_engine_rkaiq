@@ -15,7 +15,7 @@
  */
 
 #include "RkAiqGlobalParamsManager_c.h"
-#include "rk_aiq_types_priv_c.h" 
+#include "rk_aiq_types_priv_c.h"
 #include "iq_parser_v2/RkAiqCalibDbV2Helper.h"
 #include "RkAiqManager_c.h"
 
@@ -181,6 +181,24 @@ static void init_withCalib(GlobalParamsManager_t* pMan)
         LOGE("no sharp calib !");
     }
 
+#if RKAIQ_HAVE_SHARP_V40
+    wrap_ptr = &pMan->mGlobalParams[RESULT_TYPE_TEXEST_PARAM];
+    texEst_api_attrib_t* texEst_calib = (texEst_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+                (void*)(pMan->mCalibDb), texEst));
+    if (sharp_calib) {
+        wrap_ptr->opMode = &sharp_calib->opMode;
+        wrap_ptr->en = &sharp_calib->en;
+        wrap_ptr->bypass = &sharp_calib->bypass;
+        wrap_ptr->man_param_ptr = &texEst_calib->stMan;
+        wrap_ptr->aut_param_ptr = &texEst_calib->stAuto;
+		pMan->mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_SHARPEN_PARAM;
+        LOGK("Module TEXEST: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
+             *wrap_ptr->opMode, *wrap_ptr->en, *wrap_ptr->bypass, wrap_ptr->man_param_ptr);
+    }
+    else {
+        LOGE("no texEst calib !");
+    }
+#endif
     wrap_ptr = &pMan->mGlobalParams[RESULT_TYPE_DRC_PARAM];
     drc_api_attrib_t* drc_calib = (drc_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
                 (void*)(pMan->mCalibDb), drc));
@@ -390,6 +408,27 @@ static void init_withCalib(GlobalParamsManager_t* pMan)
         LOGE("no enh calib !");
     }
 #endif
+#if RKAIQ_HAVE_HSV
+    wrap_ptr = &pMan->mGlobalParams[RESULT_TYPE_HSV_PARAM];
+    hsv_calib_attrib_t* hsv_calib = (hsv_calib_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+                (void*)(pMan->mCalibDb), hsv));
+    if (hsv_calib) {
+        hsv_api_attrib_t* hsv_attrib = &hsv_calib->tunning;
+        wrap_ptr->opMode = &hsv_attrib->opMode;
+        wrap_ptr->en = &hsv_attrib->en;
+        wrap_ptr->bypass = &hsv_attrib->bypass;
+        wrap_ptr->man_param_ptr = &hsv_attrib->stMan;
+        wrap_ptr->aut_param_ptr = &hsv_attrib->stAuto;
+        pMan->mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_HSV_PARAM;
+        if (hsv_attrib->opMode == RK_AIQ_OP_MODE_INVALID) {
+            hsv_attrib->opMode = RK_AIQ_OP_MODE_MANUAL;
+        }
+        LOGK("Module hsv: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
+             *wrap_ptr->opMode, *wrap_ptr->en, *wrap_ptr->bypass, wrap_ptr->man_param_ptr);
+    } else {
+        LOGE("no hsv calib !");
+    }
+#endif
     wrap_ptr = &pMan->mGlobalParams[RESULT_TYPE_CSM_PARAM];
     csm_api_attrib_t* csm_calib = (csm_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
                 (void*)(pMan->mCalibDb), csm));
@@ -568,9 +607,9 @@ static void init_withCalib(GlobalParamsManager_t* pMan)
                 (void*)(pMan->mCalibDb), ccm));
     if (ccm_calib) {
         ccm_api_attrib_t* ccm_attrib = &ccm_calib->tunning;
-        wrap_ptr->opMode = &ccm_attrib ->opMode;
-        wrap_ptr->en = &ccm_attrib ->en;
-        wrap_ptr->bypass = &ccm_attrib ->bypass;
+        wrap_ptr->opMode = &ccm_attrib->opMode;
+        wrap_ptr->en = &ccm_attrib->en;
+        wrap_ptr->bypass = &ccm_attrib->bypass;
         wrap_ptr->man_param_ptr = &ccm_attrib->stMan;
         wrap_ptr->aut_param_ptr = &ccm_attrib->stAuto;
 		pMan->mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_CCM_PARAM;
@@ -640,10 +679,21 @@ switchCalibDbCheck(GlobalParamsManager_t* pMan, CamCalibDbV2Context_t* calibDb) 
         (void*)(calibDb), ynr));
     sharp_api_attrib_t* sharp_calib = (sharp_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
         (void*)(calibDb), sharp));
+#if ISP_HW_V39
     if (!(cnr_calib->en == ynr_calib->en && ynr_calib->en == sharp_calib->en)) {
-        LOGW("ynr, cnr and sharp should be on or off in the same time");
+        LOGW("ynr, cnr and sharp should be on or off in the same time, "
+            "please use rk_aiq_uapi2_sysctl_setModuleEn to set them");
         return XCAM_RETURN_BYPASS;
     }
+#elif ISP_HW_V33
+    enh_api_attrib_t* enh_calib = (enh_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+        (void*)(calibDb), enh));
+    if (!(cnr_calib->en == ynr_calib->en && ynr_calib->en == sharp_calib->en && sharp_calib->en == enh_calib->en)) {
+        LOGW("ynr, cnr, sharp and enh should be on or off in the same time, "
+            "please use rk_aiq_uapi2_sysctl_setModuleEn to set them");
+        return XCAM_RETURN_BYPASS;
+    }
+#endif
 
     drc_api_attrib_t* drc_calib = (drc_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
         (void*)(calibDb), drc));
@@ -658,14 +708,20 @@ switchCalibDbCheck(GlobalParamsManager_t* pMan, CamCalibDbV2Context_t* calibDb) 
 
 static void
 checkAlgoEnableInit(GlobalParamsManager_t* pMan) {
-    int type;
 #if USE_NEWSTRUCT
     bool cnr_en = *pMan->mGlobalParams[RESULT_TYPE_UVNR_PARAM].en;
     bool ynr_en = *pMan->mGlobalParams[RESULT_TYPE_YNR_PARAM].en;
     bool sharp_en = *pMan->mGlobalParams[RESULT_TYPE_SHARPEN_PARAM].en;
+#if ISP_HW_V39
     if (!(ynr_en == cnr_en && cnr_en == sharp_en)) {
         LOGW("ynr, cnr and sharp should be on or off in the same time");
     }
+#elif ISP_HW_V33
+    bool enh_en = *pMan->mGlobalParams[RESULT_TYPE_ENH_PARAM].en;
+    if (!(ynr_en == cnr_en && cnr_en == sharp_en && sharp_en == enh_en)) {
+        LOGW("ynr, cnr, sharp and enh should be on or off in the same time");
+    }
+#endif
 #if RKAIQ_HAVE_YUVME
     if (*pMan->mGlobalParams[RESULT_TYPE_TNR_PARAM].en != *pMan->mGlobalParams[RESULT_TYPE_MOTION_PARAM].en) {
         *pMan->mGlobalParams[RESULT_TYPE_MOTION_PARAM].en = *pMan->mGlobalParams[RESULT_TYPE_TNR_PARAM].en;
@@ -673,12 +729,11 @@ checkAlgoEnableInit(GlobalParamsManager_t* pMan) {
     }
 #endif
 
-    type = RESULT_TYPE_DRC_PARAM;
-    GlobalParamsManager_checkAlgoEnableBypass(pMan, type, pMan->mGlobalParams[type].en, pMan->mGlobalParams[type].bypass);
-    type = RESULT_TYPE_GIC_PARAM;
-    GlobalParamsManager_checkAlgoEnableBypass(pMan, type, pMan->mGlobalParams[type].en, pMan->mGlobalParams[type].bypass);
-    type = RESULT_TYPE_CAC_PARAM;
-    GlobalParamsManager_checkAlgoEnableBypass(pMan, type, pMan->mGlobalParams[type].en, pMan->mGlobalParams[type].bypass);
+    for (int i = 0;i < RESULT_TYPE_MAX_PARAM;i++) {
+        if (pMan->mGlobalParams[i].en != NULL) {
+            GlobalParamsManager_checkAlgoEnableBypass(pMan, i, pMan->mGlobalParams[i].en, pMan->mGlobalParams[i].bypass);
+        }
+    }
 #endif
 }
 
@@ -771,7 +826,6 @@ XCamReturn GlobalParamsManager_set(GlobalParamsManager_t* pMan, rk_aiq_global_pa
     EXIT_ANALYZER_FUNCTION();
 
     return XCAM_RETURN_NO_ERROR;
-	
 }
 
 void GlobalParamsManager_lockAlgoParam(GlobalParamsManager_t* pMan, int type)
@@ -1033,6 +1087,15 @@ XCamReturn GlobalParamsManager_checkAlgoEnableBypass(GlobalParamsManager_t* pMan
         }
     }
 
+#ifdef ISP_HW_V33
+    if (type == RESULT_TYPE_ENH_PARAM) {
+        if (*pMan->mGlobalParams[type].en != *en) {
+            LOGD("enh en is changed");
+            return XCAM_RETURN_BYPASS;
+        }
+    }
+#endif
+
     if (type == RESULT_TYPE_YNR_PARAM) {
         if (*bypass == 1) {
             LOGE("The ynr doesn't support bypass feature, so bypass ynr instead by ynr.dyn.loNr_en and ynr.dyn.hiNr_filtProc.nlmFilt_en");
@@ -1050,16 +1113,26 @@ XCamReturn GlobalParamsManager_checkAlgoEnableBypass(GlobalParamsManager_t* pMan
         }
     }
 
-    if (type == RESULT_TYPE_AGAMMA_PARAM) {
+    if (type == RESULT_TYPE_BLC_PARAM || type == RESULT_TYPE_DPCC_PARAM || type == RESULT_TYPE_CCM_PARAM ||
+        type == RESULT_TYPE_RGBIR_PARAM || type == RESULT_TYPE_AGAMMA_PARAM || type == RESULT_TYPE_LSC_PARAM ||
+        type == RESULT_TYPE_LDCH_PARAM || type == RESULT_TYPE_CSM_PARAM || type == RESULT_TYPE_CGC_PARAM ||
+        type == RESULT_TYPE_LDC_PARAM) {
         if (*bypass == 1) {
-            LOGE("Gamma doesn't support bypass feature, so you can set gamma coeff to 1.0 instead");
-            socket_client_setNote(pMan->_socket, IPC_RET_UAPI_ERROR,
-                                  "Gamma doesn't support bypass feature, so you can set gamma "
-                                  "coeff to 1.0 instead");
+            LOGE("This module doesn't support bypass feature");
             return XCAM_RETURN_ERROR_FAILED;
         }
     }
 
+    if (type == RESULT_TYPE_MERGE_PARAM) {
+        if (AiqManager_getWorkingMode(pMan->rkAiqManager) != RK_AIQ_WORKING_MODE_NORMAL && (*en == 0 || *bypass == 1)) {
+            LOGE("HDRMGE must be on  when isp is HDR mode. Please turn on by mge.en");
+            return XCAM_RETURN_ERROR_FAILED;
+        }
+        if (AiqManager_getWorkingMode(pMan->rkAiqManager) == RK_AIQ_WORKING_MODE_NORMAL && *en == 1) {
+            LOGE("HDRMGE must be off when isp is Liner mode. Please turn off by mge.en");
+            return XCAM_RETURN_ERROR_FAILED;
+        }
+    }
     if (type == RESULT_TYPE_DRC_PARAM) {
         if (AiqManager_getWorkingMode(pMan->rkAiqManager) != RK_AIQ_WORKING_MODE_NORMAL && *en == 0) {
             LOGE("Drc must be on  when isp is HDR mode. Please turn on by drc.en");
@@ -1074,18 +1147,67 @@ XCamReturn GlobalParamsManager_checkAlgoEnableBypass(GlobalParamsManager_t* pMan
                 socket_client_setNote(pMan->_socket, IPC_RET_UAPI_WARNING,
                     "DRC relies on GIC & CAC, so GIC & CAC are autoly enabled and configured bypass, "
                     "cause slight differences in power consumption.");
+                if (!*pMan->mGlobalParams[RESULT_TYPE_GIC_PARAM].en) {
+                    *pMan->mGlobalParams[RESULT_TYPE_GIC_PARAM].en = 1;
+                    *pMan->mGlobalParams[RESULT_TYPE_GIC_PARAM].bypass = 1;
+                    pMan->mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_GIC_PARAM;
+                }
+                if (!*pMan->mGlobalParams[RESULT_TYPE_CAC_PARAM].en) {
+                    *pMan->mGlobalParams[RESULT_TYPE_CAC_PARAM].en = 1;
+                    *pMan->mGlobalParams[RESULT_TYPE_CAC_PARAM].bypass = 1;
+                    pMan->mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_CAC_PARAM;
+                }
+            }
+        }
+#endif
+#ifdef ISP_HW_V33
+        if (*pMan->mGlobalParams[type].en != *en && *en == 1) {
+            if (!*pMan->mGlobalParams[RESULT_TYPE_DEBAYER_PARAM].en || !*pMan->mGlobalParams[RESULT_TYPE_CAC_PARAM].en) {
+                LOGW("DRC relies on the resources of the DEBAYER and CAC,"
+                    " so the DEBAYER and CAC are automatically enabled and configured bypass. "
+                    "There are slight differences in power consumption.");
+                socket_client_setNote(pMan->_socket, IPC_RET_UAPI_WARNING,
+                    "DRC relies on DEBAYER & CAC, so DEBAYER & CAC are autoly enabled and configured bypass, "
+                    "cause slight differences in power consumption.");
+                if (!*pMan->mGlobalParams[RESULT_TYPE_DEBAYER_PARAM].en) {
+                    *pMan->mGlobalParams[RESULT_TYPE_DEBAYER_PARAM].en = 1;
+                    *pMan->mGlobalParams[RESULT_TYPE_DEBAYER_PARAM].bypass = 1;
+                    pMan->mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_DEBAYER_PARAM;
+                }
+                if (!*pMan->mGlobalParams[RESULT_TYPE_CAC_PARAM].en) {
+                    *pMan->mGlobalParams[RESULT_TYPE_CAC_PARAM].en = 1;
+                    *pMan->mGlobalParams[RESULT_TYPE_CAC_PARAM].bypass = 1;
+                    pMan->mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_CAC_PARAM;
+                }
             }
         }
 #endif
     }
+
 #ifdef ISP_HW_V39
     if (type == RESULT_TYPE_GIC_PARAM || type == RESULT_TYPE_CAC_PARAM) {
         if (*en == 0 && *pMan->mGlobalParams[RESULT_TYPE_DRC_PARAM].en) {
+            *en = 1;
+            *bypass = 1;
             LOGW("DRC relies on the resources of the GIC and CAC,"
                 " so the GIC and CAC are automatically enabled and configured bypass. "
                 "There are slight differences in power consumption.");
             socket_client_setNote(pMan->_socket, IPC_RET_UAPI_WARNING,
                 "DRC relies on GIC & CAC, so GIC & CAC are autoly enabled and configured bypass, "
+                "cause slight differences in power consumption.");
+        }
+    }
+#endif
+#ifdef ISP_HW_V33
+    if (type == RESULT_TYPE_DEBAYER_PARAM || type == RESULT_TYPE_CAC_PARAM) {
+        if (*en == 0 && *pMan->mGlobalParams[RESULT_TYPE_DRC_PARAM].en) {
+            *en = 1;
+            *bypass = 1;
+            LOGW("DRC relies on the resources of the DEBAYER and CAC,"
+                " so the DEBAYER and CAC are automatically enabled and configured bypass. "
+                "There are slight differences in power consumption.");
+            socket_client_setNote(pMan->_socket, IPC_RET_UAPI_WARNING,
+                "DRC relies on DEBAYER & CAC, so DEBAYER & CAC are autoly enabled and configured bypass, "
                 "cause slight differences in power consumption.");
         }
     }

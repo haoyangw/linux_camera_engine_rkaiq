@@ -19,7 +19,11 @@
 #define _RK_AIQ_USER_API2_ISP32_H_
 
 #ifndef ISP_HW_V32
-#define ISP_HW_V32
+#define ISP_HW_V32 1
+#endif
+
+#ifndef USE_NEWSTRUCT
+#define USE_NEWSTRUCT 1
 #endif
 // demosaic head
 // real types are defined in isp/rk_aiq_isp_dm21.h, algos/rk_aiq_api_types_dm.h

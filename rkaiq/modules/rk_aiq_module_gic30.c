@@ -158,10 +158,10 @@ void rk_aiq_gic30_params_cvt(void* attr, struct isp33_gic_cfg* gic_cfg)
 
     /* BILAT_PARA1 */
     tmp = ROUND_F(pdyn->sw_gicT_bfFltWgt_minThred * (1 << RKGIC_V30_BF_WGT_OFFSET_FIX_BITS));
-    pFix->gffltwgt_offset = CLIP(tmp, 0, 0x3ff);
+    pFix->bffltwgt_offset = CLIP(tmp, 0, 0x3ff);
     float bfFltWgt_slope = 1.0 / MAX(pdyn->sw_gicT_bfFltWgt_maxThred - pdyn->sw_gicT_bfFltWgt_minThred, 0.01);
     tmp = ROUND_F(bfFltWgt_slope * (1 << RKGIC_V30_BF_WGT_SCALE_FIX_BITS));
-    pFix->gffltwgt_scale = CLIP(tmp, 0, 0xff);
+    pFix->bffltwgt_scale = CLIP(tmp, 0, 0xff);
 
     /* BILAT_PARA2 */
     tmp = ROUND_F(pdyn->sw_gicT_bfFlt_ratio * (1 << RKGIC_V30_BF_FLT_RATIO_FIX_BIT));

@@ -44,14 +44,14 @@ void rk_aiq_dm24_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_inf
     phwcfg->grad_lo_flt_alpha = (pdyn->gDrctAlpha.hw_dmT_gradLoFlt_alpha * (1 << RK_DM23_FIX_BIT_GRAD_FLT_ALPHA));
 
     /* G_INTERP_DRCT_OFFSET */
-    phwcfg->drct_offset[0] = MAX(pdyn->gDrctAlpha.hw_dmT_luma2Drct_offset[0] * 128, 1);
-    phwcfg->drct_offset[1] = MAX(pdyn->gDrctAlpha.hw_dmT_luma2Drct_offset[1] * 128, 1);
-    phwcfg->drct_offset[2] = MAX(pdyn->gDrctAlpha.hw_dmT_luma2Drct_offset[2] * 128, 1);
-    phwcfg->drct_offset[3] = MAX(pdyn->gDrctAlpha.hw_dmT_luma2Drct_offset[3] * 128, 1);
-    phwcfg->drct_offset[4] = MAX(pdyn->gDrctAlpha.hw_dmT_luma2Drct_offset[4] * 128, 1);
-    phwcfg->drct_offset[5] = MAX(pdyn->gDrctAlpha.hw_dmT_luma2Drct_offset[5] * 128, 1);
-    phwcfg->drct_offset[6] = MAX(pdyn->gDrctAlpha.hw_dmT_luma2Drct_offset[6] * 128, 1);
-    phwcfg->drct_offset[7] = MAX(pdyn->gDrctAlpha.hw_dmT_luma2Drct_offset[7] * 128, 1);
+    phwcfg->drct_offset[0] = MAX(pdyn->gDrctAlpha.hw_dmT_luma2Drct_offset[0], 1);
+    phwcfg->drct_offset[1] = MAX(pdyn->gDrctAlpha.hw_dmT_luma2Drct_offset[1], 1);
+    phwcfg->drct_offset[2] = MAX(pdyn->gDrctAlpha.hw_dmT_luma2Drct_offset[2], 1);
+    phwcfg->drct_offset[3] = MAX(pdyn->gDrctAlpha.hw_dmT_luma2Drct_offset[3], 1);
+    phwcfg->drct_offset[4] = MAX(pdyn->gDrctAlpha.hw_dmT_luma2Drct_offset[4], 1);
+    phwcfg->drct_offset[5] = MAX(pdyn->gDrctAlpha.hw_dmT_luma2Drct_offset[5], 1);
+    phwcfg->drct_offset[6] = MAX(pdyn->gDrctAlpha.hw_dmT_luma2Drct_offset[6], 1);
+    phwcfg->drct_offset[7] = MAX(pdyn->gDrctAlpha.hw_dmT_luma2Drct_offset[7], 1);
 
     /* G_FILTER_MODE_OFFSET */
     phwcfg->gflt_mode = pdyn->hw_dmT_gOutlsFlt_mode;
@@ -82,9 +82,9 @@ void rk_aiq_dm24_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_inf
             filter_coe[k] = ROUND_F(gaus_table[k] * (1 << RK_DM23_FIX_BIT_BF_WGT));
         }
     } else {
-        filter_coe[0] = ROUND_F(pdyn->gOutlsFlt_bifilt.hw_dmT_filtSpatial_wgt[0] * (1 << RK_DM23_FIX_BIT_BF_WGT));
-        filter_coe[1] = ROUND_F(pdyn->gOutlsFlt_bifilt.hw_dmT_filtSpatial_wgt[1] * (1 << RK_DM23_FIX_BIT_BF_WGT));
-        filter_coe[2] = ROUND_F(pdyn->gOutlsFlt_bifilt.hw_dmT_filtSpatial_wgt[2] * (1 << RK_DM23_FIX_BIT_BF_WGT));
+        filter_coe[0] = ROUND_F(ROUND_F(pdyn->gOutlsFlt_bifilt.hw_dmT_filtSpatial_wgt[0]) * (1 << RK_DM23_FIX_BIT_BF_WGT));
+        filter_coe[1] = ROUND_F(ROUND_F(pdyn->gOutlsFlt_bifilt.hw_dmT_filtSpatial_wgt[1]) * (1 << RK_DM23_FIX_BIT_BF_WGT));
+        filter_coe[2] = ROUND_F(ROUND_F(pdyn->gOutlsFlt_bifilt.hw_dmT_filtSpatial_wgt[2]) * (1 << RK_DM23_FIX_BIT_BF_WGT));
     }
 
     // check filter coeff

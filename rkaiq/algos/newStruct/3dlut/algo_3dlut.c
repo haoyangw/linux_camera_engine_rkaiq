@@ -174,12 +174,14 @@ XCamReturn A3dlut_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
     }
     alut3d_param_illuLink_t *pIlluCase = &pdyn->illuLink[illu_idx];
 
-    if (illu_idx != pLut3dCtx->pre_illu_idx) {
-        pLut3dCtx->pre_illu_idx  = illu_idx;
-        need_recal = true;
+    if (illu_idx != pLut3dCtx->pre_illu_idx || pLut3dCtx->is_calib_update) {
+        if (illu_idx != pLut3dCtx->pre_illu_idx) {
+            pLut3dCtx->pre_illu_idx  = illu_idx;
+            need_recal = true;
 
-        LOGD_A3DLUT("%s: 3DLUT illu change --> %s",
-                __func__, pdyn->illuLink[illu_idx].sw_lut3dC_illu_name);
+            LOGD_A3DLUT("%s: 3DLUT illu change --> %s",
+                        __func__, pdyn->illuLink[illu_idx].sw_lut3dC_illu_name);
+        }
 
         int mesh_idx = get_mesh_by_name(pLut3dCtx, pIlluCase->sw_lut3dC_illu_name);
         if (mesh_idx  < 0) {
@@ -204,9 +206,11 @@ XCamReturn A3dlut_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
     }
 
     //(3) lut = alpha*lutfile + (1-alpha)*lut0
-    if (need_recal) {
+    if (need_recal || pLut3dCtx->is_calib_update) {
         LOGD_A3DLUT("%s: 3DLUT interpolate_lut0_alpha", __func__);
         interpolate_lut0_alpha(alpha, pLut3dCtx->calib_matrix, &pLut3dCtx->undamped_matrix);
+        pLut3dCtx->is_calib_update = false;
+        need_recal = true;
     }
 
     //(4) damp
@@ -232,7 +236,7 @@ XCamReturn A3dlut_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
         outparams->bypass = tunning->bypass;
     }
 
-    return need_recal;
+    return XCAM_RETURN_NO_ERROR;
 }
 
 static XCamReturn
@@ -294,71 +298,75 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
     return XCAM_RETURN_NO_ERROR;
 }
 
-#if 0
 XCamReturn
-algo_lut3d_SetAttrib
+algo_lut3d_queryalut3dStatus
 (
     RkAiqAlgoContext* ctx,
-    lut3d_api_attrib_t *attr
-) {
-    if(ctx == NULL || attr == NULL) {
-        LOGE_ADEBAYER("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
-        return XCAM_RETURN_ERROR_PARAM;
-    }
-
-    Lut3dContext_t* pLut3dCtx = (Lut3dContext_t*)ctx;
-    lut3d_api_attrib_t* lut3d_attrib = &pLut3dCtx->lut3d_attrib->tunning;
-
-    if (attr->opMode != RK_AIQ_OP_MODE_AUTO) {
-        LOGE_ADEBAYER("not auto mode: %d", attr->opMode);
-        return XCAM_RETURN_ERROR_PARAM;
-    }
-
-    lut3d_attrib->opMode = attr->opMode;
-    lut3d_attrib->en = attr->en;
-    lut3d_attrib->bypass = attr->bypass;
-
-    if (attr->opMode == RK_AIQ_OP_MODE_AUTO)
-        lut3d_attrib->stAuto = attr->stAuto;
-    else if (attr->opMode == RK_AIQ_OP_MODE_MANUAL)
-        lut3d_attrib->stMan = attr->stMan;
-    else {
-        LOGW_ADEBAYER("wrong mode: %d\n", attr->opMode);
-    }
-
-    return XCAM_RETURN_NO_ERROR;
-}
-
-XCamReturn
-algo_lut3d_GetAttrib
-(
-    RkAiqAlgoContext* ctx,
-    lut3d_api_attrib_t* attr
+    alut3d_status_t* status
 )
 {
-    if(ctx == NULL || attr == NULL) {
-        LOGE_ADEBAYER("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
+    if(ctx == NULL || status == NULL) {
+        LOGE_A3DLUT("have no alut3d status info !");
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+
+    Lut3dContext_t* pLut3dCtx = (Lut3dContext_t*)ctx;
+    lut3d_param_auto_t* stAuto = &pLut3dCtx->lut3d_attrib->tunning.stAuto;
+
+    strncpy(status->sw_lut3dC_illuUsed_name, 
+            stAuto->dyn.illuLink[pLut3dCtx->pre_illu_idx].sw_lut3dC_illu_name, 
+            ALUT3D_ILLUM_NAME_LEN - 1);
+    
+    status->sw_lut3dT_alpha_val = pLut3dCtx->pre_alpha;
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn
+algo_lut3d_SetCalib
+(
+    RkAiqAlgoContext* ctx,
+    alut3d_lut3dCalib_t* calib
+) {
+    if(ctx == NULL || calib == NULL) {
+        LOGE_A3DLUT("%s: null pointer\n", __FUNCTION__);
         return XCAM_RETURN_ERROR_PARAM;
     }
 
     Lut3dContext_t* pLut3dCtx = (Lut3dContext_t*)ctx;
     lut3d_api_attrib_t* lut3d_attrib = &pLut3dCtx->lut3d_attrib->tunning;
+    alut3d_lut3dCalib_t* alut3d_calib = &pLut3dCtx->lut3d_attrib->calibdb;
 
-#if 0
     if (lut3d_attrib->opMode != RK_AIQ_OP_MODE_AUTO) {
-        LOGE_ADEBAYER("not auto mode: %d", lut3d_attrib->opMode);
+        LOGE_A3DLUT("not auto mode: %d", lut3d_attrib->opMode);
         return XCAM_RETURN_ERROR_PARAM;
     }
-#endif
 
-    attr->opMode = lut3d_attrib->opMode;
-    attr->en = lut3d_attrib->en;
-    attr->bypass = lut3d_attrib->bypass;
-    memcpy(&attr->stAuto, &lut3d_attrib->stAuto, sizeof(lut3d_param_auto_t));
+    memcpy(alut3d_calib, calib, sizeof(alut3d_lut3dCalib_t));
+    pLut3dCtx->is_calib_update = true;
 
     return XCAM_RETURN_NO_ERROR;
 }
-#endif
+
+XCamReturn
+algo_lut3d_GetCalib
+(
+    RkAiqAlgoContext* ctx,
+    alut3d_lut3dCalib_t* calib
+)
+{
+    if(ctx == NULL || calib == NULL) {
+        LOGE_A3DLUT("%s: null pointer\n", __FUNCTION__);
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+
+    Lut3dContext_t* pLut3dCtx = (Lut3dContext_t*)ctx;
+    alut3d_lut3dCalib_t* alut3d_calib = &pLut3dCtx->lut3d_attrib->calibdb;
+
+    memcpy(calib, alut3d_calib, sizeof(alut3d_lut3dCalib_t));
+
+    return XCAM_RETURN_NO_ERROR;
+}
 
 #define RKISP_ALGO_3DLUT_VERSION     "v0.0.1"
 #define RKISP_ALGO_3DLUT_VENDOR      "Rockchip"

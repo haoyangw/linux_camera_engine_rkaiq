@@ -72,6 +72,8 @@ static XCamReturn groupRgbirProcessing(const RkAiqAlgoCom* inparams, RkAiqAlgoRe
     if (pRgbirGroupCtx->isReCal_) {
         RgbirSelectParam(&pRgbirGroupCtx->rgbir_attrib->stAuto, rgbir_param, iso);
 		outparams->cfg_update = true;
+        outparams->en         = pRgbirGroupCtx->rgbir_attrib->en;
+        outparams->bypass     = pRgbirGroupCtx->rgbir_attrib->bypass;
     } else {
 		outparams->cfg_update = false;
 	}

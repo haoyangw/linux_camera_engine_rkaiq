@@ -136,7 +136,7 @@ static void convertAiqAwbGainToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_b
     // 1)//check awb gain apply position
     pCvt->awb_gain_final.applyPosition =
         ((rk_aiq_working_mode_t)(pCvt->_working_mode) == RK_AIQ_WORKING_MODE_NORMAL) ? IN_AWBGAIN1
-        : IN_AWBGAIN0;
+                                                                                     : IN_AWBGAIN0;
     // 2) //otp
     AwbGainOtpAdjust(&pCvt->awb_gain_final, &pCvt->mCommonCvtInfo.otp_awb);
     // 3)//ConfigWbgainBaseOnBlc
@@ -191,9 +191,9 @@ static void convertAiqAwbGainToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_b
 static void WriteAwbReg(struct isp33_rawawb_meas_cfg* awb_cfg_v32) {
 #if 0
     static int count = 0;
-    if(count > 20) return;
+    if(count>20) return;
     char fName[100];
-    sprintf(fName, "./tmp/awb_reg_%d.txt", count);
+    sprintf(fName, "./tmp/awb_reg_%d.txt",count);
     count++;
     LOGE_AWB( "%s", fName);
 
@@ -517,9 +517,17 @@ static void WriteAwbReg(struct isp33_rawawb_meas_cfg* awb_cfg_v32) {
     fprintf(fp, "\t\tsw_rawawb_exc_wp_region6_yv0 = 0x%0x (%d)\n",                awb_cfg_v32->exc_wp_region6_yv0, awb_cfg_v32->exc_wp_region6_yv0);
     fprintf(fp, "\t\tsw_rawawb_exc_wp_region6_yv1 = 0x%0x (%d)\n",                awb_cfg_v32->exc_wp_region6_yv1, awb_cfg_v32->exc_wp_region6_yv1);
     fprintf(fp, "\t\tbls2 en(%d),val_rggb(%d,%d,%d,%d))\n",             awb_cfg_v32->bls2_en, awb_cfg_v32->bls2_val.r,
-            awb_cfg_v32->bls2_val.gr, awb_cfg_v32->bls2_val.gb, awb_cfg_v32->bls2_val.b);
+        awb_cfg_v32->bls2_val.gr,awb_cfg_v32->bls2_val.gb,awb_cfg_v32->bls2_val.b);
 
+    fprintf(fp,"awb_cfg_v32->wp_blk_wei_w:");
+    for(int i=0;i<225;i++){
+         if (i%15==0){
+            fprintf(fp,"\n");
+        }
+        fprintf(fp,"0x%03x (%3d),",awb_cfg_v32->wp_blk_wei_w[i],awb_cfg_v32->wp_blk_wei_w[i]);
 
+    }
+    fprintf(fp,"\n");
     fclose(fp);
 #endif
 }
@@ -532,11 +540,18 @@ static void calcInputBitIs12Bit(uint8_t* inputBitIs12Bit, const awbStats_cfg_t* 
     bool selectBayerNrData = (awb_meas->hw_awbCfg_statsSrc_mode == awbStats_btnrOut_mode);
     bool dgainEn           = ablc_en && isp_ob_predgain > 1;
     if (selectBayerNrData &&
-            (dgainEn || (rk_aiq_working_mode_t)working_mode != RK_AIQ_WORKING_MODE_NORMAL)) {
+        (dgainEn || (rk_aiq_working_mode_t)working_mode != RK_AIQ_WORKING_MODE_NORMAL)) {
         *inputBitIs12Bit = false;
     } else {
         *inputBitIs12Bit = true;
     }
+}
+static int filtOutFixed(float fval, awb_wpSpace_mode_t hw_awbT_wpSpace_mode)
+{
+     if(hw_awbT_wpSpace_mode==awbStats_xyWp_mode)
+        return UtlFloatToFix_S0310(fval);
+    else
+        return (uint16_t)(fval * 16 + 0.5);
 }
 
 static void ConfigBlc2(const blc_res_cvt_t* ablc, const awbStats_cfg_t* awb_meas, float isp_dgain,
@@ -548,8 +563,8 @@ static void ConfigBlc2(const blc_res_cvt_t* ablc, const awbStats_cfg_t* awb_meas
     awb_cfg_v32->bls2_val.gb = 0;
     awb_cfg_v32->bls2_val.b  = 0;
     if (awb_meas->hw_awbCfg_statsSrc_mode == awbStats_drcOut_mode ||
-            (awb_meas->hw_awbCfg_statsSrc_mode == awbStats_btnrOut_mode &&
-             working_mode != RK_AIQ_WORKING_MODE_NORMAL)) {
+        (awb_meas->hw_awbCfg_statsSrc_mode == awbStats_btnrOut_mode &&
+         working_mode != RK_AIQ_WORKING_MODE_NORMAL)) {
         LOGW_AWB("The BLC bias of the awbStats pathway is not effective in the current mode and is consistent with the main pathway");
         // don't support to use blc2
         return;
@@ -600,9 +615,9 @@ static void ConfigBlc2(const blc_res_cvt_t* ablc, const awbStats_cfg_t* awb_meas
 
 // call after blc2 calc
 static XCamReturn ConfigOverexposureValue(const blc_res_cvt_t* ablc, float hdrmge_gain0_1,
-        float isp_ob_predgain, int working_mode,
-        const awbStats_cfg_t* awb_meas,
-        struct isp33_rawawb_meas_cfg* awb_cfg_v32) {
+                                          float isp_ob_predgain, int working_mode,
+                                          const awbStats_cfg_t* awb_meas,
+                                          struct isp33_rawawb_meas_cfg* awb_cfg_v32) {
     XCamReturn ret                        = XCAM_RETURN_NO_ERROR;
     awb_cfg_v32->in_overexposure_check_en = true;
     float dgain                           = 1.0;
@@ -701,8 +716,8 @@ static void UvParaFixed32(const awbStats_uvRegion_t* wpRegion, unsigned short pu
             if (tmp != 0) {
                 float tmp2       = (float)(pu_region[j] - pu_region[j - 1]) / (float)tmp;
                 slope_inv[j - 1] = tmp2 > 0
-                                   ? (int32_t)(tmp2 * (1 << AWB_UV_RANGE_SLOVE_FRACTION) + 0.5)
-                                   : (int32_t)(tmp2 * (1 << AWB_UV_RANGE_SLOVE_FRACTION) - 0.5);
+                                       ? (int32_t)(tmp2 * (1 << AWB_UV_RANGE_SLOVE_FRACTION) + 0.5)
+                                       : (int32_t)(tmp2 * (1 << AWB_UV_RANGE_SLOVE_FRACTION) - 0.5);
             } else {
                 slope_inv[j - 1] =
                     (1 << (AWB_UV_RANGE_SLOVE_FRACTION + AWB_UV_RANGE_SLOVE_SINTER - 1)) - 1;
@@ -723,9 +738,9 @@ static void ConfigPreWbgain3(struct isp33_rawawb_meas_cfg* awb_cfg_v32,
     //    prewbgain =1/stat3aAwbGainOut *iqMap2MainCam.wbgain
     float preWbgainSw[4];
     if (awb_meas->mode == AWB_CFG_MODE_RK &&
-            (awb_meas->preWbgainSw[0] * awb_meas->preWbgainSw[1] * awb_meas->preWbgainSw[2] *
+        (awb_meas->preWbgainSw[0] * awb_meas->preWbgainSw[1] * awb_meas->preWbgainSw[2] *
              awb_meas->preWbgainSw[3] >
-             0.0001)) {
+         0.0001)) {
         preWbgainSw[0] = awb_meas->preWbgainSw[0];
         preWbgainSw[1] = awb_meas->preWbgainSw[1];
         preWbgainSw[2] = awb_meas->preWbgainSw[2];
@@ -742,9 +757,9 @@ static void ConfigPreWbgain3(struct isp33_rawawb_meas_cfg* awb_cfg_v32,
 
     // pre_wbgain_inv_b is updating  for awb0-gain enable+select = bnr/hdrc case
     if ((awb_gain->rgain * awb_gain->grgain * awb_gain->bgain > 0.0001) &&
-            (awb_meas->com.hw_awbCfg_statsSrc_mode == awbStats_drcOut_mode ||
-             (awb_gain->applyPosition == IN_AWBGAIN0 &&
-              awb_meas->com.hw_awbCfg_statsSrc_mode == awbStats_btnrOut_mode))) {
+        (awb_meas->com.hw_awbCfg_statsSrc_mode == awbStats_drcOut_mode ||
+         (awb_gain->applyPosition == IN_AWBGAIN0 &&
+          awb_meas->com.hw_awbCfg_statsSrc_mode == awbStats_btnrOut_mode))) {
         // for awb statistics after the awbgain application
         awb_cfg_v32->pre_wbgain_inv_r =
             (1 << RK_AIQ_AWB_PRE_WBGAIN_FRAC_BIT) / awb_gain->rgain * preWbgainSw[0] + 0.5;
@@ -755,8 +770,8 @@ static void ConfigPreWbgain3(struct isp33_rawawb_meas_cfg* awb_cfg_v32,
 
     } else {
         if ((awb_meas->com.hw_awbCfg_statsSrc_mode == awbStats_drcOut_mode ||
-                (awb_gain->applyPosition == IN_AWBGAIN0 &&
-                 awb_meas->com.hw_awbCfg_statsSrc_mode == awbStats_btnrOut_mode))) {
+             (awb_gain->applyPosition == IN_AWBGAIN0 &&
+              awb_meas->com.hw_awbCfg_statsSrc_mode == awbStats_btnrOut_mode))) {
             LOGE_AWB("%s, wrong awb_gain!!! ", __FUNCTION__);
         }
         // for awb statistics before the awbgain application
@@ -773,16 +788,16 @@ static void ConfigPreWbgain3(struct isp33_rawawb_meas_cfg* awb_cfg_v32,
                  awb_cfg_v32->pre_wbgain_inv_r, awb_cfg_v32->pre_wbgain_inv_g,
                  awb_cfg_v32->pre_wbgain_inv_b);
         awb_cfg_v32->pre_wbgain_inv_r = (float)awb_cfg_v32->pre_wbgain_inv_r *
-                                        (float)otp_awb->golden_r_value /
-                                        (float)otp_awb->r_value +
+                                            (float)otp_awb->golden_r_value /
+                                            (float)otp_awb->r_value +
                                         0.5;
         awb_cfg_v32->pre_wbgain_inv_g = (float)awb_cfg_v32->pre_wbgain_inv_g *
-                                        (float)(otp_awb->golden_gr_value + 1024) /
-                                        (float)(otp_awb->gr_value + 1024) +
+                                            (float)(otp_awb->golden_gr_value + 1024) /
+                                            (float)(otp_awb->gr_value + 1024) +
                                         0.5;
         awb_cfg_v32->pre_wbgain_inv_b = (float)awb_cfg_v32->pre_wbgain_inv_b *
-                                        (float)otp_awb->golden_b_value /
-                                        (float)otp_awb->b_value +
+                                            (float)otp_awb->golden_b_value /
+                                            (float)otp_awb->b_value +
                                         0.5;
         LOGD_AWB("otp pre_wbgain_inv = [%d, %d, %d] \n", awb_cfg_v32->pre_wbgain_inv_r,
                  awb_cfg_v32->pre_wbgain_inv_g, awb_cfg_v32->pre_wbgain_inv_b);
@@ -790,13 +805,13 @@ static void ConfigPreWbgain3(struct isp33_rawawb_meas_cfg* awb_cfg_v32,
 }
 
 static bool isAwbCfgVaild(const rk_aiq_isp_awb_meas_cfg_v39_t* awb_meas_priv,
-                          const common_cvt_info_t* mCommonCvtInfo) {
+                   const common_cvt_info_t* mCommonCvtInfo) {
     const awbStats_cfg_t* wpDetectPara = (awbStats_cfg_t*)awb_meas_priv;
     if (wpDetectPara->mainWin.hw_awbCfg_win_x > mCommonCvtInfo->rawWidth ||
-            wpDetectPara->mainWin.hw_awbCfg_win_x + wpDetectPara->mainWin.hw_awbCfg_win_width >
+        wpDetectPara->mainWin.hw_awbCfg_win_x + wpDetectPara->mainWin.hw_awbCfg_win_width >
             mCommonCvtInfo->rawWidth ||
-            wpDetectPara->mainWin.hw_awbCfg_win_y > mCommonCvtInfo->rawHeight ||
-            wpDetectPara->mainWin.hw_awbCfg_win_y + wpDetectPara->mainWin.hw_awbCfg_win_height >
+        wpDetectPara->mainWin.hw_awbCfg_win_y > mCommonCvtInfo->rawHeight ||
+        wpDetectPara->mainWin.hw_awbCfg_win_y + wpDetectPara->mainWin.hw_awbCfg_win_height >
             mCommonCvtInfo->rawHeight) {
         LOGE_AWB("mainWin[%d,%d,%d,%d]is invaild!!!\n", wpDetectPara->mainWin.hw_awbCfg_win_x,
                  wpDetectPara->mainWin.hw_awbCfg_win_y, wpDetectPara->mainWin.hw_awbCfg_win_width,
@@ -832,7 +847,7 @@ static void convertAiqAwbToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_
         (rk_aiq_isp_awb_meas_cfg_v39_t*)pBase->_data;
     const awbStats_cfg_t* awb_meas = &awb_meas_priv->com;
     if (isAwbCfgVaild(awb_meas_priv, &pCvt->mCommonCvtInfo) == false ||
-            srcChooseCheck(awb_meas->hw_awbCfg_statsSrc_mode, pCvt->_working_mode) == false) {
+        srcChooseCheck(awb_meas->hw_awbCfg_statsSrc_mode, pCvt->_working_mode) == false) {
         return;
     }
 
@@ -917,8 +932,8 @@ static void convertAiqAwbToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_
     awb_cfg_v32->wp_blk_wei_en0   = awb_meas->wpEngine.norWpStatsCfg.hw_awbCfg_zoneWgt_en;
     awb_cfg_v32->wp_blk_wei_en1   = awb_meas->wpEngine.bigWpStatsCfg.hw_awbCfg_zoneWgt_en;
     awb_cfg_v32->rawlsc_bypass_en = awb_meas->hw_awbCfg_statsSrc_mode == awbStats_drcOut_mode
-                                    ? true
-                                    : awb_meas->hw_awbCfg_lsc_bypass;
+                                        ? true
+                                        : (!awb_meas->hw_awbCfg_lsc_en);
     awb_cfg_v32->blk_measure_enable = awb_meas->pixEngine.hw_awbCfg_stats_en;
     awb_cfg_v32->blk_measure_mode =
         awb_meas->pixEngine.hw_awbCfg_zoneStatsSrc_mode > awbStats_pixAll_mode;
@@ -936,7 +951,7 @@ static void convertAiqAwbToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_
     awb_cfg_v32->v_size               = awb_meas->mainWin.hw_awbCfg_win_height;
 
     if (awb_meas->hw_awbCfg_ds_mode == awbStats_ds_4x4 ||
-            awb_meas->hw_awbCfg_ds_mode == awbStats_ds_8x8) {
+        awb_meas->hw_awbCfg_ds_mode == awbStats_ds_8x8) {
         awb_cfg_v32->wind_size      = awb_meas->hw_awbCfg_ds_mode;
         awb_cfg_v32->ds16x8_mode_en = 0;
     } else if (awb_meas->hw_awbCfg_ds_mode == awbStats_ds_16x8) {
@@ -1014,12 +1029,12 @@ static void convertAiqAwbToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_
             float tmp = awb_meas->wpEngine.wpDct_rotYuvSpace.hw_awbCfg_rgb2RotYuv_coeff[i * 4 + j];
             icrgb2RYuv_matrix[i * 4 + j] =
                 tmp > 0 ? (int16_t)(tmp * (1 << RK_AIQ_AWB_YUV2_MATRIX_FRAC_BIT) + 0.5)
-                : (int16_t)(tmp * (1 << RK_AIQ_AWB_YUV2_MATRIX_FRAC_BIT) - 0.5);
+                        : (int16_t)(tmp * (1 << RK_AIQ_AWB_YUV2_MATRIX_FRAC_BIT) - 0.5);
         }
         float tmp = awb_meas->wpEngine.wpDct_rotYuvSpace.hw_awbCfg_rgb2RotYuv_coeff[i * 4 + 3];
         icrgb2RYuv_matrix[i * 4 + 3] =
             tmp > 0 ? (int16_t)(tmp * (1 << RK_AIQ_AWB_YUV2_OFFSET_FRAC_BIT) + 0.5)
-            : (int16_t)(tmp * (1 << RK_AIQ_AWB_YUV2_OFFSET_FRAC_BIT) - 0.5);
+                    : (int16_t)(tmp * (1 << RK_AIQ_AWB_YUV2_OFFSET_FRAC_BIT) - 0.5);
     }
 
     // awb_cfg_v32->rgb2ryuvmat0_u             = icrgb2RYuv_matrix[0];
@@ -1202,17 +1217,17 @@ static void convertAiqAwbToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_
     awb_cfg_v32->wt2 =
         UtlFloatToFix_U0012(awb_meas->wpEngine.wpDct_xySpace.rgb2xy.hw_awbCfg_rgb2xy_coeff[2]);
     awb_cfg_v32->mat0_x = UtlFloatToFix_S0312(
-                              awb_meas->wpEngine.wpDct_xySpace.rgb2xy.hw_awbCfg_xyTransMatrix_coeff[0]);
+        awb_meas->wpEngine.wpDct_xySpace.rgb2xy.hw_awbCfg_xyTransMatrix_coeff[0]);
     awb_cfg_v32->mat1_x = UtlFloatToFix_S0312(
-                              awb_meas->wpEngine.wpDct_xySpace.rgb2xy.hw_awbCfg_xyTransMatrix_coeff[1]);
+        awb_meas->wpEngine.wpDct_xySpace.rgb2xy.hw_awbCfg_xyTransMatrix_coeff[1]);
     awb_cfg_v32->mat2_x = UtlFloatToFix_S0312(
-                              awb_meas->wpEngine.wpDct_xySpace.rgb2xy.hw_awbCfg_xyTransMatrix_coeff[2]);
+        awb_meas->wpEngine.wpDct_xySpace.rgb2xy.hw_awbCfg_xyTransMatrix_coeff[2]);
     awb_cfg_v32->mat0_y = UtlFloatToFix_S0312(
-                              awb_meas->wpEngine.wpDct_xySpace.rgb2xy.hw_awbCfg_xyTransMatrix_coeff[3]);
+        awb_meas->wpEngine.wpDct_xySpace.rgb2xy.hw_awbCfg_xyTransMatrix_coeff[3]);
     awb_cfg_v32->mat1_y = UtlFloatToFix_S0312(
-                              awb_meas->wpEngine.wpDct_xySpace.rgb2xy.hw_awbCfg_xyTransMatrix_coeff[4]);
+        awb_meas->wpEngine.wpDct_xySpace.rgb2xy.hw_awbCfg_xyTransMatrix_coeff[4]);
     awb_cfg_v32->mat2_y = UtlFloatToFix_S0312(
-                              awb_meas->wpEngine.wpDct_xySpace.rgb2xy.hw_awbCfg_xyTransMatrix_coeff[5]);
+        awb_meas->wpEngine.wpDct_xySpace.rgb2xy.hw_awbCfg_xyTransMatrix_coeff[5]);
     const awbStats_xyRegion_t* norWpRegion = &awb_meas->wpEngine.wpDct_xySpace.norWpRegion[0];
     const awbStats_xyRegion_t* bigWpRegion = &awb_meas->wpEngine.wpDct_xySpace.bigWpRegion[0];
     awb_cfg_v32->nor_x0_0 = UtlFloatToFix_S0310(norWpRegion->ltVtx.hw_awbT_vtxX_val);
@@ -1288,18 +1303,18 @@ static void convertAiqAwbToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_
     awb_cfg_v32->exc_wp_region0_measen =
         awb_meas->wpEngine.wpFiltOut_fullEntity[0].hw_awbCfg_wpStats_en;
     awb_cfg_v32->exc_wp_region0_domain =
-        awb_meas->wpEngine.wpFiltOut_fullEntity[0].hw_awbT_wpFiltOut_mode;
+        awb_meas->wpEngine.wpFiltOut_fullEntity[0].hw_awbT_wpSpace_mode;
     awb_cfg_v32->exc_wp_region0_xu0 =
-        (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[0].wpRegion.ltVtx.hw_awbT_vtxXU_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_fullEntity[0].wpRegion.ltVtx.hw_awbT_vtxXU_val,awb_meas->wpEngine.wpFiltOut_fullEntity[0].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region0_xu1 =
-        (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[0].wpRegion.rbVtx.hw_awbT_vtxXU_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_fullEntity[0].wpRegion.rbVtx.hw_awbT_vtxXU_val,awb_meas->wpEngine.wpFiltOut_fullEntity[0].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region0_yv0 =
-        (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[0].wpRegion.ltVtx.hw_awbT_vtxYV_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_fullEntity[0].wpRegion.ltVtx.hw_awbT_vtxYV_val,awb_meas->wpEngine.wpFiltOut_fullEntity[0].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region0_yv1 =
-        (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[0].wpRegion.rbVtx.hw_awbT_vtxYV_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_fullEntity[0].wpRegion.rbVtx.hw_awbT_vtxYV_val,awb_meas->wpEngine.wpFiltOut_fullEntity[0].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region0_weight =
-        (uint8_t)(awb_meas->wpEngine.wpFiltOut_fullEntity[0].hw_awbT_filtOutOpt_wgt *
-                  ((1 << RK_AIQ_WP_INCLUDE_BIS) - 1) +
+        (uint8_t)(awb_meas->wpEngine.wpFiltOut_fullEntity[0].hw_awbT_stats_wgt *
+                      ((1 << RK_AIQ_WP_INCLUDE_BIS) - 1) +
                   0.5);
     int exc_wp_region1_excen0 = awb_meas->wpEngine.norWpStatsCfg.hw_awbCfg_wpFiltOut_en[1];
     int exc_wp_region1_excen1 = awb_meas->wpEngine.bigWpStatsCfg.hw_awbCfg_wpFiltOut_en[1];
@@ -1308,18 +1323,18 @@ static void convertAiqAwbToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_
     awb_cfg_v32->exc_wp_region1_measen =
         awb_meas->wpEngine.wpFiltOut_fullEntity[1].hw_awbCfg_wpStats_en;
     awb_cfg_v32->exc_wp_region1_domain =
-        awb_meas->wpEngine.wpFiltOut_fullEntity[1].hw_awbT_wpFiltOut_mode;
+        awb_meas->wpEngine.wpFiltOut_fullEntity[1].hw_awbT_wpSpace_mode;
     awb_cfg_v32->exc_wp_region1_xu0 =
-        (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[1].wpRegion.ltVtx.hw_awbT_vtxXU_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_fullEntity[1].wpRegion.ltVtx.hw_awbT_vtxXU_val,awb_meas->wpEngine.wpFiltOut_fullEntity[1].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region1_xu1 =
-        (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[1].wpRegion.rbVtx.hw_awbT_vtxXU_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_fullEntity[1].wpRegion.rbVtx.hw_awbT_vtxXU_val,awb_meas->wpEngine.wpFiltOut_fullEntity[1].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region1_yv0 =
-        (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[1].wpRegion.ltVtx.hw_awbT_vtxYV_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_fullEntity[1].wpRegion.ltVtx.hw_awbT_vtxYV_val,awb_meas->wpEngine.wpFiltOut_fullEntity[1].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region1_yv1 =
-        (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[1].wpRegion.rbVtx.hw_awbT_vtxYV_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_fullEntity[1].wpRegion.rbVtx.hw_awbT_vtxYV_val,awb_meas->wpEngine.wpFiltOut_fullEntity[1].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region1_weight =
-        (uint8_t)(awb_meas->wpEngine.wpFiltOut_fullEntity[1].hw_awbT_filtOutOpt_wgt *
-                  ((1 << RK_AIQ_WP_INCLUDE_BIS) - 1) +
+        (uint8_t)(awb_meas->wpEngine.wpFiltOut_fullEntity[1].hw_awbT_stats_wgt *
+                      ((1 << RK_AIQ_WP_INCLUDE_BIS) - 1) +
                   0.5);
     int exc_wp_region2_excen0 = awb_meas->wpEngine.norWpStatsCfg.hw_awbCfg_wpFiltOut_en[2];
     int exc_wp_region2_excen1 = awb_meas->wpEngine.bigWpStatsCfg.hw_awbCfg_wpFiltOut_en[2];
@@ -1328,18 +1343,18 @@ static void convertAiqAwbToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_
     awb_cfg_v32->exc_wp_region2_measen =
         awb_meas->wpEngine.wpFiltOut_fullEntity[2].hw_awbCfg_wpStats_en;
     awb_cfg_v32->exc_wp_region2_domain =
-        awb_meas->wpEngine.wpFiltOut_fullEntity[2].hw_awbT_wpFiltOut_mode;
+        awb_meas->wpEngine.wpFiltOut_fullEntity[2].hw_awbT_wpSpace_mode;
     awb_cfg_v32->exc_wp_region2_xu0 =
-        (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[2].wpRegion.ltVtx.hw_awbT_vtxXU_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_fullEntity[2].wpRegion.ltVtx.hw_awbT_vtxXU_val,awb_meas->wpEngine.wpFiltOut_fullEntity[2].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region2_xu1 =
-        (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[2].wpRegion.rbVtx.hw_awbT_vtxXU_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_fullEntity[2].wpRegion.rbVtx.hw_awbT_vtxXU_val,awb_meas->wpEngine.wpFiltOut_fullEntity[2].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region2_yv0 =
-        (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[2].wpRegion.ltVtx.hw_awbT_vtxYV_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_fullEntity[2].wpRegion.ltVtx.hw_awbT_vtxYV_val,awb_meas->wpEngine.wpFiltOut_fullEntity[2].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region2_yv1 =
-        (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[2].wpRegion.rbVtx.hw_awbT_vtxYV_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_fullEntity[2].wpRegion.rbVtx.hw_awbT_vtxYV_val,awb_meas->wpEngine.wpFiltOut_fullEntity[2].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region2_weight =
-        (uint8_t)(awb_meas->wpEngine.wpFiltOut_fullEntity[2].hw_awbT_filtOutOpt_wgt *
-                  ((1 << RK_AIQ_WP_INCLUDE_BIS) - 1) +
+        (uint8_t)(awb_meas->wpEngine.wpFiltOut_fullEntity[2].hw_awbT_stats_wgt *
+                      ((1 << RK_AIQ_WP_INCLUDE_BIS) - 1) +
                   0.5);
     int exc_wp_region3_excen0 = awb_meas->wpEngine.norWpStatsCfg.hw_awbCfg_wpFiltOut_en[3];
     int exc_wp_region3_excen1 = awb_meas->wpEngine.bigWpStatsCfg.hw_awbCfg_wpFiltOut_en[3];
@@ -1348,109 +1363,109 @@ static void convertAiqAwbToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_
     awb_cfg_v32->exc_wp_region3_measen =
         awb_meas->wpEngine.wpFiltOut_fullEntity[3].hw_awbCfg_wpStats_en;
     awb_cfg_v32->exc_wp_region3_domain =
-        awb_meas->wpEngine.wpFiltOut_fullEntity[3].hw_awbT_wpFiltOut_mode;
+        awb_meas->wpEngine.wpFiltOut_fullEntity[3].hw_awbT_wpSpace_mode;
     awb_cfg_v32->exc_wp_region3_xu0 =
-        (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[3].wpRegion.ltVtx.hw_awbT_vtxXU_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_fullEntity[3].wpRegion.ltVtx.hw_awbT_vtxXU_val,awb_meas->wpEngine.wpFiltOut_fullEntity[2].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region3_xu1 =
-        (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[3].wpRegion.rbVtx.hw_awbT_vtxXU_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_fullEntity[3].wpRegion.rbVtx.hw_awbT_vtxXU_val,awb_meas->wpEngine.wpFiltOut_fullEntity[2].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region3_yv0 =
-        (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[3].wpRegion.ltVtx.hw_awbT_vtxYV_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_fullEntity[3].wpRegion.ltVtx.hw_awbT_vtxYV_val,awb_meas->wpEngine.wpFiltOut_fullEntity[2].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region3_yv1 =
-        (s16)awb_meas->wpEngine.wpFiltOut_fullEntity[3].wpRegion.rbVtx.hw_awbT_vtxYV_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_fullEntity[3].wpRegion.rbVtx.hw_awbT_vtxYV_val,awb_meas->wpEngine.wpFiltOut_fullEntity[2].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region3_weight =
-        (uint8_t)(awb_meas->wpEngine.wpFiltOut_fullEntity[3].hw_awbT_filtOutOpt_wgt *
-                  ((1 << RK_AIQ_WP_INCLUDE_BIS) - 1) +
+        (uint8_t)(awb_meas->wpEngine.wpFiltOut_fullEntity[3].hw_awbT_stats_wgt *
+                      ((1 << RK_AIQ_WP_INCLUDE_BIS) - 1) +
                   0.5);
     int exc_wp_region4_excen0 = awb_meas->wpEngine.norWpStatsCfg.hw_awbCfg_wpFiltOut_en[4];
     int exc_wp_region4_excen1 = awb_meas->wpEngine.bigWpStatsCfg.hw_awbCfg_wpFiltOut_en[4];
     awb_cfg_v32->exc_wp_region4_excen =
         ((exc_wp_region4_excen1 << 1) + exc_wp_region4_excen0) & 0x3;
     awb_cfg_v32->exc_wp_region4_domain =
-        awb_meas->wpEngine.wpFiltOut_smpEntity[0].hw_awbT_wpFiltOut_mode;
+        awb_meas->wpEngine.wpFiltOut_smpEntity[0].hw_awbT_wpSpace_mode;
     awb_cfg_v32->exc_wp_region4_xu0 =
-        (s16)awb_meas->wpEngine.wpFiltOut_smpEntity[0].wpRegion.ltVtx.hw_awbT_vtxXU_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_smpEntity[0].wpRegion.ltVtx.hw_awbT_vtxXU_val,awb_meas->wpEngine.wpFiltOut_smpEntity[0].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region4_xu1 =
-        (s16)awb_meas->wpEngine.wpFiltOut_smpEntity[0].wpRegion.rbVtx.hw_awbT_vtxXU_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_smpEntity[0].wpRegion.rbVtx.hw_awbT_vtxXU_val,awb_meas->wpEngine.wpFiltOut_smpEntity[0].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region4_yv0 =
-        (s16)awb_meas->wpEngine.wpFiltOut_smpEntity[0].wpRegion.ltVtx.hw_awbT_vtxYV_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_smpEntity[0].wpRegion.ltVtx.hw_awbT_vtxYV_val,awb_meas->wpEngine.wpFiltOut_smpEntity[0].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region4_yv1 =
-        (s16)awb_meas->wpEngine.wpFiltOut_smpEntity[0].wpRegion.rbVtx.hw_awbT_vtxYV_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_smpEntity[0].wpRegion.rbVtx.hw_awbT_vtxYV_val,awb_meas->wpEngine.wpFiltOut_smpEntity[0].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region4_weight =
-        (uint8_t)(awb_meas->wpEngine.wpFiltOut_smpEntity[0].hw_awbT_filtOutOpt_wgt *
-                  ((1 << RK_AIQ_WP_INCLUDE_BIS) - 1) +
+        (uint8_t)(awb_meas->wpEngine.wpFiltOut_smpEntity[0].hw_awbT_stats_wgt *
+                      ((1 << RK_AIQ_WP_INCLUDE_BIS) - 1) +
                   0.5);
     int exc_wp_region5_excen0 = awb_meas->wpEngine.norWpStatsCfg.hw_awbCfg_wpFiltOut_en[5];
     int exc_wp_region5_excen1 = awb_meas->wpEngine.bigWpStatsCfg.hw_awbCfg_wpFiltOut_en[5];
     awb_cfg_v32->exc_wp_region5_excen =
         ((exc_wp_region5_excen1 << 1) + exc_wp_region5_excen0) & 0x3;
     awb_cfg_v32->exc_wp_region5_domain =
-        awb_meas->wpEngine.wpFiltOut_smpEntity[1].hw_awbT_wpFiltOut_mode;
+        awb_meas->wpEngine.wpFiltOut_smpEntity[1].hw_awbT_wpSpace_mode;
     awb_cfg_v32->exc_wp_region5_xu0 =
-        (s16)awb_meas->wpEngine.wpFiltOut_smpEntity[1].wpRegion.ltVtx.hw_awbT_vtxXU_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_smpEntity[1].wpRegion.ltVtx.hw_awbT_vtxXU_val,awb_meas->wpEngine.wpFiltOut_smpEntity[1].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region5_xu1 =
-        (s16)awb_meas->wpEngine.wpFiltOut_smpEntity[1].wpRegion.rbVtx.hw_awbT_vtxXU_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_smpEntity[1].wpRegion.rbVtx.hw_awbT_vtxXU_val,awb_meas->wpEngine.wpFiltOut_smpEntity[1].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region5_yv0 =
-        (s16)awb_meas->wpEngine.wpFiltOut_smpEntity[1].wpRegion.ltVtx.hw_awbT_vtxYV_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_smpEntity[1].wpRegion.ltVtx.hw_awbT_vtxYV_val,awb_meas->wpEngine.wpFiltOut_smpEntity[1].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region5_yv1 =
-        (s16)awb_meas->wpEngine.wpFiltOut_smpEntity[1].wpRegion.rbVtx.hw_awbT_vtxYV_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_smpEntity[1].wpRegion.rbVtx.hw_awbT_vtxYV_val,awb_meas->wpEngine.wpFiltOut_smpEntity[1].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region5_weight =
-        (uint8_t)(awb_meas->wpEngine.wpFiltOut_smpEntity[1].hw_awbT_filtOutOpt_wgt *
-                  ((1 << RK_AIQ_WP_INCLUDE_BIS) - 1) +
+        (uint8_t)(awb_meas->wpEngine.wpFiltOut_smpEntity[1].hw_awbT_stats_wgt *
+                      ((1 << RK_AIQ_WP_INCLUDE_BIS) - 1) +
                   0.5);
     int exc_wp_region6_excen0 = awb_meas->wpEngine.norWpStatsCfg.hw_awbCfg_wpFiltOut_en[6];
     int exc_wp_region6_excen1 = awb_meas->wpEngine.bigWpStatsCfg.hw_awbCfg_wpFiltOut_en[6];
     awb_cfg_v32->exc_wp_region6_excen =
         ((exc_wp_region6_excen1 << 1) + exc_wp_region6_excen0) & 0x3;
     awb_cfg_v32->exc_wp_region6_domain =
-        awb_meas->wpEngine.wpFiltOut_smpEntity[2].hw_awbT_wpFiltOut_mode;
+        awb_meas->wpEngine.wpFiltOut_smpEntity[2].hw_awbT_wpSpace_mode;
     awb_cfg_v32->exc_wp_region6_xu0 =
-        (s16)awb_meas->wpEngine.wpFiltOut_smpEntity[2].wpRegion.ltVtx.hw_awbT_vtxXU_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_smpEntity[2].wpRegion.ltVtx.hw_awbT_vtxXU_val,awb_meas->wpEngine.wpFiltOut_smpEntity[2].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region6_xu1 =
-        (s16)awb_meas->wpEngine.wpFiltOut_smpEntity[2].wpRegion.rbVtx.hw_awbT_vtxXU_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_smpEntity[2].wpRegion.rbVtx.hw_awbT_vtxXU_val,awb_meas->wpEngine.wpFiltOut_smpEntity[2].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region6_yv0 =
-        (s16)awb_meas->wpEngine.wpFiltOut_smpEntity[2].wpRegion.ltVtx.hw_awbT_vtxYV_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_smpEntity[2].wpRegion.ltVtx.hw_awbT_vtxYV_val,awb_meas->wpEngine.wpFiltOut_smpEntity[2].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region6_yv1 =
-        (s16)awb_meas->wpEngine.wpFiltOut_smpEntity[2].wpRegion.rbVtx.hw_awbT_vtxYV_val;
+        filtOutFixed(awb_meas->wpEngine.wpFiltOut_smpEntity[2].wpRegion.rbVtx.hw_awbT_vtxYV_val,awb_meas->wpEngine.wpFiltOut_smpEntity[2].hw_awbT_wpSpace_mode);
     awb_cfg_v32->exc_wp_region6_weight =
-        (uint8_t)(awb_meas->wpEngine.wpFiltOut_smpEntity[2].hw_awbT_filtOutOpt_wgt *
-                  ((1 << RK_AIQ_WP_INCLUDE_BIS) - 1) +
+        (uint8_t)(awb_meas->wpEngine.wpFiltOut_smpEntity[2].hw_awbT_stats_wgt *
+                      ((1 << RK_AIQ_WP_INCLUDE_BIS) - 1) +
                   0.5);
-    awb_cfg_v32->wp_luma_weicurve_y0 = awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.idx[0];
-    awb_cfg_v32->wp_luma_weicurve_y1 = awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.idx[1];
-    awb_cfg_v32->wp_luma_weicurve_y2 = awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.idx[2];
-    awb_cfg_v32->wp_luma_weicurve_y3 = awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.idx[3];
-    awb_cfg_v32->wp_luma_weicurve_y4 = awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.idx[4];
-    awb_cfg_v32->wp_luma_weicurve_y5 = awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.idx[5];
-    awb_cfg_v32->wp_luma_weicurve_y6 = awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.idx[6];
-    awb_cfg_v32->wp_luma_weicurve_y7 = awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.idx[7];
-    awb_cfg_v32->wp_luma_weicurve_y8 = awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.idx[8];
-    awb_cfg_v32->wp_luma_weicurve_w0 = (uint8_t)(awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.val[0] *
-                                       ((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1) +
-                                       0.5);
-    awb_cfg_v32->wp_luma_weicurve_w1 = (uint8_t)(awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.val[1] *
-                                       ((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1) +
-                                       0.5);
-    awb_cfg_v32->wp_luma_weicurve_w2 = (uint8_t)(awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.val[2] *
-                                       ((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1) +
-                                       0.5);
-    awb_cfg_v32->wp_luma_weicurve_w3 = (uint8_t)(awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.val[3] *
-                                       ((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1) +
-                                       0.5);
-    awb_cfg_v32->wp_luma_weicurve_w4 = (uint8_t)(awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.val[4] *
-                                       ((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1) +
-                                       0.5);
-    awb_cfg_v32->wp_luma_weicurve_w5 = (uint8_t)(awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.val[5] *
-                                       ((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1) +
-                                       0.5);
-    awb_cfg_v32->wp_luma_weicurve_w6 = (uint8_t)(awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.val[6] *
-                                       ((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1) +
-                                       0.5);
-    awb_cfg_v32->wp_luma_weicurve_w7 = (uint8_t)(awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.val[7] *
-                                       ((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1) +
-                                       0.5);
-    awb_cfg_v32->wp_luma_weicurve_w8 = (uint8_t)(awb_meas->wpEngine.hw_awbT_luma2Wgt_curve.val[8] *
-                                       ((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1) +
-                                       0.5);
+    awb_cfg_v32->wp_luma_weicurve_y0 = awb_meas->wpEngine.hw_awbT_luma2WpWgt_curve.idx[0];
+    awb_cfg_v32->wp_luma_weicurve_y1 = awb_meas->wpEngine.hw_awbT_luma2WpWgt_curve.idx[1];
+    awb_cfg_v32->wp_luma_weicurve_y2 = awb_meas->wpEngine.hw_awbT_luma2WpWgt_curve.idx[2];
+    awb_cfg_v32->wp_luma_weicurve_y3 = awb_meas->wpEngine.hw_awbT_luma2WpWgt_curve.idx[3];
+    awb_cfg_v32->wp_luma_weicurve_y4 = awb_meas->wpEngine.hw_awbT_luma2WpWgt_curve.idx[4];
+    awb_cfg_v32->wp_luma_weicurve_y5 = awb_meas->wpEngine.hw_awbT_luma2WpWgt_curve.idx[5];
+    awb_cfg_v32->wp_luma_weicurve_y6 = awb_meas->wpEngine.hw_awbT_luma2WpWgt_curve.idx[6];
+    awb_cfg_v32->wp_luma_weicurve_y7 = awb_meas->wpEngine.hw_awbT_luma2WpWgt_curve.idx[7];
+    awb_cfg_v32->wp_luma_weicurve_y8 = awb_meas->wpEngine.hw_awbT_luma2WpWgt_curve.idx[8];
+    awb_cfg_v32->wp_luma_weicurve_w0 = (uint8_t)(awb_meas->wpEngine.hw_awbT_luma2WpWgt_curve.val[0] *
+                                                     ((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1) +
+                                                 0.5);
+    awb_cfg_v32->wp_luma_weicurve_w1 = (uint8_t)(awb_meas->wpEngine.hw_awbT_luma2WpWgt_curve.val[1] *
+                                                     ((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1) +
+                                                 0.5);
+    awb_cfg_v32->wp_luma_weicurve_w2 = (uint8_t)(awb_meas->wpEngine.hw_awbT_luma2WpWgt_curve.val[2] *
+                                                     ((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1) +
+                                                 0.5);
+    awb_cfg_v32->wp_luma_weicurve_w3 = (uint8_t)(awb_meas->wpEngine.hw_awbT_luma2WpWgt_curve.val[3] *
+                                                     ((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1) +
+                                                 0.5);
+    awb_cfg_v32->wp_luma_weicurve_w4 = (uint8_t)(awb_meas->wpEngine.hw_awbT_luma2WpWgt_curve.val[4] *
+                                                     ((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1) +
+                                                 0.5);
+    awb_cfg_v32->wp_luma_weicurve_w5 = (uint8_t)(awb_meas->wpEngine.hw_awbT_luma2WpWgt_curve.val[5] *
+                                                     ((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1) +
+                                                 0.5);
+    awb_cfg_v32->wp_luma_weicurve_w6 = (uint8_t)(awb_meas->wpEngine.hw_awbT_luma2WpWgt_curve.val[6] *
+                                                     ((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1) +
+                                                 0.5);
+    awb_cfg_v32->wp_luma_weicurve_w7 = (uint8_t)(awb_meas->wpEngine.hw_awbT_luma2WpWgt_curve.val[7] *
+                                                     ((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1) +
+                                                 0.5);
+    awb_cfg_v32->wp_luma_weicurve_w8 = (uint8_t)(awb_meas->wpEngine.hw_awbT_luma2WpWgt_curve.val[8] *
+                                                     ((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1) +
+                                                 0.5);
     for (int i = 0; i < RK_AIQ_AWB_GRID_NUM_TOTAL; i++) {
         awb_cfg_v32->wp_blk_wei_w[i] = awb_meas->wpEngine.hw_awbCfg_zone_wgt[i];
     }
@@ -1495,14 +1510,15 @@ static void convertAiqBtnrToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base
         return;
     }
 
-    pCvt->mBtnrInfo.bypass = pBase->bypass;
+    pCvt->isp_params.isp_cfg->others.bay3d_cfg.bypass_en = pBase->bypass;
     rk_aiq_btnr41_params_cvt(pBase->_data, &pCvt->isp_params, &pCvt->mCommonCvtInfo, &pCvt->mBtnrInfo);
 }
 #endif
 
-#if RKAIQ_HAVE_YNR_V24
+#if RKAIQ_HAVE_YNR_V40
 static void convertAiqYnrToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase) {
-    if (pCvt->mCommonCvtInfo.cnr_ynr_sharp_same) {
+    /*
+    if (pCvt->mCommonCvtInfo.cnr_path_valid) {
         if (pBase->en) {
             pCvt->isp_params.isp_cfg->module_ens |= ISP3X_MODULE_YNR;
             pCvt->isp_params.isp_cfg->module_en_update |= ISP3X_MODULE_YNR;
@@ -1529,7 +1545,7 @@ static void convertAiqYnrToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_
             ynr_param->dyn.hw_ynrT_loNr_en = 0;
             ynr_param->dyn.hiNr_filtProc.hw_ynrT_nlmFilt_en = 0;
             LOGW_ANR("ynr en disable is changed to bypass on, "
-                     "Equivalent effect, but not equivalent power consumption.");
+                "Equivalent effect, but not equivalent power consumption.");
         }
         if (pCvt->mCommonCvtInfo.isFirstFrame) {
             pCvt->isp_params.isp_cfg->module_ens |= ISP3X_MODULE_YNR;
@@ -1537,14 +1553,26 @@ static void convertAiqYnrToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_
         }
         pCvt->isp_params.isp_cfg->module_cfg_update |= ISP3X_MODULE_YNR;
     }
+    */
 
-    rk_aiq_ynr34_params_cvt(pBase->_data, &pCvt->isp_params, &pCvt->mCommonCvtInfo);
+    pCvt->isp_params.isp_cfg->module_ens |= ISP3X_MODULE_YNR;
+    pCvt->isp_params.isp_cfg->module_en_update |= ISP3X_MODULE_YNR;
+    pCvt->isp_params.isp_cfg->module_cfg_update |= ISP3X_MODULE_YNR;
+
+    if (pBase->bypass) {
+        struct isp33_ynr_cfg* pYnr = &pCvt->isp_params.isp_cfg->others.ynr_cfg;
+        pYnr->hi_spnr_bypass = 1;
+        pYnr->mi_spnr_bypass = 1;
+        pYnr->lo_spnr_bypass = 1;
+    }
+
+    rk_aiq_ynr40_params_cvt(pBase->_data, &pCvt->isp_params, &pCvt->mCommonCvtInfo);
 }
 #endif
 
-#if (RKAIQ_HAVE_CNR_V31)
+#if (RKAIQ_HAVE_CNR_V35)
 static void convertAiqCnrToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase) {
-    if (pCvt->mCommonCvtInfo.cnr_ynr_sharp_same) {
+    if (pCvt->mCommonCvtInfo.cnr_path_valid) {
         if (pBase->en) {
             pCvt->isp_params.isp_cfg->module_ens |= ISP3X_MODULE_CNR;
             pCvt->isp_params.isp_cfg->module_en_update |= ISP3X_MODULE_CNR;
@@ -1559,7 +1587,7 @@ static void convertAiqCnrToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_
     else {
         if (!pBase->en) {
             LOGW_ANR("cnr can't be disable and bypass, "
-                     "suggest adjusting the parameter 'bifiltOut.alpha, lpfOut.alpha' to 0 to achieve the goal!");
+            "suggest adjusting the parameter 'bifiltOut.alpha, lpfOut.alpha' to 0 to achieve the goal!");
         }
         pCvt->isp_params.isp_cfg->module_ens |= ISP3X_MODULE_CNR;
         pCvt->isp_params.isp_cfg->module_en_update |= ISP3X_MODULE_CNR;
@@ -1582,13 +1610,19 @@ static void convertAiqDmToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t
         return;
     }
 
+    pCvt->isp_params.isp_cfg->others.debayer_cfg.bypass = pBase->bypass;
     rk_aiq_dm24_params_cvt(pBase->_data, &pCvt->isp_params, &pCvt->mCommonCvtInfo);
 }
 #endif
 
-#if (RKAIQ_HAVE_SHARP_V34)
+#if (RKAIQ_HAVE_SHARP_V40)
+static void convertAiqTexEstToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase) {
+    memcpy(&pCvt->mCommonCvtInfo.texEst_param, pBase->_data, sizeof(texEst_param_t));
+}
+
 static void convertAiqSharpToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase) {
-    if (pCvt->mCommonCvtInfo.cnr_ynr_sharp_same) {
+    /*
+    if (pCvt->mCommonCvtInfo.cnr_path_valid) {
         if (pBase->en) {
             pCvt->isp_params.isp_cfg->module_ens |= ISP3X_MODULE_SHARP;
             pCvt->isp_params.isp_cfg->module_en_update |= ISP3X_MODULE_SHARP;
@@ -1604,14 +1638,14 @@ static void convertAiqSharpToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_bas
     else {
         if (pCvt->mCommonCvtInfo.sharp_count < 5)
             LOGW_ANR("ynr, cnr and sharp's enable is not equal now, but they should be equal");
-        else if(pCvt->mCommonCvtInfo.sharp_count % 300 == 0) {
+        else if(pCvt->mCommonCvtInfo.sharp_count % 300 == 0){
             LOGW_ANR("ynr, cnr and sharp's enable is not equal now, but they should be equal");
         }
         pCvt->mCommonCvtInfo.sharp_count++;
         if (!pBase->en) {
             pBase->bypass = 1;
             LOGW_ASHARP("Sharp en disable is changed to bypass on, "
-                        "Equivalent effect, but not equivalent power consumption.");
+            "Equivalent effect, but not equivalent power consumption.");
         }
         if (pCvt->mCommonCvtInfo.isFirstFrame) {
             pCvt->isp_params.isp_cfg->module_ens |= ISP3X_MODULE_SHARP;
@@ -1619,10 +1653,15 @@ static void convertAiqSharpToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_bas
         }
         pCvt->isp_params.isp_cfg->module_cfg_update |= ISP3X_MODULE_SHARP;
     }
+    */
+
+    pCvt->isp_params.isp_cfg->module_ens |= ISP33_MODULE_SHARP;
+    pCvt->isp_params.isp_cfg->module_en_update |= ISP33_MODULE_SHARP;
+    pCvt->isp_params.isp_cfg->module_cfg_update |= ISP33_MODULE_SHARP;
+
 
     pCvt->isp_params.isp_cfg->others.sharp_cfg.bypass = pBase->bypass;
-
-    rk_aiq_sharp34_params_cvt(pBase->_data, &pCvt->isp_params, &pCvt->mCommonCvtInfo);
+    rk_aiq_sharp40_params_cvt(pBase->_data, &pCvt->isp_params, &pCvt->mCommonCvtInfo, &pCvt->mBtnrInfo);
 }
 #endif
 
@@ -1708,17 +1747,48 @@ static void convertAiqHisteqToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_ba
 
 #if RKAIQ_HAVE_ENHANCE_V10
 static void convertAiqEnhToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase){
-    if (pBase->en) {
-        pCvt->isp_params.isp_cfg->module_ens |= ISP33_MODULE_ENH;
-        pCvt->isp_params.isp_cfg->module_en_update |= ISP33_MODULE_ENH;
+    if (pCvt->mCommonCvtInfo.cnr_path_valid) {
+        if (pBase->en) {
+            pCvt->isp_params.isp_cfg->module_ens |= ISP33_MODULE_ENH;
+            pCvt->isp_params.isp_cfg->module_en_update |= ISP33_MODULE_ENH;
+            pCvt->isp_params.isp_cfg->module_cfg_update |= ISP33_MODULE_ENH;
+        }
+        else {
+            pCvt->isp_params.isp_cfg->module_ens &= ~ISP33_MODULE_ENH;
+            pCvt->isp_params.isp_cfg->module_en_update |= ISP33_MODULE_ENH;
+            return;
+        }
+    }
+    else {
+        if (!pBase->en) {
+            pBase->bypass = 1;
+            LOGW_ASHARP("Enh en disable is changed to bypass on, "
+                        "Equivalent effect, but not equivalent power consumption.");
+        }
+        if (pCvt->mCommonCvtInfo.isFirstFrame) {
+            pCvt->isp_params.isp_cfg->module_ens |= ISP33_MODULE_ENH;
+            pCvt->isp_params.isp_cfg->module_en_update |= ISP33_MODULE_ENH;
+        }
         pCvt->isp_params.isp_cfg->module_cfg_update |= ISP33_MODULE_ENH;
-    } else {
-        pCvt->isp_params.isp_cfg->module_ens &= ~ISP33_MODULE_ENH;
-        pCvt->isp_params.isp_cfg->module_en_update |= ISP33_MODULE_ENH;
     }
 
     pCvt->isp_params.isp_cfg->others.enh_cfg.bypass = pBase->bypass;
     rk_aiq_enh30_params_cvt(pBase->_data, &pCvt->isp_params, &pCvt->mCommonCvtInfo);
+}
+#endif
+
+#if RKAIQ_HAVE_HSV_V10
+static void convertAiqHsvToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase){
+    if (pBase->en) {
+        pCvt->isp_params.isp_cfg->module_ens |= ISP33_MODULE_HSV;
+        pCvt->isp_params.isp_cfg->module_en_update |= ISP33_MODULE_HSV;
+        pCvt->isp_params.isp_cfg->module_cfg_update |= ISP33_MODULE_HSV;
+    } else {
+        pCvt->isp_params.isp_cfg->module_ens &= ~ISP33_MODULE_HSV;
+        pCvt->isp_params.isp_cfg->module_en_update |= ISP33_MODULE_HSV;
+    }
+
+    rk_aiq_hsv10_params_cvt(pBase->_data, &pCvt->isp_params, &pCvt->mCommonCvtInfo);
 }
 #endif
 
@@ -1744,18 +1814,20 @@ static const struct params_cvt_info_isp33 params_cvts_isp33[] = {
  #if (RKAIQ_HAVE_BAYERTNR_V41)
      CVT_INFO(RESULT_TYPE_TNR_PARAM, convertAiqBtnrToIsp33Params),
  #endif
-// #if RKAIQ_HAVE_YNR_V24
-//     CVT_INFO(RESULT_TYPE_YNR_PARAM, convertAiqYnrToIsp33Params),
-// #endif
-// #if (RKAIQ_HAVE_CNR_V31)
-//     CVT_INFO(RESULT_TYPE_UVNR_PARAM, convertAiqCnrToIsp33Params),
-// #endif
+ #if RKAIQ_HAVE_YNR_V40
+     CVT_INFO(RESULT_TYPE_YNR_PARAM, convertAiqYnrToIsp33Params),
+ #endif
+ #if (RKAIQ_HAVE_CNR_V35)
+     CVT_INFO(RESULT_TYPE_UVNR_PARAM, convertAiqCnrToIsp33Params),
+ #endif
     CVT_INFO(RESULT_TYPE_MERGE_PARAM, convertAiqMergeToIsp39Params),
     CVT_INFO(RESULT_TYPE_HISTEQ_PARAM, convertAiqHisteqToIsp33Params),
     CVT_INFO(RESULT_TYPE_ENH_PARAM, convertAiqEnhToIsp33Params),
-// #if (RKAIQ_HAVE_SHARP_V34)
-//     CVT_INFO(RESULT_TYPE_SHARPEN_PARAM, convertAiqSharpToIsp33Params),
-// #endif
+ #if (RKAIQ_HAVE_SHARP_V40)
+     CVT_INFO(RESULT_TYPE_TEXEST_PARAM, convertAiqTexEstToIsp33Params),
+     CVT_INFO(RESULT_TYPE_SHARPEN_PARAM, convertAiqSharpToIsp33Params),
+ #endif
+    CVT_INFO(RESULT_TYPE_HSV_PARAM, convertAiqHsvToIsp33Params),
     CVT_INFO(RESULT_TYPE_BLC_PARAM, convertAiqBlcToIsp39Params),
     CVT_INFO(RESULT_TYPE_CSM_PARAM, convertAiqCsmToIsp39Params),
     CVT_INFO(RESULT_TYPE_DPCC_PARAM, convertAiqDpccToIsp39Params),

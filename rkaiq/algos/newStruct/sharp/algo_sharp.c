@@ -27,25 +27,304 @@
 #include "c_base/aiq_base.h"
 #include "newStruct/algo_common.h"
 
-#if RKAIQ_HAVE_SHARP_V33
+#if RKAIQ_HAVE_SHARP_V40
 XCamReturn SharpSelectParam
 (
-    sharp_param_auto_t *paut,
+    SharpContext_t *pSharpCtx,
     sharp_param_t* out,
     int iso)
 {
+    sharp_param_auto_t *paut = &pSharpCtx->sharp_attrib->stAuto;
     if(paut == NULL || out == NULL) {
         LOGE_ASHARP("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
         return XCAM_RETURN_ERROR_PARAM;
     }
 
     int i = 0;
-    int iso_low = 0, iso_high = 0, ilow = 0, ihigh = 0;
+    int iso_low = 0, iso_high = 0, ilow = 0, ihigh = 0, inear = 0;
     float ratio = 0.0f;
     uint16_t uratio;
     pre_interp(iso, NULL, 0, &ilow, &ihigh, &ratio);
     uratio = ratio * (1 << RATIO_FIXBIT);
+    if (ratio > 0.5)
+        inear = ihigh;
+    else
+        inear = ilow;
 
+    out->dyn.locShpStrg.texRegion_clsfBaseTex.hw_shpT_flatRegion_maxThred = interpolation_u16(
+        paut->dyn[ilow].locShpStrg.texRegion_clsfBaseTex.hw_shpT_flatRegion_maxThred, paut->dyn[ihigh].locShpStrg.texRegion_clsfBaseTex.hw_shpT_flatRegion_maxThred, uratio);
+    out->dyn.locShpStrg.texRegion_clsfBaseTex.hw_shpT_edgeRegion_minThred = interpolation_u16(
+        paut->dyn[ilow].locShpStrg.texRegion_clsfBaseTex.hw_shpT_edgeRegion_minThred, paut->dyn[ihigh].locShpStrg.texRegion_clsfBaseTex.hw_shpT_edgeRegion_minThred, uratio);
+    out->dyn.locShpStrg.motionStrg.hw_shpT_locSgmStrg_mode = paut->dyn[inear].locShpStrg.motionStrg.hw_shpT_locSgmStrg_mode;
+    out->dyn.locShpStrg.motionStrg.hw_shpT_localSgmStrg_scale = interpolation_f32(
+        paut->dyn[ilow].locShpStrg.motionStrg.hw_shpT_localSgmStrg_scale, paut->dyn[ihigh].locShpStrg.motionStrg.hw_shpT_localSgmStrg_scale, ratio);
+    out->dyn.locShpStrg.motionStrg.hw_shpT_glbSgmStrg_val = interpolation_f32(
+        paut->dyn[ilow].locShpStrg.motionStrg.hw_shpT_glbSgmStrg_val, paut->dyn[ihigh].locShpStrg.motionStrg.hw_shpT_glbSgmStrg_val, ratio);
+    out->dyn.locShpStrg.motionStrg.hw_shpT_glbSgmStrg_alpha = interpolation_f32(
+        paut->dyn[ilow].locShpStrg.motionStrg.hw_shpT_glbSgmStrg_alpha, paut->dyn[ihigh].locShpStrg.motionStrg.hw_shpT_glbSgmStrg_alpha, ratio);
+    out->dyn.locShpStrg.motionStrg.hw_shpT_locSgmStrg2Mot_mode = paut->dyn[inear].locShpStrg.motionStrg.hw_shpT_locSgmStrg2Mot_mode;
+    for (i=0; i<8; i++) {
+        out->dyn.locShpStrg.luma.hw_shpT_luma2ShpStrg_val[i] = interpolation_f32(
+            paut->dyn[ilow].locShpStrg.luma.hw_shpT_luma2ShpStrg_val[i], paut->dyn[ihigh].locShpStrg.luma.hw_shpT_luma2ShpStrg_val[i], ratio);
+    }
+    for (i=0; i<11; i++) {
+        out->dyn.locShpStrg.radiDist.hw_shpT_radiDist2ShpStrg_val[i] = interpolation_f32(
+            paut->dyn[ilow].locShpStrg.radiDist.hw_shpT_radiDist2ShpStrg_val[i], paut->dyn[ihigh].locShpStrg.radiDist.hw_shpT_radiDist2ShpStrg_val[i], ratio);
+    }
+    for (i=0; i<9; i++) {
+        out->dyn.locShpStrg.hue.sw_shpT_hue2ShpStrg_val[i] = interpolation_f32(
+            paut->dyn[ilow].locShpStrg.hue.sw_shpT_hue2ShpStrg_val[i], paut->dyn[ihigh].locShpStrg.hue.sw_shpT_hue2ShpStrg_val[i], ratio);
+    }
+    out->dyn.eHfDetailShp.detailExtra_hpf.sw_shpT_filtCfg_mode = paut->dyn[inear].eHfDetailShp.detailExtra_hpf.sw_shpT_filtCfg_mode;
+    out->dyn.eHfDetailShp.detailExtra_hpf.sw_shpT_filtSpatial_strg = interpolation_f32(
+        paut->dyn[ilow].eHfDetailShp.detailExtra_hpf.sw_shpT_filtSpatial_strg, paut->dyn[ihigh].eHfDetailShp.detailExtra_hpf.sw_shpT_filtSpatial_strg, ratio);
+    for (i=0; i<6; i++) {
+        out->dyn.eHfDetailShp.detailExtra_hpf.hw_shpT_filtSpatial_wgt[i] = interpolation_f32(
+            paut->dyn[ilow].eHfDetailShp.detailExtra_hpf.hw_shpT_filtSpatial_wgt[i], paut->dyn[ihigh].eHfDetailShp.detailExtra_hpf.hw_shpT_filtSpatial_wgt[i], ratio);
+    }
+    out->dyn.eHfDetailShp.glbShpStrg.hw_shpT_eHfDetail_strg = interpolation_f32(
+        paut->dyn[ilow].eHfDetailShp.glbShpStrg.hw_shpT_eHfDetail_strg, paut->dyn[ihigh].eHfDetailShp.glbShpStrg.hw_shpT_eHfDetail_strg, ratio);
+    for (i=0; i<9; i++) {
+        out->dyn.eHfDetailShp.shootReduction.hw_shpT_tex2DetailPosClip_val[i] = interpolation_u16(
+            paut->dyn[ilow].eHfDetailShp.shootReduction.hw_shpT_tex2DetailPosClip_val[i], paut->dyn[ihigh].eHfDetailShp.shootReduction.hw_shpT_tex2DetailPosClip_val[i], uratio);
+    }
+    for (i=0; i<9; i++) {
+        out->dyn.eHfDetailShp.shootReduction.hw_shpT_tex2DetailNegClip_val[i] = interpolation_u16(
+            paut->dyn[ilow].eHfDetailShp.shootReduction.hw_shpT_tex2DetailNegClip_val[i], paut->dyn[ihigh].eHfDetailShp.shootReduction.hw_shpT_tex2DetailNegClip_val[i], uratio);
+    }
+    out->dyn.eHfDetailShp.locShpStrg_luma.sw_shpT_locShpStrg_mode = paut->dyn[inear].eHfDetailShp.locShpStrg_luma.sw_shpT_locShpStrg_mode;
+    out->dyn.dHfDetailShp.detailExtra.hw_shp_noiseThred_scale = interpolation_f32(
+        paut->dyn[ilow].dHfDetailShp.detailExtra.hw_shp_noiseThred_scale, paut->dyn[ihigh].dHfDetailShp.detailExtra.hw_shp_noiseThred_scale, ratio);
+    out->dyn.dHfDetailShp.glbShpStrg.hw_shpT_dHiDetail_strg = interpolation_f32(
+        paut->dyn[ilow].dHfDetailShp.glbShpStrg.hw_shpT_dHiDetail_strg, paut->dyn[ihigh].dHfDetailShp.glbShpStrg.hw_shpT_dHiDetail_strg, ratio);
+    out->dyn.dHfDetailShp.locShpStrg_texRegion.hw_shpT_flatRegionL_strg = interpolation_f32(
+        paut->dyn[ilow].dHfDetailShp.locShpStrg_texRegion.hw_shpT_flatRegionL_strg, paut->dyn[ihigh].dHfDetailShp.locShpStrg_texRegion.hw_shpT_flatRegionL_strg, ratio);
+    out->dyn.dHfDetailShp.locShpStrg_texRegion.hw_shpT_flatRegionR_strg = interpolation_f32(
+        paut->dyn[ilow].dHfDetailShp.locShpStrg_texRegion.hw_shpT_flatRegionR_strg, paut->dyn[ihigh].dHfDetailShp.locShpStrg_texRegion.hw_shpT_flatRegionR_strg, ratio);
+    out->dyn.dHfDetailShp.locShpStrg_texRegion.hw_shpT_edgeRegionL_strg = interpolation_f32(
+        paut->dyn[ilow].dHfDetailShp.locShpStrg_texRegion.hw_shpT_edgeRegionL_strg, paut->dyn[ihigh].dHfDetailShp.locShpStrg_texRegion.hw_shpT_edgeRegionL_strg, ratio);
+    out->dyn.dHfDetailShp.locShpStrg_texRegion.hw_shpT_edgeRegionR_strg = interpolation_f32(
+        paut->dyn[ilow].dHfDetailShp.locShpStrg_texRegion.hw_shpT_edgeRegionR_strg, paut->dyn[ihigh].dHfDetailShp.locShpStrg_texRegion.hw_shpT_edgeRegionR_strg, ratio);
+    out->dyn.dHfDetailShp.locShpStrg_motionStrg1.sw_shpT_motionStrg_mode = paut->dyn[inear].dHfDetailShp.locShpStrg_motionStrg1.sw_shpT_motionStrg_mode;
+    out->dyn.dHfDetailShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgStat_maxThred = interpolation_f32(
+        paut->dyn[ilow].dHfDetailShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgStat_maxThred, paut->dyn[ihigh].dHfDetailShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgStat_maxThred, ratio);
+    out->dyn.dHfDetailShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgMot_minThred = interpolation_f32(
+        paut->dyn[ilow].dHfDetailShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgMot_minThred, paut->dyn[ihigh].dHfDetailShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgMot_minThred, ratio);
+    out->dyn.dHfDetailShp.locShpStrg_motionStrg1.hw_shpT_motRegionShp_strg = interpolation_f32(
+        paut->dyn[ilow].dHfDetailShp.locShpStrg_motionStrg1.hw_shpT_motRegionShp_strg, paut->dyn[ihigh].dHfDetailShp.locShpStrg_motionStrg1.hw_shpT_motRegionShp_strg, ratio);
+    out->dyn.dHfDetailShp.locShpStrg_motionStrg1.hw_shpT_statRegionShp_strg = interpolation_f32(
+        paut->dyn[ilow].dHfDetailShp.locShpStrg_motionStrg1.hw_shpT_statRegionShp_strg, paut->dyn[ihigh].dHfDetailShp.locShpStrg_motionStrg1.hw_shpT_statRegionShp_strg, ratio);
+    out->dyn.dHfDetailShp.locShpStrg_motionStrg2.sw_shpT_motionStrg_mode = paut->dyn[inear].dHfDetailShp.locShpStrg_motionStrg2.sw_shpT_motionStrg_mode;
+    out->dyn.dHfDetailShp.locShpStrg_luma.sw_shpT_locShpStrg_mode = paut->dyn[inear].dHfDetailShp.locShpStrg_luma.sw_shpT_locShpStrg_mode;
+    out->dyn.dHfDetailShp.locShpStrg_radiDist.sw_shpT_locShpStrg_mode = paut->dyn[inear].dHfDetailShp.locShpStrg_radiDist.sw_shpT_locShpStrg_mode;
+    out->dyn.dHfDetailShp.locShpStrg_hue.sw_shpT_locShpStrg_mode = paut->dyn[inear].dHfDetailShp.locShpStrg_hue.sw_shpT_locShpStrg_mode;
+    for (i=0; i<8; i++) {
+        out->dyn.detailShp.sgmEnv.sw_shpC_luma2Sigma_curve.idx[i] = interpolation_u16(
+            paut->dyn[ilow].detailShp.sgmEnv.sw_shpC_luma2Sigma_curve.idx[i], paut->dyn[ihigh].detailShp.sgmEnv.sw_shpC_luma2Sigma_curve.idx[i], uratio);
+    }
+    for (i=0; i<8; i++) {
+        out->dyn.detailShp.sgmEnv.sw_shpC_luma2Sigma_curve.val[i] = interpolation_u16(
+            paut->dyn[ilow].detailShp.sgmEnv.sw_shpC_luma2Sigma_curve.val[i], paut->dyn[ihigh].detailShp.sgmEnv.sw_shpC_luma2Sigma_curve.val[i], uratio);
+    }
+    out->dyn.detailShp.detailExtra_preBifilt.sw_shpT_filtCfg_mode = paut->dyn[inear].detailShp.detailExtra_preBifilt.sw_shpT_filtCfg_mode;
+    out->dyn.detailShp.detailExtra_preBifilt.sw_shpT_filtSpatial_strg = interpolation_f32(
+        paut->dyn[ilow].detailShp.detailExtra_preBifilt.sw_shpT_filtSpatial_strg, paut->dyn[ihigh].detailShp.detailExtra_preBifilt.sw_shpT_filtSpatial_strg, ratio);
+    for (i=0; i<3; i++) {
+        out->dyn.detailShp.detailExtra_preBifilt.hw_shpT_filtSpatial_wgt[i] = interpolation_f32(
+            paut->dyn[ilow].detailShp.detailExtra_preBifilt.hw_shpT_filtSpatial_wgt[i], paut->dyn[ihigh].detailShp.detailExtra_preBifilt.hw_shpT_filtSpatial_wgt[i], ratio);
+    }
+    out->dyn.detailShp.detailExtra_preBifilt.sw_shpT_rgeSgm_scale = interpolation_f32(
+        paut->dyn[ilow].detailShp.detailExtra_preBifilt.sw_shpT_rgeSgm_scale, paut->dyn[ihigh].detailShp.detailExtra_preBifilt.sw_shpT_rgeSgm_scale, ratio);
+    out->dyn.detailShp.detailExtra_preBifilt.sw_shpT_rgeSgm_offset = interpolation_u8(
+        paut->dyn[ilow].detailShp.detailExtra_preBifilt.sw_shpT_rgeSgm_offset, paut->dyn[ihigh].detailShp.detailExtra_preBifilt.sw_shpT_rgeSgm_offset, uratio);
+    out->dyn.detailShp.detailExtra_preBifilt.hw_shpT_rgeWgt_slope = interpolation_f32(
+        paut->dyn[ilow].detailShp.detailExtra_preBifilt.hw_shpT_rgeWgt_slope, paut->dyn[ihigh].detailShp.detailExtra_preBifilt.hw_shpT_rgeWgt_slope, ratio);
+    out->dyn.detailShp.detailExtra_lpfSrc.hw_shpT_detailSrcHf_alpha = interpolation_f32(
+        paut->dyn[ilow].detailShp.detailExtra_lpfSrc.hw_shpT_detailSrcHf_alpha, paut->dyn[ihigh].detailShp.detailExtra_lpfSrc.hw_shpT_detailSrcHf_alpha, ratio);
+    out->dyn.detailShp.detailExtra_lpfSrc.hw_shpT_detailSrcMf_alpha = interpolation_f32(
+        paut->dyn[ilow].detailShp.detailExtra_lpfSrc.hw_shpT_detailSrcMf_alpha, paut->dyn[ihigh].detailShp.detailExtra_lpfSrc.hw_shpT_detailSrcMf_alpha, ratio);
+    out->dyn.detailShp.hiDetailExtra_lpf.sw_shpT_filtCfg_mode = paut->dyn[inear].detailShp.hiDetailExtra_lpf.sw_shpT_filtCfg_mode;
+    out->dyn.detailShp.hiDetailExtra_lpf.sw_shpT_filtRadius_mode = paut->dyn[inear].detailShp.hiDetailExtra_lpf.sw_shpT_filtRadius_mode;
+    out->dyn.detailShp.hiDetailExtra_lpf.sw_shpT_filtSpatial_strg = interpolation_f32(
+        paut->dyn[ilow].detailShp.hiDetailExtra_lpf.sw_shpT_filtSpatial_strg, paut->dyn[ihigh].detailShp.hiDetailExtra_lpf.sw_shpT_filtSpatial_strg, ratio);
+    for (i=0; i<6; i++) {
+        out->dyn.detailShp.hiDetailExtra_lpf.hw_shpT_filtSpatial_wgt[i] = interpolation_f32(
+            paut->dyn[ilow].detailShp.hiDetailExtra_lpf.hw_shpT_filtSpatial_wgt[i], paut->dyn[ihigh].detailShp.hiDetailExtra_lpf.hw_shpT_filtSpatial_wgt[i], ratio);
+    }
+    out->dyn.detailShp.midDetailExtra_lpf.sw_shpT_filtCfg_mode = paut->dyn[inear].detailShp.midDetailExtra_lpf.sw_shpT_filtCfg_mode;
+    out->dyn.detailShp.midDetailExtra_lpf.sw_shpT_filtRadius_mode = paut->dyn[inear].detailShp.midDetailExtra_lpf.sw_shpT_filtRadius_mode;
+    out->dyn.detailShp.midDetailExtra_lpf.sw_shpT_filt_strg = interpolation_f32(
+        paut->dyn[ilow].detailShp.midDetailExtra_lpf.sw_shpT_filt_strg, paut->dyn[ihigh].detailShp.midDetailExtra_lpf.sw_shpT_filt_strg, ratio);
+    for (i=0; i<6; i++) {
+        out->dyn.detailShp.midDetailExtra_lpf.hw_shpT_filtSpatial_wgt[i] = interpolation_f32(
+            paut->dyn[ilow].detailShp.midDetailExtra_lpf.hw_shpT_filtSpatial_wgt[i], paut->dyn[ihigh].detailShp.midDetailExtra_lpf.hw_shpT_filtSpatial_wgt[i], ratio);
+    }
+    out->dyn.detailShp.detailFusion.hw_shpT_detailAlpha_mode = paut->dyn[inear].detailShp.detailFusion.hw_shpT_detailAlpha_mode;
+    out->dyn.detailShp.detailFusion.hw_shpT_hiDetailAlpha_minLimit = interpolation_u8(
+        paut->dyn[ilow].detailShp.detailFusion.hw_shpT_hiDetailAlpha_minLimit, paut->dyn[ihigh].detailShp.detailFusion.hw_shpT_hiDetailAlpha_minLimit, uratio);
+    out->dyn.detailShp.detailFusion.hw_shpT_hiDetailAlpha_maxLimit = interpolation_u8(
+        paut->dyn[ilow].detailShp.detailFusion.hw_shpT_hiDetailAlpha_maxLimit, paut->dyn[ihigh].detailShp.detailFusion.hw_shpT_hiDetailAlpha_maxLimit, uratio);
+    out->dyn.detailShp.glbShpStrg.hw_shpT_detailPos_strg = interpolation_f32(
+        paut->dyn[ilow].detailShp.glbShpStrg.hw_shpT_detailPos_strg, paut->dyn[ihigh].detailShp.glbShpStrg.hw_shpT_detailPos_strg, ratio);
+    out->dyn.detailShp.glbShpStrg.hw_shpT_detailNeg_strg = interpolation_f32(
+        paut->dyn[ilow].detailShp.glbShpStrg.hw_shpT_detailNeg_strg, paut->dyn[ihigh].detailShp.glbShpStrg.hw_shpT_detailNeg_strg, ratio);
+    out->dyn.detailShp.locShpStrg_texRegion.hw_shpT_flatRegionL_strg = interpolation_f32(
+        paut->dyn[ilow].detailShp.locShpStrg_texRegion.hw_shpT_flatRegionL_strg, paut->dyn[ihigh].detailShp.locShpStrg_texRegion.hw_shpT_flatRegionL_strg, ratio);
+    out->dyn.detailShp.locShpStrg_texRegion.hw_shpT_flatRegionR_strg = interpolation_f32(
+        paut->dyn[ilow].detailShp.locShpStrg_texRegion.hw_shpT_flatRegionR_strg, paut->dyn[ihigh].detailShp.locShpStrg_texRegion.hw_shpT_flatRegionR_strg, ratio);
+    out->dyn.detailShp.locShpStrg_texRegion.hw_shpT_edgeRegionL_strg = interpolation_f32(
+        paut->dyn[ilow].detailShp.locShpStrg_texRegion.hw_shpT_edgeRegionL_strg, paut->dyn[ihigh].detailShp.locShpStrg_texRegion.hw_shpT_edgeRegionL_strg, ratio);
+    out->dyn.detailShp.locShpStrg_texRegion.hw_shpT_edgeRegionR_strg = interpolation_f32(
+        paut->dyn[ilow].detailShp.locShpStrg_texRegion.hw_shpT_edgeRegionR_strg, paut->dyn[ihigh].detailShp.locShpStrg_texRegion.hw_shpT_edgeRegionR_strg, ratio);
+    for (i=0; i<9; i++) {
+        out->dyn.detailShp.locShpStrg_contrast.hw_shpT_contrast2posStrg_val[i] = interpolation_f32(
+            paut->dyn[ilow].detailShp.locShpStrg_contrast.hw_shpT_contrast2posStrg_val[i], paut->dyn[ihigh].detailShp.locShpStrg_contrast.hw_shpT_contrast2posStrg_val[i], ratio);
+    }
+    for (i=0; i<9; i++) {
+        out->dyn.detailShp.locShpStrg_contrast.hw_shpT_contrast2negStrg_val[i] = interpolation_f32(
+            paut->dyn[ilow].detailShp.locShpStrg_contrast.hw_shpT_contrast2negStrg_val[i], paut->dyn[ihigh].detailShp.locShpStrg_contrast.hw_shpT_contrast2negStrg_val[i], ratio);
+    }
+    for (i=0; i<9; i++) {
+        out->dyn.detailShp.shootReduction.hw_shpT_tex2DetailPosClip_val[i] = interpolation_u16(
+            paut->dyn[ilow].detailShp.shootReduction.hw_shpT_tex2DetailPosClip_val[i], paut->dyn[ihigh].detailShp.shootReduction.hw_shpT_tex2DetailPosClip_val[i], uratio);
+    }
+    for (i=0; i<9; i++) {
+        out->dyn.detailShp.shootReduction.hw_shpT_tex2DetailNegClip_val[i] = interpolation_u16(
+            paut->dyn[ilow].detailShp.shootReduction.hw_shpT_tex2DetailNegClip_val[i], paut->dyn[ihigh].detailShp.shootReduction.hw_shpT_tex2DetailNegClip_val[i], uratio);
+    }
+    for (i=0; i<8; i++) {
+        out->dyn.detailShp.shootReduction.hw_shpT_luma2DetailPosClip_val[i] = interpolation_u16(
+            paut->dyn[ilow].detailShp.shootReduction.hw_shpT_luma2DetailPosClip_val[i], paut->dyn[ihigh].detailShp.shootReduction.hw_shpT_luma2DetailPosClip_val[i], uratio);
+    }
+    for (i=0; i<8; i++) {
+        out->dyn.detailShp.shootReduction.hw_shpT_luma2DetailNegClip_val[i] = interpolation_u16(
+            paut->dyn[ilow].detailShp.shootReduction.hw_shpT_luma2DetailNegClip_val[i], paut->dyn[ihigh].detailShp.shootReduction.hw_shpT_luma2DetailNegClip_val[i], uratio);
+    }
+    out->dyn.detailShp.locShpStrg_motionStrg1.sw_shpT_motionStrg_mode = paut->dyn[inear].detailShp.locShpStrg_motionStrg1.sw_shpT_motionStrg_mode;
+    out->dyn.detailShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgStat_maxThred = interpolation_f32(
+        paut->dyn[ilow].detailShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgStat_maxThred, paut->dyn[ihigh].detailShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgStat_maxThred, ratio);
+    out->dyn.detailShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgMot_minThred = interpolation_f32(
+        paut->dyn[ilow].detailShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgMot_minThred, paut->dyn[ihigh].detailShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgMot_minThred, ratio);
+    out->dyn.detailShp.locShpStrg_motionStrg1.hw_shpT_motRegionShp_strg = interpolation_f32(
+        paut->dyn[ilow].detailShp.locShpStrg_motionStrg1.hw_shpT_motRegionShp_strg, paut->dyn[ihigh].detailShp.locShpStrg_motionStrg1.hw_shpT_motRegionShp_strg, ratio);
+    out->dyn.detailShp.locShpStrg_motionStrg1.hw_shpT_statRegionShp_strg = interpolation_f32(
+        paut->dyn[ilow].detailShp.locShpStrg_motionStrg1.hw_shpT_statRegionShp_strg, paut->dyn[ihigh].detailShp.locShpStrg_motionStrg1.hw_shpT_statRegionShp_strg, ratio);
+    out->dyn.detailShp.locShpStrg_motionStrg2.hw_shpT_motionStrg_sigma = interpolation_f32(
+        paut->dyn[ilow].detailShp.locShpStrg_motionStrg2.hw_shpT_motionStrg_sigma, paut->dyn[ihigh].detailShp.locShpStrg_motionStrg2.hw_shpT_motionStrg_sigma, ratio);
+    out->dyn.detailShp.locShpStrg_luma.sw_shpT_locShpStrg_mode = paut->dyn[inear].detailShp.locShpStrg_luma.sw_shpT_locShpStrg_mode;
+    out->dyn.detailShp.locShpStrg_radiDist.sw_shpT_locShpStrg_mode = paut->dyn[inear].detailShp.locShpStrg_radiDist.sw_shpT_locShpStrg_mode;
+    out->dyn.detailShp.locShpStrg_hue.sw_shpT_locShpStrg_mode = paut->dyn[inear].detailShp.locShpStrg_hue.sw_shpT_locShpStrg_mode;
+    out->dyn.edgeShp.edgeExtra.sw_shpT_filtRadius_mode = paut->dyn[inear].edgeShp.edgeExtra.sw_shpT_filtRadius_mode;
+    out->dyn.edgeShp.edgeExtra.sw_shpT_filtCfg_mode = paut->dyn[inear].edgeShp.edgeExtra.sw_shpT_filtCfg_mode;
+    out->dyn.edgeShp.edgeExtra.sw_shpT_filtSpatial_strg = interpolation_f32(
+        paut->dyn[ilow].edgeShp.edgeExtra.sw_shpT_filtSpatial_strg, paut->dyn[ihigh].edgeShp.edgeExtra.sw_shpT_filtSpatial_strg, ratio);
+    for (i=0; i<10; i++) {
+        out->dyn.edgeShp.edgeExtra.hw_shpT_filtSpatial_wgt[i] = interpolation_f32(
+            paut->dyn[ilow].edgeShp.edgeExtra.hw_shpT_filtSpatial_wgt[i], paut->dyn[ihigh].edgeShp.edgeExtra.hw_shpT_filtSpatial_wgt[i], ratio);
+    }
+    out->dyn.edgeShp.glbShpStrg.hw_shpT_edgePos_strg = interpolation_f32(
+        paut->dyn[ilow].edgeShp.glbShpStrg.hw_shpT_edgePos_strg, paut->dyn[ihigh].edgeShp.glbShpStrg.hw_shpT_edgePos_strg, ratio);
+    out->dyn.edgeShp.glbShpStrg.hw_shpT_edgeNeg_strg = interpolation_f32(
+        paut->dyn[ilow].edgeShp.glbShpStrg.hw_shpT_edgeNeg_strg, paut->dyn[ihigh].edgeShp.glbShpStrg.hw_shpT_edgeNeg_strg, ratio);
+    out->dyn.edgeShp.locShpStrg_edge.sw_shpT_edgeStrgCurve_mode = paut->dyn[inear].edgeShp.locShpStrg_edge.sw_shpT_edgeStrgCurve_mode;
+    out->dyn.edgeShp.locShpStrg_edge.hw_shpT_edgePosIdx_scale = interpolation_f32(
+        paut->dyn[ilow].edgeShp.locShpStrg_edge.hw_shpT_edgePosIdx_scale, paut->dyn[ihigh].edgeShp.locShpStrg_edge.hw_shpT_edgePosIdx_scale, ratio);
+    out->dyn.edgeShp.locShpStrg_edge.hw_shpT_edgeNegIdx_scale = interpolation_f32(
+        paut->dyn[ilow].edgeShp.locShpStrg_edge.hw_shpT_edgeNegIdx_scale, paut->dyn[ihigh].edgeShp.locShpStrg_edge.hw_shpT_edgeNegIdx_scale, ratio);
+    out->dyn.edgeShp.locShpStrg_edge.edgeStrgCurveCtrl.sw_shpT_curvePower_val = interpolation_f32(
+        paut->dyn[ilow].edgeShp.locShpStrg_edge.edgeStrgCurveCtrl.sw_shpT_curvePower_val, paut->dyn[ihigh].edgeShp.locShpStrg_edge.edgeStrgCurveCtrl.sw_shpT_curvePower_val, ratio);
+    out->dyn.edgeShp.locShpStrg_edge.edgeStrgCurveCtrl.sw_shpT_edgeStrg_minLimit = interpolation_f32(
+        paut->dyn[ilow].edgeShp.locShpStrg_edge.edgeStrgCurveCtrl.sw_shpT_edgeStrg_minLimit, paut->dyn[ihigh].edgeShp.locShpStrg_edge.edgeStrgCurveCtrl.sw_shpT_edgeStrg_minLimit, ratio);
+    for (i=0; i<17; i++) {
+        out->dyn.edgeShp.locShpStrg_edge.hw_shpT_edgeStrg_val[i] = interpolation_u16(
+            paut->dyn[ilow].edgeShp.locShpStrg_edge.hw_shpT_edgeStrg_val[i], paut->dyn[ihigh].edgeShp.locShpStrg_edge.hw_shpT_edgeStrg_val[i], uratio);
+    }
+    out->dyn.edgeShp.shootReduction.sw_shpT_maxMinFlt_mode = paut->dyn[inear].edgeShp.shootReduction.sw_shpT_maxMinFlt_mode;
+    out->dyn.edgeShp.shootReduction.sw_shpT_overShoot_alpha = interpolation_f32(
+        paut->dyn[ilow].edgeShp.shootReduction.sw_shpT_overShoot_alpha, paut->dyn[ihigh].edgeShp.shootReduction.sw_shpT_overShoot_alpha, ratio);
+    out->dyn.edgeShp.shootReduction.sw_shpT_underShoot_alpha = interpolation_f32(
+        paut->dyn[ilow].edgeShp.shootReduction.sw_shpT_underShoot_alpha, paut->dyn[ihigh].edgeShp.shootReduction.sw_shpT_underShoot_alpha, ratio);
+    out->dyn.edgeShp.locShpStrg_motionStrg1.sw_shpT_motionStrg_mode = paut->dyn[inear].edgeShp.locShpStrg_motionStrg1.sw_shpT_motionStrg_mode;
+    out->dyn.edgeShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgStat_maxThred = interpolation_f32(
+        paut->dyn[ilow].edgeShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgStat_maxThred, paut->dyn[ihigh].edgeShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgStat_maxThred, ratio);
+    out->dyn.edgeShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgMot_minThred = interpolation_f32(
+        paut->dyn[ilow].edgeShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgMot_minThred, paut->dyn[ihigh].edgeShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgMot_minThred, ratio);
+    out->dyn.edgeShp.locShpStrg_motionStrg1.hw_shpT_motRegionShp_strg = interpolation_f32(
+        paut->dyn[ilow].edgeShp.locShpStrg_motionStrg1.hw_shpT_motRegionShp_strg, paut->dyn[ihigh].edgeShp.locShpStrg_motionStrg1.hw_shpT_motRegionShp_strg, ratio);
+    out->dyn.edgeShp.locShpStrg_motionStrg1.hw_shpT_statRegionShp_strg = interpolation_f32(
+        paut->dyn[ilow].edgeShp.locShpStrg_motionStrg1.hw_shpT_statRegionShp_strg, paut->dyn[ihigh].edgeShp.locShpStrg_motionStrg1.hw_shpT_statRegionShp_strg, ratio);
+    out->dyn.edgeShp.locShpStrg_motionStrg2.hw_shpT_motionStrg_sigma = interpolation_f32(
+        paut->dyn[ilow].edgeShp.locShpStrg_motionStrg2.hw_shpT_motionStrg_sigma, paut->dyn[ihigh].edgeShp.locShpStrg_motionStrg2.hw_shpT_motionStrg_sigma, ratio);
+    out->dyn.edgeShp.locShpStrg_luma.sw_shpT_locShpStrg_mode = paut->dyn[inear].edgeShp.locShpStrg_luma.sw_shpT_locShpStrg_mode;
+    out->dyn.edgeShp.locShpStrg_radiDist.sw_shpT_locShpStrg_mode = paut->dyn[inear].edgeShp.locShpStrg_radiDist.sw_shpT_locShpStrg_mode;
+    out->dyn.edgeShp.locShpStrg_hue.sw_shpT_locShpStrg_mode = paut->dyn[inear].edgeShp.locShpStrg_hue.sw_shpT_locShpStrg_mode;
+
+    return XCAM_RETURN_NO_ERROR;
+}
+XCamReturn texEstSelectParam
+(
+    SharpContext_t *pSharpCtx,
+    texEst_param_t* out,
+    int iso)
+{
+    texEst_param_auto_t *paut = &pSharpCtx->texEst_attrib->stAuto;
+    if(paut == NULL || out == NULL) {
+        LOGE_ASHARP("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+
+    int i = 0;
+    int iso_low = 0, iso_high = 0, ilow = 0, ihigh = 0, inear = 0;
+    float ratio = 0.0f;
+    uint16_t uratio;
+    pre_interp(iso, NULL, 0, &ilow, &ihigh, &ratio);
+    uratio = ratio * (1 << RATIO_FIXBIT);
+    if (ratio > 0.5)
+        inear = ihigh;
+    else
+        inear = ilow;
+
+    out->dyn.noiseEst.hw_texEstT_nsEstThd_mode = paut->dyn[inear].noiseEst.hw_texEstT_nsEstThd_mode;
+    for (i=0; i<17; i++) {
+        out->dyn.noiseEst.hw_texEstT_nsEstManual_thred[i] = interpolation_f32(
+            paut->dyn[ilow].noiseEst.hw_texEstT_nsEstManual_thred[i], paut->dyn[ihigh].noiseEst.hw_texEstT_nsEstManual_thred[i], ratio);
+    }
+    out->dyn.noiseEst.hw_texEstT_nsStatsCntThd_ratio = interpolation_f32(
+        paut->dyn[ilow].noiseEst.hw_texEstT_nsStatsCntThd_ratio, paut->dyn[ihigh].noiseEst.hw_texEstT_nsStatsCntThd_ratio, ratio);
+    out->dyn.noiseEst.hw_texEstT_noiseEst_mode = paut->dyn[inear].noiseEst.hw_texEstT_noiseEst_mode;
+    out->dyn.noiseEst.hw_texEstT_nsEstMean_alpha = interpolation_f32(
+        paut->dyn[ilow].noiseEst.hw_texEstT_nsEstMean_alpha, paut->dyn[ihigh].noiseEst.hw_texEstT_nsEstMean_alpha, ratio);
+    out->dyn.noiseEst.hw_texEstT_nsEstThd_scale = interpolation_f32(
+        paut->dyn[ilow].noiseEst.hw_texEstT_nsEstThd_scale, paut->dyn[ihigh].noiseEst.hw_texEstT_nsEstThd_scale, ratio);
+    out->dyn.noiseEst.hw_texEstT_nsEstThd_minLimit = interpolation_f32(
+        paut->dyn[ilow].noiseEst.hw_texEstT_nsEstThd_minLimit, paut->dyn[ihigh].noiseEst.hw_texEstT_nsEstThd_minLimit, ratio);
+    out->dyn.noiseEst.hw_texEstT_nsEstThd_maxLimit = interpolation_f32(
+        paut->dyn[ilow].noiseEst.hw_texEstT_nsEstThd_maxLimit, paut->dyn[ihigh].noiseEst.hw_texEstT_nsEstThd_maxLimit, ratio);
+    out->dyn.texEst.hw_texEstT_texEst_mode = paut->dyn[inear].texEst.hw_texEstT_texEst_mode;
+    out->dyn.texEst.hw_texEstT_nsEstDf1_scale = interpolation_f32(
+        paut->dyn[ilow].texEst.hw_texEstT_nsEstDf1_scale, paut->dyn[ihigh].texEst.hw_texEstT_nsEstDf1_scale, ratio);
+    out->dyn.texEst.hw_texEstT_sigmaDf1_scale = interpolation_f32(
+        paut->dyn[ilow].texEst.hw_texEstT_sigmaDf1_scale, paut->dyn[ihigh].texEst.hw_texEstT_sigmaDf1_scale, ratio);
+    out->dyn.texEst.hw_texEstT_sigmaDf1_offset = interpolation_f32(
+        paut->dyn[ilow].texEst.hw_texEstT_sigmaDf1_offset, paut->dyn[ihigh].texEst.hw_texEstT_sigmaDf1_offset, ratio);
+    out->dyn.texEst.hw_texEstT_texEstDf1_scale = interpolation_f32(
+        paut->dyn[ilow].texEst.hw_texEstT_texEstDf1_scale, paut->dyn[ihigh].texEst.hw_texEstT_texEstDf1_scale, ratio);
+    out->dyn.texEst.hw_texEstT_nsEstDf2_scale = interpolation_f32(
+        paut->dyn[ilow].texEst.hw_texEstT_nsEstDf2_scale, paut->dyn[ihigh].texEst.hw_texEstT_nsEstDf2_scale, ratio);
+    out->dyn.texEst.hw_texEstT_sigmaDf2_scale = interpolation_f32(
+        paut->dyn[ilow].texEst.hw_texEstT_sigmaDf2_scale, paut->dyn[ihigh].texEst.hw_texEstT_sigmaDf2_scale, ratio);
+    out->dyn.texEst.hw_texEstT_sigmaDf2_offset = interpolation_f32(
+        paut->dyn[ilow].texEst.hw_texEstT_sigmaDf2_offset, paut->dyn[ihigh].texEst.hw_texEstT_sigmaDf2_offset, ratio);
+    out->dyn.texEst.hw_texEstT_texEstDf2_scale = interpolation_f32(
+        paut->dyn[ilow].texEst.hw_texEstT_texEstDf2_scale, paut->dyn[ihigh].texEst.hw_texEstT_texEstDf2_scale, ratio);
+    out->dyn.texEst.hw_texEstT_wgtOpt_mode = paut->dyn[inear].texEst.hw_texEstT_wgtOpt_mode;
+    out->dyn.texEstFlt.sw_texEstT_filtCfg_mode = paut->dyn[inear].texEstFlt.sw_texEstT_filtCfg_mode;
+    out->dyn.texEstFlt.sw_texEstT_filtSpatial_strg = interpolation_f32(
+        paut->dyn[ilow].texEstFlt.sw_texEstT_filtSpatial_strg, paut->dyn[ihigh].texEstFlt.sw_texEstT_filtSpatial_strg, ratio);
+    for (i=0; i<3; i++) {
+        out->dyn.texEstFlt.sw_texEstT_filtSpatial_wgt[i] = interpolation_f32(
+            paut->dyn[ilow].texEstFlt.sw_texEstT_filtSpatial_wgt[i], paut->dyn[ihigh].texEstFlt.sw_texEstT_filtSpatial_wgt[i], ratio);
+    }
     return XCAM_RETURN_NO_ERROR;
 }
 #endif
@@ -246,18 +525,13 @@ prepare(RkAiqAlgoCom* params)
     XCamReturn result = XCAM_RETURN_NO_ERROR;
     SharpContext_t* pSharpCtx = (SharpContext_t *)params->ctx;
 
-	if(!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB )){
-        // just update calib ptr
-        if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
-            pSharpCtx->sharp_attrib =
-                (sharp_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, sharp));
-            return XCAM_RETURN_NO_ERROR;
-        }
-    }
-
     pSharpCtx->working_mode = params->u.prepare.working_mode;
     pSharpCtx->sharp_attrib =
         (sharp_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, sharp));
+#if RKAIQ_HAVE_SHARP_V40
+    pSharpCtx->texEst_attrib =
+        (texEst_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, texEst));
+#endif
     pSharpCtx->isReCal_ = true;
 
     return result;
@@ -268,7 +542,7 @@ XCamReturn Asharp_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
 
     SharpContext_t* pCtx = (SharpContext_t *)inparams->ctx;
     sharp_api_attrib_t* pAttrib = pCtx->sharp_attrib;
-    sharp_param_t* proc_res = outparams->algoRes;
+    sharp_param_t* sharp_res = outparams->algoRes;
 
     if (pAttrib->opMode != RK_AIQ_OP_MODE_AUTO) {
         LOGE_ANR("mode is %d, not auto mode, ignore", pAttrib->opMode);
@@ -296,12 +570,15 @@ XCamReturn Asharp_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
         need_recal = true;
     }
 
-    outparams->cfg_update = false;
+    outparams->cfg_update = true;
     if (need_recal) {
-        proc_res->sta = pCtx->sharp_attrib->stAuto.sta;
+        sharp_res->sta = pCtx->sharp_attrib->stAuto.sta;
 #if RKAIQ_HAVE_SHARP_V34
-        SharpSelectParam(pCtx, proc_res, iso);
-        SharpApplyStrength(pCtx, proc_res);
+        SharpSelectParam(pCtx, sharp_res, iso);
+        SharpApplyStrength(pCtx, sharp_res);
+#endif
+#if RKAIQ_HAVE_SHARP_V40
+        SharpSelectParam(pCtx, sharp_res, iso);
 #endif
         outparams->cfg_update = true;
         outparams->en = pAttrib->en;
@@ -314,11 +591,24 @@ XCamReturn Asharp_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
     return XCAM_RETURN_NO_ERROR;
 }
 
+XCamReturn AtexEst_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams, int iso)
+{
+
+    SharpContext_t* pCtx = (SharpContext_t *)inparams->ctx;
+    sharp_api_attrib_t* pAttrib = pCtx->sharp_attrib;
+    void* algoRes = outparams->algoRes;
+#if RKAIQ_HAVE_SHARP_V40
+    texEstSelectParam(pCtx, algoRes, iso);
+#endif
+    return XCAM_RETURN_NO_ERROR;
+}
+
 static XCamReturn
 processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
 {
     int iso = inparams->u.proc.iso;
-    Asharp_processing(inparams, outparams, iso);
+
+    //Asharp_processing(inparams, outparams, iso);
 
     LOGV_ASHARP("%s: Sharp (exit)\n", __FUNCTION__ );
     return XCAM_RETURN_NO_ERROR;

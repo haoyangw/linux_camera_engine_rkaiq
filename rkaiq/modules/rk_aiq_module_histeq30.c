@@ -29,7 +29,7 @@ static int ClipFloatValue(float posx, int BitInt, int BitFloat, bool fullMax) {
     else
         yOutIntMax = (1 << (BitFloat + BitInt)) - 1;
 
-    yOutInt = CLIP((int)(posx * (1 << BitFloat)), yOutIntMin, yOutIntMax);
+    yOutInt = LIMIT_VALUE((int)(posx * (1 << BitFloat)), yOutIntMax, yOutIntMin);
 
     return yOutInt;
 }
@@ -67,7 +67,7 @@ void rk_aiq_histeq30_params_cvt(void* attr, isp_params_t* isp_params, common_cvt
     /* HF_STAT */
     pFix->count_scale     = ClipFloatValue(pdyn->sw_histc_noiseCount_scale, 3, 2, false);
     pFix->count_offset    = ClipIntValue(pdyn->hw_histc_noiseCount_offset, 8, 0);
-    pFix->count_min_limit = ClipFloatValue(pdyn->hw_histc_noiseCount_offset, 0, 8, true);
+    pFix->count_min_limit = ClipFloatValue(pdyn->sw_histc_countWgt_minLimit, 0, 8, true);
     /* THUMB_SIZE */
     tmp = psta->hw_histc_blocks_rows / AHIST_INT_EVEN_NUM_COEF * AHIST_INT_EVEN_NUM_COEF;
     pFix->thumb_row = LIMIT_VALUE(tmp, AHIST_THUMB_ROWS_MAX, AHIST_THUMB_ROWS_MIN);;
@@ -81,7 +81,7 @@ void rk_aiq_histeq30_params_cvt(void* attr, isp_params_t* isp_params, common_cvt
     pFix->user_set    = ClipFloatValue(pdyn->sw_hist_mapUserSet, 0, 8, true);
     /* MAP1 */
     pFix->map_count_scale = ClipFloatValue(pdyn->sw_hist_mapCount_scale, 0, 8, true);
-    pFix->gain_ref_wgt    = ClipFloatValue(pdyn->hw_hist_gainRef_sel, 0, 6, false);
+    pFix->gain_ref_wgt = ClipFloatValue(pdyn->hw_hist_gainRef_sel, 0, 6, false);
     /* IIR */
     pFix->flt_cur_wgt = ClipIntValue(pdyn->hw_hist_paramTfilt_curWgt, 4, 0);
     tmp = LIMIT_VALUE(psta->sw_hist_MapTflt_invSigma, 255, 1);
@@ -89,13 +89,12 @@ void rk_aiq_histeq30_params_cvt(void* attr, isp_params_t* isp_params, common_cvt
     pFix->flt_inv_sigma = ClipFloatValue(tmp_float, 0, 8, true);
     /* POS_ALPHA */
     /* NEG_ALPHA */
-    if (psta->hw_hist_globalMergeWeight_en) {
+    if (pdyn->hw_hist_globalMergeWeight_en) {
         for (int i = 0; i < ISP33_HIST_ALPHA_NUM; ++i) {
             pFix->pos_alpha[i] = ClipFloatValue(pdyn->sw_hist_globalMergePos_weight, 2, 6, false);
             pFix->neg_alpha[i] = ClipFloatValue(pdyn->sw_hist_globalMergeNeg_weight, 2, 6, false);
         }
-    }
-    else {
+    } else {
         for (int i = 0; i < ISP33_HIST_ALPHA_NUM; ++i) {
             pFix->pos_alpha[i] = ClipFloatValue(pdyn->sw_hist_outputMerge_pos_alpha[i], 2, 6, false);
             pFix->neg_alpha[i] = ClipFloatValue(pdyn->sw_hist_outputMerge_neg_alpha[i], 2, 6, false);

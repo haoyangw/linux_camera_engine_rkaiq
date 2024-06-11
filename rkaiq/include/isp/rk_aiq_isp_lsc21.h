@@ -91,7 +91,7 @@ typedef struct lsc_meshGain_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
-        M4_NOTES(Correction factor at Gb channel of sample point.\n
+        M4_NOTES(Correction factor at B channel of sample point.\n
         Freq of use: low))  */
     //reg: b_sample_0
     uint16_t hw_lscC_gainB_val[LSC_LSCTABLE_SIZE];
@@ -105,7 +105,7 @@ typedef struct lsc_meshGain_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(3),
-        M4_NOTES(Correction factor at B channel of sample point.\n
+        M4_NOTES(Correction factor at Gb channel of sample point.\n
         Freq of use: low))  */
     //reg: gb_sample_0
     uint16_t hw_lscC_gainGb_val[LSC_LSCTABLE_SIZE];

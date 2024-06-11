@@ -330,6 +330,9 @@ endif()
 if (RKAIQ_HAVE_ENHANCE)
     add_compile_options(-DRKAIQ_HAVE_ENHANCE=1)
 endif()
+if (RKAIQ_HAVE_HSV)
+    add_compile_options(-DRKAIQ_HAVE_HSV=1)
+endif()
 
 if (RKAIQ_HAVE_YNR_V2)
     add_compile_options(-DRKAIQ_HAVE_YNR_V2=1)
@@ -1259,6 +1262,13 @@ if (RKAIQ_HAVE_ENHANCE)
     list(APPEND CORE_C_SRC aiq_core_c/algo_handlers/RkAiqEnhHandler.c)
 endif()
 
+if (RKAIQ_HAVE_HSV)
+    if(RKAIQ_HAVE_HSV_V10)
+        add_compile_options(-DRKAIQ_HAVE_HSV_V10=1)
+    endif()
+    list(APPEND CORE_C_SRC aiq_core_c/algo_handlers/RkAiqHsvHandler.c)
+endif()
+
 if (RKAIQ_ENABLE_CAMGROUP)
     list(APPEND CORE_C_SRC
 		aiq_core_c/aiq_algo_camgroup_handler.c
@@ -1947,6 +1957,14 @@ if (RKAIQ_HAVE_ENHANCE_V10)
     list(APPEND RK_AIQ_STATIC_LIB_ARS ${STATIC_LIB_PREFIX}rkaiq_enh${STATIC_LIB_SUFFIX})
 endif()
 
+if (RKAIQ_HAVE_HSV_V10)
+    target_link_libraries(rkaiq
+        PRIVATE
+        rkaiq_hsv
+        )
+    list(APPEND RK_AIQ_STATIC_LIB_ARS ${STATIC_LIB_PREFIX}rkaiq_hsv${STATIC_LIB_SUFFIX})
+endif()
+
 if (RKAIQ_HAVE_DEGAMMA_V1)
 target_link_libraries(rkaiq
     PRIVATE
@@ -2241,8 +2259,20 @@ target_include_directories(rkaiq PUBLIC ${RKAIQ_HEAD_DEPENDENCE})
 install(DIRECTORY include/
     DESTINATION include/rkaiq
     FILES_MATCHING PATTERN "*.h")
+
+#    PATTERN "rk_aiq_user_api2_isp*.h" EXCLUDE)
+
 install(FILES ${PROJECT_BINARY_DIR}/config.h
     DESTINATION include/rkaiq)
+
+if (RKAIQ_ISP_VERSION STREQUAL "39")
+    install(FILES include/uAPI2/rk_aiq_user_api2_isp39.h
+    DESTINATION include/rkaiq/uAPI2 RENAME rk_aiq_user_api2_isp.h)
+elseif(RKAIQ_ISP_VERSION STREQUAL "33")
+install(FILES include/uAPI2/rk_aiq_user_api2_isp33.h
+    DESTINATION include/rkaiq/uAPI2 RENAME rk_aiq_user_api2_isp.h)
+endif()
+
 install(TARGETS rkaiq
     LIBRARY DESTINATION lib)
 install(FILES ${CMAKE_LIBRARY_PATH}/librkaiq.a DESTINATION lib)

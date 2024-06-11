@@ -4328,7 +4328,7 @@ void Isp20Params::getCommonCvtInfo(cam3aResultList &results, bool use_aiisp)
     }
 
 #if USE_NEWSTRUCT
-    mCommonCvtInfo.cnr_ynr_sharp_same = 0;
+    mCommonCvtInfo.cnr_path_valid = 0;
     SmartPtr<cam3aResult> ynrRes = get_3a_result(results, RESULT_TYPE_YNR_PARAM);
     SmartPtr<cam3aResult> cnrRes = get_3a_result(results, RESULT_TYPE_UVNR_PARAM);
     SmartPtr<cam3aResult> sharpRes = get_3a_result(results, RESULT_TYPE_SHARPEN_PARAM);
@@ -4338,13 +4338,13 @@ void Isp20Params::getCommonCvtInfo(cam3aResultList &results, bool use_aiisp)
         RkAiqIspSharpParamsProxy* sharpParam = sharpRes.get_cast_ptr<RkAiqIspSharpParamsProxy>();
         if (ynrParam->data().ptr()->en == cnrParam->data().ptr()->en &&
             ynrParam->data().ptr()->en == sharpParam->data().ptr()->en) {
-            mCommonCvtInfo.cnr_ynr_sharp_same = 1;
+            mCommonCvtInfo.cnr_path_valid = 1;
         }
         else {
-            mCommonCvtInfo.cnr_ynr_sharp_same = 0;
+            mCommonCvtInfo.cnr_path_valid = 0;
         }
     }
-    LOGD_CAMHW_SUBM(ISP20PARAM_SUBM, "mCommonCvtInfo.cnr_ynr_sharp_same %d\n", mCommonCvtInfo.cnr_ynr_sharp_same);
+    LOGD_CAMHW_SUBM(ISP20PARAM_SUBM, "mCommonCvtInfo.cnr_path_valid %d\n", mCommonCvtInfo.cnr_path_valid);
 #endif
 
 }

@@ -112,6 +112,8 @@ void destroyAlgoHandler(AiqAlgoHandler_t* pAlgoHandler);
 
 XCamReturn AiqAlgoHandler_do_processing_common(AiqAlgoHandler_t* pAlgoHandler);
 XCamReturn AiqAlgoHandler_genIspResult_common(AiqAlgoHandler_t* pAlgoHandler, AiqFullParams_t* params, AiqFullParams_t* cur_params);
+XCamReturn AiqAlgoHandler_genIspResult_byType(AiqAlgoHandler_t* pAlgoHandler,
+        AiqFullParams_t* params, AiqFullParams_t* cur_params, int restype, int size);
 
 XCamReturn AiqAlgoHandler_queryStatus_common(AiqAlgoHandler_t* pAlgoHandler,
                                              rk_aiq_op_mode_t* opMode, bool* en, bool* bypass, void* stMan);

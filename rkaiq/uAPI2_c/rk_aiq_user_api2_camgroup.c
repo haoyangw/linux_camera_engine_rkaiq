@@ -235,7 +235,7 @@ rk_aiq_uapi2_camgroup_create(rk_aiq_camgroup_instance_cfg_t* cfg)
         goto error;
     }
 
-#ifdef ISP_HW_V39
+#if defined(ISP_HW_V39) || defined(ISP_HW_V33)
     rk_aiq_uapi2_awb_register((rk_aiq_sys_ctx_t*)camgroup_ctx, NULL);
     rk_aiq_uapi2_ae_register((rk_aiq_sys_ctx_t*)camgroup_ctx, NULL);
 #endif

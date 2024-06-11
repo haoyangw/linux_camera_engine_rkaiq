@@ -703,7 +703,7 @@ XCamReturn RkAiqAfHandleInt::genIspResult(RkAiqFullParams* params, RkAiqFullPara
         focus_param->sync_flag = mAfFocusResSyncFalg;
         if (cur_params->mFocusParams.ptr()) {
             focus_param->result = cur_params->mFocusParams->data()->result;
-            focus_param->is_update = true;
+            focus_param->is_update = false;
         } else {
             LOGE_AF("no focus latest params !");
             focus_param->is_update = false;

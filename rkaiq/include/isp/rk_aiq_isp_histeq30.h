@@ -40,16 +40,6 @@ typedef struct {
     // @reg: sw_hist_mem_mode
     histeq_mem_mode_t hw_histCfg_mem_mode;
     /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_hist_globalMergeWeight_en),
-        M4_TYPE(bool),
-        M4_DEFAULT(1),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(The enable of using sw_hist_globalMergePos_weight and sw_hist_globalMergeNeg_weight.\n
-        Freq of use: low))	*/
-    bool hw_hist_globalMergeWeight_en;
-    /* M4_GENERIC_DESC(
         M4_ALIAS(MapTflt_invSigma),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
@@ -105,7 +95,7 @@ typedef struct {
         M4_ALIAS(mapUserSet),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,32),
+        M4_RANGE_EX(0,1),
         M4_DEFAULT(6),
         M4_DIGIT_EX(2f6b),
         M4_HIDE_EX(0),
@@ -128,7 +118,7 @@ typedef struct {
         M4_ALIAS(noiseCount_scale),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,8),
+        M4_RANGE_EX(0,7),
         M4_DEFAULT(2),
         M4_DIGIT_EX(2f4b),
         M4_HIDE_EX(0),
@@ -140,7 +130,7 @@ typedef struct {
         M4_ALIAS(countWgt_minLimit),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,2),
+        M4_RANGE_EX(0,1),
         M4_DEFAULT(0.015),
         M4_DIGIT_EX(4f8b),
         M4_HIDE_EX(0),
@@ -152,7 +142,7 @@ typedef struct {
         M4_ALIAS(mapCount_scale),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,32),
+        M4_RANGE_EX(0,1),
         M4_DEFAULT(0.09),
         M4_DIGIT_EX(2f8b),
         M4_HIDE_EX(0),
@@ -160,17 +150,17 @@ typedef struct {
         M4_ORDER(0),
         M4_NOTES(The auto scale of histeq.\n Freq of use: high))  */
     float sw_hist_mapCount_scale;
-	/* M4_GENERIC_DESC(
-        M4_ALIAS(paramTfilt_curWgt),
-        M4_TYPE(f32),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(1,255),
-        M4_DEFAULT(8),
-        M4_DIGIT_EX(0f8b),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(The bilateral sigma of dark channel.\n Freq of use: low))  */
+    /* M4_GENERIC_DESC(
+    M4_ALIAS(paramTfilt_curWgt),
+    M4_TYPE(f32),
+    M4_SIZE_EX(1,1),
+    M4_RANGE_EX(1,15),
+    M4_DEFAULT(8),
+    M4_DIGIT_EX(0f8b),
+    M4_HIDE_EX(0),
+    M4_RO(0),
+    M4_ORDER(0),
+    M4_NOTES(The bilateral sigma of dark channel.\n Freq of use: low))  */
     float hw_hist_paramTfilt_curWgt;
 	/* M4_GENERIC_DESC(
         M4_ALIAS(gainRef_sel),
@@ -184,66 +174,80 @@ typedef struct {
         M4_ORDER(0),
         M4_NOTES(TODO.\n Freq of use: low))  */
     float hw_hist_gainRef_sel;
-	/* M4_GENERIC_DESC(
-        M4_ALIAS(globalMergePos_weight),
-        M4_TYPE(f32),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,3.99),
-        M4_DEFAULT(0.5),
-        M4_DIGIT_EX(2f8b),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(TODO.\n Freq of use: low))  */
-    float sw_hist_globalMergePos_weight;
-	/* M4_GENERIC_DESC(
-        M4_ALIAS(globalMergeNeg_weight),
-        M4_TYPE(f32),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,3.99),
-        M4_DEFAULT(0.5),
-        M4_DIGIT_EX(2f8b),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(TODO.\n Freq of use: low))  */
-    float sw_hist_globalMergeNeg_weight;
     /* M4_GENERIC_DESC(
-        M4_ALIAS(mapMerge_alpha),
-        M4_TYPE(f32),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,32),
-        M4_DEFAULT(2),
-        M4_DIGIT_EX(2f8b),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(In the fusion operation of sw_hist_mapCount_scale and sw_hist_mapUserSet, the
-       fusion weight value of sw_hist_mapUserSet.\n Freq of use: high))  */
+    M4_ALIAS(mapMerge_alpha),
+    M4_TYPE(f32),
+    M4_SIZE_EX(1,1),
+    M4_RANGE_EX(0,1),
+    M4_DEFAULT(2),
+    M4_DIGIT_EX(2f8b),
+    M4_HIDE_EX(0),
+    M4_RO(0),
+    M4_ORDER(0),
+    M4_NOTES(In the fusion operation of sw_hist_mapCount_scale and sw_hist_mapUserSet, the
+   fusion weight value of sw_hist_mapUserSet.\n Freq of use: high))  */
     float sw_hist_mapMerge_alpha;
+    /* M4_GENERIC_DESC(
+    M4_ALIAS(hw_hist_globalMergeWeight_en),
+    M4_TYPE(bool),
+    M4_GROUP_CTRL(globalMergeWeight_en_group),
+    M4_DEFAULT(1),
+    M4_HIDE_EX(0),
+    M4_RO(0),
+    M4_ORDER(0),
+    M4_NOTES(The enable of using sw_hist_globalMergePos_weight and sw_hist_globalMergeNeg_weight.\n
+    Freq of use: low))	*/
+    bool hw_hist_globalMergeWeight_en;
+    /* M4_GENERIC_DESC(
+    M4_ALIAS(globalMergePos_weight),
+    M4_TYPE(f32),
+    M4_GROUP(globalMergeWeight_en_group),
+    M4_SIZE_EX(1,1),
+    M4_RANGE_EX(0,4),
+    M4_DEFAULT(0.5),
+    M4_DIGIT_EX(2f8b),
+    M4_HIDE_EX(0),
+    M4_RO(0),
+    M4_ORDER(0),
+    M4_NOTES(TODO.\n Freq of use: low))  */
+    float sw_hist_globalMergePos_weight;
+    /* M4_GENERIC_DESC(
+    M4_ALIAS(globalMergeNeg_weight),
+    M4_TYPE(f32),
+    M4_GROUP(globalMergeWeight_en_group),
+    M4_SIZE_EX(1,1),
+    M4_RANGE_EX(0,4),
+    M4_DEFAULT(0.5),
+    M4_DIGIT_EX(2f8b),
+    M4_HIDE_EX(0),
+    M4_RO(0),
+    M4_ORDER(0),
+    M4_NOTES(TODO.\n Freq of use: low))  */
+    float sw_hist_globalMergeNeg_weight;
     /* M4_GENERIC_DESC(
         M4_ALIAS(outputMerge_pos_alpha),
         M4_TYPE(f32),
+        M4_UI_MODULE(drc_curve),
         M4_SIZE_EX(1,17),
         M4_RANGE_EX(0.0,4.0),
         M4_DEFAULT([1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0]),
-        M4_DIGIT_EX(2f6b),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(TODO.\n Freq of use: low))  */
+        M4_DATAX([0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960,
+       1024]), M4_DIGIT_EX(2f6b), M4_HIDE_EX(0), M4_RO(0), M4_ORDER(0), M4_NOTES(TODO.\n Freq of
+       use: low))  */
     float sw_hist_outputMerge_pos_alpha[17];
-	/* M4_GENERIC_DESC(
-        M4_ALIAS(outputMerge_neg_alpha),
-        M4_TYPE(f32),
-        M4_SIZE_EX(1,17),
-        M4_RANGE_EX(0.0,4.0),
-        M4_DEFAULT([1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0]),
-        M4_DIGIT_EX(2f6b),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(TODO.\n Freq of use: low))  */
+    /* M4_GENERIC_DESC(
+    M4_ALIAS(outputMerge_neg_alpha),
+    M4_TYPE(f32),
+    M4_UI_MODULE(drc_curve),
+    M4_SIZE_EX(1,17),
+    M4_RANGE_EX(0.0,4.0),
+    M4_DEFAULT([1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0]),
+    M4_DATAX([0, 64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024]),
+    M4_DIGIT_EX(2f6b),
+    M4_HIDE_EX(0),
+    M4_RO(0),
+    M4_ORDER(0),
+    M4_NOTES(TODO.\n Freq of use: low))  */
     float sw_hist_outputMerge_neg_alpha[17];
 } histeq_params_dyn_t;
 

@@ -23,11 +23,9 @@ RKAIQ_BEGIN_DECLARE
 typedef AiqAlgoHandler_t AiqAlgoHandler3dlut_t;
 
 AiqAlgoHandler_t* AiqAlgoHandler3dlut_constructor(RkAiqAlgoDesComm* des, AiqCore_t* aiqCore);
-#if 0
-XCamReturn AiqAlgoHandler3dlut_setAttrib(AiqAlgoHandler3dlut_t* pHdl3dlut, lut3d_api_attrib_t* attr);
-XCamReturn AiqAlgoHandler3dlut_getAttrib(AiqAlgoHandler3dlut_t* pHdl3dlut, lut3d_api_attrib_t* attr);
-XCamReturn AiqAlgoHandler3dlut_queryStatus(AiqAlgoHandler3dlut_t* pHdl3dlut, lut3d_status_t* status);
-#endif
+XCamReturn AiqAlgoHandler3dlut_queryalut3dStatus(AiqAlgoHandler3dlut_t* pHdl3dlut, alut3d_status_t* status);
+XCamReturn AiqAlgoHandler3dlut_setCalib(AiqAlgoHandler3dlut_t* pHdl3dlut, alut3d_lut3dCalib_t* calib);
+XCamReturn AiqAlgoHandler3dlut_getCalib(AiqAlgoHandler3dlut_t* pHdl3dlut, alut3d_lut3dCalib_t* calib);
 #endif
 RKAIQ_END_DECLARE
 

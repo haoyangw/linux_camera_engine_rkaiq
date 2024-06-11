@@ -40,6 +40,7 @@
 #include "newStruct/histeq/include/histeq_algo_api.h"
 #include "newStruct/enh/include/enh_algo_api.h"
 #include "newStruct/gic/include/gic_algo_api.h"
+#include "newStruct/hsv/include/hsv_algo_api.h"
 
 #if RKAIQ_ENABLE_CAMGROUP
 #include "algos_camgroup/ae/rk_aiq_algo_camgroup_ae_itf.h"
@@ -191,7 +192,7 @@ static struct RkAiqAlgoDesCommExt g_default_3a_des[] = {
 #if RKAIQ_HAVE_DRC_V20
     { &g_RkIspAlgoDescDrc.common,           RK_AIQ_CORE_ANALYZE_GRP0,   0, 0, 0,    grp0Conds          },
 #endif
-#if RKAIQ_HAVE_YNR_V24
+#if RKAIQ_HAVE_YNR_V40
     { &g_RkIspAlgoDescYnr.common,           RK_AIQ_CORE_ANALYZE_GRP0,    0,  1,  0, grp0Conds          },
 #endif
 #if RKAIQ_HAVE_HISTEQ_V10
@@ -200,13 +201,16 @@ static struct RkAiqAlgoDesCommExt g_default_3a_des[] = {
 #if RKAIQ_HAVE_ENHANCE_V10
     { &g_RkIspAlgoDescEnh.common,          RK_AIQ_CORE_ANALYZE_GRP0,   0, 1, 0,    grp0Conds         },
 #endif
-#if (RKAIQ_HAVE_SHARP_V34)
+#if RKAIQ_HAVE_HSV_V10
+    { &g_RkIspAlgoDescHsv.common,          RK_AIQ_CORE_ANALYZE_GRP1,   0, 0, 0,    grp0Conds         },
+#endif
+#if (RKAIQ_HAVE_SHARP_V40)
     { &g_RkIspAlgoDescSharp.common,           RK_AIQ_CORE_ANALYZE_GRP0,   0, 1, 0,       grp0Conds          },
 #endif
 #if (RKAIQ_HAVE_BAYERTNR_V41)
     { &g_RkIspAlgoDescBayertnr.common,     RK_AIQ_CORE_ANALYZE_GRP0,    0, 0, 0, grp0Conds          },
 #endif
-#if (RKAIQ_HAVE_CNR_V31)
+#if (RKAIQ_HAVE_CNR_V35)
     { &g_RkIspAlgoDescCnr.common,           RK_AIQ_CORE_ANALYZE_GRP0,    0,  1,  0, grp0Conds          },
 #endif
 #if RKAIQ_HAVE_GAIN_V2

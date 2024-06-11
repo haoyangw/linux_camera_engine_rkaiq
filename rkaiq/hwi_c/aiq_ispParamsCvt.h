@@ -161,6 +161,10 @@ struct AiqIspParamsCvt_s {
 #if (defined(ISP_HW_V39) || defined(ISP_HW_V33)) && (USE_NEWSTRUCT)
     btnr_cvt_info_t mBtnrInfo;
 #endif
+    float mLatestIspDgain;
+#if defined(ISP_HW_V39) && (USE_NEWSTRUCT)
+    cac_cvt_info_t mCacInfo;
+#endif
     common_cvt_info_t mCommonCvtInfo;
     isp_params_t isp_params;
     AiqIspDrvParams_info_t mLatestCfgArray[ISP2X_ID_MAX];

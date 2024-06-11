@@ -1193,8 +1193,10 @@ void Isp21Params::convertAiqExpIspDgainToIspParams(void* isp_cfg_, RKAiqAecExpIn
         isp_dgain = isp_dgain >= 1.0f ?  isp_dgain : 1.0f;
         LOGD_CAMHW_SUBM(ISP20PARAM_SUBM,"cid: %d, isp_dgain:%0.3f\n", _CamPhyId, isp_dgain);
         bool isRecalc = true;
-        if (isp_dgain < 1.0000001f)
+
+        if (!((isp_dgain != mLatestIspDgain) || (isp_dgain != 1.0f)))
             isRecalc = false;
+        mLatestIspDgain = isp_dgain;
 
         if (isRecalc) {
             dest_cfg->gain0_red = MIN(cfg->gain0_red * isp_dgain + 0.5, max_wb_gain);
@@ -1301,12 +1303,12 @@ void Isp21Params::convertAiqExpIspDgainToIspParams(void* isp_cfg_, RKAiqAecExpIn
         isp_dgain1 = isp_dgain1 >= 1.0f ?  isp_dgain1 : 1.0f;
         isp_dgain2 = isp_dgain2 >= 1.0f ?  isp_dgain2 : 1.0f;
 
+        float isp_dgain = isp_dgain0 + isp_dgain1 + isp_dgain2;
+        if (!((isp_dgain != mLatestIspDgain) || (isp_dgain != 3.0f))) return;
+        mLatestIspDgain = isp_dgain;
+
         LOGD_CAMHW_SUBM(ISP20PARAM_SUBM,"cid: %d, isp_dgain:%0.3f,%0.3f,%0.3f\n",
                         _CamPhyId, isp_dgain0, isp_dgain1, isp_dgain2);
-        if (isp_dgain0 < 1.0000001f &&
-            isp_dgain1 < 1.0000001f &&
-            isp_dgain2 < 1.0000001f )
-            return;
 
         dest_cfg->gain0_red = MIN(cfg->gain0_red * isp_dgain0 + 0.5, max_wb_gain);
         dest_cfg->gain0_green_r = MIN(cfg->gain0_green_r * isp_dgain0 + 0.5, max_wb_gain);

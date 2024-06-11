@@ -28,6 +28,8 @@
 #include "rkisp_demo.h"
 #include <termios.h>
 
+#include "uAPI2/rk_aiq_user_api2_ae.h"
+
 #include "ae_algo_demo/third_party_ae_algo.h"
 //#include "awb_algo_demo/third_party_awb_algo.h"  //for rk3588
 //#include "awb_algo_demo/third_party_awbV32_algo.h" //for rv1106

@@ -503,7 +503,7 @@ static XCamReturn initAecHwConfig(rk_aiq_rkAe_config_t* pConfig)
     /*    rawae3.rawae_sel is different from rawae0-2, defining BIG/LITE mode of debayer  */
     /*****************************************************************/
 
-#if defined(ISP_HW_V30)
+#if ISP_HW_V20 || ISP_HW_V30
     if(pConfig->HdrFrmNum < 3) {
         pConfig->aeHwConfig.ae_meas.rawae0.rawae_sel = 2;
         pConfig->aeHwConfig.ae_meas.rawae1.rawae_sel = 2;
@@ -515,95 +515,13 @@ static XCamReturn initAecHwConfig(rk_aiq_rkAe_config_t* pConfig)
         pConfig->aeHwConfig.ae_meas.rawae2.rawae_sel = 1;
         pConfig->aeHwConfig.ae_meas.rawae3.rawae_sel = 3;
     }
-#endif
 
-#if defined(ISP_HW_V21)
-    if(pConfig->IsHdr) {
-        pConfig->aeHwConfig.ae_meas.rawae0.rawae_sel = 1;
-        pConfig->aeHwConfig.ae_meas.rawae1.rawae_sel = 1;
-        //pConfig->aeHwConfig.ae_meas.rawae2.rawae_sel = 1; //rawae2 no effective
-        pConfig->aeHwConfig.ae_meas.rawae3.rawae_sel = 1; //raw.chn[0] = BIG, make all channel = BIG
-    } else {
-        pConfig->aeHwConfig.ae_meas.rawae0.rawae_sel = 1;
-        pConfig->aeHwConfig.ae_meas.rawae1.rawae_sel = 1;
-        //pConfig->aeHwConfig.ae_meas.rawae2.rawae_sel = 1; //rawae2 no effective
-        pConfig->aeHwConfig.ae_meas.rawae3.rawae_sel = 3;
-    }
-#endif
-
-#if defined(ISP_HW_V32)
-    if(pConfig->IsHdr) {
-        pConfig->aeHwConfig.ae_meas.rawae0.rawae_sel = 0;
-        pConfig->aeHwConfig.ae_meas.rawae1.rawae_sel = 0;
-        //pConfig->aeHwConfig.ae_meas.rawae2.rawae_sel = 0; //rawae2 no effective
-        pConfig->aeHwConfig.ae_meas.rawae3.rawae_sel = 0; //raw.chn[0] = BIG, make all channel = BIG
-
-    } else {
-        pConfig->aeHwConfig.ae_meas.rawae0.rawae_sel = 1;
-        pConfig->aeHwConfig.ae_meas.rawae1.rawae_sel = 1;
-        //pConfig->aeHwConfig.ae_meas.rawae2.rawae_sel = 1; //rawae2 no effective
-        pConfig->aeHwConfig.ae_meas.rawae3.rawae_sel = 3; //raw.chn[0] = BIG, make all channel = BIG
-    }
-
-#endif
-
-#if defined(ISP_HW_V32_LITE) || defined(ISP_HW_V39)
-    if(pConfig->IsHdr) {
-        pConfig->aeHwConfig.ae_meas.rawae0.rawae_sel = 0;
-        //pConfig->aeHwConfig.ae_meas.rawae1.rawae_sel = 0;
-        //pConfig->aeHwConfig.ae_meas.rawae2.rawae_sel = 0; //rawae2 no effective
-        pConfig->aeHwConfig.ae_meas.rawae3.rawae_sel = 1; //raw.chn[0] = BIG, make all channel = BIG
-
-    } else {
-        pConfig->aeHwConfig.ae_meas.rawae0.rawae_sel = 0;
-        //pConfig->aeHwConfig.ae_meas.rawae1.rawae_sel = 0;
-        //pConfig->aeHwConfig.ae_meas.rawae2.rawae_sel = 0; //rawae2 no effective
-        pConfig->aeHwConfig.ae_meas.rawae3.rawae_sel = 0; //raw.chn[0] = BIG, make all channel = BIG
-    }
-#endif
-
-
-    pConfig->aeHwConfig.hist_meas.ae_swap = pConfig->aeHwConfig.ae_meas.rawae0.rawae_sel;
-    pConfig->aeHwConfig.hist_meas.ae_sel = pConfig->aeHwConfig.ae_meas.rawae3.rawae_sel;
-
-#if defined(ISP_HW_V39)
-    /*****rawae0, BIG mode****/
-    pConfig->aeHwConfig.ae_meas.rawae0.wnd_num = 2;
-    pConfig->aeHwConfig.ae_meas.rawae0.win.h_offs = 0;
-    pConfig->aeHwConfig.ae_meas.rawae0.win.v_offs = 0;
-    pConfig->aeHwConfig.ae_meas.rawae0.win.h_size = pConfig->RawWidth;
-    pConfig->aeHwConfig.ae_meas.rawae0.win.v_size = pConfig->RawHeight;
-    pConfig->aeHwConfig.ae_meas.rawae0.subwin[0].h_offs = 2;
-    pConfig->aeHwConfig.ae_meas.rawae0.subwin[0].v_offs = 2;
-    pConfig->aeHwConfig.ae_meas.rawae0.subwin[0].h_size = 100;  // must even number
-    pConfig->aeHwConfig.ae_meas.rawae0.subwin[0].v_size = 100;  // must even number
-    pConfig->aeHwConfig.ae_meas.rawae0.subwin[1].h_offs = 150;
-    pConfig->aeHwConfig.ae_meas.rawae0.subwin[1].v_offs = 2;
-    pConfig->aeHwConfig.ae_meas.rawae0.subwin[1].h_size = 100;  // must even number
-    pConfig->aeHwConfig.ae_meas.rawae0.subwin[1].v_size = 100;  // must even number
-    pConfig->aeHwConfig.ae_meas.rawae0.subwin[2].h_offs = 2;
-    pConfig->aeHwConfig.ae_meas.rawae0.subwin[2].v_offs = 150;
-    pConfig->aeHwConfig.ae_meas.rawae0.subwin[2].h_size = 100;  // must even number
-    pConfig->aeHwConfig.ae_meas.rawae0.subwin[2].v_size = 100;  // must even number
-    pConfig->aeHwConfig.ae_meas.rawae0.subwin[3].h_offs = 150;
-    pConfig->aeHwConfig.ae_meas.rawae0.subwin[3].v_offs = 150;
-    pConfig->aeHwConfig.ae_meas.rawae0.subwin[3].h_size = 100;  // must even number
-    pConfig->aeHwConfig.ae_meas.rawae0.subwin[3].v_size = 100;  // must even number
-    pConfig->aeHwConfig.ae_meas.rawae0.subwin_en[0] = 1;
-    pConfig->aeHwConfig.ae_meas.rawae0.subwin_en[1] = 1;
-    pConfig->aeHwConfig.ae_meas.rawae0.subwin_en[2] = 1;
-    pConfig->aeHwConfig.ae_meas.rawae0.subwin_en[3] = 1;
-#else
     /*****rawae0, LITE mode****/
     pConfig->aeHwConfig.ae_meas.rawae0.wnd_num = 1;
     pConfig->aeHwConfig.ae_meas.rawae0.win.h_offs = 0;
     pConfig->aeHwConfig.ae_meas.rawae0.win.v_offs = 0;
     pConfig->aeHwConfig.ae_meas.rawae0.win.h_size = pConfig->RawWidth;
     pConfig->aeHwConfig.ae_meas.rawae0.win.v_size = pConfig->RawHeight;
-#endif
-
-
-#if ISP_HW_V20 || ISP_HW_V21 || ISP_HW_V30 || ISP_HW_V32
     /*****rawae1, BIG mode****/
     pConfig->aeHwConfig.ae_meas.rawae1.wnd_num = 2;
     pConfig->aeHwConfig.ae_meas.rawae1.win.h_offs = 0;
@@ -630,9 +548,7 @@ static XCamReturn initAecHwConfig(rk_aiq_rkAe_config_t* pConfig)
     pConfig->aeHwConfig.ae_meas.rawae1.subwin_en[1] = 1;
     pConfig->aeHwConfig.ae_meas.rawae1.subwin_en[2] = 1;
     pConfig->aeHwConfig.ae_meas.rawae1.subwin_en[3] = 1;
-#endif
-
-#if ISP_HW_V20 || ISP_HW_V30
+    /*****rawae2, BIG mode****/
     pConfig->aeHwConfig.ae_meas.rawae2.wnd_num = 2;
     pConfig->aeHwConfig.ae_meas.rawae2.win.h_offs = 0;
     pConfig->aeHwConfig.ae_meas.rawae2.win.v_offs = 0;
@@ -658,8 +574,7 @@ static XCamReturn initAecHwConfig(rk_aiq_rkAe_config_t* pConfig)
     pConfig->aeHwConfig.ae_meas.rawae2.subwin_en[1] = 1;
     pConfig->aeHwConfig.ae_meas.rawae2.subwin_en[2] = 1;
     pConfig->aeHwConfig.ae_meas.rawae2.subwin_en[3] = 1;
-#endif
-
+    /*****rawae3, BIG mode****/
     pConfig->aeHwConfig.ae_meas.rawae3.wnd_num = 2;
     pConfig->aeHwConfig.ae_meas.rawae3.win.h_offs = 0;
     pConfig->aeHwConfig.ae_meas.rawae3.win.v_offs = 0;
@@ -686,7 +601,319 @@ static XCamReturn initAecHwConfig(rk_aiq_rkAe_config_t* pConfig)
     pConfig->aeHwConfig.ae_meas.rawae3.subwin_en[2] = 1;
     pConfig->aeHwConfig.ae_meas.rawae3.subwin_en[3] = 1;
 
-#if defined(ISP_HW_V39)
+    /****rawhist0, LITE mode****/
+    pConfig->aeHwConfig.hist_meas.rawhist0.data_sel = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist0.waterline = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist0.mode = 5;
+    pConfig->aeHwConfig.hist_meas.rawhist0.stepsize = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist0.win.h_offs = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist0.win.v_offs = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist0.win.h_size = pConfig->RawWidth;
+    pConfig->aeHwConfig.hist_meas.rawhist0.win.v_size = pConfig->RawHeight;
+    memset(pConfig->aeHwConfig.hist_meas.rawhist0.weight, 0x20, RAWHISTLITE_WIN_NUM * sizeof(unsigned char));
+    pConfig->aeHwConfig.hist_meas.rawhist0.rcc = 0x4d;
+    pConfig->aeHwConfig.hist_meas.rawhist0.gcc = 0x4b;
+    pConfig->aeHwConfig.hist_meas.rawhist0.bcc = 0x1d;
+    pConfig->aeHwConfig.hist_meas.rawhist0.off = 0x00;
+    /****rawhist1, BIG mode****/
+    pConfig->aeHwConfig.hist_meas.rawhist1.data_sel = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist1.waterline = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist1.mode = 5;
+    pConfig->aeHwConfig.hist_meas.rawhist1.wnd_num = 2;
+    pConfig->aeHwConfig.hist_meas.rawhist1.stepsize = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist1.win.h_offs = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist1.win.v_offs = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist1.win.h_size = pConfig->RawWidth;
+    pConfig->aeHwConfig.hist_meas.rawhist1.win.v_size = pConfig->RawHeight;
+    memset(pConfig->aeHwConfig.hist_meas.rawhist1.weight, 0x20, RAWHISTBIG_WIN_NUM * sizeof(unsigned char));
+    pConfig->aeHwConfig.hist_meas.rawhist1.rcc = 0x4d;
+    pConfig->aeHwConfig.hist_meas.rawhist1.gcc = 0x4b;
+    pConfig->aeHwConfig.hist_meas.rawhist1.bcc = 0x1d;
+    pConfig->aeHwConfig.hist_meas.rawhist1.off = 0x00;
+    /****rawhist2, BIG mode****/
+    pConfig->aeHwConfig.hist_meas.rawhist2.data_sel = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist2.waterline = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist2.mode = 5;
+    pConfig->aeHwConfig.hist_meas.rawhist2.wnd_num = 2;
+    pConfig->aeHwConfig.hist_meas.rawhist2.stepsize = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist2.win.h_offs = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist2.win.v_offs = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist2.win.h_size = pConfig->RawWidth;
+    pConfig->aeHwConfig.hist_meas.rawhist2.win.v_size = pConfig->RawHeight;
+    memset(pConfig->aeHwConfig.hist_meas.rawhist2.weight, 0x20, RAWHISTBIG_WIN_NUM * sizeof(unsigned char));
+    pConfig->aeHwConfig.hist_meas.rawhist2.rcc = 0x4d;
+    pConfig->aeHwConfig.hist_meas.rawhist2.gcc = 0x4b;
+    pConfig->aeHwConfig.hist_meas.rawhist2.bcc = 0x1d;
+    pConfig->aeHwConfig.hist_meas.rawhist2.off = 0x00;
+    /****rawhist3, BIG mode****/
+    pConfig->aeHwConfig.hist_meas.rawhist3.data_sel = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist3.waterline = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist3.mode = 5;
+    pConfig->aeHwConfig.hist_meas.rawhist3.wnd_num = 2;
+    pConfig->aeHwConfig.hist_meas.rawhist3.stepsize = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist3.win.h_offs = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist3.win.v_offs = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist3.win.h_size = pConfig->RawWidth;
+    pConfig->aeHwConfig.hist_meas.rawhist3.win.v_size = pConfig->RawHeight;
+    memset(pConfig->aeHwConfig.hist_meas.rawhist3.weight, 0x20, RAWHISTBIG_WIN_NUM * sizeof(unsigned char));
+    pConfig->aeHwConfig.hist_meas.rawhist3.rcc = 0x4d;
+    pConfig->aeHwConfig.hist_meas.rawhist3.gcc = 0x4b;
+    pConfig->aeHwConfig.hist_meas.rawhist3.bcc = 0x1d;
+    pConfig->aeHwConfig.hist_meas.rawhist3.off = 0x00;
+#endif
+
+#if ISP_HW_V21 || ISP_HW_V32
+    if (pConfig->IsHdr) {
+        pConfig->aeHwConfig.ae_meas.rawae0.rawae_sel = 0;
+        pConfig->aeHwConfig.ae_meas.rawae1.rawae_sel = 0;
+        pConfig->aeHwConfig.ae_meas.rawae3.rawae_sel = 0;  //raw.chn[0] = BIG, make all channel = BIG
+    } else {
+        pConfig->aeHwConfig.ae_meas.rawae0.rawae_sel = 1;
+        pConfig->aeHwConfig.ae_meas.rawae1.rawae_sel = 1;
+        pConfig->aeHwConfig.ae_meas.rawae3.rawae_sel = 3;
+    }
+
+    /*****rawae0, LITE mode****/
+    pConfig->aeHwConfig.ae_meas.rawae0.wnd_num = 1;
+    pConfig->aeHwConfig.ae_meas.rawae0.win.h_offs = 0;
+    pConfig->aeHwConfig.ae_meas.rawae0.win.v_offs = 0;
+    pConfig->aeHwConfig.ae_meas.rawae0.win.h_size = pConfig->RawWidth;
+    pConfig->aeHwConfig.ae_meas.rawae0.win.v_size = pConfig->RawHeight;
+    /*****rawae1, BIG mode****/
+    pConfig->aeHwConfig.ae_meas.rawae1.wnd_num = 2;
+    pConfig->aeHwConfig.ae_meas.rawae1.win.h_offs = 0;
+    pConfig->aeHwConfig.ae_meas.rawae1.win.v_offs = 0;
+    pConfig->aeHwConfig.ae_meas.rawae1.win.h_size = pConfig->RawWidth;
+    pConfig->aeHwConfig.ae_meas.rawae1.win.v_size = pConfig->RawHeight;
+    pConfig->aeHwConfig.ae_meas.rawae1.subwin[0].h_offs = 2;
+    pConfig->aeHwConfig.ae_meas.rawae1.subwin[0].v_offs = 2;
+    pConfig->aeHwConfig.ae_meas.rawae1.subwin[0].h_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae1.subwin[0].v_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae1.subwin[1].h_offs = 150;
+    pConfig->aeHwConfig.ae_meas.rawae1.subwin[1].v_offs = 2;
+    pConfig->aeHwConfig.ae_meas.rawae1.subwin[1].h_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae1.subwin[1].v_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae1.subwin[2].h_offs = 2;
+    pConfig->aeHwConfig.ae_meas.rawae1.subwin[2].v_offs = 150;
+    pConfig->aeHwConfig.ae_meas.rawae1.subwin[2].h_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae1.subwin[2].v_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae1.subwin[3].h_offs = 150;
+    pConfig->aeHwConfig.ae_meas.rawae1.subwin[3].v_offs = 150;
+    pConfig->aeHwConfig.ae_meas.rawae1.subwin[3].h_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae1.subwin[3].v_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae1.subwin_en[0] = 1;
+    pConfig->aeHwConfig.ae_meas.rawae1.subwin_en[1] = 1;
+    pConfig->aeHwConfig.ae_meas.rawae1.subwin_en[2] = 1;
+    pConfig->aeHwConfig.ae_meas.rawae1.subwin_en[3] = 1;
+    /*****rawae3, BIG mode****/
+    pConfig->aeHwConfig.ae_meas.rawae3.wnd_num = 2;
+    pConfig->aeHwConfig.ae_meas.rawae3.win.h_offs = 0;
+    pConfig->aeHwConfig.ae_meas.rawae3.win.v_offs = 0;
+    pConfig->aeHwConfig.ae_meas.rawae3.win.h_size = pConfig->RawWidth;
+    pConfig->aeHwConfig.ae_meas.rawae3.win.v_size = pConfig->RawHeight;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[0].h_offs = 2;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[0].v_offs = 2;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[0].h_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[0].v_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[1].h_offs = 150;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[1].v_offs = 2;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[1].h_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[1].v_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[2].h_offs = 2;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[2].v_offs = 150;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[2].h_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[2].v_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[3].h_offs = 150;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[3].v_offs = 150;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[3].h_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[3].v_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin_en[0] = 1;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin_en[1] = 1;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin_en[2] = 1;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin_en[3] = 1;
+
+    /****rawhist0, LITE mode****/
+    pConfig->aeHwConfig.hist_meas.rawhist0.data_sel = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist0.waterline = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist0.mode = 5;
+    pConfig->aeHwConfig.hist_meas.rawhist0.stepsize = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist0.win.h_offs = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist0.win.v_offs = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist0.win.h_size = pConfig->RawWidth;
+    pConfig->aeHwConfig.hist_meas.rawhist0.win.v_size = pConfig->RawHeight;
+    memset(pConfig->aeHwConfig.hist_meas.rawhist0.weight, 0x20, RAWHISTLITE_WIN_NUM * sizeof(unsigned char));
+    pConfig->aeHwConfig.hist_meas.rawhist0.rcc = 0x4d;
+    pConfig->aeHwConfig.hist_meas.rawhist0.gcc = 0x4b;
+    pConfig->aeHwConfig.hist_meas.rawhist0.bcc = 0x1d;
+    pConfig->aeHwConfig.hist_meas.rawhist0.off = 0x00;
+    /****rawhist1, BIG mode****/
+    pConfig->aeHwConfig.hist_meas.rawhist1.data_sel = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist1.waterline = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist1.mode = 5;
+    pConfig->aeHwConfig.hist_meas.rawhist1.wnd_num = 2;
+    pConfig->aeHwConfig.hist_meas.rawhist1.stepsize = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist1.win.h_offs = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist1.win.v_offs = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist1.win.h_size = pConfig->RawWidth;
+    pConfig->aeHwConfig.hist_meas.rawhist1.win.v_size = pConfig->RawHeight;
+    memset(pConfig->aeHwConfig.hist_meas.rawhist1.weight, 0x20, RAWHISTBIG_WIN_NUM * sizeof(unsigned char));
+    pConfig->aeHwConfig.hist_meas.rawhist1.rcc = 0x4d;
+    pConfig->aeHwConfig.hist_meas.rawhist1.gcc = 0x4b;
+    pConfig->aeHwConfig.hist_meas.rawhist1.bcc = 0x1d;
+    pConfig->aeHwConfig.hist_meas.rawhist1.off = 0x00;
+    /****rawhist3, BIG mode****/
+    pConfig->aeHwConfig.hist_meas.rawhist3.data_sel = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist3.waterline = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist3.mode = 5;
+    pConfig->aeHwConfig.hist_meas.rawhist3.wnd_num = 2;
+    pConfig->aeHwConfig.hist_meas.rawhist3.stepsize = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist3.win.h_offs = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist3.win.v_offs = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist3.win.h_size = pConfig->RawWidth;
+    pConfig->aeHwConfig.hist_meas.rawhist3.win.v_size = pConfig->RawHeight;
+    memset(pConfig->aeHwConfig.hist_meas.rawhist3.weight, 0x20, RAWHISTBIG_WIN_NUM * sizeof(unsigned char));
+    pConfig->aeHwConfig.hist_meas.rawhist3.rcc = 0x4d;
+    pConfig->aeHwConfig.hist_meas.rawhist3.gcc = 0x4b;
+    pConfig->aeHwConfig.hist_meas.rawhist3.bcc = 0x1d;
+    pConfig->aeHwConfig.hist_meas.rawhist3.off = 0x00;
+#endif
+
+#if ISP_HW_V32_LITE
+    if (pConfig->IsHdr) {
+        pConfig->aeHwConfig.ae_meas.rawae0.rawae_sel = 0;
+        pConfig->aeHwConfig.ae_meas.rawae3.rawae_sel = 1;
+
+    } else {
+        pConfig->aeHwConfig.ae_meas.rawae0.rawae_sel = 0;
+        pConfig->aeHwConfig.ae_meas.rawae3.rawae_sel = 0;  //raw.chn[0] = BIG, make all channel = BIG
+    }
+    /*****rawae0, LITE mode****/
+    pConfig->aeHwConfig.ae_meas.rawae0.wnd_num = 1;
+    pConfig->aeHwConfig.ae_meas.rawae0.win.h_offs = 0;
+    pConfig->aeHwConfig.ae_meas.rawae0.win.v_offs = 0;
+    pConfig->aeHwConfig.ae_meas.rawae0.win.h_size = pConfig->RawWidth;
+    pConfig->aeHwConfig.ae_meas.rawae0.win.v_size = pConfig->RawHeight;
+    /*****rawae3, BIG mode****/
+    pConfig->aeHwConfig.ae_meas.rawae3.wnd_num = 2;
+    pConfig->aeHwConfig.ae_meas.rawae3.win.h_offs = 0;
+    pConfig->aeHwConfig.ae_meas.rawae3.win.v_offs = 0;
+    pConfig->aeHwConfig.ae_meas.rawae3.win.h_size = pConfig->RawWidth;
+    pConfig->aeHwConfig.ae_meas.rawae3.win.v_size = pConfig->RawHeight;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[0].h_offs = 2;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[0].v_offs = 2;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[0].h_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[0].v_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[1].h_offs = 150;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[1].v_offs = 2;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[1].h_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[1].v_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[2].h_offs = 2;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[2].v_offs = 150;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[2].h_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[2].v_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[3].h_offs = 150;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[3].v_offs = 150;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[3].h_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[3].v_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin_en[0] = 1;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin_en[1] = 1;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin_en[2] = 1;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin_en[3] = 1;
+
+    /****rawhist0, LITE mode****/
+    pConfig->aeHwConfig.hist_meas.rawhist0.data_sel = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist0.waterline = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist0.mode = 5;
+    pConfig->aeHwConfig.hist_meas.rawhist0.stepsize = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist0.win.h_offs = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist0.win.v_offs = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist0.win.h_size = pConfig->RawWidth;
+    pConfig->aeHwConfig.hist_meas.rawhist0.win.v_size = pConfig->RawHeight;
+    memset(pConfig->aeHwConfig.hist_meas.rawhist0.weight, 0x20, RAWHISTLITE_WIN_NUM * sizeof(unsigned char));
+    pConfig->aeHwConfig.hist_meas.rawhist0.rcc = 0x4d;
+    pConfig->aeHwConfig.hist_meas.rawhist0.gcc = 0x4b;
+    pConfig->aeHwConfig.hist_meas.rawhist0.bcc = 0x1d;
+    pConfig->aeHwConfig.hist_meas.rawhist0.off = 0x00;
+    /****rawhist3, BIG mode****/
+    pConfig->aeHwConfig.hist_meas.rawhist3.data_sel = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist3.waterline = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist3.mode = 5;
+    pConfig->aeHwConfig.hist_meas.rawhist3.wnd_num = 2;
+    pConfig->aeHwConfig.hist_meas.rawhist3.stepsize = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist3.win.h_offs = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist3.win.v_offs = 0;
+    pConfig->aeHwConfig.hist_meas.rawhist3.win.h_size = pConfig->RawWidth;
+    pConfig->aeHwConfig.hist_meas.rawhist3.win.v_size = pConfig->RawHeight;
+    memset(pConfig->aeHwConfig.hist_meas.rawhist3.weight, 0x20, RAWHISTBIG_WIN_NUM * sizeof(unsigned char));
+    pConfig->aeHwConfig.hist_meas.rawhist3.rcc = 0x4d;
+    pConfig->aeHwConfig.hist_meas.rawhist3.gcc = 0x4b;
+    pConfig->aeHwConfig.hist_meas.rawhist3.bcc = 0x1d;
+    pConfig->aeHwConfig.hist_meas.rawhist3.off = 0x00;
+#endif
+
+#if ISP_HW_V39 || ISP_HW_V33
+    if (pConfig->IsHdr) {
+        pConfig->aeHwConfig.ae_meas.rawae0.rawae_sel = 0;
+        pConfig->aeHwConfig.ae_meas.rawae3.rawae_sel = 1;
+
+    } else {
+        pConfig->aeHwConfig.ae_meas.rawae0.rawae_sel = 0;
+        pConfig->aeHwConfig.ae_meas.rawae3.rawae_sel = 0;  //raw.chn[0] = BIG, make all channel = BIG
+    }
+
+    /*****rawae0, BIG mode****/
+    pConfig->aeHwConfig.ae_meas.rawae0.wnd_num = 2;
+    pConfig->aeHwConfig.ae_meas.rawae0.win.h_offs = 0;
+    pConfig->aeHwConfig.ae_meas.rawae0.win.v_offs = 0;
+    pConfig->aeHwConfig.ae_meas.rawae0.win.h_size = pConfig->RawWidth;
+    pConfig->aeHwConfig.ae_meas.rawae0.win.v_size = pConfig->RawHeight;
+    pConfig->aeHwConfig.ae_meas.rawae0.subwin[0].h_offs = 2;
+    pConfig->aeHwConfig.ae_meas.rawae0.subwin[0].v_offs = 2;
+    pConfig->aeHwConfig.ae_meas.rawae0.subwin[0].h_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae0.subwin[0].v_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae0.subwin[1].h_offs = 150;
+    pConfig->aeHwConfig.ae_meas.rawae0.subwin[1].v_offs = 2;
+    pConfig->aeHwConfig.ae_meas.rawae0.subwin[1].h_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae0.subwin[1].v_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae0.subwin[2].h_offs = 2;
+    pConfig->aeHwConfig.ae_meas.rawae0.subwin[2].v_offs = 150;
+    pConfig->aeHwConfig.ae_meas.rawae0.subwin[2].h_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae0.subwin[2].v_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae0.subwin[3].h_offs = 150;
+    pConfig->aeHwConfig.ae_meas.rawae0.subwin[3].v_offs = 150;
+    pConfig->aeHwConfig.ae_meas.rawae0.subwin[3].h_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae0.subwin[3].v_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae0.subwin_en[0] = 1;
+    pConfig->aeHwConfig.ae_meas.rawae0.subwin_en[1] = 1;
+    pConfig->aeHwConfig.ae_meas.rawae0.subwin_en[2] = 1;
+    pConfig->aeHwConfig.ae_meas.rawae0.subwin_en[3] = 1;
+    /*****rawae3, BIG mode****/
+    pConfig->aeHwConfig.ae_meas.rawae3.wnd_num = 2;
+    pConfig->aeHwConfig.ae_meas.rawae3.win.h_offs = 0;
+    pConfig->aeHwConfig.ae_meas.rawae3.win.v_offs = 0;
+    pConfig->aeHwConfig.ae_meas.rawae3.win.h_size = pConfig->RawWidth;
+    pConfig->aeHwConfig.ae_meas.rawae3.win.v_size = pConfig->RawHeight;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[0].h_offs = 2;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[0].v_offs = 2;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[0].h_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[0].v_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[1].h_offs = 150;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[1].v_offs = 2;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[1].h_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[1].v_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[2].h_offs = 2;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[2].v_offs = 150;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[2].h_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[2].v_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[3].h_offs = 150;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[3].v_offs = 150;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[3].h_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin[3].v_size = 100;  // must even number
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin_en[0] = 1;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin_en[1] = 1;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin_en[2] = 1;
+    pConfig->aeHwConfig.ae_meas.rawae3.subwin_en[3] = 1;
+
     /****rawhist0, BIG mode****/
     pConfig->aeHwConfig.hist_meas.rawhist0.data_sel = 0;
     pConfig->aeHwConfig.hist_meas.rawhist0.waterline = 0;
@@ -702,58 +929,7 @@ static XCamReturn initAecHwConfig(rk_aiq_rkAe_config_t* pConfig)
     pConfig->aeHwConfig.hist_meas.rawhist0.gcc = 0x4b;
     pConfig->aeHwConfig.hist_meas.rawhist0.bcc = 0x1d;
     pConfig->aeHwConfig.hist_meas.rawhist0.off = 0x00;
-#else
-    /****rawhist0, LITE mode****/
-    pConfig->aeHwConfig.hist_meas.rawhist0.data_sel = 0;
-    pConfig->aeHwConfig.hist_meas.rawhist0.waterline = 0;
-    pConfig->aeHwConfig.hist_meas.rawhist0.mode = 5;
-    pConfig->aeHwConfig.hist_meas.rawhist0.stepsize = 0;
-    pConfig->aeHwConfig.hist_meas.rawhist0.win.h_offs = 0;
-    pConfig->aeHwConfig.hist_meas.rawhist0.win.v_offs = 0;
-    pConfig->aeHwConfig.hist_meas.rawhist0.win.h_size = pConfig->RawWidth;
-    pConfig->aeHwConfig.hist_meas.rawhist0.win.v_size = pConfig->RawHeight;
-    memset(pConfig->aeHwConfig.hist_meas.rawhist0.weight, 0x20, RAWHISTBIG_WIN_NUM * sizeof(unsigned char));
-    pConfig->aeHwConfig.hist_meas.rawhist0.rcc = 0x4d;
-    pConfig->aeHwConfig.hist_meas.rawhist0.gcc = 0x4b;
-    pConfig->aeHwConfig.hist_meas.rawhist0.bcc = 0x1d;
-    pConfig->aeHwConfig.hist_meas.rawhist0.off = 0x00;
-#endif
-
-#if ISP_HW_V20 || ISP_HW_V21 || ISP_HW_V30 || ISP_HW_V32
-    /****rawhist1-3, BIG mode****/
-    pConfig->aeHwConfig.hist_meas.rawhist1.data_sel = 0;
-    pConfig->aeHwConfig.hist_meas.rawhist1.waterline = 0;
-    pConfig->aeHwConfig.hist_meas.rawhist1.mode = 5;
-    pConfig->aeHwConfig.hist_meas.rawhist1.wnd_num = 2;
-    pConfig->aeHwConfig.hist_meas.rawhist1.stepsize = 0;
-    pConfig->aeHwConfig.hist_meas.rawhist1.win.h_offs = 0;
-    pConfig->aeHwConfig.hist_meas.rawhist1.win.v_offs = 0;
-    pConfig->aeHwConfig.hist_meas.rawhist1.win.h_size = pConfig->RawWidth;
-    pConfig->aeHwConfig.hist_meas.rawhist1.win.v_size = pConfig->RawHeight;
-    memset(pConfig->aeHwConfig.hist_meas.rawhist1.weight, 0x20, RAWHISTBIG_WIN_NUM * sizeof(unsigned char));
-    pConfig->aeHwConfig.hist_meas.rawhist1.rcc = 0x4d;
-    pConfig->aeHwConfig.hist_meas.rawhist1.gcc = 0x4b;
-    pConfig->aeHwConfig.hist_meas.rawhist1.bcc = 0x1d;
-    pConfig->aeHwConfig.hist_meas.rawhist1.off = 0x00;
-#endif
-
-#if ISP_HW_V20 || ISP_HW_V30
-    pConfig->aeHwConfig.hist_meas.rawhist2.data_sel = 0;
-    pConfig->aeHwConfig.hist_meas.rawhist2.waterline = 0;
-    pConfig->aeHwConfig.hist_meas.rawhist2.mode = 5;
-    pConfig->aeHwConfig.hist_meas.rawhist2.wnd_num = 2;
-    pConfig->aeHwConfig.hist_meas.rawhist2.stepsize = 0;
-    pConfig->aeHwConfig.hist_meas.rawhist2.win.h_offs = 0;
-    pConfig->aeHwConfig.hist_meas.rawhist2.win.v_offs = 0;
-    pConfig->aeHwConfig.hist_meas.rawhist2.win.h_size = pConfig->RawWidth;
-    pConfig->aeHwConfig.hist_meas.rawhist2.win.v_size = pConfig->RawHeight;
-    memset(pConfig->aeHwConfig.hist_meas.rawhist2.weight, 0x20, RAWHISTBIG_WIN_NUM * sizeof(unsigned char));
-    pConfig->aeHwConfig.hist_meas.rawhist2.rcc = 0x4d;
-    pConfig->aeHwConfig.hist_meas.rawhist2.gcc = 0x4b;
-    pConfig->aeHwConfig.hist_meas.rawhist2.bcc = 0x1d;
-    pConfig->aeHwConfig.hist_meas.rawhist2.off = 0x00;
-#endif
-
+    /****rawhist3, BIG mode****/
     pConfig->aeHwConfig.hist_meas.rawhist3.data_sel = 0;
     pConfig->aeHwConfig.hist_meas.rawhist3.waterline = 0;
     pConfig->aeHwConfig.hist_meas.rawhist3.mode = 5;
@@ -768,6 +944,10 @@ static XCamReturn initAecHwConfig(rk_aiq_rkAe_config_t* pConfig)
     pConfig->aeHwConfig.hist_meas.rawhist3.gcc = 0x4b;
     pConfig->aeHwConfig.hist_meas.rawhist3.bcc = 0x1d;
     pConfig->aeHwConfig.hist_meas.rawhist3.off = 0x00;
+#endif
+
+    pConfig->aeHwConfig.hist_meas.ae_swap = pConfig->aeHwConfig.ae_meas.rawae0.rawae_sel;
+    pConfig->aeHwConfig.hist_meas.ae_sel = pConfig->aeHwConfig.ae_meas.rawae3.rawae_sel;
 
     LOGD_AEC_SUBM(0xff, "%s EXIT", __func__);
     return ret;

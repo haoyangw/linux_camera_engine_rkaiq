@@ -69,17 +69,18 @@ endif()
 set (AWB_SRC
     awb/rk_aiq_algo_camgroup_awb_itf.c
 	# uapi
-	awb/rk_aiq_uapiv2_camgroup_awb_int.c
 )
 
 if (RKAIQ_HAVE_AWB_V21)
     add_compile_options(-DRKAIQ_HAVE_AWB_V21=1)
     list(APPEND AWB_SRC awb/rk_aiq_awb_algo_surround_view_v201.c)
+    list(APPEND AWB_SRC awb/rk_aiq_uapiv2_camgroup_awb_int.c)
 endif()
 
 if (RKAIQ_HAVE_AWB_V32)
     add_compile_options(-DRKAIQ_HAVE_AWB_V32=1)
     list(APPEND AWB_SRC awb/rk_aiq_awb_algo_surround_view_v32.c)
+    list(APPEND AWB_SRC awb/rk_aiq_uapiv2_camgroup_awb_int.c)
 endif()
 
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/awb/rk_aiq_algo_camgroup_awb_itf.c")

@@ -27,3 +27,5 @@
 #include "rk_aiq_module_ynr40.c"
 #include "rk_aiq_module_btnr_common.c"
 #include "rk_aiq_module_btnr41.c"
+#include "rk_aiq_module_sharp40.c"
+#include "rk_aiq_module_hsv10.c"

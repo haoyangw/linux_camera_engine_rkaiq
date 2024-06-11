@@ -29,6 +29,9 @@ typedef struct {
     bool isReCal_;
     bool strength_en;
     float fStrength;
+#if RKAIQ_HAVE_SHARP_V40
+    texEst_api_attrib_t* texEst_attrib;
+#endif
 } SharpContext_t;
 
 #define DEFAULT_RECALCULATE_DELTA_ISO (0.01)

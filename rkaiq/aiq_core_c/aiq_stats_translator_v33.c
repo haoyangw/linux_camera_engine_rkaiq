@@ -434,10 +434,9 @@ XCamReturn translateAwbStatsV33(AiqStatsTranslator_t* pStatsTrans, const aiq_Vid
         statsInt->awb_stats_v39.dbginfo_fd = -1;
     }
     statsInt->awb_stats_v39.awb_cfg_effect.blkMeasureMode =
-        (rk_aiq_awb_blk_stat_mode_v201_t)(pStatsTrans->_ispParams->awb_cfg_v39.com.pixEngine.hw_awbCfg_zoneStatsSrc_mode > awbStats_pixAll_mode);
-    statsInt->awb_stats_v39.awb_cfg_effect.mode = pStatsTrans->_ispParams->awb_cfg_v39.mode;
+        pStatsTrans->_ispParams->awb_cfg_v39.com.pixEngine.hw_awbCfg_zoneStatsSrc_mode>awbStats_pixAll_mode;    statsInt->awb_stats_v39.awb_cfg_effect.mode = pStatsTrans->_ispParams->awb_cfg_v39.mode;
     statsInt->awb_stats_v39.awb_cfg_effect.lightNum = pStatsTrans->_ispParams->awb_cfg_v39.com.wpEngine.hw_awbCfg_lightSrcNum_val;
-    statsInt->awb_stats_v39.awb_cfg_effect.groupIllIndxCurrent = 0;//pStatsTrans->_ispParams->awb_cfg_v39.groupIllIndxCurrent;
+    statsInt->awb_stats_v39.awb_cfg_effect.groupIllIndxCurrent = pStatsTrans->_ispParams->awb_cfg_v39.groupIllIndxCurrent;
     memcpy(statsInt->awb_stats_v39.awb_cfg_effect.IllIndxSetCurrent, pStatsTrans->_ispParams->awb_cfg_v39.IllIndxSetCurrent,
            sizeof(statsInt->awb_stats_v39.awb_cfg_effect.IllIndxSetCurrent));
     memcpy(statsInt->awb_stats_v39.awb_cfg_effect.timeSign, pStatsTrans->_ispParams->awb_cfg_v39.timeSign,
@@ -471,9 +470,9 @@ XCamReturn translateAwbStatsV33(AiqStatsTranslator_t* pStatsTrans, const aiq_Vid
             awb_stats_v39->pixEngine.zonePix[index].hw_awbCfg_gSum_val = stats->stat.rawawb.ramdata_blk_y[i].ramdata_blk_x[j].g;
             awb_stats_v39->pixEngine.zonePix[index].hw_awbCfg_bSum_val = stats->stat.rawawb.ramdata_blk_y[i].ramdata_blk_x[j].b;
             awb_stats_v39->pixEngine.zonePix[index].hw_awbCfg_statsPix_count = stats->stat.rawawb.ramdata_blk_y[i].ramdata_blk_x[j].wp;
-            statsInt->awb_stats_v39.sumBlkRGB.Rvalue += awb_stats_v39->pixEngine.zonePix[index].hw_awbCfg_rSum_val;
-            statsInt->awb_stats_v39.sumBlkRGB.Gvalue += awb_stats_v39->pixEngine.zonePix[index].hw_awbCfg_gSum_val;
-            statsInt->awb_stats_v39.sumBlkRGB.Bvalue += awb_stats_v39->pixEngine.zonePix[index].hw_awbCfg_bSum_val;
+            statsInt->awb_stats_v39.sumBlkRGB.hw_awbCfg_rSum_val += awb_stats_v39->pixEngine.zonePix[index].hw_awbCfg_rSum_val;
+            statsInt->awb_stats_v39.sumBlkRGB.hw_awbCfg_gSum_val += awb_stats_v39->pixEngine.zonePix[index].hw_awbCfg_gSum_val;
+            statsInt->awb_stats_v39.sumBlkRGB.hw_awbCfg_bSum_val += awb_stats_v39->pixEngine.zonePix[index].hw_awbCfg_bSum_val;
             index++;
         }
     }

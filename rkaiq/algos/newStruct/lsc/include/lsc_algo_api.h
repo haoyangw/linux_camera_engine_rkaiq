@@ -132,7 +132,9 @@ typedef struct lsc_sw_info_s {
 } lsc_sw_info_t;
 
 XCAM_BEGIN_DECLARE
-
+XCamReturn algo_lsc_queryalscStatus(RkAiqAlgoContext* ctx, alsc_status_t* status);
+XCamReturn algo_lsc_SetCalib(RkAiqAlgoContext* ctx, alsc_lscCalib_t *calib);
+XCamReturn algo_lsc_GetCalib(RkAiqAlgoContext* ctx, alsc_lscCalib_t* calib);
 #if 0
 XCamReturn
 algo_lsc_SetAttrib

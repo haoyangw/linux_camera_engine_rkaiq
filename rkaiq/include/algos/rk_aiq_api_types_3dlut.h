@@ -119,7 +119,7 @@ typedef struct {
         M4_ORDER(0),
         M4_NOTES(The illumiantion name.))  */
     char sw_lut3dC_illu_name[ALUT3D_ILLUM_NAME_LEN];
-        /* M4_GENERIC_DESC(
+    /* M4_GENERIC_DESC(
         M4_ALIAS(sw_lut3dC_wbGainR_val),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
@@ -288,6 +288,31 @@ typedef struct {
 
 typedef struct {
     /* M4_GENERIC_DESC(
+        M4_ALIAS(illu_name),
+        M4_TYPE(string),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,8),
+        M4_DEFAULT("D50"),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(The current illumiantion name.))  */
+    char sw_lut3dC_illuUsed_name[ALUT3D_ILLUM_NAME_LEN];
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(alpha),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,1),
+        M4_DEFAULT(1),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_NOTES(The current lut alpha corresponded with gain.))  */
+    float sw_lut3dT_alpha_val;
+} alut3d_status_t;
+
+typedef struct {
+    /* M4_GENERIC_DESC(
         M4_ALIAS(opMode),
         M4_TYPE(enum),
         M4_ENUM_DEF(rk_aiq_op_mode_t),
@@ -324,6 +349,15 @@ typedef struct {
         M4_ORDER(3),
         M4_NOTES(The current params of module))  */
     lut3d_param_t stMan;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(alut3dStatus),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(4),
+        M4_NOTES(The current rk swparams of module)) */
+    alut3d_status_t alut3dStatus;
 } lut3d_status_t;
 
 RKAIQ_END_DECLARE

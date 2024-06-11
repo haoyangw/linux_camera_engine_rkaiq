@@ -27,11 +27,9 @@ typedef struct AiqAlgoHandlerLsc_s {
 } AiqAlgoHandlerLsc_t;
 
 AiqAlgoHandler_t* AiqAlgoHandlerLsc_constructor(RkAiqAlgoDesComm* des, AiqCore_t* aiqCore);
-#if 0
-XCamReturn AiqAlgoHandlerLsc_setAttrib(AiqAlgoHandlerLsc_t* pHdlLsc, lsc_api_attrib_t* attr);
-XCamReturn AiqAlgoHandlerLsc_getAttrib(AiqAlgoHandlerLsc_t* pHdlLsc, lsc_api_attrib_t* attr);
-XCamReturn AiqAlgoHandlerLsc_queryStatus(AiqAlgoHandlerLsc_t* pHdlLsc, lsc_status_t* status);
-#endif
+XCamReturn AiqAlgoHandlerLsc_queryalscStatus(AiqAlgoHandlerLsc_t* pHdlLsc, alsc_status_t* status);
+XCamReturn AiqAlgoHandlerLsc_setCalib(AiqAlgoHandlerLsc_t* pHdlLsc, alsc_lscCalib_t* attr);
+XCamReturn AiqAlgoHandlerLsc_getCalib(AiqAlgoHandlerLsc_t* pHdlLsc, alsc_lscCalib_t* attr);
 XCamReturn AiqAlgoHandlerLsc_setAcolorSwInfo(AiqAlgoHandlerLsc_t* pHdlLsc, rk_aiq_color_info_t* aColor_sw_info);
 
 RKAIQ_END_DECLARE

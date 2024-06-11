@@ -25,8 +25,8 @@ void rk_aiq_ccm22_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
 #endif
 
     ccm_param_t* ccm_param = (ccm_param_t*)attr;
-    ccm_param_dyn_t * pdyn = &ccm_param->dyn;
-    ccm_param_static_t * psta = &ccm_param->sta;
+    ccm_param_dyn_t* pdyn = &ccm_param->dyn;
+    ccm_param_static_t* psta = &ccm_param->sta;
 
 
     const float* coeff        = pdyn->ccMatrix.hw_ccmC_matrix_coeff;

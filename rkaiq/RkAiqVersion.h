@@ -797,12 +797,14 @@
  * - support rk3576 c version
  * - support 1103b c version
  *  - not fully implemented now
+ * v6.0x6.3-rc1
+ * - fix lots of v6.6.3 bugs
  */
 
-#define RK_AIQ_VERSION_REAL_V "v6.0x6.3"
-#define RK_AIQ_RELEASE_DATE "2024-06-06"
+#define RK_AIQ_VERSION_REAL_V "v6.0x6.3-rc1"
+#define RK_AIQ_RELEASE_DATE "2024-06-18"
 
-#define RK_AIQ_IQ_HEAD_VERSION_REAL_V "v1.0.1"
+#define RK_AIQ_IQ_HEAD_VERSION_REAL_V "v1.0.2"
 
 /******* DO NOT EDIT THE FOLLOWINGS ***********/
 

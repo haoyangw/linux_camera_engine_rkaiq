@@ -25,7 +25,7 @@ static void _handlerCac_init(AiqAlgoHandler_t* pHdl) {
     ENTER_ANALYZER_FUNCTION();
 
     AiqAlgoHandler_deinit(pHdl);
-    pHdl->mConfig       = (RkAiqAlgoCom*)(aiq_mallocz(sizeof(RkAiqAlgoConfigCac)));
+    pHdl->mConfig       = (RkAiqAlgoCom*)(aiq_mallocz(sizeof(RkAiqAlgoCom)));
     pHdl->mProcInParam  = (RkAiqAlgoCom*)(aiq_mallocz(sizeof(RkAiqAlgoProcCac)));
     pHdl->mProcOutParam = (RkAiqAlgoResCom*)(aiq_mallocz(sizeof(RkAiqAlgoProcResCac)));
 
@@ -42,25 +42,7 @@ static XCamReturn _handlerCac_prepare(AiqAlgoHandler_t* pAlgoHandler) {
 
     ret = AiqAlgoHandler_prepare(pAlgoHandler);
     RKAIQCORE_CHECK_RET(ret, "cac handle prepare failed");
-
 	AiqAlgoHandlerCac_t* pCacHdl = (AiqAlgoHandlerCac_t*)pAlgoHandler;
-    RkAiqAlgosGroupShared_t* shared =
-        (RkAiqAlgosGroupShared_t*)(pAlgoHandler->mAlogsGroupSharedParams);
-    RkAiqAlgosComShared_t* sharedCom = &pAlgoHandler->mAiqCore->mAlogsComSharedParams;
-    RkAiqAlgoConfigCac* cac_config_int        = (RkAiqAlgoConfigCac*)pAlgoHandler->mConfig;
-
-    if (sharedCom->resourcePath) {
-        strcpy(cac_config_int->iqpath, sharedCom->resourcePath);
-    } else {
-        strcpy(cac_config_int->iqpath, "/etc/iqfiles");
-    }
-
-    cac_config_int->mem_ops                  = pAlgoHandler->mAiqCore->mShareMemOps;
-    cac_config_int->width                    = sharedCom->snsDes.isp_acq_width;
-    cac_config_int->height                   = sharedCom->snsDes.isp_acq_height;
-    cac_config_int->is_multi_sensor          = sharedCom->is_multi_sensor;
-    cac_config_int->is_multi_isp             = sharedCom->is_multi_isp_mode;
-    cac_config_int->multi_isp_extended_pixel = sharedCom->multi_isp_extended_pixels;
 
     aiqMutex_lock(&pAlgoHandler->mCfgMutex);
     RkAiqAlgoDescription* des = (RkAiqAlgoDescription*)pAlgoHandler->mDes;
@@ -83,30 +65,19 @@ static XCamReturn _handlerCac_processing(AiqAlgoHandler_t* pAlgoHandler) {
     RkAiqAlgosComShared_t* sharedCom = &pAlgoHandler->mAiqCore->mAlogsComSharedParams;
     RkAiqAlgoProcCac* cac_proc_int = (RkAiqAlgoProcCac*)pAlgoHandler->mProcInParam;
     RkAiqAlgoProcResCac* cac_proc_res_int = (RkAiqAlgoProcResCac*)pAlgoHandler->mProcOutParam;
-    RkAiqAlgoConfigCac* cac_config_int        = (RkAiqAlgoConfigCac*)pAlgoHandler->mConfig;
 
     RKAiqAecExpInfo_t* aeCurExp = &shared->curExp;
-    cac_proc_int->hdr_ratio = 1;
     cac_proc_int->iso = 50;
     if (aeCurExp != NULL) {
         if (sharedCom->working_mode == (int)RK_AIQ_WORKING_MODE_NORMAL) {
-            cac_proc_int->hdr_ratio = 1;
             cac_proc_int->iso = aeCurExp->LinearExp.exp_real_params.analog_gain * 50;
             LOGD_ACAC("%s:NORMAL:iso=%d,again=%f\n", __FUNCTION__, cac_proc_int->iso,
                       aeCurExp->LinearExp.exp_real_params.analog_gain);
         } else if (sharedCom->working_mode == (int)RK_AIQ_ISP_HDR_MODE_2_FRAME_HDR) {
-            cac_proc_int->hdr_ratio = (aeCurExp->HdrExp[1].exp_real_params.analog_gain *
-                                        aeCurExp->HdrExp[1].exp_real_params.integration_time) /
-                                       (aeCurExp->HdrExp[0].exp_real_params.analog_gain *
-                                        aeCurExp->HdrExp[0].exp_real_params.integration_time);
             cac_proc_int->iso = aeCurExp->HdrExp[1].exp_real_params.analog_gain * 50;
             LOGD_ACAC("%s:HDR2:iso=%d,again=%f ratio %f\n", __FUNCTION__, cac_proc_int->iso,
-                      aeCurExp->HdrExp[1].exp_real_params.analog_gain, cac_proc_int->hdr_ratio);
+                      aeCurExp->HdrExp[1].exp_real_params.analog_gain);
         } else if (sharedCom->working_mode == (int)RK_AIQ_ISP_HDR_MODE_3_FRAME_HDR) {
-            cac_proc_int->hdr_ratio = (aeCurExp->HdrExp[2].exp_real_params.analog_gain *
-                                        aeCurExp->HdrExp[2].exp_real_params.integration_time) /
-                                       (aeCurExp->HdrExp[0].exp_real_params.analog_gain *
-                                        aeCurExp->HdrExp[0].exp_real_params.integration_time);
             cac_proc_int->iso = aeCurExp->HdrExp[2].exp_real_params.analog_gain * 50;
             LOGD_ACAC("%s:HDR3:iso=%d,again=%f\n", __FUNCTION__, cac_proc_int->iso,
                       aeCurExp->HdrExp[2].exp_real_params.analog_gain);
@@ -127,18 +98,6 @@ static XCamReturn _handlerCac_processing(AiqAlgoHandler_t* pAlgoHandler) {
         return XCAM_RETURN_BYPASS;
     }
     cac_proc_res_int->cacRes = (rk_aiq_isp_cac_params_t*)pBase->_data;
-#if RKAIQ_HAVE_CAC_V11
-    cac_proc_res_int->cacRes->sta.psfParam.hw_cacCfg_psfBlock_num =
-        cac_config_int->PsfCfgCount;
-    cac_proc_res_int->cacRes->sta.lutBuf[0].sw_cacCfg_lutBuf_fd =
-        cac_config_int->Fd0;
-    cac_proc_res_int->cacRes->sta.lutBuf[1].sw_cacCfg_lutBuf_fd =
-        cac_config_int->Fd1;
-    cac_proc_res_int->cacRes->sta.lutBuf[0].sw_cacCfg_lutBufSize_height =
-        cac_config_int->LutHCount * CacPsfKernelWordSizeInMemory;
-    cac_proc_res_int->cacRes->sta.lutBuf[0].sw_cacCfg_lutBufSize_width =
-        cac_config_int->LutVCount * CacChannelCount;
-#endif
     ret = AiqAlgoHandler_do_processing_common(pAlgoHandler);
     RKAIQCORE_CHECK_RET(ret, "cac algo processing failed");
 

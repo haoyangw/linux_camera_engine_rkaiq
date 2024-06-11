@@ -72,7 +72,8 @@ static XCamReturn _handlerLsc_processing(AiqAlgoHandler_t* pAlgoHandler) {
     if (awb_proc_res) {
         awb_res = (RkAiqAlgoProcResAwbShared_t*)awb_proc_res->_data;
     }
-    get_illu_estm_info(&proc_int->illu_info, awb_res, pCurExp, sharedCom->working_mode);
+    if (!AiqCore_isGroupAlgo(pAlgoHandler->mAiqCore, pAlgoHandler->mDes->type))
+        get_illu_estm_info(&proc_int->illu_info, awb_res, pCurExp, sharedCom->working_mode);
     /*
     if(colorConstFlag==true){
         memcpy(lsc_proc_int->illu_info.awbGain,colorSwInfo.awbGain,sizeof(colorSwInfo.awbGain));
@@ -101,34 +102,49 @@ AiqAlgoHandler_t* AiqAlgoHandlerLsc_constructor(RkAiqAlgoDesComm* des, AiqCore_t
 	return pHdl;
 }
 
+XCamReturn AiqAlgoHandlerLsc_queryalscStatus(AiqAlgoHandlerLsc_t* pHdlLsc, alsc_status_t* status) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    aiqMutex_lock(&pHdlLsc->_base.mCfgMutex);
+
+    ret = algo_lsc_queryalscStatus(pHdlLsc->_base.mAlgoCtx, status);
+
+    aiqMutex_unlock(&pHdlLsc->_base.mCfgMutex);
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn AiqAlgoHandlerLsc_setCalib(AiqAlgoHandlerLsc_t* pHdlLsc, alsc_lscCalib_t* calib) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    aiqMutex_lock(&pHdlLsc->_base.mCfgMutex);
+    ret = algo_lsc_SetCalib(pHdlLsc->_base.mAlgoCtx, calib);
+    aiqMutex_unlock(&pHdlLsc->_base.mCfgMutex);
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn AiqAlgoHandlerLsc_getCalib(AiqAlgoHandlerLsc_t* pHdlLsc, alsc_lscCalib_t* calib) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    aiqMutex_lock(&pHdlLsc->_base.mCfgMutex);
+
+    ret = algo_lsc_GetCalib(pHdlLsc->_base.mAlgoCtx, calib);
+
+    aiqMutex_unlock(&pHdlLsc->_base.mCfgMutex);
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
 #if 0
-XCamReturn AiqAlgoHandlerLsc_setAttrib(AiqAlgoHandlerLsc_t* pHdlLsc, lsc_api_attrib_t* attr) {
-    ENTER_ANALYZER_FUNCTION();
-
-    XCamReturn ret = XCAM_RETURN_NO_ERROR;
-    aiqMutex_lock(&pHdlLsc->_base.mCfgMutex);
-    ret = algo_lsc_SetAttrib(pHdlLsc->_base.mAlgoCtx, attr);
-    aiqMutex_unlock(&pHdlLsc->_base.mCfgMutex);
-
-    EXIT_ANALYZER_FUNCTION();
-    return ret;
-}
-
-XCamReturn AiqAlgoHandlerLsc_getAttrib(AiqAlgoHandlerLsc_t* pHdlLsc, lsc_api_attrib_t* attr) {
-    ENTER_ANALYZER_FUNCTION();
-
-    XCamReturn ret = XCAM_RETURN_NO_ERROR;
-
-    aiqMutex_lock(&pHdlLsc->_base.mCfgMutex);
-
-    ret = algo_lsc_GetAttrib(pHdlLsc->_base.mAlgoCtx, attr);
-
-    aiqMutex_unlock(&pHdlLsc->_base.mCfgMutex);
-
-    EXIT_ANALYZER_FUNCTION();
-    return ret;
-}
-
 XCamReturn AiqAlgoHandlerLsc_queryStatus(AiqAlgoHandlerLsc_t* pHdlLsc, lsc_status_t* status) {
     ENTER_ANALYZER_FUNCTION();
 

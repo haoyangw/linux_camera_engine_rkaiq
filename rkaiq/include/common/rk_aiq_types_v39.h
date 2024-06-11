@@ -26,6 +26,7 @@
 #include "algos/ayuvmeV1/rk_aiq_types_ayuvme_algo_v1.h"
 #include "common/rk_aiq_comm.h"
 #include "rk_aiq_mems_sensor.h"
+#include "isp/rk_aiq_stats_awb39.h"
 
 #ifndef ISP39_LDCH_BIC_NUM
 #define ISP39_LDCH_BIC_NUM 36

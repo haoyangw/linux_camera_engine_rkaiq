@@ -11,7 +11,7 @@
 #include <linux/v4l2-controls.h>
 #include "rk-camera-module.h"
 
-#define RKISP_API_VERSION		KERNEL_VERSION(2, 2, 1)
+#define RKISP_API_VERSION		KERNEL_VERSION(2, 5, 0)
 #include "rk_isp20_hw.h"
 
 #ifndef BIT
@@ -74,6 +74,9 @@
 
 #define RKISP_CMD_AIISP_RD_START \
 	_IO('V', BASE_VIDIOC_PRIVATE + 18)
+
+/* BASE_VIDIOC_PRIVATE + 19 for RKISP_CMD_GET_TB_HEAD_V33 */
+/* BASE_VIDIOC_PRIVATE + 20 for RKISP_CMD_SET_TB_HEAD_V33 */
 
 /****************ISP VIDEO IOCTL******************************/
 
@@ -403,7 +406,7 @@ struct rkisp_bay3dbuf_info {
  * RKISP_CMSK_WIN_MAX_V30 for rk3588 support 8 windows, and
  * support for mainpath and selfpath output stream channel.
  *
- * RKISP_CMSK_WIN_MAX for rv1106 support 12 windows, and
+ * RKISP_CMSK_WIN_MAX for rv1106/rv1103b support 12 windows, and
  * support for mainpath selfpath and bypasspath output stream channel.
  *
  * mode: 0:mosaic mode, 1:cover mode

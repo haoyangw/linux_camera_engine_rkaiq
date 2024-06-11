@@ -144,6 +144,7 @@ xcore_cam_log_module_info_t g_xcore_log_infos[XCORE_LOG_MODULE_MAX] = {
     {"ARGBIR", XCORE_LOG_LEVEL_ERR, 0xff},     // XCORE_LOG_MODULE_RGBIR
     {"ALDC", XCORE_LOG_LEVEL_ERR, 0xff},       // XCORE_LOG_MODULE_ALDC
     {"AHISTEQ", XCORE_LOG_LEVEL_ERR, 0xff},    // XCORE_LOG_MODULE_HISTEQ
+    {"AHSV", XCORE_LOG_LEVEL_ERR, 0xff},     // XCORE_LOG_MODULE_AHSV
 };
 
 bool xcam_get_enviroment_value(const char* variable, unsigned long long* value)

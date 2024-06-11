@@ -208,6 +208,17 @@ typedef struct rk_tool_awb_smart_run_res_s{
     bool algMethodStable;
 }rk_tool_awb_smart_run_res_t;
 
+typedef struct rk_tool_color_tempture_info_s {
+    // M4_BOOL_DESC("valid", "0")
+    bool valid;
+    // M4_NUMBER_DESC("CCT", "f32", M4_RANGE(0,10000), "5000", M4_DIGIT(0))
+    float CCT;
+    // M4_NUMBER_DESC("CCRI", "f32", M4_RANGE(-2,2), "0", M4_DIGIT(3))
+    float CCRI;
+} rk_tool_color_tempture_info_t;
+
+#ifndef USE_NEWSTRUCT
+
 typedef struct rk_tool_awb_illInf_s {
     // M4_STRING_DESC("illName", M4_SIZE(1,100), M4_RANGE(-128, 127), "default", M4_DYNAMIC(0))
     char illName[100];
@@ -230,15 +241,6 @@ typedef struct rk_tool_awb_illInf_s {
     // M4_ARRAY_DESC("xyType2Weight", "f32", M4_SIZE(1,1), M4_RANGE(0,1), "1", M4_DIGIT(4), M4_DYNAMIC(0))
     float xyType2Weight;
 } rk_tool_awb_illInf_t;
-
-typedef struct rk_tool_color_tempture_info_s {
-    // M4_BOOL_DESC("valid", "0")
-    bool valid;
-    // M4_NUMBER_DESC("CCT", "f32", M4_RANGE(0,10000), "5000", M4_DIGIT(0))
-    float CCT;
-    // M4_NUMBER_DESC("CCRI", "f32", M4_RANGE(-2,2), "0", M4_DIGIT(3))
-    float CCRI;
-} rk_tool_color_tempture_info_t;
 
 typedef struct rk_tool_awb_strategy_result_s {
     // M4_BOOL_DESC("awbConverged", "0")
@@ -338,6 +340,134 @@ typedef struct rk_tool_awb_strategy_result_s {
     // M4_ARRAY_DESC("algMethod", "s32", M4_SIZE(1,1), M4_RANGE(0,100), "1", M4_DIGIT(0), M4_DYNAMIC(0))
     int  algMethod;
 } rk_tool_awb_strategy_result_t;
+#endif
+
+
+#ifdef USE_NEWSTRUCT
+typedef struct rk_tool_awb_illInf2_s {
+    // M4_STRING_DESC("illName", M4_SIZE(1,100), M4_RANGE(-128, 127), "default", M4_DYNAMIC(0))
+    char illName[100];
+    // M4_ARRAY_DESC("gainValue", "f32", M4_SIZE(1,4), M4_RANGE(0,8), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float gainValue[4];
+    // M4_ARRAY_DESC("prob_total", "f32", M4_SIZE(1,1), M4_RANGE(0,1), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float prob_total;
+    // M4_ARRAY_DESC("prob_dis", "f32", M4_SIZE(1,1), M4_RANGE(0,1), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float prob_dis;
+    // M4_ARRAY_DESC("prob_LV", "f32", M4_SIZE(1,1), M4_RANGE(0,1), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float prob_LV;
+    // M4_ARRAY_DESC("weight", "f32", M4_SIZE(1,1), M4_RANGE(0,1), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float weight;
+    // M4_ARRAY_DESC("spatialGainValue", "f32", M4_SIZE(1,4), M4_RANGE(0,8), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float spatialGainValue[RK_TOOL_AWB_CHANNEL_MAX];
+    // M4_ARRAY_DESC("prob_WPNO", "f32", M4_SIZE(1,1), M4_RANGE(0,1), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float prob_WPNO;
+    // M4_ARRAY_DESC("staWeight", "f32", M4_SIZE(1,1), M4_RANGE(0,1), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float staWeight;
+    // M4_ARRAY_DESC("bigWp_wgt", "f32", M4_SIZE(1,1), M4_RANGE(0,1), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float bigWp_wgt;
+} rk_tool_awb_illInf2_t;
+
+typedef struct rk_tool_awb_strategy_result_s {
+    // M4_BOOL_DESC("awbConverged", "0")
+    bool awbConverged;
+    // M4_STRUCT_DESC("cctGloabl", "normal_ui_style")
+    rk_tool_color_tempture_info_t cctGloabl;
+    // M4_ARRAY_DESC("lightNum", "s32", M4_SIZE(1,1), M4_RANGE(-2147483648,2147483647), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+    int lightNum;
+    // M4_STRUCT_DESC("smartAwbRunRes", "normal_ui_style")
+    rk_tool_awb_smart_run_res_t smartAwbRunRes;
+    // M4_ARRAY_DESC("count", "u32", M4_SIZE(1,1), M4_RANGE(0,4294967295), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+    unsigned int count;
+    // M4_ARRAY_DESC("runInterval", "u32", M4_SIZE(1,1), M4_RANGE(0,4294967295), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint32_t runInterval;
+    // M4_NUMBER_DESC("tolerance", "f32", M4_RANGE(0,10000), "5000", M4_DIGIT(0))
+    float tolerance;
+    // M4_ARRAY_DESC("dsRateWt", "u8", M4_SIZE(1,1), M4_RANGE(0,255), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint8_t dsRateWh; //downsample 8x8->Pixel(R,G,B)
+    // M4_ARRAY_DESC("dsRateHt", "u8", M4_SIZE(1,1), M4_RANGE(0,255), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint8_t dsRateHt; //downsample 8x8->Pixel(R,G,B)
+    // M4_ARRAY_DESC("width_ds", "u32", M4_SIZE(1,1), M4_RANGE(0,4294967295), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint32_t width_ds;
+    // M4_ARRAY_DESC("height_ds", "u32", M4_SIZE(1,1), M4_RANGE(0,4294967295), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint32_t height_ds;
+    // M4_ARRAY_DESC("WPmode", "s32", M4_SIZE(1,1), M4_RANGE(-2147483648,2147483647), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+    int WPmode;
+    // M4_ARRAY_DESC("WPTotalNUM", "u32", M4_SIZE(1,1), M4_RANGE(0,4294967295), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+    uint32_t WPTotalNUM;
+    // M4_ARRAY_DESC("WPType", "s32", M4_SIZE(1,1), M4_RANGE(-2147483648,2147483647), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+    int WPType;
+    // M4_NUMBER_DESC("wpNorNumRat", "f32", M4_RANGE(0,1), "0", M4_DIGIT(6))
+    float wpNorNumRat;
+    // M4_NUMBER_DESC("wpBigNumRat", "f32", M4_RANGE(0,1), "0", M4_DIGIT(6))
+    float wpBigNumRat;
+     // M4_NUMBER_DESC("WPTotalNUMProp", "f32", M4_RANGE(0,1), "0", M4_DIGIT(6))
+    float WPTotalNUMProp;
+    // M4_ARRAY_DESC("LVValue", "s32", M4_SIZE(1,1), M4_RANGE(-2147483648,2147483647), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+    int LVValue;// 8bit/1x/1s
+    // M4_NUMBER_DESC("fLVValue", "f32", M4_RANGE(0,255000), "5000", M4_DIGIT(0))
+    float fLVValue;
+    // M4_STRUCT_LIST_DESC("illInf", M4_SIZE(1,14), "normal_ui_style")
+    rk_tool_awb_illInf2_t illInf[RK_TOOL_AWB_MAX_WHITEREGIONS_NUM2];//information and measure result in different illuminations
+    // M4_ARRAY_DESC("wbGainTepTp3", "f32", M4_SIZE(1,4), M4_RANGE(0,8), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float wbGainTepTp3[RK_TOOL_AWB_CHANNEL_MAX];
+    // M4_ARRAY_DESC("wbWeiTepTp3", "f32", M4_SIZE(1,1), M4_RANGE(0,100), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float wbWeiTepTp3;//temporal mix statistics
+    // M4_ARRAY_DESC("xy_area_type", "u8", M4_SIZE(1,1), M4_RANGE(0,255), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    uint8_t xy_area_type; //enalbe type
+    // M4_BOOL_DESC("spaGainEqu2Tem", "0")
+    bool spaGainEqu2Tem;
+    // M4_BOOL_DESC("sgcGainEqu2Tem", "0")
+    bool sgcGainEqu2Tem;
+    // M4_ARRAY_DESC("wbGainType3", "f32", M4_SIZE(1,4), M4_RANGE(0,8), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float wbGainType3[RK_TOOL_AWB_CHANNEL_MAX];
+    // M4_ARRAY_DESC("wbGainType1", "f32", M4_SIZE(1,4), M4_RANGE(0,8), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float  wbGainType1[RK_TOOL_AWB_CHANNEL_MAX];
+    // M4_ARRAY_DESC("wbWeightType3", "f32", M4_SIZE(1,1), M4_RANGE(0,100), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float wbWeightType3;
+    // M4_ARRAY_DESC("wbGainTep", "f32", M4_SIZE(1,4), M4_RANGE(0,8), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float  wbGainTep[RK_TOOL_AWB_CHANNEL_MAX];//night gain
+    // M4_ARRAY_DESC("wbGainSgc", "f32", M4_SIZE(1,4), M4_RANGE(0,8), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float wbGainSgc[RK_TOOL_AWB_CHANNEL_MAX];
+    // M4_ARRAY_DESC("wbWeightSgc", "f32", M4_SIZE(1,1), M4_RANGE(0,100), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float wbWeightSgc;
+    // M4_ARRAY_DESC("wbGainSpa", "f32", M4_SIZE(1,4), M4_RANGE(0,8), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float  wbGainSpa[RK_TOOL_AWB_CHANNEL_MAX];//day gain
+    // M4_ARRAY_DESC("wbWeightSpa", "f32", M4_SIZE(1,1), M4_RANGE(0,100), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float wbWeightSpa;
+    // M4_ARRAY_DESC("varianceLuma", "f32", M4_SIZE(1,1), M4_RANGE(0,2147483647), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float varianceLuma;
+    // M4_ARRAY_DESC("wbGainDampFactor", "f32", M4_SIZE(1,1), M4_RANGE(0,1), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float wbGainDampFactor;
+    // M4_BOOL_DESC("clipEnalbe", "0")
+    bool clipEnalbe;
+    // M4_BOOL_DESC("updateFlag", "0")
+    bool updateFlag;
+    // M4_ARRAY_DESC("wbGainIntpStrategy", "f32", M4_SIZE(1,4), M4_RANGE(0,8), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float wbGainIntpStrategy[RK_TOOL_AWB_CHANNEL_MAX];//gain by interpartition strategy
+    // M4_ARRAY_DESC("wbGainClip", "f32", M4_SIZE(1,4), M4_RANGE(0,8), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float wbGainClip[RK_TOOL_AWB_CHANNEL_MAX];//gain by clip
+    // M4_ARRAY_DESC("wbGainCaga", "f32", M4_SIZE(1,4), M4_RANGE(0,8), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float wbGainCaga[RK_TOOL_AWB_CHANNEL_MAX];//gain by  chromatic adatptation gain adjust
+    // M4_ARRAY_DESC("wbGainAdjustIn", "f32", M4_SIZE(1,4), M4_RANGE(0,8), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float wbGainAdjustIn[RK_TOOL_AWB_CHANNEL_MAX];//gain by color temperature shift
+    // M4_ARRAY_DESC("wbGainAdjustOut", "f32", M4_SIZE(1,4), M4_RANGE(0,8), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float wbGainAdjust[RK_TOOL_AWB_CHANNEL_MAX];//gain by color temperature shift
+    // M4_STRUCT_DESC("cctAdjustIn", "normal_ui_style")
+    rk_tool_color_tempture_info_t cctAdjustIn;
+    // M4_STRUCT_DESC("cctAdjustOut", "normal_ui_style")
+    rk_tool_color_tempture_info_t cctAdjustOut;
+    // M4_ARRAY_DESC("wbGainOffset", "f32", M4_SIZE(1,4), M4_RANGE(0,8), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float wbGainOffset[RK_TOOL_AWB_CHANNEL_MAX];//gain by gain shift
+    // M4_ARRAY_DESC("wbGainSmooth", "f32", M4_SIZE(1,4), M4_RANGE(0,8), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float wbGainSmooth[RK_TOOL_AWB_CHANNEL_MAX];//gain by smooth factor
+    // M4_ARRAY_DESC("stat3aAwbLastGainOut", "f32", M4_SIZE(1,4), M4_RANGE(0,8), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float  stat3aAwbLastGainOut[RK_TOOL_AWB_CHANNEL_MAX];//final gain of last frame
+    // M4_ARRAY_DESC("stat3aAwbGainOut", "f32", M4_SIZE(1,4), M4_RANGE(0,8), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float  stat3aAwbGainOut[RK_TOOL_AWB_CHANNEL_MAX];// final gain
+    // M4_ARRAY_DESC("WPType", "s32", M4_SIZE(1,1), M4_RANGE(-2147483648,2147483647), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+    int gnCalc_method;
+} rk_tool_awb_strategy_result_t;
+#endif
 
 typedef struct __uapi_wbV21_log_info_t {
     // M4_STRUCT_DESC("awb_stat", "normal_ui_style")
@@ -380,6 +510,9 @@ typedef struct __uapi_wbV32_log_t {
     // M4_STRUCT_DESC("uapi_wb_log_info_t", "normal_ui_style")
     uapi_wbV32_log_info_t info;
 } uapi_wbV32_log_t;
+
+
+
 
 
 

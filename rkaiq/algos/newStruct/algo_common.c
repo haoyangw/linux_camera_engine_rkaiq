@@ -39,14 +39,14 @@ void get_illu_estm_info(
                 aeRes->LinearExp.exp_real_params.isp_dgain;
         } else if ((rk_aiq_working_mode_t)working_mode >= RK_AIQ_WORKING_MODE_ISP_HDR2 &&
                    (rk_aiq_working_mode_t)working_mode < RK_AIQ_WORKING_MODE_ISP_HDR3) {
-            LOGD("sensor gain choose from second hdr frame for accm");
+            LOGD("sensor gain choose from second hdr frame for acolor");
             info->sensorGain =
                 aeRes->HdrExp[1].exp_real_params.analog_gain *
                 aeRes->HdrExp[1].exp_real_params.digital_gain *
                 aeRes->HdrExp[1].exp_real_params.isp_dgain;
         } else if ((rk_aiq_working_mode_t)working_mode >= RK_AIQ_WORKING_MODE_ISP_HDR2 &&
                    (rk_aiq_working_mode_t)working_mode >= RK_AIQ_WORKING_MODE_ISP_HDR3) {
-            LOGD("sensor gain choose from third hdr frame for accm");
+            LOGD("sensor gain choose from third hdr frame for acolor");
             info->sensorGain =
                 aeRes->HdrExp[2].exp_real_params.analog_gain *
                 aeRes->HdrExp[2].exp_real_params.digital_gain *

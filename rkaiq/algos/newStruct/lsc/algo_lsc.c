@@ -281,6 +281,7 @@ XCamReturn Alsc_prepare(RkAiqAlgoCom* params)
 
     pLscCtx->pre_illu_idx = INVALID_ILLU_IDX;
     pLscCtx->pre_vignetting = 0.0;
+    pLscCtx->is_calib_update = false;
 
     return XCAM_RETURN_NO_ERROR;
 }
@@ -305,9 +306,11 @@ XCamReturn Alsc_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outpar
 
     alsc_param_illuLink_t *pIlluCase = &tunning->stAuto.dyn.illuLink[illu_idx];
 
-    if (illu_idx != pLscCtx->pre_illu_idx) {
-        pLscCtx->pre_illu_idx  = illu_idx;
-        need_recal = true;
+    if (illu_idx != pLscCtx->pre_illu_idx || pLscCtx->is_calib_update) {
+        if (illu_idx != pLscCtx->pre_illu_idx) {
+            pLscCtx->pre_illu_idx  = illu_idx;
+            need_recal = true;
+        }
 
         pLscCtx->illu_mesh_len =
             get_all_mesh_by_name(pLscCtx, pIlluCase->sw_lscC_illu_name);
@@ -319,7 +322,8 @@ XCamReturn Alsc_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outpar
         need_recal = true;
     }
 
-    if (need_recal) {
+    if (need_recal || pLscCtx->is_calib_update) {
+        pLscCtx->is_calib_update = false;
         int mesh_out[2] = {-1, -1};
         int ret = get_mesh_by_vign(pLscCtx, vig, mesh_out);
         if (ret == 0) {
@@ -332,6 +336,7 @@ XCamReturn Alsc_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outpar
         } else {
             mesh_interpolation(pLscCtx, vig, mesh_out);
         }
+        need_recal = true;
     }
 
     bool damp_en = tunning->stAuto.sta.sw_lscT_damp_en;
@@ -413,62 +418,65 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
     return XCAM_RETURN_NO_ERROR;
 }
 
-#if 0
-XCamReturn
-algo_lsc_SetAttrib(RkAiqAlgoContext* ctx, lsc_api_attrib_t *attr) {
-    if(ctx == NULL || attr == NULL) {
-        LOGE_ALSC("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
+XCamReturn algo_lsc_queryalscStatus
+(
+    RkAiqAlgoContext* ctx, 
+    alsc_status_t* status
+)
+{
+    if(ctx == NULL || status == NULL) {
+        LOGE_ALSC("have no alsc status info !");
         return XCAM_RETURN_ERROR_PARAM;
     }
+
     LscContext_t* pLscCtx = (LscContext_t*)ctx;
-    lsc_api_attrib_t* lsc_attrib = &pLscCtx->lsc_attrib->tunning;
+    lsc_param_auto_t* stAuto = &pLscCtx->lsc_attrib->tunning.stAuto;
 
-    if (attr->opMode != RK_AIQ_OP_MODE_AUTO) {
-        LOGE_ALSC("not auto mode: %d", attr->opMode);
-        return XCAM_RETURN_ERROR_PARAM;
-    }
-
-    lsc_attrib->opMode = attr->opMode;
-    lsc_attrib->en = attr->en;
-    lsc_attrib->bypass = attr->bypass;
-
-    if (attr->opMode == RK_AIQ_OP_MODE_AUTO)
-        lsc_attrib->stAuto = attr->stAuto;
-    else if (attr->opMode == RK_AIQ_OP_MODE_MANUAL)
-        lsc_attrib->stMan = attr->stMan;
-    else {
-        LOGW_ALSC("wrong mode: %d\n", attr->opMode);
-    }
+    strncpy(status->sw_lscC_illuUsed_name, 
+            stAuto->dyn.illuLink[pLscCtx->pre_illu_idx].sw_lscC_illu_name, 
+            ALSC_ILLUM_NAME_LEN - 1);
+    
+    status->sw_lscT_vignetting_val = pLscCtx->pre_vignetting;
 
     return XCAM_RETURN_NO_ERROR;
 }
 
-
 XCamReturn
-algo_lsc_GetAttrib(RkAiqAlgoContext* ctx, lsc_api_attrib_t* attr)
-{
-    if(ctx == NULL || attr == NULL) {
+algo_lsc_SetCalib(RkAiqAlgoContext* ctx, alsc_lscCalib_t *calib) {
+    if(ctx == NULL || calib == NULL) {
         LOGE_ALSC("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
         return XCAM_RETURN_ERROR_PARAM;
     }
-
     LscContext_t* pLscCtx = (LscContext_t*)ctx;
     lsc_api_attrib_t* lsc_attrib = &pLscCtx->lsc_attrib->tunning;
+    alsc_lscCalib_t* alsc_calib = &pLscCtx->lsc_attrib->calibdb;
 
-#if 0
     if (lsc_attrib->opMode != RK_AIQ_OP_MODE_AUTO) {
         LOGE_ALSC("not auto mode: %d", lsc_attrib->opMode);
         return XCAM_RETURN_ERROR_PARAM;
     }
-#endif
 
-    attr->opMode = lsc_attrib->opMode;
-    attr->en = lsc_attrib->en;
-    attr->bypass = lsc_attrib->bypass;
-    memcpy(&attr->stAuto, &lsc_attrib->stAuto, sizeof(lsc_param_auto_t));
+    memcpy(alsc_calib, calib, sizeof(alsc_lscCalib_t));
+    pLscCtx->is_calib_update = true;
+
     return XCAM_RETURN_NO_ERROR;
 }
-#endif
+
+
+XCamReturn
+algo_lsc_GetCalib(RkAiqAlgoContext* ctx, alsc_lscCalib_t* calib)
+{
+    if(ctx == NULL || calib == NULL) {
+        LOGE_ALSC("%s: null pointer\n", __FUNCTION__);
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+
+    LscContext_t* pLscCtx = (LscContext_t*)ctx;
+    alsc_lscCalib_t* alsc_calib = &pLscCtx->lsc_attrib->calibdb;
+
+    memcpy(calib, alsc_calib, sizeof(alsc_lscCalib_t));
+    return XCAM_RETURN_NO_ERROR;
+}
 
 #define RKISP_ALGO_LSC_VERSION     "v0.0.1"
 #define RKISP_ALGO_LSC_VENDOR      "Rockchip"

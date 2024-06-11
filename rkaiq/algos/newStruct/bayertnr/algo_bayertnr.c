@@ -178,70 +178,104 @@ XCamReturn BtnrSelectParam
         out->dyn.curFrmSpNr.hw_btnrT_spNr_en = paut->dyn[inear].curFrmSpNr.hw_btnrT_spNr_en;
         out->dyn.curFrmSpNr.hw_btnrT_sigmaIdxLpf_en = paut->dyn[inear].curFrmSpNr.hw_btnrT_sigmaIdxLpf_en;
         out->dyn.curFrmSpNr.hw_btnrT_sigmaCurve_mode = paut->dyn[inear].curFrmSpNr.hw_btnrT_sigmaCurve_mode;
-        out->dyn.curFrmSpNr.hw_btnrT_sigma_scale = paut->dyn[inear].curFrmSpNr.hw_btnrT_sigma_scale;
-        out->dyn.curFrmSpNr.hw_btnrT_sigmaHdrS_scale = paut->dyn[inear].curFrmSpNr.hw_btnrT_sigmaHdrS_scale;
-        out->dyn.curFrmSpNr.hw_btnrT_sigma_offset = paut->dyn[inear].curFrmSpNr.hw_btnrT_sigma_offset;
-        out->dyn.curFrmSpNr.hw_btnrT_sigmaHdrS_offset = paut->dyn[inear].curFrmSpNr.hw_btnrT_sigmaHdrS_offset;
+        out->dyn.curFrmSpNr.hw_btnrT_sigma_scale = interpolation_f32(
+                    paut->dyn[ilow].curFrmSpNr.hw_btnrT_sigma_scale, paut->dyn[ihigh].curFrmSpNr.hw_btnrT_sigma_scale, ratio);
+        out->dyn.curFrmSpNr.hw_btnrT_sigmaHdrS_scale = interpolation_f32(
+                    paut->dyn[ilow].curFrmSpNr.hw_btnrT_sigmaHdrS_scale, paut->dyn[ihigh].curFrmSpNr.hw_btnrT_sigmaHdrS_scale, ratio);
+        out->dyn.curFrmSpNr.hw_btnrT_sigma_offset =  interpolation_f32(
+                    paut->dyn[ilow].curFrmSpNr.hw_btnrT_sigma_offset, paut->dyn[ihigh].curFrmSpNr.hw_btnrT_sigma_offset, ratio);
+        out->dyn.curFrmSpNr.hw_btnrT_sigmaHdrS_offset = interpolation_f32(
+                    paut->dyn[ilow].curFrmSpNr.hw_btnrT_sigmaHdrS_offset, paut->dyn[ihigh].curFrmSpNr.hw_btnrT_sigmaHdrS_offset, ratio);
         out->dyn.curFrmSpNr.sw_btnrT_filtSpatial_strg = interpolation_f32(
                     paut->dyn[ilow].curFrmSpNr.sw_btnrT_filtSpatial_strg, paut->dyn[ihigh].curFrmSpNr.sw_btnrT_filtSpatial_strg, ratio);
-        out->dyn.curFrmSpNr.hw_btnrT_pixDiff_maxLimit = paut->dyn[inear].curFrmSpNr.hw_btnrT_pixDiff_maxLimit;
-        out->dyn.curFrmSpNr.hw_btnrT_pixDiff_negOff = paut->dyn[inear].curFrmSpNr.hw_btnrT_pixDiff_negOff;
-        out->dyn.curFrmSpNr.hw_btnrT_pixDiff_scale = paut->dyn[inear].curFrmSpNr.hw_btnrT_pixDiff_scale;
+        out->dyn.curFrmSpNr.hw_btnrT_pixDiff_maxLimit = interpolation_u16(
+                    paut->dyn[ilow].curFrmSpNr.hw_btnrT_pixDiff_maxLimit, paut->dyn[ihigh].curFrmSpNr.hw_btnrT_pixDiff_maxLimit, ratio);
+        out->dyn.curFrmSpNr.hw_btnrT_pixDiff_negOff =  interpolation_f32(
+                    paut->dyn[ilow].curFrmSpNr.hw_btnrT_pixDiff_negOff, paut->dyn[ihigh].curFrmSpNr.hw_btnrT_pixDiff_negOff, ratio);
+        out->dyn.curFrmSpNr.hw_btnrT_pixDiff_scale =  interpolation_f32(
+                    paut->dyn[ilow].curFrmSpNr.hw_btnrT_pixDiff_scale, paut->dyn[ihigh].curFrmSpNr.hw_btnrT_pixDiff_scale, ratio);
         out->dyn.curFrmSpNr.hw_btnrT_spNrOut_alpha = interpolation_f32(
                     paut->dyn[ilow].curFrmSpNr.hw_btnrT_spNrOut_alpha, paut->dyn[ihigh].curFrmSpNr.hw_btnrT_spNrOut_alpha, ratio);
         out->dyn.preFrmSpNr.hw_btnrT_spNr_en = paut->dyn[inear].preFrmSpNr.hw_btnrT_spNr_en;
         out->dyn.preFrmSpNr.hw_btnrT_sigmaIdxLpf_en = paut->dyn[inear].preFrmSpNr.hw_btnrT_sigmaIdxLpf_en;
         out->dyn.preFrmSpNr.hw_btnrT_sigmaCurve_mode = paut->dyn[inear].preFrmSpNr.hw_btnrT_sigmaCurve_mode;
-        out->dyn.preFrmSpNr.hw_btnrT_sigma_scale = paut->dyn[inear].preFrmSpNr.hw_btnrT_sigma_scale;
-        out->dyn.preFrmSpNr.hw_btnrT_sigmaHdrS_scale = paut->dyn[inear].preFrmSpNr.hw_btnrT_sigmaHdrS_scale;
-        out->dyn.preFrmSpNr.hw_btnrT_sigma_offset = paut->dyn[inear].preFrmSpNr.hw_btnrT_sigma_offset;
-        out->dyn.preFrmSpNr.hw_btnrT_sigmaHdrS_offset = paut->dyn[inear].preFrmSpNr.hw_btnrT_sigmaHdrS_offset;
+        out->dyn.preFrmSpNr.hw_btnrT_sigma_scale = interpolation_f32(
+                    paut->dyn[ilow].preFrmSpNr.hw_btnrT_sigma_scale, paut->dyn[ihigh].preFrmSpNr.hw_btnrT_sigma_scale, ratio);
+        out->dyn.preFrmSpNr.hw_btnrT_sigmaHdrS_scale =  interpolation_f32(
+                    paut->dyn[ilow].preFrmSpNr.hw_btnrT_sigmaHdrS_scale, paut->dyn[ihigh].preFrmSpNr.hw_btnrT_sigmaHdrS_scale, ratio);
+        out->dyn.preFrmSpNr.hw_btnrT_sigma_offset =  interpolation_f32(
+                    paut->dyn[ilow].preFrmSpNr.hw_btnrT_sigma_offset, paut->dyn[ihigh].preFrmSpNr.hw_btnrT_sigma_offset, ratio);
+        out->dyn.preFrmSpNr.hw_btnrT_sigmaHdrS_offset = interpolation_f32(
+                    paut->dyn[ilow].preFrmSpNr.hw_btnrT_sigmaHdrS_offset, paut->dyn[ihigh].preFrmSpNr.hw_btnrT_sigmaHdrS_offset, ratio);
         out->dyn.preFrmSpNr.hw_btnrT_sigma_mode = paut->dyn[inear].preFrmSpNr.hw_btnrT_sigma_mode;
         out->dyn.preFrmSpNr.sw_btnrT_filtSpatial_strg = interpolation_f32(
                     paut->dyn[ilow].preFrmSpNr.sw_btnrT_filtSpatial_strg, paut->dyn[ihigh].preFrmSpNr.sw_btnrT_filtSpatial_strg, ratio);
-        out->dyn.preFrmSpNr.hw_btnrT_pixDiff_maxLimit = paut->dyn[inear].preFrmSpNr.hw_btnrT_pixDiff_maxLimit;
-        out->dyn.preFrmSpNr.hw_btnrT_pixDiff_negOff = paut->dyn[inear].preFrmSpNr.hw_btnrT_pixDiff_negOff;
-        out->dyn.preFrmSpNr.hw_btnrT_pixDiff_scale = paut->dyn[inear].preFrmSpNr.hw_btnrT_pixDiff_scale;
+        out->dyn.preFrmSpNr.hw_btnrT_pixDiff_maxLimit = interpolation_u16(
+                    paut->dyn[ilow].preFrmSpNr.hw_btnrT_pixDiff_maxLimit, paut->dyn[ihigh].preFrmSpNr.hw_btnrT_pixDiff_maxLimit, ratio);
+        out->dyn.preFrmSpNr.hw_btnrT_pixDiff_negOff = interpolation_f32(
+                    paut->dyn[ilow].preFrmSpNr.hw_btnrT_pixDiff_negOff, paut->dyn[ihigh].preFrmSpNr.hw_btnrT_pixDiff_negOff, ratio);
+        out->dyn.preFrmSpNr.hw_btnrT_pixDiff_scale = interpolation_f32(
+                    paut->dyn[ilow].preFrmSpNr.hw_btnrT_pixDiff_scale, paut->dyn[ihigh].preFrmSpNr.hw_btnrT_pixDiff_scale, ratio);
         out->dyn.preFrmSpNr.hw_btnrT_spNrOut_alpha = interpolation_f32(
                     paut->dyn[ilow].preFrmSpNr.hw_btnrT_spNrOut_alpha, paut->dyn[ihigh].preFrmSpNr.hw_btnrT_spNrOut_alpha, ratio);
         out->dyn.hw_btnrT_noiseBal_mode = paut->dyn[inear].hw_btnrT_noiseBal_mode;
-        out->dyn.noiseBal_byHiAlpha.hw_btnrT_curHiOrg_alpha = paut->dyn[inear].noiseBal_byHiAlpha.hw_btnrT_curHiOrg_alpha;
-        out->dyn.noiseBal_byHiAlpha.hw_btnrT_iirHiOrg_alpha = paut->dyn[inear].noiseBal_byHiAlpha.hw_btnrT_iirHiOrg_alpha;
-        out->dyn.noiseBal_byLoAlpha.hw_btnrT_noiseBal_strg = paut->dyn[inear].noiseBal_byLoAlpha.hw_btnrT_noiseBal_strg;
-        out->dyn.locSgmStrg.hw_bnrT_locSgmStrg_maxLimit = paut->dyn[inear].locSgmStrg.hw_bnrT_locSgmStrg_maxLimit;
+        out->dyn.noiseBal_byHiAlpha.hw_btnrT_curHiOrg_alpha = interpolation_f32(
+                    paut->dyn[ilow].noiseBal_byHiAlpha.hw_btnrT_curHiOrg_alpha, paut->dyn[ihigh].noiseBal_byHiAlpha.hw_btnrT_curHiOrg_alpha, ratio);
+        out->dyn.noiseBal_byHiAlpha.hw_btnrT_iirHiOrg_alpha = interpolation_f32(
+                    paut->dyn[ilow].noiseBal_byHiAlpha.hw_btnrT_iirHiOrg_alpha, paut->dyn[ihigh].noiseBal_byHiAlpha.hw_btnrT_iirHiOrg_alpha, ratio);
+        out->dyn.noiseBal_byLoAlpha.hw_btnrT_noiseBal_strg = interpolation_f32(
+                    paut->dyn[ilow].noiseBal_byLoAlpha.hw_btnrT_noiseBal_strg, paut->dyn[ihigh].noiseBal_byLoAlpha.hw_btnrT_noiseBal_strg, ratio);
+        out->dyn.locSgmStrg.hw_bnrT_locSgmStrg_maxLimit = interpolation_f32(
+                    paut->dyn[ilow].locSgmStrg.hw_bnrT_locSgmStrg_maxLimit, paut->dyn[ihigh].locSgmStrg.hw_bnrT_locSgmStrg_maxLimit, ratio);
     }
 
     {
         out->mdDyn.hw_btnrT_md_en = paut->mdDyn[inear].hw_btnrT_md_en;
-        out->mdDyn.mdSigma.hw_btnrT_sigma_scale = paut->mdDyn[inear].mdSigma.hw_btnrT_sigma_scale;
-        out->mdDyn.mdSigma.hw_btnrT_sigmaHdrS_scale = paut->mdDyn[inear].mdSigma.hw_btnrT_sigmaHdrS_scale;
+        out->mdDyn.mdSigma.hw_btnrT_sigma_scale = interpolation_f32(
+                    paut->mdDyn[ilow].mdSigma.hw_btnrT_sigma_scale, paut->mdDyn[ihigh].mdSigma.hw_btnrT_sigma_scale, ratio);
+        out->mdDyn.mdSigma.hw_btnrT_sigmaHdrS_scale = interpolation_f32(
+                    paut->mdDyn[ilow].mdSigma.hw_btnrT_sigmaHdrS_scale, paut->mdDyn[ihigh].mdSigma.hw_btnrT_sigmaHdrS_scale, ratio);
         out->mdDyn.mdSigma.hw_btnrT_sigmaCurve_mode = paut->mdDyn[inear].mdSigma.hw_btnrT_sigmaCurve_mode;
         out->mdDyn.subLoMd0_diffCh.hw_btnrT_vFilt_en = paut->mdDyn[inear].subLoMd0_diffCh.hw_btnrT_vFilt_en;
         out->mdDyn.subLoMd0_diffCh.hw_btnrT_hFilt_en = paut->mdDyn[inear].subLoMd0_diffCh.hw_btnrT_hFilt_en;
-        out->mdDyn.subLoMd0_diffCh.hw_btnrT_vIIRFstLn_scale = paut->mdDyn[inear].subLoMd0_diffCh.hw_btnrT_vIIRFstLn_scale;
-        out->mdDyn.subLoMd0_diffCh.hw_btnrT_vIIRFilt_strg = paut->mdDyn[inear].subLoMd0_diffCh.hw_btnrT_vIIRFilt_strg;
+        out->mdDyn.subLoMd0_diffCh.hw_btnrT_vIIRFstLn_scale = interpolation_f32(
+                    paut->mdDyn[ilow].subLoMd0_diffCh.hw_btnrT_vIIRFstLn_scale, paut->mdDyn[ihigh].subLoMd0_diffCh.hw_btnrT_vIIRFstLn_scale, ratio);
+        out->mdDyn.subLoMd0_diffCh.hw_btnrT_vIIRFilt_strg = interpolation_f32(
+                    paut->mdDyn[ilow].subLoMd0_diffCh.hw_btnrT_vIIRFilt_strg, paut->mdDyn[ihigh].subLoMd0_diffCh.hw_btnrT_vIIRFilt_strg, ratio);
         out->mdDyn.subLoMd0_sgmCh.hw_btnrT_hFilt_en = paut->mdDyn[inear].subLoMd0_sgmCh.hw_btnrT_hFilt_en;
-        out->mdDyn.subLoMd0_sgmCh.hw_btnrT_vIIRFstLn_scale = paut->mdDyn[inear].subLoMd0_sgmCh.hw_btnrT_vIIRFstLn_scale;
-        out->mdDyn.subLoMd0_sgmCh.hw_btnrT_vIIRFilt_strg = paut->mdDyn[inear].subLoMd0_sgmCh.hw_btnrT_vIIRFilt_strg;
-        out->mdDyn.subLoMd0_wgtOpt.hw_btnrT_mdWgt_negOff = paut->mdDyn[inear].subLoMd0_wgtOpt.hw_btnrT_mdWgt_negOff;
-        out->mdDyn.subLoMd0_wgtOpt.hw_btnrT_mdWgt_scale = paut->mdDyn[inear].subLoMd0_wgtOpt.hw_btnrT_mdWgt_scale;
+        out->mdDyn.subLoMd0_sgmCh.hw_btnrT_vIIRFstLn_scale = interpolation_f32(
+                    paut->mdDyn[ilow].subLoMd0_sgmCh.hw_btnrT_vIIRFstLn_scale, paut->mdDyn[ihigh].subLoMd0_sgmCh.hw_btnrT_vIIRFstLn_scale, ratio);
+        out->mdDyn.subLoMd0_sgmCh.hw_btnrT_vIIRFilt_strg = interpolation_f32(
+                    paut->mdDyn[ilow].subLoMd0_sgmCh.hw_btnrT_vIIRFilt_strg, paut->mdDyn[ihigh].subLoMd0_sgmCh.hw_btnrT_vIIRFilt_strg, ratio);
+        out->mdDyn.subLoMd0_wgtOpt.hw_btnrT_mdWgt_negOff = interpolation_f32(
+                    paut->mdDyn[ilow].subLoMd0_wgtOpt.hw_btnrT_mdWgt_negOff, paut->mdDyn[ihigh].subLoMd0_wgtOpt.hw_btnrT_mdWgt_negOff, ratio);
+        out->mdDyn.subLoMd0_wgtOpt.hw_btnrT_mdWgt_scale =  interpolation_f32(
+                    paut->mdDyn[ilow].subLoMd0_wgtOpt.hw_btnrT_mdWgt_scale, paut->mdDyn[ihigh].subLoMd0_wgtOpt.hw_btnrT_mdWgt_scale, ratio);
         out->mdDyn.subLoMd1.hw_btnrT_lpf_en = paut->mdDyn[inear].subLoMd1.hw_btnrT_lpf_en;
         out->mdDyn.subLoMd1.sw_btnrT_lpfCfg_mode = paut->mdDyn[inear].subLoMd1.sw_btnrT_lpfCfg_mode;
         for (i = 0; i < 9; i++) {
             out->mdDyn.subLoMd1.hw_btnrT_lpfSpatial_wgt[i] = interpolation_f32(
                         paut->mdDyn[ilow].subLoMd1.hw_btnrT_lpfSpatial_wgt[i], paut->mdDyn[ihigh].subLoMd1.hw_btnrT_lpfSpatial_wgt[i], ratio);
         }
-        out->mdDyn.subLoMd1.sw_btnrT_lpf_strg = paut->mdDyn[inear].subLoMd1.sw_btnrT_lpf_strg;
-        out->mdDyn.subLoMd1.hw_btnrT_mdWgt_maxLimit = paut->mdDyn[inear].subLoMd1.hw_btnrT_mdWgt_maxLimit;
-        out->mdDyn.subLoMd1.hw_btnrT_mdWgt_negOff = paut->mdDyn[inear].subLoMd1.hw_btnrT_mdWgt_negOff;
+        out->mdDyn.subLoMd1.sw_btnrT_lpf_strg =  interpolation_f32(
+                    paut->mdDyn[ilow].subLoMd1.sw_btnrT_lpf_strg, paut->mdDyn[ihigh].subLoMd1.sw_btnrT_lpf_strg, ratio);
+        out->mdDyn.subLoMd1.hw_btnrT_mdWgt_maxLimit = interpolation_f32(
+                    paut->mdDyn[ilow].subLoMd1.hw_btnrT_mdWgt_maxLimit, paut->mdDyn[ihigh].subLoMd1.hw_btnrT_mdWgt_maxLimit, ratio);
+        out->mdDyn.subLoMd1.hw_btnrT_mdWgt_negOff = interpolation_f32(
+                    paut->mdDyn[ilow].subLoMd1.hw_btnrT_mdWgt_negOff, paut->mdDyn[ihigh].subLoMd1.hw_btnrT_mdWgt_negOff, ratio);
         out->mdDyn.subLoMd1.hw_btnrT_mdWgtFstLnNegOff_en = paut->mdDyn[inear].subLoMd1.hw_btnrT_mdWgtFstLnNegOff_en;
-        out->mdDyn.subLoMd1.hw_btnrT_mdWgtFstLn_negOff = paut->mdDyn[inear].subLoMd1.hw_btnrT_mdWgtFstLn_negOff;
-        out->mdDyn.subLoMd1.hw_btnrT_mdWgt_scale = paut->mdDyn[inear].subLoMd1.hw_btnrT_mdWgt_scale;
+        out->mdDyn.subLoMd1.hw_btnrT_mdWgtFstLn_negOff = interpolation_f32(
+                    paut->mdDyn[ilow].subLoMd1.hw_btnrT_mdWgtFstLn_negOff, paut->mdDyn[ihigh].subLoMd1.hw_btnrT_mdWgtFstLn_negOff, ratio);
+        out->mdDyn.subLoMd1.hw_btnrT_mdWgt_scale = interpolation_f32(
+                    paut->mdDyn[ilow].subLoMd1.hw_btnrT_mdWgt_scale, paut->mdDyn[ihigh].subLoMd1.hw_btnrT_mdWgt_scale, ratio);
         out->mdDyn.subLoMd1.hw_btnrT_hFilt_en = paut->mdDyn[inear].subLoMd1.hw_btnrT_hFilt_en;
-        out->mdDyn.subLoMd1.hw_btnrT_vIIRFilt_strg = paut->mdDyn[inear].subLoMd1.hw_btnrT_vIIRFilt_strg;
+        out->mdDyn.subLoMd1.hw_btnrT_vIIRFilt_strg = interpolation_f32(
+                    paut->mdDyn[ilow].subLoMd1.hw_btnrT_vIIRFilt_strg, paut->mdDyn[ihigh].subLoMd1.hw_btnrT_vIIRFilt_strg, ratio);
         out->mdDyn.loMd.hw_btnrT_loMd_mode = paut->mdDyn[inear].loMd.hw_btnrT_loMd_mode;
-        out->mdDyn.loMd.hw_btnrT_preWgtMge_scale = paut->mdDyn[inear].loMd.hw_btnrT_preWgtMge_scale;
-        out->mdDyn.loMd.hw_btnrT_preWgtMge_offset = paut->mdDyn[inear].loMd.hw_btnrT_preWgtMge_offset;
+        out->mdDyn.loMd.hw_btnrT_preWgtMge_scale = interpolation_f32(
+                    paut->mdDyn[ilow].loMd.hw_btnrT_preWgtMge_scale, paut->mdDyn[ihigh].loMd.hw_btnrT_preWgtMge_scale, ratio);
+        out->mdDyn.loMd.hw_btnrT_preWgtMge_offset = interpolation_f32(
+                    paut->mdDyn[ilow].loMd.hw_btnrT_preWgtMge_offset, paut->mdDyn[ihigh].loMd.hw_btnrT_preWgtMge_offset, ratio);
         out->mdDyn.hw_btnrT_md_mode = paut->mdDyn[inear].hw_btnrT_md_mode;
         out->mdDyn.loAsRatio_hiByMskMd.hw_btnrT_hfLpf_en = paut->mdDyn[inear].loAsRatio_hiByMskMd.hw_btnrT_hfLpf_en;
         out->mdDyn.loAsRatio_hiByMskMd.sw_btnrT_hfLpfCfg_mode = paut->mdDyn[inear].loAsRatio_hiByMskMd.sw_btnrT_hfLpfCfg_mode;
@@ -249,30 +283,51 @@ XCamReturn BtnrSelectParam
             out->mdDyn.loAsRatio_hiByMskMd.hw_btnrT_hfLpfSpatial_wgt[i] = interpolation_f32(
                         paut->mdDyn[ilow].loAsRatio_hiByMskMd.hw_btnrT_hfLpfSpatial_wgt[i], paut->mdDyn[ihigh].loAsRatio_hiByMskMd.hw_btnrT_hfLpfSpatial_wgt[i], ratio);
         }
-        out->mdDyn.loAsRatio_hiByMskMd.sw_btnrT_hfLpf_strg = paut->mdDyn[inear].loAsRatio_hiByMskMd.sw_btnrT_hfLpf_strg;
-        out->mdDyn.loAsRatio_hiByMskMd.hw_btnrT_loWgtStat_scale = paut->mdDyn[inear].loAsRatio_hiByMskMd.hw_btnrT_loWgtStat_scale;
-        out->mdDyn.loAsRatio_hiByMskMd.hw_btnrT_hiMdWgt_scale = paut->mdDyn[inear].loAsRatio_hiByMskMd.hw_btnrT_hiMdWgt_scale;
-        out->mdDyn.loAsRatio_hiByMskMd.hw_btnrT_loWgtStatHdrS_scale  = paut->mdDyn[inear].loAsRatio_hiByMskMd.hw_btnrT_loWgtStatHdrS_scale;
-        out->mdDyn.loAsBias_hiBySgmMd.hw_btnrT_loWgtStat_negOff = paut->mdDyn[inear].loAsBias_hiBySgmMd.hw_btnrT_loWgtStat_negOff;
-        out->mdDyn.loAsBias_hiBySgmMd.hw_btnrT_loWgtStatHdrS_negOff = paut->mdDyn[inear].loAsBias_hiBySgmMd.hw_btnrT_loWgtStatHdrS_negOff;
-        out->mdDyn.loAsBias_hiBySgmMd.hw_btnrT_loWgtStat_scale = paut->mdDyn[inear].loAsBias_hiBySgmMd.hw_btnrT_loWgtStat_scale;
-        out->mdDyn.loAsBias_hiBySgmMd.hw_btnrT_mdWgt_offset = paut->mdDyn[inear].loAsBias_hiBySgmMd.hw_btnrT_mdWgt_offset;
-        out->mdDyn.loAsBias_hiBySgmMd.hw_btnrT_mdWgt_minLimit = paut->mdDyn[inear].loAsBias_hiBySgmMd.hw_btnrT_mdWgt_minLimit;
-        out->mdDyn.loAsBias_hiBySgmMd.hw_btnrT_mdWgt_scale = paut->mdDyn[inear].loAsBias_hiBySgmMd.hw_btnrT_mdWgt_scale;
-        out->mdDyn.loAsBias_hiBySgmMd.hw_btnrT_mdWgtHdrS_scale = paut->mdDyn[inear].loAsBias_hiBySgmMd.hw_btnrT_mdWgtHdrS_scale;
-        out->mdDyn.loAsBias_hiBySgmMd.hw_btnrT_loWgtStatHdrS_scale  = paut->mdDyn[inear].loAsBias_hiBySgmMd.hw_btnrT_loWgtStatHdrS_scale;
+        out->mdDyn.loAsRatio_hiByMskMd.sw_btnrT_hfLpf_strg =  interpolation_f32(
+                    paut->mdDyn[ilow].loAsRatio_hiByMskMd.sw_btnrT_hfLpf_strg, paut->mdDyn[ihigh].loAsRatio_hiByMskMd.sw_btnrT_hfLpf_strg, ratio);
+        out->mdDyn.loAsRatio_hiByMskMd.hw_btnrT_loWgtStat_scale = interpolation_f32(
+                    paut->mdDyn[ilow].loAsRatio_hiByMskMd.hw_btnrT_loWgtStat_scale, paut->mdDyn[ihigh].loAsRatio_hiByMskMd.hw_btnrT_loWgtStat_scale, ratio);
+        out->mdDyn.loAsRatio_hiByMskMd.hw_btnrT_hiMdWgt_scale = interpolation_f32(
+                    paut->mdDyn[ilow].loAsRatio_hiByMskMd.hw_btnrT_hiMdWgt_scale, paut->mdDyn[ihigh].loAsRatio_hiByMskMd.hw_btnrT_hiMdWgt_scale, ratio);
+        out->mdDyn.loAsRatio_hiByMskMd.hw_btnrT_loWgtStatHdrS_scale  = interpolation_f32(
+                    paut->mdDyn[ilow].loAsRatio_hiByMskMd.hw_btnrT_loWgtStatHdrS_scale, paut->mdDyn[ihigh].loAsRatio_hiByMskMd.hw_btnrT_loWgtStatHdrS_scale, ratio);
+        out->mdDyn.loAsBias_hiBySgmMd.hw_btnrT_loWgtStat_negOff = interpolation_f32(
+                    paut->mdDyn[ilow].loAsBias_hiBySgmMd.hw_btnrT_loWgtStat_negOff, paut->mdDyn[ihigh].loAsBias_hiBySgmMd.hw_btnrT_loWgtStat_negOff, ratio);
+        out->mdDyn.loAsBias_hiBySgmMd.hw_btnrT_loWgtStatHdrS_negOff = interpolation_f32(
+                    paut->mdDyn[ilow].loAsBias_hiBySgmMd.hw_btnrT_loWgtStatHdrS_negOff, paut->mdDyn[ihigh].loAsBias_hiBySgmMd.hw_btnrT_loWgtStatHdrS_negOff, ratio);
+        out->mdDyn.loAsBias_hiBySgmMd.hw_btnrT_loWgtStat_scale = interpolation_f32(
+                    paut->mdDyn[ilow].loAsBias_hiBySgmMd.hw_btnrT_loWgtStat_scale, paut->mdDyn[ihigh].loAsBias_hiBySgmMd.hw_btnrT_loWgtStat_scale, ratio);
+        out->mdDyn.loAsBias_hiBySgmMd.hw_btnrT_mdWgt_offset = interpolation_f32(
+                    paut->mdDyn[ilow].loAsBias_hiBySgmMd.hw_btnrT_mdWgt_offset, paut->mdDyn[ihigh].loAsBias_hiBySgmMd.hw_btnrT_mdWgt_offset, ratio);
+        out->mdDyn.loAsBias_hiBySgmMd.hw_btnrT_mdWgt_minLimit = interpolation_f32(
+                    paut->mdDyn[ilow].loAsBias_hiBySgmMd.hw_btnrT_mdWgt_minLimit, paut->mdDyn[ihigh].loAsBias_hiBySgmMd.hw_btnrT_mdWgt_minLimit, ratio);
+        out->mdDyn.loAsBias_hiBySgmMd.hw_btnrT_mdWgt_scale = interpolation_f32(
+                    paut->mdDyn[ilow].loAsBias_hiBySgmMd.hw_btnrT_mdWgt_scale, paut->mdDyn[ihigh].loAsBias_hiBySgmMd.hw_btnrT_mdWgt_scale, ratio);
+        out->mdDyn.loAsBias_hiBySgmMd.hw_btnrT_mdWgtHdrS_scale = interpolation_f32(
+                    paut->mdDyn[ilow].loAsBias_hiBySgmMd.hw_btnrT_mdWgtHdrS_scale, paut->mdDyn[ihigh].loAsBias_hiBySgmMd.hw_btnrT_mdWgtHdrS_scale, ratio);
+        out->mdDyn.loAsBias_hiBySgmMd.hw_btnrT_loWgtStatHdrS_scale  = interpolation_f32(
+                    paut->mdDyn[ilow].loAsBias_hiBySgmMd.hw_btnrT_loWgtStatHdrS_scale, paut->mdDyn[ihigh].loAsBias_hiBySgmMd.hw_btnrT_loWgtStatHdrS_scale, ratio);
         out->mdDyn.mdWgtPost.hw_btnrT_lpf_en = paut->mdDyn[inear].mdWgtPost.hw_btnrT_lpf_en;
         for (i = 0; i < 3; i++) {
-            out->mdDyn.mdWgtPost.hw_btnr_lpfSpatial_wgt[i] = paut->mdDyn[inear].mdWgtPost.hw_btnr_lpfSpatial_wgt[i];
+            out->mdDyn.mdWgtPost.hw_btnr_lpfSpatial_wgt[i] = interpolation_f32(
+                        paut->mdDyn[ilow].mdWgtPost.hw_btnr_lpfSpatial_wgt[i], paut->mdDyn[ihigh].mdWgtPost.hw_btnr_lpfSpatial_wgt[i], ratio);
         }
-        out->mdDyn.frmAlpha.hw_btnrT_hiAlpha_minLimit = paut->mdDyn[inear].frmAlpha.hw_btnrT_hiAlpha_minLimit;
-        out->mdDyn.frmAlpha.hw_btnrT_hiAlphaHdrS_minLimit = paut->mdDyn[inear].frmAlpha.hw_btnrT_hiAlphaHdrS_minLimit;
-        out->mdDyn.frmAlpha.hw_btnrT_hiAlpha_maxLimit = paut->mdDyn[inear].frmAlpha.hw_btnrT_hiAlpha_maxLimit;
-        out->mdDyn.frmAlpha.hw_btnrT_hiAlphaHdrS_maxLimit = paut->mdDyn[inear].frmAlpha.hw_btnrT_hiAlphaHdrS_maxLimit;
-        out->mdDyn.frmAlpha.hw_btnrT_loAlpha_minLimit = paut->mdDyn[inear].frmAlpha.hw_btnrT_loAlpha_minLimit;
-        out->mdDyn.frmAlpha.hw_btnrT_loAlphaHdrS_minLimit = paut->mdDyn[inear].frmAlpha.hw_btnrT_loAlphaHdrS_minLimit;
-        out->mdDyn.frmAlpha.hw_btnrT_loAlpha_maxLimit = paut->mdDyn[inear].frmAlpha.hw_btnrT_loAlpha_maxLimit;
-        out->mdDyn.frmAlpha.hw_btnrT_loAlphaHdrS_maxLimit = paut->mdDyn[inear].frmAlpha.hw_btnrT_loAlphaHdrS_maxLimit;
+        out->mdDyn.frmAlpha.hw_btnrT_hiAlpha_minLimit = interpolation_f32(
+                    paut->mdDyn[ilow].frmAlpha.hw_btnrT_hiAlpha_minLimit, paut->mdDyn[ihigh].frmAlpha.hw_btnrT_hiAlpha_minLimit, ratio);
+        out->mdDyn.frmAlpha.hw_btnrT_hiAlphaHdrS_minLimit = interpolation_f32(
+                    paut->mdDyn[ilow].frmAlpha.hw_btnrT_hiAlphaHdrS_minLimit, paut->mdDyn[ihigh].frmAlpha.hw_btnrT_hiAlphaHdrS_minLimit, ratio);
+        out->mdDyn.frmAlpha.hw_btnrT_hiAlpha_maxLimit = interpolation_f32(
+                    paut->mdDyn[ilow].frmAlpha.hw_btnrT_hiAlpha_maxLimit, paut->mdDyn[ihigh].frmAlpha.hw_btnrT_hiAlpha_maxLimit, ratio);
+        out->mdDyn.frmAlpha.hw_btnrT_hiAlphaHdrS_maxLimit = interpolation_f32(
+                    paut->mdDyn[ilow].frmAlpha.hw_btnrT_hiAlphaHdrS_maxLimit, paut->mdDyn[ihigh].frmAlpha.hw_btnrT_hiAlphaHdrS_maxLimit, ratio);
+        out->mdDyn.frmAlpha.hw_btnrT_loAlpha_minLimit = interpolation_f32(
+                    paut->mdDyn[ilow].frmAlpha.hw_btnrT_loAlpha_minLimit, paut->mdDyn[ihigh].frmAlpha.hw_btnrT_loAlpha_minLimit, ratio);
+        out->mdDyn.frmAlpha.hw_btnrT_loAlphaHdrS_minLimit = interpolation_f32(
+                    paut->mdDyn[ilow].frmAlpha.hw_btnrT_loAlphaHdrS_minLimit, paut->mdDyn[ihigh].frmAlpha.hw_btnrT_loAlphaHdrS_minLimit, ratio);
+        out->mdDyn.frmAlpha.hw_btnrT_loAlpha_maxLimit = interpolation_f32(
+                    paut->mdDyn[ilow].frmAlpha.hw_btnrT_loAlpha_maxLimit, paut->mdDyn[ihigh].frmAlpha.hw_btnrT_loAlpha_maxLimit, ratio);
+        out->mdDyn.frmAlpha.hw_btnrT_loAlphaHdrS_maxLimit = interpolation_f32(
+                    paut->mdDyn[ilow].frmAlpha.hw_btnrT_loAlphaHdrS_maxLimit, paut->mdDyn[ihigh].frmAlpha.hw_btnrT_loAlphaHdrS_maxLimit, ratio);
     }
     return XCAM_RETURN_NO_ERROR;
 }
@@ -439,10 +494,10 @@ XCamReturn Abtnr_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outpa
         LOGD_ANR("BTNR processing: iso %d, btnr en:%d, bypass:%d", iso, outparams->en, outparams->bypass);
 
         pBtnrCtx->isReCal_ = false;
-	} else {
+    } else {
         outparams->en = btnr_attrib->en;
         outparams->bypass = btnr_attrib->bypass;
-	}
+    }
 
     return XCAM_RETURN_NO_ERROR;
 }

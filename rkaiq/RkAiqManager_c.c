@@ -358,6 +358,9 @@ XCamReturn AiqManager_applyAnalyzerResult(AiqManager_t* pAiqManager, AiqFullPara
 #if RKAIQ_HAVE_ENHANCE
     APPLY_ANALYZER_RESULT(Enh, ENH);
 #endif
+#if RKAIQ_HAVE_HSV
+    APPLY_ANALYZER_RESULT(Hsv, HSV);
+#endif
 #if RKAIQ_HAVE_GAMMA
 #if USE_NEWSTRUCT
     APPLY_ANALYZER_RESULT(Gamma, AGAMMA);
@@ -397,6 +400,9 @@ XCamReturn AiqManager_applyAnalyzerResult(AiqManager_t* pAiqManager, AiqFullPara
     APPLY_ANALYZER_RESULT(Uvnr, UVNR);
     APPLY_ANALYZER_RESULT(Sharpen, SHARPEN);
     APPLY_ANALYZER_RESULT(Edgeflt, EDGEFLT);
+#endif
+#if RKAIQ_HAVE_SHARP_V40
+    APPLY_ANALYZER_RESULT(texEst, TEXEST);
 #endif
 #if RKAIQ_HAVE_FEC
     APPLY_ANALYZER_RESULT(Fec, FEC);

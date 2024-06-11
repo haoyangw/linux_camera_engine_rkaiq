@@ -15,31 +15,24 @@
  *
  */
 
-#include "algo_types_priv.h"
-#include "enh_types_prvt.h"
-#include "xcam_log.h"
-
 #include "RkAiqCalibDbTypes.h"
 #include "RkAiqCalibDbTypesV2.h"
 #include "RkAiqCalibDbV2Helper.h"
-
-#include "interpolation.h"
+#include "algo_types_priv.h"
 #include "c_base/aiq_base.h"
+#include "enh_types_prvt.h"
+#include "interpolation.h"
+#include "xcam_log.h"
 
-XCamReturn EnhSelectParam
-(
-    EnhContext_t* pEnhCtx,
-    enh_param_t* out,
-    int iso)
-{
+XCamReturn EnhSelectParam(EnhContext_t* pEnhCtx, enh_param_t* out, int iso) {
     LOGI_ADEHAZE("%s(%d): enter!\n", __FUNCTION__, __LINE__);
 
-    if(pEnhCtx == NULL) {
+    if (pEnhCtx == NULL) {
         LOGE_ADEHAZE("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
         return XCAM_RETURN_ERROR_PARAM;
     }
 
-    int i = 0;
+    int i       = 0;
     int iso_low = 0, iso_high = 0, ilow = 0, ihigh = 0, inear = 0;
     float ratio = 0.0f;
     uint16_t uratio;
@@ -53,68 +46,78 @@ XCamReturn EnhSelectParam
     else
         inear = ilow;
 
-    out->dyn.hw_enhT_iir_inv_sigma = interpolation_f32(
-        paut->dyn[ilow].hw_enhT_iir_inv_sigma, paut->dyn[ihigh].hw_enhT_iir_inv_sigma, ratio);
-    out->dyn.hw_enhT_iir_soft_thed = interpolation_f32(
-        paut->dyn[ilow].hw_enhT_iir_soft_thed, paut->dyn[ihigh].hw_enhT_iir_soft_thed, ratio);
-    out->dyn.hw_enhT_iir_cur_wgt = interpolation_f32(
-        paut->dyn[ilow].hw_enhT_iir_cur_wgt, paut->dyn[ihigh].hw_enhT_iir_cur_wgt, ratio);
-    out->dyn.hw_enhT_blf3_inv_sigma = interpolation_f32(
-        paut->dyn[ilow].hw_enhT_blf3_inv_sigma, paut->dyn[ihigh].hw_enhT_blf3_inv_sigma, ratio);
-    out->dyn.hw_enhT_blf3_cur_wgt = interpolation_f32(
-        paut->dyn[ilow].hw_enhT_blf3_cur_wgt, paut->dyn[ihigh].hw_enhT_blf3_cur_wgt, ratio);
-    out->dyn.hw_enhT_blf3_thumb_cur_wgt = interpolation_f32(
-        paut->dyn[ilow].hw_enhT_blf3_thumb_cur_wgt, paut->dyn[ihigh].hw_enhT_blf3_thumb_cur_wgt, ratio);
-    out->dyn.hw_enhT_blf5_inv_sigma = interpolation_f32(
-        paut->dyn[ilow].hw_enhT_blf5_inv_sigma, paut->dyn[ihigh].hw_enhT_blf5_inv_sigma, ratio);
-    out->dyn.hw_enhT_blf5_cur_wgt = interpolation_f32(
-        paut->dyn[ilow].hw_enhT_blf5_cur_wgt, paut->dyn[ihigh].hw_enhT_blf5_cur_wgt, ratio);
-    out->dyn.hw_enhT_global_strg = interpolation_f32(
-        paut->dyn[ilow].hw_enhT_global_strg, paut->dyn[ihigh].hw_enhT_global_strg, ratio);
-    for (i=0; i<8; i++) {
-        out->dyn.hw_enhT_detail2strg_idx[i] = interpolation_f32(
-            paut->dyn[ilow].hw_enhT_detail2strg_idx[i], paut->dyn[ihigh].hw_enhT_detail2strg_idx[i], ratio);
-        out->dyn.hw_enhT_detail2strg_val[i] = interpolation_f32(
-            paut->dyn[ilow].hw_enhT_detail2strg_val[i], paut->dyn[ihigh].hw_enhT_detail2strg_val[i], ratio);
+    out->dyn.iir.hw_enhT_iir_inv_sigma =
+        interpolation_f32(paut->dyn[ilow].iir.hw_enhT_iir_inv_sigma,
+                          paut->dyn[ihigh].iir.hw_enhT_iir_inv_sigma, ratio);
+    out->dyn.iir.hw_enhT_iir_soft_thed =
+        interpolation_f32(paut->dyn[ilow].iir.hw_enhT_iir_soft_thed,
+                          paut->dyn[ihigh].iir.hw_enhT_iir_soft_thed, ratio);
+    out->dyn.iir.hw_enhT_iir_cur_wgt = interpolation_f32(
+        paut->dyn[ilow].iir.hw_enhT_iir_cur_wgt, paut->dyn[ihigh].iir.hw_enhT_iir_cur_wgt, ratio);
+
+    out->dyn.blf3.hw_enhT_blf3_bypass =
+        interpolation_bool(paut->dyn[ilow].blf3.hw_enhT_blf3_bypass,
+                           paut->dyn[ihigh].blf3.hw_enhT_blf3_bypass, uratio);
+    out->dyn.blf3.hw_enhT_blf3_inv_sigma =
+        interpolation_f32(paut->dyn[ilow].blf3.hw_enhT_blf3_inv_sigma,
+                          paut->dyn[ihigh].blf3.hw_enhT_blf3_inv_sigma, ratio);
+    out->dyn.blf3.hw_enhT_blf3_cur_wgt =
+        interpolation_f32(paut->dyn[ilow].blf3.hw_enhT_blf3_cur_wgt,
+                          paut->dyn[ihigh].blf3.hw_enhT_blf3_cur_wgt, ratio);
+    out->dyn.blf3.hw_enhT_blf3_thumb_cur_wgt =
+        interpolation_f32(paut->dyn[ilow].blf3.hw_enhT_blf3_thumb_cur_wgt,
+                          paut->dyn[ihigh].blf3.hw_enhT_blf3_thumb_cur_wgt, ratio);
+
+    out->dyn.blf5.hw_enhT_blf5_inv_sigma =
+        interpolation_f32(paut->dyn[ilow].blf5.hw_enhT_blf5_inv_sigma,
+                          paut->dyn[ihigh].blf5.hw_enhT_blf5_inv_sigma, ratio);
+    out->dyn.blf5.hw_enhT_blf5_cur_wgt =
+        interpolation_f32(paut->dyn[ilow].blf5.hw_enhT_blf5_cur_wgt,
+                          paut->dyn[ihigh].blf5.hw_enhT_blf5_cur_wgt, ratio);
+
+    out->dyn.strg.hw_enhT_global_strg = interpolation_f32(
+        paut->dyn[ilow].strg.hw_enhT_global_strg, paut->dyn[ihigh].strg.hw_enhT_global_strg, ratio);
+    out->dyn.strg.hw_enhT_detail2strg_en =
+        interpolation_bool(paut->dyn[ilow].strg.hw_enhT_detail2strg_en,
+                           paut->dyn[ihigh].strg.hw_enhT_detail2strg_en, uratio);
+    for (i = 0; i < 8; i++) {
+        out->dyn.strg.hw_enhT_detail2strg_curve.idx[i] =
+            interpolation_f32(paut->dyn[ilow].strg.hw_enhT_detail2strg_curve.idx[i],
+                              paut->dyn[ihigh].strg.hw_enhT_detail2strg_curve.idx[i], ratio);
+        out->dyn.strg.hw_enhT_detail2strg_curve.val[i] =
+            interpolation_f32(paut->dyn[ilow].strg.hw_enhT_detail2strg_curve.val[i],
+                              paut->dyn[ihigh].strg.hw_enhT_detail2strg_curve.val[i], ratio);
     }
-    for (i=0; i<17; i++) {
-        out->dyn.hw_enhT_lum2strg[i] = interpolation_f32(
-            paut->dyn[ilow].hw_enhT_lum2strg[i], paut->dyn[ihigh].hw_enhT_lum2strg[i], ratio);
+    out->dyn.strg.hw_enhT_luma2strg_en =
+        interpolation_bool(paut->dyn[ilow].strg.hw_enhT_luma2strg_en,
+                           paut->dyn[ihigh].strg.hw_enhT_luma2strg_en, uratio);
+    for (i = 0; i < 17; i++) {
+        out->dyn.strg.hw_enhT_lum2strg[i] =
+            interpolation_f32(paut->dyn[ilow].strg.hw_enhT_lum2strg[i],
+                              paut->dyn[ihigh].strg.hw_enhT_lum2strg[i], ratio);
     }
     return XCAM_RETURN_NO_ERROR;
 }
 
-static XCamReturn
-create_context
-(
-    RkAiqAlgoContext** context,
-    const AlgoCtxInstanceCfg* cfg
-)
-{
-    XCamReturn result = XCAM_RETURN_NO_ERROR;
-    CamCalibDbV2Context_t *pCalibDbV2 = cfg->calibv2;
+static XCamReturn create_context(RkAiqAlgoContext** context, const AlgoCtxInstanceCfg* cfg) {
+    XCamReturn result                 = XCAM_RETURN_NO_ERROR;
+    CamCalibDbV2Context_t* pCalibDbV2 = cfg->calibv2;
 
-    EnhContext_t *ctx = aiq_mallocz(sizeof(EnhContext_t));
+    EnhContext_t* ctx = aiq_mallocz(sizeof(EnhContext_t));
     if (ctx == NULL) {
-        LOGE_ADEHAZE( "%s: create Enh context fail!\n", __FUNCTION__);
+        LOGE_ADEHAZE("%s: create Enh context fail!\n", __FUNCTION__);
         return XCAM_RETURN_ERROR_MEM;
     }
 
-    ctx->isReCal_ = true;
-    ctx->enh_attrib =
-        (enh_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(pCalibDbV2, enh));
+    ctx->isReCal_   = true;
+    ctx->enh_attrib = (enh_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(pCalibDbV2, enh));
 
-    *context = (RkAiqAlgoContext* )ctx;
-    LOGV_ADEHAZE("%s: (exit)\n", __FUNCTION__ );
+    *context = (RkAiqAlgoContext*)ctx;
+    LOGV_ADEHAZE("%s: (exit)\n", __FUNCTION__);
     return result;
 }
 
-static XCamReturn
-destroy_context
-(
-    RkAiqAlgoContext* context
-)
-{
+static XCamReturn destroy_context(RkAiqAlgoContext* context) {
     XCamReturn result = XCAM_RETURN_NO_ERROR;
 
     EnhContext_t* pEnhCtx = (EnhContext_t*)context;
@@ -122,13 +125,8 @@ destroy_context
     return result;
 }
 
-static XCamReturn
-prepare
-(
-    RkAiqAlgoCom* params
-)
-{
-    XCamReturn result = XCAM_RETURN_NO_ERROR;
+static XCamReturn prepare(RkAiqAlgoCom* params) {
+    XCamReturn result     = XCAM_RETURN_NO_ERROR;
     EnhContext_t* pEnhCtx = (EnhContext_t*)params->ctx;
 
     pEnhCtx->enh_attrib =
@@ -138,29 +136,27 @@ prepare
     return result;
 }
 
-XCamReturn Aenh_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams, int iso)
-{
-
+XCamReturn Aenh_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams, int iso) {
     XCamReturn result = XCAM_RETURN_NO_ERROR;
 
-    EnhContext_t* pEnhCtx = (EnhContext_t*)inparams->ctx;
+    EnhContext_t* pEnhCtx        = (EnhContext_t*)inparams->ctx;
     enh_api_attrib_t* enh_attrib = pEnhCtx->enh_attrib;
-    enh_param_t* enhRes = outparams->algoRes;
+    enh_param_t* enhRes          = outparams->algoRes;
 
-    LOGV_ADEHAZE("%s: (enter)\n", __FUNCTION__ );
+    LOGV_ADEHAZE("%s: (enter)\n", __FUNCTION__);
 
     if (!enh_attrib) {
         LOGE_ADEHAZE("enh_attrib is NULL !");
         return XCAM_RETURN_ERROR_MEM;
     }
 
-    bool init = inparams->u.proc.init;
+    bool init     = inparams->u.proc.init;
     int delta_iso = (int)abs(iso - pEnhCtx->iso);
-    
+
     outparams->cfg_update = false;
 
     if (inparams->u.proc.is_bw_sensor) {
-        enh_attrib->en = false;
+        enh_attrib->en        = false;
         outparams->cfg_update = init ? true : false;
         return XCAM_RETURN_NO_ERROR;
     }
@@ -179,29 +175,22 @@ XCamReturn Aenh_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outpar
     }
 
     if (pEnhCtx->isReCal_) {
-        enhRes->sta = pEnhCtx->enh_attrib->stAuto.sta;
         EnhSelectParam(pEnhCtx, enhRes, iso);
 
         outparams->cfg_update = true;
-        outparams->en = enh_attrib->en;
-        outparams->bypass = enh_attrib->bypass;
+        outparams->en         = enh_attrib->en;
+        outparams->bypass     = enh_attrib->bypass;
         LOGI_ADEHAZE("enh en:%d, bypass:%d", outparams->en, outparams->bypass);
     }
 
-    pEnhCtx->iso = iso;
+    pEnhCtx->iso      = iso;
     pEnhCtx->isReCal_ = false;
 
-    LOGV_ADEHAZE("%s: (exit)\n", __FUNCTION__ );
+    LOGV_ADEHAZE("%s: (exit)\n", __FUNCTION__);
     return result;
 }
 
-static XCamReturn
-processing
-(
-    const RkAiqAlgoCom* inparams,
-    RkAiqAlgoResCom* outparams
-)
-{
+static XCamReturn processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams) {
     int iso = inparams->u.proc.iso;
     Aenh_processing(inparams, outparams, iso);
 
@@ -253,19 +242,20 @@ algo_enh_GetAttrib
 #define RKISP_ALGO_ENH_DESCRIPTION "Rockchip dehaze algo for ISP2.0"
 
 RkAiqAlgoDescription g_RkIspAlgoDescEnh = {
-    .common = {
-        .version = RKISP_ALGO_ENH_VERSION,
-        .vendor  = RKISP_ALGO_ENH_VENDOR,
-        .description = RKISP_ALGO_ENH_DESCRIPTION,
-        .type    = RK_AIQ_ALGO_TYPE_AENH,
-        .id      = 0,
-        .create_context  = create_context,
-        .destroy_context = destroy_context,
-    },
-    .prepare = prepare,
-    .pre_process = NULL,
-    .processing = processing,
+    .common =
+        {
+            .version         = RKISP_ALGO_ENH_VERSION,
+            .vendor          = RKISP_ALGO_ENH_VENDOR,
+            .description     = RKISP_ALGO_ENH_DESCRIPTION,
+            .type            = RK_AIQ_ALGO_TYPE_AENH,
+            .id              = 0,
+            .create_context  = create_context,
+            .destroy_context = destroy_context,
+        },
+    .prepare      = prepare,
+    .pre_process  = NULL,
+    .processing   = processing,
     .post_process = NULL,
 };
 
-//RKAIQ_END_DECLARE
+// RKAIQ_END_DECLARE

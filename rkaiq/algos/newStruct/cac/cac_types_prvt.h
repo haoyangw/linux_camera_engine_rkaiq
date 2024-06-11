@@ -28,7 +28,6 @@
 #include "RkAiqCalibDbTypesV2.h"
 #include "RkAiqCalibDbV2Helper.h"
 #include "xcam_log.h"
-#include "include/lut_buffer.h"
 
 #define DEFAULT_RECALCULATE_DELTA_ISO (0.01)
 #define RKCAC_MAX_PATH_LEN       255
@@ -37,21 +36,11 @@
 
 #define INTERP_CAC(x0, x1, ratio) ((ratio) * ((x1) - (x0)) + (x0))
 
-LutBufferManager* lut_manger_;
-LutBuffer* current_lut_[2];
-uint16_t current_lut_size;
-
 typedef struct CacContext_s {
     const RkAiqAlgoCom_prepare_t* prepare_params;
     cac_api_attrib_t* cac_attrib;
     int iso;
-    float hdr_ratio;
     bool isReCal_;
-    bool valid_;
-    uint32_t width;
-    uint8_t multi_isp_extended_pixel;
-    RkAiqAlgoConfigCac* algo_config_;
-    bool prepare_success;
 } CacContext_t;
 
 XCamReturn CacSelectParam(CacContext_t* pCacCtx, cac_param_t* out, int iso);

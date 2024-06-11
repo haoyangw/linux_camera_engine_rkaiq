@@ -244,9 +244,10 @@ typedef struct rk_aiq_uapiV2_wbV32_awb_mulWindow_s {
     float window[4][4];//percent
 } rk_aiq_uapiV2_wbV32_awb_mulWindow_t;
 
+
 typedef struct rk_aiq_uapiV2_wbV39_awb_nonROI_s {
     bool hw_awbCfg_nonROI_en;
-    awbStats_nonROI_t nonROI[AWBSTATS_NONROI_NUM];
+    float window[4][4];
 } rk_aiq_uapiV2_wbV39_awb_nonROI_t;
 
 typedef struct rk_aiq_uapiV2_wb_awb_cctClipCfg_s {

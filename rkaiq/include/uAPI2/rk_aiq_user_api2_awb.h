@@ -25,7 +25,7 @@ typedef struct rk_aiq_sys_ctx_s rk_aiq_sys_ctx_t;
 #endif
 
 RKAIQ_BEGIN_DECLARE
-#if ISP_HW_V21
+//#if ISP_HW_V21
 XCamReturn
 rk_aiq_user_api2_awbV21_SetAllAttrib(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_uapiV2_wbV21_attrib_t attr);
 XCamReturn
@@ -39,7 +39,7 @@ rk_aiq_user_api2_awb_SetMultiWindowAttrib(const rk_aiq_sys_ctx_t* sys_ctx, rk_ai
 XCamReturn
 rk_aiq_user_api2_awb_GetMultiWindowAttrib(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_uapiV2_wb_awb_mulWindow_t *attr);
 
-#elif ISP_HW_V30
+//#elif ISP_HW_V30
 XCamReturn
 rk_aiq_user_api2_awbV30_SetAllAttrib(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_uapiV2_wbV30_attrib_t attr);
 XCamReturn
@@ -53,7 +53,7 @@ rk_aiq_user_api2_awb_SetMultiWindowAttrib(const rk_aiq_sys_ctx_t* sys_ctx, rk_ai
 XCamReturn
 rk_aiq_user_api2_awb_GetMultiWindowAttrib(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_uapiV2_wb_awb_mulWindow_t *attr);
 
-#elif (ISP_HW_V32||ISP_HW_V32_LITE)
+//#elif (ISP_HW_V32||ISP_HW_V32_LITE)
 XCamReturn
 rk_aiq_user_api2_awbV32_SetAllAttrib(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_uapiV2_wbV32_attrib_t attr);
 XCamReturn
@@ -74,29 +74,10 @@ XCamReturn
 rk_aiq_user_api2_awb_setAwbPreWbgain(const rk_aiq_sys_ctx_t* sys_ctx,  const float att[4]);
 XCamReturn
 rk_aiq_user_api2_awb_IqMap2Main(const rk_aiq_sys_ctx_t* sys_ctx,  rk_aiq_uapiV2_awb_Slave2Main_Cfg_t att);
-#else // ISP_HW_V39
-XCamReturn
-rk_aiq_user_api2_awbV39_GetAllAttrib(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_uapiV2_wbV39_attrib_t *attr);
-XCamReturn
-rk_aiq_user_api2_awbV39_SetAllAttrib(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_uapiV2_wbV39_attrib_t attr);
-XCamReturn
-rk_aiq_user_api2_awbV39_SetMultiWindowAttrib(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_uapiV2_wbV39_awb_nonROI_t attr);
-XCamReturn
-rk_aiq_user_api2_awbV39_GetMultiWindowAttrib(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_uapiV2_wbV39_awb_nonROI_t *attr);
-XCamReturn
-rk_aiq_user_api2_awbV32_SetIQAutoExtPara(const rk_aiq_sys_ctx_t* sys_ctx, const rk_aiq_uapiV2_Wb_Awb_IqAtExtPa_V32_t* attr);
-XCamReturn
-rk_aiq_user_api2_awbV32_GetIQAutoExtPara(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_uapiV2_Wb_Awb_IqAtExtPa_V32_t *attr);
-XCamReturn
-rk_aiq_user_api2_awbV32_SetIQAutoPara(const rk_aiq_sys_ctx_t* sys_ctx, const rk_aiq_uapiV2_Wb_Awb_IqAtPa_V32_t* attr);
-XCamReturn
-rk_aiq_user_api2_awbV32_GetIQAutoPara(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_uapiV2_Wb_Awb_IqAtPa_V32_t *attr);
-XCamReturn
-rk_aiq_user_api2_awb_setAwbPreWbgain(const rk_aiq_sys_ctx_t* sys_ctx,  const float att[4]);
-XCamReturn
-rk_aiq_user_api2_awb_IqMap2Main(const rk_aiq_sys_ctx_t* sys_ctx,  rk_aiq_uapiV2_awb_Slave2Main_Cfg_t att);
-#endif
+//#endif
 
+
+#//if ISP_HW_V32||ISP_HW_V32_LITE||ISP_HW_V21||ISP_HW_V30
 XCamReturn
 rk_aiq_user_api2_awb_GetCCT(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_wb_cct_t *cct);
 XCamReturn
@@ -131,6 +112,9 @@ XCamReturn
 rk_aiq_user_api2_awb_loadConvertLut(rk_aiq_uapiV2_awb_Gain_Lut_Cfg_t *gain_lut_cfg, char *fullfile);
 XCamReturn
 rk_aiq_user_api2_awb_wbgainConvert2(rk_aiq_wb_gain_t  wbGainIn, rk_aiq_uapiV2_awb_Gain_Lut_Cfg_t *gain_lut_cfg, rk_aiq_wb_gain_t  *wbGainOut);
+//#endif
+
+
 
 
 RKAIQ_END_DECLARE

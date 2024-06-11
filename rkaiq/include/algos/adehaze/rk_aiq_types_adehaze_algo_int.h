@@ -32,6 +32,10 @@
 #define ENHANCE_VALUE_DEFAULT_STEP   (80)
 #define ENH_LUMA_DEFAULT_STEP        (5)
 
+#define DEHAZE_DEFAULT_CFG_WT_STEP_FLOAT (1.0f / 256.0f)
+#define ENHANCE_VALUE_DEFAULT_STEP_FLOAT (80.0f / 1024.0f)
+#define ENH_LUMA_DEFAULT_STEP_FLOAT      (ENHANCE_VALUE_DEFAULT_STEP_FLOAT)
+
 typedef struct AdehazeOBResV12_s {
     bool blc_ob_enable;
     float isp_ob_predgain;

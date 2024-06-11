@@ -14,6 +14,9 @@ void rk_aiq_gic30_params_cvt(void* attr, struct isp33_gic_cfg* gic_cfg);
 void rk_aiq_cac30_params_cvt(void* attr, struct isp33_isp_params_cfg* isp_cfg,
     struct isp33_isp_params_cfg* isp_cfg_right, bool is_multi_isp, common_cvt_info_t* cvtinfo);
 void rk_aiq_btnr41_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_info_t* cvtinfo, btnr_cvt_info_t* pBtnrInfo);
+void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_info_t *cvtinfo, btnr_cvt_info_t* pBtnrInfo);
+void rk_aiq_ynr40_params_cvt(void* attr, isp_params_t* isp_params,common_cvt_info_t *cvtinfo);
+void rk_aiq_hsv10_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_info_t* cvtinfo);
 RKAIQ_END_DECLARE
 
 #endif

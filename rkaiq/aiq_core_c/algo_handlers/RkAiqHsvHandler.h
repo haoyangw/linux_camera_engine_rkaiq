@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023 Rockchip Corporation
+ * Copyright (c) 2024 Rockchip Eletronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,12 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
+#ifndef _AIQ_HSV_HANDLE_H_
+#define _AIQ_HSV_HANDLE_H_
 
-#ifndef _RK_AIQ_USER_API2_RV1106_H_
-#define _RK_AIQ_USER_API2_RV1106_H_
+#include "aiq_algo_handler.h"
+#if RKAIQ_HAVE_HSV
+typedef AiqAlgoHandler_t AiqHsvHandler_t;
 
-#include "uAPI2/rk_aiq_user_api2_isp32.h"
+AiqAlgoHandler_t* AiqAlgoHandlerHsv_constructor(RkAiqAlgoDesComm* des, AiqCore_t* aiqCore);
+XCamReturn AiqHsvHandler_queryahsvStatus(AiqHsvHandler_t* pHdlHsv, ahsv_status_t* status);
+XCamReturn AiqHsvHandler_setCalib(AiqHsvHandler_t* pHdlHsv, ahsv_hsvCalib_t* calib);
+XCamReturn AiqHsvHandler_getCalib(AiqHsvHandler_t* pHdlHsv, ahsv_hsvCalib_t* calib);
 
+#endif
 #endif

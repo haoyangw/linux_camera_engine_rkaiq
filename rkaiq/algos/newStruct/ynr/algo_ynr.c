@@ -340,116 +340,102 @@ XCamReturn YnrSelectParam
     else
         inear = ilow;
 
-    for (i = 0; i < 17; i++) {
-        out->dyn.ynrScl_radi.hw_ynrT_radiDist2YnrScl_val[i] = interpolation_f32(
-                    paut->dyn[ilow].ynrScl_radi.hw_ynrT_radiDist2YnrScl_val[i], paut->dyn[ihigh].ynrScl_radi.hw_ynrT_radiDist2YnrScl_val[i], ratio);
+    for (i=0; i<17; i++) {
+        out->dyn.locYnrStrg.radiDist.hw_ynrT_radiDist2YnrStrg_val[i] = interpolation_f32(
+            paut->dyn[ilow].locYnrStrg.radiDist.hw_ynrT_radiDist2YnrStrg_val[i], paut->dyn[ihigh].locYnrStrg.radiDist.hw_ynrT_radiDist2YnrStrg_val[i], ratio);
     }
-    out->dyn.ynrScl_locSgmStrg.hw_ynrT_glbSgmStrg_val = interpolation_f32(
-                paut->dyn[ilow].ynrScl_locSgmStrg.hw_ynrT_glbSgmStrg_val, paut->dyn[ihigh].ynrScl_locSgmStrg.hw_ynrT_glbSgmStrg_val, ratio);
-    out->dyn.ynrScl_locSgmStrg.hw_ynrT_glbSgmStrg_alpha = interpolation_f32(
-                paut->dyn[ilow].ynrScl_locSgmStrg.hw_ynrT_glbSgmStrg_alpha, paut->dyn[ihigh].ynrScl_locSgmStrg.hw_ynrT_glbSgmStrg_alpha, ratio);
-    for (i = 0; i < 9; i++) {
-        out->dyn.ynrScl_locSgmStrg.hw_ynrT_locSgmStrg2YnrScl_val[i] = interpolation_f32(
-                    paut->dyn[ilow].ynrScl_locSgmStrg.hw_ynrT_locSgmStrg2YnrScl_val[i], paut->dyn[ihigh].ynrScl_locSgmStrg.hw_ynrT_locSgmStrg2YnrScl_val[i], ratio);
+    out->dyn.locYnrStrg.locSgmStrg.hw_ynrT_glbSgmStrg_val = interpolation_f32(
+        paut->dyn[ilow].locYnrStrg.locSgmStrg.hw_ynrT_glbSgmStrg_val, paut->dyn[ihigh].locYnrStrg.locSgmStrg.hw_ynrT_glbSgmStrg_val, ratio);
+    out->dyn.locYnrStrg.locSgmStrg.hw_ynrT_glbSgmStrg_alpha = interpolation_f32(
+        paut->dyn[ilow].locYnrStrg.locSgmStrg.hw_ynrT_glbSgmStrg_alpha, paut->dyn[ihigh].locYnrStrg.locSgmStrg.hw_ynrT_glbSgmStrg_alpha, ratio);
+    out->dyn.sigmaEnv.sw_ynrCfg_sgmCurve_mode = paut->dyn[inear].sigmaEnv.sw_ynrCfg_sgmCurve_mode;
+    for (i=0; i<5; i++) {
+        out->dyn.sigmaEnv.coeff2SgmCurve.sigma_coeff[i] = interpolation_f32(
+            paut->dyn[ilow].sigmaEnv.coeff2SgmCurve.sigma_coeff[i], paut->dyn[ihigh].sigmaEnv.coeff2SgmCurve.sigma_coeff[i], ratio);
     }
-    for (i = 0; i < 9; i++) {
-        out->dyn.ynrScl_locSgmStrg.hw_ynrT_locSgmStrg2YnrWgt_val[i] = interpolation_f32(
-                    paut->dyn[ilow].ynrScl_locSgmStrg.hw_ynrT_locSgmStrg2YnrWgt_val[i], paut->dyn[ihigh].ynrScl_locSgmStrg.hw_ynrT_locSgmStrg2YnrWgt_val[i], ratio);
+    out->dyn.sigmaEnv.coeff2SgmCurve.lowFreqCoeff = interpolation_f32(
+        paut->dyn[ilow].sigmaEnv.coeff2SgmCurve.lowFreqCoeff, paut->dyn[ihigh].sigmaEnv.coeff2SgmCurve.lowFreqCoeff, ratio);
+    for (i=0; i<17; i++) {
+        out->dyn.sigmaEnv.hw_ynrC_luma2Sigma_curve.idx[i] = interpolation_u16(
+            paut->dyn[ilow].sigmaEnv.hw_ynrC_luma2Sigma_curve.idx[i], paut->dyn[ihigh].sigmaEnv.hw_ynrC_luma2Sigma_curve.idx[i], uratio);
     }
-    for (i = 0; i < 5; i++) {
-        out->dyn.coeff2SgmCurve.sigma_coeff[i] = interpolation_f32(
-                    paut->dyn[ilow].coeff2SgmCurve.sigma_coeff[i], paut->dyn[ihigh].coeff2SgmCurve.sigma_coeff[i], ratio);
+    for (i=0; i<17; i++) {
+        out->dyn.sigmaEnv.hw_ynrC_luma2Sigma_curve.val[i] = interpolation_f32(
+            paut->dyn[ilow].sigmaEnv.hw_ynrC_luma2Sigma_curve.val[i], paut->dyn[ihigh].sigmaEnv.hw_ynrC_luma2Sigma_curve.val[i], ratio);
     }
-    out->dyn.coeff2SgmCurve.lowFreqCoeff = interpolation_f32(
-            paut->dyn[ilow].coeff2SgmCurve.lowFreqCoeff, paut->dyn[ihigh].coeff2SgmCurve.lowFreqCoeff, ratio);
-    for (i = 0; i < 17; i++) {
-        out->dyn.hw_ynrC_luma2Sigma_curve.idx[i] = interpolation_u16(
-                    paut->dyn[ilow].hw_ynrC_luma2Sigma_curve.idx[i], paut->dyn[ihigh].hw_ynrC_luma2Sigma_curve.idx[i], uratio);
+    out->dyn.hiNr.hw_ynrT_hiNr_en = paut->dyn[inear].hiNr.hw_ynrT_hiNr_en;
+    out->dyn.hiNr.epf.sw_ynrT_filtCfg_mode = paut->dyn[inear].hiNr.epf.sw_ynrT_filtCfg_mode;
+    out->dyn.hiNr.epf.sw_ynrT_filtSpatial_strg = interpolation_f32(
+        paut->dyn[ilow].hiNr.epf.sw_ynrT_filtSpatial_strg, paut->dyn[ihigh].hiNr.epf.sw_ynrT_filtSpatial_strg, ratio);
+    for (i=0; i<6; i++) {
+        out->dyn.hiNr.epf.hw_ynrT_filtSpatial_wgt[i] = interpolation_u8(
+            paut->dyn[ilow].hiNr.epf.hw_ynrT_filtSpatial_wgt[i], paut->dyn[ihigh].hiNr.epf.hw_ynrT_filtSpatial_wgt[i], uratio);
     }
-    for (i = 0; i < 17; i++) {
-        out->dyn.hw_ynrC_luma2Sigma_curve.val[i] = interpolation_f32(
-                    paut->dyn[ilow].hw_ynrC_luma2Sigma_curve.val[i], paut->dyn[ihigh].hw_ynrC_luma2Sigma_curve.val[i], ratio);
+    out->dyn.hiNr.epf.hw_ynrT_locYnrStrg_alpha = interpolation_f32(
+        paut->dyn[ilow].hiNr.epf.hw_ynrT_locYnrStrg_alpha, paut->dyn[ihigh].hiNr.epf.hw_ynrT_locYnrStrg_alpha, ratio);
+    out->dyn.hiNr.epf.hw_ynrT_rgeSgm_minLimit = interpolation_f32(
+        paut->dyn[ilow].hiNr.epf.hw_ynrT_rgeSgm_minLimit, paut->dyn[ihigh].hiNr.epf.hw_ynrT_rgeSgm_minLimit, ratio);
+    out->dyn.hiNr.epf.hw_ynrT_rgeSgm_scale = interpolation_f32(
+        paut->dyn[ilow].hiNr.epf.hw_ynrT_rgeSgm_scale, paut->dyn[ihigh].hiNr.epf.hw_ynrT_rgeSgm_scale, ratio);
+    out->dyn.hiNr.epf.hw_ynrT_rgeWgt_negOff = interpolation_f32(
+        paut->dyn[ilow].hiNr.epf.hw_ynrT_rgeWgt_negOff, paut->dyn[ihigh].hiNr.epf.hw_ynrT_rgeWgt_negOff, ratio);
+    out->dyn.hiNr.epf.hw_ynrT_centerPix_wgt = interpolation_f32(
+        paut->dyn[ilow].hiNr.epf.hw_ynrT_centerPix_wgt, paut->dyn[ihigh].hiNr.epf.hw_ynrT_centerPix_wgt, ratio);
+    out->dyn.hiNr.sf.sw_ynrT_filtCfg_mode = paut->dyn[inear].hiNr.sf.sw_ynrT_filtCfg_mode;
+    out->dyn.hiNr.sf.sw_ynrT_filtSpatial_strg = interpolation_f32(
+        paut->dyn[ilow].hiNr.sf.sw_ynrT_filtSpatial_strg, paut->dyn[ihigh].hiNr.sf.sw_ynrT_filtSpatial_strg, ratio);
+    for (i=0; i<6; i++) {
+        out->dyn.hiNr.sf.hw_ynrT_filtSpatial_wgt[i] = interpolation_u8(
+            paut->dyn[ilow].hiNr.sf.hw_ynrT_filtSpatial_wgt[i], paut->dyn[ihigh].hiNr.sf.hw_ynrT_filtSpatial_wgt[i], uratio);
     }
-    for (i = 0; i < 6; i++) {
-        out->dyn.sigmaRatio.hw_ynrT_sigmaRatio_idx[i] = interpolation_f32(
-                    paut->dyn[ilow].sigmaRatio.hw_ynrT_sigmaRatio_idx[i], paut->dyn[ihigh].sigmaRatio.hw_ynrT_sigmaRatio_idx[i], ratio);
+    out->dyn.hiNr.sfAlphaEpf_baseTex.hw_ynrT_maxAlphaTex_maxThred = interpolation_u16(
+        paut->dyn[ilow].hiNr.sfAlphaEpf_baseTex.hw_ynrT_maxAlphaTex_maxThred, paut->dyn[ihigh].hiNr.sfAlphaEpf_baseTex.hw_ynrT_maxAlphaTex_maxThred, uratio);
+    out->dyn.hiNr.sfAlphaEpf_baseTex.sw_ynr_texIdx_scale = interpolation_f32(
+        paut->dyn[ilow].hiNr.sfAlphaEpf_baseTex.sw_ynr_texIdx_scale, paut->dyn[ihigh].hiNr.sfAlphaEpf_baseTex.sw_ynr_texIdx_scale, ratio);
+    out->dyn.hiNr.sfAlphaEpf_baseTex.sw_ynr_sfAlpha_scale = interpolation_f32(
+        paut->dyn[ilow].hiNr.sfAlphaEpf_baseTex.sw_ynr_sfAlpha_scale, paut->dyn[ihigh].hiNr.sfAlphaEpf_baseTex.sw_ynr_sfAlpha_scale, ratio);
+    out->dyn.midNr.hw_ynrT_midNr_en = paut->dyn[inear].midNr.hw_ynrT_midNr_en;
+    out->dyn.midNr.sw_ynrT_filtCfg_mode = paut->dyn[inear].midNr.sw_ynrT_filtCfg_mode;
+    out->dyn.midNr.sw_ynr_filtSpatial_strg = interpolation_f32(
+        paut->dyn[ilow].midNr.sw_ynr_filtSpatial_strg, paut->dyn[ihigh].midNr.sw_ynr_filtSpatial_strg, ratio);
+    for (i=0; i<3; i++) {
+        out->dyn.midNr.sw_ynr_filtSpatial_wgt[i] = interpolation_f32(
+            paut->dyn[ilow].midNr.sw_ynr_filtSpatial_wgt[i], paut->dyn[ihigh].midNr.sw_ynr_filtSpatial_wgt[i], ratio);
     }
-    for (i = 0; i < 6; i++) {
-        out->dyn.sigmaRatio.hw_ynrT_sigmaRatio_val[i] = interpolation_f32(
-                    paut->dyn[ilow].sigmaRatio.hw_ynrT_sigmaRatio_val[i], paut->dyn[ihigh].sigmaRatio.hw_ynrT_sigmaRatio_val[i], ratio);
+    out->dyn.midNr.sw_ynr_rgeSgm_scale = interpolation_f32(
+        paut->dyn[ilow].midNr.sw_ynr_rgeSgm_scale, paut->dyn[ihigh].midNr.sw_ynr_rgeSgm_scale, ratio);
+    out->dyn.midNr.sw_ynr_centerPix_wgt = interpolation_f32(
+        paut->dyn[ilow].midNr.sw_ynr_centerPix_wgt, paut->dyn[ihigh].midNr.sw_ynr_centerPix_wgt, ratio);
+    out->dyn.midNr.hw_ynrT_softThd_scale = interpolation_f32(
+        paut->dyn[ilow].midNr.hw_ynrT_softThd_scale, paut->dyn[ihigh].midNr.hw_ynrT_softThd_scale, ratio);
+    out->dyn.midNr.hw_ynrT_alphaMfTex_scale = interpolation_f32(
+        paut->dyn[ilow].midNr.hw_ynrT_alphaMfTex_scale, paut->dyn[ihigh].midNr.hw_ynrT_alphaMfTex_scale, ratio);
+    out->dyn.midNr.hw_ynrT_midNrOut_alpha = interpolation_f32(
+        paut->dyn[ilow].midNr.hw_ynrT_midNrOut_alpha, paut->dyn[ihigh].midNr.hw_ynrT_midNrOut_alpha, ratio);
+    out->dyn.loNr.hw_ynrT_loNr_en = paut->dyn[inear].loNr.hw_ynrT_loNr_en;
+    out->dyn.loNr.locYnrStrg_texRegion.hw_ynrT_tex2NrStrg_en = paut->dyn[inear].loNr.locYnrStrg_texRegion.hw_ynrT_tex2NrStrg_en;
+    out->dyn.loNr.locYnrStrg_texRegion.hw_ynrT_flatRegion_maxThred = interpolation_f32(
+        paut->dyn[ilow].loNr.locYnrStrg_texRegion.hw_ynrT_flatRegion_maxThred, paut->dyn[ihigh].loNr.locYnrStrg_texRegion.hw_ynrT_flatRegion_maxThred, ratio);
+    out->dyn.loNr.locYnrStrg_texRegion.hw_ynrT_edgeRegion_minThred = interpolation_f32(
+        paut->dyn[ilow].loNr.locYnrStrg_texRegion.hw_ynrT_edgeRegion_minThred, paut->dyn[ihigh].loNr.locYnrStrg_texRegion.hw_ynrT_edgeRegion_minThred, ratio);
+    out->dyn.loNr.locYnrStrg_texRegion.sw_ynrT_edgeRegionNr_strg = interpolation_f32(
+        paut->dyn[ilow].loNr.locYnrStrg_texRegion.sw_ynrT_edgeRegionNr_strg, paut->dyn[ihigh].loNr.locYnrStrg_texRegion.sw_ynrT_edgeRegionNr_strg, ratio);
+    for (i=0; i<9; i++) {
+        out->dyn.loNr.locYnrStrg_locSgmStrg.hw_ynrT_locSgmStrg2NrStrg_val[i] = interpolation_f32(
+            paut->dyn[ilow].loNr.locYnrStrg_locSgmStrg.hw_ynrT_locSgmStrg2NrStrg_val[i], paut->dyn[ihigh].loNr.locYnrStrg_locSgmStrg.hw_ynrT_locSgmStrg2NrStrg_val[i], ratio);
     }
-    out->dyn.hiNr_filt.hw_ynrT_filt_en = paut->dyn[inear].hiNr_filt.hw_ynrT_filt_en;
-    out->dyn.hiNr_filt.hw_ynrT_lp_en = paut->dyn[inear].hiNr_filt.hw_ynrT_lp_en;
-    out->dyn.hiNr_filt.hw_ynrT_filt_strg = interpolation_f32(
-            paut->dyn[ilow].hiNr_filt.hw_ynrT_filt_strg, paut->dyn[ihigh].hiNr_filt.hw_ynrT_filt_strg, ratio);
-    out->dyn.hiNr_filt.hw_ynrT_spatial_strg = interpolation_f32(
-                paut->dyn[ilow].hiNr_filt.hw_ynrT_spatial_strg, paut->dyn[ihigh].hiNr_filt.hw_ynrT_spatial_strg, ratio);
-    out->dyn.hiNr_filt.hw_ynrT_centerPix_wgt = interpolation_f32(
-                paut->dyn[ilow].hiNr_filt.hw_ynrT_centerPix_wgt, paut->dyn[ihigh].hiNr_filt.hw_ynrT_centerPix_wgt, ratio);
-    out->dyn.hiNr_filt.hw_ynrT_localYnrScl_alpha = interpolation_f32(
-                paut->dyn[ilow].hiNr_filt.hw_ynrT_localYnrScl_alpha, paut->dyn[ihigh].hiNr_filt.hw_ynrT_localYnrScl_alpha, ratio);
-    out->dyn.hiNr_filt.hw_ynrT_nlmSgm_minLimit = interpolation_f32(
-                paut->dyn[ilow].hiNr_filt.hw_ynrT_nlmSgm_minLimit, paut->dyn[ihigh].hiNr_filt.hw_ynrT_nlmSgm_minLimit, ratio);
-    out->dyn.hiNr_filt.hw_ynrT_nlmRgeWgt_negOff = interpolation_f32(
-                paut->dyn[ilow].hiNr_filt.hw_ynrT_nlmRgeWgt_negOff, paut->dyn[ihigh].hiNr_filt.hw_ynrT_nlmRgeWgt_negOff, ratio);
-    out->dyn.hiNr_smooth.hw_ynrT_filtOut_alpha = interpolation_f32(
-                paut->dyn[ilow].hiNr_smooth.hw_ynrT_filtOut_alpha, paut->dyn[ihigh].hiNr_smooth.hw_ynrT_filtOut_alpha, ratio);
-    out->dyn.hiNr_smooth.hw_ynrT_spatial_strg = interpolation_f32(
-                paut->dyn[ilow].hiNr_smooth.hw_ynrT_spatial_strg, paut->dyn[ihigh].hiNr_smooth.hw_ynrT_spatial_strg, ratio);
-    out->dyn.hiNr_smooth.hw_ynrT_locSgmStrgAlphaUp_thred = interpolation_f32(
-                paut->dyn[ilow].hiNr_smooth.hw_ynrT_locSgmStrgAlphaUp_thred, paut->dyn[ihigh].hiNr_smooth.hw_ynrT_locSgmStrgAlphaUp_thred, ratio);
-    out->dyn.hiNr_smooth.sw_ynr_texArea_thred = interpolation_f32(
-                paut->dyn[ilow].hiNr_smooth.sw_ynr_texArea_thred, paut->dyn[ihigh].hiNr_smooth.sw_ynr_texArea_thred, ratio);
-    out->dyn.hiNr_smooth.sw_ynr_texArea_scale = interpolation_f32(
-                paut->dyn[ilow].hiNr_smooth.sw_ynr_texArea_scale, paut->dyn[ihigh].hiNr_smooth.sw_ynr_texArea_scale, ratio);
-    out->dyn.miNr_filt.hw_ynrT_filt_en = paut->dyn[inear].miNr_filt.hw_ynrT_filt_en;
-    out->dyn.miNr_filt.hw_ynrT_filt_strg = interpolation_f32(
-            paut->dyn[ilow].miNr_filt.hw_ynrT_filt_strg, paut->dyn[ihigh].miNr_filt.hw_ynrT_filt_strg, ratio);
-    out->dyn.miNr_filt.hw_ynrT_spatial_strg = interpolation_f32(
-                paut->dyn[ilow].miNr_filt.hw_ynrT_spatial_strg, paut->dyn[ihigh].miNr_filt.hw_ynrT_spatial_strg, ratio);
-    out->dyn.miNr_filt.hw_ynrT_centerPix_wgt = interpolation_f32(
-                paut->dyn[ilow].miNr_filt.hw_ynrT_centerPix_wgt, paut->dyn[ihigh].miNr_filt.hw_ynrT_centerPix_wgt, ratio);
-    out->dyn.miNr_filt.hw_ynrT_softThd_scale = interpolation_f32(
-                paut->dyn[ilow].miNr_filt.hw_ynrT_softThd_scale, paut->dyn[ihigh].miNr_filt.hw_ynrT_softThd_scale, ratio);
-    out->dyn.miNr_filt.hw_ynrT_filtOut_alpha = interpolation_f32(
-                paut->dyn[ilow].miNr_filt.hw_ynrT_filtOut_alpha, paut->dyn[ihigh].miNr_filt.hw_ynrT_filtOut_alpha, ratio);
-    out->dyn.miNr_filt.hw_ynrT_enhance_en = paut->dyn[inear].miNr_filt.hw_ynrT_enhance_en;
-    out->dyn.miNr_filt.hw_ynrT_fenhance_scale = interpolation_f32(
-                paut->dyn[ilow].miNr_filt.hw_ynrT_fenhance_scale, paut->dyn[ihigh].miNr_filt.hw_ynrT_fenhance_scale, ratio);
-    out->dyn.loNr_iirGuide.hw_ynrT_filt_en = paut->dyn[inear].loNr_iirGuide.hw_ynrT_filt_en;
-    out->dyn.loNr_iirGuide.hw_ynrT_filt_strg = interpolation_f32(
-                paut->dyn[ilow].loNr_iirGuide.hw_ynrT_filt_strg, paut->dyn[ihigh].loNr_iirGuide.hw_ynrT_filt_strg, ratio);
-    out->dyn.loNr_iirGuide.hw_ynrT_softThd_scale = interpolation_f32(
-                paut->dyn[ilow].loNr_iirGuide.hw_ynrT_softThd_scale, paut->dyn[ihigh].loNr_iirGuide.hw_ynrT_softThd_scale, ratio);
-    out->dyn.loNr_iirGuide.hw_ynrT_centerPix_wgt = interpolation_f32(
-                paut->dyn[ilow].loNr_iirGuide.hw_ynrT_centerPix_wgt, paut->dyn[ihigh].loNr_iirGuide.hw_ynrT_centerPix_wgt, ratio);
-    out->dyn.loNr_iirGuide.hw_ynrT_softThdV_scale = interpolation_f32(
-                paut->dyn[ilow].loNr_iirGuide.hw_ynrT_softThdV_scale, paut->dyn[ihigh].loNr_iirGuide.hw_ynrT_softThdV_scale, ratio);
-    out->dyn.loNr_iirGuide.hw_ynrT_centerPixV_wgt = interpolation_f32(
-                paut->dyn[ilow].loNr_iirGuide.hw_ynrT_centerPixV_wgt, paut->dyn[ihigh].loNr_iirGuide.hw_ynrT_centerPixV_wgt, ratio);
-    out->dyn.loNr_iirGuide.hw_ynrT_softThdH_scale = interpolation_f32(
-                paut->dyn[ilow].loNr_iirGuide.hw_ynrT_softThdH_scale, paut->dyn[ihigh].loNr_iirGuide.hw_ynrT_softThdH_scale, ratio);
-    out->dyn.loNr_iirGuide.hw_ynrT_centerPixH_wgt = interpolation_f32(
-                paut->dyn[ilow].loNr_iirGuide.hw_ynrT_centerPixH_wgt, paut->dyn[ihigh].loNr_iirGuide.hw_ynrT_centerPixH_wgt, ratio);
-    out->dyn.loNr_filt.hw_ynrT_filt_en = paut->dyn[inear].loNr_filt.hw_ynrT_filt_en;
-    out->dyn.loNr_filt.hw_ynrT_filt_strg = interpolation_f32(
-            paut->dyn[ilow].loNr_filt.hw_ynrT_filt_strg, paut->dyn[ihigh].loNr_filt.hw_ynrT_filt_strg, ratio);
-    out->dyn.loNr_filt.hw_ynrT_centerPix_wgt = interpolation_f32(
-                paut->dyn[ilow].loNr_filt.hw_ynrT_centerPix_wgt, paut->dyn[ihigh].loNr_filt.hw_ynrT_centerPix_wgt, ratio);
-    out->dyn.loNr_filt.hw_ynrT_texThred_scale = interpolation_f32(
-                paut->dyn[ilow].loNr_filt.hw_ynrT_texThred_scale, paut->dyn[ihigh].loNr_filt.hw_ynrT_texThred_scale, ratio);
-    out->dyn.loNr_filt.hw_ynrT_softThd_scale = interpolation_f32(
-                paut->dyn[ilow].loNr_filt.hw_ynrT_softThd_scale, paut->dyn[ihigh].loNr_filt.hw_ynrT_softThd_scale, ratio);
-    out->dyn.loNr_filt.hw_ynrT_filtOut_alpha = interpolation_f32(
-                paut->dyn[ilow].loNr_filt.hw_ynrT_filtOut_alpha, paut->dyn[ihigh].loNr_filt.hw_ynrT_filtOut_alpha, ratio);
-    out->dyn.loNr_texDct.hw_ynrT_texDct_en = paut->dyn[inear].loNr_texDct.hw_ynrT_texDct_en;
-    out->dyn.loNr_texDct.sw_ynr_texArea_strg = interpolation_f32(
-                paut->dyn[ilow].loNr_texDct.sw_ynr_texArea_strg, paut->dyn[ihigh].loNr_texDct.sw_ynr_texArea_strg, ratio);
-    out->dyn.loNr_texDct.sw_ynr_texDct_minThred = interpolation_f32(
-                paut->dyn[ilow].loNr_texDct.sw_ynr_texDct_minThred, paut->dyn[ihigh].loNr_texDct.sw_ynr_texDct_minThred, ratio);
-    out->dyn.loNr_texDct.sw_ynr_texDct_maxThred = interpolation_f32(
-                paut->dyn[ilow].loNr_texDct.sw_ynr_texDct_maxThred, paut->dyn[ihigh].loNr_texDct.sw_ynr_texDct_maxThred, ratio);
-
+    out->dyn.loNr.epf.hw_ynrT_rgeSgm_scale = interpolation_f32(
+        paut->dyn[ilow].loNr.epf.hw_ynrT_rgeSgm_scale, paut->dyn[ihigh].loNr.epf.hw_ynrT_rgeSgm_scale, ratio);
+    out->dyn.loNr.epf.hw_ynrT_guideSoftThd_scale = interpolation_f32(
+        paut->dyn[ilow].loNr.epf.hw_ynrT_guideSoftThd_scale, paut->dyn[ihigh].loNr.epf.hw_ynrT_guideSoftThd_scale, ratio);
+    out->dyn.loNr.epf.hw_ynrT_centerPix_wgt = interpolation_f32(
+        paut->dyn[ilow].loNr.epf.hw_ynrT_centerPix_wgt, paut->dyn[ihigh].loNr.epf.hw_ynrT_centerPix_wgt, ratio);
+    out->dyn.loNr.epf.hw_ynrT_softThd_scale = interpolation_f32(
+        paut->dyn[ilow].loNr.epf.hw_ynrT_softThd_scale, paut->dyn[ihigh].loNr.epf.hw_ynrT_softThd_scale, ratio);
+    for (i=0; i<9; i++) {
+        out->dyn.loNr.epf.hw_ynrT_locSgmStrg2NrOut_alpha[i] = interpolation_f32(
+            paut->dyn[ilow].loNr.epf.hw_ynrT_locSgmStrg2NrOut_alpha[i], paut->dyn[ihigh].loNr.epf.hw_ynrT_locSgmStrg2NrOut_alpha[i], ratio);
+    }
     return XCAM_RETURN_NO_ERROR;
 }
 
@@ -478,7 +464,7 @@ static void ynr_init_params_json_V40(ynr_api_attrib_t *attrib) {
         ynr_params_dyn_t* pdyn = &(attrib->stAuto.dyn[j]);
 
         for (k = 0; k < 5; k++) {
-            tmpYnrCurve[k] = (float)pdyn->coeff2SgmCurve.sigma_coeff[k];
+            tmpYnrCurve[k] = (float)pdyn->sigmaEnv.coeff2SgmCurve.sigma_coeff[k];
         }
 
         pYnrCurve = tmpYnrCurve;
@@ -492,17 +478,17 @@ static void ynr_init_params_json_V40(ynr_api_attrib_t *attrib) {
             else {
                 ave1 = (float)(i * isoCurveSectValue);
             }
-            pdyn->hw_ynrC_luma2Sigma_curve.idx[i] = (short)ave1;
+            pdyn->sigmaEnv.hw_ynrC_luma2Sigma_curve.idx[i] = (short)ave1;
             ave2 = ave1 * ave1;
             ave3 = ave2 * ave1;
             ave4 = ave3 * ave1;
             uint16_t tmp = pYnrCurve[0] * ave4 + pYnrCurve[1] * ave3 + pYnrCurve[2] * ave2 + pYnrCurve[3] * ave1 + pYnrCurve[4];
-            pdyn->hw_ynrC_luma2Sigma_curve.val[i] = MIN(tmp, 0);
+            pdyn->sigmaEnv.hw_ynrC_luma2Sigma_curve.val[i] = tmp;
 
             if (bit_shift > 0) {
-                pdyn->hw_ynrC_luma2Sigma_curve.idx[i] >>= bit_shift;
+                pdyn->sigmaEnv.hw_ynrC_luma2Sigma_curve.idx[i] >>= bit_shift;
             } else {
-                pdyn->hw_ynrC_luma2Sigma_curve.idx[i] <<= ABS(bit_shift);
+                pdyn->sigmaEnv.hw_ynrC_luma2Sigma_curve.idx[i] <<= ABS(bit_shift);
             }
         }
     } //  read noise sigma curve data and ci
@@ -617,6 +603,9 @@ XCamReturn Aynr_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outpar
 #if RKAIQ_HAVE_YNR_V24
         YnrSelectParam(pYnrCtx, ynr_res, iso);
         YnrApplyStrength(pYnrCtx, ynr_res);
+#endif
+#if RKAIQ_HAVE_YNR_V40
+        YnrSelectParam(pYnrCtx, ynr_res, iso);
 #endif
         outparams->cfg_update = true;
         outparams->en = ynr_attrib->en;

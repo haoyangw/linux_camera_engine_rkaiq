@@ -121,23 +121,37 @@ void AiqIspParamsCvt_getCommonCvtInfo(AiqIspParamsCvt_t* pCvt, AiqList_t* result
 #endif
     }
 
-    pCvt->mCommonCvtInfo.cnr_ynr_sharp_same = 0;
+    pCvt->mCommonCvtInfo.cnr_path_valid = 0;
     aiq_params_base_t* ynrResult =
         AiqIspParamsCvt_get_3a_result(pCvt, results, RESULT_TYPE_YNR_PARAM);
-    aiq_params_base_t* cnResult =
+    aiq_params_base_t* cnrResult =
         AiqIspParamsCvt_get_3a_result(pCvt, results, RESULT_TYPE_UVNR_PARAM);
     aiq_params_base_t* sharpResult =
         AiqIspParamsCvt_get_3a_result(pCvt, results, RESULT_TYPE_SHARPEN_PARAM);
-    if (ynrResult!= NULL && cnResult != NULL && sharpResult != NULL) {
-        if (ynrResult->en == cnResult->en && ynrResult->en == sharpResult->en) {
-            pCvt->mCommonCvtInfo.cnr_ynr_sharp_same = 1;
+#if ISP_HW_V39
+    if (ynrResult!= NULL && cnrResult != NULL && sharpResult != NULL) {
+        if (ynrResult->en == cnrResult->en && ynrResult->en == sharpResult->en) {
+            pCvt->mCommonCvtInfo.cnr_path_valid = 1;
         }
         else {
-            pCvt->mCommonCvtInfo.cnr_ynr_sharp_same = 0;
+            pCvt->mCommonCvtInfo.cnr_path_valid = 0;
         }
     }
-    LOGD_CAMHW_SUBM(ISP20PARAM_SUBM, "%s: cnr_ynr_sharp_same = %d", __func__, 
-                    pCvt->mCommonCvtInfo.cnr_ynr_sharp_same);
+#elif ISP_HW_V33
+    aiq_params_base_t* enhResult =
+        AiqIspParamsCvt_get_3a_result(pCvt, results, RESULT_TYPE_ENH_PARAM);
+    if (ynrResult != NULL && cnrResult != NULL && sharpResult != NULL && enhResult != NULL) {
+        if (ynrResult->en == cnrResult->en && ynrResult->en == sharpResult->en && sharpResult->en == enhResult->en) {
+            pCvt->mCommonCvtInfo.cnr_path_valid = 1;
+        }
+        else {
+            pCvt->mCommonCvtInfo.cnr_path_valid = 0;
+        }
+    }
+    pCvt->mCommonCvtInfo.cnr_path_valid = 1;
+#endif
+    LOGD_CAMHW_SUBM(ISP20PARAM_SUBM, "%s: cnr_path_valid = %d", __func__,
+                    pCvt->mCommonCvtInfo.cnr_path_valid);
 #if RKAIQ_HAVE_DEHAZE_V14
     if (ynrResult != NULL) {
         ynr_param_t* ynr_param = (ynr_param_t*)ynrResult->_data;
@@ -207,4 +221,13 @@ XCamReturn AiqIspParamsCvt_init(AiqIspParamsCvt_t* pCvt) {
 }
 
 void AiqIspParamsCvt_deinit(AiqIspParamsCvt_t* pCvt) {
+#if defined(ISP_HW_V39)
+    for (int i = 0;i < pCvt->mCacInfo.current_lut_size;i++) {
+        aiq_free(pCvt->mCacInfo.current_lut_[i]);
+        pCvt->mCacInfo.current_lut_[i] = NULL;
+    }
+    pCvt->mCacInfo.current_lut_size = 0;
+    aiq_free(pCvt->mCacInfo.lut_manger_);
+    pCvt->mCacInfo.lut_manger_ = NULL;
+#endif
 }

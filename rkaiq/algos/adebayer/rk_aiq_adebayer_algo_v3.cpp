@@ -597,17 +597,23 @@ AdebayerGetProcResult
     // log fix bit : 10, 1 / sigma, (1 << RK_DEBAYER_V31_FIX_BIT_INV_SIGMA) / (sigma)
     float sqrtLog2e                         = 1.2011;
     int hw_dmT_cnrLoFltVsigma_inv           = ROUND_F((1 << RK_DEBAYER_V31_FIX_BIT_INV_SIGMA) * sqrtLog2e / ((1 << RK_DEBAYER_V31_FIX_BIT_LOG2) * pAdebayerCtx->select_param_v3.sw_dmT_cnrLoFlt_vsigma));
+    //@reg: hw_dmT_cnrLoFltWgt_slope
     pAdebayerCtx->config.wgtslope           = ROUND_F(pAdebayerCtx->select_param_v3.sw_dmT_cnrLoFltWgt_slope * (1 << RK_DEBAYER_V31_FIX_BIT_SLOPE));
 
     // chromaFilterStrength * wgtSlope, int to float
     int tmptmp                              = hw_dmT_cnrLoFltVsigma_inv * pAdebayerCtx->config.wgtslope;
     int shiftBit                            = LOG2(tmptmp) - RK_DEBAYER_V31_FIX_BIT_INT_TO_FLOAT;
     shiftBit                                = MAX(shiftBit, 0);
+    //@reg: hw_dmT_cnrLoFltStrg_inv
     pAdebayerCtx->config.ce_sgm             = ROUND_F((float)tmptmp / (1 << shiftBit));
+    //@reg: hw_dmT_cnrLoFltStrg_shift
     pAdebayerCtx->config.exp_shift          = RK_DEBAYER_V31_FIX_BIT_INV_SIGMA - shiftBit;
 
     /* C_FILTER_IIR_1 */
+
+    //@reg: hw_dmT_cnrLoFltWgt_maxLimit
     pAdebayerCtx->config.wet_clip           = ROUND_F(pAdebayerCtx->select_param_v3.sw_dmT_cnrLoFltWgt_maxLimit * (1 << RK_DEBAYER_V31_FIX_BIT_WGT_RATIO));
+    //@reg: hw_dmT_cnrLoFltWgt_minThred
     pAdebayerCtx->config.wet_ghost          = ROUND_F(pAdebayerCtx->select_param_v3.sw_dmT_cnrLoFltWgt_minThred * (1 << RK_DEBAYER_V31_FIX_BIT_IIR_WGT));
 
     /* C_FILTER_BF */

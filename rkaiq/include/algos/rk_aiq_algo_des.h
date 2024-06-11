@@ -107,6 +107,7 @@ typedef enum RkAiqAlgoType_e {
     RK_AIQ_ALGO_TYPE_AHISTEQ,
     RK_AIQ_ALGO_TYPE_AENH,
     RK_AIQ_ALGO_TYPE_ALDC,
+    RK_AIQ_ALGO_TYPE_AHSV,
     RK_AIQ_ALGO_TYPE_MAX
 } RkAiqAlgoType_t;
 

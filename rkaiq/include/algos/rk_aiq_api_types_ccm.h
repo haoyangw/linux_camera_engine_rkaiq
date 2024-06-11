@@ -107,18 +107,6 @@ typedef struct {
 
 typedef struct {    
     /* M4_GENERIC_DESC(
-        M4_ALIAS(iso),
-        M4_TYPE(u32),
-        M4_UI_PARAM(index),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,10000000),
-        M4_DEFAULT(50),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(The iso array for dynamic params array.\nFreq of use: high))  */
-    uint32_t iso;
-    /* M4_GENERIC_DESC(
         M4_ALIAS(scale),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),

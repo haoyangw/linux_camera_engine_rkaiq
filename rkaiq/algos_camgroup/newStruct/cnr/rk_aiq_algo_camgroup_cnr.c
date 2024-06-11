@@ -45,9 +45,9 @@ static XCamReturn groupCnrProcessing(const RkAiqAlgoCom* inparams, RkAiqAlgoResC
     Acnr_processing(inparams, outparams, iso);
 
 	void* gp_ptrs[procResParaGroup->arraySize];
-	int gp_size = sizeof(*procResParaGroup->camgroupParmasArray[0]->lut3d);
+	int gp_size = sizeof(*procResParaGroup->camgroupParmasArray[0]->cnr);
 	for (int i = 0; i < procResParaGroup->arraySize; i++)
-		gp_ptrs[i] = procResParaGroup->camgroupParmasArray[i]->lut3d;
+		gp_ptrs[i] = procResParaGroup->camgroupParmasArray[i]->cnr;
 
 	algo_camgroup_update_results(inparams, outparams, gp_ptrs, gp_size);
     LOGD_ANR("%s exit\n", __FUNCTION__);

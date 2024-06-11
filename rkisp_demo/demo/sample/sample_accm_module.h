@@ -26,5 +26,7 @@ void sample_print_accm_v2_info(const void *arg);
 XCamReturn sample_accm_v2_module(const void* arg);
 #ifdef USE_NEWSTRUCT
 int sample_ccm_test(const rk_aiq_sys_ctx_t* ctx);
+int sample_query_ccm_status(const rk_aiq_sys_ctx_t* ctx);
+int sample_ccm_setCalib_test(const rk_aiq_sys_ctx_t* ctx);
 #endif
 #endif
