@@ -721,6 +721,12 @@ checkAlgoEnableInit(GlobalParamsManager_t* pMan) {
     if (!(ynr_en == cnr_en && cnr_en == sharp_en && sharp_en == enh_en)) {
         LOGW("ynr, cnr, sharp and enh should be on or off in the same time");
     }
+    bool histeq_en = *pMan->mGlobalParams[RESULT_TYPE_HISTEQ_PARAM].en;
+    bool enh_bypass = *pMan->mGlobalParams[RESULT_TYPE_ENH_PARAM].bypass;
+    if (histeq_en && !(enh_en && !enh_bypass)) {
+        *pMan->mGlobalParams[RESULT_TYPE_HISTEQ_PARAM].en = 0;
+        LOGE("Histeq should be turned off when enh is turned off or bypass");
+    }
 #endif
 #if RKAIQ_HAVE_YUVME
     if (*pMan->mGlobalParams[RESULT_TYPE_TNR_PARAM].en != *pMan->mGlobalParams[RESULT_TYPE_MOTION_PARAM].en) {
@@ -1091,6 +1097,15 @@ XCamReturn GlobalParamsManager_checkAlgoEnableBypass(GlobalParamsManager_t* pMan
     if (type == RESULT_TYPE_ENH_PARAM) {
         if (*pMan->mGlobalParams[type].en != *en) {
             LOGD("enh en is changed");
+            bool enh_en = *en;
+            bool enh_bypass = *bypass;
+            if (*pMan->mGlobalParams[RESULT_TYPE_HISTEQ_PARAM].en && !(enh_en && !enh_bypass)) {
+                *pMan->mGlobalParams[RESULT_TYPE_HISTEQ_PARAM].en = 0;
+                pMan->mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_HISTEQ_PARAM;
+                LOGW("Histeq relies on the resources of the Enh, Histeq is automatically turned off when Enh is turned off or bypass");
+                socket_client_setNote(pMan->_socket, IPC_RET_UAPI_WARNING,
+                    "Histeq relies on the resources of the Enh, Histeq is automatically turned off when Enh is turned off or bypass");
+            }
             return XCAM_RETURN_BYPASS;
         }
     }
@@ -1124,13 +1139,16 @@ XCamReturn GlobalParamsManager_checkAlgoEnableBypass(GlobalParamsManager_t* pMan
     }
 
     if (type == RESULT_TYPE_MERGE_PARAM) {
-        if (AiqManager_getWorkingMode(pMan->rkAiqManager) != RK_AIQ_WORKING_MODE_NORMAL && (*en == 0 || *bypass == 1)) {
-            LOGE("HDRMGE must be on  when isp is HDR mode. Please turn on by mge.en");
-            return XCAM_RETURN_ERROR_FAILED;
-        }
-        if (AiqManager_getWorkingMode(pMan->rkAiqManager) == RK_AIQ_WORKING_MODE_NORMAL && *en == 1) {
-            LOGE("HDRMGE must be off when isp is Liner mode. Please turn off by mge.en");
-            return XCAM_RETURN_ERROR_FAILED;
+        if (state == AIQ_STATE_PREPARED || state == AIQ_STATE_STARTED) {
+            printf("state %d\n", state);
+            if (AiqManager_getWorkingMode(pMan->rkAiqManager) != RK_AIQ_WORKING_MODE_NORMAL && (*en == 0 || *bypass == 1)) {
+                LOGE("HDRMGE must be on  when isp is HDR mode. Please turn on by mge.en");
+                return XCAM_RETURN_ERROR_FAILED;
+            }
+            if (AiqManager_getWorkingMode(pMan->rkAiqManager) == RK_AIQ_WORKING_MODE_NORMAL && *en == 1) {
+                LOGE("HDRMGE must be off when isp is Liner mode. Please turn off by mge.en");
+                return XCAM_RETURN_ERROR_FAILED;
+            }
         }
     }
     if (type == RESULT_TYPE_DRC_PARAM) {
@@ -1209,6 +1227,16 @@ XCamReturn GlobalParamsManager_checkAlgoEnableBypass(GlobalParamsManager_t* pMan
             socket_client_setNote(pMan->_socket, IPC_RET_UAPI_WARNING,
                 "DRC relies on DEBAYER & CAC, so DEBAYER & CAC are autoly enabled and configured bypass, "
                 "cause slight differences in power consumption.");
+        }
+    }
+    if (type == RESULT_TYPE_HISTEQ_PARAM) {
+        bool enh_en = *pMan->mGlobalParams[RESULT_TYPE_ENH_PARAM].en;
+        bool enh_bypass = *pMan->mGlobalParams[RESULT_TYPE_ENH_PARAM].bypass;
+        if (*pMan->mGlobalParams[type].en != *en && !(enh_en && !enh_bypass)) {
+            LOGE("Histeq should be turned off when enh is turned off or bypass");
+            socket_client_setNote(pMan->_socket, IPC_RET_UAPI_ERROR,
+                "Histeq should be turned off when enh is turned off or bypass");
+            return XCAM_RETURN_ERROR_FAILED;
         }
     }
 #endif

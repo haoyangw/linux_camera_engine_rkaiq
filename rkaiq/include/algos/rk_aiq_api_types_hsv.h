@@ -35,7 +35,7 @@ typedef struct {
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0,8),
         M4_DEFAULT("D50"),
-        M4_HIDE_EX(0),
+        M4_HIDE_EX(1),
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(The illumiantion name.))  */
@@ -43,7 +43,7 @@ typedef struct {
     /* M4_GENERIC_DESC(
         M4_ALIAS(meshGain),
         M4_TYPE(struct),
-        M4_UI_MODULE(normal_ui_style),
+        M4_UI_MODULE(HSV_Curve),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
@@ -55,11 +55,11 @@ typedef struct {
 	/* M4_GENERIC_DESC(
         M4_ALIAS(tableAll),
         M4_TYPE(struct_list),
-        M4_UI_MODULE(normal_ui_style),
+        M4_UI_MODULE(illu_index_list),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_NOTES(3dlut profiles.\nFreq of use: high))  */
+        M4_NOTES(hsv profiles.\nFreq of use: high))  */
 	ahsv_tableAll_t tableAll[AHSV_CALIBDB_LEN];
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_hsvC_tblAll_len),
@@ -112,7 +112,7 @@ typedef struct {
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0,8),
         M4_DEFAULT("D50"),
-        M4_HIDE_EX(0),
+        M4_HIDE_EX(1),
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(The illumiantion name.))  */
@@ -159,7 +159,7 @@ typedef struct {
 	/* M4_GENERIC_DESC(
         M4_ALIAS(illuLink),
         M4_TYPE(struct_list),
-        M4_UI_MODULE(normal_ui_style),
+        M4_UI_MODULE(illu_index_list),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
@@ -214,7 +214,7 @@ typedef struct {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_NOTES(enable software damping.))  */
+        M4_NOTES(enable software damping. \nFreq of use: low))  */
     bool sw_hsvT_damp_en;
     /* M4_GENERIC_DESC(
         M4_ALIAS(hsvCfg),

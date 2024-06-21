@@ -58,8 +58,8 @@ typedef struct {
 
 typedef struct {
     /* M4_GENERIC_DESC(
-    M4_ALIAS(blf3_bypass),
-    M4_GROUP_CTRL(blf3_bypass_group),
+    M4_ALIAS(hw_enhT_loBlf_bypass),
+    M4_GROUP_CTRL(loBlf_bypass_group),
     M4_TYPE(bool),
     M4_DEFAULT(0),
     M4_HIDE_EX(0),
@@ -67,10 +67,10 @@ typedef struct {
     M4_ORDER(1),
     M4_NOTES(The enable of color protection.\n
     Freq of use: low))  */
-    bool hw_enhT_blf3_bypass;
+    bool hw_enhT_loBlf_bypass;
     /* M4_GENERIC_DESC(
-        M4_ALIAS(blf3_inv_sigma),
-        M4_GROUP(blf3_bypass_group),
+        M4_ALIAS(hw_enhT_loBlf_inv_sigma),
+        M4_GROUP(loBlf_bypass_group),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0,1),
@@ -80,10 +80,10 @@ typedef struct {
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(TODO.\n Freq of use: low))  */
-    float hw_enhT_blf3_inv_sigma;
+    float hw_enhT_loBlf_inv_sigma;
     /* M4_GENERIC_DESC(
-    M4_ALIAS(blf3_cur_wgt),
-    M4_GROUP(blf3_bypass_group),
+    M4_ALIAS(hw_enhT_loBlf_cur_wgt),
+    M4_GROUP(loBlf_bypass_group),
     M4_TYPE(f32),
     M4_SIZE_EX(1,1),
     M4_RANGE_EX(0,1),
@@ -93,10 +93,10 @@ typedef struct {
     M4_RO(0),
     M4_ORDER(0),
     M4_NOTES(TODO.\n Freq of use: low))  */
-    float hw_enhT_blf3_cur_wgt;
+    float hw_enhT_loBlf_cur_wgt;
     /* M4_GENERIC_DESC(
-    M4_ALIAS(blf3_thumb_cur_wgt),
-    M4_GROUP(blf3_bypass_group),
+    M4_ALIAS(hw_enhT_loBlf_thumb_cur_wgt),
+    M4_GROUP(loBlf_bypass_group),
     M4_TYPE(f32),
     M4_SIZE_EX(1,1),
     M4_RANGE_EX(1,15),
@@ -106,12 +106,12 @@ typedef struct {
     M4_RO(0),
     M4_ORDER(0),
     M4_NOTES(TODO.\n Freq of use: low))  */
-    float hw_enhT_blf3_thumb_cur_wgt;
-} enh_blf3Flt_params_t;
+    float hw_enhT_loBlf_thumb_cur_wgt;
+} enh_loBlfFlt_params_t;
 
 typedef struct {
     /* M4_GENERIC_DESC(
-        M4_ALIAS(blf5_inv_sigma),
+        M4_ALIAS(hw_enhT_midBlf_inv_sigma),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0,1),
@@ -121,9 +121,9 @@ typedef struct {
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(TODO.\n Freq of use: low))  */
-    float hw_enhT_blf5_inv_sigma;
+    float hw_enhT_midBlf_inv_sigma;
 	/* M4_GENERIC_DESC(
-        M4_ALIAS(blf5_cur_wgt),
+        M4_ALIAS(hw_enhT_midBlf_cur_wgt),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0,1),
@@ -133,8 +133,8 @@ typedef struct {
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(TODO.\n Freq of use: low))  */
-    float hw_enhT_blf5_cur_wgt;
-} enh_blf5Flt_params_t;
+    float hw_enhT_midBlf_cur_wgt;
+} enh_midBlfFlt_params_t;
 
 typedef struct enh_detail2strg_curve_s {
     /* M4_GENERIC_DESC(
@@ -242,23 +242,23 @@ typedef struct {
     M4_NOTES(All bifilt_filter params corresponded with iso array))  */
     enh_iirFlt_params_t iir;
     /* M4_GENERIC_DESC(
-    M4_ALIAS(blf3),
+    M4_ALIAS(loBlf),
     M4_TYPE(struct),
     M4_UI_MODULE(normal_ui_style),
     M4_HIDE_EX(0),
     M4_RO(0),
     M4_ORDER(2),
     M4_NOTES(All bifilt_filter params corresponded with iso array))  */
-    enh_blf3Flt_params_t blf3;
+    enh_loBlfFlt_params_t loBlf;
     /* M4_GENERIC_DESC(
-    M4_ALIAS(blf5),
+    M4_ALIAS(midBlf),
     M4_TYPE(struct),
     M4_UI_MODULE(normal_ui_style),
     M4_HIDE_EX(0),
     M4_RO(0),
     M4_ORDER(2),
     M4_NOTES(All bifilt_filter params corresponded with iso array))  */
-    enh_blf5Flt_params_t blf5;
+    enh_midBlfFlt_params_t midBlf;
     /* M4_GENERIC_DESC(
     M4_ALIAS(strg),
     M4_TYPE(struct),

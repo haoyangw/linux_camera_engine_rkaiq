@@ -183,32 +183,35 @@ typedef struct drc_gdDiffMaxCurveCtrl_s {
 
 typedef struct drc_bifilt_guideDiff_s {
     /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_adrc_thumb_maxLimit),
-        M4_TYPE(f32),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,16),
-        M4_DEFAULT(4),
-        M4_DIGIT_EX(2),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(The max limit of thumb reliability.\n
-        Freq of use: low))  */
-    // @reg: hw_adrc_thumb_maxLimit
-    float hw_drcT_guideLuma_maxLimit;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_adrc_thumbThred_en),
-        M4_TYPE(bool),
-        M4_DEFAULT(1),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(The enable of thumb soft thread.\n
-                Freq of use: low))  */
+    M4_ALIAS(hw_adrc_thumbThred_en),
+    M4_GROUP_CTRL(guideDiffLmt_en_group),
+    M4_TYPE(bool),
+    M4_DEFAULT(1),
+    M4_HIDE_EX(0),
+    M4_RO(0),
+    M4_ORDER(0),
+    M4_NOTES(The enable of thumb soft thread.\n
+            Freq of use: low))  */
     // reg: hw_adrc_thumbThred_en;
     bool hw_drcT_guideDiffLmt_en;
     /* M4_GENERIC_DESC(
+    M4_ALIAS(hw_adrc_thumb_maxLimit),
+    M4_GROUP(guideDiffLmt_en_group),
+    M4_TYPE(f32),
+    M4_SIZE_EX(1,1),
+    M4_RANGE_EX(0,16),
+    M4_DEFAULT(4),
+    M4_DIGIT_EX(2),
+    M4_HIDE_EX(0),
+    M4_RO(0),
+    M4_ORDER(0),
+    M4_NOTES(The max limit of thumb reliability.\n
+    Freq of use: low))  */
+    // @reg: hw_adrc_thumb_maxLimit
+    float hw_drcT_guideLuma_maxLimit;
+    /* M4_GENERIC_DESC(
         M4_ALIAS(hw_adrc_thumbThred_neg),
+        M4_GROUP(guideDiffLmt_en_group),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0,2),
@@ -222,7 +225,24 @@ typedef struct drc_bifilt_guideDiff_s {
     // @reg: hw_adrc_thumbThred_neg
     float hw_drcT_guideDiff_minLimit;
     /* M4_GENERIC_DESC(
+    M4_ALIAS(hw_adrc_thumb_scale),
+    M4_GROUP(guideDiffLmt_en_group),
+    M4_TYPE(f32),
+    M4_SIZE_EX(1,1),
+    M4_RANGE_EX(0,16),
+    M4_DEFAULT(1),
+    M4_DIGIT_EX(2),
+    M4_HIDE_EX(0),
+    M4_RO(0),
+    M4_ORDER(0),
+    M4_NOTES(The scale value of thumb reliability.\n
+    Freq of use: low))  */
+    // @reg: hw_adrc_thumb_scale
+    float hw_drcT_maxLutIdx_scale;
+    /* M4_GENERIC_DESC(
         M4_ALIAS(sw_drcT_gdDiffMaxLut_mode),
+        M4_GROUP(guideDiffLmt_en_group),
+        M4_GROUP_CTRL(gdDiffMaxLut_mode_group),
         M4_TYPE(enum),
         M4_ENUM_DEF(drc_curveCfg_mode_t),
         M4_DEFAULT(drc_cfgCurveCtrlCoeff_mode),
@@ -234,21 +254,8 @@ typedef struct drc_bifilt_guideDiff_s {
         Freq of use: low))  */
     drc_curveCfg_mode_t sw_drcT_gdDiffMaxLut_mode;
     /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_adrc_thumb_scale),
-        M4_TYPE(f32),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,16),
-        M4_DEFAULT(1),
-        M4_DIGIT_EX(2),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(The scale value of thumb reliability.\n
-        Freq of use: low))  */
-    // @reg: hw_adrc_thumb_scale
-    float hw_drcT_maxLutIdx_scale;
-    /* M4_GENERIC_DESC(
         M4_ALIAS(hw_adrc_thumbDiff2thred_val),
+        M4_GROUP(guideDiffLmt_en_group;gdDiffMaxLut_mode_group:drc_cfgCurveDirect_mode),
         M4_TYPE(f32),
         M4_UI_MODULE(drc_curve),
         M4_SIZE_EX(1,17),
@@ -260,12 +267,14 @@ typedef struct drc_bifilt_guideDiff_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_NOTES(Users can directly configure the guide diff maxLimit LUT through guideLuma2DiffMax_curve when maxCurve_mode == drc_cfgCurveDirect_mode.\n
-        Freq of use: low))  */
+        M4_NOTES(Users can directly configure the guide diff maxLimit LUT through
+       guideLuma2DiffMax_curve when maxCurve_mode == drc_cfgCurveDirect_mode.\n Freq of use: low))
+     */
     // @reg: hw_adrc_thumbDiff2thred_val0~16
     float hw_drcT_gdLuma2DiffMax_lut[DRC_CURVE_LEN];
     /* M4_GENERIC_DESC(
         M4_ALIAS(gdDiffMaxCurveCtrl),
+        M4_GROUP(guideDiffLmt_en_group;gdDiffMaxLut_mode_group:drc_cfgCurveCtrlCoeff_mode),
         M4_TYPE(struct),
         M4_UI_MODULE(normal_ui_style),
         M4_GROUP(gdDiffMaxLut_mode_group:drc_cfgCurveCtrlCoeff_mode),
@@ -366,6 +375,7 @@ typedef struct drc_bifilt_s {
     float hw_drcT_bifiltOut_alpha;
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_adrc_bifiltSoftThred_en),
+        M4_GROUP_CTRL(softThd_en_group),
         M4_TYPE(bool),
         M4_DEFAULT(1),
         M4_HIDE_EX(0),
@@ -377,6 +387,7 @@ typedef struct drc_bifilt_s {
     bool hw_drcT_softThd_en;
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_adrc_bifilt_softThred),
+        M4_GROUP(softThd_en_group),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0,8),
@@ -402,6 +413,35 @@ typedef enum drc_drcGainLimit_mode_e {
 } drc_drcGainLimit_mode_t;
 
 typedef struct drc_drcProc_s {
+    /* M4_GENERIC_DESC(
+   M4_ALIAS(hw_adrc_hiDetail_ratio),
+   M4_TYPE(f32),
+   M4_SIZE_EX(1,1),
+   M4_RANGE_EX(0,1),
+   M4_DEFAULT(0),
+   M4_DIGIT_EX(2f11),
+   M4_HIDE_EX(0),
+   M4_RO(0),
+   M4_ORDER(1),
+   M4_NOTES(Adjust the local contrast of the DRC process through this parameter.
+   The larger the parameter, the higher the low-light zone contrast..\n
+   Freq of use: high))  */
+    float hw_drcT_drcStrg_alpha;
+    /* M4_GENERIC_DESC(
+    M4_ALIAS(hw_adrc_loDetail_ratio),
+    M4_TYPE(f32),
+    M4_SIZE_EX(1,1),
+    M4_RANGE_EX(0,1),
+    M4_DEFAULT(0),
+    M4_DIGIT_EX(2f11),
+    M4_HIDE_EX(0),
+    M4_RO(0),
+    M4_ORDER(1),
+    M4_NOTES(Adjust the local contrast of the DRC process through this parameter.
+    The larger the parameter, the higher the local contrast.\n
+    Freq of use: high))  */
+    // reg: hw_adrc_loDetail_ratio
+    float hw_drcT_loDetail_strg;
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_drcT_drcCurve_mode),
         M4_TYPE(enum),
@@ -447,21 +487,6 @@ typedef struct drc_drcProc_s {
     // reg: hw_adrc_luma2compsLuma_mVal0~16
     uint16_t hw_drcT_hdr2Sdr_curve[DRC_CURVE_LEN];
     /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_adrc_loDetail_ratio),
-        M4_TYPE(f32),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,1),
-        M4_DEFAULT(0),
-        M4_DIGIT_EX(2f11),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(1),
-        M4_NOTES(Adjust the local contrast of the DRC process through this parameter.
-        The larger the parameter, the higher the local contrast.\n
-        Freq of use: high))  */
-    // reg: hw_adrc_loDetail_ratio
-    float hw_drcT_loDetail_strg;
-    /* M4_GENERIC_DESC(
         M4_ALIAS(sw_drcT_drcStrgLut_mode),
         M4_TYPE(enum),
         M4_ENUM_DEF(drc_drcCurve_mode_t),
@@ -504,20 +529,6 @@ typedef struct drc_drcProc_s {
         Freq of use: high))  */
     // reg: hw_adrc_luma2scale_val0~16
     float hw_drcT_luma2DrcStrg_val[DRC_CURVE_LEN];
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_adrc_hiDetail_ratio),
-        M4_TYPE(f32),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,1),
-        M4_DEFAULT(0),
-        M4_DIGIT_EX(2f11),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(1),
-        M4_NOTES(Adjust the local contrast of the DRC process through this parameter.
-        The larger the parameter, the higher the low-light zone contrast..\n
-        Freq of use: high))  */
-    float hw_drcT_drcStrg_alpha;
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_drcT_drcGainLmt_mode),
         M4_TYPE(enum),

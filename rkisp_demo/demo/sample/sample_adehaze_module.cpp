@@ -17,6 +17,10 @@
 
 #include "sample_comm.h"
 
+#ifdef ISP_HW_V33
+#define RKAIQ_HAVE_HISTEQ
+#define RKAIQ_HAVE_ENHANCE
+#endif
 #include "uAPI2/rk_aiq_user_api2_helper.h"
 #include <string>
 static void sample_adehaze_usage()
@@ -189,7 +193,7 @@ void sample_new_histeq(const rk_aiq_sys_ctx_t* ctx)
     srand(time(0));
     int rand_num = rand() % 101;
 
-    if (rand_num <70) {
+    if (0 & rand_num <70) {
         printf("update histeq arrrib!\n");
         if (attr.opMode == RK_AIQ_OP_MODE_AUTO) {
             attr.opMode = RK_AIQ_OP_MODE_MANUAL;
@@ -228,7 +232,7 @@ void sample_new_enh(const rk_aiq_sys_ctx_t* ctx)
     srand(time(0));
     int rand_num = rand() % 101;
 
-    if (rand_num <70) {
+    if (0 &rand_num <70) {
         printf("update enh arrrib!\n");
         if (attr.opMode == RK_AIQ_OP_MODE_AUTO) {
             attr.opMode = RK_AIQ_OP_MODE_MANUAL;

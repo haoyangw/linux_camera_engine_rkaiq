@@ -715,7 +715,13 @@ int rkaiq_uapi_unified_ctl(rk_aiq_sys_ctx_t* sys_ctx, const char* js_str,
 
     RkCam_cJSON_Delete(cmd_js);
 
-    socket_client_setNote(sys_ctx->_socket, IPC_RET_OK, "uAPI ctrl ok\n");
+    if (op_mode == RKAIQUAPI_OPMODE_SET) {
+        socket_client_setNote(sys_ctx->_socket, IPC_RET_OK, "uAPI write ctrl ok\n");
+    }
+    else if (op_mode == RKAIQUAPI_OPMODE_GET) {
+        socket_client_setNote(sys_ctx->_socket, IPC_RET_OK, "uAPI read ctrl ok\n");
+    }
+
     return 0;
     }
 

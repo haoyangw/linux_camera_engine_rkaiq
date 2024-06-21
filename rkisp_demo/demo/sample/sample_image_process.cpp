@@ -73,7 +73,11 @@ static struct module_sample_info module_samples[] = {
     MODULE_INFO(RK_ISP_AWB, sample_awb_module, sample_print_awb_info),
     MODULE_INFO(RK_ISP_AWB32, sample_awb_module, sample_print_awb_info),  
     MODULE_INFO(RK_ISP_AF, sample_af_module, sample_print_af_info),
+#ifdef USE_NEWSTRUCT
+    MODULE_INFO(RK_ISP_ACCM, sample_accm_v3_module, sample_print_accm_info),
+#else
     MODULE_INFO(RK_ISP_ACCM, sample_accm_module, sample_print_accm_info),
+#endif
     MODULE_INFO(RK_ISP_A3DLUT, sample_a3dlut_module, sample_print_a3dlut_info),
     MODULE_INFO(RK_ISP_ADRC, sample_adrc_module, sample_print_adrc_info),
     MODULE_INFO(RK_ISP_AMERGE, sample_amerge_module, sample_print_amerge_info),

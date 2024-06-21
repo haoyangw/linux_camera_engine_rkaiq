@@ -1842,7 +1842,7 @@ rk_aiq_uapi2_sysctl_tuning(const rk_aiq_sys_ctx_t* sys_ctx, char* param)
 
 #endif
 
-    socket_client_setNote(sys_ctx->_socket, IPC_RET_OK, "sysctl_tuning: sucess\n");
+    socket_client_setNote(sys_ctx->_socket, IPC_RET_OK, "sysctl_tuning: write calib sucess\n");
     return ret;
 }
 
@@ -1891,7 +1891,7 @@ char* rk_aiq_uapi2_sysctl_readiq(const rk_aiq_sys_ctx_t* sys_ctx, char* param)
 
     ret_str = CamCalibDbReadIQNodeStrFromJstr(last_calib, json_start);
 
-    socket_client_setNote(sys_ctx->_socket, IPC_RET_OK, "readiq: success\n");
+    socket_client_setNote(sys_ctx->_socket, IPC_RET_OK, "readiq: read calib success\n");
     return ret_str;
 }
 

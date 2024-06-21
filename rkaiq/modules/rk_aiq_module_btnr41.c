@@ -17,7 +17,12 @@
 #define FIXBITWFWGT     8
 #define FIXBITDGAIN     8
 
-void bay_gauss5x5_spnr_coeff(float sigma, int halftaby, int halftabx, int strdtabx, int *gstab)
+#define trans_mode2str(mode) \
+    (mode) == 0 ? "btnr_pixInBw15b_mode" : \
+    (mode) == 1 ? "btnr_pixInBw20b_mode" : \
+    "INVALID MODE"
+
+void bay_gauss5x5_spnr_coeff(float sigma, int halftaby, int halftabx, int strdtabx, int* gstab)
 {
     int halfx = halftabx;
     int halfy = halftaby;
@@ -319,6 +324,18 @@ void rk_aiq_btnr41_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
     pTransParams->isFirstFrame = cvtinfo->isFirstFrame;
     pTransParams->isHdrMode = cvtinfo->frameNum == 2;
 
+    if (cvtinfo->frameNum > 1 || cvtinfo->preDGain > 1.0) {
+        if (psta->hw_btnrCfg_pixDomain_mode != btnr_pixLog2Domain_mode) {
+            LOGE_ANR("Btnr must run in pixLog2Domain(ori mode is %d) when isp is HDR mode(framenum=%d) or preDGain(%f) > 1, btnr_pixLog2Domain_mode is be forcibly set to hw_btnrCfg_pixDomain_mode in HWI\n"
+                     "You can set by btnr.static.hw_btnrCfg_pixDomain_mode, but change hw_btnrCfg_pixDomain_mode in running time may cause abnormal image transitions\n",
+                     psta->hw_btnrCfg_pixDomain_mode, cvtinfo->frameNum, cvtinfo->preDGain, psta->hw_btnrCfg_pixDomain_mode);
+            psta->hw_btnrCfg_pixDomain_mode = btnr_pixLog2Domain_mode;
+        }
+        if (psta->transCfg.hw_btnrCfg_trans_mode != btnr_pixInBw20b_mode) {
+            LOGE_ANR("hw_btnrCfg_trans_mode == %s(0x%x) is error, It is be set to btnr_pixInBw20b_mode in HWI", trans_mode2str(psta->transCfg.hw_btnrCfg_trans_mode), psta->transCfg.hw_btnrCfg_trans_mode);
+            psta->transCfg.hw_btnrCfg_trans_mode = btnr_pixInBw20b_mode;
+        }
+    }
     /*
         float frameiso[3];
         float frameEt[3];
@@ -431,6 +448,13 @@ void rk_aiq_btnr41_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
         pCfg->pre_spnr_sigma_curve_double_en = 0;
     else
         pCfg->pre_spnr_sigma_curve_double_en = 1;
+    if (cvtinfo->frameNum > 1) {
+        if (pCfg->pre_spnr_sigma_curve_double_en == 0) {
+            LOGW_ANR("When isp is HDR mode, hw_btnrT_sigmaCurve_mode recommends using btnr_midSegmInterpOff_mode. "
+                     "You can set by dyn.curFrmSpNr.hw_btnrT_sigmaCurve_mode\n");
+            // pCfg->pre_spnr_sigma_curve_double_en  = 1;
+        }
+    }
 
     if (pdyn->preSpNr.sigma.hw_btnrT_idxLpfStrg_mode == btnr_lpfStrgH_mode)
         pCfg->pre_spnr_sigma_idx_filt_mode = 0;
@@ -531,8 +555,8 @@ void rk_aiq_btnr41_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
     }
 
     // REG: BAY3D_TRANS1
-    // mode scale只有0�?两种选择，对应log域的小数精度�?    // 0对应8bit小数�?bit整数�?4bit整数导致最大线性输入数据位宽为20bit->transData_maxlimit�?�?0次方-1
-    // 1对应9bit小数�?bit整数�?3bit整数限制最大线性输入数据位宽为15bit->transData_maxlimit�?�?5次方-1
+    // mode scale只有0�?两种选择，对应log域的小数精度�?    // 0对应8bit小数�?bit整数�?4bit整数导致最大线性输入数据位宽为20bit->transData_maxlimit�?�?0次方-1
+    // 1对应9bit小数�?bit整数�?3bit整数限制最大线性输入数据位宽为15bit->transData_maxlimit�?�?5次方-1
     if(pCfg->transf_bypass_en == 1) {
         pCfg->transf_data_max_limit = ((1 << 12) - 1);
     } else {

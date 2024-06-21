@@ -33,7 +33,7 @@ RKAIQ_BEGIN_DECLARE
     int cols = cvtinfo->rawWidth;
 
     /* CTRL */
-    pFix->blf3_bypass = pdyn->blf3.hw_enhT_blf3_bypass;
+    pFix->blf3_bypass = pdyn->loBlf.hw_enhT_loBlf_bypass;
     /* IIR_FLT */
     tmp                 = ClipFloatValue(pdyn->iir.hw_enhT_iir_inv_sigma, 0, 8, true);
     pFix->iir_inv_sigma = tmp;
@@ -42,16 +42,16 @@ RKAIQ_BEGIN_DECLARE
     tmp                 = ClipFloatValue(pdyn->iir.hw_enhT_iir_cur_wgt, 0, 5, true);
     pFix->iir_cur_wgt = tmp;
     /* BILAT_FLT3X3 */
-    tmp                      = ClipFloatValue(pdyn->blf3.hw_enhT_blf3_inv_sigma, 0, 8, true);
+    tmp                      = ClipFloatValue(pdyn->loBlf.hw_enhT_loBlf_inv_sigma, 0, 8, true);
     pFix->blf3_inv_sigma = tmp;
-    tmp                      = ClipFloatValue(pdyn->blf3.hw_enhT_blf3_cur_wgt, 0, 8, true);
+    tmp                      = ClipFloatValue(pdyn->loBlf.hw_enhT_loBlf_cur_wgt, 0, 8, true);
     pFix->blf3_cur_wgt = tmp;
-    tmp                      = ClipFloatValue(pdyn->blf3.hw_enhT_blf3_thumb_cur_wgt, 4, 0, false);
+    tmp                      = ClipFloatValue(pdyn->loBlf.hw_enhT_loBlf_thumb_cur_wgt, 4, 0, false);
     pFix->blf3_thumb_cur_wgt = tmp;
     /* BILAT_FLT5X5 */
-    tmp                  = ClipFloatValue(pdyn->blf5.hw_enhT_blf5_cur_wgt, 0, 5, true);
+    tmp                  = ClipFloatValue(pdyn->midBlf.hw_enhT_midBlf_cur_wgt, 0, 5, true);
     pFix->blf5_cur_wgt = tmp;
-    tmp                  = ClipFloatValue(pdyn->blf5.hw_enhT_blf5_inv_sigma, 0, 8, true);
+    tmp                  = ClipFloatValue(pdyn->midBlf.hw_enhT_midBlf_inv_sigma, 0, 8, true);
     pFix->blf5_inv_sigma = tmp;
     /* GLOBAL_STRG */
     tmp               = ClipFloatValue(pdyn->strg.hw_enhT_global_strg, 4, 10, false);

@@ -28,9 +28,10 @@ typedef struct ynr_radiDistYnrStrg_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_GROUP_CTRL(miNr_en_group),
+        M4_GROUP_CTRL(rnr_en_group),
         M4_NOTES(Enable the miNr filter for lo freq noise.Turn on by setting this bit to 1.
-        Freq of use: low))  */    
+        Freq of use: low))  */
+    //reg: hw_ynr_rnr_en
     bool sw_ynrT_radiDist_en;
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_ynr_radius2strg_val),
@@ -42,6 +43,7 @@ typedef struct ynr_radiDistYnrStrg_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(rnr_en_group),
         M4_NOTES(The pixels at different radial distances have different scaling strengths for pixSigma.\n
         The sgmScl is larger, the loNr and hiNr strength is stronger.
         Freq of use: high))  */
@@ -77,7 +79,7 @@ typedef struct ynr_locSgmStrgYnrStrg_dyn_s {
         M4_NOTES(The weight of global gain and local gain.The higer the value, the higher weight for global gain.\n
         Freq of use: low))  */
     // reg: sw_ynr_gainMerge_alpha
-    float hw_ynrT_glbSgmStrg_alpha;	
+    float hw_ynrT_glbSgmStrg_alpha;
 } ynr_locSgmStrgYnrStrg_dyn_t;
 
 typedef struct ynr_locYnrStrg_dyn_s {
@@ -101,7 +103,7 @@ typedef struct ynr_locYnrStrg_dyn_s {
     ynr_locSgmStrgYnrStrg_dyn_t locSgmStrg;
 } ynr_locYnrStrg_dyn_t;
 
-typedef struct ynr_hiNrEPF_dyn_s {    
+typedef struct ynr_hiNrEPF_dyn_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_ynrT_nlmFltCfg_mode),
         M4_TYPE(enum),
@@ -114,7 +116,7 @@ typedef struct ynr_hiNrEPF_dyn_s {
         M4_NOTES(The way to configure the LPF. Reference enum types.\n
         Freq of use: low))  */
     ynr_filtCfg_mode_t sw_ynrT_filtCfg_mode;
-	/* M4_GENERIC_DESC(
+    /* M4_GENERIC_DESC(
         M4_ALIAS(sw_ynr_nlmSpatial_strg),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
@@ -128,8 +130,8 @@ typedef struct ynr_hiNrEPF_dyn_s {
         M4_NOTES(The spatial weight coeff of the nlm filter is directly configured through this para when sw_ynrT_nlmFltCfg_mode is ynr_cfgByFiltCoeff_mode.\n
         Freq of use: low))  */
     // reg: hw_ynr_nlm_coe_0~5
-    // para: hiSpnrFilt_distSigma 
-	float sw_ynrT_filtSpatial_strg;
+    // para: hiSpnrFilt_distSigma
+    float sw_ynrT_filtSpatial_strg;
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_ynr_nlm_coe),
         M4_TYPE(u8),
@@ -207,20 +209,20 @@ typedef struct ynr_hiNrEPF_dyn_s {
         M4_ALIAS(hw_ynr_hiSpnrFilt_centerWgt),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0, 128.0),
+        M4_RANGE_EX(0.0, 1.0),
         M4_DEFAULT(1.0),
-        M4_DIGIT_EX(3f10b),
+        M4_DIGIT_EX(4f10b),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
         M4_NOTES(The spatial weight of center pixel in filter.The higher the value, the smaller the strength of reducing noise.\n
         Freq of use: low))  */
     // reg: hw_ynr_hiSpnrFilt_centerWgt
-    float hw_ynrT_centerPix_wgt;	
+    float hw_ynrT_centerPix_wgt;
 } ynr_hiNrEPF_dyn_t;
 
 typedef struct ynr_hiNrSF_dyn_s {
-	/* M4_GENERIC_DESC(
+    /* M4_GENERIC_DESC(
         M4_ALIAS(sw_ynrT_hiSpnrFlt1Cfg_mode),
         M4_TYPE(enum),
         M4_ENUM_DEF(ynr_filtCfg_mode_t),
@@ -232,7 +234,7 @@ typedef struct ynr_hiNrSF_dyn_s {
         M4_NOTES(The way to configure the LPF. Reference enum types.\n
         Freq of use: low))  */
     ynr_filtCfg_mode_t sw_ynrT_filtCfg_mode;
-	/* M4_GENERIC_DESC(
+    /* M4_GENERIC_DESC(
         M4_ALIAS(hw_ynrT_hiSpnrFilt1_distSigma),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
@@ -246,7 +248,7 @@ typedef struct ynr_hiNrSF_dyn_s {
         M4_NOTES(The spatial weight coeff of the high freq guass filter is directly configured through this para when sw_ynrT_hiSpnrFlt1Cfg_mode is ynr_cfgByFiltCoeff_mode.\n
         Freq of use: low))  */
     // reg: reg: hw_ynr_hiSpnrFilt_coeff0~5
-	float sw_ynrT_filtSpatial_strg;
+    float sw_ynrT_filtSpatial_strg;
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_ynrT_hiSpnrFilt1_coeff),
         M4_TYPE(u8),
@@ -265,8 +267,8 @@ typedef struct ynr_hiNrSF_dyn_s {
 
 } ynr_hiNrSF_dyn_t;
 
-typedef struct ynr_hiNr_tex2SFAlpha_s{
-	/* M4_GENERIC_DESC(
+typedef struct ynr_hiNr_tex2SFAlpha_s {
+    /* M4_GENERIC_DESC(
         M4_ALIAS(hiSpnrFilt1_texThred),
         M4_TYPE(u16),
         M4_SIZE_EX(1,1),
@@ -294,7 +296,7 @@ typedef struct ynr_hiNr_tex2SFAlpha_s{
         M4_NOTES(Scale factor of texture value in hi-NR.
         Freq of use: high))  */
     //reg: hw_ynr_hiSpnrFilt1_texScale
-    float sw_ynr_texIdx_scale;    
+    float sw_ynr_texIdx_scale;
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_ynr_hiSpnrFilt1_wgtAlpha),
         M4_TYPE(f32),
@@ -320,7 +322,7 @@ typedef struct ynr_hiNr_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_GROUP_CTRL(miNr_en_group),
+        M4_GROUP_CTRL(hiNr_en_group),
         M4_NOTES(Enable the miNr filter for lo freq noise.Turn on by setting this bit to 1.
         Freq of use: low))  */
     // reg: hw_ynrT_hiNr_en = !sw_ynr_hiSpnr_bypass
@@ -332,6 +334,7 @@ typedef struct ynr_hiNr_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
+        M4_GROUP(hiNr_en_group),
         M4_NOTES(TODO))  */
     ynr_hiNrEPF_dyn_t epf;
     /* M4_GENERIC_DESC(
@@ -341,6 +344,7 @@ typedef struct ynr_hiNr_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
+        M4_GROUP(hiNr_en_group),
         M4_NOTES(TODO))  */
     ynr_hiNrSF_dyn_t sf;
     /* M4_GENERIC_DESC(
@@ -350,12 +354,13 @@ typedef struct ynr_hiNr_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
+        M4_GROUP(hiNr_en_group),
         M4_NOTES(TODO))  */
-    ynr_hiNr_tex2SFAlpha_t sfAlphaEpf_baseTex;  
+    ynr_hiNr_tex2SFAlpha_t sfAlphaEpf_baseTex;
 } ynr_hiNr_dyn_t;
 
-typedef struct ynr_midNr_dyn_s{
-	/* M4_GENERIC_DESC(
+typedef struct ynr_midNr_dyn_s {
+    /* M4_GENERIC_DESC(
         M4_ALIAS(hw_ynrT_miNr_en),
         M4_TYPE(bool),
         M4_DEFAULT(1),
@@ -367,7 +372,7 @@ typedef struct ynr_midNr_dyn_s{
         Freq of use: low))  */
     // reg: hw_ynrT_midNr_en = !sw_ynr_miSpnr_bypass
     bool hw_ynrT_midNr_en;
-	/* M4_GENERIC_DESC(
+    /* M4_GENERIC_DESC(
         M4_ALIAS(sw_ynrT_miNrFltCfg_mode),
         M4_TYPE(enum),
         M4_ENUM_DEF(ynr_filtCfg_mode_t),
@@ -376,11 +381,11 @@ typedef struct ynr_midNr_dyn_s{
         M4_RO(0),
         M4_ORDER(0),
         M4_GROUP_CTRL(miNrFltCfg_mode_group),
-		M4_GROUP(miNr_en_group),
+        M4_GROUP(miNr_en_group),
         M4_NOTES(The way to configure the LPF. Reference enum types.\n
         Freq of use: low))  */
     ynr_filtCfg_mode_t sw_ynrT_filtCfg_mode;
-	/* M4_GENERIC_DESC(
+    /* M4_GENERIC_DESC(
         M4_ALIAS(sw_ynr_miSpnrFilt_distSigma),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
@@ -395,25 +400,25 @@ typedef struct ynr_midNr_dyn_s{
         Freq of use: low))  */
     // reg: hw_ynr_miSpnrFilt_coeff0~2
     // para: miSpnrFilt_distSigma
-	float sw_ynr_filtSpatial_strg;
+    float sw_ynr_filtSpatial_strg;
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_ynr_miNrSpatial_coeff),
         M4_TYPE(f32),
         M4_UI_PARAM(data_y),
         M4_SIZE_EX(1,3),
         M4_RANGE_EX(0,1),
-		M4_DIGIT_EX(4),
+        M4_DIGIT_EX(4),
         M4_DEFAULT([0.2, 0.15, 0.05]),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
         M4_GROUP(miNr_en_group;miNrFltCfg_mode_group:ynr_cfgByFiltCoeff_mode),
         M4_NOTES(The spatial weight of adjacent pixels in the mi spnr filter.\n
-		coef[0] + 4*coeff[1] + 4*coeff[2] = 1.\n
+       coef[0] + 4*coeff[1] + 4*coeff[2] = 1.\n
         Freq of use: low))  */
     // reg: hw_ynr_miSpnrFilt_coeff0~2
     float sw_ynr_filtSpatial_wgt[3];
-	/* M4_GENERIC_DESC(
+    /* M4_GENERIC_DESC(
         M4_ALIAS(sw_ynr_miSpnr_strg),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
@@ -428,7 +433,7 @@ typedef struct ynr_midNr_dyn_s{
         Freq of use: high))  */
     //reg: hw_ynr_miSpnrFilt_strg
     float sw_ynr_rgeSgm_scale;
-	/* M4_GENERIC_DESC(
+    /* M4_GENERIC_DESC(
         M4_ALIAS(sw_ynr_miSpnrFilt_centerWgt),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
@@ -441,9 +446,9 @@ typedef struct ynr_midNr_dyn_s{
         M4_GROUP(miNr_en_group),
         M4_NOTES(Extra weight of original centre pixel for mi-NR.
         Freq of use: high))  */
-    //reg: hw_ynr_miSpnrFilt_centerWgt	
-    float sw_ynr_centerPix_wgt;	
-	/* M4_GENERIC_DESC(
+    //reg: hw_ynr_miSpnrFilt_centerWgt
+    float sw_ynr_centerPix_wgt;
+    /* M4_GENERIC_DESC(
         M4_ALIAS(sw_ynr_miSpnrSoftThred_scale),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
@@ -487,8 +492,8 @@ typedef struct ynr_midNr_dyn_s{
         M4_NOTES(Blending weight of input for mi-NR.
         Freq of use: high))  */
     //reg: hw_ynr_miSpnr_wgt
-    float hw_ynrT_midNrOut_alpha;	
-}ynr_midNr_dyn_t;
+    float hw_ynrT_midNrOut_alpha;
+} ynr_midNr_dyn_t;
 
 typedef struct ynr_loNr_tex2NrStrg_s {
     /* M4_GENERIC_DESC(
@@ -501,54 +506,54 @@ typedef struct ynr_loNr_tex2NrStrg_s {
             M4_GROUP_CTRL(tex2loStrg_en_group),
             M4_NOTES(Enable the loNr filter for lo freq noise.Turn on by setting this bit to 1.
             Freq of use: low))  */
-        // reg: hw_ynrT_tex2LoStrg_en 
-        bool hw_ynrT_tex2NrStrg_en;
-        /* M4_GENERIC_DESC(
-            M4_ALIAS(sw_ynr_tex2loStrg_lowerThred),
-            M4_TYPE(f32),
-            M4_SIZE_EX(1,1),
-            M4_RANGE_EX(0.0, 1.0),
-            M4_DEFAULT(1.0),
-            M4_DIGIT_EX(3),
-            M4_HIDE_EX(0),
-            M4_RO(0),
-            M4_ORDER(0),
-            M4_GROUP(tex2loStrg_en_group),
-            M4_NOTES(The scaling factor of the range sigma of the bilateral filter\n
-            Freq of use: high))  */
-        // reg: hw_ynr_tex2loStrg_lowerThred   
-        float hw_ynrT_flatRegion_maxThred;
-        /* M4_GENERIC_DESC(
-            M4_ALIAS(sw_ynr_tex2loStrg_upperThred),
-            M4_TYPE(f32),
-            M4_SIZE_EX(1,1),
-            M4_RANGE_EX(0.0, 1.0),
-            M4_DEFAULT(1.0),
-            M4_DIGIT_EX(3),
-            M4_HIDE_EX(0),
-            M4_RO(0),
-            M4_ORDER(0),
-            M4_GROUP(tex2loStrg_en_group),
-            M4_NOTES(The scaling factor of the range sigma of the bilateral filter\n
-            Freq of use: high))  */
-        // reg: hw_ynr_tex2loStrg_upperThred
-        float hw_ynrT_edgeRegion_minThred;
-        /* M4_GENERIC_DESC(
-            M4_ALIAS(sw_ynr_tex2loStrg_minLimit),
-            M4_TYPE(f32),
-            M4_SIZE_EX(1,1),
-            M4_RANGE_EX(0.0, 1.0),
-            M4_DEFAULT(1.0),
-            M4_DIGIT_EX(3),
-            M4_HIDE_EX(0),
-            M4_RO(0),
-            M4_ORDER(0),
-            M4_GROUP(tex2loStrg_en_group),
-            M4_NOTES(The scaling factor of the range sigma of the bilateral filter\n
-            Freq of use: high))  */
-        // reg: sw_ynr_tex2loStrg_mantissa & sw_ynr_tex2loStrg_exponent
-        // para: tex2loStrg_minLimit	
-        float sw_ynrT_edgeRegionNr_strg;        
+    // reg: hw_ynrT_tex2LoStrg_en
+    bool hw_ynrT_tex2NrStrg_en;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(sw_ynr_tex2loStrg_lowerThred),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0.0, 1.0),
+        M4_DEFAULT(1.0),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_GROUP(tex2loStrg_en_group),
+        M4_NOTES(The scaling factor of the range sigma of the bilateral filter\n
+        Freq of use: high))  */
+    // reg: hw_ynr_tex2loStrg_lowerThred
+    float hw_ynrT_flatRegion_maxThred;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(sw_ynr_tex2loStrg_upperThred),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0.0, 1.0),
+        M4_DEFAULT(1.0),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_GROUP(tex2loStrg_en_group),
+        M4_NOTES(The scaling factor of the range sigma of the bilateral filter\n
+        Freq of use: high))  */
+    // reg: hw_ynr_tex2loStrg_upperThred
+    float hw_ynrT_edgeRegion_minThred;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(sw_ynr_tex2loStrg_minLimit),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0.0, 1.0),
+        M4_DEFAULT(1.0),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_GROUP(tex2loStrg_en_group),
+        M4_NOTES(The scaling factor of the range sigma of the bilateral filter\n
+        Freq of use: high))  */
+    // reg: sw_ynr_tex2loStrg_mantissa & sw_ynr_tex2loStrg_exponent
+    // para: tex2loStrg_minLimit
+    float sw_ynrT_edgeRegionNr_strg;
 } ynr_loNr_tex2NrStrg_t;
 
 typedef struct ynr_loNr_locSgmStrg2NrStrg_s {
@@ -577,7 +582,7 @@ typedef struct ynr_loNr_locSgmStrg2NrStrg_s {
     float hw_ynrT_locSgmStrg2NrStrg_val[YNR_PIXSGMSCL_SEGMENT_MAX];
 } ynr_loNr_locSgmStrg2NrStrg_t;
 
-typedef struct ynr_loNrEPF_s {	
+typedef struct ynr_loNrEPF_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_ynr_loSpnr_strg),
         M4_TYPE(f32),
@@ -591,8 +596,8 @@ typedef struct ynr_loNrEPF_s {
         M4_NOTES(The scaling factor of the range sigma of the bilateral filter\n
         Freq of use: high))  */
     // reg: hw_ynr_loSpnr_strg
-    float hw_ynrT_rgeSgm_scale;    
-	/* M4_GENERIC_DESC(
+    float hw_ynrT_rgeSgm_scale;
+    /* M4_GENERIC_DESC(
         M4_ALIAS(sw_ynr_loSpnrThumbThred_scale),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
@@ -602,7 +607,6 @@ typedef struct ynr_loNrEPF_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(5),
-		M4_GROUP(loNr_en_group),
         M4_NOTES(Scale factior of soft-threshold operation between reference pixel and down-scale pixel.\n
         Freq of use: low))  */
     // reg: sw_ynr_loSpnrThumbThred_scale
@@ -631,12 +635,11 @@ typedef struct ynr_loNrEPF_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(5),
-		M4_GROUP(loNr_en_group),
         M4_NOTES(Scale factor of soft-threshold operation for mi-NR when blending input .\n
         Freq of use: low))  */
     // reg: sw_ynr_loSpnrSoftThred_scale
-    float hw_ynrT_softThd_scale;    
-	/* M4_GENERIC_DESC(
+    float hw_ynrT_softThd_scale;
+    /* M4_GENERIC_DESC(
         M4_ALIAS(hw_ynr_loSpnrGain2strg_val),
         M4_TYPE(f32),
         M4_SIZE_EX(1,9),
@@ -646,7 +649,6 @@ typedef struct ynr_loNrEPF_s {
         M4_FP_EX(0,1,7),
         M4_HIDE_EX(0),
         M4_UI_MODULE(curve),
-        M4_GROUP(loNr_en_group),
         M4_DATAX([1, 2, 4, 8, 16, 32, 64, 128, 256]),
         M4_RO(0),
         M4_ORDER(1),
@@ -676,6 +678,7 @@ typedef struct ynr_loNr_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
+        M4_GROUP(loNr_en_group),
         M4_NOTES(TODO))  */
     ynr_loNr_tex2NrStrg_t locYnrStrg_texRegion;
     /* M4_GENERIC_DESC(
@@ -685,6 +688,7 @@ typedef struct ynr_loNr_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
+        M4_GROUP(loNr_en_group),
         M4_NOTES(TODO))  */
     ynr_loNr_locSgmStrg2NrStrg_t locYnrStrg_locSgmStrg;
     /* M4_GENERIC_DESC(
@@ -694,6 +698,7 @@ typedef struct ynr_loNr_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
+        M4_GROUP(loNr_en_group),
         M4_NOTES(TODO))  */
     ynr_loNrEPF_t epf;
 } ynr_loNr_dyn_t;
@@ -707,7 +712,7 @@ typedef struct ynr_sigmaEnv_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_GROUP_CTRL(sgmCurve_mode_group);
+        M4_GROUP_CTRL(sgmCurve_mode_group),
         M4_NOTES(The way to configure the sigma curve point. Reference enum types.\n
         Freq of use: low))  */
     ynr_sigmaCurveCfg_mode_t sw_ynrCfg_sgmCurve_mode;
@@ -747,7 +752,7 @@ typedef struct ynr_hiNrEPF_LP_s {
         M4_GROUP_CTRL(loNr_en_group),
         M4_NOTES(Disable part of none-local means.
         Freq of use: high))  */
-    // reg: sw_ynr_hi_lp_en 
+    // reg: sw_ynr_hi_lp_en
     bool hw_ynrT_lp_en;
 } ynr_hiNrEPF_LP_t;
 
@@ -783,7 +788,7 @@ typedef struct ynr_radiDistYnrStrg_static_s {
         M4_RANGE_EX(-1000,1000),
         M4_DEFAULT(0),
         M4_DIGIT_EX(1),
-        M4_HIDE_EX(1),
+        M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
         M4_NOTES( The x-coordinates of the optical center in the image\n
@@ -799,7 +804,7 @@ typedef struct ynr_radiDistYnrStrg_static_s {
         M4_RANGE_EX(-1000,1000),
         M4_DEFAULT(0),
         M4_DIGIT_EX(1),
-        M4_HIDE_EX(1),
+        M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
         M4_NOTES( The y-coordinates of the optical center in the image\n
@@ -859,7 +864,7 @@ typedef struct ynr_params_dyn_s {
         M4_ORDER(0),
         M4_NOTES(TODO))  */
     ynr_hiNr_dyn_t hiNr;
-	/* M4_GENERIC_DESC(
+    /* M4_GENERIC_DESC(
         M4_ALIAS(midNr),
         M4_TYPE(struct),
         M4_UI_MODULE(normal_ui_style),
@@ -867,17 +872,16 @@ typedef struct ynr_params_dyn_s {
         M4_RO(0),
         M4_ORDER(3),
         M4_NOTES(TODO))  */
-    ynr_midNr_dyn_t midNr;	
-	/* M4_GENERIC_DESC(
+    ynr_midNr_dyn_t midNr;
+    /* M4_GENERIC_DESC(
         M4_ALIAS(loNr),
         M4_TYPE(struct),
         M4_UI_MODULE(normal_ui_style),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
-        M4_GROUP(loNr_en_group),
         M4_NOTES(TODO))  */
-    ynr_loNr_dyn_t loNr;	
+    ynr_loNr_dyn_t loNr;
 } ynr_params_dyn_t;
 
 typedef struct ynr_param_s {

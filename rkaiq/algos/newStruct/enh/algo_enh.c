@@ -55,25 +55,25 @@ XCamReturn EnhSelectParam(EnhContext_t* pEnhCtx, enh_param_t* out, int iso) {
     out->dyn.iir.hw_enhT_iir_cur_wgt = interpolation_f32(
         paut->dyn[ilow].iir.hw_enhT_iir_cur_wgt, paut->dyn[ihigh].iir.hw_enhT_iir_cur_wgt, ratio);
 
-    out->dyn.blf3.hw_enhT_blf3_bypass =
-        interpolation_bool(paut->dyn[ilow].blf3.hw_enhT_blf3_bypass,
-                           paut->dyn[ihigh].blf3.hw_enhT_blf3_bypass, uratio);
-    out->dyn.blf3.hw_enhT_blf3_inv_sigma =
-        interpolation_f32(paut->dyn[ilow].blf3.hw_enhT_blf3_inv_sigma,
-                          paut->dyn[ihigh].blf3.hw_enhT_blf3_inv_sigma, ratio);
-    out->dyn.blf3.hw_enhT_blf3_cur_wgt =
-        interpolation_f32(paut->dyn[ilow].blf3.hw_enhT_blf3_cur_wgt,
-                          paut->dyn[ihigh].blf3.hw_enhT_blf3_cur_wgt, ratio);
-    out->dyn.blf3.hw_enhT_blf3_thumb_cur_wgt =
-        interpolation_f32(paut->dyn[ilow].blf3.hw_enhT_blf3_thumb_cur_wgt,
-                          paut->dyn[ihigh].blf3.hw_enhT_blf3_thumb_cur_wgt, ratio);
+    out->dyn.loBlf.hw_enhT_loBlf_bypass =
+        interpolation_bool(paut->dyn[ilow].loBlf.hw_enhT_loBlf_bypass,
+                           paut->dyn[ihigh].loBlf.hw_enhT_loBlf_bypass, uratio);
+    out->dyn.loBlf.hw_enhT_loBlf_inv_sigma =
+        interpolation_f32(paut->dyn[ilow].loBlf.hw_enhT_loBlf_inv_sigma,
+                          paut->dyn[ihigh].loBlf.hw_enhT_loBlf_inv_sigma, ratio);
+    out->dyn.loBlf.hw_enhT_loBlf_cur_wgt =
+        interpolation_f32(paut->dyn[ilow].loBlf.hw_enhT_loBlf_cur_wgt,
+                          paut->dyn[ihigh].loBlf.hw_enhT_loBlf_cur_wgt, ratio);
+    out->dyn.loBlf.hw_enhT_loBlf_thumb_cur_wgt =
+        interpolation_f32(paut->dyn[ilow].loBlf.hw_enhT_loBlf_thumb_cur_wgt,
+                          paut->dyn[ihigh].loBlf.hw_enhT_loBlf_thumb_cur_wgt, ratio);
 
-    out->dyn.blf5.hw_enhT_blf5_inv_sigma =
-        interpolation_f32(paut->dyn[ilow].blf5.hw_enhT_blf5_inv_sigma,
-                          paut->dyn[ihigh].blf5.hw_enhT_blf5_inv_sigma, ratio);
-    out->dyn.blf5.hw_enhT_blf5_cur_wgt =
-        interpolation_f32(paut->dyn[ilow].blf5.hw_enhT_blf5_cur_wgt,
-                          paut->dyn[ihigh].blf5.hw_enhT_blf5_cur_wgt, ratio);
+    out->dyn.midBlf.hw_enhT_midBlf_inv_sigma =
+        interpolation_f32(paut->dyn[ilow].midBlf.hw_enhT_midBlf_inv_sigma,
+                          paut->dyn[ihigh].midBlf.hw_enhT_midBlf_inv_sigma, ratio);
+    out->dyn.midBlf.hw_enhT_midBlf_cur_wgt =
+        interpolation_f32(paut->dyn[ilow].midBlf.hw_enhT_midBlf_cur_wgt,
+                          paut->dyn[ihigh].midBlf.hw_enhT_midBlf_cur_wgt, ratio);
 
     out->dyn.strg.hw_enhT_global_strg = interpolation_f32(
         paut->dyn[ilow].strg.hw_enhT_global_strg, paut->dyn[ihigh].strg.hw_enhT_global_strg, ratio);

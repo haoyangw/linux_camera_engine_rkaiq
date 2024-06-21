@@ -126,7 +126,7 @@ typedef struct {
     /* M4_GENERIC_DESC(
         M4_ALIAS(lut0),
         M4_TYPE(struct),
-        M4_UI_MODULE(normal_ui_style),
+        M4_UI_MODULE(HSV_1DLut0),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
@@ -135,7 +135,7 @@ typedef struct {
     /* M4_GENERIC_DESC(
         M4_ALIAS(lut1),
         M4_TYPE(struct),
-        M4_UI_MODULE(normal_ui_style),
+        M4_UI_MODULE(HSV_1DLut1),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
@@ -144,7 +144,7 @@ typedef struct {
     /* M4_GENERIC_DESC(
         M4_ALIAS(lut2),
         M4_TYPE(struct),
-        M4_UI_MODULE(normal_ui_style),
+        M4_UI_MODULE(HSV_2DLut),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),

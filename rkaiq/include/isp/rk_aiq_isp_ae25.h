@@ -1291,14 +1291,14 @@ typedef struct ae_overExpCtrl_s {
         M4_ALIAS(sw_aeT_overExpWgt_max),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,20),
-        M4_DEFAULT(8),
+        M4_RANGE_EX(0,5),
+        M4_DEFAULT(2),
         M4_DIGIT_EX(2),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
         M4_GROUP(over_exp_group),
-        M4_NOTES(The max weight used in over-exposure control.\n
+        M4_NOTES(The max weight used in over-exposure control to limit strength.\n
         Freq of use: high))  */
     float sw_aeT_overExpWgt_max;
 

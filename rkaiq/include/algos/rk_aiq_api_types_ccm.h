@@ -31,7 +31,7 @@ typedef struct {
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0,8),
         M4_DEFAULT("D50"),
-        M4_HIDE_EX(0),
+        M4_HIDE_EX(1),
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(The illumiantion name.\nFreq of use: low))  */
@@ -64,7 +64,7 @@ typedef struct {
     /* M4_GENERIC_DESC(
         M4_ALIAS(matrixAll),
         M4_TYPE(struct_list),
-        M4_UI_MODULE(normal_ui_style),
+        M4_UI_MODULE(illu_index_list),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
@@ -180,7 +180,7 @@ typedef struct {
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0,8),
         M4_DEFAULT("D50"),
-        M4_HIDE_EX(0),
+        M4_HIDE_EX(1),
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(The illumiantion name.\nFreq of use: low))  */

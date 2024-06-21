@@ -2884,7 +2884,7 @@ struct iqModStrToAlgoMap_s {
 
 static struct iqModStrToAlgoMap_s iqModuleStrToAlgoEnumMap[] = {
     {"ae_", RK_AIQ_ALGO_TYPE_AE},
-    {"wb_", RK_AIQ_ALGO_TYPE_AWB},
+    {"wb", RK_AIQ_ALGO_TYPE_AWB},
     {"ablc", RK_AIQ_ALGO_TYPE_ABLC},
     {"lut3d", RK_AIQ_ALGO_TYPE_A3DLUT},
     {"adegamma", RK_AIQ_ALGO_TYPE_ADEGAMMA},

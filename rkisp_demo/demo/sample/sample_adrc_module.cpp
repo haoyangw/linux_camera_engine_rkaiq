@@ -175,6 +175,11 @@ static void sample_moduleEn_test(const rk_aiq_sys_ctx_t* ctx)
                                         \"type\": \"RESULT_TYPE_UVNR_PARAM\",   \n\
                                         \"en\":   0,    \n\
                                         \"bypass\":       0,  \n\
+                                        \"opMode\":       \"RK_AIQ_OP_MODE_MANUAL\"}, \n\
+                                {   \n\
+                                        \"type\": \"RESULT_TYPE_ENH_PARAM\",   \n\
+                                        \"en\":   0,    \n\
+                                        \"bypass\":       0, \n\
                                         \"opMode\":       \"RK_AIQ_OP_MODE_MANUAL\"} \n\
                                         ] \n\
                                 } \n\
@@ -246,6 +251,11 @@ static void sample_moduleEn_test2(const rk_aiq_sys_ctx_t* ctx)
                                         \"type\": \"RESULT_TYPE_UVNR_PARAM\",   \n\
                                         \"en\":   1,    \n\
                                         \"bypass\":       0,  \n\
+                                        \"opMode\":       \"RK_AIQ_OP_MODE_MANUAL\"}, \n\
+                                {   \n\
+                                        \"type\": \"RESULT_TYPE_ENH_PARAM\",   \n\
+                                        \"en\":   1,    \n\
+                                        \"bypass\":       0, \n\
                                         \"opMode\":       \"RK_AIQ_OP_MODE_MANUAL\"} \n\
                                         ] \n\
                                 } \n\

@@ -308,7 +308,7 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
                 }
             }
         } else {
-            for (i=0; i<6; i++)
+            for (i = 0; i < 6; i++)
                 coeff[i] = pdyn->eHfDetailShp.detailExtra_hpf.hw_shpT_filtSpatial_wgt[i] * (1 << 7);
         }
 
@@ -351,7 +351,7 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
             float rsigma = pTexDyn->texEstFlt.sw_texEstT_filtSpatial_strg;
             SharpCreateKernelCoeffs(1, 1, rsigma, coeff, 6, 2);
         } else {
-            for (i=0; i<3; i++)
+            for (i = 0; i < 3; i++)
                 coeff[i] = pTexDyn->texEstFlt.sw_texEstT_filtSpatial_wgt[i] * (1 << 6);
         }
 
@@ -421,7 +421,7 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
             float rsigma = pdyn->detailShp.detailExtra_preBifilt.sw_shpT_filtSpatial_strg;
             SharpCreateKernelCoeffs(1, 1, rsigma, coeff, 6, 2);
         } else {
-            for (i=0; i<3; i++)
+            for (i = 0; i < 3; i++)
                 coeff[i] = pdyn->detailShp.detailExtra_preBifilt.hw_shpT_filtSpatial_wgt[i] * (1 << 6);
         }
 
@@ -438,9 +438,9 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
         int radius = pdyn->detailShp.hiDetailExtra_lpf.sw_shpT_filtRadius_mode;
         if (pdyn->detailShp.hiDetailExtra_lpf.sw_shpT_filtCfg_mode == shp_cfgByFiltStrg_mode) {
             float rsigma = pdyn->detailShp.hiDetailExtra_lpf.sw_shpT_filtSpatial_strg;
-            SharpCreateKernelCoeffs(radius, 5/2, rsigma, coeff, 7, 2);
+            SharpCreateKernelCoeffs(radius, 5 / 2, rsigma, coeff, 7, 2);
         } else {
-            for (i=0; i<6; i++)
+            for (i = 0; i < 6; i++)
                 coeff[i] = pdyn->detailShp.hiDetailExtra_lpf.hw_shpT_filtSpatial_wgt[i] * (1 << 7);
         }
 
@@ -448,7 +448,7 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
             int coeff_maxLimit = kernel_coeffs_maxLimit[k];
             coeff[k] = MIN(coeff[k],  coeff_maxLimit);
         }
-        SharpKernelCoeffsNormalization(coeff, 5/2, (1 << 7), 2);
+        SharpKernelCoeffsNormalization(coeff, 5 / 2, (1 << 7), 2);
 
         // REG: DETAIL_KERNEL0
         pCfg->hi_detail_lpf_coeff[0] = CLIP(coeff[0], 0, 0x7f);
@@ -465,9 +465,9 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
         int radius = pdyn->detailShp.midDetailExtra_lpf.sw_shpT_filtRadius_mode;
         if (pdyn->detailShp.midDetailExtra_lpf.sw_shpT_filtCfg_mode == shp_cfgByFiltStrg_mode) {
             float rsigma = pdyn->detailShp.midDetailExtra_lpf.sw_shpT_filt_strg;
-            SharpCreateKernelCoeffs(radius, 5/2, rsigma, coeff, 7, 2);
+            SharpCreateKernelCoeffs(radius, 5 / 2, rsigma, coeff, 7, 2);
         } else {
-            for (i=0; i<6; i++)
+            for (i = 0; i < 6; i++)
                 coeff[i] = pdyn->detailShp.midDetailExtra_lpf.hw_shpT_filtSpatial_wgt[i] * (1 << 7);
         }
 
@@ -475,7 +475,7 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
             int coeff_maxLimit = kernel_coeffs_maxLimit[k];
             coeff[k] = MIN(coeff[k],  coeff_maxLimit);
         }
-        SharpKernelCoeffsNormalization(coeff, 5/2, (1 << 7), 2);
+        SharpKernelCoeffsNormalization(coeff, 5 / 2, (1 << 7), 2);
 
         pCfg->mi_detail_lpf_coeff[0] = CLIP(coeff[0], 0, 0x7f);
         pCfg->mi_detail_lpf_coeff[1] = CLIP(coeff[1], 0, 0x1f);
@@ -589,9 +589,9 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
         int radius = pdyn->edgeShp.edgeExtra.sw_shpT_filtRadius_mode;
         if (pdyn->edgeShp.edgeExtra.sw_shpT_filtCfg_mode == shp_cfgByFiltStrg_mode) {
             float rsigma = pdyn->edgeShp.edgeExtra.sw_shpT_filtSpatial_strg;
-            SharpCreateKernelCoeffs(radius, 7/2, rsigma, coeff, 7, 2);
+            SharpCreateKernelCoeffs(radius, 7 / 2, rsigma, coeff, 7, 2);
         } else {
-            for (i=0; i<10; i++)
+            for (i = 0; i < 10; i++)
                 coeff[i] = pdyn->edgeShp.edgeExtra.hw_shpT_filtSpatial_wgt[i] * (1 << 7);
         }
 
@@ -599,7 +599,7 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
             int coeff_maxLimit = kernel_coeffs_maxLimit[k];
             coeff[k] = MIN(coeff[k],  coeff_maxLimit);
         }
-        SharpKernelCoeffsNormalization(coeff, 7/2, (1 << 7), 2);
+        SharpKernelCoeffsNormalization(coeff, 7 / 2, (1 << 7), 2);
 
         // REG: EDGE_KERNEL0
         pCfg->edge_lpf_coeff[0] = CLIP(coeff[0], 0, 0x7f);
@@ -652,8 +652,14 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
 
     {
         int luma_adj_strg[8];
-        for (i = 0; i < 8; i++) {
-            luma_adj_strg[i] = ROUND_F(pdyn->locShpStrg.luma.hw_shpT_luma2ShpStrg_val[i] * (1 << 7));
+        if(pdyn->locShpStrg.luma.sw_shpT_luma_en) {
+            for (i = 0; i < 8; i++) {
+                luma_adj_strg[i] = ROUND_F(pdyn->locShpStrg.luma.hw_shpT_luma2ShpStrg_val[i] * (1 << 7));
+            }
+        } else {
+            for (i = 0; i < 8; i++) {
+                luma_adj_strg[i] = ROUND_F(1 * (1 << 7));
+            }
         }
         // REG: LUMA_ADJ_STRG0
         pCfg->luma2strg[0] = CLIP(luma_adj_strg[0], 0, 0xff);
@@ -877,8 +883,14 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
 
     {
         int hue_adj_strg[9];
-        for (i = 0; i < 9; i++) {
-            hue_adj_strg[i] = ROUND_F(pdyn->locShpStrg.hue.sw_shpT_hue2ShpStrg_val[i] * (1 << 9));
+        if(pdyn->locShpStrg.hue.sw_shpT_hue_en) {
+            for (i = 0; i < 9; i++) {
+                hue_adj_strg[i] = ROUND_F(pdyn->locShpStrg.hue.hw_shpT_hue2ShpStrg_val[i] * (1 << 9));
+            }
+        } else {
+            for (i = 0; i < 9; i++) {
+                hue_adj_strg[i] = ROUND_F(1 * (1 << 9));
+            }
         }
         // REG: HUE_ADJ_TAB0
         pCfg->hue2strg[0] = CLIP(hue_adj_strg[0], 0, 0x3ff);
@@ -896,8 +908,14 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
 
     {
         int distance_adj_strg[11];
-        for (i = 0; i < 11; i++) {
-            distance_adj_strg[i] = ROUND_F(pdyn->locShpStrg.radiDist.hw_shpT_radiDist2ShpStrg_val[i] * (1 << 7));
+        if(pdyn->locShpStrg.radiDist.sw_shpT_radiDist_en) {
+            for (i = 0; i < 11; i++) {
+                distance_adj_strg[i] = ROUND_F(pdyn->locShpStrg.radiDist.hw_shpT_radiDist2ShpStrg_val[i] * (1 << 7));
+            }
+        } else {
+            for (i = 0; i < 11; i++) {
+                distance_adj_strg[i] = ROUND_F(1 * (1 << 7));
+            }
         }
         // REG: DISATANCE_ADJ0
         pCfg->distance2strg[0] = CLIP(distance_adj_strg[0], 0, 0xff);
@@ -964,7 +982,7 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
         sharp_stats_t *sharp_stats = &pBtnrInfo->mSharpStats[0];
         if (!cvtinfo->isFirstFrame) {
             sharp_stats = sharp_get_stats(pBtnrInfo, cvtinfo->frameId);
-            if (cvtinfo->frameId-BAYERTNR_STATS_DELAY != sharp_stats->id) {
+            if (cvtinfo->frameId - BAYERTNR_STATS_DELAY != sharp_stats->id) {
                 LOGE_ANR("Sharp stats miss match! (%d %d)", cvtinfo->frameId, sharp_stats->id);
             }
 

@@ -179,7 +179,9 @@ typedef struct ae_queryInfo_s {
  */
 /*****************************************************************************/
 typedef struct ae_api_expSwAttr_s {
+    // M4_STRUCT_DESC("commCtrl", "normal_ui_style")
     ae_commCtrl_t commCtrl;
+    // M4_STRUCT_DESC("advanced", "normal_ui_style")
     ae_advanced_t advanced;
 } ae_api_expSwAttr_t;
 

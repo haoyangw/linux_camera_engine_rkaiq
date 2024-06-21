@@ -28,7 +28,7 @@ int find_top_one_pos_v3(int data)
     }
     return pos;
 }
-void rk_aiq_ynr40_params_cvt(void* attr, isp_params_t* isp_params,common_cvt_info_t *cvtinfo)
+void rk_aiq_ynr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_info_t *cvtinfo)
 {
     struct isp33_ynr_cfg *pCfg = &isp_params->isp_cfg->others.ynr_cfg;
     ynr_param_t *ynr_param = (ynr_param_t *) attr;
@@ -36,14 +36,14 @@ void rk_aiq_ynr40_params_cvt(void* attr, isp_params_t* isp_params,common_cvt_inf
     ynr_params_dyn_t* pdyn = &ynr_param->dyn;
     int rows = cvtinfo->rawHeight;
     int cols = cvtinfo->rawWidth;
-    int i,tmp = 0;
+    int i, tmp = 0;
     float gain_base_inv_f = 1.0f;
 
     // REG: GLOBAL_CTRL
-    pCfg->hi_spnr_bypass = !pdyn->hiNr.hw_ynrT_hiNr_en;;
+    pCfg->hi_spnr_bypass = !pdyn->hiNr.hw_ynrT_hiNr_en;
     pCfg->mi_spnr_bypass = !pdyn->midNr.hw_ynrT_midNr_en;
     pCfg->lo_spnr_bypass = !pdyn->loNr.hw_ynrT_loNr_en;
-    pCfg->rnr_en = 1;
+    pCfg->rnr_en = pdyn->locYnrStrg.radiDist.sw_ynrT_radiDist_en;
     pCfg->tex2lo_strg_en = pdyn->loNr.locYnrStrg_texRegion.hw_ynrT_tex2NrStrg_en;
 
     // REG: GAIN_CTRL
@@ -159,7 +159,7 @@ void rk_aiq_ynr40_params_cvt(void* attr, isp_params_t* isp_params,common_cvt_inf
             coeff[3] = (pCfg->hi_lp_en == 1) ? 0 : (int)(w12_f / w_sum_f * 256 + 0.5f); // [0, 15]
             coeff[4] = (pCfg->hi_lp_en == 1) ? 0 : (int)(w22_f / w_sum_f * 256 + 0.5f); // [0, 15]
         } else {
-            for (i=0; i<5; i++)
+            for (i = 0; i < 5; i++)
                 coeff[i] = pdyn->hiNr.epf.hw_ynrT_filtSpatial_wgt[i] * (1 << 8);
         }
         // REG: HI_GAUS_COE
@@ -199,7 +199,7 @@ void rk_aiq_ynr40_params_cvt(void* attr, isp_params_t* isp_params,common_cvt_inf
             coeff[4] = g_w12;
             coeff[5] = g_w22;
         } else {
-            for (i=0; i<6; i++)
+            for (i = 0; i < 6; i++)
                 coeff[i] = pdyn->hiNr.sf.hw_ynrT_filtSpatial_wgt[i] * (1 << 8);
         }
         // REG: HI_GAUS1_COE_0_2
@@ -233,7 +233,7 @@ void rk_aiq_ynr40_params_cvt(void* attr, isp_params_t* isp_params,common_cvt_inf
             coeff[1] = m_w01;
             coeff[2] = m_w11;
         } else {
-            for (i=0; i<3; i++)
+            for (i = 0; i < 3; i++)
                 coeff[i] = pdyn->midNr.sw_ynr_filtSpatial_wgt[i] * (1 << 8);
         }
         // REG: MI_GAUS_COE
@@ -267,7 +267,7 @@ void rk_aiq_ynr40_params_cvt(void* attr, isp_params_t* isp_params,common_cvt_inf
     tmp = (pdyn->loNr.epf.hw_ynrT_guideSoftThd_scale) * (1 << 6);
     pCfg->lo_spnr_thumb_thred_scale = CLIP(tmp, 0, 0x3ff);
     // REG: LO_WEIGHT
-    pCfg->lo_spnr_wgt = 128;
+    pCfg->lo_spnr_wgt = 1 * (1 << 7);
     tmp = (pdyn->loNr.epf.hw_ynrT_centerPix_wgt) * (1 << 8) * 6;
     pCfg->lo_spnr_filt_center_wgt = CLIP(tmp, 0, 0x1fff);
 

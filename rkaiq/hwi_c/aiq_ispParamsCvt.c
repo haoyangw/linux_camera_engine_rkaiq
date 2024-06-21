@@ -148,7 +148,6 @@ void AiqIspParamsCvt_getCommonCvtInfo(AiqIspParamsCvt_t* pCvt, AiqList_t* result
             pCvt->mCommonCvtInfo.cnr_path_valid = 0;
         }
     }
-    pCvt->mCommonCvtInfo.cnr_path_valid = 1;
 #endif
     LOGD_CAMHW_SUBM(ISP20PARAM_SUBM, "%s: cnr_path_valid = %d", __func__,
                     pCvt->mCommonCvtInfo.cnr_path_valid);

@@ -21,11 +21,49 @@
 #include "rk_aiq_isp_common_cnr.h"
 
 typedef struct {
-    // reg: hiBfFlt_locAlpha_en
-	bool hw_cnrT_locFiltAlpha_en;
-    // reg: hiBfFlt_locAlpha_maxLimit
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(hiBfFlt_localFltAlpha_en),
+        M4_TYPE(bool),
+        M4_DEFAULT(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_GROUP_CTRL(cnrLocFiltAlpha_en_group),
+        M4_NOTES(CNR bf3x3 out local alpha disable signal.\n
+        Freq of use: low))  */
+    // reg: !en = sw_cnr_local_alpha_dis
+    bool hw_cnrT_locFiltAlpha_en;
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(hiBfFlt_mergeFrames_maxLimit),
+       M4_TYPE(f32),
+       M4_SIZE_EX(1,1),
+       M4_RANGE_EX(1.0,1024.0),
+       M4_DEFAULT(256.0),
+       M4_DIGIT_EX(2),
+       M4_HIDE_EX(0),
+       M4_RO(0),
+       M4_ORDER(1),
+       M4_GROUP(cnrLocFiltAlpha_en_group),
+       M4_NOTES(CNR bf3x3 merge maxlimit..\n
+       Higher the value, the higher the max merge frames strength for static region.\n
+       Freq of use: low))  */
+    // reg: hw_cnrT_bfMerge_maxLimit
     float hw_cnrT_locFiltAlpha_maxLimit;
-    // reg: hiBfFlt_localFltAlpha_minLimit
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(hiBfFlt_localFltAlpha_minLimit),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0.0,1.0),
+        M4_DEFAULT(0.0),
+        M4_DIGIT_EX(3),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_GROUP(cnrLocFiltAlpha_en_group),
+        M4_NOTES(CNR bf3x3 alpha maxlimit..\n
+        Higher the value, the higher the max merge frames strength for motion region.\n
+        Freq of use: low))  */
+    // reg: hiBfFlt_locAlpha_maxLimit
     float hw_cnrT_locFiltAlpha_minLimit;
 } cnr_hiNr_locFiltAlpha_t;
 

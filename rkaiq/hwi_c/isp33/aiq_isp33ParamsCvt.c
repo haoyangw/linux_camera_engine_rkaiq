@@ -1517,7 +1517,6 @@ static void convertAiqBtnrToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base
 
 #if RKAIQ_HAVE_YNR_V40
 static void convertAiqYnrToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase) {
-    /*
     if (pCvt->mCommonCvtInfo.cnr_path_valid) {
         if (pBase->en) {
             pCvt->isp_params.isp_cfg->module_ens |= ISP3X_MODULE_YNR;
@@ -1541,11 +1540,7 @@ static void convertAiqYnrToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_
         pCvt->mCommonCvtInfo.ynr_count++;
         if (!pBase->en) {
             pBase->bypass = 1;
-            ynr_param_t *ynr_param = (ynr_param_t *) pBase->_data;
-            ynr_param->dyn.hw_ynrT_loNr_en = 0;
-            ynr_param->dyn.hiNr_filtProc.hw_ynrT_nlmFilt_en = 0;
-            LOGW_ANR("ynr en disable is changed to bypass on, "
-                "Equivalent effect, but not equivalent power consumption.");
+            LOGW_ANR("ynr must be disabled together with cnr and sharp.");
         }
         if (pCvt->mCommonCvtInfo.isFirstFrame) {
             pCvt->isp_params.isp_cfg->module_ens |= ISP3X_MODULE_YNR;
@@ -1553,17 +1548,14 @@ static void convertAiqYnrToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_
         }
         pCvt->isp_params.isp_cfg->module_cfg_update |= ISP3X_MODULE_YNR;
     }
-    */
 
-    pCvt->isp_params.isp_cfg->module_ens |= ISP3X_MODULE_YNR;
-    pCvt->isp_params.isp_cfg->module_en_update |= ISP3X_MODULE_YNR;
-    pCvt->isp_params.isp_cfg->module_cfg_update |= ISP3X_MODULE_YNR;
-
-    if (pBase->bypass) {
-        struct isp33_ynr_cfg* pYnr = &pCvt->isp_params.isp_cfg->others.ynr_cfg;
-        pYnr->hi_spnr_bypass = 1;
-        pYnr->mi_spnr_bypass = 1;
-        pYnr->lo_spnr_bypass = 1;
+    if(pBase->bypass){
+        ynr_param_t *ynr_param = (ynr_param_t *) pBase->_data;
+        ynr_param->dyn.hiNr.hw_ynrT_hiNr_en = 0;
+        ynr_param->dyn.midNr.hw_ynrT_midNr_en = 0;
+        ynr_param->dyn.loNr.hw_ynrT_loNr_en = 0;
+        LOGW_ANR("ynr en disable is changed to bypass on, "
+                    "Equivalent effect, but not equivalent power consumption.");
     }
 
     rk_aiq_ynr40_params_cvt(pBase->_data, &pCvt->isp_params, &pCvt->mCommonCvtInfo);
@@ -1621,17 +1613,16 @@ static void convertAiqTexEstToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_ba
 }
 
 static void convertAiqSharpToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase) {
-    /*
     if (pCvt->mCommonCvtInfo.cnr_path_valid) {
         if (pBase->en) {
-            pCvt->isp_params.isp_cfg->module_ens |= ISP3X_MODULE_SHARP;
-            pCvt->isp_params.isp_cfg->module_en_update |= ISP3X_MODULE_SHARP;
-            pCvt->isp_params.isp_cfg->module_cfg_update |= ISP3X_MODULE_SHARP;
+            pCvt->isp_params.isp_cfg->module_ens |= ISP33_MODULE_SHARP;
+            pCvt->isp_params.isp_cfg->module_en_update |= ISP33_MODULE_SHARP;
+            pCvt->isp_params.isp_cfg->module_cfg_update |= ISP33_MODULE_SHARP;
         }
         else {
-            pCvt->isp_params.isp_cfg->module_ens &= ~ISP3X_MODULE_SHARP;
-            pCvt->isp_params.isp_cfg->module_en_update |= ISP3X_MODULE_SHARP;
-            pCvt->isp_params.isp_cfg->module_cfg_update |= ISP3X_MODULE_SHARP;
+            pCvt->isp_params.isp_cfg->module_ens &= ~ISP33_MODULE_SHARP;
+            pCvt->isp_params.isp_cfg->module_en_update |= ISP33_MODULE_SHARP;
+            pCvt->isp_params.isp_cfg->module_cfg_update |= ISP33_MODULE_SHARP;
             return;
         }
     }
@@ -1648,17 +1639,11 @@ static void convertAiqSharpToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_bas
             "Equivalent effect, but not equivalent power consumption.");
         }
         if (pCvt->mCommonCvtInfo.isFirstFrame) {
-            pCvt->isp_params.isp_cfg->module_ens |= ISP3X_MODULE_SHARP;
-            pCvt->isp_params.isp_cfg->module_en_update |= ISP3X_MODULE_SHARP;
+            pCvt->isp_params.isp_cfg->module_ens |= ISP33_MODULE_SHARP;
+            pCvt->isp_params.isp_cfg->module_en_update |= ISP33_MODULE_SHARP;
         }
-        pCvt->isp_params.isp_cfg->module_cfg_update |= ISP3X_MODULE_SHARP;
+        pCvt->isp_params.isp_cfg->module_cfg_update |= ISP33_MODULE_SHARP;
     }
-    */
-
-    pCvt->isp_params.isp_cfg->module_ens |= ISP33_MODULE_SHARP;
-    pCvt->isp_params.isp_cfg->module_en_update |= ISP33_MODULE_SHARP;
-    pCvt->isp_params.isp_cfg->module_cfg_update |= ISP33_MODULE_SHARP;
-
 
     pCvt->isp_params.isp_cfg->others.sharp_cfg.bypass = pBase->bypass;
     rk_aiq_sharp40_params_cvt(pBase->_data, &pCvt->isp_params, &pCvt->mCommonCvtInfo, &pCvt->mBtnrInfo);

@@ -71,42 +71,54 @@ XCamReturn HisteqSelectParam(HisteqContext_t* pHisteqCtx, histeq_param_t* out, i
 #if RKAIQ_HAVE_HISTEQ_V10
     out->dyn.sw_hist_saturate_scale = interpolation_f32(
         paut->dyn[ilow].sw_hist_saturate_scale, paut->dyn[ihigh].sw_hist_saturate_scale, ratio);
-    out->dyn.sw_hist_mapUserSet = interpolation_f32(paut->dyn[ilow].sw_hist_mapUserSet,
-                                                    paut->dyn[ihigh].sw_hist_mapUserSet, ratio);
-    out->dyn.hw_histc_noiseCount_offset =
-        interpolation_u8(paut->dyn[ilow].hw_histc_noiseCount_offset,
-                         paut->dyn[ihigh].hw_histc_noiseCount_offset, uratio);
-    out->dyn.sw_histc_noiseCount_scale =
-        interpolation_f32(paut->dyn[ilow].sw_histc_noiseCount_scale,
-                          paut->dyn[ihigh].sw_histc_noiseCount_scale, ratio);
-    out->dyn.sw_histc_countWgt_minLimit =
-        interpolation_f32(paut->dyn[ilow].sw_histc_countWgt_minLimit,
-                          paut->dyn[ihigh].sw_histc_countWgt_minLimit, ratio);
-    out->dyn.sw_hist_mapCount_scale = interpolation_f32(
-        paut->dyn[ilow].sw_hist_mapCount_scale, paut->dyn[ihigh].sw_hist_mapCount_scale, ratio);
-    out->dyn.hw_hist_paramTfilt_curWgt =
-        interpolation_f32(paut->dyn[ilow].hw_hist_paramTfilt_curWgt,
-                          paut->dyn[ihigh].hw_hist_paramTfilt_curWgt, ratio);
-    out->dyn.hw_hist_gainRef_sel = interpolation_f32(paut->dyn[ilow].hw_hist_gainRef_sel,
-                                                     paut->dyn[ihigh].hw_hist_gainRef_sel, ratio);
-    out->dyn.sw_hist_globalMergePos_weight =
-        interpolation_f32(paut->dyn[ilow].sw_hist_globalMergePos_weight,
-                          paut->dyn[ihigh].sw_hist_globalMergePos_weight, ratio);
-    out->dyn.sw_hist_globalMergeNeg_weight =
-        interpolation_f32(paut->dyn[ilow].sw_hist_globalMergeNeg_weight,
-                          paut->dyn[ihigh].sw_hist_globalMergeNeg_weight, ratio);
-    out->dyn.sw_hist_mapMerge_alpha = interpolation_f32(
-        paut->dyn[ilow].sw_hist_mapMerge_alpha, paut->dyn[ihigh].sw_hist_mapMerge_alpha, ratio);
-    out->dyn.hw_hist_globalMergeWeight_en =
-        interpolation_bool(paut->dyn[ilow].hw_hist_globalMergeWeight_en,
-                           paut->dyn[ihigh].hw_hist_globalMergeWeight_en, uratio);
+
+    out->dyn.stats.hw_histc_noiseCount_offset =
+        interpolation_u8(paut->dyn[ilow].stats.hw_histc_noiseCount_offset,
+                         paut->dyn[ihigh].stats.hw_histc_noiseCount_offset, uratio);
+    out->dyn.stats.sw_histc_noiseCount_scale =
+        interpolation_f32(paut->dyn[ilow].stats.sw_histc_noiseCount_scale,
+                          paut->dyn[ihigh].stats.sw_histc_noiseCount_scale, ratio);
+    out->dyn.stats.sw_histc_countWgt_minLimit =
+        interpolation_f32(paut->dyn[ilow].stats.sw_histc_countWgt_minLimit,
+                          paut->dyn[ihigh].stats.sw_histc_countWgt_minLimit, ratio);
+
+    out->dyn.mapping.sw_hist_mapUserSet =
+        interpolation_f32(paut->dyn[ilow].mapping.sw_hist_mapUserSet,
+                          paut->dyn[ihigh].mapping.sw_hist_mapUserSet, ratio);
+    out->dyn.mapping.sw_hist_mapCount_scale =
+        interpolation_f32(paut->dyn[ilow].mapping.sw_hist_mapCount_scale,
+                          paut->dyn[ihigh].mapping.sw_hist_mapCount_scale, ratio);
+    out->dyn.mapping.sw_hist_mapMerge_alpha =
+        interpolation_f32(paut->dyn[ilow].mapping.sw_hist_mapMerge_alpha,
+                          paut->dyn[ihigh].mapping.sw_hist_mapMerge_alpha, ratio);
+
+    out->dyn.iir.hw_hist_paramTfilt_curWgt =
+        interpolation_f32(paut->dyn[ilow].iir.hw_hist_paramTfilt_curWgt,
+                          paut->dyn[ihigh].iir.hw_hist_paramTfilt_curWgt, ratio);
+    out->dyn.iir.sw_hist_MapTflt_invSigma =
+        interpolation_u8(paut->dyn[ilow].iir.sw_hist_MapTflt_invSigma,
+                         paut->dyn[ihigh].iir.sw_hist_MapTflt_invSigma, uratio);
+
+    out->dyn.mergeWeit.hw_hist_gainRef_sel =
+        interpolation_f32(paut->dyn[ilow].mergeWeit.hw_hist_gainRef_sel,
+                          paut->dyn[ihigh].mergeWeit.hw_hist_gainRef_sel, ratio);
+    out->dyn.mergeWeit.sw_hist_globalMergePos_weight =
+        interpolation_f32(paut->dyn[ilow].mergeWeit.sw_hist_globalMergePos_weight,
+                          paut->dyn[ihigh].mergeWeit.sw_hist_globalMergePos_weight, ratio);
+    out->dyn.mergeWeit.sw_hist_globalMergeNeg_weight =
+        interpolation_f32(paut->dyn[ilow].mergeWeit.sw_hist_globalMergeNeg_weight,
+                          paut->dyn[ihigh].mergeWeit.sw_hist_globalMergeNeg_weight, ratio);
+
+    out->dyn.mergeWeit.hw_hist_globalMergeWeight_en =
+        interpolation_bool(paut->dyn[ilow].mergeWeit.hw_hist_globalMergeWeight_en,
+                           paut->dyn[ihigh].mergeWeit.hw_hist_globalMergeWeight_en, uratio);
     for (i = 0; i < 17; i++) {
-        out->dyn.sw_hist_outputMerge_pos_alpha[i] =
-            interpolation_f32(paut->dyn[ilow].sw_hist_outputMerge_pos_alpha[i],
-                              paut->dyn[ihigh].sw_hist_outputMerge_pos_alpha[i], ratio);
-        out->dyn.sw_hist_outputMerge_neg_alpha[i] =
-            interpolation_f32(paut->dyn[ilow].sw_hist_outputMerge_neg_alpha[i],
-                              paut->dyn[ihigh].sw_hist_outputMerge_neg_alpha[i], ratio);
+        out->dyn.mergeWeit.sw_hist_outputMerge_pos_alpha[i] =
+            interpolation_f32(paut->dyn[ilow].mergeWeit.sw_hist_outputMerge_pos_alpha[i],
+                              paut->dyn[ihigh].mergeWeit.sw_hist_outputMerge_pos_alpha[i], ratio);
+        out->dyn.mergeWeit.sw_hist_outputMerge_neg_alpha[i] =
+            interpolation_f32(paut->dyn[ilow].mergeWeit.sw_hist_outputMerge_neg_alpha[i],
+                              paut->dyn[ihigh].mergeWeit.sw_hist_outputMerge_neg_alpha[i], ratio);
     }
 #endif
     return XCAM_RETURN_NO_ERROR;
