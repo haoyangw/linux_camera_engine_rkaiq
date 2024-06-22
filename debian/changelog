@@ -1,0 +1,5 @@
+camera-engine-rkaiq-rk3588 (6.0x6.1-1~noble) noble; urgency=medium
+
+  * Initial packaging.
+
+ -- Joshua Riek <jjriek@verizon.net>  Sat, 22 Jun 2024 17:26:39 -0400
