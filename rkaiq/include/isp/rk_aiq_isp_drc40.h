@@ -414,7 +414,7 @@ typedef enum drc_drcGainLimit_mode_e {
 
 typedef struct drc_drcProc_s {
     /* M4_GENERIC_DESC(
-   M4_ALIAS(hw_adrc_hiDetail_ratio),
+   M4_ALIAS(hw_drcT_hfDarkRegion_strg),
    M4_TYPE(f32),
    M4_SIZE_EX(1,1),
    M4_RANGE_EX(0,1),
@@ -426,9 +426,9 @@ typedef struct drc_drcProc_s {
    M4_NOTES(Adjust the local contrast of the DRC process through this parameter.
    The larger the parameter, the higher the low-light zone contrast..\n
    Freq of use: high))  */
-    float hw_drcT_drcStrg_alpha;
+    float hw_drcT_hfDarkRegion_strg;
     /* M4_GENERIC_DESC(
-    M4_ALIAS(hw_adrc_loDetail_ratio),
+    M4_ALIAS(hw_drcT_locDetail_strg),
     M4_TYPE(f32),
     M4_SIZE_EX(1,1),
     M4_RANGE_EX(0,1),
@@ -441,7 +441,7 @@ typedef struct drc_drcProc_s {
     The larger the parameter, the higher the local contrast.\n
     Freq of use: high))  */
     // reg: hw_adrc_loDetail_ratio
-    float hw_drcT_loDetail_strg;
+    float hw_drcT_locDetail_strg;
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_drcT_drcCurve_mode),
         M4_TYPE(enum),

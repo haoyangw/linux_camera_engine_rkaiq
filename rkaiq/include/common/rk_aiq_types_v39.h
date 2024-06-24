@@ -26,8 +26,7 @@
 #include "algos/ayuvmeV1/rk_aiq_types_ayuvme_algo_v1.h"
 #include "common/rk_aiq_comm.h"
 #include "rk_aiq_mems_sensor.h"
-#include "isp/rk_aiq_stats_awb39.h"
-
+//#include "isp/rk_aiq_stats_awb39.h"
 #ifndef ISP39_LDCH_BIC_NUM
 #define ISP39_LDCH_BIC_NUM 36
 #endif
@@ -54,7 +53,6 @@ typedef struct rk_aiq_isp_ldc_s {
 } rk_aiq_isp_ldc_t;
 
 
-typedef awbStats_cfg_priv_t rk_aiq_isp_awb_meas_cfg_v39_t;
-typedef awbStats_stats_priv_t rk_aiq_isp_awb_stats_v39_t;
+
 
 #endif

@@ -319,13 +319,13 @@ XCamReturn Ahsv_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outpar
 
     outparams->cfg_update = false;
     hsv_param_t* hsvRes = outparams->algoRes;
-    if (isReCal_) {
+
+    if (need_recal) {
+        hsvRes->sta = tunning->stAuto.sta.hsvCfg;
         hsvRes->dyn.lut0.hw_hsvT_lut1d_mode = pHsvCtx->calib_lut->lut0.hw_hsvT_lut1d_mode;
         hsvRes->dyn.lut1.hw_hsvT_lut1d_mode = pHsvCtx->calib_lut->lut1.hw_hsvT_lut1d_mode;
         hsvRes->dyn.lut2.hw_hsvT_lut2d_mode = pHsvCtx->calib_lut->lut2.hw_hsvT_lut2d_mode;
-    }
-    if (need_recal) {
-        hsvRes->sta = tunning->stAuto.sta.hsvCfg;
+
         if (damp_en) {
             memcpy(hsvRes->dyn.lut0.hw_hsvT_lut1d_val, 
                    pHsvCtx->damped_lut.lut0, 

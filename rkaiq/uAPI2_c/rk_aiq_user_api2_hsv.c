@@ -94,6 +94,21 @@ rk_aiq_user_api2_hsv_QueryStatus(const rk_aiq_sys_ctx_t* sys_ctx, hsv_status_t* 
 	return ret;
 }
 
+static XCamReturn check_hsv_param(ahsv_hsvCalib_t* calibdb){
+    int tblAll_len = calibdb->sw_hsvCfg_tblAll_len;
+    for (int i = 0;i < tblAll_len;i++) {
+        int lut0_mode = calibdb->tableAll[i].meshGain.lut0.hw_hsvT_lut1d_mode % 3;
+        int lut1_mode = calibdb->tableAll[i].meshGain.lut1.hw_hsvT_lut1d_mode % 3;
+        int lut2_mode = calibdb->tableAll[i].meshGain.lut2.hw_hsvT_lut2d_mode / 2;
+        if (lut0_mode == lut1_mode || lut1_mode == lut2_mode || lut2_mode == lut0_mode) {
+            LOGE("HSV config failed, hsv.calibdb is invaild. Three output channels of hsv lut must be different."
+                "Please configure by hsv.calibdb.tableAll.meshGain.");
+            return XCAM_RETURN_ERROR_FAILED;
+        }
+    }
+    return XCAM_RETURN_NO_ERROR;
+}
+
 XCamReturn
 rk_aiq_user_api2_hsv_SetCalib(const rk_aiq_sys_ctx_t* sys_ctx, ahsv_hsvCalib_t* calib)
 {
@@ -102,7 +117,10 @@ rk_aiq_user_api2_hsv_SetCalib(const rk_aiq_sys_ctx_t* sys_ctx, ahsv_hsvCalib_t* 
     CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_AHSV);
     RKAIQ_API_SMART_LOCK(sys_ctx);
 
-	rk_aiq_sys_ctx_array_t ctx_array = rk_aiq_user_api2_common_getSysCtxArray(sys_ctx);
+    if (check_hsv_param(calib) != XCAM_RETURN_NO_ERROR) {
+        return XCAM_RETURN_ERROR_FAILED;
+    }
+    rk_aiq_sys_ctx_array_t ctx_array = rk_aiq_user_api2_common_getSysCtxArray(sys_ctx);
 
     for (int i = 0; i < ctx_array.num; i++) {
         AiqAlgoHandler_t* algo_handle =

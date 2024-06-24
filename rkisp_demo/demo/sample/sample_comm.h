@@ -78,11 +78,18 @@ typedef struct __uapi_case {
     uapi_case_func func;
 } uapi_case_t;
 
+
+#ifdef  __cplusplus
+extern "C" {
+#endif
 int uapi_usage_show(uapi_case_t* uapi_list);
 
 int uapi_list_count(uapi_case_t* uapi_list);
 
 int uapi_process_loop(const rk_aiq_sys_ctx_t* ctx, uapi_case_t* uapi_list);
+#ifdef  __cplusplus
+}
+#endif
 
 #endif
 

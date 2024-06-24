@@ -5329,19 +5329,22 @@ XCamReturn rk_aiq_uapi2_getColorSpace(const rk_aiq_sys_ctx_t* ctx, int *Cspace)
 #endif
 #endif
 
-XCamReturn rk_aiq_uapi2_setDrcLocalDataV2(const rk_aiq_sys_ctx_t* ctx, float hw_drcT_bifiltOut_alpha, float hw_drcT_loDetail_strg,
-        float hw_drcT_drcStrg_alpha, int hw_drcT_softThd_en, float hw_drcT_softThd_thred)
-{
-   LOGE("not supported !");
-   return XCAM_RETURN_ERROR_PARAM;
+XCamReturn rk_aiq_uapi2_setDrcLocalDataV2(const rk_aiq_sys_ctx_t* ctx,
+                                          float hw_drcT_bifiltOut_alpha,
+                                          float hw_drcT_locDetail_strg,
+                                          float hw_drcT_hfDarkRegion_strg, int hw_drcT_softThd_en,
+                                          float hw_drcT_softThd_thred) {
+    LOGE("not supported !");
+    return XCAM_RETURN_ERROR_PARAM;
 }
 
-XCamReturn rk_aiq_uapi2_getDrcLocalDataV2(const rk_aiq_sys_ctx_t* ctx, float* hw_drcT_bifiltOut_alpha, float* hw_drcT_loDetail_strg,
-        float* hw_drcT_drcStrg_alpha, int* hw_drcT_softThd_en, float* hw_drcT_softThd_thred)
-{
-   LOGE("not supported !");
-   return XCAM_RETURN_ERROR_PARAM;
+XCamReturn rk_aiq_uapi2_getDrcLocalDataV2(const rk_aiq_sys_ctx_t* ctx,
+                                          float* hw_drcT_bifiltOut_alpha,
+                                          float* hw_drcT_locDetail_strg,
+                                          float* hw_drcT_hfDarkRegion_strg, int* hw_drcT_softThd_en,
+                                          float* hw_drcT_softThd_thred) {
+    LOGE("not supported !");
+    return XCAM_RETURN_ERROR_PARAM;
 }
-
 
 RKAIQ_END_DECLARE

@@ -277,7 +277,7 @@ typedef struct _RkAiqAlgoProcResAwb {
         rk_aiq_awb_stat_cfg_v200_t* awb_hw0_para;
         rk_aiq_awb_stat_cfg_v201_t* awb_hw1_para;
         rk_aiq_awb_stat_cfg_v32_t* awb_hw32_para;
-        awbStats_cfg_priv_t* awb_hw39_para;
+        awbStats_cfg_priv_t* awb_hw_cfg_priv;
     };
     bool awb_gain_update;
 #if RKAIQ_HAVE_AWB_V32|| RKAIQ_HAVE_AWB_V39

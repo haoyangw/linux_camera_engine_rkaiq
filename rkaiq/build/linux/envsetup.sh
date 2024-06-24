@@ -1,6 +1,6 @@
 #!/bin/bash
 
-choices=(rk3576 rv1106 rk3588 rk356x rv1109 rk3562)
+choices=(rv1103b rk3576 rv1106 rk3588 rk356x rv1109 rk3562)
 
 function usage() {
 	echo "Usage: source envsetup.sh"
@@ -58,6 +58,9 @@ function lunch() {
   fi
 
   case $selection in
+    rv1103b)
+      set_isp_hw 33
+      ;;
     rk3576)
       set_isp_hw 39
       ;;

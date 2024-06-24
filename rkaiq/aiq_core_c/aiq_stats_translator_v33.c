@@ -434,15 +434,15 @@ XCamReturn translateAwbStatsV33(AiqStatsTranslator_t* pStatsTrans, const aiq_Vid
         statsInt->awb_stats_v39.dbginfo_fd = -1;
     }
     statsInt->awb_stats_v39.awb_cfg_effect.blkMeasureMode =
-        pStatsTrans->_ispParams->awb_cfg_v39.com.pixEngine.hw_awbCfg_zoneStatsSrc_mode>awbStats_pixAll_mode;    statsInt->awb_stats_v39.awb_cfg_effect.mode = pStatsTrans->_ispParams->awb_cfg_v39.mode;
-    statsInt->awb_stats_v39.awb_cfg_effect.lightNum = pStatsTrans->_ispParams->awb_cfg_v39.com.wpEngine.hw_awbCfg_lightSrcNum_val;
-    statsInt->awb_stats_v39.awb_cfg_effect.groupIllIndxCurrent = pStatsTrans->_ispParams->awb_cfg_v39.groupIllIndxCurrent;
-    memcpy(statsInt->awb_stats_v39.awb_cfg_effect.IllIndxSetCurrent, pStatsTrans->_ispParams->awb_cfg_v39.IllIndxSetCurrent,
+        pStatsTrans->_ispParams->awb_cfg_v33.com.pixEngine.hw_awbCfg_zoneStatsSrc_mode>awbStats_pixAll_mode;    statsInt->awb_stats_v39.awb_cfg_effect.mode = pStatsTrans->_ispParams->awb_cfg_v33.mode;
+    statsInt->awb_stats_v39.awb_cfg_effect.lightNum = pStatsTrans->_ispParams->awb_cfg_v33.com.wpEngine.hw_awbCfg_lightSrcNum_val;
+    statsInt->awb_stats_v39.awb_cfg_effect.groupIllIndxCurrent = pStatsTrans->_ispParams->awb_cfg_v33.groupIllIndxCurrent;
+    memcpy(statsInt->awb_stats_v39.awb_cfg_effect.IllIndxSetCurrent, pStatsTrans->_ispParams->awb_cfg_v33.IllIndxSetCurrent,
            sizeof(statsInt->awb_stats_v39.awb_cfg_effect.IllIndxSetCurrent));
-    memcpy(statsInt->awb_stats_v39.awb_cfg_effect.timeSign, pStatsTrans->_ispParams->awb_cfg_v39.timeSign,
+    memcpy(statsInt->awb_stats_v39.awb_cfg_effect.timeSign, pStatsTrans->_ispParams->awb_cfg_v33.timeSign,
            sizeof(statsInt->awb_stats_v39.awb_cfg_effect.timeSign));
-    memcpy(statsInt->awb_stats_v39.awb_cfg_effect.preWbgainSw, pStatsTrans->_ispParams->awb_cfg_v39.preWbgainSw,
-           sizeof(pStatsTrans->_ispParams->awb_cfg_v39.preWbgainSw));
+    memcpy(statsInt->awb_stats_v39.awb_cfg_effect.preWbgainSw, pStatsTrans->_ispParams->awb_cfg_v33.preWbgainSw,
+           sizeof(pStatsTrans->_ispParams->awb_cfg_v33.preWbgainSw));
     statsInt->awb_cfg_effect_valid = true;
     to->frame_id             = stats->frame_id;
 

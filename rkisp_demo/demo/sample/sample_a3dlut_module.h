@@ -19,6 +19,10 @@
 #define _SAMPLE_A3DLUT_MODULE_H_
 
 #include "xcore/base/xcam_common.h"
+
+#ifdef  __cplusplus
+extern "C" {
+#endif
 void sample_print_a3dlut_info(const void *arg);
 XCamReturn sample_a3dlut_module(const void* arg);
 #ifdef USE_NEWSTRUCT
@@ -26,4 +30,10 @@ int sample_3dlut_test(const rk_aiq_sys_ctx_t* ctx);
 int sample_query_3dlut_status(const rk_aiq_sys_ctx_t* ctx);
 int sample_3dlut_setCalib_test(const rk_aiq_sys_ctx_t* ctx);
 #endif
+
+#ifdef  __cplusplus
+}
 #endif
+
+#endif
+

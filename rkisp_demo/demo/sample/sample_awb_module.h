@@ -20,8 +20,14 @@
 
 #include "xcore/base/xcam_common.h"
 
+#ifdef  __cplusplus
+extern "C" {
+#endif
 void sample_print_awb_info(const void *arg);
 XCamReturn sample_awb_module(const void *arg);
 void sample_awb_case(const rk_aiq_sys_ctx_t* ctx);
+#ifdef  __cplusplus
+}
+#endif
 
 #endif

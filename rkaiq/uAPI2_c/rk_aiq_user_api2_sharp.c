@@ -94,7 +94,7 @@ rk_aiq_user_api2_sharp_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, sharp_api_attr
             ret = rk_aiq_user_api2_common_processParams(ctx_array.ctx[i], true,
                     &attr->opMode, &attr->en, &attr->bypass,
                     type, man_param_size, &attr->stMan, aut_param_size,  &attr->stAuto);
-            if (ret == XCAM_RETURN_BYPASS) {
+            if (ret != XCAM_RETURN_NO_ERROR) {
                 LOGE("ynr cnr and sharp en should be on or off in the same time, "
                      "please use rk_aiq_uapi2_sysctl_setModuleEn to set them");
             }

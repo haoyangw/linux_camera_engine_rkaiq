@@ -481,17 +481,23 @@ XCamReturn rk_aiq_uapi2_getDrcLocalData(const rk_aiq_sys_ctx_t* ctx, float* Loca
 *     use in RK3576, rv1103b
 * Argument:
 *   hw_drcT_bifiltOut_alpha: [0, 16]
-*   hw_drcT_loDetail_strg: [0, 4095]
-*   hw_drcT_drcStrg_alpha: [0, 4095]
+*   hw_drcT_locDetail_strg: [0, 4095]
+*   hw_drcT_hfDarkRegion_strg: [0, 4095]
 *   hw_drcT_softThd_en: [0, 1]
 *   hw_drcT_softThd_thred: [0, 2047]
 *
 *****************************
 */
-XCamReturn rk_aiq_uapi2_setDrcLocalDataV2(const rk_aiq_sys_ctx_t* ctx, float hw_drcT_bifiltOut_alpha, float hw_drcT_loDetail_strg,
-        float hw_drcT_drcStrg_alpha, int hw_drcT_softThd_en, float hw_drcT_softThd_thred);
-XCamReturn rk_aiq_uapi2_getDrcLocalDataV2(const rk_aiq_sys_ctx_t* ctx, float* hw_drcT_bifiltOut_alpha, float* hw_drcT_loDetail_strg,
-        float* hw_drcT_drcStrg_alpha, int* hw_drcT_softThd_en, float* hw_drcT_softThd_thred);
+XCamReturn rk_aiq_uapi2_setDrcLocalDataV2(const rk_aiq_sys_ctx_t* ctx,
+                                          float hw_drcT_bifiltOut_alpha,
+                                          float hw_drcT_locDetail_strg,
+                                          float hw_drcT_hfDarkRegion_strg, int hw_drcT_softThd_en,
+                                          float hw_drcT_softThd_thred);
+XCamReturn rk_aiq_uapi2_getDrcLocalDataV2(const rk_aiq_sys_ctx_t* ctx,
+                                          float* hw_drcT_bifiltOut_alpha,
+                                          float* hw_drcT_locDetail_strg,
+                                          float* hw_drcT_hfDarkRegion_strg, int* hw_drcT_softThd_en,
+                                          float* hw_drcT_softThd_thred);
 /*
 *****************************
 *

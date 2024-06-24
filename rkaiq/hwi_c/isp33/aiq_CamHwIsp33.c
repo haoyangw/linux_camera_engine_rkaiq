@@ -41,8 +41,8 @@ static void CamHwIsp33_updateEffParams(AiqCamHwBase_t* pCamHw, void* params, voi
         goto out;
     }
     if (pCamHw->_mIspParamsCvt->mAwbParams) {
-        pDstEff->awb_cfg_v39 =
-            *(rk_aiq_isp_awb_meas_cfg_v39_t*)(pCamHw->_mIspParamsCvt->mAwbParams->_data);
+        pDstEff->awb_cfg_v33 =
+            *(rk_aiq_isp_awb_meas_cfg_v33_t*)(pCamHw->_mIspParamsCvt->mAwbParams->_data);
     }
 
     if (pCamHw->_mIspParamsCvt->mAeParams) {
@@ -149,15 +149,15 @@ bool CamHwIsp33_processTb(AiqCamHwBase_t* pCamHw, void* params) {
                 aiq_isp_effect_params_t* pDstEff =
                     AiqCamHw_getParamsForEffMap(pCamHw, isp_params->frame_id);
                 if (pDstEff) {
-                    rk_aiq_isp_awb_meas_cfg_v39_t* awb_meas_cfg =
-                        (rk_aiq_isp_awb_meas_cfg_v39_t*)pCamHw->_mIspParamsCvt->mAwbParams->_data;
+                    rk_aiq_isp_awb_meas_cfg_v33_t* awb_meas_cfg =
+                        (rk_aiq_isp_awb_meas_cfg_v33_t*)pCamHw->_mIspParamsCvt->mAwbParams->_data;
                     if (pCamHw->_mIspParamsCvt->mAwbParams && pCamHw->_first_awb_param) {
-                        rk_aiq_isp_awb_meas_cfg_v39_t* first_awb_param =
-                            (rk_aiq_isp_awb_meas_cfg_v39_t*)pCamHw->_first_awb_param;
+                        rk_aiq_isp_awb_meas_cfg_v33_t* first_awb_param =
+                            (rk_aiq_isp_awb_meas_cfg_v33_t*)pCamHw->_first_awb_param;
                         memcpy(first_awb_param->preWbgainSw, awb_meas_cfg->preWbgainSw,
                                4 * sizeof(float));
                         *awb_meas_cfg        = *first_awb_param;
-                        pDstEff->awb_cfg_v39 = *awb_meas_cfg;
+                        pDstEff->awb_cfg_v33 = *awb_meas_cfg;
                     }
                     pDstEff->meas = pCamHw->_mIspParamsCvt->mLatestMeasCfg;
                 }

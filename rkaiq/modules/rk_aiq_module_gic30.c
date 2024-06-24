@@ -127,49 +127,65 @@ void rk_aiq_gic30_params_cvt(void* attr, struct isp33_gic_cfg* gic_cfg)
     gic_params_dyn_t* pdyn = &gic_param->dyn;
 
     /* CTRL */
-    pFix->pro_mode = pdyn->hw_gicT_pro_mode;
-    pFix->manualnoisecurve_en = pdyn->hw_gicT_manualNoiseCurve_en;
-    pFix->manualnoisethred_en = pdyn->hw_gicT_manualNoiseThred_en;
-    pFix->gain_bypass_en = pdyn->hw_gicT_gain_bypass;
+    if (pdyn->hw_gicT_gic_mode == gic_medAndEpf_mode) {
+        pFix->pro_mode = 0;
+        pFix->manualnoisethred_en = 1;
+    } else {
+        pFix->pro_mode = 1;
+        if (pdyn->gicPost_guideEpf.sw_gicT_softThd_mode == gic_softThdManual_mode)
+            pFix->manualnoisethred_en = 1;
+        else
+            pFix->manualnoisethred_en = 0;
+    }
+
+    if (pdyn->epf.sw_gicT_rgeSgm_mode == gic_autoSigma_mode)
+        pFix->manualnoisecurve_en = 0;
+    else
+        pFix->manualnoisecurve_en = 1;
+
+    if (pdyn->locGicStrg.locSgmStrg.hw_gicT_locSgmStrg_mode == gic_locGlbSgmStrgMix_mode )
+        pFix->gain_bypass_en = 0;
+    else
+        pFix->gain_bypass_en = 1;
 
     /* MEDFLT_PARA */
-    tmp = pdyn->hw_gicT_medFlt_minThred;
+    tmp = pdyn->gicPre_medAndEpf.medFilt.hw_gicT_yFiltClipMin_idx;
     pFix->medflt_minthred =  CLIP(tmp, 0, 0xf);
-    tmp = pdyn->hw_gicT_medFlt_maxThred;
+    tmp = pdyn->gicPre_medAndEpf.medFilt.hw_gicT_yFiltClipMax_idx;
     pFix->medflt_maxthred = CLIP(tmp, 0, 0xf);
-    tmp = ROUND_F(pdyn->sw_gicT_medFlt_ratio * (1 << RKGIC_V30_MED_FLT_RATIO_FIX_BIT));
+    tmp = ROUND_F(pdyn->gicPre_medAndEpf.medFilt.hw_gicT_yFiltOut_alpha * (1 << RKGIC_V30_MED_FLT_RATIO_FIX_BIT));
     pFix->medflt_ratio = CLIP(tmp, 0, 0xff);
 
     /* MEDFLTUV_PARA */
-    tmp = pdyn->hw_gicT_medFltUV_minThred;
+    tmp = pdyn->gicPre_medAndEpf.medFilt.hw_gicT_uvFiltClipMin_idx;
     pFix->medfltuv_minthred = CLIP(tmp, 0, 0xf);
-    tmp = pdyn->hw_gicT_medFltUV_maxThred;
+    tmp = pdyn->gicPre_medAndEpf.medFilt.hw_gicT_uvFiltClipMax_idx;
     pFix->medfltuv_maxthred = CLIP(tmp, 0, 0xf);
-    tmp = ROUND_F(pdyn->sw_gicT_medFltUV_ratio * (1 << RKGIC_V30_MED_FLT_RATIO_FIX_BIT));
+    tmp = ROUND_F(pdyn->gicPre_medAndEpf.medFilt.hw_gicT_uvFiltOut_alpha * (1 << RKGIC_V30_MED_FLT_RATIO_FIX_BIT));
     pFix->medfltuv_ratio = CLIP(tmp, 0, 0xff);
 
     /* NOISE_SCALE */
-    tmp = ROUND_F(pdyn->sw_gicT_noiseCurve_scale * 1.414 * (1 << RKGIC_V30_CURVE_SCALE_FIX_BITS));
-    if (0 == pdyn->hw_gicT_manualNoiseCurve_en) {
-        tmp = ROUND_F(pdyn->sw_gicT_noiseCurve_scale * 1.414 * (1 << RKGIC_V30_CURVE_SCALE_FIX_BITS));
+    tmp = ROUND_F(pdyn->epf.sw_gicT_rgeSgm_scale * 1.414 * (1 << RKGIC_V30_CURVE_SCALE_FIX_BITS));
+    if (pFix->manualnoisecurve_en == 0) {
+        tmp = ROUND_F(pdyn->epf.sw_gicT_rgeSgm_scale * 1.414 * (1 << RKGIC_V30_CURVE_SCALE_FIX_BITS));
         tmp     = ROUND_F(tmp * 0.5);
     }
     pFix->noisecurve_scale = CLIP(tmp, 0, 0x3ff);
 
     /* BILAT_PARA1 */
-    tmp = ROUND_F(pdyn->sw_gicT_bfFltWgt_minThred * (1 << RKGIC_V30_BF_WGT_OFFSET_FIX_BITS));
+    tmp = ROUND_F(pdyn->epf.diffSgmRat2RgeWgt.sw_gicT_rat2MinWgt_minThred * (1 << RKGIC_V30_BF_WGT_OFFSET_FIX_BITS));
     pFix->bffltwgt_offset = CLIP(tmp, 0, 0x3ff);
-    float bfFltWgt_slope = 1.0 / MAX(pdyn->sw_gicT_bfFltWgt_maxThred - pdyn->sw_gicT_bfFltWgt_minThred, 0.01);
+    float bfFltWgt_slope = 1.0 / MAX(pdyn->epf.diffSgmRat2RgeWgt.sw_gicT_rat2MaxWgt_maxThred - pdyn->epf.diffSgmRat2RgeWgt.sw_gicT_rat2MinWgt_minThred, 0.01);
     tmp = ROUND_F(bfFltWgt_slope * (1 << RKGIC_V30_BF_WGT_SCALE_FIX_BITS));
     pFix->bffltwgt_scale = CLIP(tmp, 0, 0xff);
 
     /* BILAT_PARA2 */
-    tmp = ROUND_F(pdyn->sw_gicT_bfFlt_ratio * (1 << RKGIC_V30_BF_FLT_RATIO_FIX_BIT));
+    tmp = ROUND_F(pdyn->epf.sw_gicT_filtOut_alpha * (1 << RKGIC_V30_BF_FLT_RATIO_FIX_BIT));
     pFix->bfflt_ratio = CLIP(tmp, 0, 0xff);
 
     /* DISWGT_COEFF */
     uint8_t bfflt_coeff[3];
-    GicV30CreateKernelCoeffs(1, 1, pdyn->sw_gicT_bfFlt_rsigma, bfflt_coeff, RKGIC_V30_BF_COEFF_FIX_BITS, 2);
+    GicV30CreateKernelCoeffs(1, 1, pdyn->epf.sw_gicT_filtSpatial_strg, bfflt_coeff, RKGIC_V30_BF_COEFF_FIX_BITS, 2);
     if(pFix->pro_mode == 1)
     {
         bfflt_coeff[0]         = 8;
@@ -185,32 +201,39 @@ void rk_aiq_gic30_params_cvt(void* attr, struct isp33_gic_cfg* gic_cfg)
 
     /* SIGMA_Y */
     for(int i = 0; i < 17; i++) {
-        tmp = ROUND_F(pdyn->sw_gicT_bfFlt_vsigma[i]);
+        tmp = (pdyn->epf.hw_gicT_manual_rgeSgm[i]);
         pFix->bfflt_vsigma_y[i] = CLIP(tmp, 0, 0x3ff);
     }
     /* LUMA_DX */
     for(int i = 0; i < 7; i++) {
-        tmp = LOG2(pdyn->sw_gicT_curve_idx[i + 1] - pdyn->sw_gicT_curve_idx[i]);
+        tmp = LOG2(pdyn->lumaLutCfg.hw_gicT_lumaLutIdx_val[i + 1] - pdyn->lumaLutCfg.hw_gicT_lumaLutIdx_val[i]);
         pFix->luma_dx[i] = CLIP(tmp, 0, 0xf);
     }
 
     /* THRED_Y */
     /* MIN_THRED_Y */
-    for(int i = 0; i < 8; i++) {
-        tmp = ROUND_F(pdyn->hw_gicT_noise_thred[i]);
-        pFix->thred_y[i] = CLIP(tmp, 0, 0x1ff);
-        tmp = ROUND_F(pdyn->hw_gicT_noise_minThred[i]);
-        pFix->minthred_y[i] = CLIP(tmp, 0, 0x1ff);
+    if (pFix->manualnoisethred_en) {
+        for(int i = 0; i < 8; i++) {
+            tmp = ROUND_F(pdyn->manualSoftThd.hw_gicT_sofThd_thred[i]);
+            pFix->thred_y[i] = CLIP(tmp, 0, 0x1ff);
+        }
+    } else {
+        for(int i = 0; i < 8; i++) {
+            tmp = (pdyn->gicPost_guideEpf.autoSoftThd.hw_gicT_thred_maxLimit[i]);
+            pFix->thred_y[i] = CLIP(tmp, 0, 0x1ff);
+            tmp = (pdyn->gicPost_guideEpf.autoSoftThd.hw_gicT_thred_minLimit[i]);
+            pFix->minthred_y[i] = CLIP(tmp, 0, 0x1ff);
+        }
     }
 
     /* THRED_SCALE */
-    tmp = ROUND_F(pdyn->sw_gicT_autoNoiseThred_scale * (1 << RKGIC_V30_THED_SCALE_FIX_BITS));
+    tmp = ROUND_F(pdyn->gicPost_guideEpf.autoSoftThd.hw_gicT_softThd_scale * (1 << RKGIC_V30_THED_SCALE_FIX_BITS));
     pFix->autonoisethred_scale = CLIP(tmp, 0, 0x3ff);
 
     /* LOFLTGR_COEFF */
     uint8_t loFltGr_coeff[4];
     for (int i = 0; i < 4; i++) {
-        tmp = pdyn->hw_gicT_loFltGr_coeff[i];
+        tmp = pdyn->gicPost_guideEpf.lpf.hw_gicT_grFiltSpatial_wgt[i];
         loFltGr_coeff[i] = CLIP(tmp, 0, 0x1f);
     }
     pFix->lofltgr_coeff0 = loFltGr_coeff[0];
@@ -219,9 +242,9 @@ void rk_aiq_gic30_params_cvt(void* attr, struct isp33_gic_cfg* gic_cfg)
     pFix->lofltgr_coeff3 = loFltGr_coeff[3];
 
     /* LOFLTGB_COEFF */
-    tmp = pdyn->hw_gicT_loFltGb_coeff[0];
+    tmp = pdyn->gicPost_guideEpf.lpf.hw_gicT_gbFiltSpatial_wgt[0];
     pFix->lofltgb_coeff0 = CLIP(tmp, 0, 0x1f);
-    tmp = pdyn->hw_gicT_loFltGb_coeff[1];
+    tmp = pdyn->gicPost_guideEpf.lpf.hw_gicT_gbFiltSpatial_wgt[1];
     pFix->lofltgb_coeff1 = CLIP(tmp, 0, 0x1f);
 
     /* SUM_LOFLT_INV */
@@ -229,38 +252,37 @@ void rk_aiq_gic30_params_cvt(void* attr, struct isp33_gic_cfg* gic_cfg)
     int sumLoFltGbCoeff                     = pFix->lofltgb_coeff0 * 2 + pFix->lofltgb_coeff1 * 2;
     if(sumLoFltGrCoeff != sumLoFltGbCoeff)
     {
-        printf("-----------------sumLoFltGrCoeff must be the same as sumLoFltGbCoeff\n");
+        LOGE_AGIC("-----------------sumLoFltGrCoeff must be the same as sumLoFltGbCoeff\n");
     }
     tmp =  ROUND_F(1.0f / MAX(sumLoFltGrCoeff, sumLoFltGbCoeff) * (1 << RKGIC_V30_COEFF_INV_FIX_BITS));
     pFix->sumlofltcoeff_inv = CLIP(tmp, 0, 0x1fff);
 
     /* LOFLTTHRED_COEFF */
-    tmp = pdyn->hw_gicT_loFltThed_coeff[0];
+    tmp = pdyn->gicPost_guideEpf.autoSoftThd.hw_gicT_thredFiltSpatial_wgt[0];
     pFix->lofltthred_coeff0 = CLIP(tmp, 0, 0x1f);
-    tmp = pdyn->hw_gicT_loFltThed_coeff[1];
+    tmp = pdyn->gicPost_guideEpf.autoSoftThd.hw_gicT_thredFiltSpatial_wgt[1];
     pFix->lofltthred_coeff1 = CLIP(tmp, 0, 0x1f);
 
     /* GAIN */
-    tmp = pdyn->sw_gicT_globalGain_alpha * (1 << RKGIC_V30_G_GAIN_ALPHA_FIX_BITS);
+    tmp = pdyn->locGicStrg.locSgmStrg.hw_gicT_glbSgmStrg_alpha * (1 << RKGIC_V30_G_GAIN_ALPHA_FIX_BITS);
     pFix->globalgain_alpha =  CLIP(tmp, 0, 0xf);
-    tmp = pdyn->sw_gicT_localGain_scale * (1 << RKGIC_V30_GAIN_ISO_FIX_BITS);
+    tmp = pdyn->locGicStrg.locSgmStrg.hw_gicT_locSgmStrg_scale * (1 << RKGIC_V30_GAIN_ISO_FIX_BITS);
     pFix->globalgain_scale =   CLIP(tmp, 0, 0xff);
-    tmp = pdyn->sw_gicT_global_gain * (1 << RKGIC_V30_LOCAL_GAIN_FIX_BITS);
+    tmp = pdyn->locGicStrg.locSgmStrg.hw_gicT_glbSgmStrg_val * (1 << RKGIC_V30_LOCAL_GAIN_FIX_BITS);
     pFix->global_gain =  CLIP(tmp, 0, 0x3ff);
 
     /* GAIN_SLOPE */
-    tmp = ROUND_F(pdyn->sw_gicT_gain_minThred * (1 << RKGIC_V30_LOCAL_GAIN_FIX_BITS));
+    tmp = ROUND_F(pdyn->locGicStrg.locSgmStrg2GicStrg.sw_gicT_locSgmStrgMot_minThred * (1 << RKGIC_V30_LOCAL_GAIN_FIX_BITS));
     pFix->gain_offset = CLIP(tmp, 0, 0x3ff);
-    float gain_adj_strg_slope   = (pdyn->sw_gicT_BfFltStrg_maxThred - pdyn->sw_gicT_BfFltStrg_minThred)
-                                  / MAX(pdyn->sw_gicT_gain_maxThred - pdyn->sw_gicT_gain_minThred, 0.01);
+    float gain_adj_strg_slope   = (pdyn->locGicStrg.locSgmStrg2GicStrg.hw_shpT_motRegionGic_strg - pdyn->locGicStrg.locSgmStrg2GicStrg.hw_shpT_statRegionGic_strg)
+                                  / MAX(pdyn->locGicStrg.locSgmStrg2GicStrg.sw_gicT_locSgmStrgStat_maxThred - pdyn->locGicStrg.locSgmStrg2GicStrg.sw_gicT_locSgmStrgMot_minThred, 0.01);
     tmp = ROUND_F(gain_adj_strg_slope * (1 << RKGIC_V30_GAIN_SCALE_FIX_BITS));
     pFix->gain_scale = CLIP(tmp, 0, 0x3fff);
 
     /* GAIN_THRED */
-    tmp =  ROUND_F(pdyn->sw_gicT_BfFltStrg_minThred * (1 << RKGIC_V30_sgmRatio_FIX_BITS));
+    tmp =  ROUND_F(pdyn->locGicStrg.locSgmStrg2GicStrg.hw_shpT_statRegionGic_strg * (1 << RKGIC_V30_sgmRatio_FIX_BITS));
     pFix->gainadjflt_minthred = CLIP(tmp, 0, 0x3ff);
-    tmp = ROUND_F(pdyn->sw_gicT_BfFltStrg_maxThred * (1 << RKGIC_V30_sgmRatio_FIX_BITS));
+    tmp = ROUND_F(pdyn->locGicStrg.locSgmStrg2GicStrg.hw_shpT_motRegionGic_strg * (1 << RKGIC_V30_sgmRatio_FIX_BITS));
     pFix->gainadjflt_maxthred =  CLIP(tmp, 0, 0x3ff);
-    
     return;
 }

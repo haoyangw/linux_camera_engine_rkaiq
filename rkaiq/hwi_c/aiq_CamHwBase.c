@@ -2744,6 +2744,8 @@ XCamReturn AiqCamHw_prepare(AiqCamHwBase_t* pCamHw, uint32_t width, uint32_t hei
         pCamHw->mNoReadBack = true;
     }
 
+    if (pCamHw->use_aiisp) pCamHw->mNoReadBack = false;
+
     LOGI_CAMHW_SUBM(ISP20HW_SUBM, "isp hw working mode: %s !",
                     pCamHw->mNoReadBack ? "online" : "readback");
 

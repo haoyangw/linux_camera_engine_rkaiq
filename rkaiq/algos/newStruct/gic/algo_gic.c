@@ -222,80 +222,81 @@ XCamReturn GicSelectParam
 #endif
 
 #if RKAIQ_HAVE_GIC_V3
-    out->dyn.sw_gicT_medFlt_ratio = interpolation_f32(
-        paut->dyn[ilow].sw_gicT_medFlt_ratio, paut->dyn[ihigh].sw_gicT_medFlt_ratio, ratio);
-    out->dyn.sw_gicT_medFltUV_ratio = interpolation_f32(
-        paut->dyn[ilow].sw_gicT_medFltUV_ratio, paut->dyn[ihigh].sw_gicT_medFltUV_ratio, ratio);
-
-    out->dyn.sw_gicT_noiseCurve_scale = interpolation_f32(
-        paut->dyn[ilow].sw_gicT_noiseCurve_scale, paut->dyn[ihigh].sw_gicT_noiseCurve_scale, ratio);
-    out->dyn.sw_gicT_bfFltWgt_minThred = interpolation_f32(
-        paut->dyn[ilow].sw_gicT_bfFltWgt_minThred, paut->dyn[ihigh].sw_gicT_bfFltWgt_minThred, ratio);
-    out->dyn.sw_gicT_bfFltWgt_maxThred = interpolation_f32(
-        paut->dyn[ilow].sw_gicT_bfFltWgt_maxThred, paut->dyn[ihigh].sw_gicT_bfFltWgt_maxThred, ratio);
-    out->dyn.sw_gicT_bfFlt_ratio = interpolation_f32(
-        paut->dyn[ilow].sw_gicT_bfFlt_ratio, paut->dyn[ihigh].sw_gicT_bfFlt_ratio, ratio);
-    out->dyn.sw_gicT_bfFlt_rsigma = interpolation_f32(
-        paut->dyn[ilow].sw_gicT_bfFlt_rsigma, paut->dyn[ihigh].sw_gicT_bfFlt_rsigma, ratio);
-
-
-    out->dyn.hw_gicT_manualNoiseCurve_en   = paut->dyn[inear].hw_gicT_manualNoiseCurve_en;
-    out->dyn.hw_gicT_pro_mode              = paut->dyn[inear].hw_gicT_pro_mode;
-    out->dyn.hw_gicT_medFlt_minThred       = paut->dyn[inear].hw_gicT_medFlt_minThred;
-    out->dyn.hw_gicT_medFlt_maxThred       = paut->dyn[inear].hw_gicT_medFlt_maxThred;
-    out->dyn.hw_gicT_medFltUV_minThred     = paut->dyn[inear].hw_gicT_medFltUV_minThred;
-    out->dyn.hw_gicT_medFltUV_maxThred     = paut->dyn[inear].hw_gicT_medFltUV_maxThred;
-
-    for(int i = 0; i < 17; i++)
-    {
-        out->dyn.sw_gicT_bfFlt_vsigma[i] = interpolation_f32(
-            paut->dyn[ilow].sw_gicT_bfFlt_vsigma[i], paut->dyn[ihigh].sw_gicT_bfFlt_vsigma[i], ratio);
+    out->dyn.locGicStrg.locSgmStrg.hw_gicT_locSgmStrg_mode = paut->dyn[inear].locGicStrg.locSgmStrg.hw_gicT_locSgmStrg_mode;
+    out->dyn.locGicStrg.locSgmStrg.hw_gicT_locSgmStrg_scale = interpolation_f32(
+        paut->dyn[ilow].locGicStrg.locSgmStrg.hw_gicT_locSgmStrg_scale, paut->dyn[ihigh].locGicStrg.locSgmStrg.hw_gicT_locSgmStrg_scale, ratio);
+    out->dyn.locGicStrg.locSgmStrg.hw_gicT_glbSgmStrg_val = interpolation_f32(
+        paut->dyn[ilow].locGicStrg.locSgmStrg.hw_gicT_glbSgmStrg_val, paut->dyn[ihigh].locGicStrg.locSgmStrg.hw_gicT_glbSgmStrg_val, ratio);
+    out->dyn.locGicStrg.locSgmStrg.hw_gicT_glbSgmStrg_alpha = interpolation_f32(
+        paut->dyn[ilow].locGicStrg.locSgmStrg.hw_gicT_glbSgmStrg_alpha, paut->dyn[ihigh].locGicStrg.locSgmStrg.hw_gicT_glbSgmStrg_alpha, ratio);
+    out->dyn.locGicStrg.locSgmStrg2GicStrg.sw_gicT_locSgmStrgStat_maxThred = interpolation_f32(
+        paut->dyn[ilow].locGicStrg.locSgmStrg2GicStrg.sw_gicT_locSgmStrgStat_maxThred, paut->dyn[ihigh].locGicStrg.locSgmStrg2GicStrg.sw_gicT_locSgmStrgStat_maxThred, ratio);
+    out->dyn.locGicStrg.locSgmStrg2GicStrg.sw_gicT_locSgmStrgMot_minThred = interpolation_f32(
+        paut->dyn[ilow].locGicStrg.locSgmStrg2GicStrg.sw_gicT_locSgmStrgMot_minThred, paut->dyn[ihigh].locGicStrg.locSgmStrg2GicStrg.sw_gicT_locSgmStrgMot_minThred, ratio);
+    out->dyn.locGicStrg.locSgmStrg2GicStrg.hw_shpT_statRegionGic_strg = interpolation_f32(
+        paut->dyn[ilow].locGicStrg.locSgmStrg2GicStrg.hw_shpT_statRegionGic_strg, paut->dyn[ihigh].locGicStrg.locSgmStrg2GicStrg.hw_shpT_statRegionGic_strg, ratio);
+    out->dyn.locGicStrg.locSgmStrg2GicStrg.hw_shpT_motRegionGic_strg = interpolation_f32(
+        paut->dyn[ilow].locGicStrg.locSgmStrg2GicStrg.hw_shpT_motRegionGic_strg, paut->dyn[ihigh].locGicStrg.locSgmStrg2GicStrg.hw_shpT_motRegionGic_strg, ratio);
+    out->dyn.hw_gicT_gic_mode = paut->dyn[inear].hw_gicT_gic_mode;
+    out->dyn.gicPre_medAndEpf.medFilt.hw_gicT_yFiltClipMin_idx = interpolation_u8(
+        paut->dyn[ilow].gicPre_medAndEpf.medFilt.hw_gicT_yFiltClipMin_idx, paut->dyn[ihigh].gicPre_medAndEpf.medFilt.hw_gicT_yFiltClipMin_idx, uratio);
+    out->dyn.gicPre_medAndEpf.medFilt.hw_gicT_yFiltClipMax_idx = interpolation_u8(
+        paut->dyn[ilow].gicPre_medAndEpf.medFilt.hw_gicT_yFiltClipMax_idx, paut->dyn[ihigh].gicPre_medAndEpf.medFilt.hw_gicT_yFiltClipMax_idx, uratio);
+    out->dyn.gicPre_medAndEpf.medFilt.hw_gicT_yFiltOut_alpha = interpolation_f32(
+        paut->dyn[ilow].gicPre_medAndEpf.medFilt.hw_gicT_yFiltOut_alpha, paut->dyn[ihigh].gicPre_medAndEpf.medFilt.hw_gicT_yFiltOut_alpha, ratio);
+    out->dyn.gicPre_medAndEpf.medFilt.hw_gicT_uvFiltClipMin_idx = interpolation_u8(
+        paut->dyn[ilow].gicPre_medAndEpf.medFilt.hw_gicT_uvFiltClipMin_idx, paut->dyn[ihigh].gicPre_medAndEpf.medFilt.hw_gicT_uvFiltClipMin_idx, uratio);
+    out->dyn.gicPre_medAndEpf.medFilt.hw_gicT_uvFiltClipMax_idx = interpolation_u8(
+        paut->dyn[ilow].gicPre_medAndEpf.medFilt.hw_gicT_uvFiltClipMax_idx, paut->dyn[ihigh].gicPre_medAndEpf.medFilt.hw_gicT_uvFiltClipMax_idx, uratio);
+    out->dyn.gicPre_medAndEpf.medFilt.hw_gicT_uvFiltOut_alpha = interpolation_f32(
+        paut->dyn[ilow].gicPre_medAndEpf.medFilt.hw_gicT_uvFiltOut_alpha, paut->dyn[ihigh].gicPre_medAndEpf.medFilt.hw_gicT_uvFiltOut_alpha, ratio);
+    for (i=0; i<8; i++) {
+        out->dyn.lumaLutCfg.hw_gicT_lumaLutIdx_val[i] = interpolation_u16(
+            paut->dyn[ilow].lumaLutCfg.hw_gicT_lumaLutIdx_val[i], paut->dyn[ihigh].lumaLutCfg.hw_gicT_lumaLutIdx_val[i], uratio);
     }
-
-    for(int i = 0; i < 8; i++)
-    {
-        out->dyn.sw_gicT_curve_idx[i]          = paut->dyn[inear].sw_gicT_curve_idx[i];
-        out->dyn.hw_gicT_noise_thred[i]        = interpolation_f32(
-            paut->dyn[ilow].hw_gicT_noise_thred[i], paut->dyn[ihigh].hw_gicT_noise_thred[i], ratio);
-        out->dyn.hw_gicT_noise_minThred[i]     = interpolation_f32(
-            paut->dyn[ilow].hw_gicT_noise_minThred[i], paut->dyn[ihigh].hw_gicT_noise_minThred[i], ratio);
+    out->dyn.epf.sw_gicT_rgeSgm_mode = paut->dyn[inear].epf.sw_gicT_rgeSgm_mode;
+    for (i=0; i<17; i++) {
+        out->dyn.epf.hw_gicT_manual_rgeSgm[i] = interpolation_u16(
+            paut->dyn[ilow].epf.hw_gicT_manual_rgeSgm[i], paut->dyn[ihigh].epf.hw_gicT_manual_rgeSgm[i], uratio);
     }
-
-    out->dyn.hw_gicT_manualNoiseThred_en   = paut->dyn[inear].hw_gicT_manualNoiseThred_en;
-    for (int k = 0; k < 4; k++)
-    {
-        out->dyn.hw_gicT_loFltGr_coeff[k]  = paut->dyn[inear].hw_gicT_loFltGr_coeff[k];
+    out->dyn.epf.sw_gicT_rgeSgm_scale = interpolation_f32(
+        paut->dyn[ilow].epf.sw_gicT_rgeSgm_scale, paut->dyn[ihigh].epf.sw_gicT_rgeSgm_scale, ratio);
+    out->dyn.epf.diffSgmRat2RgeWgt.sw_gicT_rat2MaxWgt_maxThred = interpolation_f32(
+        paut->dyn[ilow].epf.diffSgmRat2RgeWgt.sw_gicT_rat2MaxWgt_maxThred, paut->dyn[ihigh].epf.diffSgmRat2RgeWgt.sw_gicT_rat2MaxWgt_maxThred, ratio);
+    out->dyn.epf.diffSgmRat2RgeWgt.sw_gicT_rat2MinWgt_minThred = interpolation_f32(
+        paut->dyn[ilow].epf.diffSgmRat2RgeWgt.sw_gicT_rat2MinWgt_minThred, paut->dyn[ihigh].epf.diffSgmRat2RgeWgt.sw_gicT_rat2MinWgt_minThred, ratio);
+    out->dyn.epf.sw_gicT_filtSpatial_strg = interpolation_f32(
+        paut->dyn[ilow].epf.sw_gicT_filtSpatial_strg, paut->dyn[ihigh].epf.sw_gicT_filtSpatial_strg, ratio);
+    out->dyn.epf.sw_gicT_filtOut_alpha = interpolation_f32(
+        paut->dyn[ilow].epf.sw_gicT_filtOut_alpha, paut->dyn[ihigh].epf.sw_gicT_filtOut_alpha, ratio);
+    for (i=0; i<8; i++) {
+        out->dyn.manualSoftThd.hw_gicT_sofThd_thred[i] = interpolation_u16(
+            paut->dyn[ilow].manualSoftThd.hw_gicT_sofThd_thred[i], paut->dyn[ihigh].manualSoftThd.hw_gicT_sofThd_thred[i], uratio);
     }
-    for (int k = 0; k < 2; k++)
-    {
-        out->dyn.hw_gicT_loFltGb_coeff[k]  = paut->dyn[inear].hw_gicT_loFltGb_coeff[k];
+    out->dyn.gicPost_medAndEpf.sw_gicT_softThd_mode = paut->dyn[inear].gicPost_medAndEpf.sw_gicT_softThd_mode;
+    for (i=0; i<4; i++) {
+        out->dyn.gicPost_guideEpf.lpf.hw_gicT_grFiltSpatial_wgt[i] = interpolation_u16(
+            paut->dyn[ilow].gicPost_guideEpf.lpf.hw_gicT_grFiltSpatial_wgt[i], paut->dyn[ihigh].gicPost_guideEpf.lpf.hw_gicT_grFiltSpatial_wgt[i], uratio);
     }
-    for (int k = 0; k < 2; k++)
-    {
-        out->dyn.hw_gicT_loFltThed_coeff[k]    = paut->dyn[inear].hw_gicT_loFltThed_coeff[k];
+    for (i=0; i<2; i++) {
+        out->dyn.gicPost_guideEpf.lpf.hw_gicT_gbFiltSpatial_wgt[i] = interpolation_u16(
+            paut->dyn[ilow].gicPost_guideEpf.lpf.hw_gicT_gbFiltSpatial_wgt[i], paut->dyn[ihigh].gicPost_guideEpf.lpf.hw_gicT_gbFiltSpatial_wgt[i], uratio);
     }
-
-    out->dyn.sw_gicT_autoNoiseThred_scale      = interpolation_f32(
-        paut->dyn[ilow].sw_gicT_autoNoiseThred_scale, paut->dyn[ihigh].sw_gicT_autoNoiseThred_scale, ratio);
-
-    //////////////////////////////////////////////////////////////////////////
-    // gain
-    out->dyn.hw_gicT_gain_bypass               =  paut->dyn[inear].hw_gicT_gain_bypass;
-    out->dyn.sw_gicT_global_gain               = interpolation_f32(
-        paut->dyn[ilow].sw_gicT_global_gain, paut->dyn[ihigh].sw_gicT_global_gain, ratio);
-    out->dyn.sw_gicT_globalGain_alpha          = interpolation_f32(
-        paut->dyn[ilow].sw_gicT_globalGain_alpha, paut->dyn[ihigh].sw_gicT_globalGain_alpha, ratio);
-    out->dyn.sw_gicT_localGain_scale           = interpolation_f32(
-        paut->dyn[ilow].sw_gicT_localGain_scale, paut->dyn[ihigh].sw_gicT_localGain_scale, ratio);
-
-    out->dyn.sw_gicT_gain_minThred             = interpolation_f32(
-        paut->dyn[ilow].sw_gicT_gain_minThred, paut->dyn[ihigh].sw_gicT_gain_minThred, ratio);
-    out->dyn.sw_gicT_gain_maxThred             = interpolation_f32(
-        paut->dyn[ilow].sw_gicT_gain_maxThred, paut->dyn[ihigh].sw_gicT_gain_maxThred, ratio);
-    out->dyn.sw_gicT_BfFltStrg_minThred    = interpolation_f32(
-        paut->dyn[ilow].sw_gicT_BfFltStrg_minThred, paut->dyn[ihigh].sw_gicT_BfFltStrg_minThred, ratio);
-    out->dyn.sw_gicT_BfFltStrg_maxThred    = interpolation_f32(
-        paut->dyn[ilow].sw_gicT_BfFltStrg_maxThred, paut->dyn[ihigh].sw_gicT_BfFltStrg_maxThred, ratio);
+    out->dyn.gicPost_guideEpf.sw_gicT_softThd_mode = paut->dyn[inear].gicPost_guideEpf.sw_gicT_softThd_mode;
+    out->dyn.gicPost_guideEpf.autoSoftThd.hw_gicT_softThd_scale = interpolation_f32(
+        paut->dyn[ilow].gicPost_guideEpf.autoSoftThd.hw_gicT_softThd_scale, paut->dyn[ihigh].gicPost_guideEpf.autoSoftThd.hw_gicT_softThd_scale, ratio);
+    for (i=0; i<8; i++) {
+        out->dyn.gicPost_guideEpf.autoSoftThd.hw_gicT_thred_maxLimit[i] = interpolation_u16(
+            paut->dyn[ilow].gicPost_guideEpf.autoSoftThd.hw_gicT_thred_maxLimit[i], paut->dyn[ihigh].gicPost_guideEpf.autoSoftThd.hw_gicT_thred_maxLimit[i], uratio);
+    }
+    for (i=0; i<8; i++) {
+        out->dyn.gicPost_guideEpf.autoSoftThd.hw_gicT_thred_minLimit[i] = interpolation_u16(
+            paut->dyn[ilow].gicPost_guideEpf.autoSoftThd.hw_gicT_thred_minLimit[i], paut->dyn[ihigh].gicPost_guideEpf.autoSoftThd.hw_gicT_thred_minLimit[i], uratio);
+    }
+    for (i=0; i<2; i++) {
+        out->dyn.gicPost_guideEpf.autoSoftThd.hw_gicT_thredFiltSpatial_wgt[i] = interpolation_u16(
+            paut->dyn[ilow].gicPost_guideEpf.autoSoftThd.hw_gicT_thredFiltSpatial_wgt[i], paut->dyn[ihigh].gicPost_guideEpf.autoSoftThd.hw_gicT_thredFiltSpatial_wgt[i], uratio);
+    }
 #endif
     return XCAM_RETURN_NO_ERROR;
 }

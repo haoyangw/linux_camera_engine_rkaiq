@@ -621,14 +621,14 @@ XCamReturn DrcSelectParam(DrcContext_t* pDrcCtx, drc_param_t* out, int iso) {
         paut->dyn[ihigh].bifilt_guideDiff.gdDiffMaxCurveCtrl.sw_drcT_maxLutCreate_offset, ratio);
 
     // get drcProc
-    // get hw_drcT_loDetail_strg
-    out->dyn.drcProc.hw_drcT_loDetail_strg =
-        interpolation_f32(paut->dyn[ilow].drcProc.hw_drcT_loDetail_strg,
-                          paut->dyn[ihigh].drcProc.hw_drcT_loDetail_strg, ratio);
-    // get hw_drcT_drcStrg_alpha
-    out->dyn.drcProc.hw_drcT_drcStrg_alpha =
-        interpolation_f32(paut->dyn[ilow].drcProc.hw_drcT_drcStrg_alpha,
-                          paut->dyn[ihigh].drcProc.hw_drcT_drcStrg_alpha, ratio);
+    // get hw_drcT_locDetail_strg
+    out->dyn.drcProc.hw_drcT_locDetail_strg =
+        interpolation_f32(paut->dyn[ilow].drcProc.hw_drcT_locDetail_strg,
+                          paut->dyn[ihigh].drcProc.hw_drcT_locDetail_strg, ratio);
+    // get hw_drcT_hfDarkRegion_strg
+    out->dyn.drcProc.hw_drcT_hfDarkRegion_strg =
+        interpolation_f32(paut->dyn[ilow].drcProc.hw_drcT_hfDarkRegion_strg,
+                          paut->dyn[ihigh].drcProc.hw_drcT_hfDarkRegion_strg, ratio);
     // get hw_drcT_drcStrgLutLuma_scale
     out->dyn.drcProc.hw_drcT_drcStrgLutLuma_scale =
         interpolation_f32(paut->dyn[ilow].drcProc.hw_drcT_drcStrgLutLuma_scale,
@@ -743,14 +743,14 @@ bool DrcDamping(drc_param_t* out, CurrData_t* pCurrData, int FrameID) {
     //         isDampStable_GlobalContrast = false;
     //     }
     //     // isDampStable_LoLitContrast
-    //     if (out->dyn.drcProc.hw_drcT_loDetail_strg ==
-    //          pCurrData->dynParams.drcProc.hw_drcT_loDetail_strg) {
+    //     if (out->dyn.drcProc.hw_drcT_locDetail_strg ==
+    //          pCurrData->dynParams.drcProc.hw_drcT_locDetail_strg) {
     //         isDampStable_LoLitContrast = true;
     //     } else {
-    //         out->dyn.drcProc.hw_drcT_loDetail_strg =
-    //             out->sta.sw_drc_damp_coef * out->dyn.drcProc.hw_drcT_loDetail_strg +
+    //         out->dyn.drcProc.hw_drcT_locDetail_strg =
+    //             out->sta.sw_drc_damp_coef * out->dyn.drcProc.hw_drcT_locDetail_strg +
     //             (1.0f - out->sta.sw_drc_damp_coef) *
-    //             pCurrData->dynParams.drcProc.hw_drcT_loDetail_strg;
+    //             pCurrData->dynParams.drcProc.hw_drcT_locDetail_strg;
     //         isDampStable_LoLitContrast = false;
     //     }
 

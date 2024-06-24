@@ -138,6 +138,7 @@ struct AiqCamGroupManager_s
     bool needReprepare;
     AiqMutex_t _update_mutex;
     AiqCond_t _update_done_cond;
+    AiqFullParams_t _pLatestFullParams;
 };
 
 void AiqCamGroupManager_processAiqCoreMsgs(AiqCamGroupManager_t* pCamGrpMan, AiqCore_t* src, AiqCoreMsg_t* msg);

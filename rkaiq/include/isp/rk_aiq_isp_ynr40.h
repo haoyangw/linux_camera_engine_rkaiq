@@ -452,7 +452,7 @@ typedef struct ynr_midNr_dyn_s {
         M4_ALIAS(sw_ynr_miSpnrSoftThred_scale),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0.0,1.0),
+        M4_RANGE_EX(0.0,4.0),
         M4_DEFAULT(0.0783),
         M4_DIGIT_EX(1f7),
         M4_HIDE_EX(0),
@@ -467,7 +467,7 @@ typedef struct ynr_midNr_dyn_s {
         M4_ALIAS(sw_ynr_miEnhance_scale),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0.0,1.0),
+        M4_RANGE_EX(0.0,32.0),
         M4_DEFAULT(1.0),
         M4_DIGIT_EX(3),
         M4_HIDE_EX(0),
@@ -745,11 +745,10 @@ typedef struct ynr_hiNrEPF_LP_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_ynrT_hiNlmFltLp_en),
         M4_TYPE(bool),
-        M4_DEFAULT(1),
+        M4_DEFAULT(0),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_GROUP_CTRL(loNr_en_group),
         M4_NOTES(Disable part of none-local means.
         Freq of use: high))  */
     // reg: sw_ynr_hi_lp_en

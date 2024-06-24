@@ -4950,11 +4950,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -4998,11 +4998,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -5046,11 +5046,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -5094,11 +5094,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -5142,11 +5142,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -5190,11 +5190,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -5238,11 +5238,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -5286,11 +5286,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -5334,11 +5334,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -5382,11 +5382,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -5430,11 +5430,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -5478,11 +5478,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -5526,11 +5526,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -5576,11 +5576,11 @@
 										"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 										"hw_drcT_drcCurveIdx_scale": 0,
 										"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-										"hw_drcT_loDetail_strg": 0,
+										"hw_drcT_locDetail_strg": 0,
 										"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 										"hw_drcT_drcStrgLutLuma_scale": 0.25,
 										"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-										"hw_drcT_drcStrg_alpha": 0,
+										"hw_drcT_hfDarkRegion_strg": 0,
 										"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 										"hw_drcT_drcGain_minLimit": 1
 									}
@@ -18923,11 +18923,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -18971,11 +18971,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -19019,11 +19019,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -19067,11 +19067,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -19115,11 +19115,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -19163,11 +19163,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -19211,11 +19211,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -19259,11 +19259,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -19307,11 +19307,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -19355,11 +19355,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -19403,11 +19403,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -19451,11 +19451,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -19499,11 +19499,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -19549,11 +19549,11 @@
 										"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 										"hw_drcT_drcCurveIdx_scale": 0,
 										"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-										"hw_drcT_loDetail_strg": 0,
+										"hw_drcT_locDetail_strg": 0,
 										"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 										"hw_drcT_drcStrgLutLuma_scale": 0.25,
 										"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-										"hw_drcT_drcStrg_alpha": 0,
+										"hw_drcT_hfDarkRegion_strg": 0,
 										"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 										"hw_drcT_drcGain_minLimit": 1
 									}
@@ -32931,11 +32931,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -32979,11 +32979,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -33027,11 +33027,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -33075,11 +33075,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -33123,11 +33123,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -33171,11 +33171,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -33219,11 +33219,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -33267,11 +33267,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -33315,11 +33315,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -33363,11 +33363,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -33411,11 +33411,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -33459,11 +33459,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -33507,11 +33507,11 @@
 											"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale": 0,
 											"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-											"hw_drcT_loDetail_strg": 0,
+											"hw_drcT_locDetail_strg": 0,
 											"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale": 0.25,
 											"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-											"hw_drcT_drcStrg_alpha": 0,
+											"hw_drcT_hfDarkRegion_strg": 0,
 											"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 											"hw_drcT_drcGain_minLimit": 1
 										}
@@ -33557,11 +33557,11 @@
 										"sw_drcT_drcCurve_mode": "drc_vendorDefault_mode",
 										"hw_drcT_drcCurveIdx_scale": 0,
 										"hw_drcT_hdr2Sdr_curve": [0,71,139,203,263,320,374,426,475,566,649,724,794,858,918,972,1024],
-										"hw_drcT_loDetail_strg": 0,
+										"hw_drcT_locDetail_strg": 0,
 										"sw_drcT_drcStrgLut_mode": "drc_usrConfig_mode",
 										"hw_drcT_drcStrgLutLuma_scale": 0.25,
 										"hw_drcT_luma2DrcStrg_val": [0,0.001,0.01,0.037,0.094,0.186,0.308,0.377,0.449,0.521,0.591,0.722,0.83,0.91,0.961,0.988,1.0],
-										"hw_drcT_drcStrg_alpha": 0,
+										"hw_drcT_hfDarkRegion_strg": 0,
 										"sw_drcT_drcGainLimit_mode": "drc_drcGainLmt_auto_mode",
 										"hw_drcT_drcGain_minLimit": 1
 									}

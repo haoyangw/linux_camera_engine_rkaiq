@@ -714,12 +714,27 @@ checkAlgoEnableInit(GlobalParamsManager_t* pMan) {
     bool sharp_en = *pMan->mGlobalParams[RESULT_TYPE_SHARPEN_PARAM].en;
 #if ISP_HW_V39
     if (!(ynr_en == cnr_en && cnr_en == sharp_en)) {
-        LOGW("ynr, cnr and sharp should be on or off in the same time");
+        *pMan->mGlobalParams[RESULT_TYPE_UVNR_PARAM].en = 1;
+        *pMan->mGlobalParams[RESULT_TYPE_YNR_PARAM].en = 1;
+        *pMan->mGlobalParams[RESULT_TYPE_SHARPEN_PARAM].en = 1;
+        *pMan->mGlobalParams[RESULT_TYPE_GAIN_PARAM].en = 1;
+        LOGW("ynr, cnr and sharp should be on or off in the same time, force to turn on ynr, cnr and sharp");
+    }
+    else {
+        *pMan->mGlobalParams[RESULT_TYPE_GAIN_PARAM].en = cnr_en;
     }
 #elif ISP_HW_V33
     bool enh_en = *pMan->mGlobalParams[RESULT_TYPE_ENH_PARAM].en;
     if (!(ynr_en == cnr_en && cnr_en == sharp_en && sharp_en == enh_en)) {
-        LOGW("ynr, cnr, sharp and enh should be on or off in the same time");
+        *pMan->mGlobalParams[RESULT_TYPE_UVNR_PARAM].en = 1;
+        *pMan->mGlobalParams[RESULT_TYPE_YNR_PARAM].en = 1;
+        *pMan->mGlobalParams[RESULT_TYPE_SHARPEN_PARAM].en = 1;
+        *pMan->mGlobalParams[RESULT_TYPE_GAIN_PARAM].en = 1;
+        *pMan->mGlobalParams[RESULT_TYPE_ENH_PARAM].en = 1;
+        LOGW("ynr, cnr, sharp and enh should be on or off in the same time, force to turn on ynr, cnr, sharp and enh");
+    }
+    else {
+        *pMan->mGlobalParams[RESULT_TYPE_GAIN_PARAM].en = cnr_en;
     }
     bool histeq_en = *pMan->mGlobalParams[RESULT_TYPE_HISTEQ_PARAM].en;
     bool enh_bypass = *pMan->mGlobalParams[RESULT_TYPE_ENH_PARAM].bypass;
@@ -732,6 +747,28 @@ checkAlgoEnableInit(GlobalParamsManager_t* pMan) {
     if (*pMan->mGlobalParams[RESULT_TYPE_TNR_PARAM].en != *pMan->mGlobalParams[RESULT_TYPE_MOTION_PARAM].en) {
         *pMan->mGlobalParams[RESULT_TYPE_MOTION_PARAM].en = *pMan->mGlobalParams[RESULT_TYPE_TNR_PARAM].en;
         LOGE("btnr and yuvme should be turned on or off simultaneously, please check!");
+    }
+#endif
+
+#ifdef RKAIQ_HAVE_HSV
+    hsv_calib_attrib_t* hsv_calib = (hsv_calib_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+            (void*)(pMan->mCalibDb), hsv));
+    if (hsv_calib) {
+        ahsv_hsvCalib_t* calibdb = &hsv_calib->calibdb;
+        int tblAll_len = calibdb->sw_hsvCfg_tblAll_len;
+        for (int i = 0;i < tblAll_len;i++) {
+            int lut0_mode = calibdb->tableAll[i].meshGain.lut0.hw_hsvT_lut1d_mode % 3;
+            int lut1_mode = calibdb->tableAll[i].meshGain.lut1.hw_hsvT_lut1d_mode % 3;
+            int lut2_mode = calibdb->tableAll[i].meshGain.lut2.hw_hsvT_lut2d_mode / 2;
+            if (lut0_mode == lut1_mode || lut1_mode == lut2_mode || lut2_mode == lut0_mode) {
+                LOGE("HSV config failed, hsv.calibdb is invaild. Three output channels of hsv lut must be different."
+                    "Please configure by hsv.calibdb.tableAll.meshGain.");
+                *pMan->mGlobalParams[RESULT_TYPE_HSV_PARAM].en = 0;
+            }
+        }
+    }
+    else {
+        LOGE("no hsv calib !");
     }
 #endif
 
@@ -777,8 +814,8 @@ XCamReturn GlobalParamsManager_set(GlobalParamsManager_t* pMan, rk_aiq_global_pa
 
     XCamReturn ret =
         GlobalParamsManager_checkAlgoEnableBypass(pMan, param->type, &param->en, &param->bypass);
-    if (ret == XCAM_RETURN_ERROR_FAILED) {
-        return XCAM_RETURN_ERROR_FAILED;
+    if (ret == XCAM_RETURN_ERROR_FAILED || ret == XCAM_RETURN_ERROR_PARAM) {
+        return ret;
     }
     if (!checkAlgoParams(pMan, param)) {
         return XCAM_RETURN_ERROR_FAILED;
@@ -904,25 +941,22 @@ GlobalParamsManager_set_ModuleEn(GlobalParamsManager_t* pMan, rk_aiq_module_list
     for (int i = 0;i < RESULT_TYPE_MAX_PARAM;i++) {
         int cur_type = mod->module_ctl[i].type;
         if (pMan->mGlobalParams[cur_type].en != NULL) {
-            if (GlobalParamsManager_checkAlgoEnableBypass(pMan, cur_type, &mod->module_ctl[i].en, &mod->module_ctl[i].bypass) == XCAM_RETURN_ERROR_FAILED) {
+            XCamReturn ret2 = GlobalParamsManager_checkAlgoEnableBypass(pMan, cur_type, &mod->module_ctl[i].en, &mod->module_ctl[i].bypass);
+            if (ret2 == XCAM_RETURN_ERROR_FAILED) {
+                ret |= ret2;
                 continue;
             }
 			aiqMutex_lock(&pMan->mAlgoMutex[cur_type]);
-            if (*pMan->mGlobalParams[cur_type].en != mod->module_ctl[i].en ||
-                *pMan->mGlobalParams[cur_type].bypass != mod->module_ctl[i].bypass ||
-                *pMan->mGlobalParams[cur_type].opMode != mod->module_ctl[i].opMode) {
-                *pMan->mGlobalParams[cur_type].en = mod->module_ctl[i].en;
-                *pMan->mGlobalParams[cur_type].bypass = mod->module_ctl[i].bypass;
-                if(mod->module_ctl[i].opMode == RK_AIQ_OP_MODE_AUTO || mod->module_ctl[i].opMode == RK_AIQ_OP_MODE_MANUAL)
-                    *pMan->mGlobalParams[cur_type].opMode = mod->module_ctl[i].opMode;
-                else
-                    LOGE("%s invalid opMode %d", __func__ ,mod->module_ctl[i].opMode);
-                pMan->mIsGlobalModulesUpdateBits |= ((uint64_t)1) << cur_type;
-			}
+            *pMan->mGlobalParams[cur_type].en = mod->module_ctl[i].en;
+            *pMan->mGlobalParams[cur_type].bypass = mod->module_ctl[i].bypass;
+            if(mod->module_ctl[i].opMode == RK_AIQ_OP_MODE_AUTO || mod->module_ctl[i].opMode == RK_AIQ_OP_MODE_MANUAL)
+                *pMan->mGlobalParams[cur_type].opMode = mod->module_ctl[i].opMode;
+            else
+                LOGE("%s invalid opMode %d", __func__ ,mod->module_ctl[i].opMode);
+            pMan->mIsGlobalModulesUpdateBits |= ((uint64_t)1) << cur_type;
 			aiqMutex_unlock(&pMan->mAlgoMutex[cur_type]);
         }
     }
-
     EXIT_ANALYZER_FUNCTION();
     return ret;
 }
@@ -1088,6 +1122,9 @@ XCamReturn GlobalParamsManager_checkAlgoEnableBypass(GlobalParamsManager_t* pMan
 
     if (type == RESULT_TYPE_UVNR_PARAM || type == RESULT_TYPE_YNR_PARAM || type == RESULT_TYPE_SHARPEN_PARAM) {
         if (*pMan->mGlobalParams[type].en != *en) {
+            if (*en == 1) {
+                return XCAM_RETURN_ERROR_PARAM;
+            }
             LOGD("ynr, cnr or sharp en is changed");
             return XCAM_RETURN_BYPASS;
         }
@@ -1096,6 +1133,9 @@ XCamReturn GlobalParamsManager_checkAlgoEnableBypass(GlobalParamsManager_t* pMan
 #ifdef ISP_HW_V33
     if (type == RESULT_TYPE_ENH_PARAM) {
         if (*pMan->mGlobalParams[type].en != *en) {
+            if (*en == 1) {
+                return XCAM_RETURN_ERROR_PARAM;
+            }
             LOGD("enh en is changed");
             bool enh_en = *en;
             bool enh_bypass = *bypass;
@@ -1140,7 +1180,6 @@ XCamReturn GlobalParamsManager_checkAlgoEnableBypass(GlobalParamsManager_t* pMan
 
     if (type == RESULT_TYPE_MERGE_PARAM) {
         if (state == AIQ_STATE_PREPARED || state == AIQ_STATE_STARTED) {
-            printf("state %d\n", state);
             if (AiqManager_getWorkingMode(pMan->rkAiqManager) != RK_AIQ_WORKING_MODE_NORMAL && (*en == 0 || *bypass == 1)) {
                 LOGE("HDRMGE must be on  when isp is HDR mode. Please turn on by mge.en");
                 return XCAM_RETURN_ERROR_FAILED;
@@ -1296,5 +1335,23 @@ static bool checkAlgoParams(GlobalParamsManager_t* pMan, rk_aiq_global_params_wr
             }
         }
     }
+#ifdef RKAIQ_HAVE_HSV
+    if (param->type == RESULT_TYPE_HSV_PARAM) {
+        hsv_api_attrib_t attr;
+        if (param->opMode == RK_AIQ_OP_MODE_MANUAL) {
+            memcpy(&attr.stMan, param->man_param_ptr, param->man_param_size);
+            int lut0_mode = attr.stMan.dyn.lut0.hw_hsvT_lut1d_mode % 3;
+            int lut1_mode = attr.stMan.dyn.lut1.hw_hsvT_lut1d_mode % 3;
+            int lut2_mode = attr.stMan.dyn.lut2.hw_hsvT_lut2d_mode / 2;
+            if (lut0_mode == lut1_mode || lut1_mode == lut2_mode || lut2_mode == lut0_mode) {
+                LOGE("Three output channels of hsv lut must be different. "
+                    "Please configure by hsv.dyn.lut0.hw_hsvT_lut1d_mode, hsv.dyn.lut1.hw_hsvT_lut1d_mode, hsv.dyn.lut2.hw_hsvT_lut2d_mode!");
+                socket_client_setNote(pMan->_socket, IPC_RET_UAPI_ERROR, "Three output channels of hsv lut must be different. "
+                    "Please configure by hsv.dyn.lut0.hw_hsvT_lut1d_mode, hsv.dyn.lut1.hw_hsvT_lut1d_mode, hsv.dyn.lut2.hw_hsvT_lut2d_mode!\n");
+                return false;
+            }
+        }
+    }
+#endif
     return true;
 }

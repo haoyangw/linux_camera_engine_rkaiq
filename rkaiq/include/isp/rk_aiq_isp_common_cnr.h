@@ -70,7 +70,7 @@ typedef struct cnr_sigmaCurve_s {
         M4_TYPE(u16),
         M4_UI_PARAM(data_x),
         M4_SIZE_EX(1,8),
-        M4_RANGE_EX(0,4095),
+        M4_RANGE_EX(0,1024),
         M4_DEFAULT([0, 64, 128, 256, 384, 640, 896, 1024]),
         M4_HIDE_EX(0),
         M4_RO(0),

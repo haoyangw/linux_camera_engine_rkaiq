@@ -2692,8 +2692,8 @@ static void RkAiqCore_copyIspStats(AiqCore_t* pAiqCore, rk_aiq_isp_stats_t* to) 
         to->bValid_aec_stats = true;
     }
 
-    if (pAiqCore->mIspHwVer == 5) {
-#if defined(ISP_HW_V39) || defined(ISP_HW_V33)
+    if (pAiqCore->mIspHwVer >4) {
+#if USE_NEWSTRUCT
         to->awb_hw_ver = 5;
         if (pAiqCore->mCurAwbStats) {
             pAwbStats            = (aiq_awb_stats_wrapper_t*)pAiqCore->mCurAwbStats->_data;
@@ -3161,6 +3161,9 @@ XCamReturn AiqCore_groupAnalyze(AiqCore_t * pAiqCore, uint64_t grpId,
 
     if (fullParam) {
         LOG1_ANALYZER("cb [%d] fullParams done !", pAiqCore->mLatestParamsDoneId);
+#ifdef RKAIQ_ENABLE_CAMGROUP
+        if (!pAiqCore->mCamGroupCoreManager)
+#endif
         fixAiqParamsIsp(pAiqCore, fullParam);
 #ifdef RKAIQ_ENABLE_CAMGROUP
         if (pAiqCore->mCamGroupCoreManager) {
@@ -3308,50 +3311,7 @@ XCamReturn AiqCore_setAOVForAE(AiqCore_t* pAiqCore, bool en) {
 }
 
 static XCamReturn fixAiqParamsIsp(AiqCore_t* pAiqCore, AiqFullParams_t* aiqParams) {
-#if USE_NEWSTRUCT
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
-    bool ynr_en   = false;
-    bool sharp_en = false;
-    bool cnr_en   = false;
-
-    aiq_params_base_t* pYnrBase   = aiqParams->pParamsArray[RESULT_TYPE_YNR_PARAM];
-    rk_aiq_isp_ynr_params_t* pYnr = NULL;
-    if (pYnrBase) {
-        pYnr   = (rk_aiq_isp_ynr_params_t*)pYnrBase->_data;
-        ynr_en = pYnr->en;
-    }
-
-    aiq_params_base_t* pSharpBase     = aiqParams->pParamsArray[RESULT_TYPE_SHARPEN_PARAM];
-    rk_aiq_isp_sharp_params_t* pSharp = NULL;
-    if (pSharpBase) {
-        pSharp   = (rk_aiq_isp_sharp_params_t*)pSharpBase->_data;
-        sharp_en = pSharp->en;
-    }
-
-    aiq_params_base_t* pCnrBase     = aiqParams->pParamsArray[RESULT_TYPE_UVNR_PARAM];
-    rk_aiq_isp_sharp_params_t* pCnr = NULL;
-    if (pCnrBase) {
-        pCnr   = (rk_aiq_isp_sharp_params_t*)pCnrBase->_data;
-        cnr_en = pCnr->en;
-    }
-
-    if (ynr_en || sharp_en || cnr_en) {
-        if (!ynr_en && pYnr) {
-            pYnr->en     = true;
-            pYnr->bypass = true;
-        }
-        if (!sharp_en && pSharp) {
-            pSharp->en     = true;
-            pSharp->bypass = true;
-        }
-        if (!cnr_en && pCnr) {
-            pCnr->en     = true;
-            pCnr->bypass = true;
-        }
-    }
-#endif
-
-#if defined(ISP_HW_V39)
+#if ISP_HW_V39
     aiq_params_base_t* pYnrBase    = aiqParams->pParamsArray[RESULT_TYPE_YNR_PARAM];
     aiq_params_base_t* pHisteqBase = aiqParams->pParamsArray[RESULT_TYPE_HISTEQ_PARAM];
     aiq_params_base_t* pDhzeBase   = aiqParams->pParamsArray[RESULT_TYPE_DEHAZE_PARAM];
@@ -3366,7 +3326,7 @@ static XCamReturn fixAiqParamsIsp(AiqCore_t* pAiqCore, AiqFullParams_t* aiqParam
         pDhzeBase->is_update   = true;
         pHisteqBase->is_update = true;
     }
-
+#endif
     aiq_params_base_t* pDrcBase  = aiqParams->pParamsArray[RESULT_TYPE_DRC_PARAM];
     aiq_params_base_t* pAwbBase  = aiqParams->pParamsArray[RESULT_TYPE_AWB_PARAM];
     aiq_params_base_t* pBlcBase  = aiqParams->pParamsArray[RESULT_TYPE_BLC_PARAM];
@@ -3386,9 +3346,18 @@ static XCamReturn fixAiqParamsIsp(AiqCore_t* pAiqCore, AiqFullParams_t* aiqParam
             pBtnrBase->is_update = true;
         }
     }
-#endif
 
-#endif
+    // TODO: TNR/SHARP need update HWI params for each frame now
+    aiq_params_base_t* psharpBase = aiqParams->pParamsArray[RESULT_TYPE_SHARPEN_PARAM];
+
+    if (psharpBase && !psharpBase->is_update) {
+        psharpBase->is_update = true;
+    }
+
+    if (pBtnrBase && !pBtnrBase->is_update) {
+        pBtnrBase->is_update = true;
+    }
+
     return XCAM_RETURN_NO_ERROR;
 }
 

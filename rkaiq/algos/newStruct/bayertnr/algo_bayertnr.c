@@ -478,7 +478,7 @@ XCamReturn Abtnr_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outpa
         need_recal = true;
     }
 
-    outparams->cfg_update = true;
+    outparams->cfg_update = false;
     if (need_recal) {
         btnr_res->sta = pBtnrCtx->btnr_attrib->stAuto.sta;
 #if RKAIQ_HAVE_BAYERTNR_V30

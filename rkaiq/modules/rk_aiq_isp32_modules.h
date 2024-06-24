@@ -58,9 +58,9 @@ typedef struct {
     RKAiqAecExpInfo_t *ae_exp;
     blc_res_cvt_t blc_res;
     bool use_aiisp;
-    bool cnr_path_valid;
-    int ynr_count;
-    int sharp_count;
+    int warning_signal;
+    int warning_count;
+    bool cnr_path_en;
     float L2S_Ratio;
 #ifdef USE_NEWSTRUCT
     float ynr_sigma[HIST_SIGMA_LUT_NUM];

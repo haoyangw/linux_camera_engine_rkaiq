@@ -1598,16 +1598,18 @@ XCamReturn rk_aiq_uapi2_getDrcLocalData(const rk_aiq_sys_ctx_t* ctx, float* Loca
 *     use in rk3576
 * Argument:
 *   hw_drcT_bifiltOut_alpha: [0, 16]
-*   hw_drcT_loDetail_strg: [0, 4095]
-*   hw_drcT_drcStrg_alpha: [0, 4095]
+*   hw_drcT_locDetail_strg: [0, 4095]
+*   hw_drcT_hfDarkRegion_strg: [0, 4095]
 *   hw_drcT_softThd_en: [0, 1]
 *   hw_drcT_softThd_thred: [0, 2047]
 *
 *****************************
 */
-XCamReturn rk_aiq_uapi2_setDrcLocalDataV2(const rk_aiq_sys_ctx_t* ctx, float hw_drcT_bifiltOut_alpha, float hw_drcT_loDetail_strg,
-                                        float hw_drcT_drcStrg_alpha, int hw_drcT_softThd_en, float hw_drcT_softThd_thred)
-{
+XCamReturn rk_aiq_uapi2_setDrcLocalDataV2(const rk_aiq_sys_ctx_t* ctx,
+                                          float hw_drcT_bifiltOut_alpha,
+                                          float hw_drcT_locDetail_strg,
+                                          float hw_drcT_hfDarkRegion_strg, int hw_drcT_softThd_en,
+                                          float hw_drcT_softThd_thred) {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
     IMGPROC_FUNC_ENTER
 
@@ -1619,13 +1621,13 @@ XCamReturn rk_aiq_uapi2_setDrcLocalDataV2(const rk_aiq_sys_ctx_t* ctx, float hw_
         ret = XCAM_RETURN_ERROR_PARAM;
         RKAIQ_IMGPROC_CHECK_RET(ret, "param error, hw_drcT_bifiltOut_alpha range is [0,16]!");
     }
-    if (hw_drcT_loDetail_strg < 0 || hw_drcT_loDetail_strg > 4095) {
+    if (hw_drcT_locDetail_strg < 0 || hw_drcT_locDetail_strg > 4095) {
         ret = XCAM_RETURN_ERROR_PARAM;
-        RKAIQ_IMGPROC_CHECK_RET(ret, "param error, hw_drcT_loDetail_strg range is [0,4095]!");
+        RKAIQ_IMGPROC_CHECK_RET(ret, "param error, hw_drcT_locDetail_strg range is [0,4095]!");
     }
-    if (hw_drcT_drcStrg_alpha < 0 || hw_drcT_drcStrg_alpha > 4095) {
+    if (hw_drcT_hfDarkRegion_strg < 0 || hw_drcT_hfDarkRegion_strg > 4095) {
         ret = XCAM_RETURN_ERROR_PARAM;
-        RKAIQ_IMGPROC_CHECK_RET(ret, "param error, hw_drcT_drcStrg_alpha range is [0,4095]!");
+        RKAIQ_IMGPROC_CHECK_RET(ret, "param error, hw_drcT_hfDarkRegion_strg range is [0,4095]!");
     }
     if (hw_drcT_softThd_en < 0 || hw_drcT_softThd_en > 1) {
         ret = XCAM_RETURN_ERROR_PARAM;
@@ -1643,15 +1645,15 @@ XCamReturn rk_aiq_uapi2_setDrcLocalDataV2(const rk_aiq_sys_ctx_t* ctx, float hw_
     if (attr.opMode == RK_AIQ_OP_MODE_AUTO) {
         for (int i = 0; i < DRC_ISO_STEP_MAX; i++) {
             attr.stAuto.dyn[i].bifilt_filter.hw_drcT_bifiltOut_alpha      = hw_drcT_bifiltOut_alpha;
-            attr.stAuto.dyn[i].drcProc.hw_drcT_loDetail_strg = hw_drcT_loDetail_strg;
-            attr.stAuto.dyn[i].drcProc.hw_drcT_drcStrg_alpha  = hw_drcT_drcStrg_alpha;
+            attr.stAuto.dyn[i].drcProc.hw_drcT_locDetail_strg             = hw_drcT_locDetail_strg;
+            attr.stAuto.dyn[i].drcProc.hw_drcT_hfDarkRegion_strg   = hw_drcT_hfDarkRegion_strg;
             attr.stAuto.dyn[i].bifilt_filter.hw_drcT_softThd_en = hw_drcT_softThd_en;
             attr.stAuto.dyn[i].bifilt_filter.hw_drcT_softThd_thred = hw_drcT_softThd_thred;
         }
     } else if (attr.opMode == RK_AIQ_OP_MODE_MANUAL) {
         attr.stMan.dyn.bifilt_filter.hw_drcT_bifiltOut_alpha       = hw_drcT_bifiltOut_alpha;
-        attr.stMan.dyn.drcProc.hw_drcT_loDetail_strg  = hw_drcT_loDetail_strg;
-        attr.stMan.dyn.drcProc.hw_drcT_drcStrg_alpha   = hw_drcT_drcStrg_alpha;
+        attr.stMan.dyn.drcProc.hw_drcT_locDetail_strg              = hw_drcT_locDetail_strg;
+        attr.stMan.dyn.drcProc.hw_drcT_hfDarkRegion_strg           = hw_drcT_hfDarkRegion_strg;
         attr.stMan.dyn.bifilt_filter.hw_drcT_softThd_en = hw_drcT_softThd_en;
         attr.stMan.dyn.bifilt_filter.hw_drcT_softThd_thred   = hw_drcT_softThd_thred;
     }
@@ -1663,9 +1665,11 @@ XCamReturn rk_aiq_uapi2_setDrcLocalDataV2(const rk_aiq_sys_ctx_t* ctx, float hw_
     return ret;
 }
 
-XCamReturn rk_aiq_uapi2_getDrcLocalDataV2(const rk_aiq_sys_ctx_t* ctx, float * hw_drcT_bifiltOut_alpha, float * hw_drcT_loDetail_strg,
-                                        float * hw_drcT_drcStrg_alpha, int* hw_drcT_softThd_en, float* hw_drcT_softThd_thred)
-{
+XCamReturn rk_aiq_uapi2_getDrcLocalDataV2(const rk_aiq_sys_ctx_t* ctx,
+                                          float* hw_drcT_bifiltOut_alpha,
+                                          float* hw_drcT_locDetail_strg,
+                                          float* hw_drcT_hfDarkRegion_strg, int* hw_drcT_softThd_en,
+                                          float* hw_drcT_softThd_thred) {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
     IMGPROC_FUNC_ENTER
     if (ctx == NULL) {
@@ -1679,8 +1683,8 @@ XCamReturn rk_aiq_uapi2_getDrcLocalDataV2(const rk_aiq_sys_ctx_t* ctx, float * h
     ret = rk_aiq_user_api2_drc_QueryStatus(ctx, &status);
     RKAIQ_IMGPROC_CHECK_RET(ret, "getDrcLocalData failed in get attrib!");
     *hw_drcT_bifiltOut_alpha       = status.stMan.dyn.bifilt_filter.hw_drcT_bifiltOut_alpha;
-    *hw_drcT_loDetail_strg  = status.stMan.dyn.drcProc.hw_drcT_loDetail_strg;
-    *hw_drcT_drcStrg_alpha   = status.stMan.dyn.drcProc.hw_drcT_drcStrg_alpha;
+    *hw_drcT_locDetail_strg        = status.stMan.dyn.drcProc.hw_drcT_locDetail_strg;
+    *hw_drcT_hfDarkRegion_strg     = status.stMan.dyn.drcProc.hw_drcT_hfDarkRegion_strg;
     *hw_drcT_softThd_en = status.stMan.dyn.bifilt_filter.hw_drcT_softThd_en;
     *hw_drcT_softThd_thred   = status.stMan.dyn.bifilt_filter.hw_drcT_softThd_thred;
 #endif

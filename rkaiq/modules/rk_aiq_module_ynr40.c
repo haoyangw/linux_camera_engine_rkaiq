@@ -251,13 +251,13 @@ void rk_aiq_ynr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
     pCfg->mi_spnr_wgt = CLIP(tmp, 0, 0xff);
     tmp = (pdyn->midNr.sw_ynr_centerPix_wgt) * (1 << 10);
     pCfg->mi_spnr_filt_center_wgt = CLIP(tmp, 0, 0x7ff);
-    tmp = (pdyn->midNr.hw_ynrT_alphaMfTex_scale) * (1 << 8);
-    if (tmp == 256) {
+    if (pdyn->midNr.hw_ynrT_alphaMfTex_scale == 1.0f) {
         pCfg->mi_ehance_scale_en = 0;
     } else {
         pCfg->mi_ehance_scale_en = 1;
-        pCfg->mi_ehance_scale = CLIP(tmp, 0, 255);
     }
+    tmp = (pdyn->midNr.hw_ynrT_alphaMfTex_scale) * 8;
+    pCfg->mi_ehance_scale = CLIP(tmp, 0, 255);
     // REG: LO_STRG_DETAIL
     tmp = (pdyn->loNr.epf.hw_ynrT_rgeSgm_scale) * (1 << 6);
     pCfg->lo_spnr_strg = CLIP(tmp, 0, 0x3ff);
@@ -288,7 +288,7 @@ void rk_aiq_ynr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
     pCfg->tex2lo_strg_exponent = tex2strg_step_exponent - 10;  // [0, 10]
 
     for (i = 0; i < 9; i++) {
-        tmp = pdyn->loNr.locYnrStrg_locSgmStrg.hw_ynrT_locSgmStrg2NrStrg_val[i] * (1 << 8);
+        tmp = pdyn->loNr.epf.hw_ynrT_locSgmStrg2NrOut_alpha[i] * (1 << 8);
         pCfg->lo_gain2wgt[i] = CLIP(tmp, 0, 128);
     }
 

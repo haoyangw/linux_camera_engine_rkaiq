@@ -273,9 +273,9 @@ void rk_aiq_drc40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
         }
     }
 
-    tmp                    = 2048.0f * pdyn->drcProc.hw_drcT_loDetail_strg;
+    tmp                    = 2048.0f * pdyn->drcProc.hw_drcT_locDetail_strg;
     phwcfg->lpdetail_ratio = tmp > 2048 ? 2048 : tmp;
-    tmp                    = 2048.0f * pdyn->drcProc.hw_drcT_drcStrg_alpha;
+    tmp                    = 2048.0f * pdyn->drcProc.hw_drcT_hfDarkRegion_strg;
     phwcfg->hpdetail_ratio = tmp > 2048 ? 2048 : tmp;
     tmp                    = 256.0f * pdyn->drcProc.hw_drcT_drcStrgLutLuma_scale;
     phwcfg->delta_scalein  = tmp > 255 ? 255 : tmp;

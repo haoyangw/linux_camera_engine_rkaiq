@@ -124,7 +124,6 @@ typedef struct texRegionShpStrgLP_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_GROUP_CTRL(dbgOut_en_group),
         M4_NOTES(IIR frame low freq channel averge low power mode enable.\n
         Freq of use: low))  */
     // reg: sw_detail_lp_en
@@ -426,12 +425,13 @@ typedef struct shp_radiDistShpWgt_dyn_s {
         M4_DEFAULT([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
         M4_HIDE_EX(0),
         M4_UI_MODULE(curve),
-        M4_DATAX([0, 8, 24, 56, 88, 120, 184, 248, 312, 376, 440]),
+        M4_DATAX([0, 362, 627, 958, 1201, 1402, 1736, 2016, 2261, 2482, 2685]),
         M4_RO(0),
         M4_ORDER(0),
         M4_GROUP(radiDist_en_group),
         M4_NOTES(Radial distance weight based on the distance from the center point. \n
-        distance_power2_ratio = [0, 8, 24, 56, 88, 120, 184, 248, 312, 376, 440].\n
+        step=128,radia = [0, 362, 627, 958, 1201, 1402, 1736, 2016, 2261, 2482, 2685].\n
+        step=256,radial = [0, 724, 1254, 1916, 2401, 2804, 3473, 4031, 4522, 4964, 5370].\n
         Freq of use: low))  */
     // @reg: hw_shp_distance2strg_val0~10
     float hw_shpT_radiDist2ShpStrg_val[11];

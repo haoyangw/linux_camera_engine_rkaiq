@@ -540,6 +540,390 @@ static void WriteAwbReg(struct isp39_rawawb_meas_cfg* awb_cfg_v32) {
 #endif
 }
 
+// 函数用于将补码表示的整数转换为真值，指定符号位位置
+static inline int32_t c2trval(int signBitPosition,uint32_t complement)
+{
+    // 计算符号掩码，只保留符号位
+    uint32_t signMask = 1 << signBitPosition;
+    if ((complement & signMask) == 0) {
+        // 符号位为 0，补码就是真值
+        return (int32_t)complement;
+    }
+    else {
+        // 符号位为 1，计算真值
+        // 取反所有位，然后加1得到反码
+        // 注意：这里使用了 uint32_t 来避免在取反时发生符号扩展
+        uint32_t oneComplement = ~complement + 1;
+        // 现在 oneComplement 可能包含比原整数更多的1
+        // 需要将其限制到原整数的位数内
+        oneComplement &= (signMask << 1) - 1;
+        // 将反码转换为真值，即取反后加1的结果
+        return -(int32_t)oneComplement;
+    }
+}
+
+static void WriteDataForIcCmodel(struct isp39_rawawb_meas_cfg* wpDetectPara)
+{
+#if 0
+    static int count = 0;
+    if(count>20) return;
+    char fName[100];
+    sprintf(fName, "./tmp/config_rkisp_demo_s_%d.txt",count);
+    count++;
+    LOGV_AWB( "%s", fName);
+    FILE* fp = fopen(fName, "wb");
+    if(fp != NULL)
+    {
+        //fprintf(fp, "g_awb_para.sw_img_width         =%d;\n",wpDetectPara-> );
+        //fprintf(fp, "g_awb_para.sw_img_height        =%d;\n",wpDetectPara-> );
+        //fprintf(fp, "g_awb_para.sw_img_depth         =%d;\n",wpDetectPara-> );
+        //fprintf(fp, "g_awb_para.rawBayerPattern      =%d;\n",wpDetectPara-> );
+
+        fprintf(fp, "g_awb_para.sw_rawawb_en                 =%d;\n",1                 );
+        fprintf(fp, "g_awb_para.sw_rawawb_xy_en0             =%d;\n",wpDetectPara->xy_en0             );
+        fprintf(fp, "g_awb_para.sw_rawawb_uv_en0             =%d;\n",wpDetectPara->uv_en0             );
+        fprintf(fp, "g_awb_para.sw_rawawb_3dyuv_en0          =%d;\n",wpDetectPara->yuv3d_en0          );
+        fprintf(fp, "g_awb_para.sw_rawawb_xy_en1             =%d;\n",wpDetectPara->xy_en1             );
+        fprintf(fp, "g_awb_para.sw_rawawb_uv_en1             =%d;\n",wpDetectPara->uv_en1             );
+        fprintf(fp, "g_awb_para.sw_rawawb_3dyuv_en1          =%d;\n",wpDetectPara->yuv3d_en1          );
+        fprintf(fp, "g_awb_para.sw_rawawb_wp_blk_wei_en0     =%d;\n",wpDetectPara->wp_blk_wei_en0     );
+        fprintf(fp, "g_awb_para.sw_rawawb_wp_blk_wei_en1     =%d;\n",wpDetectPara->wp_blk_wei_en1     );
+        fprintf(fp, "g_awb_para.sw_3a_rawawb_sel             =%d;\n",wpDetectPara->rawawb_sel             );
+        fprintf(fp, "g_awb_para.sw_rawawb_blk_measure_enable =%d;\n",wpDetectPara->blk_measure_enable );
+        fprintf(fp, "g_awb_para.sw_rawawb_blk_measure_mode   =%d;\n",wpDetectPara->blk_measure_mode   );
+        fprintf(fp, "g_awb_para.sw_rawawb_blk_measure_xytype =%d;\n",wpDetectPara->blk_measure_xytype );
+        fprintf(fp, "g_awb_para.sw_rawawb_blk_measure_illu_idx  =%d;\n",wpDetectPara->blk_measure_illu_idx );
+        fprintf(fp, "g_awb_para.sw_rawawb_blk_with_luma_wei_en  =%d;\n",wpDetectPara->blk_with_luma_wei_en);
+        fprintf(fp, "g_awb_para.sw_rawawb_wp_luma_wei_en0   =%d;\n",wpDetectPara->wp_luma_wei_en0 );
+        fprintf(fp, "g_awb_para.sw_rawawb_wp_luma_wei_en1   = %d;\n", wpDetectPara->wp_luma_wei_en1);
+        fprintf(fp, "g_awb_para.sw_rawawb_wp_hist_xytype    =%d;\n",wpDetectPara->wp_hist_xytype);
+        fprintf(fp, "g_awb_para.sw_rawawb_3dyuv_ls_idx0    = %d;\n", wpDetectPara->yuv3d_ls_idx0);
+        fprintf(fp, "g_awb_para.sw_rawawb_3dyuv_ls_idx1    = %d;\n", wpDetectPara->yuv3d_ls_idx1);
+        fprintf(fp, "g_awb_para.sw_rawawb_3dyuv_ls_idx2    = %d;\n", wpDetectPara->yuv3d_ls_idx2);
+        fprintf(fp, "g_awb_para.sw_rawawb_3dyuv_ls_idx3    = %d;\n", wpDetectPara->yuv3d_ls_idx3);
+        fprintf(fp, "g_awb_para.sw_rawawb_meas_flag        = %d;\n", 0);
+        fprintf(fp, "g_awb_para.sw_rawawb_light_num        = %d;\n", wpDetectPara->light_num);
+        fprintf(fp, "g_awb_para.sw_rawawb_rd_ram_en        = %d;\n", 0);
+        fprintf(fp, "g_awb_para.sw_rawawb_ram_offs         = %d;\n", 0);
+        fprintf(fp, "g_awb_para.sw_rawawb_h_offs           = %d;\n", wpDetectPara->h_offs);
+        fprintf(fp, "g_awb_para.sw_rawawb_v_offs           = %d;\n", wpDetectPara->v_offs);
+        fprintf(fp, "g_awb_para.sw_rawawb_h_size           = %d;\n", wpDetectPara->h_size);
+        fprintf(fp, "g_awb_para.sw_rawawb_v_size           = %d;\n", wpDetectPara->v_size);
+        fprintf(fp, "g_awb_para.sw_rawawb_wind_size      = %d;\n", wpDetectPara->wind_size);
+        fprintf(fp, "g_awb_para.sw_rawawb_ds16x8_mode_en = %d;\n", wpDetectPara->ds16x8_mode_en);
+        fprintf(fp, "g_awb_para.sw_rawawb_r_max          = %d;\n", wpDetectPara->r_max);
+        fprintf(fp, "g_awb_para.sw_rawawb_g_max          = %d;\n", wpDetectPara->g_max);
+        fprintf(fp, "g_awb_para.sw_rawawb_b_max          = %d;\n", wpDetectPara->b_max);
+        fprintf(fp, "g_awb_para.sw_rawawb_y_max          = %d;\n", wpDetectPara->y_max);
+        fprintf(fp, "g_awb_para.sw_rawawb_r_min          = %d;\n", wpDetectPara->r_min);
+        fprintf(fp, "g_awb_para.sw_rawawb_g_min          = %d;\n", wpDetectPara->g_min);
+        fprintf(fp, "g_awb_para.sw_rawawb_b_min          = %d;\n", wpDetectPara->b_min);
+        fprintf(fp, "g_awb_para.sw_rawawb_y_min          = %d;\n", wpDetectPara->y_min);
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex0_u_0    =%d;\n",wpDetectPara->vertex0_u_0);
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex0_v_0    =%d;\n",wpDetectPara->vertex0_v_0);
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex1_u_0    =%d;\n",wpDetectPara->vertex1_u_0);
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex1_v_0    =%d;\n",wpDetectPara->vertex1_v_0);
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex2_u_0    =%d;\n",wpDetectPara->vertex2_u_0);
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex2_v_0    =%d;\n",wpDetectPara->vertex2_v_0);
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex3_u_0    =%d;\n",wpDetectPara->vertex3_u_0);
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex3_v_0    =%d;\n",wpDetectPara->vertex3_v_0);
+        fprintf(fp, "g_awb_para.sw_rawawb_islope01_0      =%d;\n",c2trval(31,wpDetectPara->islope01_0 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_islope12_0      =%d;\n",c2trval(31,wpDetectPara->islope12_0 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_islope23_0      =%d;\n",c2trval(31,wpDetectPara->islope23_0 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_islope30_0      =%d;\n",c2trval(31,wpDetectPara->islope30_0 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex0_u_1     =%d;\n",wpDetectPara->vertex0_u_1);
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex0_v_1     =%d;\n",wpDetectPara->vertex0_v_1);
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex1_u_1     =%d;\n",wpDetectPara->vertex1_u_1);
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex1_v_1     =%d;\n",wpDetectPara->vertex1_v_1);
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex2_u_1     =%d;\n",wpDetectPara->vertex2_u_1);
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex2_v_1     =%d;\n",wpDetectPara->vertex2_v_1);
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex3_u_1     =%d;\n",wpDetectPara->vertex3_u_1);
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex3_v_1     =%d;\n",wpDetectPara->vertex3_v_1);
+        fprintf(fp, "g_awb_para.sw_rawawb_islope01_1      =%d;\n",c2trval(31,wpDetectPara->islope01_1 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_islope12_1      =%d;\n",c2trval(31,wpDetectPara->islope12_1 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_islope23_1      =%d;\n",c2trval(31,wpDetectPara->islope23_1 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_islope30_1      =%d;\n",c2trval(31,wpDetectPara->islope30_1 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex0_u_2    =%d;\n",wpDetectPara->vertex0_u_2 );
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex0_v_2    =%d;\n",wpDetectPara->vertex0_v_2 );
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex1_u_2    =%d;\n",wpDetectPara->vertex1_u_2 );
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex1_v_2    =%d;\n",wpDetectPara->vertex1_v_2 );
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex2_u_2    =%d;\n",wpDetectPara->vertex2_u_2 );
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex2_v_2    =%d;\n",wpDetectPara->vertex2_v_2 );
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex3_u_2    =%d;\n",wpDetectPara->vertex3_u_2 );
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex3_v_2    =%d;\n",wpDetectPara->vertex3_v_2 );
+        fprintf(fp, "g_awb_para.sw_rawawb_islope01_2      =%d;\n",c2trval(31,wpDetectPara->islope01_2   ));
+        fprintf(fp, "g_awb_para.sw_rawawb_islope12_2      =%d;\n",c2trval(31,wpDetectPara->islope12_2  ));
+        fprintf(fp, "g_awb_para.sw_rawawb_islope23_2      =%d;\n",c2trval(31,wpDetectPara->islope23_2  ));
+        fprintf(fp, "g_awb_para.sw_rawawb_islope30_2      =%d;\n",c2trval(31,wpDetectPara->islope30_2  ));
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex0_u_3    = %d;\n", wpDetectPara->vertex0_u_3);
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex0_v_3    = %d;\n", wpDetectPara->vertex0_v_3);
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex1_u_3    = %d;\n", wpDetectPara->vertex1_u_3);
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex1_v_3    = %d;\n", wpDetectPara->vertex1_v_3);
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex2_u_3    = %d;\n", wpDetectPara->vertex2_u_3);
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex2_v_3    = %d;\n", wpDetectPara->vertex2_v_3);
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex3_u_3    = %d;\n", wpDetectPara->vertex3_u_3);
+        fprintf(fp, "g_awb_para.sw_rawawb_vertex3_v_3    = %d;\n", wpDetectPara->vertex3_v_3);
+        fprintf(fp, "g_awb_para.sw_rawawb_islope01_3      = %d;\n", c2trval(31,wpDetectPara->islope01_3));
+        fprintf(fp, "g_awb_para.sw_rawawb_islope12_3      = %d;\n", c2trval(31,wpDetectPara->islope12_3));
+        fprintf(fp, "g_awb_para.sw_rawawb_islope23_3      = %d;\n", c2trval(31,wpDetectPara->islope23_3));
+        fprintf(fp, "g_awb_para.sw_rawawb_islope30_3      = %d;\n", c2trval(31,wpDetectPara->islope30_3));
+        fprintf(fp, "g_awb_para.sw_rawawb_rgb2ryuvmat0_u = %d;\n", c2trval(15,wpDetectPara->rgb2ryuvmat0_u));
+        fprintf(fp, "g_awb_para.sw_rawawb_rgb2ryuvmat1_u = %d;\n", c2trval(15,wpDetectPara->rgb2ryuvmat1_u));
+        fprintf(fp, "g_awb_para.sw_rawawb_rgb2ryuvmat2_u = %d;\n", c2trval(15,wpDetectPara->rgb2ryuvmat2_u));
+        fprintf(fp, "g_awb_para.sw_rawawb_rgb2ryuvofs_u = %d;\n", c2trval(15,wpDetectPara->rgb2ryuvofs_u));
+        fprintf(fp, "g_awb_para.sw_rawawb_rgb2ryuvmat0_v = %d;\n", c2trval(15,wpDetectPara->rgb2ryuvmat0_v));
+        fprintf(fp, "g_awb_para.sw_rawawb_rgb2ryuvmat1_v = %d;\n", c2trval(15,wpDetectPara->rgb2ryuvmat1_v));
+        fprintf(fp, "g_awb_para.sw_rawawb_rgb2ryuvmat2_v = %d;\n", c2trval(15,wpDetectPara->rgb2ryuvmat2_v));
+        fprintf(fp, "g_awb_para.sw_rawawb_rgb2ryuvofs_v = %d;\n", c2trval(15,wpDetectPara->rgb2ryuvofs_v));
+        fprintf(fp, "g_awb_para.sw_rawawb_rgb2ryuvmat0_y = %d;\n", c2trval(15,wpDetectPara->rgb2ryuvmat0_y));
+        fprintf(fp, "g_awb_para.sw_rawawb_rgb2ryuvmat1_y = %d;\n", c2trval(15,wpDetectPara->rgb2ryuvmat1_y));
+        fprintf(fp, "g_awb_para.sw_rawawb_rgb2ryuvmat2_y = %d;\n", c2trval(15,wpDetectPara->rgb2ryuvmat2_y));
+        fprintf(fp, "g_awb_para.sw_rawawb_rgb2ryuvofs_y = %d;\n", c2trval(15,wpDetectPara->rgb2ryuvofs_y));
+        fprintf(fp, "g_awb_para.sw_rawawb_rotu0_ls0 =%d;\n", wpDetectPara->rotu0_ls0);
+        fprintf(fp, "g_awb_para.sw_rawawb_rotu1_ls0 =%d;\n", wpDetectPara->rotu1_ls0);
+        fprintf(fp, "g_awb_para.sw_rawawb_rotu2_ls0 =%d;\n", wpDetectPara->rotu2_ls0);
+        fprintf(fp, "g_awb_para.sw_rawawb_rotu3_ls0 =%d;\n", wpDetectPara->rotu3_ls0);
+        fprintf(fp, "g_awb_para.sw_rawawb_rotu4_ls0 =%d;\n", wpDetectPara->rotu4_ls0);
+        fprintf(fp, "g_awb_para.sw_rawawb_rotu5_ls0 =%d;\n", wpDetectPara->rotu5_ls0);
+        fprintf(fp, "g_awb_para.sw_rawawb_th0_ls0 =%d;\n", wpDetectPara->th0_ls0);
+        fprintf(fp, "g_awb_para.sw_rawawb_th1_ls0 =%d;\n", wpDetectPara->th1_ls0);
+        fprintf(fp, "g_awb_para.sw_rawawb_th2_ls0 =%d;\n", wpDetectPara->th2_ls0);
+        fprintf(fp, "g_awb_para.sw_rawawb_th3_ls0 =%d;\n", wpDetectPara->th3_ls0);
+        fprintf(fp, "g_awb_para.sw_rawawb_th4_ls0 =%d;\n", wpDetectPara->th4_ls0);
+        fprintf(fp, "g_awb_para.sw_rawawb_th5_ls0 =%d;\n", wpDetectPara->th5_ls0);
+        fprintf(fp, "g_awb_para.sw_rawawb_coor_x1_ls0_u =%d;\n", c2trval(15,wpDetectPara->coor_x1_ls0_u));
+        fprintf(fp, "g_awb_para.sw_rawawb_coor_x1_ls0_v =%d;\n", c2trval(15,wpDetectPara->coor_x1_ls0_v));
+        fprintf(fp, "g_awb_para.sw_rawawb_coor_x1_ls0_y =%d;\n", c2trval(15,wpDetectPara->coor_x1_ls0_y));
+        fprintf(fp, "g_awb_para.sw_rawawb_vec_x21_ls0_u =%d;\n", c2trval(15,wpDetectPara->vec_x21_ls0_u));
+        fprintf(fp, "g_awb_para.sw_rawawb_vec_x21_ls0_v =%d;\n", c2trval(15,wpDetectPara->vec_x21_ls0_v));
+        fprintf(fp, "g_awb_para.sw_rawawb_vec_x21_ls0_y =%d;\n", c2trval(15,wpDetectPara->vec_x21_ls0_y));
+        fprintf(fp, "g_awb_para.sw_rawawb_dis_x1x2_ls0 =%d;\n", wpDetectPara->dis_x1x2_ls0);
+        fprintf(fp, "g_awb_para.sw_rawawb_rotu0_ls1 =%d;\n",wpDetectPara->rotu0_ls1 );
+        fprintf(fp, "g_awb_para.sw_rawawb_rotu1_ls1 =%d;\n",wpDetectPara->rotu1_ls1 );
+        fprintf(fp, "g_awb_para.sw_rawawb_rotu2_ls1 =%d;\n",wpDetectPara->rotu2_ls1 );
+        fprintf(fp, "g_awb_para.sw_rawawb_rotu3_ls1 =%d;\n",wpDetectPara->rotu3_ls1 );
+        fprintf(fp, "g_awb_para.sw_rawawb_rotu4_ls1 =%d;\n",wpDetectPara->rotu4_ls1 );
+        fprintf(fp, "g_awb_para.sw_rawawb_rotu5_ls1 =%d;\n",wpDetectPara->rotu5_ls1 );
+        fprintf(fp, "g_awb_para.sw_rawawb_th0_ls1 =%d;\n",wpDetectPara->th0_ls1 );
+        fprintf(fp, "g_awb_para.sw_rawawb_th1_ls1 =%d;\n",wpDetectPara->th1_ls1 );
+        fprintf(fp, "g_awb_para.sw_rawawb_th2_ls1 =%d;\n",wpDetectPara->th2_ls1 );
+        fprintf(fp, "g_awb_para.sw_rawawb_th3_ls1 =%d;\n",wpDetectPara->th3_ls1 );
+        fprintf(fp, "g_awb_para.sw_rawawb_th4_ls1 =%d;\n",wpDetectPara->th4_ls1 );
+        fprintf(fp, "g_awb_para.sw_rawawb_th5_ls1 =%d;\n",wpDetectPara->th5_ls1 );
+        fprintf(fp, "g_awb_para.sw_rawawb_coor_x1_ls1_u =%d;\n",c2trval(15,wpDetectPara->coor_x1_ls1_u ));
+        fprintf(fp, "g_awb_para.sw_rawawb_coor_x1_ls1_v =%d;\n",c2trval(15,wpDetectPara->coor_x1_ls1_v ));
+        fprintf(fp, "g_awb_para.sw_rawawb_coor_x1_ls1_y =%d;\n",c2trval(15,wpDetectPara->coor_x1_ls1_y ));
+        fprintf(fp, "g_awb_para.sw_rawawb_vec_x21_ls1_u =%d;\n",c2trval(15,wpDetectPara->vec_x21_ls1_u ));
+        fprintf(fp, "g_awb_para.sw_rawawb_vec_x21_ls1_v =%d;\n",c2trval(15,wpDetectPara->vec_x21_ls1_v ));
+        fprintf(fp, "g_awb_para.sw_rawawb_vec_x21_ls1_y =%d;\n",c2trval(15,wpDetectPara->vec_x21_ls1_y ));
+        fprintf(fp, "g_awb_para.sw_rawawb_dis_x1x2_ls1 =%d;\n",wpDetectPara->dis_x1x2_ls1 );
+        fprintf(fp, "g_awb_para.sw_rawawb_rotu0_ls2 =%d;\n", wpDetectPara->rotu0_ls2);
+        fprintf(fp, "g_awb_para.sw_rawawb_rotu1_ls2 =%d;\n", wpDetectPara->rotu1_ls2);
+        fprintf(fp, "g_awb_para.sw_rawawb_rotu2_ls2 =%d;\n", wpDetectPara->rotu2_ls2);
+        fprintf(fp, "g_awb_para.sw_rawawb_rotu3_ls2 =%d;\n", wpDetectPara->rotu3_ls2);
+        fprintf(fp, "g_awb_para.sw_rawawb_rotu4_ls2 =%d;\n", wpDetectPara->rotu4_ls2);
+        fprintf(fp, "g_awb_para.sw_rawawb_rotu5_ls2 =%d;\n", wpDetectPara->rotu5_ls2);
+        fprintf(fp, "g_awb_para.sw_rawawb_th0_ls2 =%d;\n", wpDetectPara->th0_ls2);
+        fprintf(fp, "g_awb_para.sw_rawawb_th1_ls2 =%d;\n", wpDetectPara->th1_ls2);
+        fprintf(fp, "g_awb_para.sw_rawawb_th2_ls2 =%d;\n", wpDetectPara->th2_ls2);
+        fprintf(fp, "g_awb_para.sw_rawawb_th3_ls2 =%d;\n", wpDetectPara->th3_ls2);
+        fprintf(fp, "g_awb_para.sw_rawawb_th4_ls2 =%d;\n", wpDetectPara->th4_ls2);
+        fprintf(fp, "g_awb_para.sw_rawawb_th5_ls2 =%d;\n", wpDetectPara->th5_ls2);
+        fprintf(fp, "g_awb_para.sw_rawawb_coor_x1_ls2_u =%d;\n", c2trval(15,wpDetectPara->coor_x1_ls2_u));
+        fprintf(fp, "g_awb_para.sw_rawawb_coor_x1_ls2_v =%d;\n", c2trval(15,wpDetectPara->coor_x1_ls2_v));
+        fprintf(fp, "g_awb_para.sw_rawawb_coor_x1_ls2_y =%d;\n", c2trval(15,wpDetectPara->coor_x1_ls2_y));
+        fprintf(fp, "g_awb_para.sw_rawawb_vec_x21_ls2_u =%d;\n", c2trval(15,wpDetectPara->vec_x21_ls2_u));
+        fprintf(fp, "g_awb_para.sw_rawawb_vec_x21_ls2_v =%d;\n", c2trval(15,wpDetectPara->vec_x21_ls2_v));
+        fprintf(fp, "g_awb_para.sw_rawawb_vec_x21_ls2_y =%d;\n", c2trval(15,wpDetectPara->vec_x21_ls2_y));
+        fprintf(fp, "g_awb_para.sw_rawawb_dis_x1x2_ls2 =%d;\n", wpDetectPara->dis_x1x2_ls2);
+        fprintf(fp, "g_awb_para.sw_rawawb_rotu0_ls3 =%d;\n", wpDetectPara->rotu0_ls3);
+        fprintf(fp, "g_awb_para.sw_rawawb_rotu1_ls3 =%d;\n", wpDetectPara->rotu1_ls3);
+        fprintf(fp, "g_awb_para.sw_rawawb_rotu2_ls3 =%d;\n", wpDetectPara->rotu2_ls3);
+        fprintf(fp, "g_awb_para.sw_rawawb_rotu3_ls3 =%d;\n", wpDetectPara->rotu3_ls3);
+        fprintf(fp, "g_awb_para.sw_rawawb_rotu4_ls3 =%d;\n", wpDetectPara->rotu4_ls3);
+        fprintf(fp, "g_awb_para.sw_rawawb_rotu5_ls3 =%d;\n", wpDetectPara->rotu5_ls3);
+        fprintf(fp, "g_awb_para.sw_rawawb_th0_ls3 =%d;\n", wpDetectPara->th0_ls3);
+        fprintf(fp, "g_awb_para.sw_rawawb_th1_ls3 =%d;\n", wpDetectPara->th1_ls3);
+        fprintf(fp, "g_awb_para.sw_rawawb_th2_ls3 =%d;\n", wpDetectPara->th2_ls3);
+        fprintf(fp, "g_awb_para.sw_rawawb_th3_ls3 =%d;\n", wpDetectPara->th3_ls3);
+        fprintf(fp, "g_awb_para.sw_rawawb_th4_ls3 =%d;\n", wpDetectPara->th4_ls3);
+        fprintf(fp, "g_awb_para.sw_rawawb_th5_ls3 =%d;\n", wpDetectPara->th5_ls3);
+        fprintf(fp, "g_awb_para.sw_rawawb_coor_x1_ls3_u =%d;\n", c2trval(15,wpDetectPara->coor_x1_ls3_u));
+        fprintf(fp, "g_awb_para.sw_rawawb_coor_x1_ls3_v =%d;\n", c2trval(15,wpDetectPara->coor_x1_ls3_v));
+        fprintf(fp, "g_awb_para.sw_rawawb_coor_x1_ls3_y =%d;\n", c2trval(15,wpDetectPara->coor_x1_ls3_y));
+        fprintf(fp, "g_awb_para.sw_rawawb_vec_x21_ls3_u =%d;\n", c2trval(15,wpDetectPara->vec_x21_ls3_u));
+        fprintf(fp, "g_awb_para.sw_rawawb_vec_x21_ls3_v =%d;\n", c2trval(15,wpDetectPara->vec_x21_ls3_v));
+        fprintf(fp, "g_awb_para.sw_rawawb_vec_x21_ls3_y =%d;\n", c2trval(15,wpDetectPara->vec_x21_ls3_y));
+        fprintf(fp, "g_awb_para.sw_rawawb_dis_x1x2_ls3 =%d;\n", c2trval(7,wpDetectPara->dis_x1x2_ls3));
+        fprintf(fp, "g_awb_para.sw_rawawb_wt0            =%d;\n",wpDetectPara->wt0      );
+        fprintf(fp, "g_awb_para.sw_rawawb_wt1            =%d;\n",wpDetectPara->wt1      );
+        fprintf(fp, "g_awb_para.sw_rawawb_wt2            =%d;\n",wpDetectPara->wt2      );
+        fprintf(fp, "g_awb_para.sw_rawawb_mat0_x         =%d;\n",c2trval(15,wpDetectPara->mat0_x   ));
+        fprintf(fp, "g_awb_para.sw_rawawb_mat1_x         =%d;\n",c2trval(15,wpDetectPara->mat1_x   ));
+        fprintf(fp, "g_awb_para.sw_rawawb_mat2_x         =%d;\n",c2trval(15,wpDetectPara->mat2_x   ));
+        fprintf(fp, "g_awb_para.sw_rawawb_mat0_y         =%d;\n",c2trval(15,wpDetectPara->mat0_y   ));
+        fprintf(fp, "g_awb_para.sw_rawawb_mat1_y         =%d;\n",c2trval(15,wpDetectPara->mat1_y   ));
+        fprintf(fp, "g_awb_para.sw_rawawb_mat2_y         =%d;\n",c2trval(15,wpDetectPara->mat2_y   ));
+        fprintf(fp, "g_awb_para.sw_rawawb_nor_x0_0       =%d;\n",c2trval(15,wpDetectPara->nor_x0_0 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_nor_x1_0       =%d;\n",c2trval(15,wpDetectPara->nor_x1_0 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_nor_y0_0       =%d;\n",c2trval(15,wpDetectPara->nor_y0_0 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_nor_y1_0       =%d;\n",c2trval(15,wpDetectPara->nor_y1_0 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_big_x0_0       =%d;\n",c2trval(15,wpDetectPara->big_x0_0 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_big_x1_0       =%d;\n",c2trval(15,wpDetectPara->big_x1_0 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_big_y0_0       =%d;\n",c2trval(15,wpDetectPara->big_y0_0 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_big_y1_0       =%d;\n",c2trval(15,wpDetectPara->big_y1_0 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_nor_x0_1       =%d;\n",c2trval(15,wpDetectPara->nor_x0_1 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_nor_x1_1       =%d;\n",c2trval(15,wpDetectPara->nor_x1_1 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_nor_y0_1       =%d;\n",c2trval(15,wpDetectPara->nor_y0_1 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_nor_y1_1       =%d;\n",c2trval(15,wpDetectPara->nor_y1_1 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_big_x0_1       =%d;\n",c2trval(15,wpDetectPara->big_x0_1 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_big_x1_1       =%d;\n",c2trval(15,wpDetectPara->big_x1_1 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_big_y0_1       =%d;\n",c2trval(15,wpDetectPara->big_y0_1 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_big_y1_1       =%d;\n",c2trval(15,wpDetectPara->big_y1_1 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_nor_x0_2       =%d;\n",c2trval(15,wpDetectPara->nor_x0_2 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_nor_x1_2       =%d;\n",c2trval(15,wpDetectPara->nor_x1_2 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_nor_y0_2       =%d;\n",c2trval(15,wpDetectPara->nor_y0_2 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_nor_y1_2       =%d;\n",c2trval(15,wpDetectPara->nor_y1_2 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_big_x0_2       =%d;\n",c2trval(15,wpDetectPara->big_x0_2 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_big_x1_2       =%d;\n",c2trval(15,wpDetectPara->big_x1_2 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_big_y0_2       =%d;\n",c2trval(15,wpDetectPara->big_y0_2 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_big_y1_2       =%d;\n",c2trval(15,wpDetectPara->big_y1_2 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_nor_x0_3       =%d;\n",c2trval(15,wpDetectPara->nor_x0_3 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_nor_x1_3       =%d;\n",c2trval(15,wpDetectPara->nor_x1_3 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_nor_y0_3       =%d;\n",c2trval(15,wpDetectPara->nor_y0_3 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_nor_y1_3       =%d;\n",c2trval(15,wpDetectPara->nor_y1_3 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_big_x0_3       =%d;\n",c2trval(15,wpDetectPara->big_x0_3 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_big_x1_3       =%d;\n",c2trval(15,wpDetectPara->big_x1_3 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_big_y0_3       =%d;\n",c2trval(15,wpDetectPara->big_y0_3 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_big_y1_3       =%d;\n",c2trval(15,wpDetectPara->big_y1_3 ));
+        fprintf(fp, "g_awb_para.sw_rawawb_pre_wbgain_inv_r =%d;\n", wpDetectPara->pre_wbgain_inv_r);
+        fprintf(fp, "g_awb_para.sw_rawawb_pre_wbgain_inv_g =%d;\n", wpDetectPara->pre_wbgain_inv_g);
+        fprintf(fp, "g_awb_para.sw_rawawb_pre_wbgain_inv_b =%d;\n", wpDetectPara->pre_wbgain_inv_b);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow_en =%d;\n", wpDetectPara->multiwindow_en);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow0_h_offs =%d;\n", wpDetectPara->multiwindow0_h_offs);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow0_v_offs =%d;\n", wpDetectPara->multiwindow0_v_offs);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow0_h_size =%d;\n", wpDetectPara->multiwindow0_h_size);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow0_v_size =%d;\n", wpDetectPara->multiwindow0_v_size);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow1_h_offs =%d;\n", wpDetectPara->multiwindow1_h_offs);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow1_v_offs =%d;\n", wpDetectPara->multiwindow1_v_offs);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow1_h_size =%d;\n", wpDetectPara->multiwindow1_h_size);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow1_v_size =%d;\n", wpDetectPara->multiwindow1_v_size);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow2_h_offs =%d;\n", wpDetectPara->multiwindow2_h_offs);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow2_v_offs =%d;\n", wpDetectPara->multiwindow2_v_offs);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow2_h_size =%d;\n", wpDetectPara->multiwindow2_h_size);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow2_v_size =%d;\n", wpDetectPara->multiwindow2_v_size);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow3_h_offs =%d;\n", wpDetectPara->multiwindow3_h_offs);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow3_v_offs =%d;\n", wpDetectPara->multiwindow3_v_offs);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow3_h_size =%d;\n", wpDetectPara->multiwindow3_h_size);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow3_v_size =%d;\n", wpDetectPara->multiwindow3_v_size);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region0_excen0 =%d;\n", wpDetectPara->exc_wp_region0_excen&0x1);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region0_excen1 =%d;\n", wpDetectPara->exc_wp_region0_excen&0x2>>1);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region0_measen =%d;\n", wpDetectPara->exc_wp_region0_measen);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region0_domain =%d;\n", wpDetectPara->exc_wp_region0_domain);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region0_weight =%d;\n", wpDetectPara->exc_wp_region0_weight);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region0_xu0 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region0_xu0));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region0_xu1 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region0_xu1));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region0_yv0 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region0_yv0));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region0_yv1 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region0_yv1));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region1_excen0 =%d;\n", wpDetectPara->exc_wp_region1_excen&0x1);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region1_excen1 =%d;\n", wpDetectPara->exc_wp_region1_excen&0x2>>1);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region1_measen =%d;\n", wpDetectPara->exc_wp_region1_measen);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region1_domain =%d;\n", wpDetectPara->exc_wp_region1_domain);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region1_weight =%d;\n", wpDetectPara->exc_wp_region1_weight);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region1_xu0 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region1_xu0));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region1_xu1 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region1_xu1));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region1_yv0 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region1_yv0));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region1_yv1 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region1_yv1));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region2_excen0 =%d;\n", wpDetectPara->exc_wp_region2_excen&0x1);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region2_excen1 =%d;\n", wpDetectPara->exc_wp_region2_excen&0x2>>1);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region2_measen =%d;\n", wpDetectPara->exc_wp_region2_measen);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region2_domain =%d;\n", wpDetectPara->exc_wp_region2_domain);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region2_weight =%d;\n", wpDetectPara->exc_wp_region2_weight);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region2_xu0 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region2_xu0));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region2_xu1 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region2_xu1));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region2_yv0 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region2_yv0));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region2_yv1 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region2_yv1));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region3_excen0 =%d;\n", wpDetectPara->exc_wp_region3_excen&0x1);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region3_excen1 =%d;\n", wpDetectPara->exc_wp_region3_excen&0x2>>1);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region3_measen =%d;\n", wpDetectPara->exc_wp_region3_measen);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region3_domain =%d;\n", wpDetectPara->exc_wp_region3_domain);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region3_weight =%d;\n", wpDetectPara->exc_wp_region3_weight);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region3_xu0 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region3_xu0));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region3_xu1 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region3_xu1));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region3_yv0 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region3_yv0));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region3_yv1 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region3_yv1));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region4_excen0 =%d;\n", wpDetectPara->exc_wp_region4_excen&0x1);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region4_excen1 =%d;\n", wpDetectPara->exc_wp_region4_excen&0x2>>1);
+        //fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region4_measen =%d;\n", wpDetectPara->exc_wp_region4_measen);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region4_domain =%d;\n", wpDetectPara->exc_wp_region4_domain);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region4_weight =%d;\n", wpDetectPara->exc_wp_region4_weight);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region4_xu0 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region4_xu0));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region4_xu1 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region4_xu1));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region4_yv0 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region4_yv0));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region4_yv1 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region4_yv1));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region5_excen0 =%d;\n", wpDetectPara->exc_wp_region5_excen&0x1);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region5_excen1 =%d;\n", wpDetectPara->exc_wp_region5_excen&0x2>>1);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region5_weight =%d;\n", wpDetectPara->exc_wp_region5_weight);
+        //fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region5_measen =%d;\n", wpDetectPara->exc_wp_region5_measen);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region5_domain =%d;\n", wpDetectPara->exc_wp_region5_domain);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region5_xu0 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region5_xu0));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region5_xu1 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region5_xu1));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region5_yv0 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region5_yv0));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region5_yv1 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region5_yv1));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region6_excen0 =%d;\n", wpDetectPara->exc_wp_region6_excen&0x1);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region6_excen1 =%d;\n", wpDetectPara->exc_wp_region6_excen&0x2>>1);
+        //fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region6_measen =%d;\n", wpDetectPara->exc_wp_region6_measen);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region6_domain =%d;\n", wpDetectPara->exc_wp_region6_domain);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region6_weight =%d;\n", wpDetectPara->exc_wp_region6_weight);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region6_xu0 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region6_xu0));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region6_xu1 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region6_xu1));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region6_yv0 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region6_yv0));
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region6_yv1 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region6_yv1));
+
+        fprintf(fp, "g_awb_para.sw_rawawb_wp_luma_weicurve_y0 =%d;\n", wpDetectPara->wp_luma_weicurve_y0);
+        fprintf(fp, "g_awb_para.sw_rawawb_wp_luma_weicurve_y1 =%d;\n", wpDetectPara->wp_luma_weicurve_y1);
+        fprintf(fp, "g_awb_para.sw_rawawb_wp_luma_weicurve_y2 =%d;\n", wpDetectPara->wp_luma_weicurve_y2);
+        fprintf(fp, "g_awb_para.sw_rawawb_wp_luma_weicurve_y3 =%d;\n", wpDetectPara->wp_luma_weicurve_y3);
+        fprintf(fp, "g_awb_para.sw_rawawb_wp_luma_weicurve_y4 =%d;\n", wpDetectPara->wp_luma_weicurve_y4);
+        fprintf(fp, "g_awb_para.sw_rawawb_wp_luma_weicurve_y5 =%d;\n", wpDetectPara->wp_luma_weicurve_y5);
+        fprintf(fp, "g_awb_para.sw_rawawb_wp_luma_weicurve_y6 =%d;\n", wpDetectPara->wp_luma_weicurve_y6);
+        fprintf(fp, "g_awb_para.sw_rawawb_wp_luma_weicurve_y7 =%d;\n", wpDetectPara->wp_luma_weicurve_y7);
+        fprintf(fp, "g_awb_para.sw_rawawb_wp_luma_weicurve_y8 =%d;\n", wpDetectPara->wp_luma_weicurve_y8);
+        fprintf(fp, "g_awb_para.sw_rawawb_wp_luma_weicurve_w0 =%d;\n", wpDetectPara->wp_luma_weicurve_w0);
+        fprintf(fp, "g_awb_para.sw_rawawb_wp_luma_weicurve_w1 =%d;\n", wpDetectPara->wp_luma_weicurve_w1);
+        fprintf(fp, "g_awb_para.sw_rawawb_wp_luma_weicurve_w2 =%d;\n", wpDetectPara->wp_luma_weicurve_w2);
+        fprintf(fp, "g_awb_para.sw_rawawb_wp_luma_weicurve_w3 =%d;\n", wpDetectPara->wp_luma_weicurve_w3);
+        fprintf(fp, "g_awb_para.sw_rawawb_wp_luma_weicurve_w4 =%d;\n", wpDetectPara->wp_luma_weicurve_w4);
+        fprintf(fp, "g_awb_para.sw_rawawb_wp_luma_weicurve_w5 =%d;\n", wpDetectPara->wp_luma_weicurve_w5);
+        fprintf(fp, "g_awb_para.sw_rawawb_wp_luma_weicurve_w6 =%d;\n", wpDetectPara->wp_luma_weicurve_w6);
+        fprintf(fp, "g_awb_para.sw_rawawb_wp_luma_weicurve_w7 =%d;\n", wpDetectPara->wp_luma_weicurve_w7);
+        fprintf(fp, "g_awb_para.sw_rawawb_wp_luma_weicurve_w8 =%d;\n", wpDetectPara->wp_luma_weicurve_w8);
+
+        for (int i = 0; i < ISP39_RAWAWB_WEIGHT_NUM; i++) {
+            fprintf(fp, "g_awb_para.sw_rawawb_wp_blk_wei_w[%d]    =%d;\n",i,wpDetectPara->wp_blk_wei_w[i] );
+        }
+
+        fprintf(fp, "g_awb_para.sw_rawawb_blk_rtdw_measure_en =%d;\n", wpDetectPara->blk_rtdw_measure_en);
+        fprintf(fp, "g_awb_para.sw_rawawb_rshift_to_12bit_en =%d;\n", wpDetectPara->in_rshift_to_12bit_en);
+        fprintf(fp, "g_awb_para.sw_rawawb_in_overexposure_check_en = %d;\n", wpDetectPara->in_overexposure_check_en);
+        fprintf(fp, "g_awb_para.sw_rawawb_in_overexposure_thr =%d;\n", wpDetectPara->in_overexposure_threshold);
+        fprintf(fp, "g_awb_para.esw_rawawbin_low12bit_val =%d;\n", wpDetectPara->low12bit_val);
+        fprintf(fp, "g_awb_para.sw_drc2awb_sel_en =%d;\n", wpDetectPara->drc2awb_sel);
+        fprintf(fp, "g_awb_para.sw_bnr2awb_sel_en =%d;\n", wpDetectPara->bnr2awb_sel);
+        fprintf(fp, "g_awb_para.sw_3a_rawawb_sel =%d;\n", wpDetectPara->rawawb_sel);
+        fprintf(fp, "g_awb_para.sw_bls_en =%d;\n", wpDetectPara->bls2_en);
+        fprintf(fp, "g_awb_para.sw_bls_a_fixed =%d;\n", wpDetectPara->bls2_val.r);
+        fprintf(fp, "g_awb_para.sw_bls_b_fixed =%d;\n", wpDetectPara->bls2_val.gr);
+        fprintf(fp, "g_awb_para.sw_bls_c_fixed =%d;\n", wpDetectPara->bls2_val.gb);
+        fprintf(fp, "g_awb_para.sw_bls_d_fixed =%d;\n", wpDetectPara->bls2_val.b);
+
+
+        fclose(fp);
+    }
+
+#endif
+}
+
 static void calcInputBitIs12Bit(uint8_t* inputBitIs12Bit, const awbStats_cfg_t* awb_meas,
                                 int working_mode, bool ablc_en, float isp_ob_predgain) {
     // inputShiftEnable is true for 20bit ipnut ,for CALIB_AWB_INPUT_BAYERNR + (hdr case  or
@@ -1480,6 +1864,7 @@ static void convertAiqAwbToIsp39Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_
     awb_cfg_v32->blk_rtdw_measure_en = 0;
 
     WriteAwbReg(awb_cfg_v32);
+    WriteDataForIcCmodel(awb_cfg_v32);
 }
 #endif
 #if RKAIQ_HAVE_AF_V33 || RKAIQ_ONLY_AF_STATS_V33
@@ -1798,36 +2183,16 @@ static void convertAiqBtnrToIsp39Params(AiqIspParamsCvt_t* pCvt, aiq_params_base
 
 #if RKAIQ_HAVE_YNR_V24
 static void convertAiqYnrToIsp39Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase) {
-    if (pCvt->mCommonCvtInfo.cnr_path_valid) {
-        if (pBase->en) {
-            pCvt->isp_params.isp_cfg->module_ens |= ISP3X_MODULE_YNR;
-            pCvt->isp_params.isp_cfg->module_en_update |= ISP3X_MODULE_YNR;
-            pCvt->isp_params.isp_cfg->module_cfg_update |= ISP3X_MODULE_YNR;
-        }
-        else {
-            pCvt->isp_params.isp_cfg->module_ens &= ~ISP3X_MODULE_YNR;
-            pCvt->isp_params.isp_cfg->module_en_update |= ISP3X_MODULE_YNR;
-            pCvt->isp_params.isp_cfg->module_cfg_update |= ISP3X_MODULE_YNR;
-            return;
-        }
-        pCvt->mCommonCvtInfo.ynr_count = 0;
+    if (pBase->en) {
+        pCvt->isp_params.isp_cfg->module_ens |= ISP3X_MODULE_YNR;
+        pCvt->isp_params.isp_cfg->module_en_update |= ISP3X_MODULE_YNR;
+        pCvt->isp_params.isp_cfg->module_cfg_update |= ISP3X_MODULE_YNR;
     }
     else {
-        if (pCvt->mCommonCvtInfo.ynr_count> 0 && pCvt->mCommonCvtInfo.ynr_count < 5)
-            LOGW_ANR("ynr, cnr, and sharp cannot be enabled individually. they must be enabled together");
-        else if (pCvt->mCommonCvtInfo.ynr_count> 0 && pCvt->mCommonCvtInfo.ynr_count % 300 == 0) {
-            LOGW_ANR("ynr, cnr, and sharp cannot be enabled individually. they must be enabled together");
-        }
-        pCvt->mCommonCvtInfo.ynr_count++;
-        if (!pBase->en) {
-            pBase->bypass = 1;
-            LOGW_ANR("ynr must be disabled together with cnr and sharp.");
-        }
-        if (pCvt->mCommonCvtInfo.isFirstFrame) {
-            pCvt->isp_params.isp_cfg->module_ens |= ISP3X_MODULE_YNR;
-            pCvt->isp_params.isp_cfg->module_en_update |= ISP3X_MODULE_YNR;
-        }
+        pCvt->isp_params.isp_cfg->module_ens &= ~ISP3X_MODULE_YNR;
+        pCvt->isp_params.isp_cfg->module_en_update |= ISP3X_MODULE_YNR;
         pCvt->isp_params.isp_cfg->module_cfg_update |= ISP3X_MODULE_YNR;
+        return;
     }
 
     if(pBase->bypass){
@@ -1843,26 +2208,15 @@ static void convertAiqYnrToIsp39Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_
 
 #if (RKAIQ_HAVE_CNR_V31)
 static void convertAiqCnrToIsp39Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase) {
-    if (pCvt->mCommonCvtInfo.cnr_path_valid) {
-        if (pBase->en) {
-            pCvt->isp_params.isp_cfg->module_ens |= ISP3X_MODULE_CNR;
-            pCvt->isp_params.isp_cfg->module_en_update |= ISP3X_MODULE_CNR;
-            pCvt->isp_params.isp_cfg->module_cfg_update |= ISP3X_MODULE_CNR;
-        }
-        else {
-            pCvt->isp_params.isp_cfg->module_ens &= ~ISP3X_MODULE_CNR;
-            pCvt->isp_params.isp_cfg->module_en_update |= ISP3X_MODULE_CNR;
-            return;
-        }
-    }
-    else {
-        if (!pBase->en) {
-            LOGW_ANR("cnr must be disabled together with ynr and sharp, "
-            "so you can set cnr.hiNr_bifilt.bifiltOut_alpha.");
-        }
+    if (pBase->en) {
         pCvt->isp_params.isp_cfg->module_ens |= ISP3X_MODULE_CNR;
         pCvt->isp_params.isp_cfg->module_en_update |= ISP3X_MODULE_CNR;
         pCvt->isp_params.isp_cfg->module_cfg_update |= ISP3X_MODULE_CNR;
+    }
+    else {
+        pCvt->isp_params.isp_cfg->module_ens &= ~ISP3X_MODULE_CNR;
+        pCvt->isp_params.isp_cfg->module_en_update |= ISP3X_MODULE_CNR;
+        return;
     }
 
     if (pBase->bypass) {
@@ -1995,39 +2349,17 @@ void convertAiqCcmToIsp39Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBas
 
 #if (RKAIQ_HAVE_SHARP_V34)
 static void convertAiqSharpToIsp39Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase) {
-    if (pCvt->mCommonCvtInfo.cnr_path_valid) {
-        if (pBase->en) {
-            pCvt->isp_params.isp_cfg->module_ens |= ISP3X_MODULE_SHARP;
-            pCvt->isp_params.isp_cfg->module_en_update |= ISP3X_MODULE_SHARP;
-            pCvt->isp_params.isp_cfg->module_cfg_update |= ISP3X_MODULE_SHARP;
-        }
-        else {
-            pCvt->isp_params.isp_cfg->module_ens &= ~ISP3X_MODULE_SHARP;
-            pCvt->isp_params.isp_cfg->module_en_update |= ISP3X_MODULE_SHARP;
-            pCvt->isp_params.isp_cfg->module_cfg_update |= ISP3X_MODULE_SHARP;
-            return;
-        }
-        pCvt->mCommonCvtInfo.sharp_count = 0;
-    }
-    else {
-        if (pCvt->mCommonCvtInfo.sharp_count>0 && pCvt->mCommonCvtInfo.sharp_count < 5)
-            LOGW_ASHARP("ynr, cnr, and sharp cannot be enabled individually. they must be enabled together");
-        else if(pCvt->mCommonCvtInfo.sharp_count>0 && pCvt->mCommonCvtInfo.sharp_count % 300 == 0){
-            LOGW_ASHARP("ynr, cnr, and sharp cannot be enabled individually. they must be enabled together");
-        }
-        pCvt->mCommonCvtInfo.sharp_count++;
-        if (!pBase->en) {
-            pBase->bypass = 1;
-            LOGW_ASHARP("sharp must be disabled together with ynr and cnr, "
-            "so bypass sharp instead by sharp.bypass.");
-        }
-        if (pCvt->mCommonCvtInfo.isFirstFrame) {
-            pCvt->isp_params.isp_cfg->module_ens |= ISP3X_MODULE_SHARP;
-            pCvt->isp_params.isp_cfg->module_en_update |= ISP3X_MODULE_SHARP;
-        }
+    if (pBase->en) {
+        pCvt->isp_params.isp_cfg->module_ens |= ISP3X_MODULE_SHARP;
+        pCvt->isp_params.isp_cfg->module_en_update |= ISP3X_MODULE_SHARP;
         pCvt->isp_params.isp_cfg->module_cfg_update |= ISP3X_MODULE_SHARP;
     }
-
+    else {
+        pCvt->isp_params.isp_cfg->module_ens &= ~ISP3X_MODULE_SHARP;
+        pCvt->isp_params.isp_cfg->module_en_update |= ISP3X_MODULE_SHARP;
+        pCvt->isp_params.isp_cfg->module_cfg_update |= ISP3X_MODULE_SHARP;
+        return;
+    }
     pCvt->isp_params.isp_cfg->others.sharp_cfg.bypass = pBase->bypass;
 
     rk_aiq_sharp34_params_cvt(pBase->_data, &pCvt->isp_params, &pCvt->mCommonCvtInfo);

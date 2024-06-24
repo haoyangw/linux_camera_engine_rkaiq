@@ -20,10 +20,16 @@
 
 #include "xcore/base/xcam_common.h"
 
+#ifdef  __cplusplus
+extern "C" {
+#endif
 void sample_print_ablc_info(const void *arg);
 XCamReturn sample_ablc_module(const void* arg);
 #ifdef USE_NEWSTRUCT
 void sample_new_blc(const rk_aiq_sys_ctx_t* ctx);
+#endif
+#ifdef  __cplusplus
+}
 #endif
 #endif
 

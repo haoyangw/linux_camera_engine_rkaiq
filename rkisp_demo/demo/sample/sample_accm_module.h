@@ -20,6 +20,9 @@
 
 #include "xcore/base/xcam_common.h"
 
+#ifdef  __cplusplus
+extern "C" {
+#endif
 void sample_print_accm_info(const void *arg);
 XCamReturn sample_accm_module(const void *arg);
 void sample_print_accm_v2_info(const void *arg);
@@ -29,5 +32,8 @@ XCamReturn sample_accm_v3_module(const void* arg);
 int sample_ccm_test(const rk_aiq_sys_ctx_t* ctx);
 int sample_query_ccm_status(const rk_aiq_sys_ctx_t* ctx);
 int sample_ccm_setCalib_test(const rk_aiq_sys_ctx_t* ctx);
+#endif
+#ifdef  __cplusplus
+}
 #endif
 #endif

@@ -523,6 +523,7 @@ typedef struct btnr_subDeepLoMd_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP_CTRL(dLoSrc_mode_group),
         M4_GROUP(largeLoMd_en_group),
         M4_NOTES(which channel thumbs that the Large low motion detection use.\n
         Freq of use: low))  */
@@ -1253,6 +1254,7 @@ typedef struct btnr_preSpNr_sigma_dyn_s {
        M4_HIDE_EX(0),
        M4_RO(0),
        M4_ORDER(0),
+       M4_GROUP_CTRL(preSpnrSigmaMode_group),
        M4_NOTES(TODO.\n
        Freq of use: low))  */
     // reg: hw_btnr_spnrPreSigmaUse_en
@@ -1267,6 +1269,7 @@ typedef struct btnr_preSpNr_sigma_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(preSpnrSigmaMode_group:btnr_preLutSgmMix_mode),
         M4_NOTES(The scaling factor for the range sigma of the bilateral filter.\n
         Freq of use: low))  */
     // reg: sw_pre_sig_ctrl_scl
@@ -2267,7 +2270,6 @@ typedef struct btnr_preSpnr_hiNrLP_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_GROUP_CTRL(dbgOut_en_group),
         M4_NOTES(IIR frame high freq bilafilter low power mode enable.\n
         Freq of use: low))  */
     // reg: (hw_preHi_bf_lp_en)
@@ -2279,7 +2281,7 @@ typedef struct btnr_preSpnr_hiNrLP_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_GROUP_CTRL(dbgOut_en_group),
+        M4_GROUP_CTRL(gicLP_en_group),
         M4_NOTES(IIR frame high freq green imbanlace correction low power mode enable.\n
         Freq of use: low))  */
     // reg: (hw_preHi_gic_lp_en)
@@ -2294,7 +2296,7 @@ typedef struct btnr_preSpnr_loNrLP_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_GROUP_CTRL(dbgOut_en_group),
+        M4_GROUP_CTRL(avgRgeWgtLP_en_group),
         M4_NOTES(IIR frame low freq channel averge low power mode enable.\n
         Freq of use: low))  */
     // reg: (hw_preLo_avg_lp_en)
@@ -2478,7 +2480,7 @@ typedef struct btnr_md_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_GROUP(md_en_group;loMd_en_group),
+        M4_GROUP(md_en_group;loMd_en_group;loMd_mode_group:btnr_allSubLoMdMix_mode|btnr_subDeepLoMdOnly_mode),
         M4_NOTES(TODO))  */
     btnr_subDeepLoMd_dyn_t subDeepLoMd;
     /* M4_GENERIC_DESC(

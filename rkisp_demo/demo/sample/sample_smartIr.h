@@ -20,7 +20,13 @@
 
 #include "xcore/base/xcam_common.h"
 
+#ifdef  __cplusplus
+extern "C" {
+#endif
 void sample_print_smartIr_info(const void *arg);
 XCamReturn sample_smartIr_module(const void *arg);
+#ifdef  __cplusplus
+}
+#endif
 
 #endif

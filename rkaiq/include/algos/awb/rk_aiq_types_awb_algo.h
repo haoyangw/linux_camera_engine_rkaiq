@@ -26,7 +26,11 @@
 #include "algos/awb/rk_aiq_types_awb_stat_v200.h"
 #include "algos/awb/rk_aiq_types_awb_stat_v201.h"
 #include "algos/awb/rk_aiq_types_awb_stat_v32.h"
-
+#if defined(ISP_HW_V39)
+#include "isp/rk_aiq_stats_awb39.h"
+#elif defined(ISP_HW_V33)
+#include "isp/rk_aiq_stats_awb33.h"
+#endif
 typedef struct rk_aiq_wb_gain_s {
     float rgain;
     float grgain;

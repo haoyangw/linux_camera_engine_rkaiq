@@ -569,7 +569,7 @@ XCamReturn Asharp_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
         need_recal = true;
     }
 
-    outparams->cfg_update = true;
+    outparams->cfg_update = false;
     if (need_recal) {
         sharp_res->sta = pCtx->sharp_attrib->stAuto.sta;
 #if RKAIQ_HAVE_SHARP_V34

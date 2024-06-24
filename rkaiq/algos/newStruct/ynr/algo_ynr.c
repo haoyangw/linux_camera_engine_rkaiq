@@ -281,7 +281,7 @@ static void ynr_init_params_json_V24(ynr_api_attrib_t *attrib) {
                 } else {
                     pdyn->hw_ynrC_luma2Sigma_curve.idx[i] <<= ABS(bit_shift);
                 }
-                uint16_t tmp = pdyn->hw_ynrC_luma2Sigma_curve.val[i];
+                uint16_t tmp = pdyn->hw_ynrC_luma2Sigma_curve.val[i] * pdyn->coeff2SgmCurve.lowFreqCoeff;
                 pdyn->hw_ynrC_luma2Sigma_curve.val[i] = tmp;
             }
         }
@@ -464,33 +464,33 @@ static void ynr_init_params_json_V40(ynr_api_attrib_t *attrib) {
     // read noise sigma curve data and ci
     for (j = 0; j < 13; j++) {
         ynr_params_dyn_t* pdyn = &(attrib->stAuto.dyn[j]);
-
-        for (k = 0; k < 5; k++) {
-            tmpYnrCurve[k] = (float)pdyn->sigmaEnv.coeff2SgmCurve.sigma_coeff[k];
-        }
-
-        pYnrCurve = tmpYnrCurve;
-
-        // get noise sigma sample data at [0, 64, 128, ... , 1024]
-        for (i = 0; i < YNR_V30_ISO_CURVE_POINT_NUM; i++)
-        {
-            if (i == (YNR_V30_ISO_CURVE_POINT_NUM - 1)) {
-                ave1 = (float)isoCurveSectValue1;
+        if(pdyn->sigmaEnv.sw_ynrCfg_sgmCurve_mode == ynr_cfgByCoeff2Curve_mode) {
+            for (k = 0; k < 5; k++) {
+                tmpYnrCurve[k] = (float)pdyn->sigmaEnv.coeff2SgmCurve.sigma_coeff[k];
             }
-            else {
-                ave1 = (float)(i * isoCurveSectValue);
-            }
-            pdyn->sigmaEnv.hw_ynrC_luma2Sigma_curve.idx[i] = (short)ave1;
-            ave2 = ave1 * ave1;
-            ave3 = ave2 * ave1;
-            ave4 = ave3 * ave1;
-            uint16_t tmp = pYnrCurve[0] * ave4 + pYnrCurve[1] * ave3 + pYnrCurve[2] * ave2 + pYnrCurve[3] * ave1 + pYnrCurve[4];
-            pdyn->sigmaEnv.hw_ynrC_luma2Sigma_curve.val[i] = tmp;
 
-            if (bit_shift > 0) {
-                pdyn->sigmaEnv.hw_ynrC_luma2Sigma_curve.idx[i] >>= bit_shift;
-            } else {
-                pdyn->sigmaEnv.hw_ynrC_luma2Sigma_curve.idx[i] <<= ABS(bit_shift);
+            pYnrCurve = tmpYnrCurve;
+
+            // get noise sigma sample data at [0, 64, 128, ... , 1024]
+            for (i = 0; i < YNR_V30_ISO_CURVE_POINT_NUM; i++) {
+                if (i == (YNR_V30_ISO_CURVE_POINT_NUM - 1)) {
+                    ave1 = (float)isoCurveSectValue1;
+                }
+                else {
+                    ave1 = (float)(i * isoCurveSectValue);
+                }
+                pdyn->sigmaEnv.hw_ynrC_luma2Sigma_curve.idx[i] = (short)ave1;
+                ave2 = ave1 * ave1;
+                ave3 = ave2 * ave1;
+                ave4 = ave3 * ave1;
+                uint16_t tmp = pYnrCurve[0] * ave4 + pYnrCurve[1] * ave3 + pYnrCurve[2] * ave2 + pYnrCurve[3] * ave1 + pYnrCurve[4];
+                pdyn->sigmaEnv.hw_ynrC_luma2Sigma_curve.val[i] = tmp * pdyn->sigmaEnv.coeff2SgmCurve.lowFreqCoeff;
+
+                if (bit_shift > 0) {
+                    pdyn->sigmaEnv.hw_ynrC_luma2Sigma_curve.idx[i] >>= bit_shift;
+                } else {
+                    pdyn->sigmaEnv.hw_ynrC_luma2Sigma_curve.idx[i] <<= ABS(bit_shift);
+                }
             }
         }
     } //  read noise sigma curve data and ci

@@ -18,7 +18,13 @@
 #ifndef _SAMPLE_ALDC_MODULE_H_
 #define _SAMPLE_ALDC_MODULE_H_
 
+#ifdef  __cplusplus
+extern "C" {
+#endif
 void sample_print_aldc_info(const void *arg);
 XCamReturn sample_aldc_module (const void *arg);
+#ifdef  __cplusplus
+}
+#endif
 
 #endif

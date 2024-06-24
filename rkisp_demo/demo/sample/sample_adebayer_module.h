@@ -18,9 +18,15 @@
 #ifndef _SAMPLE_ADEBAYER_MODULE_H_
 #define _SAMPLE_ADEBAYER_MODULE_H_
 
+#ifdef  __cplusplus
+extern "C" {
+#endif
 void sample_print_adebayer_info(const void *arg);
 XCamReturn sample_adebayer_module(const void* arg);
 #ifdef USE_NEWSTRUCT
 void sample_dm_test(const rk_aiq_sys_ctx_t* ctx);
+#endif
+#ifdef  __cplusplus
+}
 #endif
 #endif

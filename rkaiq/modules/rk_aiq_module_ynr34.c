@@ -120,22 +120,13 @@ void rk_aiq_ynr34_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
 
     // YNR_2700_SGM_DX (0x0040 ~ 0x0060)
     // YNR_2700_luma2sima_val (0x0070 ~ 0x0060)
-
-    if (pdyn->sw_ynrCfg_sgmCurve_mode == ynr_cfgByCoeff2Curve_mode) {
-        for (int i = 0; i < YNR_V24_ISO_CURVE_POINT_NUM; i++) {
-            tmp                    = pdyn->hw_ynrC_luma2Sigma_curve.idx[i];
-            pFix->luma2sima_idx[i] = CLIP(tmp, 0, 0x400);
-            tmp                    = (int)(pdyn->hw_ynrC_luma2Sigma_curve.val[i]  * (1 << YNR_V24_NOISE_SIGMA_FIX_BIT)) * pdyn->coeff2SgmCurve.lowFreqCoeff;
-            pFix->luma2sima_val[i] = CLIP(tmp, 0, 0xfff);
-        }
-    } else {
-        for (int i = 0; i < YNR_V24_ISO_CURVE_POINT_NUM; i++) {
-            tmp                    = pdyn->hw_ynrC_luma2Sigma_curve.idx[i];
-            pFix->luma2sima_idx[i] = CLIP(tmp, 0, 0x400);
-            tmp                    = (int)(pdyn->hw_ynrC_luma2Sigma_curve.val[i]  * (1 << YNR_V24_NOISE_SIGMA_FIX_BIT));
-            pFix->luma2sima_val[i] = CLIP(tmp, 0, 0xfff);
-        }
+    for (int i = 0; i < YNR_V24_ISO_CURVE_POINT_NUM; i++) {
+        tmp                    = pdyn->hw_ynrC_luma2Sigma_curve.idx[i];
+        pFix->luma2sima_idx[i] = CLIP(tmp, 0, 0x400);
+        tmp                    = (int)(pdyn->hw_ynrC_luma2Sigma_curve.val[i]  * (1 << YNR_V24_NOISE_SIGMA_FIX_BIT));
+        pFix->luma2sima_val[i] = CLIP(tmp, 0, 0xfff);
     }
+
 
     // YNR_2700_RNR_STRENGTH03 (0x00d0- 0x00e0)
     for (int i = 0; i < 17; i++) {

@@ -133,8 +133,8 @@ void _customAwbRes2rkAwbRes( RkAiqAlgoProcResAwb* rkAwbProcRes,rk_aiq_customeAwb
     rkAwbProcRes->awbConverged = customAwbProcRes->IsConverged;
     memcpy(rkAwbProcRes->awb_gain_algo, &customAwbProcRes->awb_gain_algo, sizeof(rk_aiq_wb_gain_t));
     rkAwbProcRes->awb_smooth_factor = customAwbProcRes->awb_smooth_factor;
-    rkAwbProcRes->awb_hw39_para->com=  customAwbProcRes->awbHwConfig;
-    rkAwbProcRes->awb_hw39_para->mode = AWB_CFG_MODE_ThP;
+    rkAwbProcRes->awb_hw_cfg_priv->com=  customAwbProcRes->awbHwConfig;
+    rkAwbProcRes->awb_hw_cfg_priv->mode = AWB_CFG_MODE_ThP;
     rkAwbProcRes->awb_cfg_update = true;
     rkAwbProcRes->awb_gain_update= true;
 }

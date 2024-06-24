@@ -18,6 +18,12 @@
 #ifndef _SAMPLE_IMAGE_PROCESS_H_
 #define _SAMPLE_IMAGE_PROCESS_H_
 
+#ifdef  __cplusplus
+extern "C" {
+#endif
 XCamReturn sample_main (const void *arg);
+#ifdef  __cplusplus
+}
+#endif
 
 #endif

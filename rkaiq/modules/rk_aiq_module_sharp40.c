@@ -394,7 +394,7 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
         float constant_coeff                    = sqrt(log2(exp(1)));
         uint16_t *vsigma = pdyn->detailShp.sgmEnv.sw_shpC_luma2Sigma_curve.val;
         float preBifilt_scale = pdyn->detailShp.detailExtra_preBifilt.sw_shpT_rgeSgm_scale;
-        uint8_t preBifilt_offset = pdyn->detailShp.detailExtra_preBifilt.sw_shpT_rgeSgm_offset;
+        uint16_t preBifilt_offset = pdyn->detailShp.detailExtra_preBifilt.sw_shpT_rgeSgm_offset;
         float preBifilt_slope = pdyn->detailShp.detailExtra_preBifilt.hw_shpT_rgeWgt_slope;
         int preBifilt_vsigma_inv[8];
         for(int i = 0; i < 8; i++) {
@@ -623,7 +623,11 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
                 edgeWgt_val[i] = pdyn->edgeShp.locShpStrg_edge.hw_shpT_edgeStrg_val[i];
             }
         } else {
-            // TODO:
+            float power                         = pdyn->edgeShp.locShpStrg_edge.edgeStrgCurveCtrl.sw_shpT_curvePower_val;
+            float edgeWgt_minLimit              = pdyn->edgeShp.locShpStrg_edge.edgeStrgCurveCtrl.sw_shpT_edgeStrg_minLimit;
+            for (i = 0; i < 17; i++) {
+                edgeWgt_val[i] = MIN(1023, edgeWgt_minLimit + ROUND_F(1024 * (1 - pow(1 - pow(i * 0.0625f, power), power))));
+            }
         }
         // REG: EDGE_WGT_VAL0
         pCfg->edge_wgt_val[0] = CLIP(edgeWgt_val[0], 0, 0x3ff);
@@ -965,7 +969,7 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
 
     // REG: LOSSTEXINHINR_STRG
     tmp = (pdyn->dHfDetailShp.glbShpStrg.hw_shpT_dHiDetail_strg) * (1 << 2);
-    pCfg->loss_tex_in_hinr_strg = CLIP(tmp, 0, 0x7f);
+    pCfg->loss_tex_in_hinr_strg = CLIP(tmp, 0, 0x3f);
 
     // REG: NOISE_CURVE8
     tmp = (pTexDyn->noiseEst.hw_texEstT_nsStatsCntThd_ratio) * (1 << 10);

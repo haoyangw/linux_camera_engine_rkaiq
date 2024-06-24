@@ -32,8 +32,9 @@
 #include "uAPI2/rk_aiq_user_api2_ae.h"
 #include "uAPI2/rk_aiq_user_ae_thread_v25_itf.h"
 #include "isp/rk_aiq_stats_aeStats25.h"
-
-
+#include "uAPI2/rk_aiq_user_api2_custom2_awb.h"
+#include "isp/awb_head2.h"
+#include "uAPI2/rk_aiq_user_api2_awb_v3.h"
 #include "isp/rk_aiq_stats_af33.h"
 #include "uAPI2/rk_aiq_user_api2_af.h"
 
@@ -89,6 +90,5 @@
 #include "uAPI2/rk_aiq_user_api2_3dlut.h"
 #include "isp/rk_aiq_isp_ccm22.h"
 #include "uAPI2/rk_aiq_user_api2_ccm.h"
-#include "isp/awb_head2.h"
-#include "uAPI2/rk_aiq_user_api2_awb_v3.h"
+
 #endif

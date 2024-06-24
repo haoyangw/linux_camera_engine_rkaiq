@@ -23,6 +23,9 @@
 #cmakedefine01 RKAIQ_HAVE_AWB_V32LT
 #endif
 #cmakedefine01 RKAIQ_HAVE_AWB_V39
+#if RKAIQ_HAVE_AWB_V39
+#cmakedefine01 RKAIQ_HAVE_AWB_V33
+#endif
 #cmakedefine01 RKAIQ_HAVE_AWB_V32
 #cmakedefine01 RKAIQ_HAVE_AWB_V21
 #cmakedefine01 RKAIQ_HAVE_AWB_V20

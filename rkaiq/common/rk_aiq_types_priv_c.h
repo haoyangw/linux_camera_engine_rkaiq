@@ -29,8 +29,14 @@
 #include "common/rkisp21-config.h"
 #include "common/rkisp3-config.h"
 #include "common/rkisp32-config.h"
-#include "include/isp/rk_aiq_isp_gic21.h"
 #include "xcore_c/aiq_video_buffer.h"
+#if defined(ISP_HW_V39)
+typedef awbStats_cfg_priv_t rk_aiq_isp_awb_meas_cfg_v39_t;
+typedef awbStats_stats_priv_t rk_aiq_isp_awb_stats_v39_t;
+#elif defined(ISP_HW_V33)
+typedef awbStats_cfg_priv_t rk_aiq_isp_awb_meas_cfg_v33_t;
+typedef awbStats_stats_priv_t rk_aiq_isp_awb_stats_v39_t;
+#endif
 
 typedef rk_aiq_isp_aec_meas_t rk_aiq_isp_aec_params_t;
 typedef rk_aiq_isp_hist_meas_t rk_aiq_isp_hist_params_t;
@@ -101,7 +107,7 @@ struct aiq_params_base_s {
             bool en;
             bool bypass;
         } __attribute__ ((packed));
-        char aligned[4]; // for aligned to 4 
+        char aligned[4]; // for aligned to 4
     };
     uint32_t frame_id;
     uint32_t sync_flag;
@@ -206,7 +212,7 @@ typedef struct aiq_isp_effect_params_s {
     struct isp33_isp_meas_cfg meas;
     struct isp32_bls_cfg bls_cfg;
     struct isp32_awb_gain_cfg awb_gain_cfg;
-    awbStats_cfg_priv_t awb_cfg_v39;
+    awbStats_cfg_priv_t awb_cfg_v33;
 #if defined(USE_NEWSTRUCT)
     aeStats_cfg_t ae_cfg_v39;
 #endif

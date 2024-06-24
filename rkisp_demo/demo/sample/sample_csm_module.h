@@ -20,9 +20,15 @@
 
 #include "xcore/base/xcam_common.h"
 
+#ifdef  __cplusplus
+extern "C" {
+#endif
 void sample_print_csm_info(const void *arg);
 XCamReturn sample_csm_module(const void* arg);
 #ifdef USE_NEWSTRUCT
 void sample_new_csm(const rk_aiq_sys_ctx_t* ctx);
+#endif
+#ifdef  __cplusplus
+}
 #endif
 #endif

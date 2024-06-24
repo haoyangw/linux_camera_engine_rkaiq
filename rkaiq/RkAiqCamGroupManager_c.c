@@ -580,6 +580,119 @@ static void setSingleCamStatusReady(AiqCamGroupManager_t* pCamGrpMan, rk_aiq_sin
     }
 }
 
+static void _syncParams(AiqFullParams_t* src, AiqFullParams_t* dst)
+{
+    if (src && dst) {
+#if ISP_HW_V39
+        aiq_params_base_t* pYnrBase    = dst->pParamsArray[RESULT_TYPE_YNR_PARAM];
+        aiq_params_base_t* pDhzeBase   = dst->pParamsArray[RESULT_TYPE_DEHAZE_PARAM];
+        if (pYnrBase && pDhzeBase &&
+            (pYnrBase->is_update && !pDhzeBase->is_update)) {
+            pDhzeBase->is_update = true;
+            memcpy(pDhzeBase->_data, src->pParamsArray[RESULT_TYPE_DEHAZE_PARAM]->_data,
+                    sizeof(dehaze_param_t));
+        }
+
+        aiq_params_base_t* pHisteqBase = dst->pParamsArray[RESULT_TYPE_HISTEQ_PARAM];
+        if (pDhzeBase && pHisteqBase &&
+            pDhzeBase->is_update ^ pHisteqBase->is_update) {
+            if (!pDhzeBase->is_update) {
+                memcpy(pDhzeBase->_data, src->pParamsArray[RESULT_TYPE_DEHAZE_PARAM]->_data,
+                        sizeof(dehaze_param_t));
+            } else {
+                memcpy(pHisteqBase->_data, src->pParamsArray[RESULT_TYPE_HISTEQ_PARAM]->_data,
+                        sizeof(histeq_param_t));
+            }
+            pDhzeBase->is_update   = true;
+            pHisteqBase->is_update = true;
+        }
+
+        if (pDhzeBase && pDhzeBase->is_update)
+            src->pParamsArray[RESULT_TYPE_DEHAZE_PARAM] = pDhzeBase;
+        if (pHisteqBase && pHisteqBase->is_update)
+            src->pParamsArray[RESULT_TYPE_HISTEQ_PARAM] = pHisteqBase;
+#endif
+        aiq_params_base_t* pDrcBase  = dst->pParamsArray[RESULT_TYPE_DRC_PARAM];
+        aiq_params_base_t* pBtnrBase = dst->pParamsArray[RESULT_TYPE_TNR_PARAM];
+        aiq_params_base_t* pAwbBase  = dst->pParamsArray[RESULT_TYPE_AWB_PARAM];
+        aiq_params_base_t* pBlcBase  = dst->pParamsArray[RESULT_TYPE_BLC_PARAM];
+        if (pDrcBase && pDrcBase->is_update ) {
+            if (pAwbBase && !pAwbBase->is_update) {
+                pAwbBase->is_update = true;
+                memcpy(pAwbBase->_data, src->pParamsArray[RESULT_TYPE_AWB_PARAM]->_data,
+                        sizeof(rk_aiq_isp_awb_params_t));
+            }
+
+            if (pBlcBase && !pBlcBase->is_update) {
+                pBlcBase->is_update = true;
+                memcpy(pBlcBase->_data, src->pParamsArray[RESULT_TYPE_BLC_PARAM]->_data,
+                        sizeof(blc_param_t));
+            }
+
+            if (pBtnrBase && !pBtnrBase->is_update) {
+                pBtnrBase->is_update = true;
+                memcpy(pBtnrBase->_data, src->pParamsArray[RESULT_TYPE_TNR_PARAM]->_data,
+                        sizeof(btnr_param_t));
+            }
+        }
+
+        // TODO: TNR/SHARP need update HWI params for each frame now
+        aiq_params_base_t* psharpBase = dst->pParamsArray[RESULT_TYPE_SHARPEN_PARAM];
+
+        if (psharpBase && !psharpBase->is_update) {
+            psharpBase->is_update = true;
+            memcpy(psharpBase->_data, src->pParamsArray[RESULT_TYPE_SHARPEN_PARAM]->_data,
+                    sizeof(sharp_param_t));
+            src->pParamsArray[RESULT_TYPE_SHARPEN_PARAM] = psharpBase;
+        }
+
+        if (pBtnrBase && !pBtnrBase->is_update) {
+            pBtnrBase->is_update = true;
+            memcpy(pBtnrBase->_data, src->pParamsArray[RESULT_TYPE_TNR_PARAM]->_data,
+                    sizeof(btnr_param_t));
+        }
+
+        //TODO: update _pLatestFullParams, may re-entry now
+#if ISP_HW_V39
+        if (pDhzeBase && pDhzeBase->is_update)
+            src->pParamsArray[RESULT_TYPE_DEHAZE_PARAM] = pDhzeBase;
+        if (pHisteqBase && pHisteqBase->is_update)
+            src->pParamsArray[RESULT_TYPE_HISTEQ_PARAM] = pHisteqBase;
+#endif
+        if (pAwbBase && pAwbBase->is_update)
+            src->pParamsArray[RESULT_TYPE_AWB_PARAM] = pAwbBase;
+        if (pBlcBase && pBlcBase->is_update)
+            src->pParamsArray[RESULT_TYPE_BLC_PARAM] = pBlcBase;
+        if (pBtnrBase && pBtnrBase->is_update)
+            src->pParamsArray[RESULT_TYPE_TNR_PARAM] = pBtnrBase;
+        if (psharpBase && psharpBase->is_update)
+            src->pParamsArray[RESULT_TYPE_SHARPEN_PARAM] = psharpBase;
+    }
+}
+
+static void _fixAiqParamsIsp(AiqCamGroupManager_t* pCamGrpMan, rk_aiq_groupcam_result_t* camGroupRes)
+{
+	AiqMapItem_t* pItem = NULL;
+    AiqManager_t* aiqManager = NULL;
+    AiqCore_t* aiqCore = NULL;
+	bool rm             = false;
+    bool isFirst = true;
+    AiqFullParams_t* mainFullParams = NULL;
+
+	AIQ_MAP_FOREACH(pCamGrpMan->mBindAiqsMap, pItem, rm) {
+		aiqManager = *(AiqManager_t**)pItem->_pData;
+		aiqCore = aiqManager->mRkAiqAnalyzer;
+        int camId = AiqCore_getCamPhyId(aiqCore);
+        rk_aiq_singlecam_result_status_t* singleCamStatus =
+            &camGroupRes->_singleCamResultsStatus[camId];
+        rk_aiq_singlecam_result_t* singleCamRes = &singleCamStatus->_singleCamResults;
+
+        if (!mainFullParams)
+            mainFullParams = singleCamRes->_fullIspParam;
+        _syncParams(&pCamGrpMan->_pLatestFullParams, singleCamRes->_fullIspParam);
+	}
+}
+
 static void AiqCamGroupManager_relayToHwi(AiqCamGroupManager_t* pCamGrpMan, rk_aiq_groupcam_result_t* gc_res)
 {
     rk_aiq_singlecam_result_t* singlecam_res = NULL;
@@ -630,6 +743,8 @@ static void AiqCamGroupManager_relayToHwi(AiqCamGroupManager_t* pCamGrpMan, rk_a
             }
         }
     }
+
+    _fixAiqParamsIsp(pCamGrpMan, gc_res);
 
     for (int i = 0; i < RK_AIQ_CAM_GROUP_MAX_CAMS; i++) {
         if ((gc_res->_validCamResBits >> i) & 1) {

@@ -85,7 +85,7 @@ static XCamReturn _handlerAwb_processing(AiqAlgoHandler_t* pAlgoHandler) {
 	aiq_awb_stats_wrapper_t* pAwbStatsWrap = NULL;
 	if (shared->awbStatsBuf)
 		pAwbStatsWrap = (aiq_awb_stats_wrapper_t*)shared->awbStatsBuf->_data;
-#if RKAIQ_HAVE_AWB_V39
+#if USE_NEWSTRUCT
     if (pAwbStatsWrap) {
         awb_proc_int->awb_statsBuf_v39 = &pAwbStatsWrap ->awb_stats_v39;
 	} else
@@ -157,11 +157,11 @@ static XCamReturn _handlerAwb_processing(AiqAlgoHandler_t* pAlgoHandler) {
 #if defined(ISP_HW_V39) || defined(ISP_HW_V33)
 	aiq_params_base_t* pBase = shared->fullParams->pParamsArray[RESULT_TYPE_AWB_PARAM];
 	if (pBase)
-		awb_proc_res_int->awb_hw39_para = (rk_aiq_isp_awb_params_t*)pBase->_data;
+		awb_proc_res_int->awb_hw_cfg_priv = (rk_aiq_isp_awb_params_t*)pBase->_data;
 	else
-		awb_proc_res_int->awb_hw39_para = NULL;
+		awb_proc_res_int->awb_hw_cfg_priv = NULL;
 #else
-    awb_proc_res_int->awb_hw39_para = NULL;
+    awb_proc_res_int->awb_hw_cfg_priv = NULL;
 #endif
 
 	aiq_params_base_t* pGainBase = shared->fullParams->pParamsArray[RESULT_TYPE_AWBGAIN_PARAM];
