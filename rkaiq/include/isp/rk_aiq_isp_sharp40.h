@@ -978,7 +978,7 @@ typedef struct shp_edgeShpStrg_s {
         M4_NOTES(The manual edgeWgt curve value . Only valid on shp_manualCurve_mode.\n
         Freq of use: low))  */
     // @reg: hw_shp_edgeWgt_val0~16
-    uint16_t hw_shpT_edgeStrg_val[17];
+    uint16_t hw_shpT_edge2ShpStrg_val[17];
 } shp_edgeShpStrg_t;
 
 typedef struct shp_edgeShoot_s {

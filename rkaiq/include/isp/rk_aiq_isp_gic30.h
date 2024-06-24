@@ -387,7 +387,7 @@ typedef struct gic_epf_dyn_s {
         M4_NOTES(The x-axis of gic softhred curve. \n
         Freq of use: low))  */
     // @para: bfFilt_vsigma0~7
-    uint16_t hw_gicT_manual_rgeSgm[17];
+    uint16_t hw_gicT_luma2Manual_rgeSgm[17];
     /* M4_GENERIC_DESC(
         M4_ALIAS(noiseCurve_scale),
         M4_TYPE(f32),
@@ -459,7 +459,7 @@ typedef struct gic_gicSoftThd_manual_s {
         M4_NOTES(The x-axis of gic softhred curve. \n
         Freq of use: low))  */
     // @para: noise_thred0~7
-    uint16_t hw_gicT_sofThd_thred[8];
+    uint16_t hw_gicT_luma2SofThd_thred[8];
 } gic_gicSoftThd_manual_t;
 
 typedef struct gic_gicSoftThd_auto_s {
@@ -492,7 +492,7 @@ typedef struct gic_gicSoftThd_auto_s {
         M4_NOTES(The x-axis of gic softhred curve. \n
         Freq of use: low))  */
     // @para: noise_thred0~7
-    uint16_t hw_gicT_thred_maxLimit[8];
+    uint16_t hw_gicT_luma2Thred_maxLimit[8];
     /* M4_GENERIC_DESC(
         M4_ALIAS(noise_minThred),
         M4_TYPE(u16),
@@ -507,7 +507,7 @@ typedef struct gic_gicSoftThd_auto_s {
         M4_NOTES(The x-axis of gic softhred curve. \n
         Freq of use: low))  */
     // @para: noise_minThred0~7
-    uint16_t hw_gicT_thred_minLimit[8];
+    uint16_t hw_gicT_luma2Thred_minLimit[8];
     /* M4_GENERIC_DESC(
         M4_ALIAS(loFltThed_coeff),
         M4_TYPE(u16),

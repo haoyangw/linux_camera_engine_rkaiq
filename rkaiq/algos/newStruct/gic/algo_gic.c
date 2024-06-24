@@ -256,8 +256,8 @@ XCamReturn GicSelectParam
     }
     out->dyn.epf.sw_gicT_rgeSgm_mode = paut->dyn[inear].epf.sw_gicT_rgeSgm_mode;
     for (i=0; i<17; i++) {
-        out->dyn.epf.hw_gicT_manual_rgeSgm[i] = interpolation_u16(
-            paut->dyn[ilow].epf.hw_gicT_manual_rgeSgm[i], paut->dyn[ihigh].epf.hw_gicT_manual_rgeSgm[i], uratio);
+        out->dyn.epf.hw_gicT_luma2Manual_rgeSgm[i] = interpolation_u16(
+            paut->dyn[ilow].epf.hw_gicT_luma2Manual_rgeSgm[i], paut->dyn[ihigh].epf.hw_gicT_luma2Manual_rgeSgm[i], uratio);
     }
     out->dyn.epf.sw_gicT_rgeSgm_scale = interpolation_f32(
         paut->dyn[ilow].epf.sw_gicT_rgeSgm_scale, paut->dyn[ihigh].epf.sw_gicT_rgeSgm_scale, ratio);
@@ -270,8 +270,8 @@ XCamReturn GicSelectParam
     out->dyn.epf.sw_gicT_filtOut_alpha = interpolation_f32(
         paut->dyn[ilow].epf.sw_gicT_filtOut_alpha, paut->dyn[ihigh].epf.sw_gicT_filtOut_alpha, ratio);
     for (i=0; i<8; i++) {
-        out->dyn.manualSoftThd.hw_gicT_sofThd_thred[i] = interpolation_u16(
-            paut->dyn[ilow].manualSoftThd.hw_gicT_sofThd_thred[i], paut->dyn[ihigh].manualSoftThd.hw_gicT_sofThd_thred[i], uratio);
+        out->dyn.manualSoftThd.hw_gicT_luma2SofThd_thred[i] = interpolation_u16(
+            paut->dyn[ilow].manualSoftThd.hw_gicT_luma2SofThd_thred[i], paut->dyn[ihigh].manualSoftThd.hw_gicT_luma2SofThd_thred[i], uratio);
     }
     out->dyn.gicPost_medAndEpf.sw_gicT_softThd_mode = paut->dyn[inear].gicPost_medAndEpf.sw_gicT_softThd_mode;
     for (i=0; i<4; i++) {
@@ -286,12 +286,12 @@ XCamReturn GicSelectParam
     out->dyn.gicPost_guideEpf.autoSoftThd.hw_gicT_softThd_scale = interpolation_f32(
         paut->dyn[ilow].gicPost_guideEpf.autoSoftThd.hw_gicT_softThd_scale, paut->dyn[ihigh].gicPost_guideEpf.autoSoftThd.hw_gicT_softThd_scale, ratio);
     for (i=0; i<8; i++) {
-        out->dyn.gicPost_guideEpf.autoSoftThd.hw_gicT_thred_maxLimit[i] = interpolation_u16(
-            paut->dyn[ilow].gicPost_guideEpf.autoSoftThd.hw_gicT_thred_maxLimit[i], paut->dyn[ihigh].gicPost_guideEpf.autoSoftThd.hw_gicT_thred_maxLimit[i], uratio);
+        out->dyn.gicPost_guideEpf.autoSoftThd.hw_gicT_luma2Thred_maxLimit[i] = interpolation_u16(
+            paut->dyn[ilow].gicPost_guideEpf.autoSoftThd.hw_gicT_luma2Thred_maxLimit[i], paut->dyn[ihigh].gicPost_guideEpf.autoSoftThd.hw_gicT_luma2Thred_maxLimit[i], uratio);
     }
     for (i=0; i<8; i++) {
-        out->dyn.gicPost_guideEpf.autoSoftThd.hw_gicT_thred_minLimit[i] = interpolation_u16(
-            paut->dyn[ilow].gicPost_guideEpf.autoSoftThd.hw_gicT_thred_minLimit[i], paut->dyn[ihigh].gicPost_guideEpf.autoSoftThd.hw_gicT_thred_minLimit[i], uratio);
+        out->dyn.gicPost_guideEpf.autoSoftThd.hw_gicT_luma2Thred_minLimit[i] = interpolation_u16(
+            paut->dyn[ilow].gicPost_guideEpf.autoSoftThd.hw_gicT_luma2Thred_minLimit[i], paut->dyn[ihigh].gicPost_guideEpf.autoSoftThd.hw_gicT_luma2Thred_minLimit[i], uratio);
     }
     for (i=0; i<2; i++) {
         out->dyn.gicPost_guideEpf.autoSoftThd.hw_gicT_thredFiltSpatial_wgt[i] = interpolation_u16(

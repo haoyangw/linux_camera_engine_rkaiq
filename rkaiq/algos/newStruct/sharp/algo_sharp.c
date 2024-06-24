@@ -235,8 +235,8 @@ XCamReturn SharpSelectParam
     out->dyn.edgeShp.locShpStrg_edge.edgeStrgCurveCtrl.sw_shpT_edgeStrg_minLimit = interpolation_f32(
                 paut->dyn[ilow].edgeShp.locShpStrg_edge.edgeStrgCurveCtrl.sw_shpT_edgeStrg_minLimit, paut->dyn[ihigh].edgeShp.locShpStrg_edge.edgeStrgCurveCtrl.sw_shpT_edgeStrg_minLimit, ratio);
     for (i = 0; i < 17; i++) {
-        out->dyn.edgeShp.locShpStrg_edge.hw_shpT_edgeStrg_val[i] = interpolation_u16(
-                    paut->dyn[ilow].edgeShp.locShpStrg_edge.hw_shpT_edgeStrg_val[i], paut->dyn[ihigh].edgeShp.locShpStrg_edge.hw_shpT_edgeStrg_val[i], uratio);
+        out->dyn.edgeShp.locShpStrg_edge.hw_shpT_edge2ShpStrg_val[i] = interpolation_u16(
+                    paut->dyn[ilow].edgeShp.locShpStrg_edge.hw_shpT_edge2ShpStrg_val[i], paut->dyn[ihigh].edgeShp.locShpStrg_edge.hw_shpT_edge2ShpStrg_val[i], uratio);
     }
     out->dyn.edgeShp.shootReduction.sw_shpT_maxMinFlt_mode = paut->dyn[inear].edgeShp.shootReduction.sw_shpT_maxMinFlt_mode;
     out->dyn.edgeShp.shootReduction.sw_shpT_overShoot_alpha = interpolation_f32(
@@ -283,22 +283,22 @@ XCamReturn texEstSelectParam
     else
         inear = ilow;
 
-    out->dyn.noiseEst.hw_texEstT_nsEstThd_mode = paut->dyn[inear].noiseEst.hw_texEstT_nsEstThd_mode;
+    out->dyn.noiseEst.hw_texEstT_nsEstTexThd_mode = paut->dyn[inear].noiseEst.hw_texEstT_nsEstTexThd_mode;
     for (i = 0; i < 17; i++) {
-        out->dyn.noiseEst.hw_texEstT_nsEstManual_thred[i] = interpolation_f32(
-                    paut->dyn[ilow].noiseEst.hw_texEstT_nsEstManual_thred[i], paut->dyn[ihigh].noiseEst.hw_texEstT_nsEstManual_thred[i], ratio);
+        out->dyn.noiseEst.hw_texEstT_luma2ManualTex_thred[i] = interpolation_f32(
+                    paut->dyn[ilow].noiseEst.hw_texEstT_luma2ManualTex_thred[i], paut->dyn[ihigh].noiseEst.hw_texEstT_luma2ManualTex_thred[i], ratio);
     }
     out->dyn.noiseEst.hw_texEstT_nsStatsCntThd_ratio = interpolation_f32(
                 paut->dyn[ilow].noiseEst.hw_texEstT_nsStatsCntThd_ratio, paut->dyn[ihigh].noiseEst.hw_texEstT_nsStatsCntThd_ratio, ratio);
     out->dyn.noiseEst.hw_texEstT_noiseEst_mode = paut->dyn[inear].noiseEst.hw_texEstT_noiseEst_mode;
     out->dyn.noiseEst.hw_texEstT_nsEstMean_alpha = interpolation_f32(
                 paut->dyn[ilow].noiseEst.hw_texEstT_nsEstMean_alpha, paut->dyn[ihigh].noiseEst.hw_texEstT_nsEstMean_alpha, ratio);
-    out->dyn.noiseEst.hw_texEstT_nsEstThd_scale = interpolation_f32(
-                paut->dyn[ilow].noiseEst.hw_texEstT_nsEstThd_scale, paut->dyn[ihigh].noiseEst.hw_texEstT_nsEstThd_scale, ratio);
-    out->dyn.noiseEst.hw_texEstT_nsEstThd_minLimit = interpolation_f32(
-                paut->dyn[ilow].noiseEst.hw_texEstT_nsEstThd_minLimit, paut->dyn[ihigh].noiseEst.hw_texEstT_nsEstThd_minLimit, ratio);
-    out->dyn.noiseEst.hw_texEstT_nsEstThd_maxLimit = interpolation_f32(
-                paut->dyn[ilow].noiseEst.hw_texEstT_nsEstThd_maxLimit, paut->dyn[ihigh].noiseEst.hw_texEstT_nsEstThd_maxLimit, ratio);
+    out->dyn.noiseEst.hw_texEstT_nsEstTexThd_scale = interpolation_f32(
+                paut->dyn[ilow].noiseEst.hw_texEstT_nsEstTexThd_scale, paut->dyn[ihigh].noiseEst.hw_texEstT_nsEstTexThd_scale, ratio);
+    out->dyn.noiseEst.hw_texEstT_luma2TexThd_minLimit = interpolation_f32(
+                paut->dyn[ilow].noiseEst.hw_texEstT_luma2TexThd_minLimit, paut->dyn[ihigh].noiseEst.hw_texEstT_luma2TexThd_minLimit, ratio);
+    out->dyn.noiseEst.hw_texEstT_luma2TexThd_maxLimit = interpolation_f32(
+                paut->dyn[ilow].noiseEst.hw_texEstT_luma2TexThd_maxLimit, paut->dyn[ihigh].noiseEst.hw_texEstT_luma2TexThd_maxLimit, ratio);
     out->dyn.texEst.hw_texEstT_texEst_mode = paut->dyn[inear].texEst.hw_texEstT_texEst_mode;
     out->dyn.texEst.hw_texEstT_nsEstDf1_scale = interpolation_f32(
                 paut->dyn[ilow].texEst.hw_texEstT_nsEstDf1_scale, paut->dyn[ihigh].texEst.hw_texEstT_nsEstDf1_scale, ratio);

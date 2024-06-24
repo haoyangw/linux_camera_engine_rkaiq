@@ -201,7 +201,7 @@ void rk_aiq_gic30_params_cvt(void* attr, struct isp33_gic_cfg* gic_cfg)
 
     /* SIGMA_Y */
     for(int i = 0; i < 17; i++) {
-        tmp = (pdyn->epf.hw_gicT_manual_rgeSgm[i]);
+        tmp = (pdyn->epf.hw_gicT_luma2Manual_rgeSgm[i]);
         pFix->bfflt_vsigma_y[i] = CLIP(tmp, 0, 0x3ff);
     }
     /* LUMA_DX */
@@ -214,14 +214,14 @@ void rk_aiq_gic30_params_cvt(void* attr, struct isp33_gic_cfg* gic_cfg)
     /* MIN_THRED_Y */
     if (pFix->manualnoisethred_en) {
         for(int i = 0; i < 8; i++) {
-            tmp = ROUND_F(pdyn->manualSoftThd.hw_gicT_sofThd_thred[i]);
+            tmp = ROUND_F(pdyn->manualSoftThd.hw_gicT_luma2SofThd_thred[i]);
             pFix->thred_y[i] = CLIP(tmp, 0, 0x1ff);
         }
     } else {
         for(int i = 0; i < 8; i++) {
-            tmp = (pdyn->gicPost_guideEpf.autoSoftThd.hw_gicT_thred_maxLimit[i]);
+            tmp = (pdyn->gicPost_guideEpf.autoSoftThd.hw_gicT_luma2Thred_maxLimit[i]);
             pFix->thred_y[i] = CLIP(tmp, 0, 0x1ff);
-            tmp = (pdyn->gicPost_guideEpf.autoSoftThd.hw_gicT_thred_minLimit[i]);
+            tmp = (pdyn->gicPost_guideEpf.autoSoftThd.hw_gicT_luma2Thred_minLimit[i]);
             pFix->minthred_y[i] = CLIP(tmp, 0, 0x1ff);
         }
     }

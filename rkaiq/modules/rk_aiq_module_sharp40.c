@@ -224,7 +224,7 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
     } else {
         pCfg->radius_step_mode = 1;
     }
-    if (pTexDyn->noiseEst.hw_texEstT_nsEstThd_mode == texEst_baseNoiseStats_mode) {
+    if (pTexDyn->noiseEst.hw_texEstT_nsEstTexThd_mode == texEst_baseNoiseStats_mode) {
         pCfg->noise_curve_mode = 0;
     } else {
         pCfg->noise_curve_mode = 1;
@@ -620,7 +620,7 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
         int edgeWgt_val[17];
         if (pdyn->edgeShp.locShpStrg_edge.sw_shpT_edgeStrgCurve_mode == shp_cfgCurveDirect_mode) {
             for (i = 0; i < 17; i++) {
-                edgeWgt_val[i] = pdyn->edgeShp.locShpStrg_edge.hw_shpT_edgeStrg_val[i];
+                edgeWgt_val[i] = pdyn->edgeShp.locShpStrg_edge.hw_shpT_edge2ShpStrg_val[i];
             }
         } else {
             float power                         = pdyn->edgeShp.locShpStrg_edge.edgeStrgCurveCtrl.sw_shpT_curvePower_val;
@@ -974,15 +974,15 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
     // REG: NOISE_CURVE8
     tmp = (pTexDyn->noiseEst.hw_texEstT_nsStatsCntThd_ratio) * (1 << 10);
     pCfg->noise_count_thred_ratio = CLIP(tmp, 0, 0xff);
-    tmp = (pTexDyn->noiseEst.hw_texEstT_nsEstThd_scale) * (1 << 4);
+    tmp = (pTexDyn->noiseEst.hw_texEstT_nsEstTexThd_scale) * (1 << 4);
     pCfg->noise_clip_scale = CLIP(tmp, 0, 0xff);
     // REG: NOISE_CLIP
-    tmp = (pTexDyn->noiseEst.hw_texEstT_nsEstThd_minLimit) * (1 << 0);
+    tmp = (pTexDyn->noiseEst.hw_texEstT_luma2TexThd_minLimit) * (1 << 0);
     pCfg->noise_clip_min_limit = CLIP(tmp, 0, 0x7ff);
-    tmp = (pTexDyn->noiseEst.hw_texEstT_nsEstThd_maxLimit) * (1 << 0);
+    tmp = (pTexDyn->noiseEst.hw_texEstT_luma2TexThd_maxLimit) * (1 << 0);
     pCfg->noise_clip_max_limit = CLIP(tmp, 0, 0x7ff);
 
-    if (pTexDyn->noiseEst.hw_texEstT_nsEstThd_mode == texEst_baseNoiseStats_mode) {
+    if (pTexDyn->noiseEst.hw_texEstT_nsEstTexThd_mode == texEst_baseNoiseStats_mode) {
         sharp_stats_t *sharp_stats = &pBtnrInfo->mSharpStats[0];
         if (!cvtinfo->isFirstFrame) {
             sharp_stats = sharp_get_stats(pBtnrInfo, cvtinfo->frameId);
@@ -994,7 +994,7 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
         }
     } else {
         for (i = 0; i < 17; i++) {
-            noise_curve_ext[i] = pTexDyn->noiseEst.hw_texEstT_nsEstManual_thred[i];
+            noise_curve_ext[i] = pTexDyn->noiseEst.hw_texEstT_luma2ManualTex_thred[i];
         }
     }
 
