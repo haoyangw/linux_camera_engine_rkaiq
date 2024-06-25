@@ -25,7 +25,7 @@ static void _handlerHsv_init(AiqAlgoHandler_t* pHdl) {
 
     AiqAlgoHandler_deinit(pHdl);
     pHdl->mConfig       = (RkAiqAlgoCom*)(aiq_mallocz(sizeof(RkAiqAlgoCom)));
-    pHdl->mProcInParam  = (RkAiqAlgoCom*)(aiq_mallocz(sizeof(RkAiqAlgoCom)));
+    pHdl->mProcInParam  = (RkAiqAlgoCom*)(aiq_mallocz(sizeof(RkAiqAlgoProcHsv)));
     pHdl->mProcOutParam = (RkAiqAlgoResCom*)(aiq_mallocz(sizeof(RkAiqAlgoResCom)));
 
     pHdl->mResultType = RESULT_TYPE_HSV_PARAM;
@@ -73,7 +73,7 @@ static XCamReturn _handlerHsv_processing(AiqAlgoHandler_t* pAlgoHandler) {
 
     proc_res->algoRes =  (rk_aiq_isp_hsv_params_t*)pBase->_data;
 
-    RkAiqAlgoProcLut3d* proc_int        = (RkAiqAlgoProcLut3d*)pAlgoHandler->mProcInParam;
+    RkAiqAlgoProcHsv* proc_int        = (RkAiqAlgoProcHsv*)pAlgoHandler->mProcInParam;
     RKAiqAecExpInfo_t* pCurExp = &shared->curExp;
     RkAiqAlgoProcResAwbShared_t* awb_res = NULL;
     AlgoRstShared_t* awb_proc_res = shared->res_comb.awb_proc_res_c;

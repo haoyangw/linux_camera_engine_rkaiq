@@ -757,8 +757,8 @@ checkAlgoEnableInit(GlobalParamsManager_t* pMan) {
         ahsv_hsvCalib_t* calibdb = &hsv_calib->calibdb;
         int tblAll_len = calibdb->sw_hsvCfg_tblAll_len;
         for (int i = 0;i < tblAll_len;i++) {
-            int lut0_mode = calibdb->tableAll[i].meshGain.lut0.hw_hsvT_lut1d_mode % 3;
-            int lut1_mode = calibdb->tableAll[i].meshGain.lut1.hw_hsvT_lut1d_mode % 3;
+            int lut0_mode = calibdb->tableAll[i].meshGain.lut0.hw_hsvT_lut1d_mode == 3? 1:calibdb->tableAll[i].meshGain.lut0.hw_hsvT_lut1d_mode;
+            int lut1_mode = calibdb->tableAll[i].meshGain.lut1.hw_hsvT_lut1d_mode == 3? 1:calibdb->tableAll[i].meshGain.lut1.hw_hsvT_lut1d_mode;
             int lut2_mode = calibdb->tableAll[i].meshGain.lut2.hw_hsvT_lut2d_mode / 2;
             if (lut0_mode == lut1_mode || lut1_mode == lut2_mode || lut2_mode == lut0_mode) {
                 LOGE("HSV config failed, hsv.calibdb is invaild. Three output channels of hsv lut must be different."
@@ -1340,8 +1340,8 @@ static bool checkAlgoParams(GlobalParamsManager_t* pMan, rk_aiq_global_params_wr
         hsv_api_attrib_t attr;
         if (param->opMode == RK_AIQ_OP_MODE_MANUAL) {
             memcpy(&attr.stMan, param->man_param_ptr, param->man_param_size);
-            int lut0_mode = attr.stMan.dyn.lut0.hw_hsvT_lut1d_mode % 3;
-            int lut1_mode = attr.stMan.dyn.lut1.hw_hsvT_lut1d_mode % 3;
+            int lut0_mode = attr.stMan.dyn.lut0.hw_hsvT_lut1d_mode==3? 1: attr.stMan.dyn.lut0.hw_hsvT_lut1d_mode;
+            int lut1_mode = attr.stMan.dyn.lut1.hw_hsvT_lut1d_mode==3? 1: attr.stMan.dyn.lut1.hw_hsvT_lut1d_mode;
             int lut2_mode = attr.stMan.dyn.lut2.hw_hsvT_lut2d_mode / 2;
             if (lut0_mode == lut1_mode || lut1_mode == lut2_mode || lut2_mode == lut0_mode) {
                 LOGE("Three output channels of hsv lut must be different. "

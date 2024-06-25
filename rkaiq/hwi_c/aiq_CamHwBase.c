@@ -5521,20 +5521,25 @@ static XCamReturn AiqCamHw_process_restriction(AiqCamHwBase_t* pCamHw, void* isp
 #if ISP_HW_V39
     int state = AiqManager_getAiqState(pCamHw->rkAiqManager);
     if (state != AIQ_STATE_INITED && state != AIQ_STATE_STOPED) {
-        uint64_t mask = (ISP2X_MODULE_YNR | ISP2X_MODULE_CNR | ISP2X_MODULE_SHARP);
-        uint64_t ens_up = isp_params->module_en_update & mask;
-
-        if (ens_up) {
+        bool update_ynr = isp_params->module_en_update & ISP2X_MODULE_YNR;
+        bool update_cnr = isp_params->module_en_update & ISP2X_MODULE_CNR;
+        bool update_sharp = isp_params->module_en_update & ISP2X_MODULE_SHARP;
+        if(!(update_ynr && update_cnr && update_sharp)){
+            isp_params->module_ens &= ~ISP3X_MODULE_CNR;
+            isp_params->module_ens &= ~ISP3X_MODULE_SHARP;
+            isp_params->module_ens &= ~ISP3X_MODULE_YNR;
+            isp_params->module_en_update &= ~ISP3X_MODULE_CNR;
+            isp_params->module_en_update &= ~ISP3X_MODULE_SHARP;
+            isp_params->module_en_update &= ~ISP3X_MODULE_YNR;
+            LOGD_CAMHW_SUBM(ISP20HW_SUBM, "ynr, cnr and sharp'en should be update together!");
+        }else {
 			bool old_en_ynr = !!(pCamHw->_isp_module_ens & ISP2X_MODULE_YNR);
 			bool old_en_cnr = !!(pCamHw->_isp_module_ens & ISP2X_MODULE_CNR);
             bool old_en_sharp = !!(pCamHw->_isp_module_ens & ISP2X_MODULE_SHARP);
 
-			bool new_en_ynr =
-				 !!(isp_params->module_en_update & ISP2X_MODULE_YNR) ? !!(isp_params->module_ens & ISP2X_MODULE_YNR) : old_en_ynr;
-			bool new_en_cnr =
-				 !!(isp_params->module_en_update & ISP2X_MODULE_CNR) ? !!(isp_params->module_ens & ISP2X_MODULE_CNR) : old_en_cnr;
-			bool new_en_sharp =
-				 !!(isp_params->module_en_update & ISP2X_MODULE_SHARP) ? !!(isp_params->module_ens & ISP2X_MODULE_SHARP) : old_en_sharp;
+			bool new_en_ynr = isp_params->module_ens & ISP2X_MODULE_YNR;
+			bool new_en_cnr = isp_params->module_ens & ISP2X_MODULE_CNR;
+			bool new_en_sharp = isp_params->module_ens & ISP2X_MODULE_SHARP;
 
 			// check if all true or all false
 			if (new_en_ynr && new_en_cnr && new_en_sharp) {
@@ -5558,23 +5563,31 @@ static XCamReturn AiqCamHw_process_restriction(AiqCamHwBase_t* pCamHw, void* isp
 #elif ISP_HW_V33
     int state = AiqManager_getAiqState(pCamHw->rkAiqManager);
     if (state != AIQ_STATE_INITED && state != AIQ_STATE_STOPED) {
-        uint64_t mask = (ISP2X_MODULE_YNR | ISP2X_MODULE_CNR | ISP2X_MODULE_SHARP | ISP33_MODULE_ENH);
-        uint64_t ens_up = isp_params->module_en_update & mask;
+        bool update_ynr = isp_params->module_en_update & ISP2X_MODULE_YNR;
+        bool update_cnr = isp_params->module_en_update & ISP2X_MODULE_CNR;
+        bool update_sharp = isp_params->module_en_update & ISP2X_MODULE_SHARP;
+        bool update_enh = isp_params->module_en_update & ISP33_MODULE_ENH;
 
-        if (ens_up) {
+        if(!(update_ynr && update_cnr && update_sharp && update_enh)){
+            isp_params->module_ens &= ~ISP3X_MODULE_CNR;
+            isp_params->module_ens &= ~ISP3X_MODULE_SHARP;
+            isp_params->module_ens &= ~ISP3X_MODULE_YNR;
+            isp_params->module_ens &= ~ISP33_MODULE_ENH;
+            isp_params->module_en_update &= ~ISP3X_MODULE_CNR;
+            isp_params->module_en_update &= ~ISP3X_MODULE_SHARP;
+            isp_params->module_en_update &= ~ISP3X_MODULE_YNR;
+            isp_params->module_en_update &= ~ISP33_MODULE_ENH;
+            LOGD_CAMHW_SUBM(ISP20HW_SUBM, "ynr, cnr and sharp'en should be update together!");
+        } else {
 			bool old_en_ynr = !!(pCamHw->_isp_module_ens & ISP2X_MODULE_YNR);
 			bool old_en_cnr = !!(pCamHw->_isp_module_ens & ISP2X_MODULE_CNR);
             bool old_en_sharp = !!(pCamHw->_isp_module_ens & ISP2X_MODULE_SHARP);
             bool old_en_enh = !!(pCamHw->_isp_module_ens & ISP33_MODULE_ENH);
 
-			bool new_en_ynr =
-				 !!(isp_params->module_en_update & ISP2X_MODULE_YNR) ? !!(isp_params->module_ens & ISP2X_MODULE_YNR) : old_en_ynr;
-			bool new_en_cnr =
-				 !!(isp_params->module_en_update & ISP2X_MODULE_CNR) ? !!(isp_params->module_ens & ISP2X_MODULE_CNR) : old_en_cnr;
-			bool new_en_sharp =
-				 !!(isp_params->module_en_update & ISP2X_MODULE_SHARP) ? !!(isp_params->module_ens & ISP2X_MODULE_SHARP) : old_en_sharp;
-            bool new_en_enh =
-				 !!(isp_params->module_en_update & ISP33_MODULE_ENH) ? !!(isp_params->module_ens & ISP33_MODULE_ENH) : old_en_enh;
+			bool new_en_ynr = isp_params->module_ens & ISP2X_MODULE_YNR;
+			bool new_en_cnr = isp_params->module_ens & ISP2X_MODULE_CNR;
+			bool new_en_sharp = isp_params->module_ens & ISP2X_MODULE_SHARP;
+            bool new_en_enh = isp_params->module_ens & ISP33_MODULE_ENH;
 
 			// check if all true or all false
             if (new_en_ynr && new_en_cnr && new_en_sharp && new_en_enh) {
