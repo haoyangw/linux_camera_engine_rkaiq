@@ -231,14 +231,15 @@ int sample_query_lsc_status(const rk_aiq_sys_ctx_t* ctx)
     rk_aiq_user_api2_lsc_QueryStatus(ctx, &info);
     printf("Query lsc status:\n\n");
     printf("  opMode: %d, en: %d, bypass: %d,\n"
-           "  stMan: {\n    sta: [%d,%d,...], [%d,%d,...]; "
+           "  stMan: {\n    sta: {mode: %d, [%f,%f,...], [%f,%f,...]}; "
            "    dyn: {r: [%d,...,%d], gr: [%d,...,%d], b: [%d,...,%d], gb: [%d,...,%d]}\n"
            "  }\n  astatus: {illu: %s, vig: %f}\n", 
             info.opMode, info.en, info.bypass,
-            info.stMan.sta.meshGrid.width[0], 
-            info.stMan.sta.meshGrid.width[1],
-            info.stMan.sta.meshGrid.height[0],
-            info.stMan.sta.meshGrid.height[1],
+            info.stMan.sta.sw_lscT_meshGrid_mode,
+            info.stMan.sta.meshGrid.posX_f[0], 
+            info.stMan.sta.meshGrid.posX_f[1],
+            info.stMan.sta.meshGrid.posY_f[0],
+            info.stMan.sta.meshGrid.posY_f[1],
             info.stMan.dyn.meshGain.hw_lscC_gainR_val[0],
             info.stMan.dyn.meshGain.hw_lscC_gainR_val[288],
             info.stMan.dyn.meshGain.hw_lscC_gainGr_val[0],

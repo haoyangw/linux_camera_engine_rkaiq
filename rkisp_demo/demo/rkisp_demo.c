@@ -59,7 +59,7 @@
 #define DEFAULT_CAPTURE_RAW_PATH "/tmp/capture_image"
 #endif
 #define CAPTURE_CNT_FILENAME ".capture_cnt"
-#define ENABLE_UAPI_TEST
+// #define ENABLE_UAPI_TEST
 #define IQFILE_PATH_MAX_LEN 256
 // #define CUSTOM_AE_DEMO_TEST
 // #define CUSTOM_GROUP_AE_DEMO_TEST
@@ -2093,13 +2093,20 @@ static long long findLastDigits(std::string & str)
 }
 #endif
 
+int compare_versions(const void *a, const void *b) {
+    const char *version1 = *(const char **)a;
+    const char *version2 = *(const char **)b;
+    int result = strverscmp(version1, version2);
+    return result;
+}
+
 // functions versionsort
 static void getVersionFiles(char* dir, char** raw_files, int *filenum) {
     FILE *fp;
     char path[1024];
     int raw_flies_num = 0;
     
-    char cmd[512] = { "ls -v "};
+    char cmd[512] = { "ls "};
     strcat(cmd, dir);
     fp = popen(cmd, "r");
     if (fp == NULL) {
@@ -2112,6 +2119,8 @@ static void getVersionFiles(char* dir, char** raw_files, int *filenum) {
         if (strstr(path, ".raw") || strstr(path, ".rkraw"))
             raw_files[raw_flies_num++] = strdup(path);
     }
+
+    qsort(raw_files, raw_flies_num, sizeof(char*), compare_versions);
 
     pclose(fp);
     *filenum =  raw_flies_num;
@@ -2131,12 +2140,16 @@ static void* test_offline_thread(void* args) {
             char full_name[512];
             strcpy(full_name, demo_ctx->orppath);
             strcat(full_name, raw_files[i]);
-            // DBG("process raw : %s \n", full_name.c_str());
-            if(!demo_ctx->camGroup)
+            int length = strlen(full_name);
+            if (length > 0 && full_name[length - 1] == '\n') {
+                full_name[length - 1] = '\0';
+            }
+            DBG("process raw : %s \n", full_name);
+            if (!demo_ctx->camGroup)
                 rk_aiq_uapi2_sysctl_enqueueRkRawFile(demo_ctx->aiq_ctx, full_name);
              else
                  rk_aiq_uapi2_sysctl_enqueueRkRawFile((const rk_aiq_sys_ctx_t*)demo_ctx->camgroup_ctx, full_name);
-            //usleep(500000);
+            usleep(500000);
         }
         usleep(500000);
     }

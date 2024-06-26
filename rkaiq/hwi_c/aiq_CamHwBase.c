@@ -4691,7 +4691,18 @@ static XCamReturn _setIspConfig(AiqCamHwBase_t* pCamHw, AiqList_t* result_list) 
 #if defined(ISP_HW_V39) || defined(ISP_HW_V33)
         AiqCamHw_process_restriction(pCamHw, isp_params);
 #endif
-
+        uint64_t oldEns = pCamHw->_isp_module_ens;
+		// assume the max valid bit is 60
+		for (int i = 0; i < 60; i++) {
+			if (isp_params->module_en_update & (1ULL << i)) {
+				if (isp_params->module_ens & (1ULL << i))
+					pCamHw->_isp_module_ens |= (1ULL << i);
+				else
+					pCamHw->_isp_module_ens &= ~(1ULL << i);
+			}
+		}
+        if (oldEns == pCamHw->_isp_module_ens)
+			isp_params->module_en_update = 0;
         if (AiqV4l2Device_qbuf(pCamHw->mIspParamsDev, pV4l2Buf, true) != 0) {
             LOGE_CAMHW_SUBM(ISP20HW_SUBM,
                             "RKISP1: failed to ioctl VIDIOC_QBUF for index %d, %d %s.\n", buf_index,
@@ -4731,16 +4742,6 @@ static XCamReturn _setIspConfig(AiqCamHwBase_t* pCamHw, AiqList_t* result_list) 
                 AiqV4l2Device_returnBufToPool(pCamHw->mIspParamsDev, dqbuf);
             }
         }
-
-		// assume the max valid bit is 60
-		for (int i = 0; i < 60; i++) {
-			if (isp_params->module_en_update & (1ULL << i)) {
-				if (isp_params->module_ens & (1ULL << i))
-					pCamHw->_isp_module_ens |= (1ULL << i);
-				else
-					pCamHw->_isp_module_ens &= ~(1ULL << i);
-			}
-		}
 
         LOGD_CAMHW_SUBM(
             ISP20HW_SUBM,

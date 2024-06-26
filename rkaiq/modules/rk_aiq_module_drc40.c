@@ -257,6 +257,16 @@ void rk_aiq_drc40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
         }
     }
 
+    // get scale_y
+    if (pdyn->drcProc.sw_drcT_drcStrgLut_mode == drc_vendorDefault_mode) {
+        float drcStrgLut_default[DRC_CURVE_LEN] = {0.0f,   0.001f, 0.01f,  0.037f, 0.094f, 0.186f,
+                                                   0.308f, 0.377f, 0.449f, 0.521f, 0.591f, 0.722f,
+                                                   0.830f, 0.910f, 0.961f, 0.988f, 1.0f};
+        for (int i = 0; i < DRC_CURVE_LEN; ++i) {
+            pdyn->drcProc.hw_drcT_luma2DrcStrg_val[i] = drcStrgLut_default[i];
+        }
+    }
+
     // get sw_drc_gain_y
     if (pdyn->preProc.sw_drcT_toneCurve_mode == drc_cfgCurveCtrlCoeff_mode) {
         float tmp = 0.0f;
@@ -289,7 +299,7 @@ void rk_aiq_drc40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
     tmp                  = 16.0f * pdyn->bifilt_filter.hw_drcT_centerPixel_wgt;
     phwcfg->weicur_pix   = tmp > 255 ? 255 : tmp;
     if (pdyn->bifilt_filter.hw_drcT_midRgeSgm_val != 0.0f)
-        tmp = 256.0f * pdyn->bifilt_filter.hw_drcT_midRgeSgm_val;
+        tmp = 256.0f / pdyn->bifilt_filter.hw_drcT_midRgeSgm_val;
     else
         tmp = 256.0f / 0.25f;
     phwcfg->range_sgm_inv0 = tmp > 1023 ? 1023 : tmp;

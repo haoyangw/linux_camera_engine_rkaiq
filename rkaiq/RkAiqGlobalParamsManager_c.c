@@ -22,6 +22,7 @@
 static void
 checkAlgoEnableInit(GlobalParamsManager_t* pMan);
 static bool checkAlgoParams(GlobalParamsManager_t* pMan, rk_aiq_global_params_wrap_t* param);
+static bool checkLscAlgoParams(GlobalParamsManager_t* pMan, lsc_param_static_t* psta, char* print_buf);
 
 static inline XCamReturn
 get_locked(GlobalParamsManager_t* pMan, rk_aiq_global_params_wrap_t* param)
@@ -772,6 +773,26 @@ checkAlgoEnableInit(GlobalParamsManager_t* pMan) {
     }
 #endif
 
+    lsc_calib_attrib_t* lsc_calib = (lsc_calib_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+            (void*)(pMan->mCalibDb), lsc));
+    if (lsc_calib) {
+        lsc_api_attrib_t* attr = &lsc_calib->tunning;
+        lsc_param_static_t* psta = NULL;
+        rk_aiq_op_mode_t mode = *pMan->mGlobalParams[RESULT_TYPE_LSC_PARAM].opMode;
+        if (mode == RK_AIQ_OP_MODE_AUTO) {
+            psta = &attr->stAuto.sta.lscCfg;
+        } else {
+            psta = &attr->stMan.sta;
+        }
+        char print_buf[160];
+        if (!checkLscAlgoParams(pMan, psta, print_buf)) {
+            LOGE("%s", print_buf);
+            *pMan->mGlobalParams[RESULT_TYPE_LSC_PARAM].en = 0;  
+        }     
+    } else {
+        LOGE("no lsc calib !");
+    }
+
     for (int i = 0;i < RESULT_TYPE_MAX_PARAM;i++) {
         if (pMan->mGlobalParams[i].en != NULL) {
             GlobalParamsManager_checkAlgoEnableBypass(pMan, i, pMan->mGlobalParams[i].en, pMan->mGlobalParams[i].bypass);
@@ -1353,5 +1374,53 @@ static bool checkAlgoParams(GlobalParamsManager_t* pMan, rk_aiq_global_params_wr
         }
     }
 #endif
+
+    if (param->type == RESULT_TYPE_LSC_PARAM) {
+        lsc_api_attrib_t attr;
+        lsc_param_static_t* psta = NULL;
+        if (param->opMode == RK_AIQ_OP_MODE_AUTO) {
+            memcpy(&attr.stAuto, param->aut_param_ptr, param->aut_param_size);
+            psta = &attr.stAuto.sta.lscCfg;
+        } else {
+            memcpy(&attr.stMan, param->man_param_ptr, param->man_param_size);
+            psta = &attr.stMan.sta;
+        }
+        char print_buf[160];
+        if (!checkLscAlgoParams(pMan, psta, print_buf)){
+            LOGE("%s", print_buf);
+            socket_client_setNote(pMan->_socket, IPC_RET_UAPI_ERROR, print_buf);
+        }
+    }
     return true;
 }
+
+static bool checkLscAlgoParams(GlobalParamsManager_t* pMan, lsc_param_static_t* psta, char* print_buf) {
+    if (psta->sw_lscT_meshGrid_mode == 0) {     
+        if (fabs(psta->meshGrid.posX_f[0]) > DIVMIN ||
+            fabs(psta->meshGrid.posY_f[0]) > DIVMIN ||
+            fabs(psta->meshGrid.posX_f[LSC_MESHGRID_SIZE] - 1) > DIVMIN ||
+            fabs(psta->meshGrid.posY_f[LSC_MESHGRID_SIZE] - 1) > DIVMIN) {
+            sprintf(print_buf, "posX_f and posY_f must be began with 0 and ended with 1. "
+                "Please configure by lsc.sta.meshGrid.posX_f, lsc.sta.meshGrid.posY_f!\n");
+            return false;
+        }
+        int x0, x1, y0, y1;
+        x0 = 0;
+        y0 = 0;
+        rk_aiq_exposure_sensor_descriptor sensor_des;
+        AiqCamHw_getSensorModeData(pMan->rkAiqManager->mCamHw, pMan->rkAiqManager->mSnsEntName, &sensor_des);
+        for (int i=0; i<LSC_MESHGRID_SIZE; i++) {
+            x1 = (int)(psta->meshGrid.posX_f[i+1] * (float)sensor_des.isp_acq_width);
+            y1 = (int)(psta->meshGrid.posY_f[i+1] * (float)sensor_des.isp_acq_height);
+            if ((x1 - x0 < 12) || (y1 - y0 < 8)) {
+                sprintf(print_buf, "XYinterval between %d-th and %d-th sample point must greater than [12, 8]."
+                "Please configure by lsc.sta.meshGrid.posX_f[%d], lsc.sta.meshGrid.posY_f[%d]!\n", i, i+1, i+1, i+1);
+                return false;
+            }
+            x0 = x1;
+            y0 = y1;
+        }
+    }
+    return true;
+}
+
