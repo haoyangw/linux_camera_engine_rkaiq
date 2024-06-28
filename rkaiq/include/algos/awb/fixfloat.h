@@ -7,6 +7,6 @@ uint16_t UtlFloatToFix_U0012( float fFloat );
 int16_t UtlFloatToFix_S0310( float fFloat );
 int16_t UtlFloatToFix_S0312( float fFloat );
 int16_t FloatToS16(float fFloat);
-int16_t UtlFloatToFix_S0517( float fFloat );
+int16_t UtlFloatToFix_S0406( float fFloat );
 RKAIQ_END_DECLARE
 #endif

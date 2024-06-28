@@ -98,6 +98,60 @@ XCamReturn rk_aiq_uapi2_getExpMode(const rk_aiq_sys_ctx_t* ctx, opMode_t *mode);
 /*
 *****************************
 *
+* Desc: set exp time mode
+* Argument:
+*   mode contains: auto & manual
+*
+*****************************
+*/
+XCamReturn rk_aiq_uapi2_setExpTimeMode(const rk_aiq_sys_ctx_t* ctx, opMode_t mode);
+XCamReturn rk_aiq_uapi2_getExpTimeMode(const rk_aiq_sys_ctx_t* ctx, opMode_t *mode);
+
+/*
+*****************************
+*
+* Desc: set exp gain mode
+* Argument:
+*   mode contains: auto & manual
+*
+*****************************
+*/
+XCamReturn rk_aiq_uapi2_setExpGainMode(const rk_aiq_sys_ctx_t* ctx, opMode_t mode);
+XCamReturn rk_aiq_uapi2_getExpGainMode(const rk_aiq_sys_ctx_t* ctx, opMode_t *mode);
+
+/*
+*****************************
+* Desc: set manual gain value
+* Argument:
+*   gain > 1.0
+*
+*****************************
+*/
+XCamReturn rk_aiq_uapi2_setExpManualGain(const rk_aiq_sys_ctx_t* ctx, float gain);
+
+/*
+*****************************
+* Desc: set manual time value
+* Argument:
+*   time
+*
+*****************************
+*/
+XCamReturn rk_aiq_uapi2_setExpManualTime(const rk_aiq_sys_ctx_t* ctx, float time);
+
+/*
+*****************************
+* Desc: set frame rate
+* Argument:
+*   info.mode OP_AUTO or OP_MANUAL
+*
+*****************************
+*/
+XCamReturn rk_aiq_uapi2_setFrameRate(const rk_aiq_sys_ctx_t* ctx, frameRateInfo_t info);
+
+/*
+*****************************
+*
 * Desc: set exposure parameter
 * Argument:
 *    auto exposure mode:

@@ -22,37 +22,37 @@ typedef struct {
         M4_ALIAS(iir_inv_sigma),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,1),
-        M4_DEFAULT(0.2),
-        M4_DIGIT_EX(2f8b),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(TODO.\n Freq of use: low))  */
-    float hw_enhT_iir_inv_sigma;
-	/* M4_GENERIC_DESC(
-        M4_ALIAS(iir_soft_thed),
-        M4_TYPE(f32),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,31),
-        M4_DEFAULT(5),
+        M4_RANGE_EX(0,8),
+        M4_DEFAULT(3),
         M4_DIGIT_EX(0f8b),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_NOTES(TODO.\n Freq of use: low))  */
+        M4_NOTES(The inverse sigma of iir filter.\n Freq of use: low))  */
+    float hw_enhT_iir_inv_sigma;
+    /* M4_GENERIC_DESC(
+    M4_ALIAS(iir_soft_thed),
+    M4_TYPE(f32),
+    M4_SIZE_EX(1,1),
+    M4_RANGE_EX(0,31),
+    M4_DEFAULT(5),
+    M4_DIGIT_EX(0f8b),
+    M4_HIDE_EX(0),
+    M4_RO(0),
+    M4_ORDER(0),
+    M4_NOTES(The soft thread sigma of iir filter.\n Freq of use: low))  */
     float hw_enhT_iir_soft_thed;
-	/* M4_GENERIC_DESC(
-        M4_ALIAS(iir_cur_wgt),
-        M4_TYPE(f32),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,1),
-        M4_DEFAULT(0.5),
-        M4_DIGIT_EX(2f8b),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(TODO.\n Freq of use: low))  */
+    /* M4_GENERIC_DESC(
+    M4_ALIAS(iir_cur_wgt),
+    M4_TYPE(f32),
+    M4_SIZE_EX(1,1),
+    M4_RANGE_EX(0,1),
+    M4_DEFAULT(0.5),
+    M4_DIGIT_EX(2f8b),
+    M4_HIDE_EX(0),
+    M4_RO(0),
+    M4_ORDER(0),
+    M4_NOTES(The current pixel weight of iir filter.\n Freq of use: low))  */
     float hw_enhT_iir_cur_wgt;
 } enh_iirFlt_params_t;
 
@@ -65,25 +65,25 @@ typedef struct {
     M4_HIDE_EX(0),
     M4_RO(0),
     M4_ORDER(1),
-    M4_NOTES(The enable of color protection.\n
+    M4_NOTES(The enable of low frequency bilateral filter.\n
     Freq of use: low))  */
     bool hw_enhT_loBlf_bypass;
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_enhT_loBlf_inv_sigma),
-        M4_GROUP(loBlf_bypass_group),
+        M4_GROUP(!loBlf_bypass_group),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,1),
-        M4_DEFAULT(0.04),
-        M4_DIGIT_EX(2f8b),
+        M4_RANGE_EX(0,8),
+        M4_DEFAULT(6),
+        M4_DIGIT_EX(0f8b),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_NOTES(TODO.\n Freq of use: low))  */
+        M4_NOTES(The inverse sigma of low frequency bilateral filter.\n Freq of use: low))  */
     float hw_enhT_loBlf_inv_sigma;
     /* M4_GENERIC_DESC(
     M4_ALIAS(hw_enhT_loBlf_cur_wgt),
-    M4_GROUP(loBlf_bypass_group),
+    M4_GROUP(!loBlf_bypass_group),
     M4_TYPE(f32),
     M4_SIZE_EX(1,1),
     M4_RANGE_EX(0,1),
@@ -92,11 +92,11 @@ typedef struct {
     M4_HIDE_EX(0),
     M4_RO(0),
     M4_ORDER(0),
-    M4_NOTES(TODO.\n Freq of use: low))  */
+    M4_NOTES(The current pixel weight of low frequency bilateral filter.\n Freq of use: low))  */
     float hw_enhT_loBlf_cur_wgt;
     /* M4_GENERIC_DESC(
     M4_ALIAS(hw_enhT_loBlf_thumb_cur_wgt),
-    M4_GROUP(loBlf_bypass_group),
+    M4_GROUP(!loBlf_bypass_group),
     M4_TYPE(f32),
     M4_SIZE_EX(1,1),
     M4_RANGE_EX(1,15),
@@ -105,7 +105,7 @@ typedef struct {
     M4_HIDE_EX(0),
     M4_RO(0),
     M4_ORDER(0),
-    M4_NOTES(TODO.\n Freq of use: low))  */
+    M4_NOTES(The current thumb weight of low frequency bilateral filter.\n Freq of use: low))  */
     float hw_enhT_loBlf_thumb_cur_wgt;
 } enh_loBlfFlt_params_t;
 
@@ -114,25 +114,25 @@ typedef struct {
         M4_ALIAS(hw_enhT_midBlf_inv_sigma),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,1),
-        M4_DEFAULT(0.04),
-        M4_DIGIT_EX(2f8b),
+        M4_RANGE_EX(0,8),
+        M4_DEFAULT(6),
+        M4_DIGIT_EX(0f8b),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_NOTES(TODO.\n Freq of use: low))  */
+        M4_NOTES(The inverse sigma of mid frequency bilateral filter.\n Freq of use: low))  */
     float hw_enhT_midBlf_inv_sigma;
-	/* M4_GENERIC_DESC(
-        M4_ALIAS(hw_enhT_midBlf_cur_wgt),
-        M4_TYPE(f32),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,1),
-        M4_DEFAULT(0.01),
-        M4_DIGIT_EX(2f8b),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(TODO.\n Freq of use: low))  */
+    /* M4_GENERIC_DESC(
+    M4_ALIAS(hw_enhT_midBlf_cur_wgt),
+    M4_TYPE(f32),
+    M4_SIZE_EX(1,1),
+    M4_RANGE_EX(0,1),
+    M4_DEFAULT(0.01),
+    M4_DIGIT_EX(2f8b),
+    M4_HIDE_EX(0),
+    M4_RO(0),
+    M4_ORDER(0),
+    M4_NOTES(The current pixel weight of mid frequency bilateral filter.\n Freq of use: low))  */
     float hw_enhT_midBlf_cur_wgt;
 } enh_midBlfFlt_params_t;
 
@@ -172,13 +172,13 @@ typedef struct {
     M4_ALIAS(global_strg),
     M4_TYPE(f32),
     M4_SIZE_EX(1,1),
-    M4_RANGE_EX(0,15.99),
+    M4_RANGE_EX(0,16),
     M4_DEFAULT(1),
     M4_DIGIT_EX(2f8b),
     M4_HIDE_EX(0),
     M4_RO(0),
     M4_ORDER(0),
-    M4_NOTES(TODO.\n Freq of use: low))  */
+    M4_NOTES(The global strength of enhance.\n Freq of use: high))  */
     float hw_enhT_global_strg;
     /* M4_GENERIC_DESC(
     M4_ALIAS(diff2strg_en),
@@ -239,7 +239,7 @@ typedef struct {
     M4_HIDE_EX(0),
     M4_RO(0),
     M4_ORDER(2),
-    M4_NOTES(All bifilt_filter params corresponded with iso array))  */
+    M4_NOTES(All iir filter params corresponded with iso array))  */
     enh_iirFlt_params_t iir;
     /* M4_GENERIC_DESC(
     M4_ALIAS(loBlf),
@@ -248,7 +248,7 @@ typedef struct {
     M4_HIDE_EX(0),
     M4_RO(0),
     M4_ORDER(2),
-    M4_NOTES(All bifilt_filter params corresponded with iso array))  */
+    M4_NOTES(All low frequency bilateral filter params corresponded with iso array))  */
     enh_loBlfFlt_params_t loBlf;
     /* M4_GENERIC_DESC(
     M4_ALIAS(midBlf),
@@ -257,7 +257,7 @@ typedef struct {
     M4_HIDE_EX(0),
     M4_RO(0),
     M4_ORDER(2),
-    M4_NOTES(All bifilt_filter params corresponded with iso array))  */
+    M4_NOTES(All mid frequency bilateral filter params corresponded with iso array))  */
     enh_midBlfFlt_params_t midBlf;
     /* M4_GENERIC_DESC(
     M4_ALIAS(strg),
@@ -266,7 +266,7 @@ typedef struct {
     M4_HIDE_EX(0),
     M4_RO(0),
     M4_ORDER(2),
-    M4_NOTES(All bifilt_filter params corresponded with iso array))  */
+    M4_NOTES(All strength params corresponded with iso array))  */
     enh_strg_params_t strg;
 } enh_params_dyn_t;
 

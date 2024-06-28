@@ -99,6 +99,39 @@ XCamReturn EnhSelectParam(EnhContext_t* pEnhCtx, enh_param_t* out, int iso) {
     return XCAM_RETURN_NO_ERROR;
 }
 
+static XCamReturn EnhanceApplyStrength(EnhContext_t *pEnhCtx, enh_param_t *out) {
+
+    XCamReturn result = XCAM_RETURN_NO_ERROR;
+    if (pEnhCtx == NULL || out == NULL) {
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+
+    bool level_up;
+    unsigned int level_diff;
+    aenh_strength_t* strg = &pEnhCtx->strg;
+
+    if (strg->MEnhanceStrth != ENHANCE_DEFAULT_LEVEL) {
+        LOG1_ADEHAZE("MEnhanceStrth %d\n", strg->MEnhanceStrth);
+        level_diff = strg->MEnhanceStrth > ENHANCE_DEFAULT_LEVEL
+                         ? (strg->MEnhanceStrth - ENHANCE_DEFAULT_LEVEL)
+                         : (ENHANCE_DEFAULT_LEVEL - strg->MEnhanceStrth);
+        level_up = strg->MEnhanceStrth > ENHANCE_DEFAULT_LEVEL;
+        if (level_up) {
+            out->dyn.strg.hw_enhT_global_strg +=
+                level_diff * ENH_LUMA_DEFAULT_STEP_FLOAT;
+            out->dyn.strg.hw_enhT_global_strg =
+                LIMIT_VALUE(out->dyn.strg.hw_enhT_global_strg, 16.0f, 0.0f);
+        } else {
+            out->dyn.strg.hw_enhT_global_strg -=
+                level_diff * ENH_LUMA_DEFAULT_STEP_FLOAT;
+            out->dyn.strg.hw_enhT_global_strg =
+                LIMIT_VALUE(out->dyn.strg.hw_enhT_global_strg, 16.0f, 0.0f);
+        }
+    }
+
+    return result;
+}
+
 static XCamReturn create_context(RkAiqAlgoContext** context, const AlgoCtxInstanceCfg* cfg) {
     XCamReturn result                 = XCAM_RETURN_NO_ERROR;
     CamCalibDbV2Context_t* pCalibDbV2 = cfg->calibv2;
@@ -111,6 +144,10 @@ static XCamReturn create_context(RkAiqAlgoContext** context, const AlgoCtxInstan
 
     ctx->isReCal_   = true;
     ctx->enh_attrib = (enh_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(pCalibDbV2, enh));
+
+    ctx->strg.en                  = false;
+    ctx->strg.MEnhanceStrth       = DEHAZE_DEFAULT_LEVEL;
+    ctx->strg.MEnhanceChromeStrth = DEHAZE_DEFAULT_LEVEL;
 
     *context = (RkAiqAlgoContext*)ctx;
     LOGV_ADEHAZE("%s: (exit)\n", __FUNCTION__);
@@ -176,6 +213,7 @@ XCamReturn Aenh_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outpar
 
     if (pEnhCtx->isReCal_) {
         EnhSelectParam(pEnhCtx, enhRes, iso);
+        EnhanceApplyStrength(pEnhCtx, enhRes);
 
         outparams->cfg_update = true;
         outparams->en         = enh_attrib->en;
@@ -193,6 +231,37 @@ XCamReturn Aenh_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outpar
 static XCamReturn processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams) {
     int iso = inparams->u.proc.iso;
     Aenh_processing(inparams, outparams, iso);
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn algo_enh_SetStrength(
+    RkAiqAlgoContext* ctx,
+    aenh_strength_t *strg
+) {
+    if(ctx == NULL || strg == NULL) {
+        LOGE_ADEHAZE("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+
+    EnhContext_t* pEnhCtx = (EnhContext_t*)ctx;
+    pEnhCtx->isReCal_ = true;
+    pEnhCtx->strg     = *strg;
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn algo_enh_GetStrength(
+    RkAiqAlgoContext* ctx,
+    aenh_strength_t *strg
+) {
+    if(ctx == NULL || strg == NULL) {
+        LOGE_ADEHAZE("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+
+    EnhContext_t* pEnhCtx = (EnhContext_t*)ctx;
+    *strg                 = pEnhCtx->strg;
 
     return XCAM_RETURN_NO_ERROR;
 }

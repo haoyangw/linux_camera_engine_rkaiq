@@ -26,5 +26,7 @@ XCamReturn AiqEnhHandler_setAttrib(AiqEnhHandler_t* pHdlEnh, enh_api_attrib_t* a
 XCamReturn AiqEnhHandler_getAttrib(AiqEnhHandler_t* pHdlEnh, enh_api_attrib_t* attr);
 XCamReturn AiqEnhHandler_queryStatus(AiqEnhHandler_t* pHdlEnh, enh_status_t* status);
 #endif
+XCamReturn AiqEnhHandler_setStrength(AiqEnhHandler_t* pHdlEnh, aenh_strength_t* strg);
+XCamReturn AiqEnhHandler_getStrength(AiqEnhHandler_t* pHdlEnh, aenh_strength_t* strg);
 #endif
 #endif

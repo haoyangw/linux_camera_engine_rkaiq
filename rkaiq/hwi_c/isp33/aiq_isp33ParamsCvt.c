@@ -453,20 +453,20 @@ static void WriteDataForIcCmodel(struct isp33_rawawb_meas_cfg* wpDetectPara)
         fprintf(fp, "g_awb_para.sw_rawawb_multiwindow_en =%d;\n", wpDetectPara->multiwindow_en);
         fprintf(fp, "g_awb_para.sw_rawawb_multiwindow0_h_offs =%d;\n", wpDetectPara->multiwindow0_h_offs);
         fprintf(fp, "g_awb_para.sw_rawawb_multiwindow0_v_offs =%d;\n", wpDetectPara->multiwindow0_v_offs);
-        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow0_h_size =%d;\n", wpDetectPara->multiwindow0_h_size);
-        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow0_v_size =%d;\n", wpDetectPara->multiwindow0_v_size);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow0_h_size =%d;//note:diff with chip\n", wpDetectPara->multiwindow0_h_size- wpDetectPara->multiwindow0_h_offs);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow0_v_size =%d;\n", wpDetectPara->multiwindow0_v_size- wpDetectPara->multiwindow0_v_offs);
         fprintf(fp, "g_awb_para.sw_rawawb_multiwindow1_h_offs =%d;\n", wpDetectPara->multiwindow1_h_offs);
         fprintf(fp, "g_awb_para.sw_rawawb_multiwindow1_v_offs =%d;\n", wpDetectPara->multiwindow1_v_offs);
-        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow1_h_size =%d;\n", wpDetectPara->multiwindow1_h_size);
-        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow1_v_size =%d;\n", wpDetectPara->multiwindow1_v_size);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow1_h_size =%d;\n", wpDetectPara->multiwindow1_h_size- wpDetectPara->multiwindow1_h_offs);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow1_v_size =%d;\n", wpDetectPara->multiwindow1_v_size- wpDetectPara->multiwindow1_v_offs);
         fprintf(fp, "g_awb_para.sw_rawawb_multiwindow2_h_offs =%d;\n", wpDetectPara->multiwindow2_h_offs);
         fprintf(fp, "g_awb_para.sw_rawawb_multiwindow2_v_offs =%d;\n", wpDetectPara->multiwindow2_v_offs);
-        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow2_h_size =%d;\n", wpDetectPara->multiwindow2_h_size);
-        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow2_v_size =%d;\n", wpDetectPara->multiwindow2_v_size);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow2_h_size =%d;\n", wpDetectPara->multiwindow2_h_size- wpDetectPara->multiwindow2_h_offs);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow2_v_size =%d;\n", wpDetectPara->multiwindow2_v_size- wpDetectPara->multiwindow2_v_offs);
         fprintf(fp, "g_awb_para.sw_rawawb_multiwindow3_h_offs =%d;\n", wpDetectPara->multiwindow3_h_offs);
         fprintf(fp, "g_awb_para.sw_rawawb_multiwindow3_v_offs =%d;\n", wpDetectPara->multiwindow3_v_offs);
-        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow3_h_size =%d;\n", wpDetectPara->multiwindow3_h_size);
-        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow3_v_size =%d;\n", wpDetectPara->multiwindow3_v_size);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow3_h_size =%d;\n", wpDetectPara->multiwindow3_h_size- wpDetectPara->multiwindow3_h_offs);
+        fprintf(fp, "g_awb_para.sw_rawawb_multiwindow3_v_size =%d;\n", wpDetectPara->multiwindow3_v_size- wpDetectPara->multiwindow3_v_offs);
         fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region0_excen0 =%d;\n", wpDetectPara->exc_wp_region0_excen&0x1);
         fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region0_excen1 =%d;\n", wpDetectPara->exc_wp_region0_excen&0x2>>1);
         fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region0_measen =%d;\n", wpDetectPara->exc_wp_region0_measen);
@@ -479,8 +479,8 @@ static void WriteDataForIcCmodel(struct isp33_rawawb_meas_cfg* wpDetectPara)
         fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region1_excen0 =%d;\n", wpDetectPara->exc_wp_region1_excen&0x1);
         fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region1_excen1 =%d;\n", wpDetectPara->exc_wp_region1_excen&0x2>>1);
         fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region1_measen =%d;\n", wpDetectPara->exc_wp_region1_measen);
-        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region1_domain =%d;\n", wpDetectPara->exc_wp_region1_domain);
         fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region1_weight =%d;\n", wpDetectPara->exc_wp_region1_weight);
+        fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region1_domain =%d;\n", wpDetectPara->exc_wp_region1_domain);
         fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region1_xu0 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region1_xu0));
         fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region1_xu1 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region1_xu1));
         fprintf(fp, "g_awb_para.sw_rawawb_exc_wp_region1_yv0 =%d;\n", c2trval(15,wpDetectPara->exc_wp_region1_yv0));
@@ -566,15 +566,15 @@ static void WriteDataForIcCmodel(struct isp33_rawawb_meas_cfg* wpDetectPara)
         fprintf(fp, "g_awb_para.sw_bls_b_fixed =%d;\n", wpDetectPara->bls2_val.gr);
         fprintf(fp, "g_awb_para.sw_bls_c_fixed =%d;\n", wpDetectPara->bls2_val.gb);
         fprintf(fp, "g_awb_para.sw_bls_d_fixed =%d;\n", wpDetectPara->bls2_val.b);
-        fprintf(fp, "g_awb_para.sw_rawawb_ccm_coeff0_r =%d;\n", c2trval(15,wpDetectPara->ccm_coeff0_r));
-        fprintf(fp, "g_awb_para.sw_rawawb_ccm_coeff1_r =%d;\n", c2trval(15,wpDetectPara->ccm_coeff1_r));
-        fprintf(fp, "g_awb_para.sw_rawawb_ccm_coeff2_r =%d;\n", c2trval(15,wpDetectPara->ccm_coeff2_r));
-        fprintf(fp, "g_awb_para.sw_rawawb_ccm_coeff0_g =%d;\n", c2trval(15,wpDetectPara->ccm_coeff0_g));
-        fprintf(fp, "g_awb_para.sw_rawawb_ccm_coeff1_g =%d;\n", c2trval(15,wpDetectPara->ccm_coeff1_g));
-        fprintf(fp, "g_awb_para.sw_rawawb_ccm_coeff2_g =%d;\n", c2trval(15,wpDetectPara->ccm_coeff2_g));
-        fprintf(fp, "g_awb_para.sw_rawawb_ccm_coeff0_b =%d;\n", c2trval(15,wpDetectPara->ccm_coeff0_b));
-        fprintf(fp, "g_awb_para.sw_rawawb_ccm_coeff1_b =%d;\n", c2trval(15,wpDetectPara->ccm_coeff1_b));
-        fprintf(fp, "g_awb_para.sw_rawawb_ccm_coeff2_b =%d;\n", c2trval(15,wpDetectPara->ccm_coeff2_b));
+        fprintf(fp, "g_awb_para.sw_rawawb_ccm[0] =%d;\n", c2trval(15,wpDetectPara->ccm_coeff0_r));
+        fprintf(fp, "g_awb_para.sw_rawawb_ccm[1] =%d;\n", c2trval(15,wpDetectPara->ccm_coeff1_r));
+        fprintf(fp, "g_awb_para.sw_rawawb_ccm[2] =%d;\n", c2trval(15,wpDetectPara->ccm_coeff2_r));
+        fprintf(fp, "g_awb_para.sw_rawawb_ccm[3] =%d;\n", c2trval(15,wpDetectPara->ccm_coeff0_g));
+        fprintf(fp, "g_awb_para.sw_rawawb_ccm[4] =%d;\n", c2trval(15,wpDetectPara->ccm_coeff1_g));
+        fprintf(fp, "g_awb_para.sw_rawawb_ccm[5] =%d;\n", c2trval(15,wpDetectPara->ccm_coeff2_g));
+        fprintf(fp, "g_awb_para.sw_rawawb_ccm[6] =%d;\n", c2trval(15,wpDetectPara->ccm_coeff0_b));
+        fprintf(fp, "g_awb_para.sw_rawawb_ccm[7] =%d;\n", c2trval(15,wpDetectPara->ccm_coeff1_b));
+        fprintf(fp, "g_awb_para.sw_rawawb_ccm[8] =%d;\n", c2trval(15,wpDetectPara->ccm_coeff2_b));
         fclose(fp);
     }
 
@@ -1151,6 +1151,7 @@ static bool srcChooseCheck(awbStats_src_mode_t srcChoose, int working_mode) {
 
 static void convertAiqAwbToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase) {
     LOG1_AWB("%s enter", __FUNCTION__);
+    //TODO config 16*8
     pCvt->mAwbParams = (aiq_params_base_t*)pBase;
     const rk_aiq_isp_awb_meas_cfg_v33_t* awb_meas_priv =
         (rk_aiq_isp_awb_meas_cfg_v33_t*)pBase->_data;
@@ -1170,8 +1171,7 @@ static void convertAiqAwbToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_
     } else {
         return;
     }
-    // to do :
-    // config blc2 important
+    //TODO config blc2 en
     // pCvt->isp_params.isp_cfg->module_ens |= ISP2X_MODULE_BLS;
     // pCvt->isp_params.isp_cfg->module_cfg_update |= ISP2X_MODULE_BLS;
     // pCvt->isp_params.isp_cfg->module_en_update |= ISP2X_MODULE_BLS;
@@ -1394,6 +1394,7 @@ static void convertAiqAwbToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_
     awb_cfg_v32->multiwindow_en      = awb_meas->mainWin.hw_awbCfg_nonROI_en;
     awb_cfg_v32->multiwindow0_h_offs = awb_meas->mainWin.nonROI[0].hw_awbCfg_nonROI_x;
     awb_cfg_v32->multiwindow0_v_offs = awb_meas->mainWin.nonROI[0].hw_awbCfg_nonROI_y;
+    //note  multiwindow0_h_size means multiwindow0_h_end in chip
     awb_cfg_v32->multiwindow0_h_size = awb_meas->mainWin.nonROI[0].hw_awbCfg_nonROI_x +
                                        awb_meas->mainWin.nonROI[0].hw_awbCfg_nonROI_width;
     awb_cfg_v32->multiwindow0_v_size = awb_meas->mainWin.nonROI[0].hw_awbCfg_nonROI_y +
@@ -1551,15 +1552,27 @@ static void convertAiqAwbToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_
         (uint8_t)(awb_meas->wpEngine.wpFiltOut_smpEntity[2].hw_awbT_stats_wgt *
                       ((1 << RK_AIQ_WP_INCLUDE_BIS) - 1) +
                   0.5);
-    awb_cfg_v32->ccm_coeff0_r = UtlFloatToFix_S0517(awb_meas->wpEngine.hw_awbT_luma2WpWgt_ccm[0]);
-    awb_cfg_v32->ccm_coeff1_r = UtlFloatToFix_S0517(awb_meas->wpEngine.hw_awbT_luma2WpWgt_ccm[1]);
-    awb_cfg_v32->ccm_coeff2_r = UtlFloatToFix_S0517(awb_meas->wpEngine.hw_awbT_luma2WpWgt_ccm[2]);
-    awb_cfg_v32->ccm_coeff0_g = UtlFloatToFix_S0517(awb_meas->wpEngine.hw_awbT_luma2WpWgt_ccm[3]);
-    awb_cfg_v32->ccm_coeff1_g = UtlFloatToFix_S0517(awb_meas->wpEngine.hw_awbT_luma2WpWgt_ccm[4]);
-    awb_cfg_v32->ccm_coeff2_g = UtlFloatToFix_S0517(awb_meas->wpEngine.hw_awbT_luma2WpWgt_ccm[5]);
-    awb_cfg_v32->ccm_coeff0_b = UtlFloatToFix_S0517(awb_meas->wpEngine.hw_awbT_luma2WpWgt_ccm[6]);
-    awb_cfg_v32->ccm_coeff1_b = UtlFloatToFix_S0517(awb_meas->wpEngine.hw_awbT_luma2WpWgt_ccm[7]);
-    awb_cfg_v32->ccm_coeff2_b = UtlFloatToFix_S0517(awb_meas->wpEngine.hw_awbT_luma2WpWgt_ccm[8]);
+
+    LOGV_AWB("hw_awbT_luma2WpWgt_ccm(%f,%f,%f,%f,%f,%f,%f,%f,%f)",
+        awb_cfg_v32->ccm_coeff0_r,
+        awb_cfg_v32->ccm_coeff1_r,
+        awb_cfg_v32->ccm_coeff2_r,
+        awb_cfg_v32->ccm_coeff0_g,
+        awb_cfg_v32->ccm_coeff1_g,
+        awb_cfg_v32->ccm_coeff2_g,
+        awb_cfg_v32->ccm_coeff0_b,
+        awb_cfg_v32->ccm_coeff1_b,
+        awb_cfg_v32->ccm_coeff2_b);
+
+    awb_cfg_v32->ccm_coeff0_r = UtlFloatToFix_S0406(awb_meas->wpEngine.hw_awbT_luma2WpWgt_ccm[0]);
+    awb_cfg_v32->ccm_coeff1_r = UtlFloatToFix_S0406(awb_meas->wpEngine.hw_awbT_luma2WpWgt_ccm[1]);
+    awb_cfg_v32->ccm_coeff2_r = UtlFloatToFix_S0406(awb_meas->wpEngine.hw_awbT_luma2WpWgt_ccm[2]);
+    awb_cfg_v32->ccm_coeff0_g = UtlFloatToFix_S0406(awb_meas->wpEngine.hw_awbT_luma2WpWgt_ccm[3]);
+    awb_cfg_v32->ccm_coeff1_g = UtlFloatToFix_S0406(awb_meas->wpEngine.hw_awbT_luma2WpWgt_ccm[4]);
+    awb_cfg_v32->ccm_coeff2_g = UtlFloatToFix_S0406(awb_meas->wpEngine.hw_awbT_luma2WpWgt_ccm[5]);
+    awb_cfg_v32->ccm_coeff0_b = UtlFloatToFix_S0406(awb_meas->wpEngine.hw_awbT_luma2WpWgt_ccm[6]);
+    awb_cfg_v32->ccm_coeff1_b = UtlFloatToFix_S0406(awb_meas->wpEngine.hw_awbT_luma2WpWgt_ccm[7]);
+    awb_cfg_v32->ccm_coeff2_b = UtlFloatToFix_S0406(awb_meas->wpEngine.hw_awbT_luma2WpWgt_ccm[8]);
 
     awb_cfg_v32->wp_luma_weicurve_y0 = awb_meas->wpEngine.hw_awbT_luma2WpWgt_curve.idx[0];
     awb_cfg_v32->wp_luma_weicurve_y1 = awb_meas->wpEngine.hw_awbT_luma2WpWgt_curve.idx[1];
@@ -1597,11 +1610,14 @@ static void convertAiqAwbToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_
     awb_cfg_v32->wp_luma_weicurve_w8 = (uint8_t)(awb_meas->wpEngine.hw_awbT_luma2WpWgt_curve.val[8] *
                                                      ((1 << RK_AIQ_AWB_WP_WEIGHT_BIS_V201) - 1) +
                                                  0.5);
+
+
+
     for (int i = 0; i < RK_AIQ_AWB_GRID_NUM_TOTAL; i++) {
         awb_cfg_v32->wp_blk_wei_w[i] = awb_meas->wpEngine.hw_awbCfg_zone_wgt[i];
     }
     awb_cfg_v32->blk_rtdw_measure_en = 0;
-
+    WriteDataForIcCmodel(awb_cfg_v32);
     WriteAwbReg(awb_cfg_v32);
 }
 

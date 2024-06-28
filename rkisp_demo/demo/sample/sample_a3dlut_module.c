@@ -466,7 +466,7 @@ int sample_3dlut_setCalib_test(const rk_aiq_sys_ctx_t* ctx)
 }
 #endif
 
-#if USE_NEWSTRUCT && defined(RKAIQ_HAVE_HSV)
+#if USE_NEWSTRUCT && defined(ISP_HW_V33)
 int sample_hsv_test(const rk_aiq_sys_ctx_t* ctx)
 {
     // get cur mode
@@ -537,8 +537,8 @@ int sample_query_hsv_status(const rk_aiq_sys_ctx_t* ctx)
             info.stMan.dyn.lut2.hw_hsvT_lut2d_mode,
             info.stMan.dyn.lut2.hw_hsvT_lut2d_val[16],
             info.stMan.dyn.lut2.hw_hsvT_lut2d_val[144],
-            info.alut3dStatus.sw_hsvC_illuUsed_name,
-            info.alut3dStatus.sw_hsvT_alpha_val);
+            info.ahsvStatus.sw_hsvC_illuUsed_name,
+            info.ahsvStatus.sw_hsvT_alpha_val);
     return 0;
 }
 
@@ -563,7 +563,7 @@ int sample_hsv_setCalib_test(const rk_aiq_sys_ctx_t* ctx)
                 calib.tableAll[i].meshGain.lut1.hw_hsvT_lut1d_val[32],
                 calib.tableAll[i].meshGain.lut2.hw_hsvT_lut2d_mode,
                 calib.tableAll[i].meshGain.lut2.hw_hsvT_lut2d_val[16],
-                calib.tableAll[i].meshGain.lut2.hw_hsvT_lut2d_val[144],);
+                calib.tableAll[i].meshGain.lut2.hw_hsvT_lut2d_val[144]);
     }
     //modify
     srand(time(0));
@@ -612,7 +612,7 @@ int sample_hsv_setCalib_test(const rk_aiq_sys_ctx_t* ctx)
                 calib_new.tableAll[i].meshGain.lut1.hw_hsvT_lut1d_val[32],
                 calib_new.tableAll[i].meshGain.lut2.hw_hsvT_lut2d_mode,
                 calib_new.tableAll[i].meshGain.lut2.hw_hsvT_lut2d_val[16],
-                calib_new.tableAll[i].meshGain.lut2.hw_hsvT_lut2d_val[144],);
+                calib_new.tableAll[i].meshGain.lut2.hw_hsvT_lut2d_val[144]);
     }
     if (calib_new.sw_hsvCfg_tblAll_len != calib.sw_hsvCfg_tblAll_len || 
         calib_new.tableAll[0].meshGain.lut0.hw_hsvT_lut1d_val[0] != calib.tableAll[0].meshGain.lut0.hw_hsvT_lut1d_val[0])
@@ -734,7 +734,7 @@ XCamReturn sample_a3dlut_module(const void* arg)
                 sample_3dlut_setCalib_test(ctx);
                 break;
 #endif
-#if USE_NEWSTRUCT && defined(RKAIQ_HAVE_HSV)
+#if USE_NEWSTRUCT && defined(ISP_HW_V33)
             case 'm':
                 sample_hsv_test(ctx);
                 break;

@@ -61,7 +61,7 @@ _dehaze_GetMDehazeStrth(const rk_aiq_sys_ctx_t* sys_ctx, adehaze_strength_t *ctr
 }
 
 
-XCamReturn rk_aiq_uapi2_setDehazeEnhanceStrth(const rk_aiq_sys_ctx_t* sys_ctx, adehaze_strength_t ctrl)
+XCamReturn rk_aiq_user_api2_setDehazeEnhanceStrth(const rk_aiq_sys_ctx_t* sys_ctx, adehaze_strength_t ctrl)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
     CHECK_USER_API_ENABLE2(sys_ctx);
@@ -74,7 +74,7 @@ XCamReturn rk_aiq_uapi2_setDehazeEnhanceStrth(const rk_aiq_sys_ctx_t* sys_ctx, a
     return ret;
 }
 
-XCamReturn rk_aiq_uapi2_getDehazeEnhanceStrth(const rk_aiq_sys_ctx_t* sys_ctx, adehaze_strength_t *ctrl)
+XCamReturn rk_aiq_user_api2_getDehazeEnhanceStrth(const rk_aiq_sys_ctx_t* sys_ctx, adehaze_strength_t *ctrl)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
     CHECK_USER_API_ENABLE2(sys_ctx);

@@ -62,6 +62,8 @@ typedef struct {
 #endif
     btnr_trans_params_t mBtnrTransParams;
     int hw_btnrCfg_pixDomain_mode;
+    uint16_t btnr_stats_miss_cnt;
+    uint16_t sharp_stats_miss_cnt;
 } btnr_cvt_info_t;
 
 void bayertnr_logtrans_init(int bayertnr_trans_mode,  int bayertnr_trans_mode_scale, btnr_trans_params_t *pTransPrarms);

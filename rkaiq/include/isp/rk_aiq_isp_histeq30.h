@@ -170,13 +170,14 @@ typedef struct {
     M4_ALIAS(gainRef_sel),
     M4_TYPE(f32),
     M4_SIZE_EX(1,1),
-    M4_RANGE_EX(0,0.99),
+    M4_RANGE_EX(0,1),
     M4_DEFAULT(0.5),
     M4_DIGIT_EX(2f8b),
     M4_HIDE_EX(0),
     M4_RO(0),
     M4_ORDER(0),
-    M4_NOTES(TODO.\n Freq of use: low))  */
+    M4_NOTES(In the fusion operation of using enhance-filter result and using sharp output result,
+    the fusion weight value of using sharp output result.\n Freq of use: high))  */
     float hw_hist_gainRef_sel;
     /* M4_GENERIC_DESC(
     M4_ALIAS(hw_hist_globalMergeWeight_en),
@@ -187,7 +188,7 @@ typedef struct {
     M4_RO(0),
     M4_ORDER(0),
     M4_NOTES(The enable of using sw_hist_globalMergePos_weight and sw_hist_globalMergeNeg_weight.\n
-    Freq of use: low))	*/
+    Freq of use: high))	*/
     bool hw_hist_globalMergeWeight_en;
     /* M4_GENERIC_DESC(
     M4_ALIAS(globalMergePos_weight),
@@ -200,7 +201,8 @@ typedef struct {
     M4_HIDE_EX(0),
     M4_RO(0),
     M4_ORDER(0),
-    M4_NOTES(TODO.\n Freq of use: low))  */
+    M4_NOTES(When gain is over 1, the global fusion weight value of histeq-out image in the fusion
+    operation of histeq-out image and orginal image.\n Freq of use: high))  */
     float sw_hist_globalMergePos_weight;
     /* M4_GENERIC_DESC(
     M4_ALIAS(globalMergeNeg_weight),
@@ -213,10 +215,12 @@ typedef struct {
     M4_HIDE_EX(0),
     M4_RO(0),
     M4_ORDER(0),
-    M4_NOTES(TODO.\n Freq of use: low))  */
+    M4_NOTES(When gain is under 1, the global fusion weight value of histeq-out image in the fusion
+    operation of histeq-out image and orginal image.\n Freq of use: high))  */
     float sw_hist_globalMergeNeg_weight;
     /* M4_GENERIC_DESC(
     M4_ALIAS(outputMerge_pos_alpha),
+    M4_GROUP(!globalMergeWeight_en_group),
     M4_TYPE(f32),
     M4_UI_MODULE(drc_curve),
     M4_SIZE_EX(1,17),
@@ -227,10 +231,12 @@ typedef struct {
     M4_HIDE_EX(0),
     M4_RO(0),
     M4_ORDER(0),
-    M4_NOTES(TODO.\n Freq of use: low))  */
+    M4_NOTES(When gain is over 1, the local fusion weight value of histeq-out image in the fusion
+    operation of histeq-out image and orginal image.\n Freq of use: high))  */
     float sw_hist_outputMerge_pos_alpha[17];
     /* M4_GENERIC_DESC(
     M4_ALIAS(outputMerge_neg_alpha),
+    M4_GROUP(!globalMergeWeight_en_group),
     M4_TYPE(f32),
     M4_UI_MODULE(drc_curve),
     M4_SIZE_EX(1,17),
@@ -241,7 +247,8 @@ typedef struct {
     M4_HIDE_EX(0),
     M4_RO(0),
     M4_ORDER(0),
-    M4_NOTES(TODO.\n Freq of use: low))  */
+    M4_NOTES(When gain is under 1, the local fusion weight value of histeq-out image in the fusion
+    operation of histeq-out image and orginal image.\n Freq of use: high))  */
     float sw_hist_outputMerge_neg_alpha[17];
 } histeq_mergeWeit_params_t;
 
@@ -271,7 +278,7 @@ typedef struct {
     M4_HIDE_EX(0),
     M4_RO(0),
     M4_ORDER(2),
-    M4_NOTES(All histeq stats params corresponded with iso array))  */
+    M4_NOTES(All histeq iir params corresponded with iso array))  */
     histeq_iir_params_t iir;
     /* M4_GENERIC_DESC(
     M4_ALIAS(mergeWeit),
@@ -280,7 +287,7 @@ typedef struct {
     M4_HIDE_EX(0),
     M4_RO(0),
     M4_ORDER(2),
-    M4_NOTES(All histeq stats params corresponded with iso array))  */
+    M4_NOTES(All histeq mergeWeit params corresponded with iso array))  */
     histeq_mergeWeit_params_t mergeWeit;
     /* M4_GENERIC_DESC(
     M4_ALIAS(saturate_scale),

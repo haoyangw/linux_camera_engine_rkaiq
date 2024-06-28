@@ -62,7 +62,7 @@ _dehaze_GetMDehazeStrth(const rk_aiq_sys_ctx_t* sys_ctx, dehazeStrth *ctrl)
 }
 
 
-XCamReturn rk_aiq_uapi2_setDehazeEnhanceStrth(const rk_aiq_sys_ctx_t* sys_ctx, dehazeStrth ctrl)
+XCamReturn rk_aiq_user_api2_setDehazeEnhanceStrth(const rk_aiq_sys_ctx_t* sys_ctx, dehazeStrth ctrl)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 #if USE_NEWSTRUCT
@@ -88,7 +88,7 @@ XCamReturn rk_aiq_uapi2_setDehazeEnhanceStrth(const rk_aiq_sys_ctx_t* sys_ctx, d
     return XCAM_RETURN_NO_ERROR;
 }
 
-XCamReturn rk_aiq_uapi2_getDehazeEnhanceStrth(const rk_aiq_sys_ctx_t* sys_ctx, dehazeStrth *ctrl)
+XCamReturn rk_aiq_user_api2_getDehazeEnhanceStrth(const rk_aiq_sys_ctx_t* sys_ctx, dehazeStrth *ctrl)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 #if USE_NEWSTRUCT

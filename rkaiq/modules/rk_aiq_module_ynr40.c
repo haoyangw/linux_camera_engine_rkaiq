@@ -127,11 +127,45 @@ void rk_aiq_ynr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
         pCfg->radius2strg[16] = CLIP(radius2strg[16], 0, 0xff);
     }
 
+    float loSpnr_strg = 9999.0;
+    for (i = 0; i < 6; i++) {
+        loSpnr_strg = MIN(loSpnr_strg, pdyn->loNr.epf.hw_ynrT_luma2RgeSgm_scale[i]);
+    }
+
     for (i = 0; i < ISO_CURVE_POINT_NUM; i++) {
         tmp = pdyn->sigmaEnv.hw_ynrC_luma2Sigma_curve.idx[i];
         pCfg->luma2sima_x[i] = CLIP(tmp, 0, 0x7ff);;
         tmp = pdyn->sigmaEnv.hw_ynrC_luma2Sigma_curve.val[i] * (1 << NOISE_SIGMA_FIX_BIT);
         pCfg->luma2sima_y[i] = CLIP(tmp, 0, 0xfff);
+    }
+
+    float loFreqLumaNrCurvePoint[6] = {0, 32, 64, 128, 192, 256};
+    float loFreqLumaNrCurveRatio[6];
+    for (i = 0; i < 6; i++) {
+        loFreqLumaNrCurveRatio[i] = pdyn->loNr.epf.hw_ynrT_luma2RgeSgm_scale[i] / loSpnr_strg;
+        loFreqLumaNrCurvePoint[i] *= 4;
+    }
+
+    //update lo noise curve;
+    for (i = 0; i < ISO_CURVE_POINT_NUM; i++) {
+        float rate;
+
+        int j = 0;
+        for (j = 0; j < 6; j++) {
+            if (pCfg->luma2sima_x[i] <= loFreqLumaNrCurvePoint[j])
+                break;
+        }
+
+        if (j <= 0)
+            rate = loFreqLumaNrCurveRatio[0];
+        else if (j >= 6)
+            rate = loFreqLumaNrCurveRatio[5];
+        else
+        {
+            rate = ((float)pCfg->luma2sima_x[i] - loFreqLumaNrCurvePoint[j - 1]) / (loFreqLumaNrCurvePoint[j] - loFreqLumaNrCurvePoint[j - 1]);
+            rate = loFreqLumaNrCurveRatio[j - 1] + rate * (loFreqLumaNrCurveRatio[j] - loFreqLumaNrCurveRatio[j - 1]);
+        }
+        pCfg->luma2sima_y[i] = MIN((int)(rate * pCfg->luma2sima_y[i]), 4095);
     }
 
     // REG: HI_SIGMA_GAIN
@@ -156,12 +190,18 @@ void rk_aiq_ynr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
             coeff[0] = (int)(w01_f / w_sum_f * 256 + 0.5f); // [0, 63]
             coeff[1] = (int)(w02_f / w_sum_f * 256 + 0.5f); // [0, 31]
             coeff[2] = (int)(w11_f / w_sum_f * 256 + 0.5f); // [0, 31]
-            coeff[3] = (pCfg->hi_lp_en == 1) ? 0 : (int)(w12_f / w_sum_f * 256 + 0.5f); // [0, 15]
-            coeff[4] = (pCfg->hi_lp_en == 1) ? 0 : (int)(w22_f / w_sum_f * 256 + 0.5f); // [0, 15]
+            coeff[3] = (int)(w12_f / w_sum_f * 256 + 0.5f); // [0, 15]
+            coeff[4] = (int)(w22_f / w_sum_f * 256 + 0.5f); // [0, 15]
         } else {
             for (i = 0; i < 5; i++)
                 coeff[i] = pdyn->hiNr.epf.hw_ynrT_filtSpatial_wgt[i] * (1 << 8);
         }
+
+        if (pCfg->hi_lp_en == 1) {
+            coeff[3] = 0;
+            coeff[4] = 0;
+        }
+
         // REG: HI_GAUS_COE
         pCfg->hi_spnr_filt_coeff[0] = CLIP(coeff[0], 0, 0x3f);
         pCfg->hi_spnr_filt_coeff[1] = CLIP(coeff[1], 0, 0x3f);
@@ -212,7 +252,7 @@ void rk_aiq_ynr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
         pCfg->hi_spnr_filt1_coeff[5] = CLIP(coeff[5], 0, 0x1ff);
     }
     // REG: HI_TEXT
-    tmp = (pdyn->hiNr.sfAlphaEpf_baseTex.hw_ynrT_maxAlphaTex_maxThred);
+    tmp = (pdyn->hiNr.sfAlphaEpf_baseTex.hw_ynrT_maxAlphaTex_maxThred) * (1 << 8);
     pCfg->hi_spnr_filt1_tex_thred = CLIP(tmp, 0, 0x7ff);
     tmp = (pdyn->hiNr.sfAlphaEpf_baseTex.sw_ynr_texIdx_scale) * (1 << 3);
     pCfg->hi_spnr_filt1_tex_scale = CLIP(tmp, 0, 0x3ff);
@@ -258,8 +298,9 @@ void rk_aiq_ynr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
     }
     tmp = (pdyn->midNr.hw_ynrT_alphaMfTex_scale) * 8;
     pCfg->mi_ehance_scale = CLIP(tmp, 0, 255);
+
     // REG: LO_STRG_DETAIL
-    tmp = (pdyn->loNr.epf.hw_ynrT_rgeSgm_scale) * (1 << 6);
+    tmp = (loSpnr_strg) * (1 << 6);
     pCfg->lo_spnr_strg = CLIP(tmp, 0, 0x3ff);
     tmp = (pdyn->loNr.epf.hw_ynrT_softThd_scale) * (1 << 10);
     pCfg->lo_spnr_soft_thred_scale = CLIP(tmp, 0, 0xfff);

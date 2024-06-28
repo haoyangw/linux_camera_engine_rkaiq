@@ -2806,7 +2806,7 @@ XCamReturn AiqCore_get3AStats(AiqCore_t* pAiqCore, rk_aiq_isp_stats_t* stats, in
         aiqCond_wait(&pAiqCore->mIspStatsCond, &pAiqCore->mIspStatsMutex);
     } else if (timeout_ms > 0){
         int ret =
-            aiqCond_timedWait(&pAiqCore->mIspStatsCond, &pAiqCore->mIspStatsMutex, timeout_ms);
+            aiqCond_timedWait(&pAiqCore->mIspStatsCond, &pAiqCore->mIspStatsMutex, timeout_ms*1000);
         if (ret == ETIMEDOUT) {
             aiqMutex_unlock(&pAiqCore->mIspStatsMutex);
             return XCAM_RETURN_ERROR_TIMEOUT;

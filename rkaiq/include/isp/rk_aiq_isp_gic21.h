@@ -367,7 +367,20 @@ typedef struct gic_params_dyn_s {
     gic_gicProc_t gicProc;
 } gic_params_dyn_t;
 
+typedef struct {
+    int a;
+} gic_params_static_t;
+
 typedef struct gic_param_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(dyn),
+        M4_TYPE(struct),
+        M4_UI_MODULE(static_ui),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(TODO))  */
+    gic_params_static_t sta;
     /* M4_GENERIC_DESC(
         M4_ALIAS(dyn),
         M4_TYPE(struct),

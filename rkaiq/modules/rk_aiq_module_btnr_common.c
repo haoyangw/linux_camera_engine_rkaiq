@@ -439,7 +439,6 @@ int bayertnr_autosigma_config(btnr_stats_t *pStats, btnr_trans_params_t *pTransP
             }
             sigmay_tmp[j] = sigmay_tmp[tmp0];
             if(i >= sigma_bins) {
-                LOGW_ANR("sigmay_curve no point use!");
                 pTransPrarms->bayertnr_auto_sig_count_valid = 0;
                 break;
             }
@@ -454,8 +453,6 @@ int bayertnr_autosigma_config(btnr_stats_t *pStats, btnr_trans_params_t *pTransP
 
     if(pStats->sigma_num < pTransPrarms->bayertnr_auto_sig_count_max)
     {
-        LOGW_ANR("sigma_curve capture 0x%x point not enough, sigma_cout_max:0x%x !\n",
-                 pStats->sigma_num, pTransPrarms->bayertnr_auto_sig_count_max);
         pTransPrarms->bayertnr_auto_sig_count_valid = 0;
     }
     else

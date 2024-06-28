@@ -510,7 +510,7 @@ typedef struct btnr_subDeepLoMd_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_GROUP_CTRL(largeLoMd_en_group),
+        M4_GROUP_CTRL(dLoMd_en_group),
         M4_NOTES(The enable bit of the Large low motion detection.\n
         Freq of use: low))  */
     // reg: !en == hw_btnr_mdLargeLoMdWgt_bypss_en
@@ -524,7 +524,7 @@ typedef struct btnr_subDeepLoMd_dyn_s {
         M4_RO(0),
         M4_ORDER(0),
         M4_GROUP_CTRL(dLoSrc_mode_group),
-        M4_GROUP(largeLoMd_en_group),
+        M4_GROUP(dLoMd_en_group),
         M4_NOTES(which channel thumbs that the Large low motion detection use.\n
         Freq of use: low))  */
     btnr_dLoSrc_mode_t sw_btnrT_dLoSrc_mode;
@@ -535,7 +535,7 @@ typedef struct btnr_subDeepLoMd_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_GROUP(largeLoMd_en_group),
+        M4_GROUP(dLoMd_en_group),
         M4_NOTES(The enable bit of min filter for Large low motion detection.\n
         Freq of use: low))  */
     // reg: !en == hw_btnr_mdLargeLoMinFilter_bypss_en
@@ -562,7 +562,7 @@ typedef struct btnr_subDeepLoMd_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_GROUP(largeLoMd_en_group),
+        M4_GROUP(dLoMd_en_group),
         M4_NOTES(Large low motion detection use for next frame motion detection offset.\n
         Freq of use: low))  */
     // reg: hw_btnr_mdLargeLoMdWgt_scale
@@ -577,7 +577,7 @@ typedef struct btnr_subDeepLoMd_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_GROUP(largeLoMd_en_group),
+        M4_GROUP(dLoMd_en_group),
         M4_NOTES(Large low motion detection use for next frame motion detection scale.\n
         Freq of use: low))  */
     // reg: hw_btnr_mdLargeLoMdWgt_offset
@@ -592,7 +592,7 @@ typedef struct btnr_subDeepLoMd_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_GROUP(largeLoMd_en_group),
+        M4_GROUP(dLoMd_en_group),
         M4_NOTES(Large low motion detection weight cut offset.\n
         Freq of use: low))  */
     // reg: hw_btnr_mdLargeLoWgtCut_offset
@@ -608,7 +608,7 @@ typedef struct btnr_subDeepLoMd_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_GROUP(largeLoMd_en_group),
+        M4_GROUP(dLoMd_en_group),
         M4_NOTES(Large low motion detection weight scale.\n
         Freq of use: low))  */
     // reg: hw_btnr_mdLargeLoWgt_scale
@@ -624,7 +624,7 @@ typedef struct btnr_subDeepLoMd_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_GROUP(largeLoMd_en_group),
+        M4_GROUP(dLoMd_en_group),
         M4_NOTES(Large low motion detection weight add offset.\n
         Freq of use: low))  */
     // reg: hw_btnr_mdLargeLoWgtAdd_offset
@@ -751,6 +751,7 @@ typedef struct btnr_loAsHiRatioMd_dyn_s {
         M4_ORDER(0),
         M4_GROUP(loAsHiRatioMd_hfLpf_en_group;loAsHiRatioMd_hfLpfCfg_mode_group:btnr_cfgByFiltCoeff_mode),
         M4_NOTES(The spatial weight coeff of the LPF is directly configured through this para when hfLpfCfg_mode is btnr_cfgByFiltCoeff_mode.\n
+        coeff[0] + 4* coeff[1] + 4*ceoff[2] + 4*coeff[3] + 8*coeff[4] + 4*coeff[5] + 4*coeff[6] + 4*coeff[7] + 2*coeff[8] = 1023.\n
         Freq of use: low))  */
     // reg: hw_btnr_lpfLo_coeff0~8
     uint16_t hw_btnrT_hfLpfSpatial_wgt[9];
@@ -906,6 +907,7 @@ typedef struct btnr_loAsHiBiasMd_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(loAsHiBiasMd_hiMd_en_group),
         M4_NOTES(The 2nd bias parameter of the low-frequency stationary weight value after scaling.\n
         Freq of use: low))  */
     // reg: hw_btnr_Mode1Wgt_offset
@@ -920,6 +922,7 @@ typedef struct btnr_loAsHiBiasMd_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(loAsHiBiasMd_hiMd_en_group),
         M4_NOTES(The minimum limit of low-frequency stationary weight values after 2 biases.\n
         Freq of use: low))  */
     // reg: hw_btnr_Mode1Wgt_minLimit
@@ -934,6 +937,7 @@ typedef struct btnr_loAsHiBiasMd_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP(loAsHiBiasMd_hiMd_en_group),
         M4_NOTES(The minimum limit of low-frequency stationary weight values after 2 biases.\n
         Freq of use: low))  */
     // reg: hw_btnr_Mode1Wgt_maxLimit
@@ -1188,7 +1192,7 @@ typedef struct btnr_curSpNr_dyn_s {
         M4_ORDER(0),
         M4_GROUP(curSpNr_en_group;curHiFlt_en_group;curSpNr_filtCfg_mode_group:btnr_cfgByFiltCoeff_mode),
         M4_NOTES(This strength is used to adjust the spatial weight of the bilateral filter.\n
-        wgt[0] + 4*wgt[1] + 4*wgt[2] + 4*wgt[3] + 8*wgt[4] + 4*wgt[5] = 256.\n
+        wgt[0] + 4*wgt[1] + 4*wgt[2] + 4*wgt[3] + 8*wgt[4] + 4*wgt[5] = 255.\n
         Freq of use: low))  */
     // reg: hw_btnr_curSpnrFilter_coeff0~5
     uint8_t sw_btnrT_filtSpatial_wgt[6];
@@ -1547,7 +1551,7 @@ typedef struct btnr_preSpNr_hiNr_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_GROUP(preSpNr_en_group;preHiFilt_en_group),
+        M4_GROUP(preSpNr_en_group;preHiFilt_en_group;!gicLP_en_group),
         M4_NOTES(The way to configure the rggb 4 channel range weight calculate mode. Reference enum types.\n
         Freq of use: low))  */
     // reg: hw_btnr_preSpnrHifilterGic_en, hw_btnr_preSpnrHifilterGicEnhance_en;
@@ -1590,7 +1594,7 @@ typedef struct btnr_preSpNr_loNr_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_GROUP(preLoFilt_en_group),
+        M4_GROUP(preLoFilt_en_group;!avgRgeWgtLP_en_group),
         M4_NOTES(The way to configure the rggb 4 channel range weight calculate mode. Reference enum types.\n
         Freq of use: low))  */
     btnr_rgeWgt_mode_t sw_btnrT_rgeWgt_mode;
@@ -1604,7 +1608,7 @@ typedef struct btnr_preSpNr_loNr_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_GROUP(preLoFilt_en_group),
+        M4_GROUP(preLoFilt_en_group;!avgRgeWgtLP_en_group),
         M4_NOTES(4 channel avg(diff/sigma) * wgt  + avg(diff)/avg(sigma)(1 - wgt).\n
         Freq of use: low))  */
     // reg: hw_btnr_preSpnrLoValWgtOut_wgt
@@ -1969,7 +1973,6 @@ typedef struct btnr_noiseBal_preBaseOut_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_GROUP(TODO),
         M4_NOTES(TODO\n
         Freq of use: low))  */
     btnr_nsBal_preBaseOut_mode_t sw_btnrT_noiseBal_mode;
@@ -2460,7 +2463,7 @@ typedef struct btnr_md_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_GROUP(md_en_group;loMd_en_group;loMd_mode_group:btnr_allSubLoMdMix_mode|btnr_subLoMd0Only_mode),
+        M4_GROUP(md_en_group&&loMd_en_group&&((loMd_mode_group:btnr_allSubLoMdMix_mode)||(loMd_mode_group:btnr_subDeepLoMdOnly_mode&&dLoMd_en_group&&dLoSrc_mode_group:btnr_subLoMd0_mode)||(loMd_mode_group:btnr_subLoMd0Only_mode))),
         M4_NOTES(TODO))  */
     btnr_subLoMd0_dyn_t subLoMd0;
     /* M4_GENERIC_DESC(
@@ -2470,7 +2473,7 @@ typedef struct btnr_md_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_GROUP(md_en_group;loMd_en_group;loMd_mode_group:btnr_allSubLoMdMix_mode|btnr_subLoMd1Only_mode),
+        M4_GROUP(md_en_group&&loMd_en_group&&((loMd_mode_group:btnr_allSubLoMdMix_mode|btnr_subLoMd1Only_mode)||(loMd_mode_group:btnr_subDeepLoMdOnly_mode&&dLoMd_en_group&&dLoSrc_mode_group:btnr_subLoMd1_mode))),
         M4_NOTES(TODO))  */
     btnr_subLoMd1_dyn_t subLoMd1;
     /* M4_GENERIC_DESC(

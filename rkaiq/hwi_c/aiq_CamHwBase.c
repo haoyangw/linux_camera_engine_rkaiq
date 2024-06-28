@@ -1479,6 +1479,7 @@ XCamReturn AiqCamHwBase_init(AiqCamHwBase_t* pCamHw, const char* sns_ent_name) {
     pCamHw->mIsOnlineByWorkingMode = false;
 	pCamHw->mIsListenStrmEvt       = true;
     pCamHw->_linked_to_serdes      = false;
+    pCamHw->_not_skip_first        = true;
     aiqMutex_init(&pCamHw->_isp_params_cfg_mutex);
     aiqMutex_init(&pCamHw->_mem_mutex);
     aiqMutex_init(&pCamHw->_stop_cond_mutex);
@@ -5519,6 +5520,66 @@ static XCamReturn AiqCamHw_process_restriction(AiqCamHwBase_t* pCamHw, void* isp
     }
 #endif
 
+//global gain constraint
+    bool old_en_drc = !!(pCamHw->_isp_module_ens & ISP2X_MODULE_DRC);
+    bool old_en_mge = !!(pCamHw->_isp_module_ens & ISP2X_MODULE_HDRMGE);
+    bool old_en_btnr = !!(pCamHw->_isp_module_ens & ISP3X_MODULE_BAY3D);
+    bool old_en_lsc = !!(pCamHw->_isp_module_ens & ISP2X_MODULE_LSC);
+#ifdef ISP_HW_V39
+    bool old_en_dehaze = !!(pCamHw->_isp_module_ens & ISP2X_MODULE_DHAZ);
+    bool old_en_yuvme = !!(pCamHw->_isp_module_ens & ISP39_MODULE_YUVME);
+#endif
+
+    bool new_en_drc =
+            !!(isp_params->module_en_update & ISP2X_MODULE_DRC) ? !!(isp_params->module_ens & ISP2X_MODULE_DRC) : old_en_drc;
+    bool new_en_mge =
+            !!(isp_params->module_en_update & ISP2X_MODULE_HDRMGE) ? !!(isp_params->module_ens & ISP2X_MODULE_HDRMGE) : old_en_mge;
+    bool new_en_btnr =
+            !!(isp_params->module_en_update & ISP3X_MODULE_BAY3D) ? !!(isp_params->module_ens & ISP3X_MODULE_BAY3D) : old_en_btnr;
+    bool new_en_lsc =
+            !!(isp_params->module_en_update & ISP2X_MODULE_LSC) ? !!(isp_params->module_ens & ISP2X_MODULE_LSC) : old_en_lsc;
+#ifdef ISP_HW_V39
+    bool new_en_dehaze =
+            !!(isp_params->module_en_update & ISP2X_MODULE_DHAZ) ? !!(isp_params->module_ens & ISP2X_MODULE_DHAZ) : old_en_dehaze;
+    bool new_en_yuvme =
+            !!(isp_params->module_en_update & ISP39_MODULE_YUVME) ? !!(isp_params->module_ens & ISP39_MODULE_YUVME) : old_en_yuvme;
+#endif
+    bool gain_en = true;
+    if(isp_params->module_cfg_update & ISP2X_MODULE_CNR)
+        pCamHw->exgain_status.exgain_bypass = isp_params->others.cnr_cfg.exgain_bypass;
+    if(isp_params->module_cfg_update & ISP2X_MODULE_SHARP)
+        pCamHw->exgain_status.local_gain_bypass = isp_params->others.sharp_cfg.local_gain_bypass;
+#if ISP_HW_V33
+    if(isp_params->module_cfg_update & ISP2X_MODULE_GIC)
+        pCamHw->exgain_status.gain_bypass_en = isp_params->others.gic_cfg.gain_bypass_en;
+    if (!new_en_drc && !new_en_mge && !new_en_btnr && !new_en_lsc) {
+#elif ISP_HW_V39
+    if (!new_en_drc && !new_en_mge && !new_en_btnr && !new_en_lsc && !new_en_dehaze && !new_en_yuvme) {
+#endif
+        gain_en = false;
+        isp_params->module_ens &= ~ISP3X_MODULE_GAIN;
+        isp_params->module_en_update |= ISP3X_MODULE_GAIN;
+        isp_params->others.cnr_cfg.exgain_bypass = 1;
+        isp_params->others.sharp_cfg.local_gain_bypass = 1;
+#if ISP_HW_V33
+        isp_params->others.gic_cfg.gain_bypass_en = 1;
+#endif
+        LOGD_CAMHW_SUBM(ISP20HW_SUBM, "When global gain related module turn off, autoly turn off gain and turn on exgain_bypass");
+}
+    else {
+        if (pCamHw->exgain_status.gain_module_en) {
+            isp_params->module_ens |= ISP3X_MODULE_GAIN;
+            isp_params->module_en_update |= ISP3X_MODULE_GAIN;
+        }
+        isp_params->others.cnr_cfg.exgain_bypass = pCamHw->exgain_status.exgain_bypass;
+        isp_params->others.sharp_cfg.local_gain_bypass = pCamHw->exgain_status.local_gain_bypass;
+#if ISP_HW_V33
+        isp_params->others.gic_cfg.gain_bypass_en = pCamHw->exgain_status.gain_bypass_en;
+#endif
+    }
+
+
+//ynr cnr sharp enh gain constraint
 #if ISP_HW_V39
     int state = AiqManager_getAiqState(pCamHw->rkAiqManager);
     if (state != AIQ_STATE_INITED && state != AIQ_STATE_STOPED) {
@@ -5534,23 +5595,21 @@ static XCamReturn AiqCamHw_process_restriction(AiqCamHwBase_t* pCamHw, void* isp
             isp_params->module_en_update &= ~ISP3X_MODULE_YNR;
             LOGD_CAMHW_SUBM(ISP20HW_SUBM, "ynr, cnr and sharp'en should be update together!");
         }else {
-			bool old_en_ynr = !!(pCamHw->_isp_module_ens & ISP2X_MODULE_YNR);
-			bool old_en_cnr = !!(pCamHw->_isp_module_ens & ISP2X_MODULE_CNR);
-            bool old_en_sharp = !!(pCamHw->_isp_module_ens & ISP2X_MODULE_SHARP);
-
 			bool new_en_ynr = isp_params->module_ens & ISP2X_MODULE_YNR;
 			bool new_en_cnr = isp_params->module_ens & ISP2X_MODULE_CNR;
 			bool new_en_sharp = isp_params->module_ens & ISP2X_MODULE_SHARP;
 
 			// check if all true or all false
-			if (new_en_ynr && new_en_cnr && new_en_sharp) {
+			if (new_en_ynr && new_en_cnr && new_en_sharp && gain_en) {
                 isp_params->module_ens |= ISP3X_MODULE_GAIN;
                 isp_params->module_en_update |= ISP3X_MODULE_GAIN;
+                pCamHw->exgain_status.gain_module_en = true;
                 return XCAM_RETURN_NO_ERROR;
             }
             if (!new_en_ynr && !new_en_cnr && !new_en_sharp) {
                 isp_params->module_ens &= ~ISP3X_MODULE_GAIN;
                 isp_params->module_en_update |= ISP3X_MODULE_GAIN;
+                pCamHw->exgain_status.gain_module_en = false;
                 return XCAM_RETURN_NO_ERROR;
             }
 
@@ -5579,19 +5638,15 @@ static XCamReturn AiqCamHw_process_restriction(AiqCamHwBase_t* pCamHw, void* isp
             isp_params->module_en_update &= ~ISP3X_MODULE_YNR;
             isp_params->module_en_update &= ~ISP33_MODULE_ENH;
             LOGD_CAMHW_SUBM(ISP20HW_SUBM, "ynr, cnr and sharp'en should be update together!");
-        } else {
-			bool old_en_ynr = !!(pCamHw->_isp_module_ens & ISP2X_MODULE_YNR);
-			bool old_en_cnr = !!(pCamHw->_isp_module_ens & ISP2X_MODULE_CNR);
-            bool old_en_sharp = !!(pCamHw->_isp_module_ens & ISP2X_MODULE_SHARP);
-            bool old_en_enh = !!(pCamHw->_isp_module_ens & ISP33_MODULE_ENH);
-
+        }
+        else {
 			bool new_en_ynr = isp_params->module_ens & ISP2X_MODULE_YNR;
 			bool new_en_cnr = isp_params->module_ens & ISP2X_MODULE_CNR;
 			bool new_en_sharp = isp_params->module_ens & ISP2X_MODULE_SHARP;
             bool new_en_enh = isp_params->module_ens & ISP33_MODULE_ENH;
 
 			// check if all true or all false
-            if (new_en_ynr && new_en_cnr && new_en_sharp && new_en_enh) {
+            if (new_en_ynr && new_en_cnr && new_en_sharp && new_en_enh && gain_en) {
                 isp_params->module_ens |= ISP3X_MODULE_GAIN;
                 isp_params->module_en_update |= ISP3X_MODULE_GAIN;
                 return XCAM_RETURN_NO_ERROR;
@@ -5601,15 +5656,9 @@ static XCamReturn AiqCamHw_process_restriction(AiqCamHwBase_t* pCamHw, void* isp
                 isp_params->module_en_update |= ISP3X_MODULE_GAIN;
                 return XCAM_RETURN_NO_ERROR;
             }
-
-			LOGW_CAMHW_SUBM(ISP20HW_SUBM, "ynr, cnr and sharp'en can't be turn on/off in running time!"
-				"please use bypass instead");
-			isp_params->module_en_update &= ~ISP3X_MODULE_CNR;
-			isp_params->module_en_update &= ~ISP3X_MODULE_SHARP;
-            isp_params->module_en_update &= ~ISP3X_MODULE_YNR;
-            isp_params->module_en_update &= ~ISP33_MODULE_ENH;
         }
     }
+    
 #endif
     return XCAM_RETURN_NO_ERROR;
 }

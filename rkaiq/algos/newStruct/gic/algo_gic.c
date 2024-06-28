@@ -122,6 +122,8 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
         pGicCtx->isReCal_ = true;
 
     if (pGicCtx->isReCal_) {
+        gic_param_t* gic_res = outparams->algoRes;
+        gic_res->sta = pGicCtx->gic_attrib->stAuto.sta;
         GicSelectParam(&pGicCtx->gic_attrib->stAuto, outparams->algoRes, iso);
         outparams->cfg_update = true;
         outparams->en = gic_attrib->en;
@@ -237,7 +239,6 @@ XCamReturn GicSelectParam
         paut->dyn[ilow].locGicStrg.locSgmStrg2GicStrg.hw_shpT_statRegionGic_strg, paut->dyn[ihigh].locGicStrg.locSgmStrg2GicStrg.hw_shpT_statRegionGic_strg, ratio);
     out->dyn.locGicStrg.locSgmStrg2GicStrg.hw_shpT_motRegionGic_strg = interpolation_f32(
         paut->dyn[ilow].locGicStrg.locSgmStrg2GicStrg.hw_shpT_motRegionGic_strg, paut->dyn[ihigh].locGicStrg.locSgmStrg2GicStrg.hw_shpT_motRegionGic_strg, ratio);
-    out->dyn.hw_gicT_gic_mode = paut->dyn[inear].hw_gicT_gic_mode;
     out->dyn.gicPre_medAndEpf.medFilt.hw_gicT_yFiltClipMin_idx = interpolation_u8(
         paut->dyn[ilow].gicPre_medAndEpf.medFilt.hw_gicT_yFiltClipMin_idx, paut->dyn[ihigh].gicPre_medAndEpf.medFilt.hw_gicT_yFiltClipMin_idx, uratio);
     out->dyn.gicPre_medAndEpf.medFilt.hw_gicT_yFiltClipMax_idx = interpolation_u8(
@@ -254,7 +255,6 @@ XCamReturn GicSelectParam
         out->dyn.lumaLutCfg.hw_gicT_lumaLutIdx_val[i] = interpolation_u16(
             paut->dyn[ilow].lumaLutCfg.hw_gicT_lumaLutIdx_val[i], paut->dyn[ihigh].lumaLutCfg.hw_gicT_lumaLutIdx_val[i], uratio);
     }
-    out->dyn.epf.sw_gicT_rgeSgm_mode = paut->dyn[inear].epf.sw_gicT_rgeSgm_mode;
     for (i=0; i<17; i++) {
         out->dyn.epf.hw_gicT_luma2Manual_rgeSgm[i] = interpolation_u16(
             paut->dyn[ilow].epf.hw_gicT_luma2Manual_rgeSgm[i], paut->dyn[ihigh].epf.hw_gicT_luma2Manual_rgeSgm[i], uratio);
@@ -273,7 +273,6 @@ XCamReturn GicSelectParam
         out->dyn.manualSoftThd.hw_gicT_luma2SofThd_thred[i] = interpolation_u16(
             paut->dyn[ilow].manualSoftThd.hw_gicT_luma2SofThd_thred[i], paut->dyn[ihigh].manualSoftThd.hw_gicT_luma2SofThd_thred[i], uratio);
     }
-    out->dyn.gicPost_medAndEpf.sw_gicT_softThd_mode = paut->dyn[inear].gicPost_medAndEpf.sw_gicT_softThd_mode;
     for (i=0; i<4; i++) {
         out->dyn.gicPost_guideEpf.lpf.hw_gicT_grFiltSpatial_wgt[i] = interpolation_u16(
             paut->dyn[ilow].gicPost_guideEpf.lpf.hw_gicT_grFiltSpatial_wgt[i], paut->dyn[ihigh].gicPost_guideEpf.lpf.hw_gicT_grFiltSpatial_wgt[i], uratio);
@@ -282,7 +281,6 @@ XCamReturn GicSelectParam
         out->dyn.gicPost_guideEpf.lpf.hw_gicT_gbFiltSpatial_wgt[i] = interpolation_u16(
             paut->dyn[ilow].gicPost_guideEpf.lpf.hw_gicT_gbFiltSpatial_wgt[i], paut->dyn[ihigh].gicPost_guideEpf.lpf.hw_gicT_gbFiltSpatial_wgt[i], uratio);
     }
-    out->dyn.gicPost_guideEpf.sw_gicT_softThd_mode = paut->dyn[inear].gicPost_guideEpf.sw_gicT_softThd_mode;
     out->dyn.gicPost_guideEpf.autoSoftThd.hw_gicT_softThd_scale = interpolation_f32(
         paut->dyn[ilow].gicPost_guideEpf.autoSoftThd.hw_gicT_softThd_scale, paut->dyn[ihigh].gicPost_guideEpf.autoSoftThd.hw_gicT_softThd_scale, ratio);
     for (i=0; i<8; i++) {

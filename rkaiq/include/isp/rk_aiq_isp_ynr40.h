@@ -134,9 +134,9 @@ typedef struct ynr_hiNrEPF_dyn_s {
     float sw_ynrT_filtSpatial_strg;
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_ynr_nlm_coe),
-        M4_TYPE(u8),
+        M4_TYPE(f32),
         M4_UI_PARAM(data_y),
-        M4_SIZE_EX(1,6),
+        M4_SIZE_EX(1,5),
         M4_RANGE_EX(0,15),
         M4_DEFAULT([7,6,3,6,5,3]),
         M4_HIDE_EX(0),
@@ -146,7 +146,7 @@ typedef struct ynr_hiNrEPF_dyn_s {
         M4_NOTES(The spatial weight of adjacent pixels in the nlm filter\n
         Freq of use: low))  */
     // reg: hw_ynr_nlm_coe_0~5
-    uint8_t hw_ynrT_filtSpatial_wgt[YNR_NLM_COEF_MAX];
+    float hw_ynrT_filtSpatial_wgt[5];
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_ynr_hiSpnrLocalGain_alpha),
         M4_TYPE(f32),
@@ -251,7 +251,7 @@ typedef struct ynr_hiNrSF_dyn_s {
     float sw_ynrT_filtSpatial_strg;
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_ynrT_hiSpnrFilt1_coeff),
-        M4_TYPE(u8),
+        M4_TYPE(f32),
         M4_UI_PARAM(data_y),
         M4_SIZE_EX(1,6),
         M4_RANGE_EX(0,15),
@@ -263,17 +263,17 @@ typedef struct ynr_hiNrSF_dyn_s {
         M4_NOTES(The spatial weight of adjacent pixels in the nlm filter\n
         Freq of use: low))  */
     // reg: hw_ynr_hiSpnrFilt_coeff0~5
-    uint8_t hw_ynrT_filtSpatial_wgt[6];
+    float hw_ynrT_filtSpatial_wgt[6];
 
 } ynr_hiNrSF_dyn_t;
 
 typedef struct ynr_hiNr_tex2SFAlpha_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(hiSpnrFilt1_texThred),
-        M4_TYPE(u16),
+        M4_TYPE(f32),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,1023),
-        M4_DEFAULT(100),
+        M4_RANGE_EX(0,128),
+        M4_DEFAULT(12),
         M4_DIGIT_EX(3),
         M4_FP_EX(0,10,0),
         M4_HIDE_EX(0),
@@ -282,7 +282,7 @@ typedef struct ynr_hiNr_tex2SFAlpha_s {
         M4_NOTES(the upper limit value of flat area.\n
         Freq of use: low))  */
     // @reg: hw_ynr_hiSpnrFilt1_texThred
-    uint16_t hw_ynrT_maxAlphaTex_maxThred;
+    float hw_ynrT_maxAlphaTex_maxThred;
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_ynr_hiSpnrFilt1_texScale),
         M4_TYPE(f32),
@@ -596,7 +596,8 @@ typedef struct ynr_loNrEPF_s {
         M4_NOTES(The scaling factor of the range sigma of the bilateral filter\n
         Freq of use: high))  */
     // reg: hw_ynr_loSpnr_strg
-    float hw_ynrT_rgeSgm_scale;
+	// para: luma2loStrg, loSpnr_strg
+    float hw_ynrT_luma2RgeSgm_scale[6];
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_ynr_loSpnrThumbThred_scale),
         M4_TYPE(f32),

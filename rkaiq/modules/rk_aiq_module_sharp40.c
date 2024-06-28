@@ -245,17 +245,17 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
         case shp_edgeShpStrg_mode:
             pCfg->debug_mode = 3;
             break;
-        case shp_detailLocStrgContrast_mode:
+        case shp_contrastDetailPosStrg_mode:
             pCfg->debug_mode = 4;
             break;
-        case shp_detailClipLimit_mode:
+        case shp_detailPosLimit_mode:
             pCfg->debug_mode = 5;
             break;
         }
     } else {
         pCfg->debug_mode = 0;
     }
-    if (psta->lowPowerCfg.detailShpLP.texRegionShpStrgLP.hw_shpCfg_lp_en) {
+    if (psta->lowPowerCfg.detailShpLP.hw_shpCfg_lp_en) {
         pCfg->detail_lp_en = 1;
     } else {
         pCfg->detail_lp_en = 0;
@@ -501,11 +501,11 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
 
         // REG: GAIN_ADJ
         motionStrg1 = &pdyn->edgeShp.locShpStrg_motionStrg1;
-        minLimit = motionStrg1->hw_shpT_motRegionShp_strg;
-        maxLimit = motionStrg1->hw_shpT_statRegionShp_strg;
+        minLimit = MIN(motionStrg1->hw_shpT_motRegionShp_strg, motionStrg1->hw_shpT_statRegionShp_strg);
+        maxLimit = MAX(motionStrg1->hw_shpT_motRegionShp_strg, motionStrg1->hw_shpT_statRegionShp_strg);
         staticRegion_thred = motionStrg1->sw_shpT_locSgmStrgStat_maxThred;
         motionRegion_thred = motionStrg1->sw_shpT_locSgmStrgMot_minThred;
-        if (motionStrg1->sw_shpT_motionStrg_mode == shp_baseStatThd_posCorr_mode) {
+        if (motionStrg1->hw_shpT_statRegionShp_strg < motionStrg1->hw_shpT_motRegionShp_strg) {
             slope = (maxLimit - minLimit) / (motionRegion_thred - staticRegion_thred);
             x_offset = staticRegion_thred;
         } else {
@@ -522,11 +522,11 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
         pCfg->edge_gain_offset = CLIP(tmp, 0, 0x3ff);
 
         motionStrg1 = &pdyn->detailShp.locShpStrg_motionStrg1;
-        minLimit = motionStrg1->hw_shpT_motRegionShp_strg;
-        maxLimit = motionStrg1->hw_shpT_statRegionShp_strg;
+        minLimit = MIN(motionStrg1->hw_shpT_motRegionShp_strg, motionStrg1->hw_shpT_statRegionShp_strg);
+        maxLimit = MAX(motionStrg1->hw_shpT_motRegionShp_strg, motionStrg1->hw_shpT_statRegionShp_strg);
         staticRegion_thred = motionStrg1->sw_shpT_locSgmStrgStat_maxThred;
         motionRegion_thred = motionStrg1->sw_shpT_locSgmStrgMot_minThred;
-        if (motionStrg1->sw_shpT_motionStrg_mode == shp_baseStatThd_posCorr_mode) {
+        if (motionStrg1->hw_shpT_statRegionShp_strg < motionStrg1->hw_shpT_motRegionShp_strg) {
             slope = (maxLimit - minLimit) / (motionRegion_thred - staticRegion_thred);
             x_offset = staticRegion_thred;
         } else {
@@ -543,11 +543,11 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
         pCfg->detail_gain_offset = CLIP(tmp, 0, 0x3ff);
 
         motionStrg1 = &pdyn->dHfDetailShp.locShpStrg_motionStrg1;
-        minLimit = motionStrg1->hw_shpT_motRegionShp_strg;
-        maxLimit = motionStrg1->hw_shpT_statRegionShp_strg;
+        minLimit = MIN(motionStrg1->hw_shpT_motRegionShp_strg, motionStrg1->hw_shpT_statRegionShp_strg);
+        maxLimit = MAX(motionStrg1->hw_shpT_motRegionShp_strg, motionStrg1->hw_shpT_statRegionShp_strg);
         staticRegion_thred = motionStrg1->sw_shpT_locSgmStrgStat_maxThred;
         motionRegion_thred = motionStrg1->sw_shpT_locSgmStrgMot_minThred;
-        if (motionStrg1->sw_shpT_motionStrg_mode == shp_baseStatThd_posCorr_mode) {
+        if (motionStrg1->hw_shpT_statRegionShp_strg < motionStrg1->hw_shpT_motRegionShp_strg) {
             slope = (maxLimit - minLimit) / (motionRegion_thred - staticRegion_thred);
             x_offset = staticRegion_thred;
         } else {
@@ -987,7 +987,13 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
         if (!cvtinfo->isFirstFrame) {
             sharp_stats = sharp_get_stats(pBtnrInfo, cvtinfo->frameId);
             if (cvtinfo->frameId - BAYERTNR_STATS_DELAY != sharp_stats->id) {
-                LOGE_ANR("Sharp stats miss match! (%d %d)", cvtinfo->frameId, sharp_stats->id);
+                pBtnrInfo->sharp_stats_miss_cnt ++;
+                if ((pBtnrInfo->sharp_stats_miss_cnt > 10) && (pBtnrInfo->sharp_stats_miss_cnt % 30 == 0)) {
+                    LOGE_ANR("Sharp stats miss match! frameId: %d stats [%d %d %d]", cvtinfo->frameId,
+                            pBtnrInfo->mSharpStats[0].id, pBtnrInfo->mSharpStats[1].id, pBtnrInfo->mSharpStats[2].id);
+                } else {
+                    pBtnrInfo->sharp_stats_miss_cnt = 0;
+                }
             }
 
             noiseCurveInterp(sharp_stats->noise_curve, noise_curve_ext);

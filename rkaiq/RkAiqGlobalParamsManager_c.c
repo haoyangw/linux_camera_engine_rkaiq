@@ -716,7 +716,11 @@ checkAlgoEnableInit(GlobalParamsManager_t* pMan) {
 #if ISP_HW_V39
     if (!(ynr_en == cnr_en && cnr_en == sharp_en)) {
         *pMan->mGlobalParams[RESULT_TYPE_UVNR_PARAM].en = 1;
+        *pMan->mGlobalParams[RESULT_TYPE_YNR_PARAM].bypass =
+            !*pMan->mGlobalParams[RESULT_TYPE_YNR_PARAM].en ? 1 : *pMan->mGlobalParams[RESULT_TYPE_YNR_PARAM].bypass;
         *pMan->mGlobalParams[RESULT_TYPE_YNR_PARAM].en = 1;
+        *pMan->mGlobalParams[RESULT_TYPE_SHARPEN_PARAM].bypass =
+            !*pMan->mGlobalParams[RESULT_TYPE_SHARPEN_PARAM].en ? 1 : *pMan->mGlobalParams[RESULT_TYPE_SHARPEN_PARAM].bypass;
         *pMan->mGlobalParams[RESULT_TYPE_SHARPEN_PARAM].en = 1;
         *pMan->mGlobalParams[RESULT_TYPE_GAIN_PARAM].en = 1;
         LOGW("ynr, cnr and sharp should be on or off in the same time, force to turn on ynr, cnr and sharp");
@@ -728,9 +732,15 @@ checkAlgoEnableInit(GlobalParamsManager_t* pMan) {
     bool enh_en = *pMan->mGlobalParams[RESULT_TYPE_ENH_PARAM].en;
     if (!(ynr_en == cnr_en && cnr_en == sharp_en && sharp_en == enh_en)) {
         *pMan->mGlobalParams[RESULT_TYPE_UVNR_PARAM].en = 1;
+        *pMan->mGlobalParams[RESULT_TYPE_YNR_PARAM].bypass =
+            !*pMan->mGlobalParams[RESULT_TYPE_YNR_PARAM].en ? 1 : *pMan->mGlobalParams[RESULT_TYPE_YNR_PARAM].bypass;
         *pMan->mGlobalParams[RESULT_TYPE_YNR_PARAM].en = 1;
+        *pMan->mGlobalParams[RESULT_TYPE_SHARPEN_PARAM].bypass = 
+            !*pMan->mGlobalParams[RESULT_TYPE_SHARPEN_PARAM].en ? 1 : *pMan->mGlobalParams[RESULT_TYPE_SHARPEN_PARAM].bypass;
         *pMan->mGlobalParams[RESULT_TYPE_SHARPEN_PARAM].en = 1;
         *pMan->mGlobalParams[RESULT_TYPE_GAIN_PARAM].en = 1;
+        *pMan->mGlobalParams[RESULT_TYPE_ENH_PARAM].bypass = 
+            !*pMan->mGlobalParams[RESULT_TYPE_ENH_PARAM].en ? 1 : *pMan->mGlobalParams[RESULT_TYPE_ENH_PARAM].bypass;
         *pMan->mGlobalParams[RESULT_TYPE_ENH_PARAM].en = 1;
         LOGW("ynr, cnr, sharp and enh should be on or off in the same time, force to turn on ynr, cnr, sharp and enh");
     }
@@ -1119,6 +1129,9 @@ XCamReturn GlobalParamsManager_checkAlgoEnableBypass(GlobalParamsManager_t* pMan
             if (state != AIQ_STATE_INITED && state != AIQ_STATE_STOPED) {
                 LOGE("The Btnr doesn't support turn on/off in runtime, please use btnr.bypass instead "
                     "or config during the initialization.");
+                socket_client_setNote(pMan->_socket, IPC_RET_UAPI_ERROR,
+                    "The Btnr doesn't support turn on/off in runtime, please use btnr.bypass instead "
+                    "or config during the initialization.");
                 return XCAM_RETURN_ERROR_FAILED;
             }
         }
@@ -1153,8 +1166,8 @@ XCamReturn GlobalParamsManager_checkAlgoEnableBypass(GlobalParamsManager_t* pMan
 
 #ifdef ISP_HW_V33
     if (type == RESULT_TYPE_ENH_PARAM) {
-        if (*pMan->mGlobalParams[type].en != *en) {
-            if (*en == 1) {
+        if (*pMan->mGlobalParams[type].en != *en || *pMan->mGlobalParams[type].bypass != *bypass) {
+            if (*pMan->mGlobalParams[type].en != *en && *en == 1) {
                 return XCAM_RETURN_ERROR_PARAM;
             }
             LOGD("enh en is changed");
@@ -1203,10 +1216,14 @@ XCamReturn GlobalParamsManager_checkAlgoEnableBypass(GlobalParamsManager_t* pMan
         if (state == AIQ_STATE_PREPARED || state == AIQ_STATE_STARTED) {
             if (AiqManager_getWorkingMode(pMan->rkAiqManager) != RK_AIQ_WORKING_MODE_NORMAL && (*en == 0 || *bypass == 1)) {
                 LOGE("HDRMGE must be on  when isp is HDR mode. Please turn on by mge.en");
+                socket_client_setNote(pMan->_socket, IPC_RET_UAPI_ERROR,
+                    "HDRMGE must be on  when isp is HDR mode. Please turn on by mge.en");
                 return XCAM_RETURN_ERROR_FAILED;
             }
             if (AiqManager_getWorkingMode(pMan->rkAiqManager) == RK_AIQ_WORKING_MODE_NORMAL && *en == 1) {
                 LOGE("HDRMGE must be off when isp is Liner mode. Please turn off by mge.en");
+                socket_client_setNote(pMan->_socket, IPC_RET_UAPI_ERROR,
+                    "HDRMGE must be off when isp is Liner mode. Please turn off by mge.en");
                 return XCAM_RETURN_ERROR_FAILED;
             }
         }

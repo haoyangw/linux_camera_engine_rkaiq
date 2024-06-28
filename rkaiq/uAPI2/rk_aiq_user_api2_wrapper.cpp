@@ -140,6 +140,8 @@ int rk_aiq_uapi_get_awbV32_stat(const rk_aiq_sys_ctx_t* sys_ctx, rk_tool_isp_awb
 
 int rk_aiq_uapi_get_awbV39_stat(const rk_aiq_sys_ctx_t* sys_ctx, rk_tool_isp_awb_stats_v32_t* awb_stat)
 {
+#if USE_NEWSTRUCT
+
     rk_aiq_isp_stats_t isp_stats;
 
     if (sys_ctx->cam_type == RK_AIQ_CAM_TYPE_GROUP) {
@@ -173,6 +175,7 @@ int rk_aiq_uapi_get_awbV39_stat(const rk_aiq_sys_ctx_t* sys_ctx, rk_tool_isp_awb
             awb_stat->excWpRangeResult[i].BgainValue = isp_stats.awb_stats_v39.com.wpFltOutFullEngine.fltPix[i].hw_awbCfg_bGainSum_val;
             awb_stat->excWpRangeResult[i].WpNo = isp_stats.awb_stats_v39.com.wpFltOutFullEngine.fltPix[i].hw_awbCfg_statsWp_count;
         }
+#endif
     return 0;
 }
 

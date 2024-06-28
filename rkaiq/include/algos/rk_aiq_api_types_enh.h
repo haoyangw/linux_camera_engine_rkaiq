@@ -24,6 +24,12 @@
 
 RKAIQ_BEGIN_DECLARE
 
+typedef struct {
+    bool en;
+    unsigned int MEnhanceStrth;
+    unsigned int MEnhanceChromeStrth;
+} aenh_strength_t;
+
 typedef struct enh_param_auto_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(dynamic_param),

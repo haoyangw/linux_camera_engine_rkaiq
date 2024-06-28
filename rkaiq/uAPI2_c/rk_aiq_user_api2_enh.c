@@ -25,6 +25,71 @@ RKAIQ_BEGIN_DECLARE
 #define CHECK_USER_API_ENABLE
 #endif
 
+/*
+*****************************
+*
+* Desc: set/get manual dehaze strength
+*     this function is active for dehaze is manual mode
+* Argument:
+*   level: [0, 100]
+*
+*****************************
+*/
+static XCamReturn
+_enhance_SetMDehazeStrth(const rk_aiq_sys_ctx_t* sys_ctx, aenh_strength_t *strg)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+#if RKAIQ_HAVE_ENHANCE
+    AiqEnhHandler_t* algo_handle =
+        (AiqEnhHandler_t*)sys_ctx->_analyzer->mAlgoHandleMaps[RK_AIQ_ALGO_TYPE_AENH];
+    if (algo_handle) {
+        return AiqEnhHandler_setStrength(algo_handle, strg);
+    }
+#else
+	ret = XCAM_RETURN_ERROR_UNKNOWN;
+#endif
+    return ret;
+}
+
+static XCamReturn
+_enhance_GetMDehazeStrth(const rk_aiq_sys_ctx_t* sys_ctx, aenh_strength_t *strg)
+{
+	XCamReturn ret = XCAM_RETURN_NO_ERROR;
+#if RKAIQ_HAVE_ENHANCE
+    AiqEnhHandler_t* algo_handle =
+        (AiqEnhHandler_t*)sys_ctx->_analyzer->mAlgoHandleMaps[RK_AIQ_ALGO_TYPE_AENH];
+    if (algo_handle) {
+        return AiqEnhHandler_getStrength(algo_handle, strg);
+    }
+#else
+	ret = XCAM_RETURN_ERROR_UNKNOWN;
+#endif
+    return ret;
+}
+
+XCamReturn rk_aiq_user_api2_enh_SetEnhanceStrth(const rk_aiq_sys_ctx_t* sys_ctx, aenh_strength_t* strg)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    CHECK_USER_API_ENABLE2(sys_ctx);
+    CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_AENH);
+    RKAIQ_API_SMART_LOCK(sys_ctx);
+	rk_aiq_sys_ctx_array_t ctx_array = rk_aiq_user_api2_common_getSysCtxArray(sys_ctx);
+    for (int i = 0; i < ctx_array.num; i++) {
+        ret = _enhance_SetMDehazeStrth(ctx_array.ctx[i], strg);
+    }
+    return ret;
+}
+
+XCamReturn rk_aiq_user_api2_enh_GetEnhanceStrth(const rk_aiq_sys_ctx_t* sys_ctx, aenh_strength_t* strg)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    CHECK_USER_API_ENABLE2(sys_ctx);
+    CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_AENH);
+    RKAIQ_API_SMART_LOCK(sys_ctx);
+	const rk_aiq_sys_ctx_t* _ctx = rk_aiq_user_api2_common_getSysCtx(sys_ctx);
+    return _enhance_GetMDehazeStrth(_ctx, strg);
+}
+
 XCamReturn
 rk_aiq_user_api2_enh_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, enh_api_attrib_t* attr)
 {

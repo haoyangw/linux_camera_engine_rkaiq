@@ -21,7 +21,7 @@
 #define __AWB_HEADER2_H__
 #if defined(ISP_HW_V39)
 #include "isp/rk_aiq_stats_awb39.h"
-#elif defined(ISP_HW_V33)
+#else //defined(ISP_HW_V33)
 #include "isp/rk_aiq_stats_awb33.h"
 #endif
 
@@ -2664,7 +2664,7 @@ typedef struct awb_sgc_s {
         M4_TYPE(s32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(-1,255),
-        M4_DEFAULT(-1),
+        M4_DEFAULT(0),
         M4_DIGIT_EX(0),
         M4_HIDE_EX(0),
         M4_RO(0),

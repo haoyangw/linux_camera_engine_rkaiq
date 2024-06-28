@@ -304,7 +304,13 @@ void rk_aiq_btnr41_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
     } else {
         btnr_stats = bayertnr_get_stats(pBtnrInfo, cvtinfo->frameId);
         if (cvtinfo->frameId - BAYERTNR_STATS_DELAY != btnr_stats->id) {
-            LOGE_ANR("Btnr stats miss match! (%d %d)", cvtinfo->frameId, btnr_stats->id);
+            pBtnrInfo->btnr_stats_miss_cnt ++;
+            if ((pBtnrInfo->btnr_stats_miss_cnt > 10) && (pBtnrInfo->btnr_stats_miss_cnt % 30 == 0)) {
+                LOGE_ANR("Btnr stats miss match! frameId: %d stats [%d %d %d]", cvtinfo->frameId,
+                        pBtnrInfo->mBtnrStats[0].id, pBtnrInfo->mBtnrStats[1].id, pBtnrInfo->mBtnrStats[2].id);
+            }
+        } else {
+            pBtnrInfo->btnr_stats_miss_cnt = 0;
         }
     }
 
@@ -326,7 +332,7 @@ void rk_aiq_btnr41_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
 
     if (cvtinfo->frameNum > 1 || cvtinfo->preDGain > 1.0) {
         if (psta->hw_btnrCfg_pixDomain_mode != btnr_pixLog2Domain_mode) {
-            LOGE_ANR("Btnr must run in pixLog2Domain(ori mode is %d) when isp is HDR mode(framenum=%d) or preDGain(%f) > 1, btnr_pixLog2Domain_mode is be forcibly set to hw_btnrCfg_pixDomain_mode in HWI\n"
+            LOGW_ANR("Btnr must run in pixLog2Domain(ori mode is %d) when isp is HDR mode(framenum=%d) or preDGain(%f) > 1, btnr_pixLog2Domain_mode is be forcibly set to hw_btnrCfg_pixDomain_mode in HWI\n"
                      "You can set by btnr.static.hw_btnrCfg_pixDomain_mode, but change hw_btnrCfg_pixDomain_mode in running time may cause abnormal image transitions\n",
                      psta->hw_btnrCfg_pixDomain_mode, cvtinfo->frameNum, cvtinfo->preDGain, psta->hw_btnrCfg_pixDomain_mode);
             psta->hw_btnrCfg_pixDomain_mode = btnr_pixLog2Domain_mode;
@@ -795,10 +801,10 @@ void rk_aiq_btnr41_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
     tmp = (pmdDyn->frmFusion.hw_btnrT_loSoftThd_minLimit);
     pCfg->lo_pre_soft_thresh_min_limit = CLIP(tmp, 0, 0xfff);
     // REG: BAY3D_HIKEEP
-    //tmp = (pdyn->noiseBal_curBaseOut.hw_btnrT_curHiOrg_alpha) * (1 << FIXBITWFWGT);
-    //pCfg->cur_spnr_hi_wgt_min_limit = CLIP(tmp, 0, 0xff);
-    //tmp = (pdyn->noiseBal_curBaseOut.hw_btnrT_iirHiOrg_alpha) * (1 << FIXBITWFWGT);
-    //pCfg->pre_spnr_hi_wgt_min_limit = CLIP(tmp, 0, 0xff);
+    tmp = (pdyn->noiseBal_curBaseOut.hw_btnrT_curHiOrg_alpha) * (1 << FIXBITWFWGT);
+    pCfg->cur_spnr_hi_wgt_min_limit = CLIP(tmp, 0, 0xff);
+    tmp = (pdyn->noiseBal_curBaseOut.hw_btnrT_iirHiOrg_alpha) * (1 << FIXBITWFWGT);
+    pCfg->pre_spnr_hi_wgt_min_limit = CLIP(tmp, 0, 0xff);
     tmp = (pmdDyn->memc.hw_btnrT_mcLoWgt_thred) * (1 << 10);
     pCfg->motion_est_lo_wgt_thred = CLIP(tmp, 0, 0x3ff);
     // REG: BAY3D_SIGNUMTH
@@ -894,7 +900,7 @@ void rk_aiq_btnr41_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
     // REG: BAY3D_MIDBIG0
     tmp = (pmdDyn->subDeepLoMd.hw_btnrT_wgt_offset) * (1 << 8);
     pCfg->md_large_lo_md_wgt_offset = CLIP(tmp, 0, 0xff);
-    tmp = (pmdDyn->subDeepLoMd.sw_btnrT_wgt2FusionLmt_scale) * (1 << 8);
+    tmp = (pmdDyn->subDeepLoMd.hw_btnrT_wgt_scale) * (1 << 8);
     pCfg->md_large_lo_md_wgt_scale = CLIP(tmp, 0, 0xfff);
     // REG: BAY3D_MIDBIG1
     tmp = (pmdDyn->subDeepLoMd.sw_btnrT_wgt2FusionLmt_negOff) * (1 << 8);
@@ -902,7 +908,7 @@ void rk_aiq_btnr41_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
     tmp = (pmdDyn->subDeepLoMd.hw_btnrT_wgt2FussionLmt_offset) * (1 << 12);
     pCfg->md_large_lo_wgt_add_offset = CLIP(tmp, 0, 0xfff);
     // REG: BAY3D_MIDBIG2
-    tmp = (pmdDyn->subDeepLoMd.hw_btnrT_wgt_scale) * (1 << 8);
+    tmp = (pmdDyn->subDeepLoMd.sw_btnrT_wgt2FusionLmt_scale) * (1 << 8);
     pCfg->md_large_lo_wgt_scale = CLIP(tmp, 0, 0xfff);
 
     // tnr sigma curve must calculate before spnr sigma

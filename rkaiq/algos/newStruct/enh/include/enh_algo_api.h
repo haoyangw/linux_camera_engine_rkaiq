@@ -26,6 +26,8 @@ algo_enh_SetAttrib
 );
 #endif
 XCamReturn Aenh_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams, int iso);
+XCamReturn algo_enh_SetStrength(RkAiqAlgoContext* ctx, aenh_strength_t *strg);
+XCamReturn algo_enh_GetStrength(RkAiqAlgoContext* ctx, aenh_strength_t *strg);
 
 extern RkAiqAlgoDescription g_RkIspAlgoDescEnh;
 XCAM_END_DECLARE

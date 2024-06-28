@@ -84,9 +84,9 @@ typedef enum shp_dbgOutMux_mode_e {
     // @reg: hw_shp_debug_mode == 3
     shp_edgeShpStrg_mode = 3,
     // @reg: hw_shp_debug_mode == 4
-    shp_detailLocStrgContrast_mode = 4,
+    shp_contrastDetailPosStrg_mode = 4,
     // @reg: hw_shp_debug_mode == 5
-    shp_detailClipLimit_mode = 5,
+    shp_detailPosLimit_mode = 5,
 } shp_dbgOutMux_mode_t;
 
 typedef struct shp_debug_static_s {
@@ -116,7 +116,7 @@ typedef struct shp_debug_static_s {
     shp_dbgOutMux_mode_t hw_shpT_dbgOut_mode;
 } shp_debug_static_t;
 
-typedef struct texRegionShpStrgLP_s {
+typedef struct shp_detailLP_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(detail_lp_en),
         M4_TYPE(bool),
@@ -128,19 +128,6 @@ typedef struct texRegionShpStrgLP_s {
         Freq of use: low))  */
     // reg: sw_detail_lp_en
     bool hw_shpCfg_lp_en;
-} texRegionShpStrgLP_t;
-
-typedef struct shp_detailLP_s {
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(texRegionShpStrgLP),
-        M4_TYPE(struct),
-        M4_UI_MODULE(normal_ui_style),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(TODO.\n
-        Freq of use: low))  */
-    texRegionShpStrgLP_t texRegionShpStrgLP;
 } shp_detailLP_t;
 
 typedef struct shp_cfgLP_s {
@@ -622,27 +609,7 @@ typedef struct shp_texRegionShpStrg_s {
     float hw_shpT_edgeRegionR_strg;
 } shp_texRegionShpStrg_t;
 
-typedef enum shp_motionStrg1_mode_e {
-    // line slope is positive, the larger local gain, the larger sharp strength.
-    shp_baseStatThd_posCorr_mode = 0,
-    // line slope is negative, the larger local gain, the smaller sharp strength.
-    shp_baseMotThd_negCorr_mode = 1,
-} shp_motionStrg1_mode_t;
-
 typedef struct shp_motionStrg1_s {
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(shp_motionStrg1_mode),
-        M4_TYPE(enum),
-        M4_ENUM_DEF(shp_motionStrg1_mode_t),
-        M4_DEFAULT(shp_baseMotThd_negCorr_mode),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(The mode of the noise curve. \n
-        Reference enum types.\n
-        Freq of use: low))  */
-    // @para: sw_shp_detailMotionWgt_sel
-    shp_motionStrg1_mode_t sw_shpT_motionStrg_mode;
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_shp_detailStaticRegion_thred),
         M4_TYPE(f32),

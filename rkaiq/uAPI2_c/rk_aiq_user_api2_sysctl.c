@@ -2339,23 +2339,33 @@ XCamReturn
 rk_aiq_uapi2_sysctl_get3AStatsBlk(const rk_aiq_sys_ctx_t* ctx,
                               rk_aiq_isp_stats_t **stats, int timeout_ms)
 {
-	LOGE("Deprecated func !");
-	return XCAM_RETURN_ERROR_FAILED;
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    rk_aiq_isp_stats_t* pstats = (rk_aiq_isp_stats_t*)aiq_mallocz(sizeof(rk_aiq_isp_stats_t));
+
+    if (pstats)
+        ret = AiqCore_get3AStats(ctx->_analyzer, pstats, timeout_ms);
+
+    if (ret == XCAM_RETURN_ERROR_TIMEOUT) {
+        aiq_free(pstats);
+    } else {
+        *stats = pstats;
+    }
+
+	return ret;
 }
 
 XCamReturn
 rk_aiq_uapi2_sysctl_get3AStats(const rk_aiq_sys_ctx_t* ctx,
                               rk_aiq_isp_stats_t *stats)
 {
-	LOGE("Deprecated func !");
-	return XCAM_RETURN_ERROR_FAILED;
+	return AiqCore_get3AStats(ctx->_analyzer, stats, 0);
 }
 
 void
 rk_aiq_uapi2_sysctl_release3AStatsRef(const rk_aiq_sys_ctx_t* ctx,
                                      rk_aiq_isp_stats_t *stats)
 {
-	LOGE("Deprecated func !");
+    aiq_free(stats);
 }
 
 void rk_aiq_uapi2_get_aiqversion_info(const rk_aiq_sys_ctx_t* ctx, rk_aiq_version_info_t* vers)

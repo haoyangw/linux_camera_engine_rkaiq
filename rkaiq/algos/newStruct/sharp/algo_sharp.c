@@ -108,7 +108,6 @@ XCamReturn SharpSelectParam
                 paut->dyn[ilow].dHfDetailShp.locShpStrg_texRegion.hw_shpT_edgeRegionL_strg, paut->dyn[ihigh].dHfDetailShp.locShpStrg_texRegion.hw_shpT_edgeRegionL_strg, ratio);
     out->dyn.dHfDetailShp.locShpStrg_texRegion.hw_shpT_edgeRegionR_strg = interpolation_f32(
                 paut->dyn[ilow].dHfDetailShp.locShpStrg_texRegion.hw_shpT_edgeRegionR_strg, paut->dyn[ihigh].dHfDetailShp.locShpStrg_texRegion.hw_shpT_edgeRegionR_strg, ratio);
-    out->dyn.dHfDetailShp.locShpStrg_motionStrg1.sw_shpT_motionStrg_mode = paut->dyn[inear].dHfDetailShp.locShpStrg_motionStrg1.sw_shpT_motionStrg_mode;
     out->dyn.dHfDetailShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgStat_maxThred = interpolation_f32(
                 paut->dyn[ilow].dHfDetailShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgStat_maxThred, paut->dyn[ihigh].dHfDetailShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgStat_maxThred, ratio);
     out->dyn.dHfDetailShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgMot_minThred = interpolation_f32(
@@ -199,7 +198,6 @@ XCamReturn SharpSelectParam
         out->dyn.detailShp.shootReduction.hw_shpT_luma2DetailNegClip_val[i] = interpolation_u16(
                     paut->dyn[ilow].detailShp.shootReduction.hw_shpT_luma2DetailNegClip_val[i], paut->dyn[ihigh].detailShp.shootReduction.hw_shpT_luma2DetailNegClip_val[i], uratio);
     }
-    out->dyn.detailShp.locShpStrg_motionStrg1.sw_shpT_motionStrg_mode = paut->dyn[inear].detailShp.locShpStrg_motionStrg1.sw_shpT_motionStrg_mode;
     out->dyn.detailShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgStat_maxThred = interpolation_f32(
                 paut->dyn[ilow].detailShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgStat_maxThred, paut->dyn[ihigh].detailShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgStat_maxThred, ratio);
     out->dyn.detailShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgMot_minThred = interpolation_f32(
@@ -243,7 +241,6 @@ XCamReturn SharpSelectParam
                 paut->dyn[ilow].edgeShp.shootReduction.sw_shpT_overShoot_alpha, paut->dyn[ihigh].edgeShp.shootReduction.sw_shpT_overShoot_alpha, ratio);
     out->dyn.edgeShp.shootReduction.sw_shpT_underShoot_alpha = interpolation_f32(
                 paut->dyn[ilow].edgeShp.shootReduction.sw_shpT_underShoot_alpha, paut->dyn[ihigh].edgeShp.shootReduction.sw_shpT_underShoot_alpha, ratio);
-    out->dyn.edgeShp.locShpStrg_motionStrg1.sw_shpT_motionStrg_mode = paut->dyn[inear].edgeShp.locShpStrg_motionStrg1.sw_shpT_motionStrg_mode;
     out->dyn.edgeShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgStat_maxThred = interpolation_f32(
                 paut->dyn[ilow].edgeShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgStat_maxThred, paut->dyn[ihigh].edgeShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgStat_maxThred, ratio);
     out->dyn.edgeShp.locShpStrg_motionStrg1.sw_shpT_locSgmStrgMot_minThred = interpolation_f32(

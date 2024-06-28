@@ -495,9 +495,7 @@ typedef struct {
         rk_aiq_awb_stat_res2_v201_t awb_stats_v21;
         rk_aiq_isp_awb_stats2_v3x_t awb_stats_v3x;
         rk_aiq_isp_awb_stats_v32_t awb_stats_v32;
-#if USE_NEWSTRUCT
         awbStats_stats_priv_t awb_stats_v39;
-#endif
     };
     bool bValid_awb_stats;
     int af_hw_ver;

@@ -360,6 +360,12 @@ static XCamReturn AiqCamGroupManager_reProcess(AiqCamGroupManager_t* pCamGrpMan,
             scam_3a_res->lut3d =
 				(rk_aiq_isp_lut3d_params_t*)(aiqParams->pParamsArray[RESULT_TYPE_LUT3D_PARAM]->_data);
 #endif
+#if RKAIQ_HAVE_HSV
+            if (!aiqParams->pParamsArray[RESULT_TYPE_HSV_PARAM])
+                RET_FAILED();
+            scam_3a_res->hsv =
+				(rk_aiq_isp_hsv_params_t*)(aiqParams->pParamsArray[RESULT_TYPE_HSV_PARAM]->_data);
+#endif
 #endif
 #if USE_NEWSTRUCT
             if (!aiqParams->pParamsArray[RESULT_TYPE_BLC_PARAM])
@@ -387,6 +393,12 @@ static XCamReturn AiqCamGroupManager_reProcess(AiqCamGroupManager_t* pCamGrpMan,
                 RET_FAILED();
             scam_3a_res->sharp =
 				(rk_aiq_isp_sharp_params_t*)(aiqParams->pParamsArray[RESULT_TYPE_SHARPEN_PARAM]->_data);
+#endif
+#if RKAIQ_HAVE_SHARP_V40
+            if (!aiqParams->pParamsArray[RESULT_TYPE_TEXEST_PARAM])
+                RET_FAILED();
+            scam_3a_res->texEst =
+				(rk_aiq_isp_texEst_params_t*)(aiqParams->pParamsArray[RESULT_TYPE_TEXEST_PARAM]->_data);
 #endif
 
 #if USE_NEWSTRUCT
@@ -1061,6 +1073,7 @@ void AiqCamGroupManager_RelayAiqCoreResults(AiqCamGroupManager_t* pCamGrpMan, Ai
     SET_TO_CAMGROUP(Lsc, LSC);
     SET_TO_CAMGROUP(Ldch, LDCH);
     SET_TO_CAMGROUP(Lut3d, LUT3D);
+    SET_TO_CAMGROUP(Hsv, HSV);
     SET_TO_CAMGROUP(Adegamma, ADEGAMMA);
     SET_TO_CAMGROUP(Wdr, WDR);
     SET_TO_CAMGROUP(Csm, CSM);
@@ -1101,6 +1114,9 @@ void AiqCamGroupManager_RelayAiqCoreResults(AiqCamGroupManager_t* pCamGrpMan, Ai
 #endif
 #if USE_NEWSTRUCT
     SET_TO_CAMGROUP(Sharp, SHARPEN);
+#if RKAIQ_HAVE_SHARP_V40
+    SET_TO_CAMGROUP(Textest, TEXEST);
+#endif
     SET_TO_CAMGROUP(Btnr, TNR);
     SET_TO_CAMGROUP(Dm, DEBAYER);
     SET_TO_CAMGROUP(Gamma, AGAMMA);

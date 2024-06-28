@@ -352,26 +352,8 @@ typedef struct gic_diffSgmRat2RgeWgt_s {
     float sw_gicT_rat2MinWgt_minThred;
 } gic_diffSgmRat2RgeWgt_t;
 
-typedef enum gic_sigma_mode_e {
-    // @note: "自适应计算sigma曲线"
-    // @reg: hw_gic_manualNoiseCurve_en == 0
-    gic_autoSigma_mode = 0,
-    // @note: "保边滤波sigma曲线手动配置"
-    // @reg: hw_gic_manualNoiseCurve_en == 1
-    gic_manualSigma_mode = 1
-} gic_sigma_mode_t;
 
 typedef struct gic_epf_dyn_s {
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(manualNoiseCurve_en),
-        M4_TYPE(struct),
-        M4_UI_MODULE(dynamic_ui),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(2),
-        M4_GROUP_CTRL(rgeSgm_mode_group),
-        M4_NOTES(TODO))  */
-    gic_sigma_mode_t sw_gicT_rgeSgm_mode;
     /* M4_GENERIC_DESC(
         M4_ALIAS(bfFilt_vsigma),
         M4_TYPE(u16),
@@ -511,7 +493,7 @@ typedef struct gic_gicSoftThd_auto_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(loFltThed_coeff),
         M4_TYPE(u16),
-        M4_SIZE_EX(1,8),
+        M4_SIZE_EX(1,2),
         M4_RANGE_EX(0, 1024),
         M4_DEFAULT([0, 64, 128, 256, 384, 640, 896, 1024]),
         M4_HIDE_EX(0),
@@ -538,6 +520,7 @@ typedef struct gic_gicPost_medAndEpf_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP_CTRL(softThd_mode_group),
         M4_NOTES(TODO.\n
         Freq of use: low))  */
     gic_medEpfSoftThd_mode_t sw_gicT_softThd_mode;
@@ -569,7 +552,7 @@ typedef struct gic_guideEpf_lpf_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(loFltGb_coeff),
         M4_TYPE(u16),
-        M4_SIZE_EX(1,8),
+        M4_SIZE_EX(1,2),
         M4_RANGE_EX(0, 1024),
         M4_DEFAULT([0, 64, 128, 256, 384, 640, 896, 1024]),
         M4_HIDE_EX(0),
@@ -594,18 +577,6 @@ typedef struct gic_gicPost_guideEpf_s {
         M4_NOTES(TODO))  */
     gic_guideEpf_lpf_t lpf;
     /* M4_GENERIC_DESC(
-        M4_ALIAS(softThd_mode),
-        M4_TYPE(enum),
-        M4_ENUM_DEF(gic_guideEpfSoftThd_mode_t),
-        M4_DEFAULT(gic_softThdAuto_mode),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_GROUP_CTRL(softThd_mode_group),
-        M4_NOTES(The mode of gic input pix sigma. Reference enum types.\n
-        Freq of use: low))  */
-    gic_guideEpfSoftThd_mode_t sw_gicT_softThd_mode;
-    /* M4_GENERIC_DESC(
         M4_ALIAS(autoSoftThd),
         M4_TYPE(struct),
         M4_UI_MODULE(dynamic_ui),
@@ -617,16 +588,43 @@ typedef struct gic_gicPost_guideEpf_s {
     gic_gicSoftThd_auto_t autoSoftThd;
 } gic_gicPost_guideEpf_t;
 
-typedef struct gic_params_dyn_s {
+typedef enum gic_sigma_mode_e {
+    // @note: "自适应计算sigma曲线"
+    // @reg: hw_gic_manualNoiseCurve_en == 0
+    gic_autoSigma_mode = 0,
+    // @note: "保边滤波sigma曲线手动配置"
+    // @reg: hw_gic_manualNoiseCurve_en == 1
+    gic_manualSigma_mode = 1
+} gic_sigma_mode_t;
+
+typedef struct gic_epf_static_s {
     /* M4_GENERIC_DESC(
-        M4_ALIAS(locSgmStrg2GicStrg),
+        M4_ALIAS(manualNoiseCurve_en),
         M4_TYPE(struct),
         M4_UI_MODULE(dynamic_ui),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
+        M4_GROUP_CTRL(rgeSgm_mode_group),
         M4_NOTES(TODO))  */
-    gic_locGicStrg_t locGicStrg;
+    gic_sigma_mode_t sw_gicCfg_rgeSgm_mode;
+} gic_epf_static_t;
+
+typedef struct gic_gicPost_guideEpf_static_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(softThd_mode),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(gic_guideEpfSoftThd_mode_t),
+        M4_DEFAULT(gic_softThdAuto_mode),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(The mode of gic input pix sigma. Reference enum types.\n
+        Freq of use: low))  */
+    gic_guideEpfSoftThd_mode_t sw_gicCfg_softThd_mode;
+} gic_gicPost_guideEpf_static_t;
+
+typedef struct gic_params_static_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(gic_pro_mode),
         M4_TYPE(enum),
@@ -640,6 +638,45 @@ typedef struct gic_params_dyn_s {
         Freq of use: low))  */
     //para: pro_mode
 	gic_gicProc_mode_t hw_gicT_gic_mode;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(epf),
+        M4_TYPE(struct),
+        M4_UI_MODULE(dynamic_ui),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(TODO))  */
+    gic_epf_static_t epf;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(gicPost_medAndEpf),
+        M4_TYPE(struct),
+        M4_UI_MODULE(dynamic_ui),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(TODO))  */
+    gic_gicPost_medAndEpf_t gicPost_medAndEpf;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(gicPost_medAndEpf),
+        M4_TYPE(struct),
+        M4_UI_MODULE(dynamic_ui),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(TODO))  */
+    gic_gicPost_guideEpf_static_t gicPost_guideEpf;
+} gic_params_static_t;
+
+typedef struct gic_params_dyn_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(locSgmStrg2GicStrg),
+        M4_TYPE(struct),
+        M4_UI_MODULE(dynamic_ui),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(TODO))  */
+    gic_locGicStrg_t locGicStrg;
     /* M4_GENERIC_DESC(
         M4_ALIAS(gicPre_medAndEpf),
         M4_TYPE(struct),
@@ -679,16 +716,6 @@ typedef struct gic_params_dyn_s {
         M4_NOTES(TODO))  */
     gic_gicSoftThd_manual_t manualSoftThd;
     /* M4_GENERIC_DESC(
-        M4_ALIAS(gicPost_medAndEpf),
-        M4_TYPE(struct),
-        M4_UI_MODULE(dynamic_ui),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(2),
-        M4_GROUP(gic_mode_group:gic_medAndEpf_mode),
-        M4_NOTES(TODO))  */
-    gic_gicPost_medAndEpf_t gicPost_medAndEpf;
-    /* M4_GENERIC_DESC(
         M4_ALIAS(gicPost_guideEpf),
         M4_TYPE(struct),
         M4_UI_MODULE(dynamic_ui),
@@ -701,6 +728,15 @@ typedef struct gic_params_dyn_s {
 } gic_params_dyn_t;
 
 typedef struct gic_param_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(sta),
+        M4_TYPE(struct),
+        M4_UI_MODULE(static_ui),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(TODO))  */
+    gic_params_static_t sta;
     /* M4_GENERIC_DESC(
         M4_ALIAS(dyn),
         M4_TYPE(struct),

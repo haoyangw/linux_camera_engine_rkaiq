@@ -33,6 +33,10 @@ XCamReturn
 rk_aiq_user_api2_enh_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, enh_api_attrib_t* attr);
 XCamReturn
 rk_aiq_user_api2_enh_QueryStatus(const rk_aiq_sys_ctx_t* sys_ctx, enh_status_t* status);
+XCamReturn
+rk_aiq_user_api2_enh_SetEnhanceStrth(const rk_aiq_sys_ctx_t* sys_ctx, aenh_strength_t* strg);
+XCamReturn
+rk_aiq_user_api2_enh_GetEnhanceStrth(const rk_aiq_sys_ctx_t* sys_ctx, aenh_strength_t* strg);
 
 RKAIQ_END_DECLARE
 

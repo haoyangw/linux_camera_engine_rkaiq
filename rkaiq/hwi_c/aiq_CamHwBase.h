@@ -148,6 +148,13 @@ typedef struct SnsFullInfoWraps_s {
     struct SnsFullInfoWraps_s* next;
 } SnsFullInfoWraps_t;
 
+typedef struct exgain_s {
+    uint8_t exgain_bypass;
+    uint8_t local_gain_bypass;
+    uint8_t gain_bypass_en;
+    bool gain_module_en;
+} exgain_t;
+
 typedef struct AiqCamHwBase_s {
     AiqSensorHw_t* _mSensorDev;
     AiqIspParamsCvt_t* _mIspParamsCvt;
@@ -170,6 +177,8 @@ typedef struct AiqCamHwBase_s {
     bool _linked_to_serdes;
     char sns_name[32];
     uint64_t _isp_module_ens;
+    exgain_t exgain_status;
+    
     bool mNoReadBack;
     rk_aiq_rotation_t _sharp_fbc_rotation;
 

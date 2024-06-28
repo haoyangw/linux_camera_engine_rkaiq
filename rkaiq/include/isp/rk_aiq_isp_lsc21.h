@@ -35,7 +35,7 @@ typedef struct lsc_meshGrid_s {
         M4_ORDER(0),
         M4_GROUP(meshGrid_mode_group:lsc_usrConfig_mode),
         M4_NOTES(The normalized X-axis value of the i-th sampling point,
-        begin with 0, end with 1, (posX_f[i+1] * width - posX_f[i] * width) >= 12.\n
+        begin with 0, end with 1, (posX_f[i+1] x width - posX_f[i] x width) >= 12.\n
         Freq of use: low))  */
     //reg: x_sect_size_0 ~ x_sect_size_f=(int)(posX_f[i+1]*width)-(int)(posX_f[i]*width)
     float posX_f[LSC_MESHGRID_NUM];
@@ -51,7 +51,7 @@ typedef struct lsc_meshGrid_s {
         M4_ORDER(1),
         M4_GROUP(meshGrid_mode_group:lsc_usrConfig_mode),
         M4_NOTES(The normalized Y-axis value of the i-th sampling point,
-        begin with 0, end with 1, (posY_f[i+1] * height - posY_f[i] * height) >= 8.\n
+        begin with 0, end with 1, (posY_f[i+1] x height - posY_f[i] x height) >= 8.\n
         Freq of use: low))  */
     //reg: y_sect_size_0 ~ y_sect_size_f=(int)(posY_f[i+1]*height)-(int)(posY_f[i]*height)
     float posY_f[LSC_MESHGRID_NUM];

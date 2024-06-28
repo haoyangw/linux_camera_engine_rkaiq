@@ -122,7 +122,7 @@ bool CamHwIsp33_processTb(AiqCamHwBase_t* pCamHw, void* params) {
                     *(rk_aiq_isp_awb_meas_cfg_v32_t*)(pCamHw->_mIspParamsCvt->mAwbParams->_data);
             }
             if (!pCamHw->_first_awb_cfg) {
-                pCamHw->_skipped_params = aiq_mallocz(sizeof(struct isp33_rawawb_meas_cfg));
+                pCamHw->_first_awb_cfg = aiq_mallocz(sizeof(struct isp33_rawawb_meas_cfg));
                 *((struct isp33_rawawb_meas_cfg*)pCamHw->_first_awb_cfg) = isp_params->meas.rawawb;
             }
             if (!pCamHw->_skipped_params) {

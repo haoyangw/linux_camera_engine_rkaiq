@@ -139,3 +139,23 @@ XCamReturn AiqEnhHandler_queryStatus(AiqEnhHandler_t* pHdlEnh, enh_status_t* sta
 
 }
 #endif
+
+XCamReturn AiqEnhHandler_setStrength(AiqEnhHandler_t* pHdlEnh, aenh_strength_t* strg)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    aiqMutex_lock(&pHdlEnh->mCfgMutex);
+    ret = algo_enh_SetStrength(pHdlEnh->mAlgoCtx, strg);
+    aiqMutex_unlock(&pHdlEnh->mCfgMutex);
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn AiqEnhHandler_getStrength(AiqEnhHandler_t* pHdlEnh, aenh_strength_t* strg)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    aiqMutex_lock(&pHdlEnh->mCfgMutex);
+    ret = algo_enh_GetStrength(pHdlEnh->mAlgoCtx, strg);
+    aiqMutex_unlock(&pHdlEnh->mCfgMutex);
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}

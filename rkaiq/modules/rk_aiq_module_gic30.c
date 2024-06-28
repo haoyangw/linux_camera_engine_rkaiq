@@ -125,20 +125,21 @@ void rk_aiq_gic30_params_cvt(void* attr, struct isp33_gic_cfg* gic_cfg)
     struct isp33_gic_cfg *pFix = gic_cfg;
     gic_param_t *gic_param = (gic_param_t *) attr;
     gic_params_dyn_t* pdyn = &gic_param->dyn;
+    gic_params_static_t* psta = &gic_param->sta;
 
     /* CTRL */
-    if (pdyn->hw_gicT_gic_mode == gic_medAndEpf_mode) {
+    if (psta->hw_gicT_gic_mode == gic_medAndEpf_mode) {
         pFix->pro_mode = 0;
         pFix->manualnoisethred_en = 1;
     } else {
         pFix->pro_mode = 1;
-        if (pdyn->gicPost_guideEpf.sw_gicT_softThd_mode == gic_softThdManual_mode)
+        if (psta->gicPost_guideEpf.sw_gicCfg_softThd_mode == gic_softThdManual_mode)
             pFix->manualnoisethred_en = 1;
         else
             pFix->manualnoisethred_en = 0;
     }
 
-    if (pdyn->epf.sw_gicT_rgeSgm_mode == gic_autoSigma_mode)
+    if (psta->epf.sw_gicCfg_rgeSgm_mode == gic_autoSigma_mode)
         pFix->manualnoisecurve_en = 0;
     else
         pFix->manualnoisecurve_en = 1;
