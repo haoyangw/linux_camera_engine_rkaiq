@@ -19,6 +19,7 @@ include(CompileOptions)
 include(GNUInstallDirs)
 
 find_package(librga QUIET)
+set(librga_FOUND FALSE)
 if (librga_FOUND)
     add_compile_options(${LIBRGA_CFLAGS})
     add_compile_options(-DISPDEMO_ENABLE_RGA=1)
