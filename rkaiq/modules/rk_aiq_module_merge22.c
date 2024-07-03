@@ -181,6 +181,7 @@ void rk_aiq_merge22_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
 
     phwcfg->s_base = pdyn->sw_mgeT_baseFrm_mode;
     if (pdyn->sw_mgeT_baseFrm_mode == mge_baseHdrS_mode) {
+        // calc md curve
         float sw_hdrmge_ms_thd0 = pdyn->mdWgt_baseHdrS.hw_mgeT_wgtZero_thred;
         float sw_hdrmge_ms_thd1 = pdyn->mdWgt_baseHdrS.sw_mgeT_wgtMaxTh_strg;
         // phwcfg->lm_thd0 = mergeClipValue(pdyn->mdWgt_baseHdrS.hw_mgeT_wgtZero_thred, 0, 10,
@@ -197,6 +198,10 @@ void rk_aiq_merge22_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
         phwcfg->ms_thd1 = mergeClipValue(sw_hdrmge_ms_thd1, 0, 10, false);
         phwcfg->ms_scl  = (unsigned short)(64.0f * sw_hdrmge_ms_scl);
         // phwcfg->lm_scl = (unsigned short)(64.0f * sw_hdrmge_lm_scl);
+
+        // calc gain0 in mge_baseHdrS_mode
+        phwcfg->gain0_inv = phwcfg->gain0_inv * pdyn->sw_mgeT_baseHdrS_diffScale;
+        phwcfg->gain0_inv = phwcfg->gain0_inv > 0xfff ? 0xfff : phwcfg->gain0_inv;
     }
     // // merge v12 add
     phwcfg->each_raw_en = pdyn->sw_mgeT_baseHdrL_mode;

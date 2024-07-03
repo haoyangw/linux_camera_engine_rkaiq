@@ -19,7 +19,9 @@ include(CompileOptions)
 include(GNUInstallDirs)
 
 find_package(librga QUIET)
-set(librga_FOUND FALSE)
+if (RKAIQ_NEWSTRUCT_TEST)
+    set(librga_FOUND FALSE)
+endif()
 if (librga_FOUND)
     add_compile_options(${LIBRGA_CFLAGS})
     add_compile_options(-DISPDEMO_ENABLE_RGA=1)
@@ -141,7 +143,7 @@ if (librga_FOUND)
     set(DIR_SRCS
         ${DIR_SRCS}
         demo/rga_control.c
-        demo/rkRgaApi.c
+        demo/rkRgaApi.cpp
         )
 endif()
 

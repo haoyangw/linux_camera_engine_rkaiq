@@ -2672,131 +2672,42 @@ XCamReturn AiqCore_pushEvts(AiqCore_t* pAiqCore, AiqHwEvt_t* evts) {
     return ret;
 }
 
-static void RkAiqCore_copyIspStats(AiqCore_t* pAiqCore, rk_aiq_isp_stats_t* to) {
+static void RkAiqCore_copyIspStats(AiqCore_t* pAiqCore, rk_aiq_isp_statistics_t* to) {
     aiq_ae_stats_wrapper_t* pAeStats   = NULL;
     aiq_awb_stats_wrapper_t* pAwbStats = NULL;
     aiq_af_stats_wrapper_t* pAfStats   = NULL;
 
     to->bValid_aec_stats = false;
     to->bValid_awb_stats = false;
+#if RKAIQ_HAVE_AF_V33 || RKAIQ_ONLY_AF_STATS_V33
     to->bValid_af_stats  = false;
-
+#endif
     if (pAiqCore->mCurAeStats) {
         pAeStats             = (aiq_ae_stats_wrapper_t*)pAiqCore->mCurAeStats->_data;
-#ifdef USE_NEWSTRUCT
-        to->aec_stats_v25 = pAeStats->aec_stats_v25;
-#else
-        to->aec_stats        = pAeStats->aec_stats;
-#endif
+        to->aec_stats = pAeStats->aec_stats_v25;
         to->frame_id         = pAiqCore->mCurAeStats->frame_id;
         to->bValid_aec_stats = true;
     }
 
-    if (pAiqCore->mIspHwVer >4) {
-#if USE_NEWSTRUCT
-        to->awb_hw_ver = 5;
-        if (pAiqCore->mCurAwbStats) {
+    if (pAiqCore->mCurAwbStats) {
             pAwbStats            = (aiq_awb_stats_wrapper_t*)pAiqCore->mCurAwbStats->_data;
-            to->awb_stats_v39 = pAwbStats->awb_stats_v39;
+            to->awb_stats = pAwbStats->awb_stats_v39;
             to->bValid_awb_stats = true;
-        }
-#endif
-    } else if (pAiqCore->mIspHwVer == 4) {
-#if defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
-        to->awb_hw_ver = 4;
-        if (pAiqCore->mCurAwbStats) {
-            pAwbStats            = (aiq_awb_stats_wrapper_t*)pAiqCore->mCurAwbStats->_data;
-            to->awb_stats_v32 = pAwbStats->awb_stats_v32;
-            to->bValid_awb_stats = true;
-        }
-#endif
-    } else if (pAiqCore->mIspHwVer == 3) {
-#if ISP_HW_V30
-        to->awb_hw_ver = 3;
-        if (pAiqCore->mCurAwbStats) {
-            pAwbStats                     = (aiq_awb_stats_wrapper_t*)pAiqCore->mCurAwbStats->_data;
-            to->bValid_awb_stats          = true;
-            to->awb_stats_v3x.light       = pAwbStats->awb_stats_v3x.light;
-            to->awb_stats_v3x.WpNo2       = pAwbStats->awb_stats_v3x.WpNo2;
-            to->awb_stats_v3x.blockResult = pAwbStats->awb_stats_v3x.blockResult;
-            to->awb_stats_v3x.multiwindowLightResult =
-                pAwbStats->awb_stats_v3x.multiwindowLightResult;
-            to->awb_stats_v3x.excWpRangeResult = pAwbStats->awb_stats_v3x.excWpRangeResult;
-            to->awb_stats_v3x.WpNoHist         = pAwbStats->awb_stats_v3x.WpNoHist;
-        }
-#endif
-    } else if (pAiqCore->mIspHwVer == 1) {
-#if ISP_HW_V21
-        to->awb_hw_ver = 1;
-        if (pAiqCore->mCurAwbStats) {
-            pAwbStats                     = (aiq_awb_stats_wrapper_t*)pAiqCore->mCurAwbStats->_data;
-            to->bValid_awb_stats          = true;
-            to->awb_stats_v21.light       = pAwbStats->awb_stats_v201.light;
-            to->awb_stats_v21.blockResult = pAwbStats->awb_stats_v201.blockResult;
-            to->awb_stats_v21.WpNoHist    = pAwbStats->awb_stats_v201.WpNoHist;
-        }
-#endif
     }
 
-    if (pAiqCore->mIspHwVer == 5) {
 #if RKAIQ_HAVE_AF_V33 || RKAIQ_ONLY_AF_STATS_V33
-        to->af_hw_ver = RKAIQ_AF_HW_V33;
-#ifdef USE_NEWSTRUCT
-        if (pAiqCore->mCurAfStats) {
-            pAfStats            = (aiq_af_stats_wrapper_t*)pAiqCore->mCurAfStats->_data;
-            to->bValid_af_stats = true;
-            to->afStats_stats   = pAfStats->afStats_stats;
-        }
-#else
-        if (pAiqCore->mCurAfStats) {
-            pAfStats            = (aiq_af_stats_wrapper_t*)pAiqCore->mCurAfStats->_data;
-            to->bValid_af_stats = true;
-            to->af_stats_v3x    = pAfStats->af_stats_v3x;
-        }
-#endif
-#endif
-    } else if (pAiqCore->mIspHwVer == 4) {
-#if RKAIQ_HAVE_AF_V32_LITE || RKAIQ_ONLY_AF_STATS_V32_LITE
-        to->af_hw_ver = RKAIQ_AF_HW_V32_LITE;
-        if (pAiqCore->mCurAfStats) {
-            pAfStats            = (aiq_af_stats_wrapper_t*)pAiqCore->mCurAfStats->_data;
-            to->bValid_af_stats = true;
-            to->af_stats_v3x    = pAfStats->af_stats_v3x;
-        }
-#endif
-#if RKAIQ_HAVE_AF_V31 || RKAIQ_ONLY_AF_STATS_V31
-        to->af_hw_ver = RKAIQ_AF_HW_V31;
-        if (pAiqCore->mCurAfStats) {
-            pAfStats            = (aiq_af_stats_wrapper_t*)pAiqCore->mCurAfStats->_data;
-            to->bValid_af_stats = true;
-            to->af_stats_v3x    = pAfStats->af_stats_v3x;
-        }
-#endif
-    } else if (pAiqCore->mIspHwVer == 3) {
-#if RKAIQ_HAVE_AF_V30 || RKAIQ_ONLY_AF_STATS_V30
-        to->af_hw_ver = RKAIQ_AF_HW_V30;
-        if (pAiqCore->mCurAfStats) {
-            pAfStats            = (aiq_af_stats_wrapper_t*)pAiqCore->mCurAfStats->_data;
-            to->bValid_af_stats = true;
-            to->af_stats_v3x    = pAfStats->af_stats_v3x;
-        }
-#endif
-    } else {
-#if RKAIQ_HAVE_AF_V20 || RKAIQ_HAVE_AF_V21 || RKAIQ_ONLY_AF_STATS_V20
-        to->af_hw_ver = RKAIQ_AF_HW_V20;
-        if (pAiqCore->mCurAfStats) {
-            pAfStats            = (aiq_af_stats_wrapper_t*)pAiqCore->mCurAfStats->_data;
-            to->bValid_af_stats = true;
-            to->af_stats        = pAfStats->af_stats;
-        }
-#endif
+    if (pAiqCore->mCurAfStats) {
+        pAfStats            = (aiq_af_stats_wrapper_t*)pAiqCore->mCurAfStats->_data;
+        to->bValid_af_stats = true;
+        to->afStats_stats   = pAfStats->afStats_stats;
     }
+#endif
 }
 
 /*
  * timeout: -1 next, 0 current, > 0 wait next until timeout
  */
-XCamReturn AiqCore_get3AStats(AiqCore_t* pAiqCore, rk_aiq_isp_stats_t* stats, int timeout_ms) {
+XCamReturn AiqCore_get3AStats(AiqCore_t* pAiqCore, rk_aiq_isp_statistics_t* stats, int timeout_ms) {
     //if (pAiqCore->mState != RK_AIQ_CORE_STATE_RUNNING) return XCAM_RETURN_ERROR_FAILED;
 
     aiqMutex_lock(&pAiqCore->mIspStatsMutex);
@@ -3152,6 +3063,12 @@ XCamReturn AiqCore_groupAnalyze(AiqCore_t * pAiqCore, uint64_t grpId,
                 LOGW_ANALYZER("force [%d]:%p fullParams done ! new param id %d",
                               (uint32_t)(long)pItem->_key, fullParam, shared->frameId);
                 fullParam->_base.frame_id = (uint32_t)(long)pItem->_key;
+                for (int i = 0; i < RESULT_TYPE_MAX_PARAM; i++) {
+                    if (fullParam->pParamsArray[i] &&
+                        fullParam->pParamsArray[i]->frame_id != fullParam->_base.frame_id) {
+                        fullParam->pParamsArray[i]->frame_id = fullParam->_base.frame_id;
+                    }
+                }
                 aiqMap_erase_locked(pAiqCore->mFullParamsPendingMap, (void*)(intptr_t)fullParam->_base.frame_id);
                 pAiqCore->mLatestParamsDoneId = fullParam->_base.frame_id;
             }

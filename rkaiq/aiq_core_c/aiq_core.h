@@ -31,6 +31,7 @@
 #include "algos/algo_types_priv.h"
 #include "iq_parser_v2/RkAiqCalibDbV2.h"
 #include "RkAiqCamGroupManager_c.h"
+#include "uAPI2/rk_aiq_user_api2_stats.h"
 
 RKAIQ_BEGIN_DECLARE
 
@@ -322,7 +323,7 @@ RkAiqAlgoContext* AiqCore_getAxlibCtx(AiqCore_t* pAiqCore, const int algo_type, 
 /*
  * timeout: -1 next, 0 current, > 0 wait next until timeout
  */
-XCamReturn AiqCore_get3AStats(AiqCore_t* pAiqCore, rk_aiq_isp_stats_t* stats, int timeout_ms);
+XCamReturn AiqCore_get3AStats(AiqCore_t* pAiqCore, rk_aiq_isp_statistics_t* stats, int timeout_ms);
 
 XCamReturn AiqCore_groupAnalyze(AiqCore_t * pAiqCore, uint64_t grpId,
                                 const RkAiqAlgosGroupShared_t* shared);

@@ -4324,7 +4324,7 @@ XCamReturn AiqCamHw_handleIspRstList(AiqCamHwBase_t* pCamHw, AiqList_t* pList) {
         if (!AiqV4l2Device_isActivated(pCamHw->mIspParamsDev)) {
 
             if (!AiqV4l2Device_isActivated(pCamHw->mIspStatsDev)) {
-                ret = pCamHw->mIspParamsDev->start(pCamHw->mIspStatsDev, false);
+                ret = pCamHw->mIspStatsDev->start(pCamHw->mIspStatsDev, false);
                 if (ret < 0) {
                     LOGE_CAMHW_SUBM(ISP20HW_SUBM, "prepare isp stats dev err: %d\n", ret);
                 }

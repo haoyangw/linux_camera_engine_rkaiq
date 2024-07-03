@@ -36,7 +36,9 @@
 #include "awb_algo_demo/third_party_awbV39_algo.h" //for rk3576
 
 #include "af_algo_demo/third_party_af_algo.h"
-
+#if USE_NEWSTRUCT
+#include "uAPI2/rk_aiq_user_api2_stats.h"
+#endif
 #if ISPDEMO_ENABLE_RGA && ISPDEMO_ENABLE_DRM
 #include "display.h"
 #include "rga.h"
@@ -2310,20 +2312,17 @@ static void* stats_thread(void* args) {
             print_af_stats(stats_ref);
             rk_aiq_uapi2_sysctl_release3AStatsRef(ctx->aiq_ctx, stats_ref);
 #else
-        rk_aiq_isp_stats_t stats_ref;
+        rk_aiq_isp_statistics_t stats_ref;
         stats_ref.bValid_aec_stats = false;
         stats_ref.bValid_awb_stats = false;
-        stats_ref.bValid_af_stats = false;
 
-        ret = rk_aiq_uapi2_sysctl_getIspStats(ctx->aiq_ctx, &stats_ref, -1);
+        ret = rk_aiq_uapi2_stats_getIspStats(ctx->aiq_ctx, &stats_ref, -1);
         if (ret == XCAM_RETURN_NO_ERROR) {
             // do nothing
-            printf("stats fid:%d, valid:%d,%d,%d \n", stats_ref.frame_id,
+            printf("stats fid:%d, valid:%d,%d\n", stats_ref.frame_id,
                   stats_ref.bValid_aec_stats,
-                  stats_ref.bValid_awb_stats,
-                  stats_ref.bValid_af_stats);
+                  stats_ref.bValid_awb_stats);
             query_ae_state(ctx->aiq_ctx);
-            print_af_stats(&stats_ref);
 #endif
         } else {
             if (ret == XCAM_RETURN_NO_ERROR) {

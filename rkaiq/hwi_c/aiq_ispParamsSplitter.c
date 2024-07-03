@@ -21,6 +21,8 @@
 #include "hwi_c/isp3x/aiq_isp3xParamsSplitter.h"
 #elif defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
 #include "hwi_c/isp32/aiq_isp32ParamsSplitter.h"
+#elif defined(ISP_HW_V33)
+#include "hwi_c/isp33/aiq_isp33ParamsSplitter.h"
 #endif
 
 //#define DEBUG
@@ -42,6 +44,8 @@ XCamReturn AiqIspParamsSplitter_init(AiqIspParamsSplitter_t* pSplit, int ispVer)
 #elif defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
     pSplit->SplitIspParams         = Isp32SplitIspParams;
     pSplit->SplitIspParamsVertical = Isp32SplitIspParamsVertical;
+#elif defined(ISP_HW_V33)
+    pSplit->SplitIspParams         = Isp33SplitIspParams;
 #endif
 
     return XCAM_RETURN_NO_ERROR;

@@ -4615,7 +4615,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4638,7 +4639,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4661,7 +4663,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4684,7 +4687,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4707,7 +4711,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4730,7 +4735,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4753,7 +4759,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4776,7 +4783,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4799,7 +4807,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4822,7 +4831,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4845,7 +4855,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4868,7 +4879,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4891,7 +4903,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									}]
 							},
 							"stMan": {
@@ -4923,7 +4936,8 @@
 									"mdWgt_baseHdrS": {
 										"sw_mgeT_wgtMaxTh_strg": 0,
 										"hw_mgeT_wgtZero_thred": 0
-									}
+									},
+									"sw_mgeT_baseHdrS_diffScale": 1
 								}
 							}
 						},
@@ -18443,17 +18457,17 @@
 									"mgeCfg": {
 										"expRat": {
 											"sw_mgeCfg_expRat_mode": "mge_expRatSyncAE_mode",
-											"sw_mgeCfg_expRatFix_val": 0,
+											"sw_mgeCfg_expRatFix_val": 1.0,
 											"hw_mgeCfg_lumaHdrL_scale": 0
 										}
 									},
 									"paraLinkCfg": {
 										"sw_mgeT_paraLink_mode": "amge_envLink_mode",
-										"sw_mgeT_isoLink_val": [0,0.005,0.01,0.05,0.1,0.15,0.2,0.3,0.4,0.5,0.6,0.8,1],
+										"sw_mgeT_isoLink_val": [50, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400, 204800],
 										"sw_mgeT_envLink_val": [0,0.005,0.01,0.05,0.1,0.15,0.2,0.3,0.4,0.5,0.6,0.8,1]
 									},
-									"sw_mgeT_oeDamp_val": 0.3,
-									"sw_mgeT_mdDamp_val": 0.3
+									"sw_mgeT_oeDamp_val": 1.0,
+									"sw_mgeT_mdDamp_val": 1.0
 								},
 								"dyn": [
 									{
@@ -18477,7 +18491,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -18500,7 +18515,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -18523,7 +18539,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -18546,7 +18563,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -18569,7 +18587,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -18592,7 +18611,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -18615,7 +18635,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -18638,7 +18659,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -18661,7 +18683,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -18684,7 +18707,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -18707,7 +18731,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -18730,7 +18755,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -18753,7 +18779,8 @@
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
-										}
+										},
+										"sw_mgeT_baseHdrS_diffScale": 1
 									}]
 							},
 							"stMan": {
@@ -18785,7 +18812,8 @@
 									"mdWgt_baseHdrS": {
 										"sw_mgeT_wgtMaxTh_strg": 0,
 										"hw_mgeT_wgtZero_thred": 0
-									}
+									},
+									"sw_mgeT_baseHdrS_diffScale": 1
 								}
 							}
 						},

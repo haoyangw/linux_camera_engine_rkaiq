@@ -3,6 +3,7 @@
 
 #include "rk_aiq_isp32_modules.h"
 #include "rk_aiq_module_btnr_common.h"
+#include "rk_aiq_module_common.h"
 #include "common/rk-isp33-config.h"
 
 RKAIQ_BEGIN_DECLARE

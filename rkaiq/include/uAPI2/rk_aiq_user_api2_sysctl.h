@@ -428,20 +428,6 @@ rk_aiq_uapi2_sysctl_release3AStatsRef(const rk_aiq_sys_ctx_t* ctx,
                                      rk_aiq_isp_stats_t *stats);
 
 /*!
- * \brief new 3a stats interace for C version
- *
- * \param[in] ctx             context
- * \param[in] timeout_ms      -1: wait until next stats comes
- *                             0: return current stats immediately
- *                           > 0: wait next stats until timeout
- * \param[out] stats          stats
- * \return void
- */
-XCamReturn
-rk_aiq_uapi2_sysctl_getIspStats(const rk_aiq_sys_ctx_t* ctx,
-                              rk_aiq_isp_stats_t *stats, int timeout_ms);
-
-/*!
  * \brief prepare RK-raw-format data process environment
  *
  * \param[in] ctx             context

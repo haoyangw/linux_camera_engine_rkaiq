@@ -45,6 +45,7 @@
 #include "uAPI2/rk_aiq_user_api2_awb_v3.h"
 
 #include "uAPI2/rk_aiq_user_ae_thread_v25_itf.h"
+#include "uAPI2/rk_aiq_user_api2_stats.h"
 
 int g_rkaiq_isp_hw_ver = 0;
 static bool g_bypass_uapi = false;
@@ -554,17 +555,6 @@ rk_aiq_uapi2_sysctl_getCamInfos(const rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_ctx_camI
     EXIT_XCORE_FUNCTION();
 
     return ret;
-}
-
-/*
- * timeout: -1 next, 0 current, > 0 wait next until timeout
- */
-XCamReturn
-rk_aiq_uapi2_sysctl_getIspStats(const rk_aiq_sys_ctx_t* ctx,
-                              rk_aiq_isp_stats_t *stats, int timeout_ms)
-{
-	RKAIQ_API_SMART_LOCK(ctx);
-	return AiqCore_get3AStats(ctx->_analyzer, stats, timeout_ms);
 }
 
 XCamReturn
@@ -2341,14 +2331,23 @@ rk_aiq_uapi2_sysctl_get3AStatsBlk(const rk_aiq_sys_ctx_t* ctx,
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
     rk_aiq_isp_stats_t* pstats = (rk_aiq_isp_stats_t*)aiq_mallocz(sizeof(rk_aiq_isp_stats_t));
-
+    rk_aiq_isp_statistics_t sStats;
     if (pstats)
-        ret = AiqCore_get3AStats(ctx->_analyzer, pstats, timeout_ms);
+        ret = AiqCore_get3AStats(ctx->_analyzer, &sStats, timeout_ms);
 
     if (ret == XCAM_RETURN_ERROR_TIMEOUT) {
         aiq_free(pstats);
     } else {
         *stats = pstats;
+        pstats->frame_id = sStats.frame_id;
+        pstats->aec_stats_v25 = sStats.aec_stats;
+        pstats->bValid_aec_stats = sStats.bValid_aec_stats;
+        pstats->awb_stats_v39 = sStats.awb_stats;
+        pstats->bValid_awb_stats = sStats.bValid_awb_stats;
+#if RKAIQ_HAVE_AF_V33 || RKAIQ_ONLY_AF_STATS_V33
+        pstats->afStats_stats = sStats.afStats_stats;
+        pstats->bValid_af_stats = sStats.bValid_af_stats;
+#endif
     }
 
 	return ret;
@@ -2358,7 +2357,22 @@ XCamReturn
 rk_aiq_uapi2_sysctl_get3AStats(const rk_aiq_sys_ctx_t* ctx,
                               rk_aiq_isp_stats_t *stats)
 {
-	return AiqCore_get3AStats(ctx->_analyzer, stats, 0);
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    rk_aiq_isp_statistics_t sStats;
+    ret = AiqCore_get3AStats(ctx->_analyzer, &sStats, 0);
+    if (ret == XCAM_RETURN_NO_ERROR) {
+        stats->frame_id = sStats.frame_id;
+        stats->aec_stats_v25 = sStats.aec_stats;
+        stats->bValid_aec_stats = sStats.bValid_aec_stats;
+        stats->awb_stats_v39 = sStats.awb_stats;
+        stats->bValid_awb_stats = sStats.bValid_awb_stats;
+#if RKAIQ_HAVE_AF_V33 || RKAIQ_ONLY_AF_STATS_V33
+        stats->afStats_stats = sStats.afStats_stats;
+        stats->bValid_af_stats = sStats.bValid_af_stats;
+#endif
+    }
+
+	return ret;
 }
 
 void
@@ -2530,6 +2544,7 @@ rk_aiq_uapi2_sysctl_setSnsSyncMode(const rk_aiq_sys_ctx_t* ctx, enum rkmodule_sy
 #include "rk_aiq_user_api2_ae.c"
 #include "rk_aiq_user_api2_awb_v3.c"
 #include "rk_aiq_user_api2_imgproc.c"
+#include "rk_aiq_user_api2_stats.c"
 #include "rk_aiq_user_api2_camgroup.c"
 #include "../uAPI2/rk_aiq_user_ae_thread_v25_itf.c"
 #include "../uAPI2/rk_aiq_user_api2_custom2_awb.c"

@@ -678,15 +678,11 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
     }
 
     {
-        int center_h = psta->locShpStrg_radiDist.hw_shpCfg_opticCenter_x;
-        int center_v = psta->locShpStrg_radiDist.hw_shpCfg_opticCenter_y;
-        if (center_h == 0)
-            center_h = cols / 2;
-        if (center_v == 0)
-            center_v = rows / 2;
+        int center_x = convert_coordinate(psta->locShpStrg_radiDist.hw_shpCfg_opticCenter_x, cols);
+        int center_y = convert_coordinate(psta->locShpStrg_radiDist.hw_shpCfg_opticCenter_y, rows);
         // REG: CENTER
-        pCfg->center_x = CLIP(center_h, 0, 0x1fff);
-        pCfg->center_y = CLIP(center_v, 0, 0x1fff);
+        pCfg->center_x = CLIP(center_x, 0, 0x1fff);
+        pCfg->center_y = CLIP(center_y, 0, 0x1fff);
     }
 
     {

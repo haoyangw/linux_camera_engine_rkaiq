@@ -344,6 +344,7 @@ typedef struct {
         M4_DEFAULT(0.0),
         M4_DIGIT_EX(2f14b),
         M4_HIDE_EX(0),
+        M4_GROUP(!luma2strg_en_group),
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(The contrast strength of enhance when hw_dhazT_luma2strg_en == 0.\n

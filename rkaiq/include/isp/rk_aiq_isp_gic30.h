@@ -520,7 +520,6 @@ typedef struct gic_gicPost_medAndEpf_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_GROUP_CTRL(softThd_mode_group),
         M4_NOTES(TODO.\n
         Freq of use: low))  */
     gic_medEpfSoftThd_mode_t sw_gicT_softThd_mode;
@@ -600,11 +599,12 @@ typedef enum gic_sigma_mode_e {
 typedef struct gic_epf_static_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(manualNoiseCurve_en),
-        M4_TYPE(struct),
-        M4_UI_MODULE(dynamic_ui),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(gic_sigma_mode_t),
+        M4_DEFAULT(gic_autoSigma_mode),
         M4_HIDE_EX(0),
         M4_RO(0),
-        M4_ORDER(2),
+        M4_ORDER(0),
         M4_GROUP_CTRL(rgeSgm_mode_group),
         M4_NOTES(TODO))  */
     gic_sigma_mode_t sw_gicCfg_rgeSgm_mode;
@@ -619,6 +619,7 @@ typedef struct gic_gicPost_guideEpf_static_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP_CTRL(softThd_mode_group),
         M4_NOTES(The mode of gic input pix sigma. Reference enum types.\n
         Freq of use: low))  */
     gic_guideEpfSoftThd_mode_t sw_gicCfg_softThd_mode;
@@ -712,7 +713,7 @@ typedef struct gic_params_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
-        M4_GROUP(softThd_mode_group:gic_manualSoftThd_mode),
+        M4_GROUP((gic_mode_group:gic_medAndEpf_mode)||(softThd_mode_group:gic_softThdManual_mode)),
         M4_NOTES(TODO))  */
     gic_gicSoftThd_manual_t manualSoftThd;
     /* M4_GENERIC_DESC(

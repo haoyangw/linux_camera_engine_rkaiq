@@ -4134,8 +4134,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4159,8 +4158,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4184,8 +4182,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4209,8 +4206,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4234,8 +4230,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4259,8 +4254,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4284,8 +4278,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4309,8 +4302,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4334,8 +4326,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4359,8 +4350,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4384,8 +4374,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4409,8 +4398,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4434,8 +4422,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									}]
 							},
 							"stMan": {
@@ -4467,7 +4454,8 @@
 									"mdWgt_baseHdrS": {
 										"sw_mgeT_wgtMaxTh_strg": 0,
 										"hw_mgeT_wgtZero_thred": 0
-									}
+									},
+									"sw_mgeT_baseHdrS_diffScale": 1
 								}
 							}
 						},
@@ -12909,8 +12897,8 @@
 							"stAuto": {
 								"sta": {
 									"locShpStrg_radiDist": {
-										"hw_shpCfg_opticCenter_x": 1280,
-										"hw_shpCfg_opticCenter_y": 720,
+										"hw_shpCfg_opticCenter_x": 0,
+										"hw_shpCfg_opticCenter_y": 0,
 										"hw_shpT_radiusStep_mode": "shp_step_256_mode"
 									},
 									"lumaLutCfg": {
@@ -15466,8 +15454,8 @@
 							"stMan": {
 								"sta": {
 									"locShpStrg_radiDist": {
-										"hw_shpCfg_opticCenter_x": 1280,
-										"hw_shpCfg_opticCenter_y": 720,
+										"hw_shpCfg_opticCenter_x": 0,
+										"hw_shpCfg_opticCenter_y": 0,
 										"hw_shpT_radiusStep_mode": "shp_step_256_mode"
 									},
 									"lumaLutCfg": {
@@ -20879,8 +20867,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -20904,8 +20891,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -20929,8 +20915,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -20954,8 +20939,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -20979,8 +20963,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -21004,8 +20987,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -21029,8 +21011,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -21054,8 +21035,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -21079,8 +21059,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -21104,8 +21083,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -21129,8 +21107,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -21154,8 +21131,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -21179,8 +21155,7 @@
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
 											"hw_mgeT_wgtZero_thred": 0
 										},
-										"sw_mgeT_oeDamp_val": 0.3,
-										"sw_mgeT_mdDamp_val": 0.3
+										"sw_mgeT_baseHdrS_diffScale": 1
 									}]
 							},
 							"stMan": {
@@ -21212,7 +21187,8 @@
 									"mdWgt_baseHdrS": {
 										"sw_mgeT_wgtMaxTh_strg": 0,
 										"hw_mgeT_wgtZero_thred": 0
-									}
+									},
+									"sw_mgeT_baseHdrS_diffScale": 1
 								}
 							}
 						},
@@ -29654,8 +29630,8 @@
 							"stAuto": {
 								"sta": {
 									"locShpStrg_radiDist": {
-										"hw_shpCfg_opticCenter_x": 1280,
-										"hw_shpCfg_opticCenter_y": 720,
+										"hw_shpCfg_opticCenter_x": 0,
+										"hw_shpCfg_opticCenter_y": 0,
 										"hw_shpT_radiusStep_mode": "shp_step_256_mode"
 									},
 									"lumaLutCfg": {
@@ -32211,8 +32187,8 @@
 							"stMan": {
 								"sta": {
 									"locShpStrg_radiDist": {
-										"hw_shpCfg_opticCenter_x": 1280,
-										"hw_shpCfg_opticCenter_y": 720,
+										"hw_shpCfg_opticCenter_x": 0,
+										"hw_shpCfg_opticCenter_y": 0,
 										"hw_shpT_radiusStep_mode": "shp_step_256_mode"
 									},
 									"lumaLutCfg": {

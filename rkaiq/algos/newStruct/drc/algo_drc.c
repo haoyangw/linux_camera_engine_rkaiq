@@ -550,8 +550,8 @@ XCamReturn DrcSelectParam(DrcContext_t* pDrcCtx, drc_param_t* out, int iso) {
     // get bifilt_filter
     // get hw_drcT_bifiltOut_alpha
     out->dyn.bifilt_filter.hw_drcT_bifiltOut_alpha =
-        interpolation_u8(paut->dyn[ilow].bifilt_filter.hw_drcT_bifiltOut_alpha,
-                         paut->dyn[ihigh].bifilt_filter.hw_drcT_bifiltOut_alpha, ratio);
+        interpolation_f32(paut->dyn[ilow].bifilt_filter.hw_drcT_bifiltOut_alpha,
+                          paut->dyn[ihigh].bifilt_filter.hw_drcT_bifiltOut_alpha, ratio);
     // get hw_drcT_softThd_en
     out->dyn.bifilt_filter.hw_drcT_softThd_en = paut->dyn[ilow].bifilt_filter.hw_drcT_softThd_en;
     // get hw_drcT_softThd_thred
@@ -560,12 +560,12 @@ XCamReturn DrcSelectParam(DrcContext_t* pDrcCtx, drc_param_t* out, int iso) {
                           paut->dyn[ihigh].bifilt_filter.hw_drcT_softThd_thred, ratio);
     // get hw_drcT_centerPixel_wgt
     out->dyn.bifilt_filter.hw_drcT_centerPixel_wgt =
-        interpolation_u8(paut->dyn[ilow].bifilt_filter.hw_drcT_centerPixel_wgt,
-                         paut->dyn[ihigh].bifilt_filter.hw_drcT_centerPixel_wgt, ratio);
+        interpolation_f32(paut->dyn[ilow].bifilt_filter.hw_drcT_centerPixel_wgt,
+                          paut->dyn[ihigh].bifilt_filter.hw_drcT_centerPixel_wgt, ratio);
     // get hw_drcT_midWgt_alpha
     out->dyn.bifilt_filter.hw_drcT_midWgt_alpha =
-        interpolation_u8(paut->dyn[ilow].bifilt_filter.hw_drcT_midWgt_alpha,
-                         paut->dyn[ihigh].bifilt_filter.hw_drcT_midWgt_alpha, ratio);
+        interpolation_f32(paut->dyn[ilow].bifilt_filter.hw_drcT_midWgt_alpha,
+                          paut->dyn[ihigh].bifilt_filter.hw_drcT_midWgt_alpha, ratio);
     // get hw_drcT_rgeWgt_negOff
     out->dyn.bifilt_filter.hw_drcT_rgeWgt_negOff =
         interpolation_f32(paut->dyn[ilow].bifilt_filter.hw_drcT_rgeWgt_negOff,

@@ -586,7 +586,7 @@ typedef struct ynr_loNrEPF_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_ynr_loSpnr_strg),
         M4_TYPE(f32),
-        M4_SIZE_EX(1,1),
+        M4_SIZE_EX(1,6),
         M4_RANGE_EX(0.0, 31.993),
         M4_DEFAULT(1.0),
         M4_DIGIT_EX(3f7b),

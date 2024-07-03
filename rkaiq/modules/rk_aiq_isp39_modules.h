@@ -5,6 +5,7 @@
 #include "common/rk-isp39-config.h"
 #include "common/rk-isp33-config.h"
 #include "rk_aiq_module_btnr_common.h"
+#include "rk_aiq_module_common.h"
 
 
 #if ISP_HW_V39

@@ -90,5 +90,7 @@
 #include "uAPI2/rk_aiq_user_api2_3dlut.h"
 #include "isp/rk_aiq_isp_ccm22.h"
 #include "uAPI2/rk_aiq_user_api2_ccm.h"
+#include "isp/rk_aiq_isp_stats_v39.h"
+#include "uAPI2/rk_aiq_user_api2_stats.h"
 
 #endif

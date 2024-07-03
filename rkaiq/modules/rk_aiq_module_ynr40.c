@@ -87,15 +87,11 @@ void rk_aiq_ynr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
     }
 
     {
-        int center_h = psta->locYnrStrg_radiDist.hw_ynrCfg_opticCenter_x;
-        int center_v = psta->locYnrStrg_radiDist.hw_ynrCfg_opticCenter_y;
-        if (center_h == 0)
-            center_h = cols / 2;
-        if (center_v == 0)
-            center_v = rows / 2;
+        int center_x = convert_coordinate(psta->locYnrStrg_radiDist.hw_ynrCfg_opticCenter_x, cols);
+        int center_y = convert_coordinate(psta->locYnrStrg_radiDist.hw_ynrCfg_opticCenter_y, rows);
         // REG: RNR_CENTER_COOR
-        pCfg->rnr_center_h = CLIP(center_h, 0, 0x1fff);
-        pCfg->rnr_center_v = CLIP(center_v, 0, 0x1fff);
+        pCfg->rnr_center_h = CLIP(center_x, 0, 0x1fff);
+        pCfg->rnr_center_v = CLIP(center_y, 0, 0x1fff);
     }
 
     {
@@ -313,9 +309,9 @@ void rk_aiq_ynr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
     pCfg->lo_spnr_filt_center_wgt = CLIP(tmp, 0, 0x1fff);
 
     // REG: LO_TEXT_THRED
-    tmp = (pdyn->loNr.locYnrStrg_texRegion.hw_ynrT_edgeRegion_minThred) * (1023);
-    pCfg->tex2lo_strg_lower_thred = CLIP(tmp, 0, 1024);
     tmp = (pdyn->loNr.locYnrStrg_texRegion.hw_ynrT_flatRegion_maxThred) * (1023);
+    pCfg->tex2lo_strg_lower_thred = CLIP(tmp, 0, 1024);
+    tmp = (pdyn->loNr.locYnrStrg_texRegion.hw_ynrT_edgeRegion_minThred) * (1023);
     pCfg->tex2lo_strg_upper_thred = CLIP(tmp, 0, 1024);
     int tex2strg_step = (1 << 20) / MAX(pCfg->tex2lo_strg_upper_thred - pCfg->tex2lo_strg_lower_thred, 1);
     int ynr_tex2loStrg_minLimit   = (int)(pdyn->loNr.locYnrStrg_texRegion.sw_ynrT_edgeRegionNr_strg * 1024);     // range : [0, 1024]; 11 bits

@@ -29,6 +29,7 @@ configure_file(
 
 set (GIT_LOG "")
 execute_process(COMMAND git log --oneline -n 5
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 	TIMEOUT 5
 	OUTPUT_VARIABLE GIT_LOG)
 
@@ -1195,6 +1196,7 @@ if (RKAIQ_ISP_VERSION STREQUAL "33")
     list(APPEND HWI_C_SRC hwi_c/isp33/aiq_CamHwIsp33.c)
     list(APPEND HWI_C_SRC hwi_c/isp39/aiq_isp39ParamsCvt.c)
     list(APPEND HWI_C_SRC hwi_c/isp33/aiq_isp33ParamsCvt.c)
+    list(APPEND HWI_C_SRC hwi_c/isp33/aiq_isp33ParamsSplitter.c)
 endif()
 
 set (CORE_C_SRC

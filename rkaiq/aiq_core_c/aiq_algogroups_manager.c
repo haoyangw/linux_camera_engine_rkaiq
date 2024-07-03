@@ -913,6 +913,7 @@ void AiqAnalyzeGroupManager_rmAlgoHandle(AiqAnalyzeGroupManager_t* pGroupMan, in
 void AiqAnalyzeGroupManager_awakenClean(AiqAnalyzeGroupManager_t* pGroupMan, uint32_t sequence)
 {
 	AiqAnalyzeGroupManager_stop(pGroupMan);
+    AiqAnalyzeGroupManager_clean(pGroupMan);
     for (int i = 0; i < RK_AIQ_CORE_ANALYZE_MAX; i++) {
 		if (pGroupMan->mGroupMap[i]) {
 			AiqAnalyzerGroup_setWakenId(pGroupMan->mGroupMap[i], sequence);
