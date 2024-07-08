@@ -254,11 +254,13 @@ __rkaiq_uapi_common_call(void *desc, void *sys_ctx, cJSON *cmd_js, cJSON **ret_j
 		}
 		ret = RkCam_cJSONUtils_ApplyPatches(old_json, cmd_js);
 		if (0 != ret) {
+            RkCam_cJSON_Delete(old_json);
 			XCAM_LOG_ERROR("%s apply patch failed %d!", __func__, ret);
 			return -1;
 		}
 		memset(real_obj, 0, sizeof(real_obj));
 		ret = j2s_json_to_struct(&ctx, old_json, type_name, real_obj);
+        RkCam_cJSON_Delete(old_json);
 		j2s_deinit(&ctx);
 		if (ret) return -1;
 		if (!uapi_desc->arg_set) return -1;

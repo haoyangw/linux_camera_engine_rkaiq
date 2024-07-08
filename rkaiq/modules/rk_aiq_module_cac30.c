@@ -38,6 +38,11 @@ void rk_aiq_cac30_params_cvt(void* attr, struct isp33_isp_params_cfg* isp_cfg,
     int maxValue = (1<<12)-1; //to do hdr ratio predgain
     RKAiqAecExpInfo_t *ae_exp = cvtinfo->ae_exp;
     float hdrmge_gain0_1 = 1;
+    float isp_ob_predgain = 1;
+    if(cvtinfo->frameNum <= 1){
+        isp_ob_predgain = cvtinfo->preDGain>1?cvtinfo->preDGain:1;
+    }
+
     if(ae_exp!=NULL){
         if(cvtinfo->frameNum > 1){
             float sExpo = ae_exp->HdrExp[0].exp_real_params.analog_gain *
@@ -52,11 +57,12 @@ void rk_aiq_cac30_params_cvt(void* attr, struct isp33_isp_params_cfg* isp_cfg,
             }
 
         }
-        LOGD_ACAC("hdrmge_gain0_1(%f)",hdrmge_gain0_1);
+        //LOGD_ACAC("hdrmge_gain0_1(%f)",hdrmge_gain0_1);
     }else{
        LOGD_ACAC("%s ae_exp is null",__FUNCTION__);
     }
-    maxValue*=hdrmge_gain0_1;
+    maxValue*=hdrmge_gain0_1*isp_ob_predgain;
+    LOGD_ACAC("isp_ob_predgain(%f),hdrmge_gain0_1(%f),maxValue(%d)",isp_ob_predgain,hdrmge_gain0_1,maxValue);
 
     cac30_multi_cvt(phwcfg, pdyn, psta, maxValue, is_multi_isp);
     if (is_multi_isp) {

@@ -23,6 +23,13 @@
 
 RKAIQ_BEGIN_DECLARE
 
+typedef struct {
+    bool darkAreaBoostEn;
+    unsigned int darkAreaBoostStrength;
+    bool hdrStrengthEn;
+    unsigned int hdrStrength;
+} adrc_strength_t;
+
 typedef struct drc_param_auto_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(dynamic_param),

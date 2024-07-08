@@ -29,7 +29,7 @@ typedef struct aiqMemRec_s {
 	} head[AIQ_MEM_REC_MAX];
 } aiqMemRec_t;
 
-//#define AQI_MALLOC_DBG 1
+//#define AIQ_MALLOC_DBG 1
 #if AQI_MALLOC_DBG
 static aiqMemRec_t g_aiqMemRec = {
 	.total_size = 0,
@@ -41,7 +41,7 @@ inline void* aiq_mallocz(size_t size) {
     void* ret = malloc(size);
     if (ret) {
 		memset(ret, 0, size);
-#if AQI_MALLOC_DBG && !defined(COMPILE_TEMPLATE)
+#if AIQ_MALLOC_DBG
 		int i = 0;
 		for (i = 0; i < AIQ_MEM_REC_MAX; i++) {
 			if (!g_aiqMemRec.head[i].pVoid) {
@@ -65,7 +65,7 @@ inline void* aiq_mallocz(size_t size) {
 inline void aiq_free(void* ptr)
 {
 	free(ptr);
-#if AQI_MALLOC_DBG && !defined(COMPILE_TEMPLATE)
+#if AIQ_MALLOC_DBG
 	int i = 0;
 	for (i = 0; i < AIQ_MEM_REC_MAX; i++) {
 		if (ptr && g_aiqMemRec.head[i].pVoid == ptr) {

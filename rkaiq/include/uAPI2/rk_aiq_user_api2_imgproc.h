@@ -408,8 +408,8 @@ XCamReturn rk_aiq_uapi2_setGammaCoef(const rk_aiq_sys_ctx_t* ctx, float GammaCoe
 * Desc: set/get dark area boost strength
 *    this function is active for normal mode
 * Argument:
-*   level: [1, 10]
-*   only valid in RV1109/RV1126
+*   level: [0, 100]
+* 
 *****************************
 */
 XCamReturn rk_aiq_uapi2_setDarkAreaBoostStrth(const rk_aiq_sys_ctx_t* ctx, unsigned int level);
@@ -427,6 +427,19 @@ XCamReturn rk_aiq_uapi2_getDarkAreaBoostStrth(const rk_aiq_sys_ctx_t* ctx, unsig
 */
 XCamReturn rk_aiq_uapi2_setMHDRStrth(const rk_aiq_sys_ctx_t* ctx, bool on, unsigned int level);
 XCamReturn rk_aiq_uapi2_getMHDRStrth(const rk_aiq_sys_ctx_t* ctx, bool *on, unsigned int *level);
+
+/*
+*****************************
+*
+* Desc: set hdr strength
+*    this function is active for HDR is manual mode
+* Argument:
+*   level: [0, 100]
+*
+*****************************
+*/
+XCamReturn rk_aiq_uapi2_setHDRStrth(const rk_aiq_sys_ctx_t* ctx, bool on, unsigned int level);
+XCamReturn rk_aiq_uapi2_getHDRStrth(const rk_aiq_sys_ctx_t* ctx, bool *on, unsigned int *level);
 
 /*
 *****************************

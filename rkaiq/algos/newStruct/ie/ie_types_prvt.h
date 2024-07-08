@@ -23,10 +23,14 @@
 #include "include/ie_algo_api.h"
 
 typedef struct {
-    const RkAiqAlgoCom_prepare_t* prepare_params;
+    int16_t skip_frame;
+    int mode;
+} ie_info_t;
+typedef struct {
     ie_api_attrib_t* ie_attrib;
-    int working_mode;
-    int iso;
+    int mode;
+    int16_t skip_frame;
+    ie_info_t pre_params;
     bool isReCal_;
 } IeContext_t;
 

@@ -28,7 +28,8 @@ typedef struct {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_NOTES(The hp filter kernel to get high-freq gradient in h/v direction.\ncoeff1+coeff2=0,coeff3+coeff4=0 Fixed. Freq of use: low))  */
+        M4_NOTES(The hp filter kernel to get high-freq gradient in h/v direction.\n
+        coeff1+coeff2=0,coeff3+coeff4=0 Fixed.Freq of use: low))  */
     int8_t hw_dmT_loDrctFlt_coeff[4];
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_dmT_hiDrctFlt_coeff),
@@ -39,21 +40,23 @@ typedef struct {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_NOTES(The hp filter kernel to get low-freq gradient in h/v direction.\n2*coeff1+coeff2=0,2*coeff3+coeff4=0 Fixed. Freq of use: low))  */
+        M4_NOTES(The hp filter kernel to get low-freq gradient in h/v direction.\n
+        2*coeff1+coeff2=0,2*coeff3+coeff4=0 Fixed.Freq of use: low))  */
     int8_t hw_dmT_hiDrctFlt_coeff[4];
 } dm_ginterp_param_static_t;
 
 typedef struct {
     /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_dmT_drct_offset0),
+        M4_ALIAS(hw_dmT_luma2Drct_offset),
         M4_TYPE(u16),
         M4_SIZE_EX(1,8),
-        M4_RANGE_EX(0,511),
+        M4_RANGE_EX(0,4095),
         M4_DEFAULT(16),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_NOTES(The offset to control direction-detect sensitivity for g interpolation. Higher the value, lower the sensitivity. Freq of use: high))  */
+        M4_NOTES(The offset to control direction-detect sensitivity for g interpolation.\n
+        Higher the value, lower the sensitivity.Freq of use: high))  */
     uint16_t hw_dmT_luma2Drct_offset[8];
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_dmT_drctMethod_thred),
@@ -64,7 +67,8 @@ typedef struct {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_NOTES(The thredhold to judge whether there is obvious directionality between hi or lo-freq gradient of g-channel . Freq of use: high))  */
+        M4_NOTES(The thredhold to judge whether there is obvious directionality between hi or lo-freq gradient of g-channel.\n
+        Freq of use: high))  */
     uint8_t hw_dmT_drctMethod_thred;
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_dmT_hiDrct_thred),
@@ -75,7 +79,8 @@ typedef struct {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
-        M4_NOTES(The thredhold to judge whether high-freq gradient of g-channel has directionality. Higher the value, the harder to be directional. Freq of use: high))  */
+        M4_NOTES(The thredhold to judge whether high-freq gradient of g-channel has directionality.\n
+        Higher the value, the harder to be directional.Freq of use: high))  */
     uint8_t hw_dmT_hiDrct_thred;
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_dmT_loDrct_thred),
@@ -86,7 +91,8 @@ typedef struct {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(3),
-        M4_NOTES(The thredhold to judge whether low-freq gradient of g-channel has not directionality. Higher the value, the harder to be directional. Freq of use: high))  */
+        M4_NOTES(The thredhold to judge whether low-freq gradient of g-channel has not directionality.\n
+        Higher the value, the harder to be directional.Freq of use: high))  */
     uint8_t hw_dmT_loDrct_thred;
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_dmT_hiTexture_thred),
@@ -97,7 +103,8 @@ typedef struct {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(4),
-        M4_NOTES(The thredhold to control sensitivity of high-freq texture detection. Higher the value, lower the sensitivity. Freq of use: high))  */
+        M4_NOTES(The thredhold to control sensitivity of high-freq texture detection.\n
+        Higher the value, lower the sensitivity.Freq of use: high))  */
     uint8_t hw_dmT_hiTexture_thred;
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_dmT_gradLoFlt_alpha),
@@ -122,7 +129,8 @@ typedef struct {
         M4_RO(0),
         M4_ORDER(0),
         M4_GROUP_CTRL(g_interp_group),
-        M4_NOTES(Enable g-channel clip using its neighboring pixels. Freq of use: high))  */
+        M4_NOTES(Enable g-channel clip using its neighboring pixels.\n
+        Freq of use: high))  */
     bool hw_dmT_gInterpClip_en;
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_dmT_gInterpSharpStrg_offset),
@@ -134,7 +142,8 @@ typedef struct {
         M4_RO(0),
         M4_ORDER(1),
         M4_GROUP(g_interp_group),
-        M4_NOTES(The offset to contrl fusion weight of color-channel gradient for g interpolation, related to sharp strength. Freq of use: high))  */
+        M4_NOTES(The offset to contrl fusion weight of color-channel gradient for g interpolation, related to sharp strength.\n
+        Freq of use: high))  */
     uint16_t hw_dmT_gInterpSharpStrg_offset;
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_dmT_gInterpSharpStrg_maxLimit),
@@ -146,7 +155,8 @@ typedef struct {
         M4_RO(0),
         M4_ORDER(2),
         M4_GROUP(g_interp_group),
-        M4_NOTES(The max fusion weight of color-channel gradient for g interpolation, related to sharp strength. Freq of use: high))  */
+        M4_NOTES(The max fusion weight of color-channel gradient for g interpolation, related to sharp strength.\n
+        Freq of use: high))  */
     uint8_t hw_dmT_gInterpSharpStrg_maxLim;
 } dm_ginterp_param_dyn_t;
 
@@ -165,8 +175,8 @@ typedef struct dm_gOutlsFlt_maxMin_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_GROUP(g_OutlsFlt_group),
-        M4_NOTES(The offset to control the value range of g-channel, used in filtering . Freq of use: high))  */
+        M4_NOTES(The offset to control the value range of g-channel, used in filtering.\n
+        Freq of use: high))  */
     uint16_t hw_dmT_gOutlsFltRange_offset;
 } dm_gOutlsFlt_maxMin_t;
 
@@ -186,9 +196,8 @@ typedef struct dm_gOutlsFlt_bifilt_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_NOTES(TODO.\n
-        Reference enum types.\n
-        Freq of use: low))  */
+        M4_NOTES(The mode how filter coefficients for configuring filters generated.\n
+        Freq of use: high))  */
     dm_filtCfg_mode_t sw_dmT_filtCfg_mode;
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_dmT_filtSpatial_strg),
@@ -214,7 +223,6 @@ typedef struct dm_gOutlsFlt_bifilt_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
-        M4_GROUP(g_OutlsFlt_group),
         M4_NOTES(TODO))  */
     float hw_dmT_filtSpatial_wgt[3];
     /* M4_GENERIC_DESC(
@@ -227,7 +235,6 @@ typedef struct dm_gOutlsFlt_bifilt_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
-        M4_GROUP(g_OutlsFlt_group),
         M4_NOTES(TODO))  */
     uint16_t hw_dmT_luma2RgeSgm_val[8];
     /* M4_GENERIC_DESC(
@@ -240,7 +247,6 @@ typedef struct dm_gOutlsFlt_bifilt_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
-        M4_GROUP(g_OutlsFlt_group),
         M4_NOTES(TODO))  */
     float hw_dmT_bifilt_alpha;
 } dm_gOutlsFlt_bifilt_t;
@@ -283,6 +289,7 @@ typedef struct {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_GROUP_CTRL(gOutlsFlt_group),
         M4_NOTES(Enable filtering on g-channel to eliminate noise pixels. Freq of use: high))  */
     bool hw_dmT_gOutlsFlt_en;
     /* M4_GENERIC_DESC(
@@ -293,9 +300,10 @@ typedef struct {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_NOTES( TODO.\n
-        Reference enum types.\n
-        Freq of use: low))  */
+        M4_GROUP(gOutlsFlt_group),
+        M4_GROUP_CTRL(gOutlsFlt_mode),
+        M4_NOTES( The mode of g-channel filter.\n
+        Freq of use: high))  */
     dm_gOutlsFlt_mode_t hw_dmT_gOutlsFlt_mode;
     /* M4_GENERIC_DESC(
         M4_ALIAS(gOutlsFlt_maxMin),
@@ -304,6 +312,7 @@ typedef struct {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
+        M4_GROUP(gOutlsFlt_group;gOutlsFlt_mode:dm_maxMinFilt_mode),
         M4_NOTES(The dynamic params of g-channel filter))  */
     dm_gOutlsFlt_maxMin_t gOutlsFlt_maxMin;
     /* M4_GENERIC_DESC(
@@ -313,6 +322,7 @@ typedef struct {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
+        M4_GROUP(gOutlsFlt_group;gOutlsFlt_mode:dm_bifilt_mode)),
         M4_NOTES(The dynamic params of g-channel filter))  */
     dm_gOutlsFlt_bifilt_t gOutlsFlt_bifilt;
 } dm_params_dyn_t;

@@ -27,13 +27,11 @@ RKAIQ_BEGIN_DECLARE
 typedef struct rk_aiq_sys_ctx_s rk_aiq_sys_ctx_t;
 #endif
 
-XCamReturn
-rk_aiq_user_api2_drc_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, drc_api_attrib_t* attr);
-XCamReturn
-rk_aiq_user_api2_drc_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, drc_api_attrib_t* attr);
-XCamReturn
-rk_aiq_user_api2_drc_QueryStatus(const rk_aiq_sys_ctx_t* sys_ctx, drc_status_t* status);
-
+XCamReturn rk_aiq_user_api2_drc_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, drc_api_attrib_t* attr);
+XCamReturn rk_aiq_user_api2_drc_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, drc_api_attrib_t* attr);
+XCamReturn rk_aiq_user_api2_drc_QueryStatus(const rk_aiq_sys_ctx_t* sys_ctx, drc_status_t* status);
+XCamReturn rk_aiq_user_api2_drc_SetStrength(const rk_aiq_sys_ctx_t* sys_ctx, adrc_strength_t ctrl);
+XCamReturn rk_aiq_user_api2_drc_GetStrength(const rk_aiq_sys_ctx_t* sys_ctx, adrc_strength_t* ctrl);
 RKAIQ_END_DECLARE
 
 #endif

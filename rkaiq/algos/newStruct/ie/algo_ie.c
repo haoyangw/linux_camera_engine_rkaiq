@@ -38,14 +38,22 @@ create_context(RkAiqAlgoContext **context, const AlgoCtxInstanceCfg* cfg)
         return XCAM_RETURN_ERROR_MEM;
     }
     ctx->isReCal_ = true;
-    ctx->prepare_params = NULL;
     ctx->ie_attrib =
         (ie_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(pCalibDbV2, ie));
 
+    CalibDbV2_ColorAsGrey_t *colorAsGrey =
+        (CalibDbV2_ColorAsGrey_t*)(CALIBDBV2_GET_MODULE_PTR(pCalibDbV2, colorAsGrey));
+
+    if (colorAsGrey && colorAsGrey->param.enable) {
+        ctx->pre_params.skip_frame = colorAsGrey->param.skip_frame;
+    } else {
+        ctx->pre_params.skip_frame = 10;
+    }
+
     *context = (RkAiqAlgoContext* )ctx;
+
     LOGV_AIE("%s: Ie (exit)\n", __FUNCTION__ );
 
-    *context = (RkAiqAlgoContext*)ctx;
     return result;
 }
 
@@ -73,11 +81,14 @@ prepare(RkAiqAlgoCom* params)
         }
     }
 
-    pIeCtx->working_mode = params->u.prepare.working_mode;
-    pIeCtx->ie_attrib =
-        (ie_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, ie));
-    pIeCtx->prepare_params = &params->u.prepare;
-    pIeCtx->isReCal_ = true;
+    if (pIeCtx->skip_frame <= 0) {
+        CalibDbV2_ColorAsGrey_t *colorAsGrey =
+            (CalibDbV2_ColorAsGrey_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, colorAsGrey));
+
+        if (colorAsGrey && colorAsGrey->param.enable) {
+            pIeCtx->pre_params.skip_frame = colorAsGrey->param.skip_frame;
+        }
+    }
 
     return result;
 }
@@ -94,11 +105,6 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
 
     LOGV_AIE("%s: Ie (enter)\n", __FUNCTION__ );
 
-    if (!ie_attrib) {
-        LOGE_AIE("ie_attrib is NULL !");
-        return XCAM_RETURN_ERROR_MEM;
-    }
-
     outparams->cfg_update = false;
     bool init = inparams->u.proc.init;
     if (ie_attrib->opMode != RK_AIQ_OP_MODE_AUTO) {
@@ -106,17 +112,34 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
         return XCAM_RETURN_NO_ERROR;
     }
 
-    if (init) {
+    int gray_mode = inparams->u.proc.gray_mode;
+
+    if (inparams->u.proc.is_attrib_update || init) {
+        if (!gray_mode && !pIeCtx->mode) {
+            pIeCtx->mode = pIeCtx->ie_attrib->en;
+        }
         pIeCtx->isReCal_ = true;
     }
 
-    if (inparams->u.proc.is_attrib_update)
+    if (gray_mode && !pIeCtx->mode) {
+        pIeCtx->pre_params.mode = gray_mode;
+        pIeCtx->mode = gray_mode;
+        pIeCtx->skip_frame = pIeCtx->pre_params.skip_frame;
         pIeCtx->isReCal_ = true;
+    } else if (!gray_mode && pIeCtx->mode) {
+        if ((pIeCtx->skip_frame) &&
+            (--pIeCtx->skip_frame == 0)) {
+            pIeCtx->mode = pIeCtx->pre_params.mode;
+            pIeCtx->isReCal_ = true;
+        }
+        if (pIeCtx->skip_frame) {
+            LOGD_AIE("still need skip %d frames !!! \n", pIeCtx->skip_frame);
+        }
+    }
 
     if (pIeCtx->isReCal_) {
-        IeSelectParam(&pIeCtx->ie_attrib->stAuto, pIeProcResParams);
         outparams->cfg_update = true;
-        outparams->en = ie_attrib->en;
+        outparams->en = pIeCtx->mode;
         outparams->bypass = ie_attrib->bypass;
         LOGD_AIE("Ie Process: ie en:%d, bypass:%d", outparams->en, outparams->bypass);
     }

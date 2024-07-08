@@ -40,38 +40,38 @@
  * @{
  *
  */
-#include "include/drc_algo_api.h"
 #include "RkAiqCalibDbTypes.h"
 #include "RkAiqCalibDbTypesV2.h"
 #include "RkAiqCalibDbV2Helper.h"
+#include "include/drc_algo_api.h"
 #include "xcam_log.h"
 
 #define DEFAULT_RECALCULATE_DELTA_ISO (0.01)
-#define LONG_FRAME_MODE_RATIO (1.0f)
-#define RATIO_DEFAULT         (1.0f)
-#define RATIO_MAX             (256.0f)
-#define INIT_CALC_PARAMS_NUM  (2)
-#define ISP_HDR_BIT_NUM_MAX   (20)
-#define ISP_HDR_BIT_NUM_MIN   (12)
-#define ISP_PREDGAIN_DEFAULT  (1.0f)
-#define SW_DRC_OFFSET_POW2_FIX (8)
-#define MFHDR_LOG_Q_BITS (11)
-#define DSTBITS (ISP_RAW_BIT << MFHDR_LOG_Q_BITS)
-#define DRC_COMPRESS_Y_OFFSET   (0.0156f)
-#define OFFSETBITS_INT (SW_DRC_OFFSET_POW2_FIX)
-#define OFFSETBITS (OFFSETBITS_INT << MFHDR_LOG_Q_BITS)
-#define VALIDBITS (DSTBITS - OFFSETBITS)
-#define DELTA_SCALEIN_FIX ((256 << MFHDR_LOG_Q_BITS) / VALIDBITS)
-#define GAS_L0_DEFAULT          (24)
-#define GAS_L1_DEFAULT          (10)
-#define GAS_L2_DEFAULT          (10)
-#define GAS_L3_DEFAULT          (5)
-#define GAS_T_MAX               (4)
-#define GAS_T_MIN               (0)
-#define GAS_L_MAX               (64)
-#define GAS_L_MIN               (0)
-#define AE_RATIO_MAX          (256)
-#define AE_RATIO_L2M_MAX      (32.0f)
+#define LONG_FRAME_MODE_RATIO         (1.0f)
+#define RATIO_DEFAULT                 (1.0f)
+#define RATIO_MAX                     (256.0f)
+#define INIT_CALC_PARAMS_NUM          (2)
+#define ISP_HDR_BIT_NUM_MAX           (20)
+#define ISP_HDR_BIT_NUM_MIN           (12)
+#define ISP_PREDGAIN_DEFAULT          (1.0f)
+#define SW_DRC_OFFSET_POW2_FIX        (8)
+#define MFHDR_LOG_Q_BITS              (11)
+#define DSTBITS                       (ISP_RAW_BIT << MFHDR_LOG_Q_BITS)
+#define DRC_COMPRESS_Y_OFFSET         (0.0156f)
+#define OFFSETBITS_INT                (SW_DRC_OFFSET_POW2_FIX)
+#define OFFSETBITS                    (OFFSETBITS_INT << MFHDR_LOG_Q_BITS)
+#define VALIDBITS                     (DSTBITS - OFFSETBITS)
+#define DELTA_SCALEIN_FIX             ((256 << MFHDR_LOG_Q_BITS) / VALIDBITS)
+#define GAS_L0_DEFAULT                (24)
+#define GAS_L1_DEFAULT                (10)
+#define GAS_L2_DEFAULT                (10)
+#define GAS_L3_DEFAULT                (5)
+#define GAS_T_MAX                     (4)
+#define GAS_T_MIN                     (0)
+#define GAS_L_MAX                     (64)
+#define GAS_L_MIN                     (0)
+#define AE_RATIO_MAX                  (256)
+#define AE_RATIO_L2M_MAX              (32.0f)
 
 typedef struct CurrData_s {
     float MotionCoef;
@@ -94,8 +94,8 @@ typedef struct DrcContext_s {
     float isp_ob_predgain;
     CurrData_t CurrData;
     NextData_t NextData;
+    adrc_strength_t strg;
 } DrcContext_t;
-
 
 XCAM_BEGIN_DECLARE
 
@@ -106,4 +106,4 @@ void DrcExpoParaProcessing(DrcContext_t* pDrcCtx, drc_param_t* out);
 
 XCAM_END_DECLARE
 
-#endif//__RKAIQ_TYPES_Drc_ALGO_PRVT_H__
+#endif  //__RKAIQ_TYPES_Drc_ALGO_PRVT_H__

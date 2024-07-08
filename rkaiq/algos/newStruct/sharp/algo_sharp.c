@@ -323,6 +323,46 @@ XCamReturn texEstSelectParam
     }
     return XCAM_RETURN_NO_ERROR;
 }
+
+XCamReturn SharpApplyStrength
+(
+    SharpContext_t *pSharpCtx,
+    sharp_param_t* out)
+{
+    if(pSharpCtx == NULL || out == NULL) {
+        LOGE_ANR("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+
+    if (pSharpCtx->strength_en) {
+        float fPercent = algo_strength_to_percent(pSharpCtx->fStrength);
+
+        out->dyn.eHfDetailShp.glbShpStrg.hw_shpT_eHfDetail_strg *= fPercent;
+        out->dyn.dHfDetailShp.glbShpStrg.hw_shpT_dHiDetail_strg *= fPercent;
+
+        out->dyn.detailShp.detailExtra_lpfSrc.hw_shpT_detailSrcHf_alpha /= fPercent;
+        out->dyn.detailShp.detailExtra_lpfSrc.hw_shpT_detailSrcMf_alpha /= fPercent;
+        out->dyn.detailShp.glbShpStrg.hw_shpT_detailPos_strg *= fPercent;
+        out->dyn.detailShp.glbShpStrg.hw_shpT_detailNeg_strg *= fPercent;
+        for (int i = 0; i < 9; i++) {
+            out->dyn.detailShp.shootReduction.hw_shpT_tex2DetailPosClip_val[i] *= fPercent;
+            out->dyn.detailShp.shootReduction.hw_shpT_tex2DetailNegClip_val[i] *= fPercent;
+        }
+
+        for (int i = 0; i < 8; i++) {
+            out->dyn.detailShp.shootReduction.hw_shpT_luma2DetailPosClip_val[i] *= fPercent;
+            out->dyn.detailShp.shootReduction.hw_shpT_luma2DetailNegClip_val[i] *= fPercent;
+        }
+
+        out->dyn.edgeShp.glbShpStrg.hw_shpT_edgePos_strg *= fPercent;
+        out->dyn.edgeShp.glbShpStrg.hw_shpT_edgeNeg_strg *= fPercent;
+
+        printf("SharpApplyStrength: fStrength %f, fPercent %f\n", pSharpCtx->fStrength, fPercent);
+    }
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
 #endif
 
 #if RKAIQ_HAVE_SHARP_V34
@@ -575,6 +615,7 @@ XCamReturn Asharp_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
 #endif
 #if RKAIQ_HAVE_SHARP_V40
         SharpSelectParam(pCtx, sharp_res, iso);
+        SharpApplyStrength(pCtx, sharp_res);
 #endif
         outparams->cfg_update = true;
         outparams->en = pAttrib->en;

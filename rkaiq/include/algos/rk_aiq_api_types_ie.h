@@ -29,7 +29,7 @@ typedef struct {
         M4_UI_MODULE(static_ui),
         M4_HIDE_EX(0),
         M4_RO(0),
-        M4_ORDER(1),
+        M4_ORDER(0),
         M4_NOTES(The static params of ie module))  */
     ie_params_static_t sta;
 } ie_param_auto_t;

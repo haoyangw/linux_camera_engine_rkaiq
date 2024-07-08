@@ -34,12 +34,6 @@
  * @brief   Global HSV calibration structure of isp2.0
  */
 /*****************************************************************************/
-typedef enum hsv_lut_chl_e {
-    hsv_h_channel = 0,
-    hsv_s_channel = 1,
-    hsv_v_channel = 2,
-} hsv_lut_chl_t;
-
 typedef enum hsv_lut1d_mode_e {
     // @reg: sw_hsv_1dlut0_idx_mode == 0 && sw_hsv_1dlut0_item_mode == 0
     // @reg: sw_hsv_1dlut1_idx_mode == 0 && sw_hsv_1dlut1_item_mode == 0

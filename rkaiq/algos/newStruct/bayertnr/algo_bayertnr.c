@@ -390,6 +390,31 @@ XCamReturn BtnrSelectParam
 
     return XCAM_RETURN_NO_ERROR;
 }
+
+
+XCamReturn BtnrApplyStrength
+(
+    BtnrContext_t *pBtnrCtx,
+    btnr_param_t* out)
+{
+    if(pBtnrCtx == NULL || out == NULL) {
+        LOGE_ANR("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+
+    if (pBtnrCtx->strength_en) {
+        float fPercent = algo_strength_to_percent(pBtnrCtx->fStrength);
+
+        btnr_mdMe_dyn_t* pmdMeDyn = &out->mdMeDyn;
+        pmdMeDyn->mdSigma.hw_btnrT_sigma_scale *= fPercent;
+        pmdMeDyn->mdSigma.hw_btnrT_sigmaHdrS_scale *= fPercent;
+
+        printf("BtnrApplyStrength: fStrength %f, fPercent %f\n", pBtnrCtx->fStrength, fPercent);
+    }
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
 #endif
 
 static XCamReturn
@@ -487,6 +512,7 @@ XCamReturn Abtnr_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outpa
 #endif
 #if RKAIQ_HAVE_BAYERTNR_V41
         BtnrSelectParam(pBtnrCtx, btnr_res, iso);
+        BtnrApplyStrength(pBtnrCtx, btnr_res);
 #endif
         outparams->cfg_update = true;
         outparams->en = btnr_attrib->en;

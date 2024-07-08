@@ -1586,7 +1586,7 @@ XCamReturn sample_abayertnr_setReg_v2(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_m
     bayertnrV2_attr.stManual.st3DFix.bay3d_sig1_x[14] = 0x3400;
     bayertnrV2_attr.stManual.st3DFix.bay3d_sig1_x[15] = 0x3800;
 
-    // ISP_BAYNR_3A00_SIGMAY0-15
+    // ISP_BAbtnr_3A00_SIGMAY0-15
     bayertnrV2_attr.stManual.st3DFix.bay3d_sig1_y[0] = 0x0400;
     bayertnrV2_attr.stManual.st3DFix.bay3d_sig1_y[1] = 0x0400;
     bayertnrV2_attr.stManual.st3DFix.bay3d_sig1_y[2] = 0x0400;
@@ -1604,7 +1604,7 @@ XCamReturn sample_abayertnr_setReg_v2(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_m
     bayertnrV2_attr.stManual.st3DFix.bay3d_sig1_y[14] = 0x0400;
     bayertnrV2_attr.stManual.st3DFix.bay3d_sig1_y[15] = 0x0400;
 
-    // ISP_BAYNR_3A00_SIGMAY0-15
+    // ISP_BAbtnr_3A00_SIGMAY0-15
     bayertnrV2_attr.stManual.st3DFix.bay3d_sig2_y[0] = 0x080;
     bayertnrV2_attr.stManual.st3DFix.bay3d_sig2_y[1] = 0x080;
     bayertnrV2_attr.stManual.st3DFix.bay3d_sig2_y[2] = 0x080;
@@ -1754,7 +1754,7 @@ XCamReturn sample_abayertnr_setReg_v23(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_
     bayertnr_attr.stManual.st3DFix.sig1_x[14] = 0x3400;
     bayertnr_attr.stManual.st3DFix.sig1_x[15] = 0x3800;
 
-    // ISP_BAYNR_3A00_SIGMAY0-15
+    // ISP_BAbtnr_3A00_SIGMAY0-15
     bayertnr_attr.stManual.st3DFix.sig1_y[0] = 0x0400;
     bayertnr_attr.stManual.st3DFix.sig1_y[1] = 0x0400;
     bayertnr_attr.stManual.st3DFix.sig1_y[2] = 0x0400;
@@ -1772,7 +1772,7 @@ XCamReturn sample_abayertnr_setReg_v23(const rk_aiq_sys_ctx_t* ctx, rk_aiq_uapi_
     bayertnr_attr.stManual.st3DFix.sig1_y[14] = 0x0400;
     bayertnr_attr.stManual.st3DFix.sig1_y[15] = 0x0400;
 
-    // ISP_BAYNR_3A00_SIGMAY0-15
+    // ISP_BAbtnr_3A00_SIGMAY0-15
     bayertnr_attr.stManual.st3DFix.sig2_y[0] = 0x080;
     bayertnr_attr.stManual.st3DFix.sig2_y[1] = 0x080;
     bayertnr_attr.stManual.st3DFix.sig2_y[2] = 0x080;
@@ -1936,7 +1936,7 @@ XCamReturn sample_abayertnr_setReg_v23Lite(const rk_aiq_sys_ctx_t* ctx,
     bayertnr_attr.stManual.st3DFix.sig1_x[14] = 0x3400;
     bayertnr_attr.stManual.st3DFix.sig1_x[15] = 0x3800;
 
-    // ISP_BAYNR_3A00_SIGMAY0-15
+    // ISP_BAbtnr_3A00_SIGMAY0-15
     bayertnr_attr.stManual.st3DFix.sig1_y[0]  = 0x0400;
     bayertnr_attr.stManual.st3DFix.sig1_y[1]  = 0x0400;
     bayertnr_attr.stManual.st3DFix.sig1_y[2]  = 0x0400;
@@ -1954,7 +1954,7 @@ XCamReturn sample_abayertnr_setReg_v23Lite(const rk_aiq_sys_ctx_t* ctx,
     bayertnr_attr.stManual.st3DFix.sig1_y[14] = 0x0400;
     bayertnr_attr.stManual.st3DFix.sig1_y[15] = 0x0400;
 
-    // ISP_BAYNR_3A00_SIGMAY0-15
+    // ISP_BAbtnr_3A00_SIGMAY0-15
     bayertnr_attr.stManual.st3DFix.sig2_y[0]  = 0x080;
     bayertnr_attr.stManual.st3DFix.sig2_y[1]  = 0x080;
     bayertnr_attr.stManual.st3DFix.sig2_y[2]  = 0x080;
@@ -2589,6 +2589,28 @@ XCamReturn sample_btnr_strength_test(const rk_aiq_sys_ctx_t* ctx)
     return ret;
 }
 
+void sample_btnr_setStrength_new(const rk_aiq_sys_ctx_t* ctx, float percent) {
+    btnr_api_attrib_t attr;
+    memset(&attr, 0, sizeof(attr));
+
+    rk_aiq_user_api2_btnr_GetAttrib(ctx, &attr);
+
+    printf("btnr attr: opmode:%d, en:%d, bypass:%d\n", attr.opMode, attr.en, attr.bypass);
+    if (attr.opMode == RK_AIQ_OP_MODE_MANUAL || attr.en == false) {
+        attr.opMode = RK_AIQ_OP_MODE_AUTO;
+        attr.en = true;
+        rk_aiq_user_api2_btnr_SetAttrib(ctx, &attr);
+        usleep(90 * 1000);
+    }
+
+    abtnr_strength_t btnrStrength;
+    btnrStrength.en = true;
+    btnrStrength.percent = percent;
+    rk_aiq_user_api2_btnr_SetStrength(ctx, &btnrStrength);
+
+    printf("set percent %f\n", btnrStrength.percent);
+}
+
 #endif
 
 XCamReturn sample_abayertnr_module (const void *arg)
@@ -2837,6 +2859,9 @@ XCamReturn sample_abayertnr_module (const void *arg)
             if (CHECK_ISP_HW_V39()) {
                 sample_abayertnr_setStrength_v30(ctx, RK_AIQ_UAPI_MODE_ASYNC, 1.0);
             }
+#if USE_NEWSTRUCT
+            sample_btnr_setStrength_new(ctx, 1.0);
+#endif
             break;
         case 'g':
             if (CHECK_ISP_HW_V30()) {
@@ -2848,6 +2873,9 @@ XCamReturn sample_abayertnr_module (const void *arg)
             if (CHECK_ISP_HW_V39()) {
                 sample_abayertnr_setStrength_v30(ctx, RK_AIQ_UAPI_MODE_ASYNC, 0.0);
             }
+#if USE_NEWSTRUCT
+            sample_btnr_setStrength_new(ctx, 0.0);
+#endif
             break;
         case 'h':
             if (CHECK_ISP_HW_V30()) {

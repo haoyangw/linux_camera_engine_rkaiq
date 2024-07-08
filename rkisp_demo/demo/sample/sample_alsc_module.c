@@ -249,7 +249,7 @@ int sample_query_lsc_status(const rk_aiq_sys_ctx_t* ctx)
             info.stMan.dyn.meshGain.hw_lscC_gainGb_val[0],
             info.stMan.dyn.meshGain.hw_lscC_gainGb_val[288],
             info.alscStatus.sw_lscC_illuUsed_name,
-            info.alscStatus.sw_lscT_vignetting_val);
+            info.alscStatus.sw_lscC_vignetting_val);
     return 0;
 }
 
@@ -262,8 +262,8 @@ int sample_lsc_setCalib_test(const rk_aiq_sys_ctx_t* ctx)
     ret = rk_aiq_user_api2_lsc_GetCalib(ctx, &calib);
     RKAIQ_SAMPLE_CHECK_RET(ret, "Get LSC CALIB failed!");
     printf("GetCALIB:\n\n");
-    printf("\t effect Table_len = %d\n", calib.sw_lscC_tblAll_len);
-    for (int i = 0; i < calib.sw_lscC_tblAll_len; i++) {
+    printf("\t effect Table_len = %d\n", calib.tableAll_len);
+    for (int i = 0; i < calib.tableAll_len; i++) {
         printf("\t %s_%f = {r = [%d,...,%d], gr = [%d,...,%d], b = [%d,...,%d], gb = [%d,...,%d]}, \n",
                 calib.tableAll[i].sw_lscC_illu_name,
                 calib.tableAll[i].sw_lscC_vignetting_val,
@@ -316,9 +316,9 @@ int sample_lsc_setCalib_test(const rk_aiq_sys_ctx_t* ctx)
         calib.tableAll[1].meshGain.hw_lscC_gainGb_val[272] = 4096;
         calib.tableAll[1].meshGain.hw_lscC_gainGb_val[288] = 4096;
     } else {
-        memcpy(&calib.tableAll[0], &calib.tableAll[calib.sw_lscC_tblAll_len-1], sizeof(alsc_tableAll_t));
-        if (calib.sw_lscC_tblAll_len > 1)
-          calib.sw_lscC_tblAll_len -= 1;
+        memcpy(&calib.tableAll[0], &calib.tableAll[calib.tableAll_len-1], sizeof(alsc_tableAll_t));
+        if (calib.tableAll_len > 1)
+          calib.tableAll_len -= 1;
     }
 
     rk_aiq_user_api2_lsc_SetCalib(ctx, &calib);
@@ -331,8 +331,8 @@ int sample_lsc_setCalib_test(const rk_aiq_sys_ctx_t* ctx)
 
     rk_aiq_user_api2_lsc_GetCalib(ctx, &calib_new);
 
-    printf("\t new table_len = %d\n", calib_new.sw_lscC_tblAll_len);
-    for (int i = 0; i < calib_new.sw_lscC_tblAll_len; i++) {
+    printf("\t new table_len = %d\n", calib_new.tableAll_len);
+    for (int i = 0; i < calib_new.tableAll_len; i++) {
         printf("\t %s_%f = {r = [%d,...,%d], gr = [%d,...,%d], b = [%d,...,%d], gb = [%d,...,%d]}, \n",
                 calib_new.tableAll[i].sw_lscC_illu_name,
                 calib_new.tableAll[i].sw_lscC_vignetting_val,
@@ -345,7 +345,7 @@ int sample_lsc_setCalib_test(const rk_aiq_sys_ctx_t* ctx)
                 calib_new.tableAll[i].meshGain.hw_lscC_gainGb_val[0],
                 calib_new.tableAll[i].meshGain.hw_lscC_gainGb_val[288]);
     }
-    if (calib_new.sw_lscC_tblAll_len != calib.sw_lscC_tblAll_len || 
+    if (calib_new.tableAll_len != calib.tableAll_len || 
         calib_new.tableAll[0].meshGain.hw_lscC_gainR_val[0] != calib.tableAll[0].meshGain.hw_lscC_gainR_val[0])
         printf("lsc calib test failed\n");
     printf("-------- lsc module calib test done --------\n");  

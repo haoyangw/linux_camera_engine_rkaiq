@@ -187,7 +187,6 @@ typedef struct dm_gOutlsFlt_maxMin_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_GROUP(g_OutlsFlt_group),
         M4_NOTES(The offset to control the value range of g-channel, used in filtering.\n
         Freq of use: high))  */
     uint16_t hw_dmT_gOutlsFltRange_offset;
@@ -236,7 +235,6 @@ typedef struct dm_gOutlsFlt_bifilt_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
-        M4_GROUP(g_OutlsFlt_group),
         M4_NOTES(TODO))  */
     float hw_dmT_filtSpatial_wgt[3];
     /* M4_GENERIC_DESC(
@@ -249,7 +247,6 @@ typedef struct dm_gOutlsFlt_bifilt_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
-        M4_GROUP(g_OutlsFlt_group),
         M4_NOTES(TODO))  */
     uint16_t hw_dmT_luma2RgeSgm_val[8];
     /* M4_GENERIC_DESC(
@@ -262,7 +259,6 @@ typedef struct dm_gOutlsFlt_bifilt_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
-        M4_GROUP(g_OutlsFlt_group),
         M4_NOTES(TODO))  */
     float hw_dmT_bifilt_alpha;
 } dm_gOutlsFlt_bifilt_t;

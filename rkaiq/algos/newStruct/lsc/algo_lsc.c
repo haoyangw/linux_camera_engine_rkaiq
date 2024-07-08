@@ -69,7 +69,7 @@ static int get_all_mesh_by_name(LscContext_t *pLscCtx, char *name) {
     int cnt = 0;
     alsc_lscCalib_t* calibdb = &pLscCtx->lsc_attrib->calibdb;
     uint8_t *mesh_all = pLscCtx->illu_mesh_all;
-    int table_len = calibdb->sw_lscC_tblAll_len;
+    int table_len = pLscCtx->lsc_tableAll_use_len;
 
     int i;
     for (i=0; i<table_len; i++) {
@@ -282,6 +282,7 @@ XCamReturn Alsc_prepare(RkAiqAlgoCom* params)
     pLscCtx->pre_illu_idx = INVALID_ILLU_IDX;
     pLscCtx->pre_vignetting = 0.0;
     pLscCtx->is_calib_update = false;
+    pLscCtx->lsc_tableAll_use_len = pLscCtx->lsc_attrib->calibdb.tableAll_len;
 
     return XCAM_RETURN_NO_ERROR;
 }
@@ -436,7 +437,7 @@ XCamReturn algo_lsc_queryalscStatus
             stAuto->dyn.illuLink[pLscCtx->pre_illu_idx].sw_lscC_illu_name, 
             ALSC_ILLUM_NAME_LEN - 1);
     
-    status->sw_lscT_vignetting_val = pLscCtx->pre_vignetting;
+    status->sw_lscC_vignetting_val = pLscCtx->pre_vignetting;
 
     return XCAM_RETURN_NO_ERROR;
 }
@@ -456,7 +457,13 @@ algo_lsc_SetCalib(RkAiqAlgoContext* ctx, alsc_lscCalib_t *calib) {
         return XCAM_RETURN_ERROR_PARAM;
     }
 
-    memcpy(alsc_calib, calib, sizeof(alsc_lscCalib_t));
+    if (calib->tableAll_len <= alsc_calib->tableAll_len) {
+        pLscCtx->lsc_tableAll_use_len = calib->tableAll_len;
+    } else {
+        pLscCtx->lsc_tableAll_use_len = alsc_calib->tableAll_len;
+        LOGE_ALSC("lsc calib tableAll max len is %d, calib len %d more than max, maybe cause heap corruption",
+            alsc_calib->tableAll_len, calib->tableAll_len);
+    }
     pLscCtx->is_calib_update = true;
 
     return XCAM_RETURN_NO_ERROR;
@@ -475,6 +482,8 @@ algo_lsc_GetCalib(RkAiqAlgoContext* ctx, alsc_lscCalib_t* calib)
     alsc_lscCalib_t* alsc_calib = &pLscCtx->lsc_attrib->calibdb;
 
     memcpy(calib, alsc_calib, sizeof(alsc_lscCalib_t));
+    calib->tableAll_len = pLscCtx->lsc_tableAll_use_len;
+
     return XCAM_RETURN_NO_ERROR;
 }
 

@@ -293,8 +293,8 @@ void rk_aiq_cnr34_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
     }
 
     /* CNR_IIR_GLOBAL_GAIN */
-    tmp = pdyn->loNrGuide_iirFilt.hw_cnrT_glbSgmRatio_alpha * (1 << RKCNR_V31_G_GAIN_ALPHA_FIX_BITS);
-    pFix->loflt_global_sgm_ratio_alpha = CLIP(tmp, 0, 0x8);
+    // ic not support iir local gain, the value is always 0x8.
+    pFix->loflt_global_sgm_ratio_alpha = 0x8;
     tmp = pdyn->loNrGuide_iirFilt.hw_cnrT_glbSgm_ratio * (1 << RKCNR_V31_sgmRatio);
     pFix->loflt_global_sgm_ratio = CLIP(tmp, 0, 0xff);
 #if RKAIQ_HAVE_CNR_V35

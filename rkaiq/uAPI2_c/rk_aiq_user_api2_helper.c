@@ -250,6 +250,36 @@ __RKAIQUAPI_CALLER(acp_attrib_t);
 
 #endif
 
+#ifdef USE_NEWSTRUCT
+static int
+rk_aiq_user_api2_lsc_setCalib_forTool(const rk_aiq_sys_ctx_t* sys_ctx, alsc_lscCalib_t* calib)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    alsc_lscCalib_t alsc_calib;
+    memset(&alsc_calib, 0, sizeof(alsc_lscCalib_t));
+    ret = rk_aiq_user_api2_lsc_GetCalib(sys_ctx, &alsc_calib);
+
+    if (alsc_calib.tableAll_len >= calib->tableAll_len) {
+        memcpy(alsc_calib.tableAll, calib->tableAll, sizeof(alsc_tableAll_t) * calib->tableAll_len);
+        alsc_calib.tableAll_len = calib->tableAll_len;
+    } else {
+        memcpy(alsc_calib.tableAll, calib->tableAll, sizeof(alsc_tableAll_t) * alsc_calib.tableAll_len);
+        LOGE_ALSC("lsc calib tableAll max len is %d, calib len %d, just use %d table",
+                  alsc_calib.tableAll_len, calib->tableAll_len, alsc_calib.tableAll_len);
+    }
+
+    ret = rk_aiq_user_api2_lsc_SetCalib(sys_ctx, &alsc_calib);
+
+    if (calib->tableAll) {
+        free(calib->tableAll);
+        calib->tableAll = NULL;
+    }
+
+    return ret;
+}
+#endif
+
 static int
 __rkaiq_uapi_common_call(void *desc, void *sys_ctx, cJSON *cmd_js, cJSON **ret_js, int mode) {
 	RkAiqUapiDesc_t *uapi_desc = (RkAiqUapiDesc_t *)desc;
@@ -273,13 +303,15 @@ __rkaiq_uapi_common_call(void *desc, void *sys_ctx, cJSON *cmd_js, cJSON **ret_j
 			return -1;
 		}
 		ret = RkCam_cJSONUtils_ApplyPatches(old_json, cmd_js);
-		if (0 != ret) {
-			XCAM_LOG_ERROR("%s apply patch failed %d!", __func__, ret);
+        if (0 != ret) {
+            RkCam_cJSON_Delete(old_json);
+            XCAM_LOG_ERROR("%s apply patch failed %d!", __func__, ret);
 			return -1;
 		}
 		memset(real_obj, 0, sizeof(real_obj));
-		ret = j2s_json_to_struct(&ctx, old_json, type_name, real_obj);
-		j2s_deinit(&ctx);
+        ret = j2s_json_to_struct(&ctx, old_json, type_name, real_obj);
+        RkCam_cJSON_Delete(old_json);
+        j2s_deinit(&ctx);
 		if (ret) return -1;
 		if (!uapi_desc->arg_set) return -1;
 		return uapi_desc->arg_set(aiq_ctx, real_obj);
@@ -530,7 +562,7 @@ RkAiqUapiDesc_t rkaiq_uapidesc_list[] = {
     __RKAIQUAPI_DESC_DEF("/uapi/0/ver_uapi/ver_info", rk_aiq_version_info_t, NULL, rk_aiq_uapi2_get_aiqversion_info),
     __RKAIQUAPI_DESC_DEF("/uapi/0/module_ctl_uapi/module_ctl", rk_aiq_module_list_t, rk_aiq_uapi2_sysctl_setModuleEn, rk_aiq_uapi2_sysctl_getModuleEn),
     __RKAIQUAPI_DESC_DEF("/uapi/0/lsc_uapi/attr", lsc_api_attrib_t, rk_aiq_user_api2_lsc_SetAttrib, rk_aiq_user_api2_lsc_GetAttrib),
-    __RKAIQUAPI_DESC_DEF("/uapi/0/lsc_uapi/calibdb", alsc_lscCalib_t, rk_aiq_user_api2_lsc_SetCalib, rk_aiq_user_api2_lsc_GetCalib),
+    __RKAIQUAPI_DESC_DEF("/uapi/0/lsc_uapi/calibdb", alsc_lscCalib_t, rk_aiq_user_api2_lsc_setCalib_forTool, rk_aiq_user_api2_lsc_GetCalib),
     __RKAIQUAPI_DESC_DEF("/uapi/0/lsc_uapi/info", lsc_status_t, NULL, rk_aiq_user_api2_lsc_QueryStatus),
 #if RKAIQ_HAVE_RGBIR_REMOSAIC
     __RKAIQUAPI_DESC_DEF("/uapi/0/rgbir_uapi/attr", rgbir_api_attrib_t, rk_aiq_user_api2_rgbir_SetAttrib, rk_aiq_user_api2_rgbir_GetAttrib),

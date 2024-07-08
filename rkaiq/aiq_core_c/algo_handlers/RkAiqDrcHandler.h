@@ -29,6 +29,8 @@ XCamReturn AiqDrcHandler_setAttrib(AiqDrcHandler_t* pHdlDrc, drc_api_attrib_t* a
 XCamReturn AiqDrcHandler_getAttrib(AiqDrcHandler_t* pHdlDrc, drc_api_attrib_t* attr);
 #endif
 XCamReturn AiqDrcHandler_queryStatus(AiqDrcHandler_t* pHdlDrc, drc_status_t* status);
+XCamReturn AiqDrcHandler_setStrength(AiqDrcHandler_t* pHdlDrc, adrc_strength_t* ctrl);
+XCamReturn AiqDrcHandler_getStrength(AiqDrcHandler_t* pHdlDrc, adrc_strength_t* ctrl);
 
 #define AiqDrcHandler_setAeProcRes(pHdlDrc, pAeProcRes) \
     (pHdlDrc)->mAeProcRes = *pAeProcRes

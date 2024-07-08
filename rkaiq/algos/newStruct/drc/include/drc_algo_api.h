@@ -55,6 +55,11 @@ algo_drc_GetAttrib
     drc_api_attrib_t *attr
 );
 #endif
+
+XCamReturn algo_drc_SetStrength(RkAiqAlgoContext* ctx, adrc_strength_t* ctrl);
+
+XCamReturn algo_drc_GetStrength(RkAiqAlgoContext* ctx, adrc_strength_t* ctrl);
+
 extern RkAiqAlgoDescription g_RkIspAlgoDescDrc;
 XCAM_END_DECLARE
 

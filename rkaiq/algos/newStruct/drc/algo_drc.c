@@ -28,6 +28,14 @@
 #include "interpolation.h"
 #include "xcam_log.h"
 
+#ifndef LIMIT_VALUE
+#define LIMIT_VALUE(value,max_value,min_value)      (value > max_value? max_value : value < min_value ? min_value : value)
+#endif
+
+#ifndef LIMIT_VALUE_UNSIGNED
+#define LIMIT_VALUE_UNSIGNED(value, max_value) (value > max_value ? max_value : value)
+#endif
+
 // RKAIQ_BEGIN_DECLARE
 #if RKAIQ_HAVE_DRC_V12
 XCamReturn DrcSelectParam(DrcContext_t* pDrcCtx, drc_param_t* out, int iso);
@@ -36,6 +44,7 @@ void DrcExpoParaProcessing(DrcContext_t* pDrcCtx, drc_param_t* out);
 #endif
 #if RKAIQ_HAVE_DRC_V20
 XCamReturn DrcSelectParam(DrcContext_t* pDrcCtx, drc_param_t* out, int iso);
+static XCamReturn drcApplyStrength(DrcContext_t* pDrcCtx, drc_param_t* out);
 bool DrcDamping(drc_param_t* out, CurrData_t* pCurrData, int FrameID);
 #endif
 static XCamReturn create_context(RkAiqAlgoContext** context, const AlgoCtxInstanceCfg* cfg) {
@@ -48,10 +57,14 @@ static XCamReturn create_context(RkAiqAlgoContext** context, const AlgoCtxInstan
         return XCAM_RETURN_ERROR_MEM;
     }
 
-    ctx->isCapture      = false;
-    ctx->isDampStable   = true;
-    ctx->isReCal_       = true;
-    ctx->prepare_params = NULL;
+    ctx->isCapture                  = false;
+    ctx->isDampStable               = true;
+    ctx->isReCal_                   = true;
+    ctx->prepare_params             = NULL;
+    ctx->strg.darkAreaBoostEn       = false;
+    ctx->strg.darkAreaBoostStrength = 50;
+    ctx->strg.hdrStrengthEn         = false;
+    ctx->strg.hdrStrength           = 50;
     ctx->drc_attrib     = (drc_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(pCalibDbV2, drc));
 
     *context = (RkAiqAlgoContext*)ctx;
@@ -177,6 +190,7 @@ static XCamReturn processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
 #endif
 #if RKAIQ_HAVE_DRC_V20
         DrcSelectParam(pDrcCtx, outparams->algoRes, iso);
+        drcApplyStrength(pDrcCtx, outparams->algoRes);
 #endif
         outparams->cfg_update = true;
         outparams->en         = drc_attrib->en;
@@ -660,7 +674,58 @@ XCamReturn DrcSelectParam(DrcContext_t* pDrcCtx, drc_param_t* out, int iso) {
 
     return XCAM_RETURN_NO_ERROR;
 }
+static XCamReturn drcApplyStrength(DrcContext_t* pDrcCtx, drc_param_t* out) {
+    bool level_up;
+    unsigned int level_diff;
 
+    adrc_strength_t* strg = &pDrcCtx->strg;
+
+    if (strg->darkAreaBoostEn) {
+        LOG1_ADEHAZE("darkAreaBoostStrength %d\n", strg->darkAreaBoostStrength);
+
+        level_diff = strg->darkAreaBoostStrength > 50 ? (strg->darkAreaBoostStrength - 50)
+                                                      : (50 - strg->darkAreaBoostStrength);
+        level_up = strg->darkAreaBoostStrength > 50;
+        if (level_up) {
+            if (out->dyn.preProc.sw_drcT_toneCurve_mode == drc_cfgCurveCtrlCoeff_mode) {
+                out->dyn.preProc.toneCurveCtrl.sw_drcT_toneGain_maxLimit += level_diff * 0.05;
+            } else if (out->dyn.preProc.sw_drcT_toneCurve_mode == drc_cfgCurveCtrlCoeff_mode) {
+                for (int i = 0; i < 17; i++)
+                    out->dyn.preProc.hw_drcT_luma2ToneGain_val[i] +=
+                        level_diff * 0.05;
+            }
+        } else {
+            if (out->dyn.preProc.sw_drcT_toneCurve_mode == drc_cfgCurveCtrlCoeff_mode) {
+                out->dyn.preProc.toneCurveCtrl.sw_drcT_toneGain_maxLimit -= level_diff * 0.05;
+            } else if (out->dyn.preProc.sw_drcT_toneCurve_mode == drc_cfgCurveCtrlCoeff_mode) {
+                for (int i = 0; i < 17; i++)
+                    out->dyn.preProc.hw_drcT_luma2ToneGain_val[i] -=
+                        level_diff * 0.05;
+            }
+        }
+        out->dyn.preProc.toneCurveCtrl.sw_drcT_toneGain_maxLimit =
+            LIMIT_VALUE(out->dyn.preProc.toneCurveCtrl.sw_drcT_toneGain_maxLimit, 8.0f, 1.0f);
+        for (int i = 0; i < 17; i++)
+            out->dyn.preProc.hw_drcT_luma2ToneGain_val[i] = LIMIT_VALUE(
+                out->dyn.preProc.hw_drcT_luma2ToneGain_val[i], 8.0f, 1.0f);
+    }
+
+    if (strg->hdrStrengthEn) {
+        LOG1_ADEHAZE("hdrStrength %d\n", strg->hdrStrength);
+        out->dyn.bifilt_filter.hw_drcT_softThd_en = false;
+        level_diff = strg->hdrStrength > 50 ? (strg->hdrStrength - 50) : (50 - strg->hdrStrength);
+        level_up   = strg->hdrStrength > 50;
+        if (level_up) {
+            out->dyn.bifilt_filter.hw_drcT_bifiltOut_alpha += level_diff * 0.002;
+        } else {
+            out->dyn.bifilt_filter.hw_drcT_bifiltOut_alpha -= level_diff * 0.002;
+        }
+        out->dyn.bifilt_filter.hw_drcT_bifiltOut_alpha =
+            LIMIT_VALUE(out->dyn.bifilt_filter.hw_drcT_bifiltOut_alpha, 1.0f, 0.0f);
+    }
+
+    return XCAM_RETURN_NO_ERROR;
+}
 bool DrcDamping(drc_param_t* out, CurrData_t* pCurrData, int FrameID) {
     LOG1_ATMO("%s:Enter!\n", __FUNCTION__);
     bool isDampStable = false;
@@ -822,6 +887,32 @@ XCamReturn algo_drc_GetAttrib(RkAiqAlgoContext* ctx, drc_api_attrib_t* attr) {
     return XCAM_RETURN_NO_ERROR;
 }
 #endif
+
+XCamReturn algo_drc_SetStrength(RkAiqAlgoContext* ctx, adrc_strength_t* ctrl) {
+    if (ctx == NULL || ctrl == NULL) {
+        LOGE_ATMO("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+
+    DrcContext_t* pDrcCtx = (DrcContext_t*)ctx;
+    pDrcCtx->strg         = *ctrl;
+    pDrcCtx->isReCal_     = true;
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn algo_drc_GetStrength(RkAiqAlgoContext* ctx, adrc_strength_t* ctrl) {
+    if (ctx == NULL || ctrl == NULL) {
+        LOGE_ATMO("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+
+    DrcContext_t* pDrcCtx = (DrcContext_t*)ctx;
+    *ctrl                 = pDrcCtx->strg;
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
 #define RKISP_ALGO_DRC_VERSION     "v0.1.0"
 #define RKISP_ALGO_DRC_VENDOR      "Rockchip"
 #define RKISP_ALGO_DRC_DESCRIPTION "Rockchip drc algo for ISP2.0"

@@ -259,7 +259,7 @@
 								"overExpCtrl": {
 									"sw_aeT_overExp_en": 0,
 									"sw_aeT_overExpBias_strg": 0,
-									"sw_aeT_overExpWgt_max": 8,
+									"sw_aeT_overExpWgt_max": 2,
 									"sw_aeT_loLit_thred": 30,
 									"sw_aeT_hiLit_thred": 150,
 									"overExpSetpoint": {
@@ -4614,9 +4614,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4638,9 +4638,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4662,9 +4662,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4686,9 +4686,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4710,9 +4710,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4734,9 +4734,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4758,9 +4758,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4782,9 +4782,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4806,9 +4806,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4830,9 +4830,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4854,9 +4854,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4878,9 +4878,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -4902,9 +4902,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									}]
 							},
 							"stMan": {
@@ -4935,9 +4935,9 @@
 									},
 									"mdWgt_baseHdrS": {
 										"sw_mgeT_wgtMaxTh_strg": 0,
-										"hw_mgeT_wgtZero_thred": 0
-									},
-									"sw_mgeT_baseHdrS_diffScale": 1
+										"hw_mgeT_wgtZero_thred": 0,
+										"sw_mgeT_lumaDiff_scale": 1
+									}
 								}
 							}
 						},
@@ -8798,7 +8798,7 @@
 											"hw_lscC_gainGb_val": [2473,2131,1903,1718,1559,1469,1391,1349,1339,1354,1403,1476,1591,1715,1906,2166,2596,2292,2034,1818,1643,1506,1401,1341,1286,1284,1304,1354,1424,1519,1664,1850,2079,2416,2196,1975,1760,1607,1453,1358,1297,1243,1240,1262,1300,1376,1478,1604,1777,2013,2304,2151,1906,1712,1546,1416,1317,1247,1213,1190,1210,1265,1339,1442,1556,1718,1954,2196,2070,1869,1664,1516,1370,1284,1208,1160,1151,1172,1221,1291,1399,1528,1682,1884,2151,2004,1815,1626,1466,1343,1242,1165,1123,1119,1137,1176,1258,1358,1487,1638,1832,2127,1983,1780,1604,1440,1315,1210,1145,1087,1074,1099,1160,1234,1328,1457,1601,1818,2034,1975,1767,1577,1429,1302,1201,1120,1056,1039,1077,1135,1207,1317,1442,1604,1784,2000,1942,1741,1577,1420,1289,1190,1103,1039,1025,1074,1130,1211,1311,1433,1585,1767,2008,1930,1767,1580,1426,1293,1188,1118,1049,1024,1072,1133,1205,1317,1435,1588,1780,2013,1983,1757,1585,1437,1304,1193,1122,1068,1055,1084,1138,1216,1315,1451,1607,1787,2021,2013,1784,1604,1442,1317,1221,1156,1105,1086,1107,1169,1239,1333,1466,1632,1807,2057,2026,1807,1635,1476,1351,1253,1190,1135,1124,1139,1199,1267,1364,1490,1649,1854,2084,2079,1869,1664,1499,1378,1277,1222,1172,1152,1185,1229,1307,1395,1528,1682,1895,2166,2122,1926,1712,1526,1414,1317,1248,1216,1194,1211,1263,1324,1429,1561,1725,1942,2217,2238,1970,1760,1583,1455,1356,1289,1255,1234,1257,1298,1372,1471,1599,1754,2013,2292,2392,2048,1807,1632,1504,1403,1349,1307,1300,1309,1360,1435,1526,1685,1850,2112,2380]
 										}
 									}],
-								"sw_lscC_tblAll_len": 14
+								"tableAll_len": 14
 							}
 						},
 						"bayertnr": {
@@ -13604,7 +13604,6 @@
 							"en": 1,
 							"bypass": 0,
 							"stMan": {
-								"en": 0,
 								"sta": {
 									"hw_csmT_full_range": 1,
 									"hw_csmT_y_offset": 0,
@@ -14135,7 +14134,7 @@
 								"overExpCtrl": {
 									"sw_aeT_overExp_en": 0,
 									"sw_aeT_overExpBias_strg": 0,
-									"sw_aeT_overExpWgt_max": 8,
+									"sw_aeT_overExpWgt_max": 2,
 									"sw_aeT_loLit_thred": 30,
 									"sw_aeT_hiLit_thred": 150,
 									"overExpSetpoint": {
@@ -18490,9 +18489,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -18514,9 +18513,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -18538,9 +18537,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -18562,9 +18561,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -18586,9 +18585,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -18610,9 +18609,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -18634,9 +18633,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -18658,9 +18657,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -18682,9 +18681,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -18706,9 +18705,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -18730,9 +18729,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -18754,9 +18753,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									},
 									{
 										"sw_mgeT_baseFrm_mode": "mge_baseHdrL_mode",
@@ -18778,9 +18777,9 @@
 										},
 										"mdWgt_baseHdrS": {
 											"sw_mgeT_wgtMaxTh_strg": 0.05,
-											"hw_mgeT_wgtZero_thred": 0
-										},
-										"sw_mgeT_baseHdrS_diffScale": 1
+											"hw_mgeT_wgtZero_thred": 0,
+											"sw_mgeT_lumaDiff_scale": 1
+										}
 									}]
 							},
 							"stMan": {
@@ -18811,9 +18810,9 @@
 									},
 									"mdWgt_baseHdrS": {
 										"sw_mgeT_wgtMaxTh_strg": 0,
-										"hw_mgeT_wgtZero_thred": 0
-									},
-									"sw_mgeT_baseHdrS_diffScale": 1
+										"hw_mgeT_wgtZero_thred": 0,
+										"sw_mgeT_lumaDiff_scale": 1
+									}
 								}
 							}
 						},
@@ -22674,7 +22673,7 @@
 											"hw_lscC_gainGb_val": [2473,2131,1903,1718,1559,1469,1391,1349,1339,1354,1403,1476,1591,1715,1906,2166,2596,2292,2034,1818,1643,1506,1401,1341,1286,1284,1304,1354,1424,1519,1664,1850,2079,2416,2196,1975,1760,1607,1453,1358,1297,1243,1240,1262,1300,1376,1478,1604,1777,2013,2304,2151,1906,1712,1546,1416,1317,1247,1213,1190,1210,1265,1339,1442,1556,1718,1954,2196,2070,1869,1664,1516,1370,1284,1208,1160,1151,1172,1221,1291,1399,1528,1682,1884,2151,2004,1815,1626,1466,1343,1242,1165,1123,1119,1137,1176,1258,1358,1487,1638,1832,2127,1983,1780,1604,1440,1315,1210,1145,1087,1074,1099,1160,1234,1328,1457,1601,1818,2034,1975,1767,1577,1429,1302,1201,1120,1056,1039,1077,1135,1207,1317,1442,1604,1784,2000,1942,1741,1577,1420,1289,1190,1103,1039,1025,1074,1130,1211,1311,1433,1585,1767,2008,1930,1767,1580,1426,1293,1188,1118,1049,1024,1072,1133,1205,1317,1435,1588,1780,2013,1983,1757,1585,1437,1304,1193,1122,1068,1055,1084,1138,1216,1315,1451,1607,1787,2021,2013,1784,1604,1442,1317,1221,1156,1105,1086,1107,1169,1239,1333,1466,1632,1807,2057,2026,1807,1635,1476,1351,1253,1190,1135,1124,1139,1199,1267,1364,1490,1649,1854,2084,2079,1869,1664,1499,1378,1277,1222,1172,1152,1185,1229,1307,1395,1528,1682,1895,2166,2122,1926,1712,1526,1414,1317,1248,1216,1194,1211,1263,1324,1429,1561,1725,1942,2217,2238,1970,1760,1583,1455,1356,1289,1255,1234,1257,1298,1372,1471,1599,1754,2013,2292,2392,2048,1807,1632,1504,1403,1349,1307,1300,1309,1360,1435,1526,1685,1850,2112,2380]
 										}
 									}],
-								"sw_lscC_tblAll_len": 14
+								"tableAll_len": 14
 							}
 						},
 						"bayertnr": {
@@ -27480,7 +27479,6 @@
 							"en": 1,
 							"bypass": 0,
 							"stMan": {
-								"en": 0,
 								"sta": {
 									"hw_csmT_full_range": 1,
 									"hw_csmT_y_offset": 0,

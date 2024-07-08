@@ -368,3 +368,37 @@ XCamReturn AiqDrcHandler_queryStatus(AiqDrcHandler_t* pHdlDrc, drc_status_t* sta
     return ret;
 
 }
+
+XCamReturn AiqDrcHandler_setStrength(AiqDrcHandler_t* pHdlDrc, adrc_strength_t* ctrl) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    AiqAlgoHandler_t* pHdl = (AiqAlgoHandler_t*)pHdlDrc;
+
+    aiqMutex_lock(&pHdl->mCfgMutex);
+
+    ret = algo_drc_SetStrength(pHdl->mAlgoCtx, ctrl);
+
+    aiqMutex_unlock(&pHdl->mCfgMutex);
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn AiqDrcHandler_getStrength(AiqDrcHandler_t* pHdlDrc, adrc_strength_t* ctrl) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    AiqAlgoHandler_t* pHdl = (AiqAlgoHandler_t*)pHdlDrc;
+
+    aiqMutex_lock(&pHdl->mCfgMutex);
+
+    ret = algo_drc_GetStrength(pHdl->mAlgoCtx, ctrl);
+
+    aiqMutex_unlock(&pHdl->mCfgMutex);
+
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}

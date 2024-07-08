@@ -32,7 +32,6 @@
 // RKAIQ_BEGIN_DECLARE
 
 static csm_param_t g_csm_def = {
-    .en = true,
     .sta = {
         .hw_csmT_full_range = true,
         .hw_csmT_y_offset = 0, // 0:Y = f(coe_x) + 0/16 else Y = f(coe_x) + y_offset

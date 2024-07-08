@@ -2208,6 +2208,29 @@ void sample_sharp_reverseEn(const rk_aiq_sys_ctx_t* ctx)
 
     printf("-------- sharp module test done --------\n");
 }
+
+void sample_sharp_setStrength_new(const rk_aiq_sys_ctx_t* ctx, float percent) {
+    sharp_api_attrib_t attr;
+    memset(&attr, 0, sizeof(attr));
+
+    rk_aiq_user_api2_sharp_GetAttrib(ctx, &attr);
+
+    printf("sharp attr: opmode:%d, en:%d, bypass:%d\n", attr.opMode, attr.en, attr.bypass);
+    if (attr.opMode == RK_AIQ_OP_MODE_MANUAL || attr.en == false) {
+        attr.opMode = RK_AIQ_OP_MODE_AUTO;
+        attr.en = true;
+        rk_aiq_user_api2_sharp_SetAttrib(ctx, &attr);
+        usleep(90 * 1000);
+    }
+
+    asharp_strength_t sharpStrength;
+    sharpStrength.en = true;
+    sharpStrength.percent = percent;
+    rk_aiq_user_api2_sharp_SetStrength(ctx, &sharpStrength);
+
+    printf("set percent %f\n", sharpStrength.percent);
+}
+
 #endif
 
 XCamReturn sample_asharp_module (const void *arg)
@@ -2455,6 +2478,9 @@ XCamReturn sample_asharp_module (const void *arg)
             if (CHECK_ISP_HW_V39()) {
                 sample_sharp_setStrength_v34(ctx, RK_AIQ_UAPI_MODE_ASYNC, 1.0);
             }
+#if USE_NEWSTRUCT
+            sample_sharp_setStrength_new(ctx, 1.0);
+#endif
             break;
         case 'g':
             if (CHECK_ISP_HW_V30()) {
@@ -2466,6 +2492,9 @@ XCamReturn sample_asharp_module (const void *arg)
             if (CHECK_ISP_HW_V39()) {
                 sample_sharp_setStrength_v34(ctx, RK_AIQ_UAPI_MODE_ASYNC, 0.0);
             }
+#if USE_NEWSTRUCT
+            sample_sharp_setStrength_new(ctx, 0.0);
+#endif
             break;
         case 'h':
             if (CHECK_ISP_HW_V30()) {
@@ -2477,6 +2506,9 @@ XCamReturn sample_asharp_module (const void *arg)
             if (CHECK_ISP_HW_V39()) {
                 sample_sharp_setStrength_v34(ctx, RK_AIQ_UAPI_MODE_ASYNC, 0.5);
             }
+#if USE_NEWSTRUCT
+            sample_sharp_setStrength_new(ctx, 0.5);
+#endif
             break;
         case 'i':
             if (CHECK_ISP_HW_V30()) {

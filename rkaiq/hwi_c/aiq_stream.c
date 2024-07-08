@@ -200,7 +200,8 @@ XCamReturn RkPollThread_poll_buffer_loop(AiqPollThread_t* pTh) {
             if (pTh->_dev_type)
                 evt.vb->_buf_type       = evt.type;
             AiqRawStream_t* stream = (AiqRawStream_t*)pTh->_stream;
-            AiqV4l2Buffer_setReserved(pBuf, (uint8_t*)(stream->_reserved));
+            if (pTh->_dev_type == VICAP_POLL_SCL)
+                AiqV4l2Buffer_setReserved(pBuf, (uint8_t*)(stream->_reserved));
             AiqV4l2Buffer_ref(pBuf);
             pTh->_poll_callback->poll_buffer_ready(pTh->_poll_callback->_pCtx, &evt,
                                                    ((AiqRawStream_t*)pTh->_stream)->_dev_index);

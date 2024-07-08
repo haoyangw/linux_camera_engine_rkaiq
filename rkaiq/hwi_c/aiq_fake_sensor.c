@@ -386,7 +386,7 @@ static XCamReturn _start(AiqSensorHw_t* pSnsHw, bool prepared) {
     (*v4l2_dev->start)(v4l2_dev, prepared);
 
     if (!pFakeSnsHw->use_rkrawstream) {
-        CTimer_SetTimer(pFakeSnsHw->_timer, 0, 100000);
+        CTimer_SetTimer(pFakeSnsHw->_timer, 0, 5000);
         CTimer_StartTimer(pFakeSnsHw->_timer);
     }
 
@@ -634,13 +634,12 @@ static int _vbuf_list_cb(AiqListItem_t* item, void* args) {
                         buf->buf_info[dev_idx].data_addr, ptr);
         if (buf->buf_info[dev_idx].data_addr == (uint8_t*)ptr) {
             buf->buf_info[dev_idx].valid = false;
-            ret                          = 1;
             cb_args->item                = item;
             goto out;
         }
     } else if (raw_type == RK_AIQ_RAW_ADDR) {
         uintptr_t ptr = AiqV4l2Buffer_getExpbufUsrptr(v4l2_buf);
-        LOGD_CAMHW_SUBM(FAKECAM_SUBM, "rawbuf_type(addr): %p vs 0x%x",
+        LOGD_CAMHW_SUBM(FAKECAM_SUBM, "rawbuf_type(addr): %p vs 0x%lx",
                         buf->buf_info[dev_idx].data_addr, ptr);
         if (buf->buf_info[dev_idx].data_addr == (uint8_t*)ptr) {
             buf->buf_info[dev_idx].valid = false;

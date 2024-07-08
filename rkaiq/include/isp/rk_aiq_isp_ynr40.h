@@ -129,7 +129,7 @@ typedef struct ynr_hiNrEPF_dyn_s {
         M4_GROUP(nlmFltCft_mode_group:ynr_cfgByFiltStrg_mode),
         M4_NOTES(The spatial weight coeff of the nlm filter is directly configured through this para when sw_ynrT_nlmFltCfg_mode is ynr_cfgByFiltCoeff_mode.\n
         Freq of use: low))  */
-    // reg: hw_ynr_nlm_coe_0~5
+    // reg:  hw_ynr_hiSpnrFilt_coeff0~4
     // para: hiSpnrFilt_distSigma
     float sw_ynrT_filtSpatial_strg;
     /* M4_GENERIC_DESC(
@@ -137,15 +137,18 @@ typedef struct ynr_hiNrEPF_dyn_s {
         M4_TYPE(f32),
         M4_UI_PARAM(data_y),
         M4_SIZE_EX(1,5),
-        M4_RANGE_EX(0,15),
-        M4_DEFAULT([7,6,3,6,5,3]),
+        M4_RANGE_EX(0,0.25),
+        M4_DIGIT_EX(8f6b),
+        M4_DEFAULT([0.0546875, 0.0390625, 0.05078125, 0.03515625, 0.0234375]),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
         M4_GROUP(nlmFltCft_mode_group:ynr_cfgByFiltCoeff_mode),
-        M4_NOTES(The spatial weight of adjacent pixels in the nlm filter\n
+        M4_NOTES(The spatial weight of adjacent pixels in the nlm filter.\n
+        The nlm filter totally have 6 coeffs, only centert pix is not control by theis params.\n
+        centerWgt = 1.0 - 4*wgt[0] + 4*wgt[1] + 4*wgt[2] + 8*wgt[3] + 4*wgt[4].\n
         Freq of use: low))  */
-    // reg: hw_ynr_nlm_coe_0~5
+    // reg:  hw_ynr_hiSpnrFilt_coeff0~4
     float hw_ynrT_filtSpatial_wgt[5];
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_ynr_hiSpnrLocalGain_alpha),
@@ -254,13 +257,14 @@ typedef struct ynr_hiNrSF_dyn_s {
         M4_TYPE(f32),
         M4_UI_PARAM(data_y),
         M4_SIZE_EX(1,6),
-        M4_RANGE_EX(0,15),
-        M4_DEFAULT([7,6,3,6,5,3]),
+        M4_RANGE_EX(0,1.0),
+        M4_DEFAULT([0.25, 0.06640625, 0.03125, 0.0546875, 0.02734375, 0.01171875]),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
         M4_GROUP(hiSpnrFlt1_mode_group:ynr_cfgByFiltCoeff_mode),
-        M4_NOTES(The spatial weight of adjacent pixels in the nlm filter\n
+        M4_NOTES(The spatial weight of high smoothimg filter.\n
+        wgt[0] + 4*wgt[1] + 4*wgt[1] + 4*wgt[2] + 4*wgt[3] + 8*wgt[4] + 4*wgt[5] == 1.\n
         Freq of use: low))  */
     // reg: hw_ynr_hiSpnrFilt_coeff0~5
     float hw_ynrT_filtSpatial_wgt[6];
@@ -473,7 +477,7 @@ typedef struct ynr_midNr_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(6),
-        M4_GROUP(miNr_en_group;miEhanceScale_en_group),
+        M4_GROUP(miNr_en_group),
         M4_NOTES(The scale factor of blending mi-frequency detail to NR result.
         Freq of use: high))  */
     //reg: hw_ynrT_miEnhance_scale = alphaMfTex_scale, hw_ynrT_miEnhance_en =  !(alphaMfTex_scale == 1.0)
@@ -497,15 +501,15 @@ typedef struct ynr_midNr_dyn_s {
 
 typedef struct ynr_loNr_tex2NrStrg_s {
     /* M4_GENERIC_DESC(
-            M4_ALIAS(sw_ynr_tex2loStrg_en),
-            M4_TYPE(bool),
-            M4_DEFAULT(1),
-            M4_HIDE_EX(0),
-            M4_RO(0),
-            M4_ORDER(1),
-            M4_GROUP_CTRL(tex2loStrg_en_group),
-            M4_NOTES(Enable the loNr filter for lo freq noise.Turn on by setting this bit to 1.
-            Freq of use: low))  */
+        M4_ALIAS(sw_ynr_tex2loStrg_en),
+        M4_TYPE(bool),
+        M4_DEFAULT(1),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_GROUP_CTRL(tex2loStrg_en_group),
+        M4_NOTES(Enable the loNr filter for lo freq noise.Turn on by setting this bit to 1.
+        Freq of use: low))  */
     // reg: hw_ynrT_tex2LoStrg_en
     bool hw_ynrT_tex2NrStrg_en;
     /* M4_GENERIC_DESC(
@@ -513,7 +517,7 @@ typedef struct ynr_loNr_tex2NrStrg_s {
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0.0, 1.0),
-        M4_DEFAULT(1.0),
+        M4_DEFAULT(0.2),
         M4_DIGIT_EX(3),
         M4_HIDE_EX(0),
         M4_RO(0),
@@ -528,7 +532,7 @@ typedef struct ynr_loNr_tex2NrStrg_s {
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0.0, 1.0),
-        M4_DEFAULT(1.0),
+        M4_DEFAULT(0.6),
         M4_DIGIT_EX(3),
         M4_HIDE_EX(0),
         M4_RO(0),
@@ -543,7 +547,7 @@ typedef struct ynr_loNr_tex2NrStrg_s {
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0.0, 1.0),
-        M4_DEFAULT(1.0),
+        M4_DEFAULT(0.2),
         M4_DIGIT_EX(3),
         M4_HIDE_EX(0),
         M4_RO(0),
@@ -587,16 +591,18 @@ typedef struct ynr_loNrEPF_s {
         M4_ALIAS(sw_ynr_loSpnr_strg),
         M4_TYPE(f32),
         M4_SIZE_EX(1,6),
-        M4_RANGE_EX(0.0, 31.993),
-        M4_DEFAULT(1.0),
+        M4_RANGE_EX(0.016, 16),
+        M4_DEFAULT([1.0, 1.0, 1.0, 1.0]),
         M4_DIGIT_EX(3f7b),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
+        M4_UI_MODULE(curve),
+        M4_DATAX([0, 32, 64, 128, 192, 256]),
         M4_NOTES(The scaling factor of the range sigma of the bilateral filter\n
         Freq of use: high))  */
     // reg: hw_ynr_loSpnr_strg
-	// para: luma2loStrg, loSpnr_strg
+    // para: luma2loStrg, loSpnr_strg
     float hw_ynrT_luma2RgeSgm_scale[6];
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_ynr_loSpnrThumbThred_scale),

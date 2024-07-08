@@ -443,6 +443,42 @@ XCamReturn YnrSelectParam
     return XCAM_RETURN_NO_ERROR;
 }
 
+XCamReturn YnrApplyStrength
+(
+    YnrContext_t *pYnrCtx,
+    ynr_param_t* out)
+{
+    int i = 0;
+
+    if(pYnrCtx == NULL || out == NULL) {
+        LOGE_ANR("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+
+    if (pYnrCtx->strength_en) {
+        float fPercent = algo_strength_to_percent(pYnrCtx->fStrength);
+
+        ynr_params_dyn_t* pdyn = &out->dyn;
+        pdyn->hiNr.epf.hw_ynrT_rgeSgm_scale *= fPercent;
+        pdyn->hiNr.epf.hw_ynrT_centerPix_wgt /= fPercent;
+
+        pdyn->midNr.sw_ynr_rgeSgm_scale *= fPercent;
+        pdyn->midNr.sw_ynr_centerPix_wgt /= fPercent;
+        pdyn->midNr.hw_ynrT_midNrOut_alpha *= fPercent;
+
+        for (i = 0; i < 6; i++) {
+            pdyn->loNr.epf.hw_ynrT_luma2RgeSgm_scale[i] *= fPercent;
+        }
+        pdyn->loNr.epf.hw_ynrT_centerPix_wgt /= fPercent;
+        for (i = 0; i < 9; i++) {
+            pdyn->loNr.epf.hw_ynrT_locSgmStrg2NrOut_alpha[i] *= fPercent;
+        }
+        printf("YnrApplyStrength: fStrength %f, fPercent %f\n", pYnrCtx->fStrength, fPercent);
+    }
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
 #define YNR_V30_ISO_CURVE_POINT_BIT          4
 #define YNR_V30_ISO_CURVE_POINT_NUM          ((1 << YNR_V30_ISO_CURVE_POINT_BIT)+1)
 
@@ -610,6 +646,7 @@ XCamReturn Aynr_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outpar
 #endif
 #if RKAIQ_HAVE_YNR_V40
         YnrSelectParam(pYnrCtx, ynr_res, iso);
+        YnrApplyStrength(pYnrCtx, ynr_res);
 #endif
         outparams->cfg_update = true;
         outparams->en = ynr_attrib->en;

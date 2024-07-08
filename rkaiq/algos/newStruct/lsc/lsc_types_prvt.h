@@ -38,6 +38,7 @@
 
 typedef struct LscContext_s {
     lsc_calib_attrib_t* lsc_attrib;
+    int lsc_tableAll_use_len;
 
     // all mesh table of current illuminant
     uint8_t illu_mesh_len;

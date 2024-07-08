@@ -3,7 +3,9 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 #include "message_receiver.h"
+#include "socket_client.h"
 #include "xcam_log.h"
+#include "c_base/aiq_base.h"
 
 #include "rk_aiq.h"
 #include "rk_aiq_comm.h"
@@ -42,6 +44,7 @@ void HexDump(const void* data, int size)
         }
     }
 }
+
 enum Receiver_State_e {
     ReceiverState_SOF = 0,
     ReceiverState_ID,
@@ -119,6 +122,7 @@ void message_receiver_senddata(receiver_t *rec, char *buf, uint32_t len) {
 
     pos += 4;
     LOGI_IPC("Sendbuf len %d, pos %d ret 0x%0x, note %s\n", send_len, pos, rec->ret, rec->note);
+    //HexDump(sendbuf, pos);
     send(rec->send_fd, sendbuf, pos, 0);
 }
 
@@ -133,30 +137,43 @@ static int rkaiq_is_uapi(const char *cmd_str) {
 void message_receiver_handler(receiver_t *rec) {
     int ret = -1;
     char *out_data = NULL;
+    int send_len = 0;
 
     rec->ret = 0xff00;
     rec->note[0] = 0;
 
-    LOGD_IPC("cmd_id %d, is_uapi %d", rec->cmd_id, rkaiq_is_uapi((char *)rec->rxbuf));
+    LOGI_IPC("cmd_id %d, is_uapi %d", rec->cmd_id, rkaiq_is_uapi((char *)rec->rxbuf));
+
+
     if (rec->cmd_id == 0) {
         if (rkaiq_is_uapi((char *)rec->rxbuf)) {
             ret = rkaiq_uapi_unified_ctl(rec->aiqctx, (char *)rec->rxbuf, &out_data, 0);
         } else {
             rk_aiq_uapi2_sysctl_tuning(rec->aiqctx, (char *)rec->rxbuf);
         }
+        if (out_data) send_len = strlen(out_data);
     } else if (rec->cmd_id == 1) {
         if (rkaiq_is_uapi((char *)rec->rxbuf)) {
             ret = rkaiq_uapi_unified_ctl(rec->aiqctx, (char *)rec->rxbuf, &out_data, 1);
         } else {
             out_data = rk_aiq_uapi2_sysctl_readiq(rec->aiqctx, (char *)rec->rxbuf);
         }
-    } else {
-        LOGE_IPC("Error cmd id!");
+        if (out_data) send_len = strlen(out_data);
+    } else if (rec->cmd_id == 0x100) {
+        // get 3a stats
+        out_data = (char *)socket_client_get_isp_statics(rec->aiqctx);
+        send_len = sizeof(rk_aiq_isp_tool_stats_t);
+    } else if (rec->cmd_id == 0x101) {
+        socket_client_enque_rkraw(rec->aiqctx, (char *)rec->rxbuf);
+        out_data = NULL;
+    } else if (rec->cmd_id == 0x102) {
+        socket_client_writeAwbIn(rec->aiqctx, (char *)rec->rxbuf);
+        out_data = NULL;
     }
 
     if (out_data) {
-        message_receiver_senddata(rec, out_data, strlen(out_data));
-        free(out_data);
+        message_receiver_senddata(rec, out_data, send_len);
+        aiq_free(out_data);
     } else {
         message_receiver_senddata(rec, NULL, 0);
     }
@@ -207,7 +224,7 @@ void message_receiver_gotchar(receiver_t *rec, uint8_t c)
     when ReceiverState_ID:
         COLLECT_NUMBER(rec->cmd_id, uint32_t) {
             LOGD_IPC("ReceiverState_ID %d", rec->cmd_id);
-            if (rec->cmd_id > 1) {
+            if (rec->cmd_id > 0x200) {
                 LOGE_IPC("ReceiverState_ID Error!! %d", rec->cmd_id);
                 rec->rxstate = ReceiverState_SOF;
                 rec->rxi = 0;
@@ -218,14 +235,14 @@ void message_receiver_gotchar(receiver_t *rec, uint8_t c)
         }
     when ReceiverState_RET:
         COLLECT_NUMBER(rec->cmd_ret, uint32_t) {
-            LOGD_IPC("ReceiverState_RET %d", rec->cmd_ret);
+            //LOGD_IPC("ReceiverState_RET %d", rec->cmd_ret);
             rec->rxstate = ReceiverState_SEQ;
             rec->cmd_seq = 0;
             rec->rxi = 0;
         }
     when ReceiverState_SEQ:
         COLLECT_NUMBER(rec->cmd_seq, uint32_t) {
-            LOGD_IPC("ReceiverState_SEQ %d", rec->cmd_seq);
+            //LOGD_IPC("ReceiverState_SEQ %d", rec->cmd_seq);
             rec->rxstate = ReceiverState_SIZE1;
             rec->size1 = 0;
             rec->size2 = 0;
@@ -240,28 +257,30 @@ void message_receiver_gotchar(receiver_t *rec, uint8_t c)
     when ReceiverState_SIZE2:
         COLLECT_NUMBER(rec->size2, uint32_t) {
             LOGD_IPC("ReceiverState_SIZE2 %d", rec->size2);
-            if (rec->size1 < MAX_DATA_SIZE) {
+            if (rec->size1 == 0) {
+                //LOGD_IPC("ReceiverState_SIZE2 ==> ReceiverState_CKSUM");
+                rec->rxstate = ReceiverState_CKSUM;
+                rec->rxi = 0;
+            } else if (rec->size1 > MAX_DATA_SIZE) {
+                LOGE_IPC("ReceiverState size too large, abort! %d", rec->size1);
+                rec->rxstate = ReceiverState_SOF;
+                rec->rxi = 0;
+            } else {
                 if (rec->size1 > rec->rxbuf_size) {
                     LOGK_IPC("ReceiverState realloc rxbuf size %d->%d", rec->rxbuf_size, rec->size1);
-                    rec->rxbuf = (uint8_t *) realloc(rec->rxbuf, rec->size1);
+                    rec->rxbuf = (uint8_t *) realloc(rec->rxbuf, rec->size1 + 1);
                     if (rec->rxbuf) {
-                        rec->rxbuf_size = rec->size1;
+                        rec->rxbuf_size = rec->size1 + 1;
                         rec->rxstate = ReceiverState_DATA;
                         rec->rxi = 0;
                     } else {
                         LOGE_IPC("ReceiverState rxbuf realloc failed, abort!");
                     }
                 } else {
+                    //LOGD_IPC("ReceiverState_SIZE2 ==> ReceiverState_DATA");
                     rec->rxstate = ReceiverState_DATA;
                     rec->rxi = 0;
                 }
-            } else {
-                LOGE_IPC("ReceiverState size too large, abort! %d", rec->size1);
-            }
-
-            if (rec->rxstate != ReceiverState_DATA) {
-                rec->rxstate = ReceiverState_SOF;
-                rec->rxi = 0;
             }
         }
     when ReceiverState_DATA:
@@ -288,6 +307,7 @@ void message_receiver_gotchar(receiver_t *rec, uint8_t c)
 }
 
 void message_receiver_gotdata(receiver_t *rec, uint8_t *buf, int len) {
+    //HexDump(buf, len);
     for (int i = 0; i < len; i++) {
         message_receiver_gotchar(rec, buf[i]);
     }

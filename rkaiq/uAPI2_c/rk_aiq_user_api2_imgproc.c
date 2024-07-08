@@ -2171,7 +2171,7 @@ XCamReturn rk_aiq_uapi2_getDrcGain(const rk_aiq_sys_ctx_t* ctx, float * sw_drcT_
 *    this function is active for normal mode
 * Argument:
 *   level: [1, 10]
-*   only valid in RV1109/RV1126
+*
 *****************************
 */
 XCamReturn rk_aiq_uapi2_getDarkAreaBoostStrth(const rk_aiq_sys_ctx_t* ctx, unsigned int *level)
@@ -2195,8 +2195,20 @@ XCamReturn rk_aiq_uapi2_getDarkAreaBoostStrth(const rk_aiq_sys_ctx_t* ctx, unsig
     RKAIQ_IMGPROC_CHECK_RET(ret, "ISP3.2 lite do not support tmo api!");
 #endif
 #if RKAIQ_HAVE_DRC_V20
-    ret = XCAM_RETURN_ERROR_PARAM;
-    RKAIQ_IMGPROC_CHECK_RET(ret, "ISP3.3/ISP3.9 lite do not support tmo api!");
+    IMGPROC_FUNC_ENTER
+    if (ctx == NULL) {
+        ret = XCAM_RETURN_ERROR_PARAM;
+        RKAIQ_IMGPROC_CHECK_RET(ret, "param error, ctx is NULL!");
+    }
+
+    adrc_strength_t ctrl;
+    memset(&ctrl, 0, sizeof(adrc_strength_t));
+    ret = rk_aiq_user_api2_drc_GetStrength(ctx, &ctrl);
+    RKAIQ_IMGPROC_CHECK_RET(ret, "getDarkAreaBoostStrth GetStrength failed!");
+
+    *level = ctrl.darkAreaBoostStrength;
+
+    IMGPROC_FUNC_EXIT
 #endif
 
     return ret;
@@ -2205,6 +2217,8 @@ XCamReturn rk_aiq_uapi2_getDarkAreaBoostStrth(const rk_aiq_sys_ctx_t* ctx, unsig
 XCamReturn rk_aiq_uapi2_setDarkAreaBoostStrth(const rk_aiq_sys_ctx_t* ctx, unsigned int level)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    IMGPROC_FUNC_ENTER
 
 #if RKAIQ_HAVE_DRC_V10
     ret = XCAM_RETURN_ERROR_PARAM;
@@ -2223,10 +2237,30 @@ XCamReturn rk_aiq_uapi2_setDarkAreaBoostStrth(const rk_aiq_sys_ctx_t* ctx, unsig
     RKAIQ_IMGPROC_CHECK_RET(ret, "ISP3.2 lite do not support tmo api!");
 #endif
 #if RKAIQ_HAVE_DRC_V20
-    ret = XCAM_RETURN_ERROR_PARAM;
-    RKAIQ_IMGPROC_CHECK_RET(ret, "ISP3.3/ISP3.9 lite do not support tmo api!");
+    if (ctx == NULL) {
+        ret = XCAM_RETURN_ERROR_PARAM;
+        RKAIQ_IMGPROC_CHECK_RET(ret, "param error, ctx is NULL!");
+    }
+
+    if (level > 100) {
+        LOGE("params error, level need in range [0, 100]");
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+
+    adrc_strength_t ctrl;
+    memset(&ctrl, 0, sizeof(adrc_strength_t));
+    ret = rk_aiq_user_api2_drc_GetStrength(ctx, &ctrl);
+    RKAIQ_IMGPROC_CHECK_RET(ret, "setDarkAreaBoostStrth GetStrength failed!");
+
+    ctrl.darkAreaBoostEn       = true;
+    ctrl.darkAreaBoostStrength = level;
+
+    ret = rk_aiq_user_api2_drc_SetStrength(ctx, ctrl);
+    RKAIQ_IMGPROC_CHECK_RET(ret, "setDarkAreaBoostStrth SetStrength failed!");
+
 #endif
 
+    IMGPROC_FUNC_EXIT
     return ret;
 }
 
@@ -2316,6 +2350,67 @@ XCamReturn rk_aiq_uapi2_getMHDRStrth(const rk_aiq_sys_ctx_t* ctx, bool * on, uns
     return XCAM_RETURN_ERROR_UNKNOWN;
 }
 
+/*
+*****************************
+*
+* Desc: set/get hdr strength
+*    this function is active for HDR is manual mode
+* Argument:
+*   level: [0, 100]
+*
+*****************************
+*/
+XCamReturn rk_aiq_uapi2_setHDRStrth(const rk_aiq_sys_ctx_t* ctx, bool on, unsigned int level)
+{
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    if (ctx == NULL) {
+        ret = XCAM_RETURN_ERROR_PARAM;
+        RKAIQ_IMGPROC_CHECK_RET(ret, "param error, ctx is NULL!");
+    }
+
+    if ((level > 100)) {
+        LOGE("params error, level need in range [0, 100]");
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+
+    adrc_strength_t ctrl;
+    memset(&ctrl, 0, sizeof(adrc_strength_t));
+    ret = rk_aiq_user_api2_drc_GetStrength(ctx, &ctrl);
+    RKAIQ_IMGPROC_CHECK_RET(ret, "setHDRStrth GetStrength failed!");
+
+    ctrl.hdrStrengthEn = true;
+    ctrl.hdrStrength   = level;
+
+    ret = rk_aiq_user_api2_drc_SetStrength(ctx, ctrl);
+    RKAIQ_IMGPROC_CHECK_RET(ret, "setHDRStrth SetStrength failed!");
+
+    IMGPROC_FUNC_EXIT
+    return ret;
+
+}
+XCamReturn rk_aiq_uapi2_getHDRStrth(const rk_aiq_sys_ctx_t* ctx, bool *on, unsigned int *level)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    IMGPROC_FUNC_ENTER
+    if (ctx == NULL) {
+        ret = XCAM_RETURN_ERROR_PARAM;
+        RKAIQ_IMGPROC_CHECK_RET(ret, "param error, ctx is NULL!");
+    }
+
+    adrc_strength_t ctrl;
+    memset(&ctrl, 0, sizeof(adrc_strength_t));
+    ret = rk_aiq_user_api2_drc_GetStrength(ctx, &ctrl);
+    RKAIQ_IMGPROC_CHECK_RET(ret, "getHDRStrth GetStrength failed!");
+
+    *level = ctrl.hdrStrength;
+    *on    = ctrl.hdrStrengthEn;
+
+    IMGPROC_FUNC_EXIT
+    return ret;
+}
 
 /*
 **********************************************************

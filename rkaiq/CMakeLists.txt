@@ -1425,6 +1425,7 @@ link_directories("${LIBRARY_OUTPUT_PATH}" "${OPENCV_LIBS_DIR}" "${GENMESH_LIBS_D
 add_library(rkaiq_tmp STATIC ${RK_AIQ_SRC})
 set_target_properties(rkaiq_tmp PROPERTIES FOLDER "rk_aiq")
 set_target_properties(rkaiq_tmp PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+#target_compile_options(rkaiq_tmp PRIVATE -DAIQ_MALLOC_DBG)
 add_dependencies(rkaiq_tmp j2s_parser)
 
 if (RKAIQ_BUILD_BINARY_IQ)
@@ -1440,6 +1441,7 @@ set_target_properties(rkaiq PROPERTIES FOLDER "rk_aiq")
 set_target_properties(rkaiq PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 set_target_properties(rkaiq PROPERTIES C_VISIBILITY_PRESET default)
 set_target_properties(rkaiq PROPERTIES CXX_VISIBILITY_PRESET default)
+#target_compile_options(rkaiq PRIVATE -DAIQ_MALLOC_DBG)
 
 target_link_libraries(rkaiq
 	PRIVATE

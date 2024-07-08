@@ -127,6 +127,11 @@ static int _io_control(AiqV4l2Device_t* v4l2_dev, unsigned long cmd, void* arg) 
     if (VIDIOC_DQBUF == cmd) {
         struct v4l2_buffer* v4l2_buf = (struct v4l2_buffer*)arg;
         v4l2_buf->index              = _get_available_buffer_index(fake_v4l2_dev);
+        if (v4l2_buf->index == v4l2_dev->_buf_count) {
+            LOGE("%s, no free buffer was found!", __BI_FILENAME__);
+            return XCAM_RETURN_ERROR_TIMEOUT;
+        }
+
         struct rk_aiq_vbuf_info vb_info;
         aiqMutex_lock(&fake_v4l2_dev->_mutex);
         if (aiqList_size(fake_v4l2_dev->_buf_list) > 0) {
@@ -137,7 +142,10 @@ static int _io_control(AiqV4l2Device_t* v4l2_dev, unsigned long cmd, void* arg) 
             v4l2_buf->m.planes[0].m.userptr = (unsigned long)vb_info.data_addr;
             v4l2_buf->reserved              = vb_info.data_fd;
             gettimeofday(&v4l2_buf->timestamp, NULL);
+        } else {
+            LOGE("%s, _buf_list is empty()", __BI_FILENAME__);
         }
+
         aiqMutex_unlock(&fake_v4l2_dev->_mutex);
     }
     return 0;

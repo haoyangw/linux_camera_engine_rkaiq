@@ -67,19 +67,8 @@ typedef struct {
     float sw_csmT_coeff[RK_AIQ_CSM_COEFF_NUM];
 } csm_params_static_t;
 
-// typedef struct {
-
-// } csm_params_dyn_t;
 
 typedef struct {
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(en),
-        M4_TYPE(bool),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(TODO))  */
-    bool en;
     /* M4_GENERIC_DESC(
         M4_ALIAS(sta),
         M4_TYPE(struct),
@@ -89,15 +78,6 @@ typedef struct {
         M4_ORDER(1),
         M4_NOTES(TODO))  */
     csm_params_static_t sta;
-    // /* M4_GENERIC_DESC(
-    //     M4_ALIAS(dyn),
-    //     M4_TYPE(struct),
-    //     M4_UI_MODULE(dynamic_ui),
-    //     M4_HIDE_EX(0),
-    //     M4_RO(0),
-    //     M4_ORDER(2),
-    //     M4_NOTES(TODO))  */
-    // csm_params_dyn_t dyn;
 } csm_param_t;
 
 #endif

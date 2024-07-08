@@ -379,9 +379,9 @@ XCamReturn MergeSelectParam(MergeContext_t* pMergeCtx, mge_param_t* out, int iso
             interpolation_f32(paut->dyn[ilow].mdWgt_baseHdrS.sw_mgeT_wgtMaxTh_strg,
                               paut->dyn[ihigh].mdWgt_baseHdrS.sw_mgeT_wgtMaxTh_strg, ratio);
     }
-    out->dyn.sw_mgeT_baseHdrS_diffScale =
-        interpolation_f32(paut->dyn[ilow].sw_mgeT_baseHdrS_diffScale,
-                          paut->dyn[ihigh].sw_mgeT_baseHdrS_diffScale, ratio);
+    out->dyn.mdWgt_baseHdrS.sw_mgeT_lumaDiff_scale =
+        interpolation_f32(paut->dyn[ilow].mdWgt_baseHdrS.sw_mgeT_lumaDiff_scale,
+                          paut->dyn[ihigh].mdWgt_baseHdrS.sw_mgeT_lumaDiff_scale, ratio);
 
     pMergeCtx->CurrData.CtrlData.MoveCoef = pMergeCtx->NextCtrlData.MoveCoef;
     pMergeCtx->NextCtrlData.MergeOEDamp   = paut->sta.sw_mgeT_oeDamp_val;

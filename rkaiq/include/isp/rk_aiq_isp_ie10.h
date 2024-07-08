@@ -19,7 +19,7 @@
 #define _RK_AIQ_PARAM_IE10_H_
 
 typedef struct {
-    // M4_NUMBER_DESC("mode", "u8", M4_RANGE(0,6), "0", M4_DIGIT(0), 0)
+    // M4_NUMBER_DESC("mode", "u16", M4_RANGE(0,6), "0", M4_DIGIT(0), 0)
     unsigned char mode;
 } ie_params_static_t;
 

@@ -282,18 +282,6 @@ typedef struct cnr_loNr_iirFilt_s {
     // reg: hw_cnrT_loFlt_vsigma, hw_cnrT_expX_shiftBit
     float sw_cnrT_rgeSgm_val;
     /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_cnrT_rgeSgmRatio_mode),
-        M4_TYPE(enum),
-        M4_ENUM_DEF(cnr_iirSgmRatio_mode_t),
-        M4_DEFAULT(cnr_glbSgmRatio_only_mode),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(TODO.\n
-        Reference enum types.\n
-        Freq of use: low))  */
-    cnr_iirSgmRatio_mode_t sw_cnrT_rgeSgmRatio_mode;
-    /* M4_GENERIC_DESC(
         M4_ALIAS(hw_cnrT_loFltGlobalSgm_ratio),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
@@ -307,20 +295,6 @@ typedef struct cnr_loNr_iirFilt_s {
         Freq of use: low))  */
     // reg: hw_cnrT_loFltGlobalSgm_ratio
     float hw_cnrT_glbSgm_ratio;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_cnrT_loFltGlobalSgmRatio_alpha),
-        M4_TYPE(f32),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0.0, 1.0),
-        M4_DEFAULT(0.5),
-        M4_DIGIT_EX(3f3b),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(TODO.\n
-        Freq of use: low))  */
-    // reg: hw_cnrT_loFltGlobalSgmRatio_alpha
-    float hw_cnrT_glbSgmRatio_alpha;
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_cnrT_loFltWgt_slope),
         M4_TYPE(f32),
@@ -353,7 +327,7 @@ typedef struct cnr_loNr_iirFilt_s {
         M4_ALIAS(hw_cnrT_loFltWgt_maxLimit),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0.0, 15.0),
+        M4_RANGE_EX(0.0, 16.0),
         M4_DEFAULT(1.0),
         M4_DIGIT_EX(1f3b),
         M4_HIDE_EX(0),
@@ -475,7 +449,7 @@ typedef struct cnr_hiNr_bifilt_s {
         M4_ALIAS(hw_cnrT_gainAdjHiFltCur_wgt),
         M4_TYPE(f32),
         M4_SIZE_EX(1,13),
-        M4_RANGE_EX(0.0, 1.0),
+        M4_RANGE_EX(0.0, 2.0),
         M4_DEFAULT(1.0),
         M4_DIGIT_EX(2f6b),
         M4_HIDE_EX(0),

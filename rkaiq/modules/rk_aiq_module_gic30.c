@@ -106,7 +106,7 @@ static void GicV30CreateKernelCoeffs(int radius, int max_radius, float rsigma, u
     for (k = 0; k < coeffNums_max; k++)
     {
         gaus_table[k] = gaus_table[k] / sumTable;
-        kernel_coeffs[k] = ROUND_F(gaus_table[k] * (1 << fix_bits));
+        kernel_coeffs[k] = (uint8_t)(gaus_table[k] * (1 << fix_bits));
     }
 
     //check gaus params
@@ -273,10 +273,10 @@ void rk_aiq_gic30_params_cvt(void* attr, struct isp33_gic_cfg* gic_cfg)
     pFix->global_gain =  CLIP(tmp, 0, 0x3ff);
 
     /* GAIN_SLOPE */
-    tmp = ROUND_F(pdyn->locGicStrg.locSgmStrg2GicStrg.sw_gicT_locSgmStrgMot_minThred * (1 << RKGIC_V30_LOCAL_GAIN_FIX_BITS));
+    tmp = ROUND_F(pdyn->locGicStrg.locSgmStrg2GicStrg.sw_gicT_locSgmStrgStat_maxThred * (1 << RKGIC_V30_LOCAL_GAIN_FIX_BITS));
     pFix->gain_offset = CLIP(tmp, 0, 0x3ff);
     float gain_adj_strg_slope   = (pdyn->locGicStrg.locSgmStrg2GicStrg.hw_shpT_motRegionGic_strg - pdyn->locGicStrg.locSgmStrg2GicStrg.hw_shpT_statRegionGic_strg)
-                                  / MAX(pdyn->locGicStrg.locSgmStrg2GicStrg.sw_gicT_locSgmStrgStat_maxThred - pdyn->locGicStrg.locSgmStrg2GicStrg.sw_gicT_locSgmStrgMot_minThred, 0.01);
+                                  / MAX(pdyn->locGicStrg.locSgmStrg2GicStrg.sw_gicT_locSgmStrgMot_minThred - pdyn->locGicStrg.locSgmStrg2GicStrg.sw_gicT_locSgmStrgStat_maxThred, 0.01);
     tmp = ROUND_F(gain_adj_strg_slope * (1 << RKGIC_V30_GAIN_SCALE_FIX_BITS));
     pFix->gain_scale = CLIP(tmp, 0, 0x3fff);
 

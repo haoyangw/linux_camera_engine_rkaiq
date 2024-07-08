@@ -127,6 +127,7 @@ void rk_aiq_ynr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
     for (i = 0; i < 6; i++) {
         loSpnr_strg = MIN(loSpnr_strg, pdyn->loNr.epf.hw_ynrT_luma2RgeSgm_scale[i]);
     }
+    loSpnr_strg = MAX(loSpnr_strg, 0.001);
 
     for (i = 0; i < ISO_CURVE_POINT_NUM; i++) {
         tmp = pdyn->sigmaEnv.hw_ynrC_luma2Sigma_curve.idx[i];

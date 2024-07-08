@@ -290,6 +290,7 @@ typedef struct {
     /* M4_GENERIC_DESC(
         M4_ALIAS(illu_name),
         M4_TYPE(string),
+        M4_UI_PARAM(name),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0,8),
         M4_DEFAULT("D50"),

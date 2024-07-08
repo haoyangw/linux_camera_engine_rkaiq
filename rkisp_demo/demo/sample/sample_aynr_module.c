@@ -1507,6 +1507,34 @@ static void sample_ynr_reverseEn(const rk_aiq_sys_ctx_t* ctx)
 
     printf("-------- YNR module test done --------\n");
 }
+
+void sample_ynr_setStrength_new(const rk_aiq_sys_ctx_t* ctx, float percent) {
+    ynr_api_attrib_t attr;
+    memset(&attr, 0, sizeof(attr));
+
+    rk_aiq_user_api2_ynr_GetAttrib(ctx, &attr);
+
+    printf("ynr attr: opmode:%d, en:%d, bypass:%d\n", attr.opMode, attr.en, attr.bypass);
+    if (attr.opMode == RK_AIQ_OP_MODE_MANUAL || attr.en == false) {
+        attr.opMode = RK_AIQ_OP_MODE_AUTO;
+        attr.en = true;
+        rk_aiq_user_api2_ynr_SetAttrib(ctx, &attr);
+        usleep(90 * 1000);
+    }
+
+    srand(time(0));
+    int rand_num = rand() % 101;
+    if (rand_num == 0) {
+        rand_num = 1;
+    }
+
+    aynr_strength_t ynrStrength;
+    ynrStrength.en = true;
+    ynrStrength.percent = rand_num / 100;
+    rk_aiq_user_api2_ynr_SetStrength(ctx, &ynrStrength);
+
+    printf("set percent %f\n", ynrStrength.percent);
+}
 #endif
 
 XCamReturn sample_aynr_module (const void *arg)
@@ -1618,6 +1646,9 @@ XCamReturn sample_aynr_module (const void *arg)
             if (CHECK_ISP_HW_V39() ) {
                 sample_ynr_setStrength_v24(ctx, RK_AIQ_UAPI_MODE_SYNC, 1.0);
             }
+#if USE_NEWSTRUCT
+            sample_ynr_setStrength_new(ctx, 1.0);
+#endif
             break;
         case '6':
             if (CHECK_ISP_HW_V30()) {
@@ -1629,6 +1660,9 @@ XCamReturn sample_aynr_module (const void *arg)
             if (CHECK_ISP_HW_V39()) {
                 sample_ynr_setStrength_v24(ctx, RK_AIQ_UAPI_MODE_SYNC, 0.0);
             }
+#if USE_NEWSTRUCT
+            sample_ynr_setStrength_new(ctx, 0.5);
+#endif
             break;
         case '7':
             if (CHECK_ISP_HW_V30()) {
@@ -1640,6 +1674,9 @@ XCamReturn sample_aynr_module (const void *arg)
             if (CHECK_ISP_HW_V39() ) {
                 sample_ynr_setStrength_v24(ctx, RK_AIQ_UAPI_MODE_SYNC, 0.5);
             }
+#if USE_NEWSTRUCT
+            sample_ynr_setStrength_new(ctx, 0.0);
+#endif
             break;
         case '8':
             if (CHECK_ISP_HW_V30()) {

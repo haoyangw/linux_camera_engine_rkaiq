@@ -71,6 +71,7 @@
 // #define CUSTOM_GROUP_AWB_DEMO_TEST
 // #define OTP_API_TEST
 //#define COLOR_CONSISTENCY_TEST
+#define LOOP_QUEUE_ONE_RAW_IMAGE
 #define DEMO_DISPLAY_TO_HDMI       1
 #define DEMO_DISPLAY_TO_DSI        2
 #ifdef ISPFEC_API
@@ -1192,6 +1193,32 @@ static int read_frame(demo_context_t *ctx)
     struct v4l2_buffer buf;
     int i, bytesused;
 
+    while (ctx->use_poll) {
+        fd_set fds;
+        struct timeval tv = { ctx->use_poll ? 2 : 0, 0 };
+        int r = 0;
+
+        FD_ZERO(&fds);
+        FD_SET(ctx->fd, &fds);
+
+        r = select(ctx->fd + 1, &fds, NULL, NULL, &tv);
+
+        if (r == -1) {
+            if (EINTR == errno)
+                continue;
+            ERR("select error: %s\n", strerror(errno));
+            exit(EXIT_FAILURE);
+        }
+
+        if (r == 0) {
+            ERR("select timeout\n");
+            exit(EXIT_FAILURE);
+        }
+
+        if (FD_ISSET(ctx->fd, &fds))
+            break;
+    }
+
     CLEAR(buf);
 
     buf.type = ctx->buf_type;
@@ -1706,7 +1733,11 @@ static void close_device(demo_context_t *ctx)
 static void open_device(demo_context_t *ctx)
 {
     printf("-------- open output dev_name:%s -------------\n", get_dev_name(ctx));
-    ctx->fd = open(get_dev_name(ctx), O_RDWR /* required */ /*| O_NONBLOCK*/, 0);
+
+    if (!ctx->use_poll)
+        ctx->fd = open(get_dev_name(ctx), O_RDWR /* required */ /*| O_NONBLOCK*/, 0);
+    else
+        ctx->fd = open(get_dev_name(ctx), O_RDWR | O_CLOEXEC | O_NONBLOCK, 0);
 
     if (-1 == ctx->fd) {
         ERR("Cannot open '%s': %d, %s\n",
@@ -1796,11 +1827,12 @@ static void parse_args(int argc, char **argv, demo_context_t *ctx)
             {"orp", required_argument, 0, '2' },
             //{"sensor",   required_argument,       0, 'b' },
             {"camgroup",   no_argument,       0, '3' },
+            {"stream-poll",   no_argument,       0, '4' },
             {0,          0,                 0,  0  }
         };
 
         //c = getopt_long(argc, argv, "w:h:f:i:d:o:c:ps",
-        c = getopt_long(argc, argv, "w:h:f:i:g:j:y:d:o:c:n:k:a:t:1:2:v::3mpserl",
+        c = getopt_long(argc, argv, "w:h:f:i:g:j:y:d:o:c:n:k:a:t:1:2:v::34mpserl",
                         long_options, &option_index);
         if (c == -1)
             break;
@@ -1907,8 +1939,21 @@ static void parse_args(int argc, char **argv, demo_context_t *ctx)
             char* raw_fmt_pix_start = strstr(raw_fmt_h_start, ":") + 1;
             strcpy(ctx->orpRawFmt, raw_fmt_pix_start);
 
-            printf("orp_path:%s, w:%d,h:%d, pix:%s \n",
-                   ctx->orppath, raw_width, raw_height, raw_fmt_pix_start);
+            char* rawbuf_type = strstr(raw_fmt_pix_start, ",");
+            if (rawbuf_type) {
+                rawbuf_type += 1;
+                if (!strcmp(rawbuf_type, "RAW_ADDR"))
+                    ctx->orpRawBufType = RK_AIQ_RAW_ADDR;
+                else if (!strcmp(rawbuf_type, "RAW_FD"))
+                    ctx->orpRawBufType = RK_AIQ_RAW_FD;
+                else if (!strcmp(rawbuf_type, "RAW_DATA"))
+                    ctx->orpRawBufType = RK_AIQ_RAW_DATA;
+                else
+                    ctx->orpRawBufType = RK_AIQ_RAW_FILE;
+            }
+
+            printf("orp_path:%s, w:%d,h:%d, pix:%s, rawbuf_type:%s\n",
+                   ctx->orppath, raw_width, raw_height, ctx->orpRawFmt, rawbuf_type);
             ctx->isOrp = true;
         }
         break;
@@ -1917,6 +1962,9 @@ static void parse_args(int argc, char **argv, demo_context_t *ctx)
             break;
         case '3':
             ctx->camGroup = true;
+            break;
+        case '4':
+            ctx->use_poll = true;
             break;
         case '?':
         case 'p':
@@ -1945,6 +1993,8 @@ static void parse_args(int argc, char **argv, demo_context_t *ctx)
                 "         --orp <raw_dir,w:h:raw_fmt>,       optional, absolute path of raw files dir \n"
                 "                                            raw_fmt: BG10 -> SBGGR10, GB10 -> SGBRG10 \n"
                 "                                                     BA10 -> SGRBG10, RG10 -> SRGGB10 \n"
+                "                                            rawbuf_type: RAW_ADDR, RAW_FD, RAW_DATA, RAW_FILE \n",
+                "         --stream-poll                      use non-blocking mode and select() to stream.\n"
                 "         --sensor,  default os04a10,        optional, sensor names\n",
                 argv[0]);
             exit(-1);
@@ -2018,6 +2068,11 @@ static void deinit(demo_context_t *ctx)
     close_device(ctx);
     if (ctx->pponeframe)
         close_device_pp_oneframe(ctx);
+
+    while (!list_empty(&ctx->queue)) {
+        fakecam_rawbuffer* buf = list_first_entry(&ctx->queue, fakecam_rawbuffer, list);
+        list_del(&buf->list);
+    }
 
     if (ctx->fp)
         fclose(ctx->fp);
@@ -2107,14 +2162,13 @@ static void getVersionFiles(char* dir, char** raw_files, int *filenum) {
     FILE *fp;
     char path[1024];
     int raw_flies_num = 0;
-    
+
     char cmd[512] = { "ls "};
     strcat(cmd, dir);
     fp = popen(cmd, "r");
     if (fp == NULL) {
         printf("Failed to run command\n" );
                 exit(1);
-                    
     }
 
     while (fgets(path, sizeof(path)-1, fp) != NULL) {
@@ -2128,6 +2182,101 @@ static void getVersionFiles(char* dir, char** raw_files, int *filenum) {
     *filenum =  raw_flies_num;
 }
 
+static int enqueueRkRawBuf(demo_context_t* demo_ctx, const char* full_name) {
+    FILE* ofp = fopen(full_name, "rb");
+    if (!ofp) {
+        ERR("Failed to open file %s\n", full_name);
+        return -1;
+    }
+
+    struct stat file_stat;
+    if (fstat(fileno(ofp), &file_stat) == -1) {
+        ERR("Failed to get file size\n");
+        goto clean_up;
+    }
+
+    if (!demo_ctx->rawBufs[0].vaddr) {
+        for (int i = 0; i < RAWBUF_MAX_FRAME; i++) {
+            void* buf = malloc(file_stat.st_size);
+            if (!buf) {
+                ERR("Failed to malloc size %lld\n", file_stat.st_size);
+                goto clean_up;
+            }
+
+            demo_ctx->rawBufs[i].index = i;
+            demo_ctx->rawBufs[i].vaddr = buf;
+
+            list_add_tail(&demo_ctx->rawBufs[i].list, &demo_ctx->queue);
+        }
+    }
+
+#ifdef LOOP_QUEUE_ONE_RAW_IMAGE
+    size_t bytesRead = fread(demo_ctx->rawBufs[0].vaddr, 1, file_stat.st_size, ofp);
+    if (bytesRead <= 0) {
+        ERR("Failed to read file %s\n", full_name);
+        goto clean_up;
+    }
+
+    for (int i = 1; i < RAWBUF_MAX_FRAME; i++)
+        memcpy(demo_ctx->rawBufs[i].vaddr, demo_ctx->rawBufs[0].vaddr, bytesRead);
+
+    while (!demo_ctx->orpStop) {
+        pthread_mutex_lock(&demo_ctx->mutex);
+        if (!list_empty(&demo_ctx->queue)) {
+            fakecam_rawbuffer* buf =
+                list_first_entry(&demo_ctx->queue,
+                        fakecam_rawbuffer,
+                        list);
+            list_del(&buf->list);
+
+            pthread_mutex_unlock(&demo_ctx->mutex);
+
+            if (rk_aiq_uapi2_sysctl_enqueueRkRawBuf(demo_ctx->aiq_ctx, buf->vaddr, false) < 0) {
+                ERR("Failed to get enqueueRkRawBuf\n");
+                goto clean_up;
+            }
+        } else {
+            pthread_mutex_unlock(&demo_ctx->mutex);
+            usleep(5 * 1000);
+        }
+    }
+#else
+    pthread_mutex_lock(&demo_ctx->mutex);
+    if (!list_empty(&demo_ctx->queue)) {
+        fakecam_rawbuffer* buf =
+            list_first_entry(&demo_ctx->queue,
+                    fakecam_rawbuffer,
+                    list);
+        list_del(&buf->list);
+        pthread_mutex_unlock(&demo_ctx->mutex);
+
+        size_t bytesRead = fread(buf->vaddr, 1, file_stat.st_size, ofp);
+        if (bytesRead <= 0) {
+            ERR("Failed to read file %s\n", full_name);
+            goto clean_up;
+        }
+
+        if (rk_aiq_uapi2_sysctl_enqueueRkRawBuf(demo_ctx->aiq_ctx, buf->vaddr, false) < 0) {
+            ERR("Failed to get enqueueRkRawBuf\n");
+        }
+    } else {
+        pthread_mutex_unlock(&demo_ctx->mutex);
+        usleep(5 * 1000);
+    }
+#endif
+
+    if (ofp)
+        fclose(ofp);
+
+    return 0;
+
+clean_up:
+    if (ofp)
+        fclose(ofp);
+
+    return -1;
+}
+
 static void* test_offline_thread(void* args) {
     pthread_detach (pthread_self());
     demo_context_t* demo_ctx = (demo_context_t*) args;
@@ -2138,7 +2287,7 @@ static void* test_offline_thread(void* args) {
     }
 
     while (!demo_ctx->orpStop) {
-        for (int i = 0; i < raw_flies_num;i++) {
+        for (int i = 0; i < raw_flies_num && !demo_ctx->orpStop; i++) {
             char full_name[512];
             strcpy(full_name, demo_ctx->orppath);
             strcat(full_name, raw_files[i]);
@@ -2147,14 +2296,26 @@ static void* test_offline_thread(void* args) {
                 full_name[length - 1] = '\0';
             }
             DBG("process raw : %s \n", full_name);
-            if (!demo_ctx->camGroup)
-                rk_aiq_uapi2_sysctl_enqueueRkRawFile(demo_ctx->aiq_ctx, full_name);
-             else
-                 rk_aiq_uapi2_sysctl_enqueueRkRawFile((const rk_aiq_sys_ctx_t*)demo_ctx->camgroup_ctx, full_name);
-            usleep(500000);
+
+            if (demo_ctx->orpRawBufType == RK_AIQ_RAW_FILE) {
+                if (!demo_ctx->camGroup)
+                    rk_aiq_uapi2_sysctl_enqueueRkRawFile(demo_ctx->aiq_ctx, full_name);
+                else
+                    rk_aiq_uapi2_sysctl_enqueueRkRawFile((const rk_aiq_sys_ctx_t*)demo_ctx->camgroup_ctx, full_name);
+                usleep(500000);
+            } else if (demo_ctx->orpRawBufType == RK_AIQ_RAW_DATA) {
+                enqueueRkRawBuf(demo_ctx, full_name);
+            }
         }
         usleep(500000);
     }
+
+    for (int32_t i = 0; i < RAWBUF_MAX_FRAME; i++) {
+        if (demo_ctx->rawBufs[i].vaddr)
+            free(demo_ctx->rawBufs[i].vaddr);
+        demo_ctx->rawBufs[i].vaddr = NULL;
+    }
+
     for (int i = 0; i < raw_flies_num;i++) {
        if (raw_files[i]) {
            free(raw_files[i]);
@@ -2342,7 +2503,17 @@ static void* stats_thread(void* args) {
 }
 
 void release_buffer(void *addr) {
-    printf("release buffer called: addr=%p\n", addr);
+    // DBG("release buffer called: addr=%p\n", addr);
+    if (addr) {
+        pthread_mutex_lock(&g_main_ctx->mutex);
+        for (int32_t i = 0; i < RAWBUF_MAX_FRAME; i++) {
+            if (g_main_ctx->rawBufs[i].vaddr == addr) {
+                list_add_tail(&g_main_ctx->rawBufs[i].list, &g_main_ctx->queue);
+                break;
+            }
+        }
+        pthread_mutex_unlock(&g_main_ctx->mutex);
+    }
 }
 
 static void test_tuning_api(demo_context_t *ctx)
@@ -2665,7 +2836,7 @@ static void rkisp_routine(demo_context_t *ctx)
                     prop.format = RK_PIX_FMT_SBGGR10;
                 prop.frame_width = ctx->orpRawW;
                 prop.frame_height = ctx->orpRawH;
-                prop.rawbuf_type = RK_AIQ_RAW_FILE;
+                prop.rawbuf_type = ctx->orpRawBufType;
                 rk_aiq_uapi2_sysctl_prepareRkRaw(ctx->aiq_ctx, prop);
             }
             /*
@@ -2878,7 +3049,7 @@ restart:
                             prop.format = RK_PIX_FMT_SBGGR10;
                         prop.frame_width = ctx->orpRawW;
                         prop.frame_height = ctx->orpRawH;
-                        prop.rawbuf_type = RK_AIQ_RAW_FILE;
+                        prop.rawbuf_type = ctx->orpRawBufType;
                         rk_aiq_uapi2_sysctl_prepareRkRaw((rk_aiq_sys_ctx_t *)ctx->camgroup_ctx, prop);
                     }
                 }
@@ -2987,15 +3158,21 @@ int main(int argc, char **argv)
         .orpRawW = 0,
         .orpRawH = 0,
         .orpRawFmt = {'\0'},
+        .orpRawBufType = RK_AIQ_RAW_FILE,
         .isOrp = false,
         .orpStop = false,
         .orpStopped = false,
         .camGroup = false,
+        .use_poll = false,
     };
     demo_context_t second_ctx;
     demo_context_t third_ctx;
     demo_context_t fourth_ctx;
     demo_context_t fifth_ctx;
+    pthread_mutex_init(&main_ctx.mutex, NULL);
+    INIT_LIST_HEAD(&main_ctx.queue);
+    for (int32_t i = 0; i < RAWBUF_MAX_FRAME; i++)
+        main_ctx.rawBufs[i].vaddr = NULL;
 
     parse_args(argc, argv, &main_ctx);
 #if ISPDEMO_ENABLE_DRM

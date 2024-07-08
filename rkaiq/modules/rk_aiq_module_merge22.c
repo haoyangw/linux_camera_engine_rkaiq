@@ -200,7 +200,7 @@ void rk_aiq_merge22_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
         // phwcfg->lm_scl = (unsigned short)(64.0f * sw_hdrmge_lm_scl);
 
         // calc gain0 in mge_baseHdrS_mode
-        phwcfg->gain0_inv = phwcfg->gain0_inv * pdyn->sw_mgeT_baseHdrS_diffScale;
+        phwcfg->gain0_inv = phwcfg->gain0_inv * pdyn->mdWgt_baseHdrS.sw_mgeT_lumaDiff_scale;
         phwcfg->gain0_inv = phwcfg->gain0_inv > 0xfff ? 0xfff : phwcfg->gain0_inv;
     }
     // // merge v12 add

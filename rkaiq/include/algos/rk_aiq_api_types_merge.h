@@ -175,20 +175,6 @@ typedef struct amge_params_dyn_s {
         M4_ORDER(2),
         M4_NOTES(TODO))  */
     mge_mdWgt_baseHdrS_t mdWgt_baseHdrS;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_mgeT_baseHdrS_diffScale),
-        M4_GROUP(baseFrm_mode_group:mge_baseHdrS_mode),
-        M4_TYPE(f32),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,64),
-        M4_DEFAULT(1),
-        M4_DIGIT_EX(2),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(The scale value of calculating move detection. The higher the value, the easier it
-       is to distinguish the moving zone. \n Freq of use: low))  */
-    float sw_mgeT_baseHdrS_diffScale;
 } amge_params_dyn_t;
 
 typedef struct mge_param_auto_s {

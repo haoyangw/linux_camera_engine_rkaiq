@@ -79,7 +79,7 @@ void rk_aiq_blc30_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
         phwcfg->isp_ob_predgain = CLIP((int)(1 * (1 << 8)), 0, 65535);
     }
 
-    if (fabs(phwcfg->isp_ob_predgain - 0x100) >= FLT_EPSILON) {
+    if (fabs(phwcfg->isp_ob_predgain - (float)0x100) > FLT_EPSILON) {
         phwcfg->bls1_en = 1;
         phwcfg->isp_ob_max = CLIP((int)(4096 * pre_dgain) - phwcfg->isp_ob_offset, 0, 1048575);
     } else {

@@ -21,8 +21,6 @@
 #include "common/rk_aiq_comm.h"
 //#include "isp/rk_aiq_isp_csm21.h"
 
-#define CSM_ISO_STEP_MAX 13
-
 RKAIQ_BEGIN_DECLARE
 
 typedef struct csm_api_attrib_s {

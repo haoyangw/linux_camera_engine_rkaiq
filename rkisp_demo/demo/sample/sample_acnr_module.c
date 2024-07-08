@@ -1098,6 +1098,28 @@ void sample_cnr_reverseEn(const rk_aiq_sys_ctx_t* ctx)
 
     printf("-------- cnr module test done --------\n");
 }
+
+void sample_cnr_setStrength_new(const rk_aiq_sys_ctx_t* ctx, float percent) {
+    cnr_api_attrib_t attr;
+    memset(&attr, 0, sizeof(attr));
+
+    rk_aiq_user_api2_cnr_GetAttrib(ctx, &attr);
+
+    printf("cnr attr: opmode:%d, en:%d, bypass:%d\n", attr.opMode, attr.en, attr.bypass);
+    if (attr.opMode == RK_AIQ_OP_MODE_MANUAL || attr.en == false) {
+        attr.opMode = RK_AIQ_OP_MODE_AUTO;
+        attr.en = true;
+        rk_aiq_user_api2_cnr_SetAttrib(ctx, &attr);
+        usleep(90 * 1000);
+    }
+
+    acnr_strength_t cnrStrength;
+    cnrStrength.en = true;
+    cnrStrength.percent = percent;
+    rk_aiq_user_api2_cnr_SetStrength(ctx, &cnrStrength);
+
+    printf("set percent %f\n", cnrStrength.percent);
+}
 #endif
 
 XCamReturn sample_acnr_module (const void *arg)
@@ -1212,6 +1234,9 @@ XCamReturn sample_acnr_module (const void *arg)
             if (CHECK_ISP_HW_V39()) {
                 sample_acnr_setStrength_v31(ctx, RK_AIQ_UAPI_MODE_SYNC, 1.0);
             }
+#if USE_NEWSTRUCT
+            sample_cnr_setStrength_new(ctx, 1.0);
+#endif
             break;
         case '6':
             if (CHECK_ISP_HW_V30()) {
@@ -1223,6 +1248,9 @@ XCamReturn sample_acnr_module (const void *arg)
             if (CHECK_ISP_HW_V39()) {
                 sample_acnr_setStrength_v31(ctx, RK_AIQ_UAPI_MODE_SYNC, 0.0);
             }
+#if USE_NEWSTRUCT
+            sample_cnr_setStrength_new(ctx, 0.0);
+#endif
             break;
         case '7':
             if (CHECK_ISP_HW_V30()) {
@@ -1234,6 +1262,9 @@ XCamReturn sample_acnr_module (const void *arg)
             if (CHECK_ISP_HW_V39()) {
                 sample_acnr_setStrength_v31(ctx, RK_AIQ_UAPI_MODE_SYNC, 0.5);
             }
+#if USE_NEWSTRUCT
+            sample_cnr_setStrength_new(ctx, 0.5);
+#endif
             break;
         case '8':
             if (CHECK_ISP_HW_V30()) {

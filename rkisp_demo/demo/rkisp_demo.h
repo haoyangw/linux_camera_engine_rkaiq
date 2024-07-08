@@ -22,9 +22,20 @@
 #include <linux/videodev2.h>
 #include "uAPI2/rk_aiq_user_api2_imgproc.h"
 #include "uAPI2/rk_aiq_user_api2_camgroup.h"
+#include "common/list.h"
+
 
 #define DBG(...) do { if(!silent) printf(__VA_ARGS__); } while(0)
 #define ERR(...) do { printf(__VA_ARGS__); } while (0)
+
+#define RAWBUF_MAX_FRAME 2
+
+typedef struct fakecam_rawbuffer_s {
+    void        *vaddr;
+    uint32_t    index;
+
+    struct list_head list;
+} fakecam_rawbuffer;
 
 typedef struct _demo_context {
     char                    out_file[255];
@@ -58,6 +69,7 @@ typedef struct _demo_context {
     struct buffer           *buffers_mp;
     int                     outputCnt;
     int                     skipCnt;
+    bool                    use_poll;
 
     char                    yuv_dir_path[64];
     bool                    _is_yuv_dir_exist;
@@ -69,10 +81,15 @@ typedef struct _demo_context {
     int                     orpRawW;
     int                     orpRawH;
     char                    orpRawFmt[10];
+    rk_aiq_rawbuf_type_t    orpRawBufType;
     bool                    isOrp;
     bool                    orpStop;
     bool                    orpStopped;
     bool                    camGroup;
+
+    fakecam_rawbuffer       rawBufs[RAWBUF_MAX_FRAME];
+    pthread_mutex_t         mutex;
+    struct list_head        queue;
 } demo_context_t;
 
 #ifndef CAM_STATIC_FPS_CALCULATION

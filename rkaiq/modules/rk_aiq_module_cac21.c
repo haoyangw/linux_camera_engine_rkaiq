@@ -173,6 +173,7 @@ static XCamReturn rk_aiq_cac21_update_lut(cac_cvt_info_t *cacInfo, char *sw_cacT
         return XCAM_RETURN_NO_ERROR;
     }
     cacInfo->current_lut_size = 0;
+    aiq_free(cacInfo->current_lut_[0]);
     cacInfo->current_lut_[0] = buf;
     cacInfo->current_lut_size++;
     if (buf->State != kInitial) {
@@ -185,6 +186,7 @@ static XCamReturn rk_aiq_cac21_update_lut(cac_cvt_info_t *cacInfo, char *sw_cacT
             LOGW_ACAC("No buffer available, maybe only one buffer ?!");
             return XCAM_RETURN_NO_ERROR;
         }
+        aiq_free(cacInfo->current_lut_[1]);
         cacInfo->current_lut_[1] = buf2;
         cacInfo->current_lut_size++;
     }

@@ -101,11 +101,11 @@ XCamReturn CnrSelectParam
     }
     out->dyn.loNrGuide_iirFilt.sw_cnrT_rgeSgm_val = interpolation_f32(
                 paut->dyn[ilow].loNrGuide_iirFilt.sw_cnrT_rgeSgm_val, paut->dyn[ihigh].loNrGuide_iirFilt.sw_cnrT_rgeSgm_val, ratio);
-    out->dyn.loNrGuide_iirFilt.sw_cnrT_rgeSgmRatio_mode = paut->dyn[inear].loNrGuide_iirFilt.sw_cnrT_rgeSgmRatio_mode;
+    //out->dyn.loNrGuide_iirFilt.sw_cnrT_rgeSgmRatio_mode = paut->dyn[inear].loNrGuide_iirFilt.sw_cnrT_rgeSgmRatio_mode;
     out->dyn.loNrGuide_iirFilt.hw_cnrT_glbSgm_ratio = interpolation_f32(
                 paut->dyn[ilow].loNrGuide_iirFilt.hw_cnrT_glbSgm_ratio, paut->dyn[ihigh].loNrGuide_iirFilt.hw_cnrT_glbSgm_ratio, ratio);
-    out->dyn.loNrGuide_iirFilt.hw_cnrT_glbSgmRatio_alpha = interpolation_f32(
-                paut->dyn[ilow].loNrGuide_iirFilt.hw_cnrT_glbSgmRatio_alpha, paut->dyn[ihigh].loNrGuide_iirFilt.hw_cnrT_glbSgmRatio_alpha, ratio);
+    //out->dyn.loNrGuide_iirFilt.hw_cnrT_glbSgmRatio_alpha = interpolation_f32(
+    //            paut->dyn[ilow].loNrGuide_iirFilt.hw_cnrT_glbSgmRatio_alpha, paut->dyn[ihigh].loNrGuide_iirFilt.hw_cnrT_glbSgmRatio_alpha, ratio);
     out->dyn.loNrGuide_iirFilt.hw_cnrT_sgm2NhoodWgt_slope = interpolation_f32(
                 paut->dyn[ilow].loNrGuide_iirFilt.hw_cnrT_sgm2NhoodWgt_slope, paut->dyn[ihigh].loNrGuide_iirFilt.hw_cnrT_sgm2NhoodWgt_slope, ratio);
     out->dyn.loNrGuide_iirFilt.hw_cnrT_nhoodWgtZero_thred = interpolation_f32(
@@ -155,6 +155,8 @@ XCamReturn CnrApplyStrength
     CnrContext_t *pCnrCtx,
     cnr_param_t* out)
 {
+    int i = 0;
+
     if(pCnrCtx == NULL || out == NULL) {
         LOGE_ANR("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
         return XCAM_RETURN_ERROR_PARAM;
@@ -167,6 +169,15 @@ XCamReturn CnrApplyStrength
         pdyn->loNrGuide_bifilt.sw_cnrT_rgeSgm_val *= fPercent ;
         pdyn->loNrGuide_bifilt.hw_cnrT_bifiltOut_alpha *= fPercent ;
         pdyn->loNrGuide_iirFilt.sw_cnrT_rgeSgm_val *= fPercent ;
+
+        for (i = 0; i < 8; i++) {
+            pdyn->hw_cnrC_luma2HiNrSgm_curve.val[i] *= fPercent ;
+
+        }
+        for (i = 0; i < 13; i++) {
+            out->dyn.hiNr_bifilt.hw_cnrT_locSgmStrg2CtrWgt_scale[i] /= fPercent;
+        }
+        pdyn->hiNr_bifilt.hw_cnrT_bifiltOut_alpha *= fPercent;
         LOGD_ANR("CnrApplyStrength: fStrength %f, fPercent %f\n", pCnrCtx->fStrength, fPercent);
     }
 
@@ -201,85 +212,121 @@ XCamReturn CnrSelectParam
         inear = ilow;
 
     out->dyn.locSgmStrg.hw_cnrT_glbSgmStrg_val = interpolation_f32(
-        paut->dyn[ilow].locSgmStrg.hw_cnrT_glbSgmStrg_val, paut->dyn[ihigh].locSgmStrg.hw_cnrT_glbSgmStrg_val, ratio);
+                paut->dyn[ilow].locSgmStrg.hw_cnrT_glbSgmStrg_val, paut->dyn[ihigh].locSgmStrg.hw_cnrT_glbSgmStrg_val, ratio);
     out->dyn.locSgmStrg.hw_cnrT_glbSgmStrg_alpha = interpolation_f32(
-        paut->dyn[ilow].locSgmStrg.hw_cnrT_glbSgmStrg_alpha, paut->dyn[ihigh].locSgmStrg.hw_cnrT_glbSgmStrg_alpha, ratio);
+                paut->dyn[ilow].locSgmStrg.hw_cnrT_glbSgmStrg_alpha, paut->dyn[ihigh].locSgmStrg.hw_cnrT_glbSgmStrg_alpha, ratio);
     out->dyn.locSgmStrg.hw_cnrT_locSgmStrg_scale = interpolation_f32(
-        paut->dyn[ilow].locSgmStrg.hw_cnrT_locSgmStrg_scale, paut->dyn[ihigh].locSgmStrg.hw_cnrT_locSgmStrg_scale, ratio);
+                paut->dyn[ilow].locSgmStrg.hw_cnrT_locSgmStrg_scale, paut->dyn[ihigh].locSgmStrg.hw_cnrT_locSgmStrg_scale, ratio);
     out->dyn.loNrGuide_preProc.hw_cnrT_ds_mode = paut->dyn[inear].loNrGuide_preProc.hw_cnrT_ds_mode;
     out->dyn.loNrGuide_preProc.hw_cnrT_uvEdg_strg = interpolation_f32(
-        paut->dyn[ilow].loNrGuide_preProc.hw_cnrT_uvEdg_strg, paut->dyn[ihigh].loNrGuide_preProc.hw_cnrT_uvEdg_strg, ratio);
+                paut->dyn[ilow].loNrGuide_preProc.hw_cnrT_uvEdg_strg, paut->dyn[ihigh].loNrGuide_preProc.hw_cnrT_uvEdg_strg, ratio);
     out->dyn.loNrGuide_bifilt.sw_cnrT_filtCfg_mode = paut->dyn[inear].loNrGuide_bifilt.sw_cnrT_filtCfg_mode;
     out->dyn.loNrGuide_bifilt.sw_cnrT_filtSpatial_strg = interpolation_f32(
-        paut->dyn[ilow].loNrGuide_bifilt.sw_cnrT_filtSpatial_strg, paut->dyn[ihigh].loNrGuide_bifilt.sw_cnrT_filtSpatial_strg, ratio);
-    for (i=0; i<4; i++) {
+                paut->dyn[ilow].loNrGuide_bifilt.sw_cnrT_filtSpatial_strg, paut->dyn[ihigh].loNrGuide_bifilt.sw_cnrT_filtSpatial_strg, ratio);
+    for (i = 0; i < 4; i++) {
         out->dyn.loNrGuide_bifilt.hw_cnrT_filtSpatial_wgt[i] = interpolation_f32(
-            paut->dyn[ilow].loNrGuide_bifilt.hw_cnrT_filtSpatial_wgt[i], paut->dyn[ihigh].loNrGuide_bifilt.hw_cnrT_filtSpatial_wgt[i], ratio);
+                    paut->dyn[ilow].loNrGuide_bifilt.hw_cnrT_filtSpatial_wgt[i], paut->dyn[ihigh].loNrGuide_bifilt.hw_cnrT_filtSpatial_wgt[i], ratio);
     }
     out->dyn.loNrGuide_bifilt.sw_cnrT_rgeSgm_val = interpolation_f32(
-        paut->dyn[ilow].loNrGuide_bifilt.sw_cnrT_rgeSgm_val, paut->dyn[ihigh].loNrGuide_bifilt.sw_cnrT_rgeSgm_val, ratio);
+                paut->dyn[ilow].loNrGuide_bifilt.sw_cnrT_rgeSgm_val, paut->dyn[ihigh].loNrGuide_bifilt.sw_cnrT_rgeSgm_val, ratio);
     out->dyn.loNrGuide_bifilt.hw_cnrT_bifiltOut_alpha = interpolation_f32(
-        paut->dyn[ilow].loNrGuide_bifilt.hw_cnrT_bifiltOut_alpha, paut->dyn[ihigh].loNrGuide_bifilt.hw_cnrT_bifiltOut_alpha, ratio);
-    for (i=0; i<6; i++) {
+                paut->dyn[ilow].loNrGuide_bifilt.hw_cnrT_bifiltOut_alpha, paut->dyn[ihigh].loNrGuide_bifilt.hw_cnrT_bifiltOut_alpha, ratio);
+    for (i = 0; i < 6; i++) {
         out->dyn.loNrGuide_iirFilt.hw_cnrT_filtSpatial_wgt[i] = interpolation_u8(
-            paut->dyn[ilow].loNrGuide_iirFilt.hw_cnrT_filtSpatial_wgt[i], paut->dyn[ihigh].loNrGuide_iirFilt.hw_cnrT_filtSpatial_wgt[i], uratio);
+                    paut->dyn[ilow].loNrGuide_iirFilt.hw_cnrT_filtSpatial_wgt[i], paut->dyn[ihigh].loNrGuide_iirFilt.hw_cnrT_filtSpatial_wgt[i], uratio);
     }
     out->dyn.loNrGuide_iirFilt.sw_cnrT_rgeSgm_val = interpolation_f32(
-        paut->dyn[ilow].loNrGuide_iirFilt.sw_cnrT_rgeSgm_val, paut->dyn[ihigh].loNrGuide_iirFilt.sw_cnrT_rgeSgm_val, ratio);
-    out->dyn.loNrGuide_iirFilt.sw_cnrT_rgeSgmRatio_mode = paut->dyn[inear].loNrGuide_iirFilt.sw_cnrT_rgeSgmRatio_mode;
+                paut->dyn[ilow].loNrGuide_iirFilt.sw_cnrT_rgeSgm_val, paut->dyn[ihigh].loNrGuide_iirFilt.sw_cnrT_rgeSgm_val, ratio);
     out->dyn.loNrGuide_iirFilt.hw_cnrT_glbSgm_ratio = interpolation_f32(
-        paut->dyn[ilow].loNrGuide_iirFilt.hw_cnrT_glbSgm_ratio, paut->dyn[ihigh].loNrGuide_iirFilt.hw_cnrT_glbSgm_ratio, ratio);
-    out->dyn.loNrGuide_iirFilt.hw_cnrT_glbSgmRatio_alpha = interpolation_f32(
-        paut->dyn[ilow].loNrGuide_iirFilt.hw_cnrT_glbSgmRatio_alpha, paut->dyn[ihigh].loNrGuide_iirFilt.hw_cnrT_glbSgmRatio_alpha, ratio);
+                paut->dyn[ilow].loNrGuide_iirFilt.hw_cnrT_glbSgm_ratio, paut->dyn[ihigh].loNrGuide_iirFilt.hw_cnrT_glbSgm_ratio, ratio);
     out->dyn.loNrGuide_iirFilt.hw_cnrT_sgm2NhoodWgt_slope = interpolation_f32(
-        paut->dyn[ilow].loNrGuide_iirFilt.hw_cnrT_sgm2NhoodWgt_slope, paut->dyn[ihigh].loNrGuide_iirFilt.hw_cnrT_sgm2NhoodWgt_slope, ratio);
+                paut->dyn[ilow].loNrGuide_iirFilt.hw_cnrT_sgm2NhoodWgt_slope, paut->dyn[ihigh].loNrGuide_iirFilt.hw_cnrT_sgm2NhoodWgt_slope, ratio);
     out->dyn.loNrGuide_iirFilt.hw_cnrT_nhoodWgtZero_thred = interpolation_f32(
-        paut->dyn[ilow].loNrGuide_iirFilt.hw_cnrT_nhoodWgtZero_thred, paut->dyn[ihigh].loNrGuide_iirFilt.hw_cnrT_nhoodWgtZero_thred, ratio);
+                paut->dyn[ilow].loNrGuide_iirFilt.hw_cnrT_nhoodWgtZero_thred, paut->dyn[ihigh].loNrGuide_iirFilt.hw_cnrT_nhoodWgtZero_thred, ratio);
     out->dyn.loNrGuide_iirFilt.hw_cnrT_iirFiltStrg_maxLimit = interpolation_f32(
-        paut->dyn[ilow].loNrGuide_iirFilt.hw_cnrT_iirFiltStrg_maxLimit, paut->dyn[ihigh].loNrGuide_iirFilt.hw_cnrT_iirFiltStrg_maxLimit, ratio);
+                paut->dyn[ilow].loNrGuide_iirFilt.hw_cnrT_iirFiltStrg_maxLimit, paut->dyn[ihigh].loNrGuide_iirFilt.hw_cnrT_iirFiltStrg_maxLimit, ratio);
     out->dyn.hiNr_preLpf.sw_cnrT_filtCfg_mode = paut->dyn[inear].hiNr_preLpf.sw_cnrT_filtCfg_mode;
     out->dyn.hiNr_preLpf.sw_cnrT_filtSpatial_strg = interpolation_f32(
-        paut->dyn[ilow].hiNr_preLpf.sw_cnrT_filtSpatial_strg, paut->dyn[ihigh].hiNr_preLpf.sw_cnrT_filtSpatial_strg, ratio);
-    for (i=0; i<6; i++) {
+                paut->dyn[ilow].hiNr_preLpf.sw_cnrT_filtSpatial_strg, paut->dyn[ihigh].hiNr_preLpf.sw_cnrT_filtSpatial_strg, ratio);
+    for (i = 0; i < 6; i++) {
         out->dyn.hiNr_preLpf.hw_cnrT_filtSpatial_wgt[i] = interpolation_f32(
-            paut->dyn[ilow].hiNr_preLpf.hw_cnrT_filtSpatial_wgt[i], paut->dyn[ihigh].hiNr_preLpf.hw_cnrT_filtSpatial_wgt[i], ratio);
+                    paut->dyn[ilow].hiNr_preLpf.hw_cnrT_filtSpatial_wgt[i], paut->dyn[ihigh].hiNr_preLpf.hw_cnrT_filtSpatial_wgt[i], ratio);
     }
     out->dyn.hiNr_preLpf.hw_cnrT_lpfOut_alpha = interpolation_f32(
-        paut->dyn[ilow].hiNr_preLpf.hw_cnrT_lpfOut_alpha, paut->dyn[ihigh].hiNr_preLpf.hw_cnrT_lpfOut_alpha, ratio);
-    for (i=0; i<8; i++) {
+                paut->dyn[ilow].hiNr_preLpf.hw_cnrT_lpfOut_alpha, paut->dyn[ihigh].hiNr_preLpf.hw_cnrT_lpfOut_alpha, ratio);
+    for (i = 0; i < 8; i++) {
         out->dyn.hw_cnrC_luma2HiNrSgm_curve.idx[i] = interpolation_u16(
-            paut->dyn[ilow].hw_cnrC_luma2HiNrSgm_curve.idx[i], paut->dyn[ihigh].hw_cnrC_luma2HiNrSgm_curve.idx[i], uratio);
+                    paut->dyn[ilow].hw_cnrC_luma2HiNrSgm_curve.idx[i], paut->dyn[ihigh].hw_cnrC_luma2HiNrSgm_curve.idx[i], uratio);
     }
-    for (i=0; i<8; i++) {
+    for (i = 0; i < 8; i++) {
         out->dyn.hw_cnrC_luma2HiNrSgm_curve.val[i] = interpolation_f32(
-            paut->dyn[ilow].hw_cnrC_luma2HiNrSgm_curve.val[i], paut->dyn[ihigh].hw_cnrC_luma2HiNrSgm_curve.val[i], ratio);
+                    paut->dyn[ilow].hw_cnrC_luma2HiNrSgm_curve.val[i], paut->dyn[ihigh].hw_cnrC_luma2HiNrSgm_curve.val[i], ratio);
     }
     out->dyn.hiNr_bifilt.hw_cnrT_uvEdg_strg = interpolation_f32(
-        paut->dyn[ilow].hiNr_bifilt.hw_cnrT_uvEdg_strg, paut->dyn[ihigh].hiNr_bifilt.hw_cnrT_uvEdg_strg, ratio);
+                paut->dyn[ilow].hiNr_bifilt.hw_cnrT_uvEdg_strg, paut->dyn[ihigh].hiNr_bifilt.hw_cnrT_uvEdg_strg, ratio);
     out->dyn.hiNr_bifilt.hw_cnrT_filtWgtZero_mode = paut->dyn[inear].hiNr_bifilt.hw_cnrT_filtWgtZero_mode;
-    for (i=0; i<13; i++) {
+    for (i = 0; i < 13; i++) {
         out->dyn.hiNr_bifilt.hw_cnrT_locSgmStrg2SgmRat_val[i] = interpolation_f32(
-            paut->dyn[ilow].hiNr_bifilt.hw_cnrT_locSgmStrg2SgmRat_val[i], paut->dyn[ihigh].hiNr_bifilt.hw_cnrT_locSgmStrg2SgmRat_val[i], ratio);
+                    paut->dyn[ilow].hiNr_bifilt.hw_cnrT_locSgmStrg2SgmRat_val[i], paut->dyn[ihigh].hiNr_bifilt.hw_cnrT_locSgmStrg2SgmRat_val[i], ratio);
     }
-    for (i=0; i<13; i++) {
+    for (i = 0; i < 13; i++) {
         out->dyn.hiNr_bifilt.hw_cnrT_locSgmStrg2CtrWgt_scale[i] = interpolation_f32(
-            paut->dyn[ilow].hiNr_bifilt.hw_cnrT_locSgmStrg2CtrWgt_scale[i], paut->dyn[ihigh].hiNr_bifilt.hw_cnrT_locSgmStrg2CtrWgt_scale[i], ratio);
+                    paut->dyn[ilow].hiNr_bifilt.hw_cnrT_locSgmStrg2CtrWgt_scale[i], paut->dyn[ihigh].hiNr_bifilt.hw_cnrT_locSgmStrg2CtrWgt_scale[i], ratio);
     }
     out->dyn.hiNr_bifilt.hw_cnrT_nhoodWgt_minLimit = interpolation_f32(
-        paut->dyn[ilow].hiNr_bifilt.hw_cnrT_nhoodWgt_minLimit, paut->dyn[ihigh].hiNr_bifilt.hw_cnrT_nhoodWgt_minLimit, ratio);
+                paut->dyn[ilow].hiNr_bifilt.hw_cnrT_nhoodWgt_minLimit, paut->dyn[ihigh].hiNr_bifilt.hw_cnrT_nhoodWgt_minLimit, ratio);
     out->dyn.hiNr_bifilt.hw_cnrT_satAdj_offset = interpolation_f32(
-        paut->dyn[ilow].hiNr_bifilt.hw_cnrT_satAdj_offset, paut->dyn[ihigh].hiNr_bifilt.hw_cnrT_satAdj_offset, ratio);
+                paut->dyn[ilow].hiNr_bifilt.hw_cnrT_satAdj_offset, paut->dyn[ihigh].hiNr_bifilt.hw_cnrT_satAdj_offset, ratio);
     out->dyn.hiNr_bifilt.hw_cnrT_satAdj_scale = interpolation_f32(
-        paut->dyn[ilow].hiNr_bifilt.hw_cnrT_satAdj_scale, paut->dyn[ihigh].hiNr_bifilt.hw_cnrT_satAdj_scale, ratio);
+                paut->dyn[ilow].hiNr_bifilt.hw_cnrT_satAdj_scale, paut->dyn[ihigh].hiNr_bifilt.hw_cnrT_satAdj_scale, ratio);
     out->dyn.hiNr_bifilt.hw_cnrT_bifiltOut_alpha = interpolation_f32(
-        paut->dyn[ilow].hiNr_bifilt.hw_cnrT_bifiltOut_alpha, paut->dyn[ihigh].hiNr_bifilt.hw_cnrT_bifiltOut_alpha, ratio);
+                paut->dyn[ilow].hiNr_bifilt.hw_cnrT_bifiltOut_alpha, paut->dyn[ihigh].hiNr_bifilt.hw_cnrT_bifiltOut_alpha, ratio);
     out->dyn.hiNr_locFiltAlpha.hw_cnrT_locFiltAlpha_en = paut->dyn[inear].hiNr_locFiltAlpha.hw_cnrT_locFiltAlpha_en;
     out->dyn.hiNr_locFiltAlpha.hw_cnrT_locFiltAlpha_maxLimit = interpolation_f32(
-        paut->dyn[ilow].hiNr_locFiltAlpha.hw_cnrT_locFiltAlpha_maxLimit, paut->dyn[ihigh].hiNr_locFiltAlpha.hw_cnrT_locFiltAlpha_maxLimit, ratio);
+                paut->dyn[ilow].hiNr_locFiltAlpha.hw_cnrT_locFiltAlpha_maxLimit, paut->dyn[ihigh].hiNr_locFiltAlpha.hw_cnrT_locFiltAlpha_maxLimit, ratio);
     out->dyn.hiNr_locFiltAlpha.hw_cnrT_locFiltAlpha_minLimit = interpolation_f32(
-        paut->dyn[ilow].hiNr_locFiltAlpha.hw_cnrT_locFiltAlpha_minLimit, paut->dyn[ihigh].hiNr_locFiltAlpha.hw_cnrT_locFiltAlpha_minLimit, ratio);
+                paut->dyn[ilow].hiNr_locFiltAlpha.hw_cnrT_locFiltAlpha_minLimit, paut->dyn[ihigh].hiNr_locFiltAlpha.hw_cnrT_locFiltAlpha_minLimit, ratio);
     return XCAM_RETURN_NO_ERROR;
 }
+
+XCamReturn CnrApplyStrength
+(
+    CnrContext_t *pCnrCtx,
+    cnr_param_t* out)
+{
+    int i = 0;
+
+    if(pCnrCtx == NULL || out == NULL) {
+        LOGE_ANR("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
+        return XCAM_RETURN_ERROR_PARAM;
+    }
+
+    if (pCnrCtx->strength_en) {
+        float fPercent = algo_strength_to_percent(pCnrCtx->fStrength);
+
+        cnr_params_dyn_t* pdyn = &out->dyn;
+        pdyn->loNrGuide_bifilt.sw_cnrT_rgeSgm_val *= fPercent ;
+        pdyn->loNrGuide_bifilt.hw_cnrT_bifiltOut_alpha *= fPercent ;
+        pdyn->loNrGuide_iirFilt.sw_cnrT_rgeSgm_val *= fPercent ;
+
+
+        for (i = 0; i < 8; i++) {
+            pdyn->hw_cnrC_luma2HiNrSgm_curve.val[i] *= fPercent ;
+
+        }
+        for (i = 0; i < 13; i++) {
+            pdyn->hiNr_bifilt.hw_cnrT_locSgmStrg2CtrWgt_scale[i] /= fPercent;
+        }
+        pdyn->hiNr_bifilt.hw_cnrT_bifiltOut_alpha *= fPercent;
+
+        pdyn->hiNr_locFiltAlpha.hw_cnrT_locFiltAlpha_maxLimit *= fPercent;
+        pdyn->hiNr_locFiltAlpha.hw_cnrT_locFiltAlpha_minLimit *= fPercent;
+        LOGD_ANR("CnrApplyStrength: fStrength %f, fPercent %f\n", pCnrCtx->fStrength, fPercent);
+    }
+
+    return XCAM_RETURN_NO_ERROR;
+}
+
 #endif
 
 static XCamReturn
@@ -379,6 +426,7 @@ XCamReturn Acnr_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outpar
 #endif
 #if RKAIQ_HAVE_CNR_V35
         CnrSelectParam(pCnrCtx, cnr_res, iso);
+        CnrApplyStrength(pCnrCtx, cnr_res);
 #endif
         outparams->cfg_update = true;
         outparams->en = cnr_attrib->en;

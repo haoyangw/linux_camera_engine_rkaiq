@@ -21,9 +21,9 @@
 
 RKAIQ_BEGIN_DECLARE
 
-#define ALSC_ILLUM_NUM          14
-#define ALSC_ILLUM_NAME_LEN     8
-#define ALSC_CALIBDB_LEN        (ALSC_ILLUM_NUM*3)
+#define ALSC_ILLUM_NUM                  14
+#define ALSC_ILLUM_NAME_LEN             8
+#define ALSC_CALIBDB_LEN                (ALSC_ILLUM_NUM*3)
 
 typedef struct {
     /* M4_GENERIC_DESC(
@@ -72,9 +72,9 @@ typedef struct {
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(TODO))  */
-	alsc_tableAll_t tableAll[ALSC_CALIBDB_LEN];
+	alsc_tableAll_t *tableAll;
     /* M4_GENERIC_DESC(
-        M4_ALIAS(sw_lscC_tblAll_len),
+        M4_ALIAS(tableAll_len),
         M4_TYPE(u8),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0,42),
@@ -85,7 +85,7 @@ typedef struct {
         M4_ORDER(1),
         M4_NOTES(\n
         Freq of use: low))  */
-	int sw_lscC_tblAll_len;
+	int tableAll_len;
 } alsc_lscCalib_t;
 
 typedef struct {
@@ -310,6 +310,7 @@ typedef struct alsc_status_s {
 	/* M4_GENERIC_DESC(
         M4_ALIAS(sw_lscC_illu_name),
         M4_TYPE(string),
+        M4_UI_PARAM(name),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0,8),
         M4_DEFAULT("D50"),
@@ -330,7 +331,7 @@ typedef struct alsc_status_s {
         M4_ORDER(1),
         M4_NOTES(\n
         Freq of use: low))  */
-    float sw_lscT_vignetting_val;
+    float sw_lscC_vignetting_val;
 } alsc_status_t;
 
 typedef struct lsc_status_s{

@@ -103,10 +103,19 @@ static XCamReturn prepare_mipi_devices(AiqCamHwFake_t* pFakeCamHw) {
                 AiqV4l2Device_setBufCnt(pFakeCamHw->_mipi_tx_devs[i], ISP_TX_BUF_NUM);
                 AiqV4l2Device_setBufCnt(pFakeCamHw->_mipi_rx_devs[i], ISP_TX_BUF_NUM);
             } else {
+                if (pFakeCamHw->_rawbuf_type == RK_AIQ_RAW_DATA) {
+                    pFakeDev = (AiqFakeV4l2Device_t*)pFakeCamHw->_mipi_rx_devs[i];
+                    pFakeDev->_base._v4l_base._use_type = 1;
+                }
+
                 AiqV4l2Device_setBufCnt(pFakeCamHw->_mipi_tx_devs[i], ISP_TX_BUF_NUM);
                 AiqV4l2Device_setBufCnt(pFakeCamHw->_mipi_rx_devs[i], ISP_TX_BUF_NUM);
             }
         } else {
+            if (pFakeCamHw->_rawbuf_type == RK_AIQ_RAW_DATA) {
+                pFakeDev = (AiqFakeV4l2Device_t*)pFakeCamHw->_mipi_rx_devs[i];
+                pFakeDev->_base._v4l_base._use_type = 1;
+            }
             AiqV4l2Device_setBufCnt(pFakeCamHw->_mipi_tx_devs[i], VIPCAP_TX_BUF_NUM);
             AiqV4l2Device_setBufCnt(pFakeCamHw->_mipi_rx_devs[i], VIPCAP_TX_BUF_NUM);
         }
