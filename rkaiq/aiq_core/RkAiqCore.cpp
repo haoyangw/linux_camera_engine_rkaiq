@@ -3738,8 +3738,13 @@ XCamReturn RkAiqCore::waitUpdateDone()
 {
     SmartLock lock (_update_mutex);
 
-    while (groupUpdateMask != 0) {
-        _update_done_cond.timedwait(_update_mutex, 100000ULL);
+    int times = 12;
+    while (times-- > 0 && groupUpdateMask != 0) {
+        _update_done_cond.timedwait(_update_mutex, 10000ULL);
+    }
+
+    if (groupUpdateMask != 0) {
+        LOGW_ANALYZER("calib not updated completely !");
     }
 
     return XCamReturn();
