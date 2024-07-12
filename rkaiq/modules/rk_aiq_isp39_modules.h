@@ -62,7 +62,7 @@ void rk_aiq_btnr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
 void rk_aiq_sharp34_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_info_t *cvtinfo);
 void rk_aiq_ynr34_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_info_t *cvtinfo);
 void rk_aiq_cnr34_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_info_t *cvtinfo);
-void rk_aiq_drc40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_info_t *cvtinfo);
+void rk_aiq_drc40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_info_t *cvtinfo, bool drc_en);
 void rk_aiq_blc30_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_info_t *cvtinfo);
 void rk_aiq_dpcc21_params_cvt(void* attr, isp_params_t* isp_params);
 void rk_aiq_gamma21_params_cvt(void* attr, isp_params_t* isp_params);
@@ -76,8 +76,12 @@ void rk_aiq_yme10_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
 void rk_aiq_cac21_params_cvt(void* attr, isp_params_t* isp_params,
                              isp_params_t* isp_cfg_right, cac_cvt_info_t *cacInfo, common_cvt_info_t* cvtinfo);
 #endif
-void rk_aiq_ldch22_params_cvt(void* attr, isp_params_t* isp_params,
-                              isp_params_t* isp_cfg_right, bool is_multi_isp);
+void rk_aiq_ldch22_params_cvt(const common_cvt_info_t* cvtinfo, void* attr,
+                              isp_params_t* isp_params, isp_params_t* isp_cfg_right,
+                              bool is_multi_isp);
+void rk_aiq_ldcv22_params_cvt(const common_cvt_info_t* cvtinfo, void* attr,
+                              isp_params_t* isp_params, isp_params_t* isp_cfg_right,
+                              bool is_multi_isp);
 void rk_aiq_csm21_params_cvt(void* attr, isp_params_t* isp_params);
 void rk_aiq_dm23_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_info_t *cvtinfo);
 void rk_aiq_merge22_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_info_t* cvtinfo);

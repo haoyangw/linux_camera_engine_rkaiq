@@ -94,4 +94,7 @@ void AiqRawStreamCapUnit_setPollCallback(AiqRawStreamCapUnit_t* pRawStrCapUnit,
 XCamReturn sync_raw_buf(AiqRawStreamCapUnit_t* pRawStrCapUnit, AiqV4l2Buffer_t** buf_s,
                         AiqV4l2Buffer_t** buf_m, AiqV4l2Buffer_t** buf_l);
 bool check_skip_frame(AiqRawStreamCapUnit_t* pRawStrCapUnit, int32_t buf_seq);
+
+void AiqRawStreamCapUnit_stop_vicap_stream_only(AiqRawStreamCapUnit_t* pRawStrCapUnit);
+void AiqRawStreamCapUnit_skip_frame_and_restart_vicap_stream(AiqRawStreamCapUnit_t* pRawStrCapUnit, int skip_frm_cnt);
 #endif

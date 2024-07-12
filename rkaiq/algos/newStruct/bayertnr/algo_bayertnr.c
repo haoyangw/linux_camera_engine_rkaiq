@@ -409,7 +409,7 @@ XCamReturn BtnrApplyStrength
         pmdMeDyn->mdSigma.hw_btnrT_sigma_scale *= fPercent;
         pmdMeDyn->mdSigma.hw_btnrT_sigmaHdrS_scale *= fPercent;
 
-        printf("BtnrApplyStrength: fStrength %f, fPercent %f\n", pBtnrCtx->fStrength, fPercent);
+        LOGI_ANR("BtnrApplyStrength: fStrength %f, fPercent %f\n", pBtnrCtx->fStrength, fPercent);
     }
 
     return XCAM_RETURN_NO_ERROR;

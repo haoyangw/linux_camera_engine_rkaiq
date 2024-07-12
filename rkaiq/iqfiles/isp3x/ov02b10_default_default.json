@@ -5989,7 +5989,17 @@
 										"SwitchDirZoomIdx":	0,
 										"SpotlightHighlightRatio":	0,
 										"SpotlightLumaRatio":	[0.3, 0.5, 0.8],
-										"SpotlightBlkCnt":	[0.2, 0.5, 0.25]
+										"SpotlightBlkCnt":	[0.2, 0.5, 0.25],
+										"VarStepCfg":	[{
+												"ZoomIdx":		0,
+												"Iso":			[50, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400, 204800],
+												"SearchStep":		[1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+												"Stage1SkipThers":	[0.02, 0.02, 0.02, 0.02, 0.05, 0.05, 0.05, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+												"Stage2QuickEndThers":	[0.02, 0.02, 0.02, 0.02, 0.05, 0.05, 0.05, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+												"SkipStepCnt":		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+												"SkipStepThers":	[0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+											}],
+										"VarStepCfg_len":	1
 									}
 								},
 								"video_contrast_af":	{
@@ -6052,7 +6062,17 @@
 										"SwitchDirZoomIdx":	0,
 										"SpotlightHighlightRatio":	0,
 										"SpotlightLumaRatio":	[0.3, 0.5, 0.8],
-										"SpotlightBlkCnt":	[0.2, 0.5, 0.25]
+										"SpotlightBlkCnt":	[0.2, 0.5, 0.25],
+										"VarStepCfg":	[{
+												"ZoomIdx":		0,
+												"Iso":			[50, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400, 204800],
+												"SearchStep":		[1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+												"Stage1SkipThers":	[0.02, 0.02, 0.02, 0.02, 0.05, 0.05, 0.05, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+												"Stage2QuickEndThers":	[0.02, 0.02, 0.02, 0.02, 0.05, 0.05, 0.05, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+												"SkipStepCnt":		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+												"SkipStepThers":	[0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+											}],
+										"VarStepCfg_len":	1
 									}
 								},
 								"laser_af":	{

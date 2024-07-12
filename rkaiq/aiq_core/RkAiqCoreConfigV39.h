@@ -79,6 +79,7 @@
 #include "newStruct/gain/include/gain_algo_api.h"
 #include "newStruct/3dlut/include/3dlut_algo_api.h"
 #include "newStruct/ccm/include/ccm_algo_api.h"
+#include "newStruct/ldc/include/ldc_algo_api.h"
 
 #if RKAIQ_ENABLE_CAMGROUP
 #include "algos_camgroup/abayer2dnrV23/rk_aiq_algo_camgroup_abayer2dnr_itf_v23.h"
@@ -387,7 +388,7 @@ static struct RkAiqAlgoDesCommExt g_default_3a_des[] = {
     { &g_RkIspAlgoDescAfd.common,            RK_AIQ_CORE_ANALYZE_AFD,     0, 1, 0,    grpAfdConds      },
 #endif
 #if RKAIQ_HAVE_LDC
-    { &g_RkIspAlgoDescAldc.common,          RK_AIQ_CORE_ANALYZE_OTHER,   1, 1, 0, otherGrpCondsV3x      },
+    { &g_RkIspAlgoDescLdc.common,           RK_AIQ_CORE_ANALYZE_OTHER,   1, 1, 0,    otherGrpCondsV3x      },
 #elif RKAIQ_HAVE_LDCH_V21
 #ifndef USE_NEWSTRUCT
     { &g_RkIspAlgoDescAldch.common,         RK_AIQ_CORE_ANALYZE_OTHER,  0, 0, 0,    otherGrpCondsV3x   },

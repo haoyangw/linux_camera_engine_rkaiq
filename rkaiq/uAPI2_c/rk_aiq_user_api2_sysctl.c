@@ -726,9 +726,9 @@ rk_aiq_uapi2_sysctl_deinit(rk_aiq_sys_ctx_t* ctx)
     ENTER_XCORE_FUNCTION();
     {
         RKAIQ_API_SMART_LOCK(ctx);
+        rk_aiq_uapi2_awb_unRegister(ctx);
+        rk_aiq_uapi2_ae_unRegister(ctx);
         rk_aiq_uapi2_sysctl_deinit_locked(ctx);
-		rk_aiq_uapi2_awb_unRegister(ctx);
-		rk_aiq_uapi2_ae_unRegister(ctx);
 		aiqMutex_deInit(&ctx->_apiMutex);
     }
     aiq_free(ctx);
@@ -1640,8 +1640,12 @@ rk_aiq_uapi2_sysctl_setMulCamConc(const rk_aiq_sys_ctx_t* ctx, bool cc)
 {
     ENTER_XCORE_FUNCTION();
     RKAIQ_API_SMART_LOCK(ctx);
+#ifndef ISP_HW_V33
     AiqManager_setMulCamConc(ctx->_rkAiqManager, cc);
     LOGK("cid[%d] %s: cc:%d", ctx->_camPhyId, __func__, cc);
+#else
+    LOGK("cid[%d] %s: ignore !", ctx->_camPhyId, __func__, cc);
+#endif
     EXIT_XCORE_FUNCTION();
 }
 
@@ -2512,11 +2516,13 @@ rk_aiq_uapi2_sysctl_setSnsSyncMode(const rk_aiq_sys_ctx_t* ctx, enum rkmodule_sy
 #include "rk_aiq_user_api2_dehaze.c"
 #include "rk_aiq_user_api2_yme.c"
 #include "rk_aiq_user_api2_af.c"
+#include "rk_aiq_user_api2_ldc.c"
 #endif
 #if defined(ISP_HW_V33)
 #include "rk_aiq_user_api2_enh.c"
 #include "rk_aiq_user_api2_hsv.c"
 #include "rk_aiq_user_api2_texEst.c"
+#include "rk_aiq_user_api2_ldc.c"
 #endif
 #include "rk_aiq_user_api2_aeMeas.c"
 #include "rk_aiq_user_api2_blc.c"

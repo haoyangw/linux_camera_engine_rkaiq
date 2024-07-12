@@ -2178,16 +2178,6 @@
 								}
 							}
 						},
-						"aldch": {
-							"param": {
-								"ldch_en": 0,
-								"meshfile": "LDCH_mesh_2688_1520_os04a10_4IR",
-								"correct_level": 255,
-								"correct_level_max": 255,
-								"light_center": [1351.12,739.486],
-								"coefficient": [-1830.26,0.000423795,-2.50767e-07,1.27247e-10]
-							}
-						},
 						"cpsl": {
 							"param": {
 								"enable": 1,
@@ -2206,18 +2196,6 @@
 							"param": {
 								"enable": 0,
 								"skip_frame": 10
-							}
-						},
-						"ldc": {
-							"param": {
-								"ldch_en": 0,
-								"ldcv_en": 0,
-								"ldch_meshfile": "default_meshfile",
-								"ldcv_meshfile": "default_meshfile",
-								"correct_level": 255,
-								"correct_level_max": 255,
-								"light_center": [0,0],
-								"coefficient": [0,0,0,0]
 							}
 						},
 						"blc": {
@@ -4464,6 +4442,13 @@
 							"en": 1,
 							"bypass": 0,
 							"stAuto": {
+								"sta": {
+									"lowPowerCfg": {
+										"loBifiltLP": {
+											"hw_drcT_lp_en": 0
+										}
+									}
+								},
 								"dyn": [
 									{
 										"preProc": {
@@ -5091,6 +5076,13 @@
 									}]
 							},
 							"stMan": {
+								"sta": {
+									"lowPowerCfg": {
+										"loBifiltLP": {
+											"hw_drcT_lp_en": 0
+										}
+									}
+								},
 								"dyn": {
 									"preProc": {
 										"sw_drcT_toneCurve_mode": "drc_cfgCurveCtrlCoeff_mode",
@@ -16865,6 +16857,27 @@
 										"sw_hist_saturate_scale": 1.2
 								}
 							}
+						},
+						"ldc":	{
+							"opMode":	"RK_AIQ_OP_MODE_AUTO",
+							"en":	0,
+							"bypass":	0,
+							"tunning":	{
+								"autoGenMesh":	{
+									"lensDistorCoeff":	{
+										"sw_ldcC_opticCenter_x":	965.94432,
+										"sw_ldcC_opticCenter_y":	524.16288,
+										"sw_ldcC_lensDistor_coeff":	[-697.06693896, 0.00016488, 2.3697320638817e-007, 2.224407027e-011]
+									},
+									"sw_ldcT_correctStrg_val":	200,
+									"sw_ldcC_correctStrg_maxLimit":	250,
+									"sw_ldcT_saveMaxFovX_bit":	0
+								},
+								"extMeshFile":	{
+									"sw_ldcT_extMeshFile_path":	"/mnt",
+									"sw_ldcT_ldchExtMeshFile_name":	"ldch_mesh.bin"
+								}
+							}
 						}
 					}
 				},{
@@ -18910,16 +18923,6 @@
 								}
 							}
 						},
-						"aldch": {
-							"param": {
-								"ldch_en": 0,
-								"meshfile": "LDCH_mesh_2688_1520_os04a10_4IR",
-								"correct_level": 255,
-								"correct_level_max": 255,
-								"light_center": [1351.12,739.486],
-								"coefficient": [-1830.26,0.000423795,-2.50767e-07,1.27247e-10]
-							}
-						},
 						"cpsl": {
 							"param": {
 								"enable": 1,
@@ -18938,18 +18941,6 @@
 							"param": {
 								"enable": 0,
 								"skip_frame": 10
-							}
-						},
-						"ldc": {
-							"param": {
-								"ldch_en": 0,
-								"ldcv_en": 0,
-								"ldch_meshfile": "default_meshfile",
-								"ldcv_meshfile": "default_meshfile",
-								"correct_level": 255,
-								"correct_level_max": 255,
-								"light_center": [0,0],
-								"coefficient": [0,0,0,0]
 							}
 						},
 						"blc": {
@@ -21196,6 +21187,13 @@
 							"en": 1,
 							"bypass": 0,
 							"stAuto": {
+								"sta": {
+									"lowPowerCfg": {
+										"loBifiltLP": {
+											"hw_drcT_lp_en": 0
+										}
+									}
+								},
 								"dyn": [
 									{
 										"preProc": {
@@ -21823,6 +21821,13 @@
 									}]
 							},
 							"stMan": {
+								"sta": {
+									"lowPowerCfg": {
+										"loBifiltLP": {
+											"hw_drcT_lp_en": 0
+										}
+									}
+								},
 								"dyn": {
 									"preProc": {
 										"sw_drcT_toneCurve_mode": "drc_cfgCurveCtrlCoeff_mode",
@@ -33322,6 +33327,27 @@
 											"sw_hist_outputMerge_neg_alpha": [0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5]
 										},
 										"sw_hist_saturate_scale": 1.2
+								}
+							}
+						},
+						"ldc":	{
+							"opMode":	"RK_AIQ_OP_MODE_AUTO",
+							"en":	0,
+							"bypass":	0,
+							"tunning":	{
+								"autoGenMesh":	{
+									"lensDistorCoeff":	{
+										"sw_ldcC_opticCenter_x":	965.94432,
+										"sw_ldcC_opticCenter_y":	524.16288,
+										"sw_ldcC_lensDistor_coeff":	[-697.06693896, 0.00016488, 2.3697320638817e-007, 2.224407027e-011]
+									},
+									"sw_ldcT_correctStrg_val":	200,
+									"sw_ldcC_correctStrg_maxLimit":	250,
+									"sw_ldcT_saveMaxFovX_bit":	0
+								},
+								"extMeshFile":	{
+									"sw_ldcT_extMeshFile_path":	"/mnt",
+									"sw_ldcT_ldchExtMeshFile_name":	"ldch_mesh.bin"
 								}
 							}
 						}

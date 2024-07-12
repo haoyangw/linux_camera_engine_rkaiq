@@ -276,6 +276,14 @@ void AiqIspParamsCvt_getCommonCvtInfo(AiqIspParamsCvt_t* pCvt, AiqList_t* result
     }
 #endif
 
+    aiq_params_base_t* tnrResult =
+        AiqIspParamsCvt_get_3a_result(pCvt, results, RESULT_TYPE_TNR_PARAM);
+    if (tnrResult != NULL) {
+        btnr_param_t* btnr_param = (btnr_param_t*)tnrResult->_data;
+        btnr_params_static_t* psta = &btnr_param->sta;
+        pCvt->mCommonCvtInfo.btnrCfg_pixDomain_mode = psta->hw_btnrCfg_pixDomain_mode;
+        pCvt->mCommonCvtInfo.btnr_en = tnrResult->en;
+    }
 }
 
 XCamReturn AiqIspParamsCvt_merge_isp_results(AiqIspParamsCvt_t* pCvt, AiqList_t* results,

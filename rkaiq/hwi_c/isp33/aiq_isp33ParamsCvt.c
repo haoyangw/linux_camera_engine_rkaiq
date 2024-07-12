@@ -1167,6 +1167,10 @@ static void convertAiqAwbToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_
             pCvt->isp_params.isp_cfg->module_ens |= ISP39_MODULE_RAWAWB;
             pCvt->isp_params.isp_cfg->module_cfg_update |= ISP39_MODULE_RAWAWB;
             pCvt->isp_params.isp_cfg->module_en_update |= ISP39_MODULE_RAWAWB;
+        }else{
+            pCvt->isp_params.isp_cfg->module_en_update |= (ISP39_MODULE_RAWAWB);
+            pCvt->isp_params.isp_cfg->module_ens &= ~(ISP39_MODULE_RAWAWB);
+            pCvt->isp_params.isp_cfg->module_cfg_update &= ~(ISP39_MODULE_RAWAWB);
         }
     } else {
         return;
@@ -1746,52 +1750,6 @@ static void convertAiqSharpToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_bas
 }
 #endif
 
-#if RKAIQ_HAVE_LDCH_V21
-static void convertAiqLdchToIsp33Params(aiq_params_base_t* pBase, bool is_multi_isp_right) {
-    if (pBase->en) {
-        pCvt->isp_params.isp_cfg->module_ens |= ISP39_MODULE_LDCH;
-        pCvt->isp_params.isp_cfg->module_en_update |= ISP39_MODULE_LDCH;
-        pCvt->isp_params.isp_cfg->module_cfg_update |= ISP39_MODULE_LDCH;
-    } else {
-        pCvt->isp_params.isp_cfg->module_ens &= ~ISP39_MODULE_LDCH;
-        pCvt->isp_params.isp_cfg->module_en_update |= ISP39_MODULE_LDCH;
-        return;
-    }
-
-    rk_aiq_ldch22_params_cvt(pBase->_data, &pCvt->isp_params, &pCvt->isp_params, is_multi_isp);
-}
-#endif
-
-#if RKAIQ_HAVE_LDC
-static void convertAiqAldchToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase) {
-    if (pBase->en) {
-        pCvt->isp_params.isp_cfg->module_en_update |= ISP39_MODULE_LDCH;
-        pCvt->isp_params.isp_cfg->module_ens |= ISP39_MODULE_LDCH;
-        pCvt->isp_params.isp_cfg->module_cfg_update |= ISP39_MODULE_LDCH;
-    } else {
-        pCvt->isp_params.isp_cfg->module_en_update |= (ISP39_MODULE_LDCH);
-        pCvt->isp_params.isp_cfg->module_ens &= ~(ISP39_MODULE_LDCH);
-        pCvt->isp_params.isp_cfg->module_cfg_update &= ~(ISP39_MODULE_LDCH);
-    }
-
-    // TODO:
-}
-
-static void convertAiqAldcvToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase) {
-    if (pBase->en) {
-        pCvt->isp_params.isp_cfg->module_en_update |= ISP39_MODULE_LDCV;
-        pCvt->isp_params.isp_cfg->module_ens |= ISP39_MODULE_LDCV;
-        pCvt->isp_params.isp_cfg->module_cfg_update |= ISP39_MODULE_LDCV;
-    } else {
-        pCvt->isp_params.isp_cfg->module_en_update |= (ISP39_MODULE_LDCV);
-        pCvt->isp_params.isp_cfg->module_ens &= ~(ISP39_MODULE_LDCV);
-        pCvt->isp_params.isp_cfg->module_cfg_update &= ~(ISP39_MODULE_LDCV);
-    }
-
-    // TODO:
-}
-#endif
-
 #if RKAIQ_HAVE_GIC_V3
 static void convertAiqGicToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase) {
     if (pBase->en) {
@@ -1933,6 +1891,9 @@ bool Convert3aResultsToIsp33Cfg(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBas
 #endif
     }
     break;
+    case RESULT_TYPE_LDC_PARAM:
+        convertAiqAldcToIsp39Params(pCvt, pBase, is_multi_isp);
+        break;
     default:
         if (params_cvt_is_known(pBase->type)) {
             const struct params_cvt_info_isp33* info = &params_cvts_isp33[pBase->type];

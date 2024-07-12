@@ -57,8 +57,6 @@
 #include "algos/rk_aiq_api_types_histeq.h"
 #include "isp/rk_aiq_isp_cac30.h"
 #include "algos/rk_aiq_api_types_cac.h"
-#include "isp/rk_aiq_isp_ldch22.h"
-#include "algos/rk_aiq_api_types_ldch.h"
 #include "isp/rk_aiq_isp_csm21.h"
 #include "algos/rk_aiq_api_types_csm.h"
 #include "isp/rk_aiq_isp_merge22.h"
@@ -77,6 +75,9 @@
 #include "algos/rk_aiq_api_types_ccm.h"
 #include "isp/awb_head2.h"
 #include "algos/rk_aiq_api_types_awb.h"
+#include "isp/rk_aiq_isp_ldc22.h"
+#include "algos/rk_aiq_api_types_ldc.h"
+
 RKAIQ_BEGIN_DECLARE
 
 typedef struct CalibDbV2_ColorAsGrey_Param_s {
@@ -120,8 +121,6 @@ typedef struct {
     histeq_api_attrib_t histEQ;
     // M4_STRUCT_DESC("dpc", "normal_ui_style")
     dpc_api_attrib_t dpc;
-    // M4_STRUCT_DESC("ldch", "normal_ui_style")
-    ldch_api_attrib_t ldch;
     // M4_STRUCT_DESC("cp", "normal_ui_style")
     cp_api_attrib_t cp;
     // M4_STRUCT_DESC("ie", "normal_ui_style")
@@ -150,6 +149,8 @@ typedef struct {
     cgc_api_attrib_t cgc;
     // M4_STRUCT_DESC("gain", "normal_ui_style")
     gain_api_attrib_t gain;
+    // M4_STRUCT_DESC("ldc", "normal_ui_style")
+    ldc_api_attrib_t ldc;
 } CamCalibDbV2ContextIsp33_t;
 
 RKAIQ_END_DECLARE

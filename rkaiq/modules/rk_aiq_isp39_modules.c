@@ -29,4 +29,5 @@
 #include "rk_aiq_module_3dlut20.c"
 #include "rk_aiq_module_dehaze23.c"
 #include "rk_aiq_module_ldch22.c"
+#include "rk_aiq_module_ldcv22.c"
 #include "rk_aiq_module_dm23.c"

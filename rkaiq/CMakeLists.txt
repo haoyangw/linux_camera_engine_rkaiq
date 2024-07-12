@@ -77,7 +77,8 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMakeTargets")
 
 if(NOT RKAIQ_ENABLE_SIMULATOR)
-    if (RKAIQ_HAVE_LDC)
+    if (RKAIQ_HAVE_LDCH_V22)
+        set(RKAIQ_HAVE_LDC true)
         set(LDC_GENMESH_ONLINE true)
     else ()
         set(GENMESH_ONLINE true)
@@ -282,6 +283,12 @@ if (RKAIQ_HAVE_WDR)
 endif()
 if (RKAIQ_HAVE_LDCH)
     add_compile_options(-DRKAIQ_HAVE_LDCH=1)
+endif()
+if (RKAIQ_HAVE_LDCH_V22)
+    add_compile_options(-DRKAIQ_HAVE_LDCH_V22=1)
+endif()
+if (RKAIQ_HAVE_LDCV_V22)
+    add_compile_options(-DRKAIQ_HAVE_LDCV=1)
 endif()
 if (RKAIQ_HAVE_FEC)
     add_compile_options(-DRKAIQ_HAVE_FEC=1)
@@ -784,8 +791,7 @@ if (RKAIQ_HAVE_LDCH_V21)
     endif()
 endif()
 
-if (RKAIQ_HAVE_LDC)
-    add_compile_options(-DRKAIQ_HAVE_LDC=1)
+if (RKAIQ_HAVE_LDCH_V22)
     list(APPEND ALGO_HANDLE_SRC aiq_core/algo_handlers/RkAiqAldcHandle.cpp)
 endif()
 
@@ -1272,6 +1278,14 @@ if (RKAIQ_HAVE_HSV)
         add_compile_options(-DRKAIQ_HAVE_HSV_V10=1)
     endif()
     list(APPEND CORE_C_SRC aiq_core_c/algo_handlers/RkAiqHsvHandler.c)
+endif()
+
+if (RKAIQ_HAVE_LDC)
+    add_compile_options(-DRKAIQ_HAVE_LDC=1)
+endif()
+
+if (RKAIQ_HAVE_LDCH_V22)
+    list(APPEND CORE_C_SRC aiq_core_c/algo_handlers/RkAiqLdcHandler.c)
 endif()
 
 if (RKAIQ_ENABLE_CAMGROUP)
@@ -2013,19 +2027,21 @@ if (RKAIQ_HAVE_LDCH_V10 OR RKAIQ_HAVE_LDCH_V21)
 endif()
 
 if (RKAIQ_HAVE_LDC)
-if (LDC_GENMESH_ONLINE)
-    set (LDC_GENMESH_LIBS rkAlgoGenMesh)
-    set (LDC_GENMESH_MAP_SEPARATE rkAlgoMapSeparate)
-	list(APPEND RK_AIQ_STATIC_LIB_ARS
-		${STATIC_LIB_PREFIX}rkAlgoMapSeparate${STATIC_LIB_SUFFIX})
-endif()
-target_link_libraries(rkaiq
-    PRIVATE
-    rkaiq_aldc
-    ${LDC_GENMESH_LIBS}
-    ${LDC_GENMESH_MAP_SEPARATE}
-    )
-list(APPEND RK_AIQ_STATIC_LIB_ARS ${STATIC_LIB_PREFIX}rkaiq_aldc${STATIC_LIB_SUFFIX})
+    if (LDC_GENMESH_ONLINE)
+        if (RKAIQ_HAVE_LDCV_V22)
+            set (LDC_GENMESH_MAP_SEPARATE rkAlgoMapSeparate)
+            list(APPEND RK_AIQ_STATIC_LIB_ARS
+                ${STATIC_LIB_PREFIX}rkAlgoMapSeparate${STATIC_LIB_SUFFIX})
+        endif()
+        set (LDC_GENMESH_LIBS rkAlgoGenMesh)
+    endif()
+    target_link_libraries(rkaiq
+        PRIVATE
+        rkaiq_aldc
+        ${LDC_GENMESH_LIBS}
+        ${LDC_GENMESH_MAP_SEPARATE}
+        )
+    list(APPEND RK_AIQ_STATIC_LIB_ARS ${STATIC_LIB_PREFIX}rkaiq_aldc${STATIC_LIB_SUFFIX})
 endif()
 
 if (RKAIQ_HAVE_FEC_V10)

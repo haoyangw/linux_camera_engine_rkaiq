@@ -25,8 +25,6 @@ algo_cgc_GetAttrib(
     cgc_api_attrib_t *attr
 );
 #endif
-XCamReturn CgcSelectParam(cgc_param_auto_t *pAuto, cgc_param_t* out, int iso);
-
 extern RkAiqAlgoDescription g_RkIspAlgoDescCgc;
 RKAIQ_END_DECLARE
 

@@ -126,7 +126,8 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
         pCgcCtx->isReCal_ = true;
 
     if (pCgcCtx->isReCal_) {
-        CgcSelectParam(&pCgcCtx->cgc_attrib->stAuto, pCgcProcResParams, iso);
+        pCgcProcResParams->sta.cgc_ratio_en = false;
+        pCgcProcResParams->sta.cgc_yuv_limit = false;
         outparams->cfg_update = true;
         outparams->en = cgc_attrib->en;
         outparams->bypass = cgc_attrib->bypass;
@@ -196,26 +197,6 @@ algo_cgc_GetAttrib(const RkAiqAlgoContext *ctx,
 
     return XCAM_RETURN_NO_ERROR;
 }
-#endif
-#if RKAIQ_HAVE_CGC_V1
-XCamReturn CgcSelectParam
-(
-    cgc_param_auto_t *pAuto,
-    cgc_param_t* out,
-    int iso)
-{
-    if(pAuto == NULL || out == NULL) {
-        LOGE_ACGC("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
-        return XCAM_RETURN_ERROR_PARAM;
-    }
-    cgc_param_auto_t *paut = pAuto;
-
-    out->sta.cgc_ratio_en = false;
-    out->sta.cgc_yuv_limit = false;
-
-    return XCAM_RETURN_NO_ERROR;
-}
-
 #endif
 
 #define RKISP_ALGO_CGC_VERSION     "v0.0.9"

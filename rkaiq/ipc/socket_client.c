@@ -254,7 +254,7 @@ void socket_client_setNote(SocketClientCtx_t *ctx, uint32_t ret, char *str)
 
     if (rec->note[0] == 0) {
         if (str)
-            strcpy(rec->note, str);
+            strncpy(rec->note, str, 128);
     }
 }
 

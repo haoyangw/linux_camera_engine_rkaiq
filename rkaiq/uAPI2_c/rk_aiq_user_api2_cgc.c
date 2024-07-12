@@ -36,13 +36,13 @@ rk_aiq_user_api2_cgc_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, cgc_api_attrib_t
 
 	int type = RESULT_TYPE_CGC_PARAM;
 	int man_param_size = sizeof(cgc_param_t);
-	int aut_param_size = sizeof(cgc_param_auto_t);
+	int aut_param_size = 0;
 
     for (int i = 0; i < ctx_array.num; i++) {
         if (attr->opMode == RK_AIQ_OP_MODE_MANUAL || attr->opMode == RK_AIQ_OP_MODE_AUTO) {
             ret = rk_aiq_user_api2_common_processParams(ctx_array.ctx[i], true,
                     &attr->opMode, &attr->en, &attr->bypass,
-                    type, man_param_size, &attr->stMan, aut_param_size,  &attr->stAuto);
+                    type, man_param_size, &attr->stMan, aut_param_size, NULL);
         } else {
             ret = XCAM_RETURN_ERROR_FAILED;
             LOGE_ACGC("wrong mode %d !", attr->opMode);
@@ -62,11 +62,11 @@ rk_aiq_user_api2_cgc_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, cgc_api_attrib_t
 	const rk_aiq_sys_ctx_t* ctx = rk_aiq_user_api2_common_getSysCtx(sys_ctx);
 	int type = RESULT_TYPE_CGC_PARAM;
 	int man_param_size = sizeof(cgc_param_t);
-	int aut_param_size = sizeof(cgc_param_auto_t);
+	int aut_param_size = 0;
 
     return rk_aiq_user_api2_common_processParams(ctx, false,
 				&attr->opMode, &attr->en, &attr->bypass,
-				type, man_param_size, &attr->stMan, aut_param_size,  &attr->stAuto);
+				type, man_param_size, &attr->stMan, aut_param_size, NULL);
 }
 
 XCamReturn

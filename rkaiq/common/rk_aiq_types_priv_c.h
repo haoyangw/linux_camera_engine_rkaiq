@@ -67,6 +67,7 @@ typedef yme_param_t                     rk_aiq_isp_yme_params_t;
 #endif
 typedef cac_param_t                     rk_aiq_isp_cac_params_t;
 typedef ldch_param_t                    rk_aiq_isp_ldch_params_t;
+typedef ldc_param_t                     rk_aiq_isp_ldc_params_t;
 typedef mge_param_t                     rk_aiq_isp_merge_params_t;
 typedef lsc_param_t                     rk_aiq_isp_lsc_params_t;
 #if RKAIQ_HAVE_RGBIR_REMOSAIC
@@ -90,7 +91,6 @@ typedef rk_aiq_isp_degamma_t            rk_aiq_isp_adegamma_params_t;
 typedef rk_aiq_isp_afd_t                rk_aiq_isp_afd_params_t;
 typedef rk_aiq_isp_fec_t                rk_aiq_isp_fec_params_t;
 typedef rk_aiq_isp_wdr_t                rk_aiq_isp_wdr_params_t;
-typedef rk_aiq_isp_ldc_t                rk_aiq_isp_ldc_params_t;
 
 typedef awbStats_cfg_priv_t             rk_aiq_isp_awb_params_t;
 typedef rk_aiq_isp_wb_gain_v32_t        rk_aiq_isp_awb_gain_params_t;
@@ -521,6 +521,8 @@ typedef enum _RkAiqIspUnitedMode {
 #define RK_AIQ_ISP_CIF_INPUT_MAX_SIZE 3072 * 1728
 #elif defined(ISP_HW_V30)
 #define RK_AIQ_ISP_CIF_INPUT_MAX_SIZE 3840 * 2160
+#elif defined(ISP_HW_V33)
+#define RK_AIQ_ISP_CIF_INPUT_MAX_SIZE 2880 * 1620 
 #else
 #define RK_AIQ_ISP_CIF_INPUT_MAX_SIZE 3840 * 2160
 #endif
@@ -536,6 +538,7 @@ typedef enum rk_aiq_drv_share_mem_type_e {
     MEM_TYPE_FEC,
     MEM_TYPE_CAC,
     MEM_TYPE_DBG_INFO,
+    MEM_TYPE_LDCV,
 } rk_aiq_drv_share_mem_type_t;
 
 typedef void (*alloc_mem_t)(uint8_t id, void* ops_ctx, void* cfg, void** mem_ctx);
@@ -556,6 +559,7 @@ typedef struct rk_aiq_lut_share_mem_info_s {
 } rk_aiq_lut_share_mem_info_t;
 
 typedef rk_aiq_lut_share_mem_info_t rk_aiq_ldch_share_mem_info_t;
+typedef rk_aiq_lut_share_mem_info_t rk_aiq_ldcv_share_mem_info_t;
 typedef rk_aiq_lut_share_mem_info_t rk_aiq_cac_share_mem_info_t;
 typedef rk_aiq_lut_share_mem_info_t rk_aiq_dbg_share_mem_info_t;
 

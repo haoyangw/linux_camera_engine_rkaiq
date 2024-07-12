@@ -183,9 +183,11 @@ typedef struct AiqCamHwBase_s {
     rk_aiq_rotation_t _sharp_fbc_rotation;
 
     rk_aiq_ldch_share_mem_info_t ldch_mem_info_array[2 * ISP2X_MESH_BUF_NUM];
+    rk_aiq_ldcv_share_mem_info_t ldcv_mem_info_array[2 * ISP2X_MESH_BUF_NUM];
     rk_aiq_cac_share_mem_info_t cac_mem_info_array[2 * ISP3X_MESH_BUF_NUM];
     rk_aiq_dbg_share_mem_info_t dbg_mem_info_array[2 * RKISP_INFO2DDR_BUF_MAX];
     drv_share_mem_ctx_t _ldch_drv_mem_ctx;
+    drv_share_mem_ctx_t _ldcv_drv_mem_ctx;
     drv_share_mem_ctx_t _cac_drv_mem_ctx;
     drv_share_mem_ctx_t _dbg_drv_mem_ctx;
     isp_drv_share_mem_ops_t _drv_share_mem_ops;

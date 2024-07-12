@@ -371,6 +371,26 @@ static void init_withCalib(GlobalParamsManager_t* pMan)
         LOGE("no ldch calib !");
     }
 
+    wrap_ptr = &pMan->mGlobalParams[RESULT_TYPE_LDC_PARAM];
+    if (!wrap_ptr->man_param_ptr)
+        wrap_ptr->man_param_ptr = (ldc_param_t*)aiq_mallocz(sizeof(ldc_param_t));
+    ldc_api_attrib_t* ldc_calib =
+        (ldc_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR((void*)(pMan->mCalibDb), ldc));
+    if (ldc_calib) {
+        wrap_ptr->opMode        = &ldc_calib->opMode;
+        wrap_ptr->en            = &ldc_calib->en;
+        wrap_ptr->bypass        = &ldc_calib->bypass;
+        wrap_ptr->aut_param_ptr = &ldc_calib->tunning;
+        pMan->mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_LDC_PARAM;
+        if (ldc_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+            ldc_calib->opMode = RK_AIQ_OP_MODE_AUTO;
+        }
+        LOGK("Module LDC: opMode:%d,en:%d,bypass:%d,man_ptr:%p", *wrap_ptr->opMode, *wrap_ptr->en,
+             *wrap_ptr->bypass, wrap_ptr->man_param_ptr);
+    } else {
+        LOGE("no ldc calib !");
+    }
+
     wrap_ptr = &pMan->mGlobalParams[RESULT_TYPE_HISTEQ_PARAM];
     histeq_api_attrib_t* histeq_calib = (histeq_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
                 (void*)(pMan->mCalibDb), histEQ));
@@ -515,7 +535,6 @@ static void init_withCalib(GlobalParamsManager_t* pMan)
         wrap_ptr->en = &cgc_calib->en;
         wrap_ptr->bypass = &cgc_calib->bypass;
         wrap_ptr->man_param_ptr = &cgc_calib->stMan;
-        wrap_ptr->aut_param_ptr = &cgc_calib->stAuto;
 		pMan->mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_CGC_PARAM;
         if (cgc_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
             cgc_calib->opMode = RK_AIQ_OP_MODE_MANUAL;
@@ -648,7 +667,13 @@ XCamReturn GlobalParamsManager_init(GlobalParamsManager_t* pMan, bool isFullManM
 
 void GlobalParamsManager_deinit(GlobalParamsManager_t* pMan)
 {
-	aiqMutex_deInit(&pMan->mMutex);
+    void* man_param_ptr = pMan->mGlobalParams[RESULT_TYPE_LDC_PARAM].man_param_ptr;
+    if (man_param_ptr) {
+        aiq_free(man_param_ptr);
+        pMan->mGlobalParams[RESULT_TYPE_LDC_PARAM].man_param_ptr = NULL;
+    }
+
+        aiqMutex_deInit(&pMan->mMutex);
 	for (int i = 0; i < RESULT_TYPE_MAX_PARAM; i++) {
 		aiqMutex_deInit(&pMan->mAlgoMutex[i]);
 	}
@@ -668,10 +693,17 @@ switchCalibDbCheck(GlobalParamsManager_t* pMan, CamCalibDbV2Context_t* calibDb) 
 #if RKAIQ_HAVE_YUVME
     yme_api_attrib_t* yme_calib = (yme_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
                 (void*)(calibDb), yme));
-    if (*pMan->mGlobalParams[RESULT_TYPE_MOTION_PARAM].en != yme_calib->en) {
-        LOGE("btnr and yuvme should be turned on or off simultaneously,"
-                    " and tnr can't open/close in runtime!");
-        return XCAM_RETURN_ERROR_FAILED;
+    if (*pMan->mGlobalParams[RESULT_TYPE_MOTION_PARAM].en != yme_calib->en && yme_calib->en) {
+        if (!pMan->yme_init_enable) {
+            LOGE("The yme didn't enable in first frame, so can't support turn on/off in runtime, "
+            "please use yme.bypass instead or config during the initialization.");
+            return XCAM_RETURN_ERROR_FAILED;
+        }
+        if (!*pMan->mGlobalParams[RESULT_TYPE_TNR_PARAM].en) {
+            LOGE("btnr and yuvme should be turned on or off simultaneously,"
+                    "btnr is disable now and can't open/close in runtime!");
+            return XCAM_RETURN_ERROR_FAILED;
+        }
     }
 #endif
     cnr_api_attrib_t* cnr_calib = (cnr_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
@@ -709,6 +741,12 @@ switchCalibDbCheck(GlobalParamsManager_t* pMan, CamCalibDbV2Context_t* calibDb) 
 
 static void
 checkAlgoEnableInit(GlobalParamsManager_t* pMan) {
+#if RKAIQ_HAVE_YUVME
+    int state = AiqManager_getAiqState(pMan->rkAiqManager);
+    if (state == 0) {
+        pMan->yme_init_enable = *pMan->mGlobalParams[RESULT_TYPE_MOTION_PARAM].en;
+    }
+#endif
 #if USE_NEWSTRUCT
     bool cnr_en = *pMan->mGlobalParams[RESULT_TYPE_UVNR_PARAM].en;
     bool ynr_en = *pMan->mGlobalParams[RESULT_TYPE_YNR_PARAM].en;
@@ -755,9 +793,10 @@ checkAlgoEnableInit(GlobalParamsManager_t* pMan) {
     }
 #endif
 #if RKAIQ_HAVE_YUVME
-    if (*pMan->mGlobalParams[RESULT_TYPE_TNR_PARAM].en != *pMan->mGlobalParams[RESULT_TYPE_MOTION_PARAM].en) {
+    if (*pMan->mGlobalParams[RESULT_TYPE_TNR_PARAM].en != *pMan->mGlobalParams[RESULT_TYPE_MOTION_PARAM].en && 
+        *pMan->mGlobalParams[RESULT_TYPE_MOTION_PARAM].en) {
         *pMan->mGlobalParams[RESULT_TYPE_MOTION_PARAM].en = *pMan->mGlobalParams[RESULT_TYPE_TNR_PARAM].en;
-        LOGE("btnr and yuvme should be turned on or off simultaneously, please check!");
+        LOGE("btnr and yuvme should be turned on or off simultaneously, btnr is disable now and can't open/close in runtime!");
     }
 #endif
 
@@ -801,6 +840,25 @@ checkAlgoEnableInit(GlobalParamsManager_t* pMan) {
         }     
     } else {
         LOGE("no lsc calib !");
+    }
+
+    btnr_api_attrib_t* btnr_calib = (btnr_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+            (void*)(pMan->mCalibDb), bayertnr));
+    if (btnr_calib) {
+        btnr_params_static_t* psta = NULL;
+        if (btnr_calib->opMode == RK_AIQ_OP_MODE_AUTO) {
+            psta = &btnr_calib->stAuto.sta;
+        }else {
+            psta = &btnr_calib->stMan.sta;
+        }
+        pMan->mBtnrPixDomainMode = psta->hw_btnrCfg_pixDomain_mode;
+    }
+
+    bool drc_en = *pMan->mGlobalParams[RESULT_TYPE_DRC_PARAM].en;
+    bool tnr_en = *pMan->mGlobalParams[RESULT_TYPE_TNR_PARAM].en;
+    if (!drc_en && tnr_en && pMan->mBtnrPixDomainMode == btnr_pixLog2Domain_mode) {
+        *pMan->mGlobalParams[RESULT_TYPE_DRC_PARAM].en = 1;
+        LOGE("Drc must be on when btnr is working in pixLog2Domain_mode.");
     }
 
     for (int i = 0;i < RESULT_TYPE_MAX_PARAM;i++) {
@@ -876,8 +934,15 @@ XCamReturn GlobalParamsManager_set(GlobalParamsManager_t* pMan, rk_aiq_global_pa
 
     bool isUpdateManParam = false;
     if (param->opMode == RK_AIQ_OP_MODE_MANUAL) {
-        memcpy(wrap_ptr->man_param_ptr, param->man_param_ptr, param->man_param_size);
-        isUpdateManParam = true;
+        if (param->man_param_ptr && param->man_param_size) {
+            memcpy(wrap_ptr->man_param_ptr, param->man_param_ptr, param->man_param_size);
+            isUpdateManParam = true;
+        }
+
+        if (param->type == RESULT_TYPE_LDC_PARAM) {
+            if (param->aut_param_ptr && param->aut_param_size > 0)
+                memcpy(wrap_ptr->aut_param_ptr, param->aut_param_ptr, param->aut_param_size);
+        }
     }
 
     bool isUpdateAutParam = false;
@@ -1136,17 +1201,22 @@ XCamReturn GlobalParamsManager_checkAlgoEnableBypass(GlobalParamsManager_t* pMan
             }
         }
     }
-
+#if RKAIQ_HAVE_YUVME
     if (type == RESULT_TYPE_MOTION_PARAM) {
-        if (*pMan->mGlobalParams[type].en != *en) {
-            if (state != AIQ_STATE_INITED &&state != AIQ_STATE_STOPED) {
+        if (*pMan->mGlobalParams[type].en != *en && *en) {
+            if (!pMan->yme_init_enable && state != AIQ_STATE_INITED && state != AIQ_STATE_STOPED) {
+                LOGE("The yme didn't enable in first frame, so can't support turn on/off in runtime, "
+                    "please use yme.bypass instead or config during the initialization.");
+                return XCAM_RETURN_ERROR_FAILED;
+            }
+            if(!*pMan->mGlobalParams[RESULT_TYPE_TNR_PARAM].en){
                 LOGE("btnr and yuvme should be turned on or off simultaneously,"
-                    " and tnr can't open/close in runtime!");
+                    "tnr is disable now and tnr can't open/close in runtime!");
                 return XCAM_RETURN_ERROR_FAILED;
             }
         }
     }
-
+#endif
     if (type == RESULT_TYPE_RAWNR_PARAM) {
         if ((*en == false) && *pMan->mGlobalParams[RESULT_TYPE_TNR_PARAM].en) {
             // can't disable 2dnr while 3dnr enabled
@@ -1205,7 +1275,8 @@ XCamReturn GlobalParamsManager_checkAlgoEnableBypass(GlobalParamsManager_t* pMan
     if (type == RESULT_TYPE_BLC_PARAM || type == RESULT_TYPE_DPCC_PARAM || type == RESULT_TYPE_CCM_PARAM ||
         type == RESULT_TYPE_RGBIR_PARAM || type == RESULT_TYPE_AGAMMA_PARAM || type == RESULT_TYPE_LSC_PARAM ||
         type == RESULT_TYPE_LDCH_PARAM || type == RESULT_TYPE_CSM_PARAM || type == RESULT_TYPE_CGC_PARAM ||
-        type == RESULT_TYPE_LDC_PARAM) {
+        type == RESULT_TYPE_LDC_PARAM || type == RESULT_TYPE_TRANS_PARAM || type == RESULT_TYPE_HSV_PARAM ||
+        type == RESULT_TYPE_LUT3D_PARAM || type == RESULT_TYPE_MERGE_PARAM) {
         if (*bypass == 1) {
             LOGE("This module doesn't support bypass feature");
             return XCAM_RETURN_ERROR_FAILED;
@@ -1214,7 +1285,7 @@ XCamReturn GlobalParamsManager_checkAlgoEnableBypass(GlobalParamsManager_t* pMan
 
     if (type == RESULT_TYPE_MERGE_PARAM) {
         if (state == AIQ_STATE_PREPARED || state == AIQ_STATE_STARTED) {
-            if (AiqManager_getWorkingMode(pMan->rkAiqManager) != RK_AIQ_WORKING_MODE_NORMAL && (*en == 0 || *bypass == 1)) {
+            if (AiqManager_getWorkingMode(pMan->rkAiqManager) != RK_AIQ_WORKING_MODE_NORMAL && *en == 0) {
                 LOGE("HDRMGE must be on  when isp is HDR mode. Please turn on by mge.en");
                 socket_client_setNote(pMan->_socket, IPC_RET_UAPI_ERROR,
                     "HDRMGE must be on  when isp is HDR mode. Please turn on by mge.en");
@@ -1228,10 +1299,31 @@ XCamReturn GlobalParamsManager_checkAlgoEnableBypass(GlobalParamsManager_t* pMan
             }
         }
     }
+
+    if (type == RESULT_TYPE_TRANS_PARAM) {
+        if (*pMan->mGlobalParams[type].en != *en && *en == 1 && *en != *pMan->mGlobalParams[RESULT_TYPE_DRC_PARAM].en) {
+            LOGW("Trans must be enable when drc is enable, please use drc.en to turn on drc module.");
+            socket_client_setNote(pMan->_socket, IPC_RET_UAPI_WARNING,
+                    "Trans must be enable when drc is enable, please use drc.en to turn on drc module.");
+        }
+    }
+
     if (type == RESULT_TYPE_DRC_PARAM) {
         if (AiqManager_getWorkingMode(pMan->rkAiqManager) != RK_AIQ_WORKING_MODE_NORMAL && *en == 0) {
             LOGE("Drc must be on  when isp is HDR mode. Please turn on by drc.en");
+            socket_client_setNote(pMan->_socket, IPC_RET_UAPI_ERROR,"Drc must be on when isp is HDR mode.");
             return XCAM_RETURN_ERROR_FAILED;
+        }
+        if (*pMan->mGlobalParams[type].en != *en && *en == 0 && pMan->mBtnrPixDomainMode != btnr_pixLinearDomain_mode) {
+            LOGE("Drc must be on when btnr is working in pixLog2Domain_mode.Note that predgain is 2x in pixLog2Domain_mode.");
+            socket_client_setNote(pMan->_socket, IPC_RET_UAPI_ERROR,
+                "Drc must be on when btnr is working in pixLog2Domain_mode.Note that predgain is 2x in pixLog2Domain_mode.");
+            return XCAM_RETURN_BYPASS;
+        }
+        if (*pMan->mGlobalParams[type].en != *en && *en == 0 && *en != *pMan->mGlobalParams[RESULT_TYPE_TRANS_PARAM].en) {
+            LOGW("Trans must be disable when drc is disable, please use trans.en to turn off trans module.");
+            socket_client_setNote(pMan->_socket, IPC_RET_UAPI_WARNING,
+                "Trans must be disable when drc is disable, please use trans.en to turn off trans module.");
         }
 #ifdef ISP_HW_V39
         if (*pMan->mGlobalParams[type].en != *en && *en == 1) {
@@ -1346,30 +1438,48 @@ static bool checkAlgoParams(GlobalParamsManager_t* pMan, rk_aiq_global_params_wr
             oldmode = old_attr.stMan.sta.hw_btnrCfg_pixDomain_mode;
         }
         if (newmode != oldmode) {
+            pMan->mBtnrPixDomainMode = newmode;
+            pMan->mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_DRC_PARAM;
             LOGE("During the runtime of btnr, it is not allowed to change the pixDomain_mode. Please configure during the initialization.");
             socket_client_setNote(pMan->_socket, IPC_RET_UAPI_ERROR, "During the runtime of btnr, it is not allowed to change the pixDomain_mode. Please configure during the initialization.\n");
             return true;
         }
     }
 
-    if (param->type == RESULT_TYPE_BLC_PARAM && AiqManager_getWorkingMode(pMan->rkAiqManager) != RK_AIQ_WORKING_MODE_NORMAL) {
+    if (param->type == RESULT_TYPE_BLC_PARAM) {
         blc_api_attrib_t attr;
-        if (param->opMode == RK_AIQ_OP_MODE_AUTO) {
+        if (AiqManager_getWorkingMode(pMan->rkAiqManager) == RK_AIQ_WORKING_MODE_NORMAL) {
+            blc_api_attrib_t old_attr;
+            bool obcPostTnr_en_update = false;
             memcpy(&attr.stAuto, param->aut_param_ptr, param->aut_param_size);
-            for (int i = 0;i < BLC_ISO_STEP_MAX;i++) {
-                if (attr.stAuto.dyn[i].obcPostTnr.sw_blcT_obcPostTnr_en) {
+            memcpy(&attr.stMan, param->man_param_ptr, param->man_param_size);
+            memcpy(&old_attr.stAuto, pMan->mGlobalParams[param->type].aut_param_ptr, param->aut_param_size);
+            memcpy(&old_attr.stMan, pMan->mGlobalParams[param->type].man_param_ptr, param->man_param_size);
+            for(int i = 0;i < BLC_ISO_STEP_MAX;i++) {
+                obcPostTnr_en_update |= attr.stAuto.dyn[i].obcPostTnr.sw_blcT_obcPostTnr_en != old_attr.stAuto.dyn[i].obcPostTnr.sw_blcT_obcPostTnr_en;
+            }
+            obcPostTnr_en_update |= attr.stMan.dyn.obcPostTnr.sw_blcT_obcPostTnr_en != old_attr.stMan.dyn.obcPostTnr.sw_blcT_obcPostTnr_en;
+            if (obcPostTnr_en_update || param->opMode != *pMan->mGlobalParams[param->type].opMode) {
+                pMan->mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_DRC_PARAM;
+            }
+        }else{
+            if (param->opMode == RK_AIQ_OP_MODE_AUTO) {
+                memcpy(&attr.stAuto, param->aut_param_ptr, param->aut_param_size);
+                for (int i = 0;i < BLC_ISO_STEP_MAX;i++) {
+                    if (attr.stAuto.dyn[i].obcPostTnr.sw_blcT_obcPostTnr_en) {
+                        LOGE("obcPostTnr is only available in ISP linear mode. Please turn off by blc.dyn.obcPostTnr.sw_blcT_obcPostTnr_en!");
+                        socket_client_setNote(pMan->_socket, IPC_RET_UAPI_ERROR, "obcPostTnr is only available in ISP linear mode. Please turn off by blc.dyn.obcPostTnr.obcPostTnr_en\n");
+                        return false;
+                    }
+                }
+            }
+            else {
+                memcpy(&attr.stMan, param->man_param_ptr, param->man_param_size);
+                if (attr.stMan.dyn.obcPostTnr.sw_blcT_obcPostTnr_en) {
                     LOGE("obcPostTnr is only available in ISP linear mode. Please turn off by blc.dyn.obcPostTnr.sw_blcT_obcPostTnr_en!");
                     socket_client_setNote(pMan->_socket, IPC_RET_UAPI_ERROR, "obcPostTnr is only available in ISP linear mode. Please turn off by blc.dyn.obcPostTnr.obcPostTnr_en\n");
                     return false;
                 }
-            }
-        }
-        else {
-            memcpy(&attr.stMan, param->man_param_ptr, param->man_param_size);
-            if (attr.stMan.dyn.obcPostTnr.sw_blcT_obcPostTnr_en) {
-                LOGE("obcPostTnr is only available in ISP linear mode. Please turn off by blc.dyn.obcPostTnr.sw_blcT_obcPostTnr_en!");
-                socket_client_setNote(pMan->_socket, IPC_RET_UAPI_ERROR, "obcPostTnr is only available in ISP linear mode. Please turn off by blc.dyn.obcPostTnr.obcPostTnr_en\n");
-                return false;
             }
         }
     }
@@ -1440,4 +1550,3 @@ static bool checkLscAlgoParams(GlobalParamsManager_t* pMan, lsc_param_static_t* 
     }
     return true;
 }
-

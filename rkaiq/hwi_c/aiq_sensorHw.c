@@ -1456,25 +1456,23 @@ static XCamReturn _SensorHw_set_mirror_flip(AiqSensorHw_t* pSnsHw, bool mirror, 
                                             int32_t* skip_frame_sequence) {
     aiqMutex_lock(&pSnsHw->_mutex);
 
-    if (!AiqV4l2Device_isActivated((AiqV4l2Device_t*)pSnsHw->mSd)) {
-        pSnsHw->_flip   = flip;
-        pSnsHw->_mirror = mirror;
-        _set_mirror_flip(pSnsHw);
-        goto end;
-    }
+    pSnsHw->_flip   = flip;
+    pSnsHw->_mirror = mirror;
+    _set_mirror_flip(pSnsHw);
+    *skip_frame_sequence = pSnsHw->_frame_sequence;
+    if (*skip_frame_sequence < 0) *skip_frame_sequence = 0;
 
-    if (pSnsHw->_mirror != mirror || pSnsHw->_flip != flip) {
-        pSnsHw->_flip   = flip;
-        pSnsHw->_mirror = mirror;
-        // will be set at _frame_sequence + 1
-        pSnsHw->_update_mirror_flip = true;
-        // skip pre and current frame
-        *skip_frame_sequence = pSnsHw->_frame_sequence;
-        if (*skip_frame_sequence < 0) *skip_frame_sequence = 0;
-    } else
-        *skip_frame_sequence = -1;
+    // if (pSnsHw->_mirror != mirror || pSnsHw->_flip != flip) {
+    //     pSnsHw->_flip   = flip;
+    //     pSnsHw->_mirror = mirror;
+    //     // will be set at _frame_sequence + 1
+    //     pSnsHw->_update_mirror_flip = true;
+    //     // skip pre and current frame
+    //     *skip_frame_sequence = pSnsHw->_frame_sequence;
+    //     if (*skip_frame_sequence < 0) *skip_frame_sequence = 0;
+    // } else
+    //     *skip_frame_sequence = -1;
 
-end:
     aiqMutex_unlock(&pSnsHw->_mutex);
 
     return XCAM_RETURN_NO_ERROR;

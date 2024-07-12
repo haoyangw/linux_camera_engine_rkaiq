@@ -70,6 +70,6 @@ void bayertnr_logtrans_init(int bayertnr_trans_mode,  int bayertnr_trans_mode_sc
 int bayertnr_logtrans(uint32_t tmpfix, btnr_trans_params_t *pTransPrarms);
 int bayertnr_update_sq(btnr_trans_params_t *pTransPrarms);
 void bayertnr_save_stats(void *stats_buffer, btnr_cvt_info_t *pBtnrInfo);
-int bayertnr_autosigma_config(btnr_stats_t *pStats, btnr_trans_params_t *pTransPrarms);
+int bayertnr_autosigma_config(btnr_stats_t *pStats, btnr_trans_params_t *pTransPrarms, blc_res_cvt_t* pBlc);
 int bayertnr_tnr_noise_curve(int data, int isHdrShort, btnr_trans_params_t *pTransPrarms);
 #endif

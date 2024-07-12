@@ -357,7 +357,7 @@ XCamReturn SharpApplyStrength
         out->dyn.edgeShp.glbShpStrg.hw_shpT_edgePos_strg *= fPercent;
         out->dyn.edgeShp.glbShpStrg.hw_shpT_edgeNeg_strg *= fPercent;
 
-        printf("SharpApplyStrength: fStrength %f, fPercent %f\n", pSharpCtx->fStrength, fPercent);
+        LOGI_ANR("SharpApplyStrength: fStrength %f, fPercent %f\n", pSharpCtx->fStrength, fPercent);
     }
 
     return XCAM_RETURN_NO_ERROR;

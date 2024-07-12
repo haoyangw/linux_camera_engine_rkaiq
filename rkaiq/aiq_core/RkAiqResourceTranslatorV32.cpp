@@ -1197,6 +1197,14 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAwbStats(const SmartPtr<Vid
 
     MergeAwbBlkStats(&ori_win, &left_win, &right_win, statsInt->awb_stats_v32.blockResult, &left_stats->params.rawawb, &right_stats->params.rawawb, AwbWinSplitMode);
 
+    memset(&statsInt->awb_stats_v32.sumBlkRGB, 0, sizeof(statsInt->awb_stats_v32.sumBlkRGB));
+    for(int i = 0; i < RK_AIQ_AWB_GRID_NUM_TOTAL; i++) {
+        statsInt->awb_stats_v32.sumBlkRGB.Rvalue += statsInt->awb_stats_v32.blockResult[i].Rvalue ;
+        statsInt->awb_stats_v32.sumBlkRGB.Gvalue += statsInt->awb_stats_v32.blockResult[i].Gvalue;
+        statsInt->awb_stats_v32.sumBlkRGB.Bvalue +=  statsInt->awb_stats_v32.blockResult[i].Bvalue;
+    }
+
+
     MergeAwbHistBinStats(statsInt->awb_stats_v32.WpNoHist, left_stats->params.rawawb.yhist_bin, right_stats->params.rawawb.yhist_bin, AwbWinSplitMode);
 
     switch(AwbWinSplitMode) {
@@ -4631,6 +4639,12 @@ XCamReturn RkAiqResourceTranslatorV32::translateMultiAwbStatsV32Lite(const Smart
         }
 
         MergeAwbExcWpStats(statsInt->awb_stats_v32.excWpRangeResult, &top_left_stats->params.rawawb, &top_right_stats->params.rawawb, AwbWinSplitMode);
+    }
+    memset(&statsInt->awb_stats_v32.sumBlkRGB, 0, sizeof(statsInt->awb_stats_v32.sumBlkRGB));
+    for(int i = 0; i < ISP32L_RAWAWB_RAMDATA_RGB_NUM; i++) {
+        statsInt->awb_stats_v32.sumBlkRGB.Rvalue += statsInt->awb_stats_v32.blockResult[i].Rvalue ;
+        statsInt->awb_stats_v32.sumBlkRGB.Gvalue += statsInt->awb_stats_v32.blockResult[i].Gvalue;
+        statsInt->awb_stats_v32.sumBlkRGB.Bvalue +=  statsInt->awb_stats_v32.blockResult[i].Bvalue;
     }
 
     to->set_sequence(statsInt->frame_id);

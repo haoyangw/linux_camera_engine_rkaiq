@@ -526,6 +526,7 @@ typedef struct {
     bool send_focus_reback;
     bool end_zoom_chg;
     bool focus_noreback;
+    bool IsNeedCkRebackAtStart;
     int next_pos_num;
     int next_lens_pos[RKAIQ_RAWAF_NEXT_ZOOMFOCUS_NUM];
     int next_zoom_pos[RKAIQ_RAWAF_NEXT_ZOOMFOCUS_NUM];

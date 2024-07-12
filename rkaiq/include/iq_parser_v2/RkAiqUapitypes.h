@@ -138,6 +138,17 @@ typedef struct {
     drc_status_t info;
 } drc_uapi_t;
 
+typedef struct {
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(attr),
+       M4_TYPE(struct),
+       M4_UI_MODULE(tuning_param),
+       M4_REF(/trans)) */
+    trans_api_attrib_t attr;
+    // M4_STRUCT_DESC("info", "tuning_status")
+    trans_status_t info;
+} trans_uapi_t;
+
 #if defined(ISP_HW_V39)
 typedef struct {
     /* M4_GENERIC_DESC(
@@ -270,11 +281,11 @@ typedef struct {
        M4_ALIAS(attr),
        M4_TYPE(struct),
        M4_UI_MODULE(tuning_param),
-       M4_REF(/ldch)) */
-    ldch_api_attrib_t attr;
-    // M4_STRUCT_DESC("ldch_status", "tuning_status")
-    ldch_status_t ldch_status;
-} ldch_uapi_t;
+       M4_REF(/ldc)) */
+    ldc_api_attrib_t attr;
+    // M4_STRUCT_DESC("info", "tuning_status")
+    ldc_status_t info;
+} ldc_uapi_t;
 
 typedef struct {
     /* M4_GENERIC_DESC(
@@ -1045,6 +1056,8 @@ typedef struct __aiq_uapi_t {
     gamma_uapi_t gamma_uapi;
     // M4_STRUCT_DESC("drc_uapi", "iso_list_template")
     drc_uapi_t drc_uapi;
+    // M4_STRUCT_DESC("trans_uapi", "iso_list_template")
+    trans_uapi_t trans_uapi;
 #if defined(ISP_HW_V39)
     // M4_STRUCT_DESC("dhzEhz_uapi", "iso_list_template")
     dehaze_uapi_t dhzEhz_uapi;
@@ -1071,8 +1084,6 @@ typedef struct __aiq_uapi_t {
     gic_uapi_t gic_uapi;
     // M4_STRUCT_DESC("cac_uapi", "iso_list_template")
     cac_uapi_t cac_uapi;
-    // M4_STRUCT_DESC("ldch_uapi", "iso_list_template")
-    ldch_uapi_t ldch_uapi;
     // M4_STRUCT_DESC("csm_uapi", "iso_list_template")
     csm_uapi_t csm_uapi;
     // M4_STRUCT_DESC("mge_uapi", "iso_list_template")
@@ -1092,6 +1103,13 @@ typedef struct __aiq_uapi_t {
 #if defined(ISP_HW_V39)
     // M4_STRUCT_DESC("lut3d_uapi", "double_list_template")
     lut3d_uapi_t lut3d_uapi;
+#endif
+#if defined(ISP_HW_V39) || defined(ISP_HW_V33)
+    // M4_STRUCT_DESC("ldc_uapi", "normal_ui_style")
+    ldc_uapi_t ldc_uapi;
+#else
+    // M4_STRUCT_DESC("ldch_uapi", "iso_list_template")
+    ldch_uapi_t ldch_uapi;
 #endif
 #if defined(ISP_HW_V33)
     // M4_STRUCT_DESC("hsv_uapi", "double_list_template")

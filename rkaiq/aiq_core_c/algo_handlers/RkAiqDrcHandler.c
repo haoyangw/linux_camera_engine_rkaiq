@@ -275,6 +275,7 @@ static XCamReturn _handlerDrc_processing(AiqAlgoHandler_t* pAlgoHandler) {
     ret = GlobalParamsManager_get(globalParamsManager, &params);
     trans_attr.en = params.en;
     trans_attr.bypass = params.bypass;
+    trans_attr.opMode = params.opMode;
 	XCamReturn ret1           = GlobalParamsManager_getAndClearPending(globalParamsManager, &params);
     if (pBase) {
 		trans_api_attrib_t* trans_curAttr = &((rk_aiq_isp_drc_params_t*)pBase->_data)->trans_attr;
@@ -383,7 +384,7 @@ XCamReturn AiqDrcHandler_setStrength(AiqDrcHandler_t* pHdlDrc, adrc_strength_t* 
     aiqMutex_unlock(&pHdl->mCfgMutex);
 
     EXIT_ANALYZER_FUNCTION();
-    return ret;
+    return ret; 
 }
 
 XCamReturn AiqDrcHandler_getStrength(AiqDrcHandler_t* pHdlDrc, adrc_strength_t* ctrl) {
@@ -399,6 +400,36 @@ XCamReturn AiqDrcHandler_getStrength(AiqDrcHandler_t* pHdlDrc, adrc_strength_t* 
 
     aiqMutex_unlock(&pHdl->mCfgMutex);
 
+    EXIT_ANALYZER_FUNCTION();
+    return ret;
+}
+
+XCamReturn AiqDrcHandler_queryTransStatus(AiqDrcHandler_t* pHdlDrc, trans_status_t* status) {
+    ENTER_ANALYZER_FUNCTION();
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    AiqAlgoHandler_t* pHdl = (AiqAlgoHandler_t*)pHdlDrc;
+    aiqMutex_lock(&pHdl->mCfgMutex);
+    aiq_params_base_t* pCurBase =
+        pHdl->mAiqCore->mAiqCurParams->pParamsArray[RESULT_TYPE_DRC_PARAM];
+
+    if (pCurBase) {
+        trans_api_attrib_t* trans_curAttr = &((rk_aiq_isp_drc_params_t*)pCurBase->_data)->trans_attr;
+        if (trans_curAttr) {
+            status->stMan  = trans_curAttr->stMan;
+            status->en     = trans_curAttr->en;
+            status->bypass = trans_curAttr->bypass;
+            status->opMode = trans_curAttr->opMode;
+        } else {
+            ret = XCAM_RETURN_ERROR_FAILED;
+            LOGE_ANR("have no status info !");
+        }
+    } else {
+        ret = XCAM_RETURN_ERROR_FAILED;
+        LOGE_ANR("have no status info !");
+    }
+
+    aiqMutex_unlock(&pHdl->mCfgMutex);
     EXIT_ANALYZER_FUNCTION();
     return ret;
 }

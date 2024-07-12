@@ -410,6 +410,7 @@ LensHw::setFocusParams(SmartPtr<RkAiqFocusParamsProxy>& focus_params)
         attrPtr->zoom_correction = false;
         attrPtr->lens_pos_valid = true;
         attrPtr->zoom_pos_valid = false;
+        attrPtr->IsNeedCkRebackAtStart = false;
         attrPtr->send_zoom_reback = p_focus->send_zoom_reback;
         attrPtr->send_focus_reback = p_focus->send_focus_reback;
         attrPtr->end_zoom_chg = p_focus->end_zoom_chg;
@@ -730,8 +731,8 @@ LensHw::endZoomChgSync(SmartPtr<rk_aiq_focus_params_t> attrPtr, bool is_update_t
         set_zoom.zoom_pos[0].zoom_pos = zoom_pos;
         set_zoom.zoom_pos[0].focus_pos = focus_pos;
 
-        LOGD_CAMHW_SUBM(LENS_SUBM, "zoom_pos %d, focus_pos %d, _last_zoomchg_zoom %d, _last_zoomchg_focus %d\n",
-                        zoom_pos, focus_pos, _last_zoomchg_zoom, _last_zoomchg_focus);
+        LOGD_CAMHW_SUBM(LENS_SUBM, "zoom_pos %d, focus_pos %d, _last_zoomchg_zoom %d, _last_zoomchg_focus %d",
+                zoom_pos, focus_pos, _last_zoomchg_zoom, _last_zoomchg_focus);
         if (zoom_pos < _last_zoomchg_zoom)
             set_zoom.is_need_zoom_reback = true;
         else
@@ -780,7 +781,7 @@ LensHw::endZoomChgSync(SmartPtr<rk_aiq_focus_params_t> attrPtr, bool is_update_t
         _mutex.unlock();
 
         time0 = _zoom_tim.vcm_end_t.tv_sec * 1000 + _zoom_tim.vcm_end_t.tv_usec / 1000;
-        LOGD_CAMHW_SUBM(LENS_SUBM, "zoom_pos %d, focus_pos %d, zoom focus move end time %ld, is_need_zoom_reback %d, is_need_focus_reback %d, is_update_time %d",
+        LOGD_CAMHW_SUBM(LENS_SUBM, "end sync: zoom_pos %d, focus_pos %d, zoom focus move end time %ld, is_need_zoom_reback %d, is_need_focus_reback %d, is_update_time %d",
                         zoom_pos, focus_pos, time0, set_zoom.is_need_zoom_reback, set_zoom.is_need_focus_reback, is_update_time);
     }
 
@@ -788,6 +789,97 @@ LensHw::endZoomChgSync(SmartPtr<rk_aiq_focus_params_t> attrPtr, bool is_update_t
     return XCAM_RETURN_NO_ERROR;
 }
 
+XCamReturn
+LensHw::startZoomChgSync(SmartPtr<rk_aiq_focus_params_t> attrPtr, bool is_update_time)
+{
+    ENTER_CAMHW_FUNCTION();
+    struct rk_cam_vcm_tim zoomtim, focustim;
+    struct rk_cam_set_zoom set_zoom;
+    struct v4l2_control control;
+    unsigned long time0, time1;
+    int zoom_pos = 0, focus_pos = 0;
+
+#ifdef DISABLE_ZOOM_FOCUS
+    return XCAM_RETURN_NO_ERROR;
+#endif
+
+    if (!_zoom_enable || !_focus_enable) {
+        LOGE_AF("zoom or focus is not supported");
+        return XCAM_RETURN_NO_ERROR;
+    }
+
+    xcam_mem_clear(set_zoom);
+    if (attrPtr->IsNeedCkRebackAtStart) {
+        set_zoom.setzoom_cnt = 1;
+        _mutex.lock();
+        zoom_pos = _zoom_pos;
+        focus_pos = _focus_pos;
+        _mutex.unlock();
+        set_zoom.zoom_pos[0].zoom_pos = zoom_pos;
+        set_zoom.zoom_pos[0].focus_pos = focus_pos;
+
+        LOGD_CAMHW_SUBM(LENS_SUBM, "zoom_pos %d, focus_pos %d, _last_zoomchg_zoom %d, _last_zoomchg_focus %d",
+                 zoom_pos, focus_pos, _last_zoomchg_zoom, _last_zoomchg_focus);
+        if (zoom_pos < _last_zoomchg_zoom)
+            set_zoom.is_need_zoom_reback = true;
+        else
+            set_zoom.is_need_zoom_reback = false;
+
+        if (focus_pos < _last_zoomchg_focus)
+            set_zoom.is_need_focus_reback = true;
+        else
+            set_zoom.is_need_focus_reback = false;
+
+        if (!set_zoom.is_need_zoom_reback && !set_zoom.is_need_focus_reback) {
+            LOGI_AF("no need handle reback, return.\n");
+            return XCAM_RETURN_NO_ERROR;
+        }
+
+        _last_zoomchg_zoom = zoom_pos;
+        _last_zoomchg_focus = focus_pos;
+
+        if (io_control (RK_VIDIOC_ZOOM_SET_POSITION, &set_zoom) < 0) {
+            LOGE_AF("set zoom position failed");
+            return XCAM_RETURN_ERROR_IOCTL;
+        }
+
+        if (io_control (RK_VIDIOC_ZOOM_TIMEINFO, &zoomtim) < 0) {
+            LOGE_AF("get zoom timeinfo failed");
+            _mutex.lock();
+            zoomtim = _zoom_tim;
+            zoomtim.vcm_end_t.tv_sec += 1;
+            _mutex.unlock();
+        }
+
+        if (io_control (RK_VIDIOC_VCM_TIMEINFO, &focustim) < 0) {
+            LOGE_AF("get focus timeinfo failed");
+            _mutex.lock();
+            focustim = _focus_tim;
+            focustim.vcm_end_t.tv_sec += 1;
+            _mutex.unlock();
+        }
+
+        time0 = zoomtim.vcm_end_t.tv_sec * 1000 + zoomtim.vcm_end_t.tv_usec / 1000;
+        time1 = focustim.vcm_end_t.tv_sec * 1000 + focustim.vcm_end_t.tv_usec / 1000;
+        if (time1 > time0)
+            zoomtim = focustim;
+
+        _mutex.lock();
+        if (is_update_time) {
+            _zoom_tim = zoomtim;
+        }
+        _zoom_pos = zoom_pos;
+        _focus_pos = focus_pos;
+        _mutex.unlock();
+
+        time0 = _zoom_tim.vcm_end_t.tv_sec * 1000 + _zoom_tim.vcm_end_t.tv_usec / 1000;
+        LOGD_CAMHW_SUBM(LENS_SUBM, "start sync: zoom_pos %d, focus_pos %d, zoom focus move end time %ld, is_need_zoom_reback %d, is_need_focus_reback %d",
+                zoom_pos, focus_pos, time0, set_zoom.is_need_zoom_reback, set_zoom.is_need_focus_reback);
+    }
+
+    EXIT_CAMHW_FUNCTION();
+    return XCAM_RETURN_NO_ERROR;
+}
 
 XCamReturn
 LensHw::setZoomFocusParamsSync(SmartPtr<rk_aiq_focus_params_t> attrPtr, bool is_update_time)
@@ -910,6 +1002,7 @@ LensHw::setZoomFocusParams(SmartPtr<RkAiqFocusParamsProxy>& focus_params)
     attrPtr->send_zoom_reback = p_focus->send_zoom_reback;
     attrPtr->send_focus_reback = p_focus->send_focus_reback;
     attrPtr->end_zoom_chg = p_focus->end_zoom_chg;
+    attrPtr->IsNeedCkRebackAtStart = p_focus->IsNeedCkRebackAtStart;
     attrPtr->focus_noreback = false;
     if (attrPtr->lens_pos_valid || attrPtr->zoom_pos_valid) {
         attrPtr->next_pos_num = p_focus->next_pos_num;
@@ -939,6 +1032,10 @@ LensHw::setZoomFocusParams(SmartPtr<RkAiqFocusParamsProxy>& focus_params)
     } else if (attrPtr->end_zoom_chg) {
         LOGD_CAMHW_SUBM(LENS_SUBM, "end_zoom_chg zoom_pos %d, focus_pos %d, next_pos_num %d",
                         _zoom_pos, _focus_pos, attrPtr->next_pos_num);
+        _lenshw_thd->push_attr(attrPtr);
+    } else if (attrPtr->IsNeedCkRebackAtStart) {
+        LOGI_AF("IsNeedCkRebackAtStart zoom_pos %d, focus_pos %d, next_pos_num %d",
+                _zoom_pos, _focus_pos, attrPtr->next_pos_num);
         _lenshw_thd->push_attr(attrPtr);
     }
 
@@ -1025,12 +1122,32 @@ LensHw::FocusCorrectionSync()
 
     _mutex.lock();
     _focus_pos = 0;
+    _last_zoomchg_focus = 0;
     _focus_correction = false;
     _mutex.unlock();
     LOGD_CAMHW_SUBM(LENS_SUBM, "focus_correction end");
 
     EXIT_CAMHW_FUNCTION();
     return XCAM_RETURN_NO_ERROR;
+}
+
+bool
+LensHw::IsFocusInCorrectionSync()
+{
+    ENTER_CAMHW_FUNCTION();
+    bool in_correction;
+
+    if (!_zoom_enable) {
+        LOGE_CAMHW_SUBM(LENS_SUBM, "zoom is not supported");
+        return false;
+    }
+
+    _mutex.lock();
+    in_correction = _focus_correction;
+    _mutex.unlock();
+
+    EXIT_CAMHW_FUNCTION();
+    return in_correction;
 }
 
 XCamReturn
@@ -1084,12 +1201,32 @@ LensHw::ZoomCorrectionSync()
 
     _mutex.lock();
     _zoom_pos = 0;
+    _last_zoomchg_zoom = 0;
     _zoom_correction = false;
     _mutex.unlock();
     LOGD_CAMHW_SUBM(LENS_SUBM, "zoom_correction end");
 
     EXIT_CAMHW_FUNCTION();
     return XCAM_RETURN_NO_ERROR;
+}
+
+bool
+LensHw::IsZoomInCorrectionSync()
+{
+    ENTER_CAMHW_FUNCTION();
+    bool in_correction;
+
+    if (!_zoom_enable) {
+        LOGE_CAMHW_SUBM(LENS_SUBM, "zoom is not supported");
+        return false;
+    }
+
+    _mutex.lock();
+    in_correction = _zoom_correction;
+    _mutex.unlock();
+
+    EXIT_CAMHW_FUNCTION();
+    return in_correction;
 }
 
 XCamReturn
@@ -1388,6 +1525,7 @@ bool LensHwHelperThd::loop()
 
     const static int32_t timeout = -1;
     SmartPtr<rk_aiq_focus_params_t> attrib = mAttrQueue.pop (timeout);
+    int32_t wait_handle_cnt = 0;
 
     if (!attrib.ptr()) {
         LOGE_CAMHW_SUBM(LENS_SUBM, "LensHwHelperThd got empty attrib, stop thread");
@@ -1398,8 +1536,26 @@ bool LensHwHelperThd::loop()
         mLensHw->ZoomFocusModifyPositionSync(attrib);
     } else if (attrib->focus_correction) {
         mLensHw->FocusCorrectionSync();
+        wait_handle_cnt = 0;
+        while (mLensHw->IsZoomInCorrectionSync()) {
+            LOGD_AF("wait zoom correction");
+            usleep(10000);
+            if (wait_handle_cnt++ > 1000) {
+                LOGE_AF("wait zoom correction timeout");
+                break;
+            }
+        }
     } else if (attrib->zoom_correction) {
         mLensHw->ZoomCorrectionSync();
+        wait_handle_cnt = 0;
+        while (mLensHw->IsFocusInCorrectionSync()) {
+            LOGD_AF("wait focus correction");
+            usleep(10000);
+            if (wait_handle_cnt++ > 1000) {
+                LOGE_AF("wait focus correction timeout");
+                break;
+            }
+        }
     } else if (attrib->lens_pos_valid == 1 && attrib->zoom_pos_valid == 0) {
         if (attrib->end_zoom_chg) {
             ret = mLensHw->endZoomChgSync(attrib, true);
@@ -1410,9 +1566,13 @@ bool LensHwHelperThd::loop()
             mLensHw->setZoomFocusRebackSync(attrib, false);
         }
         if (attrib->end_zoom_chg) {
+            if (attrib->IsNeedCkRebackAtStart)
+                ret = mLensHw->startZoomChgSync(attrib, false);
             ret = mLensHw->setZoomFocusParamsSync(attrib, false);
             ret = mLensHw->endZoomChgSync(attrib, true);
         } else {
+            if (attrib->IsNeedCkRebackAtStart)
+                ret = mLensHw->startZoomChgSync(attrib, false);
             ret = mLensHw->setZoomFocusParamsSync(attrib, true);
         }
     }

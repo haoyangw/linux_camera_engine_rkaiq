@@ -527,6 +527,8 @@ RkAiqUapiDesc_t rkaiq_uapidesc_list[] = {
     __RKAIQUAPI_DESC_DEF("/uapi/0/gamma_uapi/info", gamma_status_t, NULL, rk_aiq_user_api2_gamma_QueryStatus),
     __RKAIQUAPI_DESC_DEF("/uapi/0/drc_uapi/attr", drc_api_attrib_t, rk_aiq_user_api2_drc_SetAttrib, rk_aiq_user_api2_drc_GetAttrib),
     __RKAIQUAPI_DESC_DEF("/uapi/0/drc_uapi/info", drc_status_t, NULL, rk_aiq_user_api2_drc_QueryStatus),
+    __RKAIQUAPI_DESC_DEF("/uapi/0/trans_uapi/attr", trans_api_attrib_t, rk_aiq_user_api2_trans_SetAttrib, rk_aiq_user_api2_trans_GetAttrib),
+    __RKAIQUAPI_DESC_DEF("/uapi/0/trans_uapi/info", trans_status_t, NULL, rk_aiq_user_api2_trans_QueryStatus),
 #if RKAIQ_HAVE_DEHAZE
     __RKAIQUAPI_DESC_DEF("/uapi/0/dhzEhz_uapi/attr", dehaze_api_attrib_t, rk_aiq_user_api2_dehaze_SetAttrib, rk_aiq_user_api2_dehaze_GetAttrib),
     __RKAIQUAPI_DESC_DEF("/uapi/0/dhzEhz_uapi/info", dehaze_status_t, NULL, rk_aiq_user_api2_dehaze_QueryStatus),
@@ -554,6 +556,10 @@ RkAiqUapiDesc_t rkaiq_uapidesc_list[] = {
 #if RKAIQ_HAVE_LDCH_V21
     __RKAIQUAPI_DESC_DEF("/uapi/0/ldch_uapi/attr", ldch_api_attrib_t, rk_aiq_user_api2_ldch_SetAttrib, rk_aiq_user_api2_ldch_GetAttrib),
     __RKAIQUAPI_DESC_DEF("/uapi/0/ldch_uapi/info", ldch_status_t, NULL, rk_aiq_user_api2_ldch_QueryStatus),
+#endif
+#if RKAIQ_HAVE_LDC
+    __RKAIQUAPI_DESC_DEF("/uapi/0/ldc_uapi/attr", ldc_api_attrib_t, rk_aiq_user_api2_ldc_SetAttrib, rk_aiq_user_api2_ldc_GetAttrib),
+    __RKAIQUAPI_DESC_DEF("/uapi/0/ldc_uapi/info", ldc_status_t, NULL, rk_aiq_user_api2_ldc_QueryStatus),
 #endif
     __RKAIQUAPI_DESC_DEF("/uapi/0/csm_uapi/attr", csm_api_attrib_t, rk_aiq_user_api2_csm_SetAttrib, rk_aiq_user_api2_csm_GetAttrib),
     __RKAIQUAPI_DESC_DEF("/uapi/0/csm_uapi/info", csm_status_t, NULL, rk_aiq_user_api2_csm_QueryStatus),

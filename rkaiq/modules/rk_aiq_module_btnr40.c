@@ -239,7 +239,7 @@ void rk_aiq_btnr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
             pBtnrInfo->btnr_stats_miss_cnt ++;
             if ((pBtnrInfo->btnr_stats_miss_cnt > 10) && (pBtnrInfo->btnr_stats_miss_cnt % 30 == 0)) {
                 LOGE_ANR("Btnr stats miss match! frameId: %d stats [%d %d %d]", cvtinfo->frameId,
-                        pBtnrInfo->mBtnrStats[0].id, pBtnrInfo->mBtnrStats[1].id, pBtnrInfo->mBtnrStats[2].id);
+                         pBtnrInfo->mBtnrStats[0].id, pBtnrInfo->mBtnrStats[1].id, pBtnrInfo->mBtnrStats[2].id);
             }
         } else {
             pBtnrInfo->btnr_stats_miss_cnt = 0;
@@ -267,11 +267,11 @@ void rk_aiq_btnr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
     //pFix->bypass_en = bypass;
     pFix->iirsparse_en = 0;
 
-    if (cvtinfo->frameNum > 1 || cvtinfo->preDGain > 1.0) {
+    if (cvtinfo->frameNum > 1) {
         if (psta->hw_btnrCfg_pixDomain_mode != btnr_pixLog2Domain_mode) {
-            LOGW_ANR("Btnr must run in pixLog2Domain(ori mode is %d) when isp is HDR mode(framenum=%d) or preDGain(%f) > 1, btnr_pixLog2Domain_mode is be forcibly set to hw_btnrCfg_pixDomain_mode in HWI\n"
+            LOGW_ANR("Btnr must run in pixLog2Domain(ori mode is %d) when isp is HDR mode(framenum=%d), btnr_pixLog2Domain_mode is be forcibly set to hw_btnrCfg_pixDomain_mode in HWI\n"
                      "You can set by btnr.static.hw_btnrCfg_pixDomain_mode, but change hw_btnrCfg_pixDomain_mode in running time may cause abnormal image transitions\n",
-                     psta->hw_btnrCfg_pixDomain_mode, cvtinfo->frameNum, cvtinfo->preDGain, psta->hw_btnrCfg_pixDomain_mode);
+                     psta->hw_btnrCfg_pixDomain_mode, cvtinfo->frameNum, psta->hw_btnrCfg_pixDomain_mode);
             psta->hw_btnrCfg_pixDomain_mode = btnr_pixLog2Domain_mode;
         }
         if (psta->transCfg.hw_btnr_trans_mode != btnr_pixInBw20b_mode) {
@@ -388,15 +388,16 @@ void rk_aiq_btnr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
     pFix->noisebal_mode = pdyn->hw_btnrT_noiseBal_mode;
 
     if (cvtinfo->frameNum > 1) {
-        if (pFix->cur_spnr_sigma_curve_double_en == 0) {
-            LOGW_ANR("When isp is HDR mode, hw_btnrT_sigmaCurve_mode recommends using btnr_midSegmInterpOff_mode. "
-                     "You can set by dyn.curFrmSpNr.hw_btnrT_sigmaCurve_mode\n");
-            // pFix->cur_spnr_sigma_curve_double_en = 1;
-        }
-        if (pFix->pre_spnr_sigma_curve_double_en == 0) {
-            LOGW_ANR("When isp is HDR mode, hw_btnrT_sigmaCurve_mode recommends using btnr_midSegmInterpOff_mode. "
-                     "You can set by dyn.curFrmSpNr.hw_btnrT_sigmaCurve_mode\n");
-            // pFix->pre_spnr_sigma_curve_double_en  = 1;
+        if (pFix->cur_spnr_sigma_curve_double_en == 0 || pFix->pre_spnr_sigma_curve_double_en == 0) {
+            if (cvtinfo->btnr_warning_count < 5) {
+                LOGW_ANR("When isp is HDR mode, hw_btnrT_sigmaCurve_mode recommends using btnr_midSegmInterpOff_mode. "
+                        "You can set by dyn.curFrmSpNr.hw_btnrT_sigmaCurve_mode\n");
+            }
+            else if (cvtinfo->btnr_warning_count % 300 == 0) {
+                LOGW_ANR("When isp is HDR mode, hw_btnrT_sigmaCurve_mode recommends using btnr_midSegmInterpOff_mode. "
+                        "You can set by dyn.curFrmSpNr.hw_btnrT_sigmaCurve_mode\n");
+            }
+            cvtinfo->btnr_warning_count++;
         }
     }
 
@@ -457,13 +458,13 @@ void rk_aiq_btnr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
     // tnr sigma curve must calculate before spnr sigma
     if(cvtinfo->isFirstFrame || (pTransParams->transf_mode != pFix->transf_mode) ||
             (pTransParams->transf_mode_scale != pFix->transf_mode_scale)) {
-        pTransParams->transf_mode = pFix->transf_mode;
-        pTransParams->transf_mode_scale = pFix->transf_mode_scale;
-        pTransParams->transf_mode_offset = pFix->transf_mode_offset;
-        pTransParams->transf_data_max_limit = pFix->transf_data_max_limit;
-        pTransParams->itransf_mode_offset = pFix->itransf_mode_offset;
         bayertnr_logtrans_init(pFix->transf_mode, pFix->transf_mode_scale, pTransParams);
     }
+    pTransParams->transf_mode = pFix->transf_mode;
+    pTransParams->transf_mode_scale = pFix->transf_mode_scale;
+    pTransParams->transf_mode_offset = pFix->transf_mode_offset;
+    pTransParams->transf_data_max_limit = pFix->transf_data_max_limit;
+    pTransParams->itransf_mode_offset = pFix->itransf_mode_offset;
 
     pTransParams->isTransfBypass = pFix->transf_bypass_en;
     bayertnr_luma2sigmax_config_v30(pTransParams);
@@ -483,7 +484,7 @@ void rk_aiq_btnr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
         pTransParams->bayertnr_auto_sig_count_en = 1;
         pTransParams->bayertnr_auto_sig_count_filt_wgt = pdyn->sigmaEnv.sw_btnrT_autoSgmIIR_alpha * (1 << 10);
         pTransParams->bayertnr_auto_sig_count_max = cvtinfo->rawWidth * cvtinfo->rawHeight / 3;
-        bayertnr_autosigma_config(btnr_stats, pTransParams);
+        bayertnr_autosigma_config(btnr_stats, pTransParams, &cvtinfo->blc_res);
     }
 
     kcoef0 = 1.0;

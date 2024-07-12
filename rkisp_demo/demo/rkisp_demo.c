@@ -3,6 +3,8 @@
  * AUTHOT : Jacob Chen
  * DATA : 2018-02-25
  */
+
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,6 +21,7 @@
 #include <dlfcn.h>
 #include <signal.h>
 #include <dirent.h>
+#include <inttypes.h>
 #if ISPDEMO_ENABLE_DRM
 #include "drmDsp.h"
 #endif
@@ -1993,7 +1996,7 @@ static void parse_args(int argc, char **argv, demo_context_t *ctx)
                 "         --orp <raw_dir,w:h:raw_fmt>,       optional, absolute path of raw files dir \n"
                 "                                            raw_fmt: BG10 -> SBGGR10, GB10 -> SGBRG10 \n"
                 "                                                     BA10 -> SGRBG10, RG10 -> SRGGB10 \n"
-                "                                            rawbuf_type: RAW_ADDR, RAW_FD, RAW_DATA, RAW_FILE \n",
+                "                                            rawbuf_type: RAW_ADDR, RAW_FD, RAW_DATA, RAW_FILE \n"
                 "         --stream-poll                      use non-blocking mode and select() to stream.\n"
                 "         --sensor,  default os04a10,        optional, sensor names\n",
                 argv[0]);
@@ -2199,7 +2202,7 @@ static int enqueueRkRawBuf(demo_context_t* demo_ctx, const char* full_name) {
         for (int i = 0; i < RAWBUF_MAX_FRAME; i++) {
             void* buf = malloc(file_stat.st_size);
             if (!buf) {
-                ERR("Failed to malloc size %lld\n", file_stat.st_size);
+                ERR("Failed to malloc size %" PRId64 "\n", file_stat.st_size);
                 goto clean_up;
             }
 

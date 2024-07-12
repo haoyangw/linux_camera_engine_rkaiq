@@ -20,6 +20,7 @@
 #define MAX_AE_DRC_GAIN     (256.0f)
 #define GAINMIN             (1.0f)
 #define PREDGAIN_MAX        (4.0f)
+#define PREDGAIN_DEFAULT    (2.0f)
 #define ISP_HDR_BIT_NUM_MAX (20)
 #define ISP_HDR_BIT_NUM_MIN (12)
 #define ISP_RAW_BIT         (12)
@@ -145,7 +146,7 @@ void rk_aiq_drc40_params_dump(void* attr, isp_params_t* isp_params) {
         isp_params->isp_cfg->others.drc_cfg.sfthd_y[16]);
 }
 
-void rk_aiq_drc40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_info_t* cvtinfo) {
+void rk_aiq_drc40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_info_t* cvtinfo, bool drc_en) {
 #if ISP_HW_V39
     struct isp39_drc_cfg* phwcfg = &isp_params->isp_cfg->others.drc_cfg;
 #elif ISP_HW_V33
@@ -153,8 +154,11 @@ void rk_aiq_drc40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
 #endif
     drc_param_t* drc_param         = &((rk_aiq_isp_drc_v39_t*)attr)->drc_param;
     drc_params_dyn_t* pdyn         = &drc_param->dyn;
+#if ISP_HW_V33
+    drc_params_static_t* pdrcSta     = &drc_param->sta;
+#endif
     trans_api_attrib_t* trans_attr = &((rk_aiq_isp_drc_v39_t*)attr)->trans_attr;
-    trans_params_static_t* psta    = &trans_attr->stMan.sta;
+    trans_params_static_t* ptransSta = &trans_attr->stMan.sta;
     float L2S_Ratio                = ((rk_aiq_isp_drc_v39_t*)attr)->L2S_Ratio;
     cvtinfo->L2S_Ratio             = L2S_Ratio;
     unsigned char compr_bit        = ((rk_aiq_isp_drc_v39_t*)attr)->compr_bit;
@@ -173,6 +177,18 @@ void rk_aiq_drc40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
     else if (pdyn->preProc.sw_drcT_toneCurve_mode == drc_cfgCurveDirect_mode)
         drc_gain = pdyn->preProc.hw_drcT_luma2ToneGain_val[16];
 
+    if (cvtinfo->btnr_en && cvtinfo->btnrCfg_pixDomain_mode == btnr_pixLog2Domain_mode) {
+        if (!drc_en) {
+            if (cvtinfo->drc_warning_count < 5) {
+                LOGE_ATMO("DRC must be enable when btnrCfg_pixDomain_mode is btnr_pixLog2Domain_mode, btnrCfg_pixDomain_mode=%d", cvtinfo->btnrCfg_pixDomain_mode);
+            }
+            else if (cvtinfo->drc_warning_count % 300 == 0) {
+                LOGE_ATMO("DRC must be enable when btnrCfg_pixDomain_mode is btnr_pixLog2Domain_mode, btnrCfg_pixDomain_mode=%d", cvtinfo->btnrCfg_pixDomain_mode);
+            }
+            cvtinfo->drc_warning_count++; 
+        }
+    }
+
     if (compr_bit) {
         if (pow(2.0f, (float)(compr_bit - ISP_HDR_BIT_NUM_MIN)) * drc_gain > MAX_AE_DRC_GAIN) {
             if (pow(2.0f, (float)(compr_bit - ISP_HDR_BIT_NUM_MIN)) > MAX_AE_DRC_GAIN)
@@ -190,13 +206,16 @@ void rk_aiq_drc40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
             LOGE_ATMO("%s:  AERatio*sw_drcT_toneGain_maxLimit > 256!!!\n", __FUNCTION__);
             drc_gain = MAX(MAX_AE_DRC_GAIN / L2S_Ratio, GAINMIN);
         }
-    } else if (cvtinfo->frameNum == 1) {
-        if (drc_gain > PREDGAIN_MAX) {
-            preDGain = PREDGAIN_MAX;
+    }
+    else if (cvtinfo->frameNum == 1) {
+        if (cvtinfo->btnr_en && cvtinfo->btnrCfg_pixDomain_mode == btnr_pixLog2Domain_mode &&
+            cvtinfo->blc_res.obcPostTnr.sw_blcT_obcPostTnr_en) {
+            preDGain = PREDGAIN_DEFAULT;
             drc_gain = drc_gain / preDGain;
-        } else {
-            preDGain = drc_gain;
-            drc_gain = 1.0f;
+            LOGD_ATMO("preDGain is forsed to 2.0f when btnrCfg_pixDomain_mode is btnr_pixLog2Domain_mode");
+        }
+        else {
+            preDGain = 1.0f;
         }
     }
 
@@ -223,12 +242,16 @@ void rk_aiq_drc40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
         }
     }
 
+#if ISP_HW_V33
+    phwcfg->bf_lp_en = pdrcSta->lowPowerCfg.loBifiltLP.hw_drcT_lp_en ? 1 : 0;
+#endif
+
     uint16_t tmp;
-    phwcfg->cmps_byp_en          = (trans_attr->en == 0 || trans_attr->bypass > 0);
-    phwcfg->offset_pow2          = CLIP(psta->hw_transCfg_transOfDrc_offset, 0, (1 << 4) - 1);
-    tmp                          = psta->hw_transCfg_lscOutTrans_offset;
+    phwcfg->cmps_byp_en          = !trans_attr->en;
+    phwcfg->offset_pow2          = CLIP(ptransSta->hw_transCfg_transOfDrc_offset, 0, (1 << 4) - 1);
+    tmp                          = ptransSta->hw_transCfg_lscOutTrans_offset;
     phwcfg->cmps_offset_bits_int = tmp > 15 ? 15 : tmp;
-    phwcfg->cmps_fixbit_mode     = psta->hw_transCfg_trans_mode == trans_lgi3f9_mode ? 1 : 0;
+    phwcfg->cmps_fixbit_mode     = ptransSta->hw_transCfg_trans_mode == trans_lgi3f9_mode ? 1 : 0;
     LOGD_ATMO("phwcfg->cmps_byp_en %d, phwcfg->offset_pow2 %d, phwcfg->cmps_offset_bits_int %d\n",
               phwcfg->cmps_byp_en, phwcfg->offset_pow2, phwcfg->cmps_offset_bits_int);
 
@@ -239,11 +262,13 @@ void rk_aiq_drc40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
     phwcfg->position = CLIP(pdyn->preProc.hw_drcT_toneCurveIdx_scale * (1 << 8), 0, (1 << 14) - 1);
     // get sw_drc_compres_scl
     float log_ratio2     = log(L2S_Ratio * drc_gain * preDGain) / log(2.0f) + 12.0f;
-    float offsetbits_int = CLIP(psta->hw_transCfg_transOfDrc_offset, 0, 15);
+    float offsetbits_int = CLIP(ptransSta->hw_transCfg_transOfDrc_offset, 0, 15);
 
     unsigned char cmps_fixbit_mode =
-        (psta->hw_transCfg_trans_mode == trans_lgi3f9_mode ? FUNCTION_ENABLE : FUNCTION_DISABLE);
-    LOGD_ATMO("pDrcCtx->hw_transCfg_transOfDrc_offset %d", psta->hw_transCfg_transOfDrc_offset);
+        (ptransSta->hw_transCfg_trans_mode == trans_lgi3f9_mode ? FUNCTION_ENABLE
+                                                                : FUNCTION_DISABLE);
+    LOGD_ATMO("pDrcCtx->hw_transCfg_transOfDrc_offset %d",
+              ptransSta->hw_transCfg_transOfDrc_offset);
     int cmps_fix_bit                        = 8 + cmps_fixbit_mode;
     float offsetbits                        = offsetbits_int * (1 << cmps_fix_bit);
     float hdrbits                           = log_ratio2 * (1 << cmps_fix_bit);
@@ -359,7 +384,10 @@ void rk_aiq_drc40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
     if (!cvtinfo->use_aiisp) cvtinfo->preDGain = preDGain;
     LOGD_ATMO("%s: cvtinfo->preDGain %f\n", __FUNCTION__, cvtinfo->preDGain);
 
-    if ((cvtinfo->frameNum > 1 || cvtinfo->preDGain > 1) && phwcfg->cmps_byp_en == 1) {
+    if (cvtinfo->frameNum ==1 && (!cvtinfo->btnr_en || cvtinfo->btnrCfg_pixDomain_mode == btnr_pixLinearDomain_mode)) {
+        phwcfg->cmps_byp_en = 1;
+    }
+    if ((cvtinfo->frameNum > 1 || (cvtinfo->btnr_en && cvtinfo->btnrCfg_pixDomain_mode == btnr_pixLog2Domain_mode)) && phwcfg->cmps_byp_en == 1 && drc_en) {
         phwcfg->cmps_byp_en = 0;
     }
     cvtinfo->cmps_on = phwcfg->cmps_byp_en == 0 ? 1 : 0;

@@ -339,132 +339,95 @@ static int sample_awb_SetAwbGnCalcOthAttrib(const rk_aiq_sys_ctx_t* ctx)
 
 static int sample_awb_printflog(const rk_aiq_sys_ctx_t* ctx)
 {
+
     rk_tool_awb_stat_res_full_t awb_measure_result;
     rk_tool_awb_strategy_result_t strategy_result;
-
     //for(int i=0;i<100;i++)
     {
-        memset(&awb_measure_result, 0, sizeof(awb_measure_result));
-        rk_aiq_user_api2_awb_getAlgoSta(ctx, &awb_measure_result);
-        memset(&strategy_result, 0, sizeof(strategy_result));
-        rk_aiq_user_api2_awb_getStrategyResult(ctx, &strategy_result);
-        printf("------------%d---------------\n", strategy_result.count);
-        printf("gnCalc_method(%d),Global CCT:%f,CCRI:%f,valid:%d\n", strategy_result.gnCalc_method,
-            strategy_result.cctGloabl.CCT, strategy_result.cctGloabl.CCRI,strategy_result.cctGloabl.valid);
-        printf("wbgain_s6(after damping)(rggb):(%f,%f,%f,%f), awbConverged(%d)  ,LVValue(%d), WPType(%d),df(%1.2f)\n", strategy_result.stat3aAwbGainOut[AWB_CHANNEL_R],
-               strategy_result.stat3aAwbGainOut[AWB_CHANNEL_GR], strategy_result.stat3aAwbGainOut[AWB_CHANNEL_GB],
-               strategy_result.stat3aAwbGainOut[AWB_CHANNEL_B], strategy_result.awbConverged, strategy_result.LVValue, strategy_result.WPType,
-               strategy_result.wbGainDampFactor);
-        printf("WPNo(normal,big):(%d,%d),vaild wp number in standard light(%d), vaild wp number in extra light(%d)\n",
-               awb_measure_result.WpNo[0], awb_measure_result.WpNo[1],
-               strategy_result.WPTotalNUM, awb_measure_result.extraLightResult.WpNo);
-        printf("select white point range type (0-normal xy range,1-big xy range, 3-extra light) : %d, runInterval(%d),tolerance(%f) \n", strategy_result.xy_area_type,
-               strategy_result.runInterval, strategy_result.tolerance);
-        printf("wbGainSgc for WPType1(rggb):(%f,%f,%f,%f) ,wbWeightSgc(%f),sgcGainEqu2Tem(%d)\n", strategy_result.wbGainSgc[0], strategy_result.wbGainSgc[1],
-               strategy_result.wbGainSgc[2], strategy_result.wbGainSgc[3], strategy_result.wbWeightSgc, strategy_result.sgcGainEqu2Tem);
-        printf("wbGainSpa  for WPType1 (rggb):(%f,%f,%f,%f) ,wbWeightSpa(%f), spaGainEqu2Tem(%d) \n", strategy_result.wbGainSpa[AWB_CHANNEL_R], strategy_result.wbGainSpa[AWB_CHANNEL_GR],
-               strategy_result.wbGainSpa[AWB_CHANNEL_GB], strategy_result.wbGainSpa[AWB_CHANNEL_B], strategy_result.wbWeightSpa, strategy_result.spaGainEqu2Tem);
-        printf("wbGainTep for WPType1 (rggb):(%f,%f,%f,%f)\n", strategy_result.wbGainTep[AWB_CHANNEL_R], strategy_result.wbGainTep[AWB_CHANNEL_GR],
-               strategy_result.wbGainTep[AWB_CHANNEL_GB], strategy_result.wbGainTep[AWB_CHANNEL_B]);
-        printf("wbGainType1 (rggb):(%f,%f,%f,%f)\n", strategy_result.wbGainType1[AWB_CHANNEL_R], strategy_result.wbGainType1[AWB_CHANNEL_GR],
-               strategy_result.wbGainType1[AWB_CHANNEL_GB], strategy_result.wbGainType1[AWB_CHANNEL_B]);
-        printf("wbGainType3(rggb):(%f,%f,%f,%f)\n", strategy_result.wbGainType3[AWB_CHANNEL_R], strategy_result.wbGainType3[AWB_CHANNEL_GR],
-               strategy_result.wbGainType3[AWB_CHANNEL_GB], strategy_result.wbGainType3[AWB_CHANNEL_B]);
-        printf("wbgain_s1 (mix wbGainType1 and wbGainType3 ) :(%f,%f,%f,%f) is updated (%d), weight of wbGainType3 %f\n", strategy_result.wbGainIntpStrategy[AWB_CHANNEL_R],
-               strategy_result.wbGainIntpStrategy[AWB_CHANNEL_GR], strategy_result.wbGainIntpStrategy[AWB_CHANNEL_GB],
-               strategy_result.wbGainIntpStrategy[AWB_CHANNEL_B], strategy_result.updateFlag, strategy_result.wbWeightType3);
-        printf("wbgain_s2 (caga) :(%f,%f,%f,%f) \n", strategy_result.wbGainCaga[AWB_CHANNEL_R],
-               strategy_result.wbGainCaga[AWB_CHANNEL_GR], strategy_result.wbGainCaga[AWB_CHANNEL_GB],
-               strategy_result.wbGainCaga[AWB_CHANNEL_B]);
-        printf("wbgain_s3 (wbgainclip) :(%f,%f,%f,%f) \n", strategy_result.wbGainClip[AWB_CHANNEL_R],
-               strategy_result.wbGainClip[AWB_CHANNEL_GR], strategy_result.wbGainClip[AWB_CHANNEL_GB],
-               strategy_result.wbGainClip[AWB_CHANNEL_B]);
-        printf("wbgain_s4 (wbgainAdjust) :(%f,%f,%f,%f) \n", strategy_result.wbGainAdjust[AWB_CHANNEL_R],
-               strategy_result.wbGainAdjust[AWB_CHANNEL_GR], strategy_result.wbGainAdjust[AWB_CHANNEL_GB],
-               strategy_result.wbGainAdjust[AWB_CHANNEL_B]);
-        printf("wbgain_s5 (wbgainOffest) :(%f,%f,%f,%f) \n", strategy_result.wbGainOffset[AWB_CHANNEL_R],
-               strategy_result.wbGainOffset[AWB_CHANNEL_GR], strategy_result.wbGainOffset[AWB_CHANNEL_GB],
-               strategy_result.wbGainOffset[AWB_CHANNEL_B]);
-        printf("hdrFrameChoose %d\n", awb_measure_result.effectHwPara.hdrFrameChoose);
-        char str1[500];
-        sprintf(str1, "%s", "WpNoHist:       ");
-        for (int p = 0; p < RK_AIQ_AWBWP_WEIGHT_CURVE_DOT_NUM - 1; p++) {
-            char str2[100];
-            sprintf(str2, "%6d,",  awb_measure_result.WpNoHist[p]);
-            strcat(str1, str2);
-        }
-        printf("%s\n", str1);
-        if (fabs(strategy_result.wbWeightSgc - 1) < 0.001 && strategy_result.wbWeightType3 < 0.02)
-        {
-            //printf("current light source : %d  (%d,%d,%d)\n", para->sinColorResult.illEst,
-            //         para->sinColorResult.voteResult[0], para->sinColorResult.voteResult[1], para->sinColorResult.voteResult[2]);
-            // printf("current color : %d\n", para->sinColorResult.colorEst);
-            for (int i = 0; i < strategy_result.lightNum; i++)
-            {
-                printf(" %s:\n", strategy_result.illInf[i].illName);
-                //printf(" %s:\n", strategy_result.illConf[i].illName);
-                //type0
-                for (int m = 0; m < 2; m++) {
-                    printf("     type%d: gain (rg,bg):(%f,%f) WPNo(%d)\n", m, awb_measure_result.light[i].xYType[m].gain[0],
-                           awb_measure_result.light[i].xYType[m].gain[3], awb_measure_result.light[i].xYType[m].WpNo);
-                }
-            }
+		memset(&awb_measure_result, 0, sizeof(awb_measure_result));
+		rk_aiq_user_api2_awb_getAlgoSta(ctx, &awb_measure_result);
+		memset(&strategy_result, 0, sizeof(strategy_result));
+		rk_aiq_user_api2_awb_getStrategyResult(ctx, &strategy_result);
+		printf("------------%d---------------\n", strategy_result.count);
+		printf("\n");
+		printf("wbgns6(smooth)(rggb):(%f,%f,%f,%f),ganCalcM(%d),wbgnCvg(%d)\n",strategy_result.stat3aAwbGainOut[AWB_CHANNEL_R],
+				 strategy_result.stat3aAwbGainOut[AWB_CHANNEL_GR], strategy_result.stat3aAwbGainOut[AWB_CHANNEL_GB],
+				 strategy_result.stat3aAwbGainOut[AWB_CHANNEL_B],strategy_result.gnCalc_method, strategy_result.awbConverged);
+		 printf("iso(%f),fLv(%f), WpT(%d),df(%1.2f,%1.2f), runItv(%d),toler(%f) \n",
+				 strategy_result.aec_iso, strategy_result.fLVValue, strategy_result.WPType,
+				 strategy_result.wbGainDampFactor, strategy_result.wbGainDampFactor2,
+				 strategy_result.runInterval, strategy_result.tolerance);
+		printf("WpNum:t(%d,%f),n(%d,%f),b(%d,%f),e(%d)\n",strategy_result.WPTotalNUM,
+				 strategy_result.WPTotalNUMProp,awb_measure_result.WpNo[0], strategy_result.wpNorNumRat,
+				 awb_measure_result.WpNo[1],strategy_result.wpBigNumRat,awb_measure_result.extraLightResult.WpNo);
+		printf("wbgns1 (mix wpT1 and wpT3 ) :(%f,%f,%f,%f),updated (%d), wgt_wpT3(%f)\n", strategy_result.wbGainIntpStrategy[AWB_CHANNEL_R],
+				 strategy_result.wbGainIntpStrategy[AWB_CHANNEL_GR], strategy_result.wbGainIntpStrategy[AWB_CHANNEL_GB],
+				 strategy_result.wbGainIntpStrategy[AWB_CHANNEL_B], strategy_result.updateFlag, strategy_result.wbWeightType3);
+		printf("wpgnT3:(%f,%f,%f,%f)\n", strategy_result.wbGainType3[AWB_CHANNEL_R], strategy_result.wbGainType3[AWB_CHANNEL_GR],
+				strategy_result.wbGainType3[AWB_CHANNEL_GB], strategy_result.wbGainType3[AWB_CHANNEL_B]);
+		printf("wpgnT1:(%f,%f,%f,%f)\n", strategy_result.wbGainType1[AWB_CHANNEL_R], strategy_result.wbGainType1[AWB_CHANNEL_GR],
+				strategy_result.wbGainType1[AWB_CHANNEL_GB], strategy_result.wbGainType1[AWB_CHANNEL_B]);
+		if(strategy_result.wbWeightSgc>-1){
+			printf("wbgnSgc for WpT1:(%f,%f,%f,%f) ,wgtSgc(%f)[lv(%f),wpnum(%f),dis(%f),grad(%f)],wgtlastWbgn(%d),\n",
+			strategy_result.wbGainSgc[0], strategy_result.wbGainSgc[1],
+			strategy_result.wbGainSgc[2], strategy_result.wbGainSgc[3],
+			strategy_result.wbWeightSgc,strategy_result.sinColorResult.wgt_lv, strategy_result.sinColorResult.wgt_wpnum,
+			strategy_result.sinColorResult.wgt_meandis,strategy_result.sinColorResult.wgt_clrGrad,strategy_result.sgcGainEqu2Tem);
+			printf("sgc illEst: %d  (%d,%d,%d,%d,%d,%d,%d,%d),colorEst : %d\n", strategy_result.sinColorResult.illEst,
+						strategy_result.sinColorResult.voteResult[0], strategy_result.sinColorResult.voteResult[1], strategy_result.sinColorResult.voteResult[2],
+						strategy_result.sinColorResult.voteResult[3], strategy_result.sinColorResult.voteResult[4], strategy_result.sinColorResult.voteResult[5],
+						strategy_result.sinColorResult.voteResult[6], strategy_result.sinColorResult.voteResult[7], strategy_result.sinColorResult.colorEst);
+		}
+		printf("wbGnRef for WpT1 :(%f,%f,%f,%f),wgtRef(%f)\n", strategy_result.wbGainTep[AWB_CHANNEL_R], strategy_result.wbGainTep[AWB_CHANNEL_GR],
+				 strategy_result.wbGainTep[AWB_CHANNEL_GB], strategy_result.wbGainTep[AWB_CHANNEL_B],strategy_result.wgtWbGnRef2T1);
+		printf("wbGnExt for wpT3 (%f,%f,%f,%f), wgtExt(%f),dIdx[%d,%d],idx0Wgt(%f)\n",awb_measure_result.extraLightResult.gain[0],
+			awb_measure_result.extraLightResult.gain[1],awb_measure_result.extraLightResult.gain[2],
+			awb_measure_result.extraLightResult.gain[3],strategy_result.extraWp_wgt,
+			strategy_result.extraWp_wbGainUsed[0],strategy_result.extraWp_wbGainUsed[1],
+			strategy_result.extraWp_wgt);
+		printf("wgtPrfNgt (%f)\n",  strategy_result.wgtPrfNgt);
 
-            printf("blockresult[15][15]:");
-            for (int i = 0; i < RK_AIQ_AWB_GRID_NUM_VERHOR * RK_AIQ_AWB_GRID_NUM_VERHOR; i++)
-            {
-                if (i % 15 == 0)
-                {
-                    printf("     ");
-                }
-                printf("%d (%.7f,%.7f,%.7f), \n", i, awb_measure_result.blkSgcResult[i].R, awb_measure_result.blkSgcResult[i].G,
-                       awb_measure_result.blkSgcResult[i].B);
-            }
-            printf("\n");
-        }
-        else
-        {
-            if (strategy_result.wbWeightSgc > 0.001) {
-                //printf("current light source : %s  (%d,%d,%d)\n", strategy_result.illConf[para->sinColorResult.illEst].illName,
-                //         para->sinColorResult.voteResult[0], para->sinColorResult.voteResult[1], para->sinColorResult.voteResult[2]);
-                //printf("current color : %d\n", para->sinColorResult.colorEst);
-            }
+		if (1 ) {
+				char str1[500];
+				sprintf(str1, "%s", "WpNoHist:       ");
+				for (int p = 0; p < RK_AIQ_AWBWP_WEIGHT_CURVE_DOT_NUM - 1; p++) {
+					char str2[100];
+					sprintf(str2, "%6u,",  awb_measure_result.WpNoHist[p]);
+					strcat(str1, str2);
+				}
+				printf("%s\n", str1);
 
-            for (int i = 0; i < strategy_result.lightNum; i++)
-            {
-                //printf("%s:\n", strategy_result.illConf[i].illName);
-                printf(" %s:\n", strategy_result.illInf[i].illName);
-                printf("     strategy_result.gain (rggb):(%f,%f,%f,%f) \n",
-                       strategy_result.illInf[i].gainValue[0], strategy_result.illInf[i].gainValue[1],
-                       strategy_result.illInf[i].gainValue[2], strategy_result.illInf[i].gainValue[3]
-                      );
-                printf("     prob_total(%f),prob_dis(%f),prob_LV(%f),prob_WPNO(%f)\n", strategy_result.illInf[i].prob_total, strategy_result.illInf[i].prob_dis,
-                       strategy_result.illInf[i].prob_LV, strategy_result.illInf[i].prob_WPNO);
-                printf("     spatial gain(rggb):(%f,%f,%f,%f),statistics gain weight(%f)\n", strategy_result.illInf[i].spatialGainValue[0], strategy_result.illInf[i].spatialGainValue[1],
-                       strategy_result.illInf[i].spatialGainValue[2], strategy_result.illInf[i].spatialGainValue[3], strategy_result.illInf[i].staWeight);
+		}
+		for (int i = 0; i < strategy_result.lightNum; i++)
+		{
+			printf("%s  \tres_wbgn :(%f,%f,%f,%f) \n",strategy_result.illInf[i].illName,
+						strategy_result.illInf[i].gainValue[0], strategy_result.illInf[i].gainValue[1],
+						strategy_result.illInf[i].gainValue[2], strategy_result.illInf[i].gainValue[3]
+					);
+			printf("     prob_total(%f),dis(%f),lv(%f),wpnum(%f),lgtSrcWgt(%f)\n", strategy_result.illInf[i].prob_total, strategy_result.illInf[i].prob_dis,
+						strategy_result.illInf[i].prob_LV, strategy_result.illInf[i].prob_WPNO,
+						strategy_result.illInf[i].weight);
+			printf("     prefwbgn:(%f,%f,%f,%f),prefWgt(%f)\n", strategy_result.illInf[i].spatialGainValue[0], strategy_result.illInf[i].spatialGainValue[1],
+						strategy_result.illInf[i].spatialGainValue[2], strategy_result.illInf[i].spatialGainValue[3], 1-strategy_result.illInf[i].staWeight);
+			int m=0;
+			printf("     nor_wbgn:(%f,%f,%f,%f) wpnum(%d)\n",
+					awb_measure_result.light[i].xYType[m].gain[0],
+					awb_measure_result.light[i].xYType[m].gain[1],
+					awb_measure_result.light[i].xYType[m].gain[2],
+					awb_measure_result.light[i].xYType[m].gain[3],
+					awb_measure_result.light[i].xYType[m].WpNo);
+			m=1;
+			printf("     big_wbgn:(%f,%f,%f,%f) wpnum(%d),bigWp_wgt(%f)\n",
+					awb_measure_result.light[i].xYType[m].gain[0],
+					awb_measure_result.light[i].xYType[m].gain[1],
+					awb_measure_result.light[i].xYType[m].gain[2],
+					awb_measure_result.light[i].xYType[m].gain[3],
+					awb_measure_result.light[i].xYType[m].WpNo,
+					strategy_result.illInf[i].bigWp_wgt);
 
-                int m=0;
-                printf("     type%d: gain (rg,bg):(%f,%f) WPNo(%d)\n", m,
-                    awb_measure_result.light[i].xYType[m].gain[0],
-                    awb_measure_result.light[i].xYType[m].gain[3],
-                    awb_measure_result.light[i].xYType[m].WpNo);
-                m=1;
-                printf("     type%d: gain (rg,bg):(%f,%f) WPNo(%d),bigWp_wgt(%f)\n", m,
-                    awb_measure_result.light[i].xYType[m].gain[0],
-                    awb_measure_result.light[i].xYType[m].gain[3],
-                    awb_measure_result.light[i].xYType[m].WpNo,
-                    strategy_result.illInf[i].bigWp_wgt);
-
-            }
-
-        }
-
-        printf("\n");
-    }
-
-
-
-    return 0;
+		}
+	}
+    return  0;
 }
 
 
@@ -534,7 +497,7 @@ static void sample_awb_usage()
     printf("\t N) AWB: set Manual attr & Sync.\n");
 
     printf("\t S) AWB: set WbGainOffset & Sync.\n");
-#if ISP_HW_V32|| ISP_HW_V39
+#if ISP_HW_V32|| ISP_HW_V39|| ISP_HW_V33
     printf("\t Y) AWB: WriteAwbIn.\n");
 #endif
     printf("\t Z) AWB: setFFWbgain.\n");
@@ -662,7 +625,7 @@ printf("\t please press the key: ");
             sample_awb_SetAwbGnCalcOthAttrib(ctx);
             break;
         case 'Y':
-#if ISP_HW_V32|| ISP_HW_V39
+#if ISP_HW_V32|| ISP_HW_V39|| ISP_HW_V33
             sample_awb_WriteAwbIn(ctx);
 #endif
             break;

@@ -91,6 +91,7 @@ typedef struct {
     char mpfbc_dev_path[DEV_PATH_LEN];
     char main_path[DEV_PATH_LEN];
     char self_path[DEV_PATH_LEN];
+    char ldc_path[DEV_PATH_LEN];
     char rawwr0_path[DEV_PATH_LEN];
     char rawwr1_path[DEV_PATH_LEN];
     char rawwr2_path[DEV_PATH_LEN];

@@ -37,6 +37,12 @@
 #define RKCIF_CMD_SET_QUICK_STREAM \
 	_IOWR('V', BASE_VIDIOC_PRIVATE + 8, struct rkcif_quick_stream_param)
 
+#define RKCIF_CMD_SET_SENSOR_FLIP_START \
+	_IOWR('V', BASE_VIDIOC_PRIVATE + 20, int)
+
+#define RKCIF_CMD_SET_SENSOR_FLIP_END \
+	_IOWR('V', BASE_VIDIOC_PRIVATE + 21, int)
+
 /* cif memory mode
  * 0: raw12/raw10/raw8 8bit memory compact
  * 1: raw12/raw10 16bit memory one pixel

@@ -2300,7 +2300,7 @@ static void convertAiqHisteqToIsp39Params(AiqIspParamsCvt_t* pCvt, aiq_params_ba
 
 #if RKAIQ_HAVE_DRC_V20
 void convertAiqDrcToIsp39Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase) {
-    if ((pCvt->mCommonCvtInfo.frameNum > 1 || pCvt->mCommonCvtInfo.blc_res.obcPostTnr.sw_blcT_obcPostTnr_en) && !pBase->en) {
+    if (pCvt->mCommonCvtInfo.frameNum > 1 && !pBase->en) {
         LOGW_ATMO("Drc must be on  when isp is HDR mode. Please turn on by drc.en!");
     }
     if (pBase->en) {
@@ -2314,7 +2314,7 @@ void convertAiqDrcToIsp39Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBas
         pCvt->isp_params.isp_cfg->module_cfg_update |= (1LL << Rk_ISP21_DRC_ID);
     }
     pCvt->isp_params.isp_cfg->others.drc_cfg.bypass_en = pBase->bypass;
-    rk_aiq_drc40_params_cvt(pBase->_data, &pCvt->isp_params, &pCvt->mCommonCvtInfo);
+    rk_aiq_drc40_params_cvt(pBase->_data, &pCvt->isp_params, &pCvt->mCommonCvtInfo, pBase->en);
 }
 #endif
 
@@ -2408,8 +2408,13 @@ static void convertAiqLdchToIsp39Params(aiq_params_base_t* pBase, bool is_multi_
 #endif
 
 #if RKAIQ_HAVE_LDC
-static void convertAiqAldchToIsp39Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase) {
-    if (pBase->en) {
+static void convertAiqAldchToIsp39Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase,
+                                         bool is_multi_isp) {
+    ldc_param_t* ldc_param = (ldc_param_t*)(pBase->_data);
+
+    LOGD_ALDC("LDCH %s in params CVT", ldc_param->sta.ldchCfg.en ? "on" : "off");
+
+    if (ldc_param->sta.ldchCfg.en) {
         pCvt->isp_params.isp_cfg->module_en_update |= ISP39_MODULE_LDCH;
         pCvt->isp_params.isp_cfg->module_ens |= ISP39_MODULE_LDCH;
         pCvt->isp_params.isp_cfg->module_cfg_update |= ISP39_MODULE_LDCH;
@@ -2417,13 +2422,21 @@ static void convertAiqAldchToIsp39Params(AiqIspParamsCvt_t* pCvt, aiq_params_bas
         pCvt->isp_params.isp_cfg->module_en_update |= (ISP39_MODULE_LDCH);
         pCvt->isp_params.isp_cfg->module_ens &= ~(ISP39_MODULE_LDCH);
         pCvt->isp_params.isp_cfg->module_cfg_update &= ~(ISP39_MODULE_LDCH);
+        return;
     }
 
-    // TODO:
+    rk_aiq_ldch22_params_cvt(&pCvt->mCommonCvtInfo, &ldc_param->sta.ldchCfg, &pCvt->isp_params,
+                             &pCvt->isp_params, is_multi_isp);
 }
 
-static void convertAiqAldcvToIsp39Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase) {
-    if (pBase->en) {
+#if RKAIQ_HAVE_LDCV
+static void convertAiqAldcvToIsp39Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase,
+                                         bool is_multi_isp) {
+    ldc_param_t* ldc_param = (ldc_param_t*)(pBase->_data);
+
+    LOGD_ALDC("LDCV %s in params CVT", ldc_param->sta.ldcvCfg.en ? "on" : "off");
+
+    if (ldc_param->sta.ldcvCfg.en) {
         pCvt->isp_params.isp_cfg->module_en_update |= ISP39_MODULE_LDCV;
         pCvt->isp_params.isp_cfg->module_ens |= ISP39_MODULE_LDCV;
         pCvt->isp_params.isp_cfg->module_cfg_update |= ISP39_MODULE_LDCV;
@@ -2431,9 +2444,20 @@ static void convertAiqAldcvToIsp39Params(AiqIspParamsCvt_t* pCvt, aiq_params_bas
         pCvt->isp_params.isp_cfg->module_en_update |= (ISP39_MODULE_LDCV);
         pCvt->isp_params.isp_cfg->module_ens &= ~(ISP39_MODULE_LDCV);
         pCvt->isp_params.isp_cfg->module_cfg_update &= ~(ISP39_MODULE_LDCV);
+        return;
     }
 
-    // TODO:
+    rk_aiq_ldcv22_params_cvt(&pCvt->mCommonCvtInfo, &ldc_param->sta.ldcvCfg, &pCvt->isp_params,
+                             &pCvt->isp_params, is_multi_isp);
+}
+#endif
+
+void convertAiqAldcToIsp39Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase,
+                                 bool is_multi_isp) {
+    convertAiqAldchToIsp39Params(pCvt, pBase, is_multi_isp);
+#if RKAIQ_HAVE_LDCV
+    convertAiqAldcvToIsp39Params(pCvt, pBase, is_multi_isp);
+#endif
 }
 #endif
 
@@ -2758,8 +2782,12 @@ bool Convert3aResultsToIsp39Cfg(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBas
         struct isp39_isp_params_cfg* isp_cfg_right = isp_cfg + 1;
         convertAiqCacToIsp39Params(pCvt, pBase, isp_cfg, isp_cfg_right, is_multi_isp);
 #endif
-    }
-    break;
+    } break;
+#if RKAIQ_HAVE_LDC
+    case RESULT_TYPE_LDC_PARAM:
+        convertAiqAldcToIsp39Params(pCvt, pBase, is_multi_isp);
+        break;
+#endif
     default:
         if (params_cvt_is_known(pBase->type)) {
             const struct params_cvt_info* info = &params_cvts[pBase->type];

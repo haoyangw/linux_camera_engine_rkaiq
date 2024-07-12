@@ -64,6 +64,7 @@
 #include "uAPI2/rk_aiq_user_api2_aynr_v24.h"
 #include "uAPI2/rk_aiq_user_api_common.h"
 #include "uAPI2/rk_aiq_user_api2_ayuvme_v1.h"
+#include "uAPI2/rk_aiq_user_api2_ldc.h"
 
 RKAIQ_BEGIN_DECLARE
 
@@ -1150,5 +1151,22 @@ XCamReturn rk_aiq_uapi2_setGrayMode(const rk_aiq_sys_ctx_t* ctx, rk_aiq_gray_mod
 *****************************
 */
 rk_aiq_gray_mode_t rk_aiq_uapi2_getGrayMode(const rk_aiq_sys_ctx_t* ctx);
+
+/*
+*****************************
+*
+* Desc:
+* Argument:
+*****************************
+*/
+XCamReturn rk_aiq_uapi2_setLdchLdcvEn(const rk_aiq_sys_ctx_t* ctx, bool en);
+/*
+*****************************
+*
+* Desc: the adjustment range of distortion intensity is 0~255
+* Argument:
+*****************************
+*/
+XCamReturn rk_aiq_uapi2_setLdchLdcvCorrectLevel(const rk_aiq_sys_ctx_t* ctx, int correctLevel);
 RKAIQ_END_DECLARE
 #endif

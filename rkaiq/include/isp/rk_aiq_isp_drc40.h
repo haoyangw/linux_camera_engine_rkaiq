@@ -20,6 +20,44 @@
 
 #define DRC_CURVE_LEN 17
 
+typedef struct drc_loBifiltLP_LP_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(hw_drcT_lp_en),
+        M4_TYPE(bool),
+        M4_DEFAULT(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(1),
+        M4_NOTES(Disable part of none-local means.
+        Freq of use: high))  */
+    // reg: sw_adrc_bf_lp_en
+    bool hw_drcT_lp_en;
+} drc_loBifiltLP_LP_t;
+
+typedef struct drc_drcLP_s {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(loBifiltLP),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(TODO))  */
+    drc_loBifiltLP_LP_t loBifiltLP;
+} drc_drcLP_t;
+
+typedef struct {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(lowPowerCfg),
+        M4_TYPE(struct),
+        M4_UI_MODULE(normal_ui_style),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(TODO))  */
+    drc_drcLP_t lowPowerCfg;
+} drc_params_static_t;
+
 typedef enum drc_curveCfg_mode_e {
     drc_cfgCurveDirect_mode    = 0,
     drc_cfgCurveCtrlCoeff_mode = 1
@@ -599,6 +637,17 @@ typedef struct drc_params_dyn_s {
 } drc_params_dyn_t;
 
 typedef struct drc_param_s {
+#if ISP_HW_V33
+    /* M4_GENERIC_DESC(
+    M4_ALIAS(sta),
+    M4_TYPE(struct),
+    M4_UI_MODULE(static_ui),
+    M4_HIDE_EX(0),
+    M4_RO(0),
+    M4_ORDER(1),
+    M4_NOTES(TODO))  */
+    drc_params_static_t sta;
+#endif
     /* M4_GENERIC_DESC(
         M4_ALIAS(dynamic_param),
         M4_TYPE(struct),

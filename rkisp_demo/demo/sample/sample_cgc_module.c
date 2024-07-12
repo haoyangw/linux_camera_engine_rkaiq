@@ -129,12 +129,6 @@ static void sample_cgc_tuningtool_test(const rk_aiq_sys_ctx_t* ctx)
     printf(">>> tuning tool test done \n");
 }
 
-static void get_auto_attr(cgc_api_attrib_t* attr) {
-    cgc_param_auto_t* stAuto = &attr->stAuto;
-    for (int i = 0;i < 13;i++) {
-    }
-}
-
 static void get_manual_attr(cgc_api_attrib_t* attr) {
     cgc_param_t* stMan = &attr->stMan;
 }
@@ -159,10 +153,8 @@ int sample_cgc_test(const rk_aiq_sys_ctx_t* ctx)
         printf("update cgc arrrib!\n");
         if (attr.opMode == RK_AIQ_OP_MODE_AUTO) {
             attr.opMode = RK_AIQ_OP_MODE_MANUAL;
-            get_manual_attr(&attr);
         }
         else {
-            get_auto_attr(&attr);
             attr.opMode = RK_AIQ_OP_MODE_AUTO;
         }
     }

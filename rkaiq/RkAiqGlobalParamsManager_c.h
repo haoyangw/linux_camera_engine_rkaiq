@@ -82,7 +82,11 @@ typedef struct GlobalParamsManager_s {
     uint64_t mIsGlobalModulesUpdateBits;
     AiqManager_t* rkAiqManager;
     SocketClientCtx_t* _socket;
-} GlobalParamsManager_t; 
+    btnr_pixDomain_mode_t mBtnrPixDomainMode;
+#if RKAIQ_HAVE_YUVME
+    bool yme_init_enable;
+#endif
+} GlobalParamsManager_t;
 
 XCamReturn GlobalParamsManager_init(GlobalParamsManager_t* pMan, bool isFullManMode, CamCalibDbV2Context_t* calibDb);
 void GlobalParamsManager_deinit(GlobalParamsManager_t* pMan);

@@ -7102,6 +7102,13 @@
 							"en":	1,
 							"bypass":	0,
 							"stAuto":	{
+								"sta": {
+									"lowPowerCfg": {
+										"loBifiltLP": {
+											"hw_drcT_lp_en": 0
+										}
+									}
+								},
 								"dyn":	[{
 										"preProc":	{
 											"sw_drcT_toneCurve_mode":	"drc_cfgCurveCtrlCoeff_mode",
@@ -7716,6 +7723,13 @@
 									}]
 							},
 							"stMan":	{
+								"sta": {
+									"lowPowerCfg": {
+										"loBifiltLP": {
+											"hw_drcT_lp_en": 0
+										}
+									}
+								},
 								"dyn":	{
 									"preProc":	{
 										"sw_drcT_toneCurve_mode":	"drc_cfgCurveCtrlCoeff_mode",
@@ -10701,45 +10715,6 @@
 										}],
 									"dpDct_fixEngine":	{
 										"hw_dpcT_engine_en":	1
-									}
-								}
-							}
-						},
-						"ldch":	{
-							"opMode":	"RK_AIQ_OP_MODE_INVALID",
-							"en":	0,
-							"bypass":	0,
-							"stAuto":	{
-								"sta":	{
-									"baseCtrl":	{
-										"sw_ldchT_meshfile_path":	"",
-										"sw_ldchT_correct_strg":	0,
-										"sw_ldchT_correctStrg_max":	0,
-										"sw_ldchT_lightCenter_val":	[0, 0],
-										"sw_ldchT_lensDistor_coeff":	[0, 0, 0, 0]
-									},
-									"sw_ldchCfg_updateLut_mode":	"ldch_online_mode",
-									"userCfg":	{
-										"hw_ldchCfg_bicMode_en":	0,
-										"hw_ldchCfg_zeroInterp_en":	0,
-										"hw_ldchCfg_sampleAvr_en":	0,
-										"hw_ldchCfg_bicWeight_table":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-										"hw_ldchCfg_frmEndDis_mode":	0,
-										"hw_ldchCfg_forceMap_en":	0,
-										"hw_ldchCfg_mapFix3Bit_en":	0
-									},
-									"customLutCfg":	{
-										"sw_ldchCfg_lutExtUpdate_en":	0,
-										"sw_ldchCfg_lutExtFile_dir":	"",
-										"sw_ldchCfg_lutExtMeshFile_name":	"",
-										"sw_ldchCfg_lutExtBuf_addr":	"",
-										"sw_ldchCfg_lutExtBuf_size":	0
-									},
-									"lutMapCfg":	{
-										"sw_ldchT_lutMap_height":	0,
-										"sw_ldchT_lutMap_width":	0,
-										"sw_ldchT_lutMap_size":	0,
-										"sw_ldchT_lutMapBuf_fd":	[0, 0]
 									}
 								}
 							}
@@ -19299,6 +19274,27 @@
 									"hdr_gain_scale_m":	0
 								}
 							}
+						},
+						"ldc":	{
+							"opMode":	"RK_AIQ_OP_MODE_AUTO",
+							"en":	0,
+							"bypass":	0,
+							"tunning":	{
+								"autoGenMesh":	{
+									"lensDistorCoeff":	{
+										"sw_ldcC_opticCenter_x":	965.94432,
+										"sw_ldcC_opticCenter_y":	524.16288,
+										"sw_ldcC_lensDistor_coeff":	[-697.06693896, 0.00016488, 2.3697320638817e-007, 2.224407027e-011]
+									},
+									"sw_ldcT_correctStrg_val":	200,
+									"sw_ldcC_correctStrg_maxLimit":	250,
+									"sw_ldcT_saveMaxFovX_bit":	0
+								},
+								"extMeshFile":	{
+									"sw_ldcT_extMeshFile_path":	"/mnt",
+									"sw_ldcT_ldchExtMeshFile_name":	"ldch_mesh.bin"
+								}
+							}
 						}
 					}
 				}, {
@@ -26276,6 +26272,13 @@
 							"en":	1,
 							"bypass":	0,
 							"stAuto":	{
+								"sta": {
+									"lowPowerCfg": {
+										"loBifiltLP": {
+											"hw_drcT_lp_en": 0
+										}
+									}
+								},
 								"dyn":	[{
 										"preProc":	{
 											"sw_drcT_toneCurve_mode":	"drc_cfgCurveCtrlCoeff_mode",
@@ -26891,6 +26894,13 @@
 							},
 							"stMan":	{
 								"dyn":	{
+									"sta": {
+									"lowPowerCfg": {
+										"loBifiltLP": {
+											"hw_drcT_lp_en": 0
+										}
+									}
+								},
 									"preProc":	{
 										"sw_drcT_toneCurve_mode":	"drc_cfgCurveCtrlCoeff_mode",
 										"hw_drcT_toneCurveIdx_scale":	1,
@@ -29875,45 +29885,6 @@
 										}],
 									"dpDct_fixEngine":	{
 										"hw_dpcT_engine_en":	1
-									}
-								}
-							}
-						},
-						"ldch":	{
-							"opMode":	"RK_AIQ_OP_MODE_INVALID",
-							"en":	0,
-							"bypass":	0,
-							"stAuto":	{
-								"sta":	{
-									"baseCtrl":	{
-										"sw_ldchT_meshfile_path":	"",
-										"sw_ldchT_correct_strg":	0,
-										"sw_ldchT_correctStrg_max":	0,
-										"sw_ldchT_lightCenter_val":	[0, 0],
-										"sw_ldchT_lensDistor_coeff":	[0, 0, 0, 0]
-									},
-									"sw_ldchCfg_updateLut_mode":	"ldch_online_mode",
-									"userCfg":	{
-										"hw_ldchCfg_bicMode_en":	0,
-										"hw_ldchCfg_zeroInterp_en":	0,
-										"hw_ldchCfg_sampleAvr_en":	0,
-										"hw_ldchCfg_bicWeight_table":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-										"hw_ldchCfg_frmEndDis_mode":	0,
-										"hw_ldchCfg_forceMap_en":	0,
-										"hw_ldchCfg_mapFix3Bit_en":	0
-									},
-									"customLutCfg":	{
-										"sw_ldchCfg_lutExtUpdate_en":	0,
-										"sw_ldchCfg_lutExtFile_dir":	"",
-										"sw_ldchCfg_lutExtMeshFile_name":	"",
-										"sw_ldchCfg_lutExtBuf_addr":	"",
-										"sw_ldchCfg_lutExtBuf_size":	0
-									},
-									"lutMapCfg":	{
-										"sw_ldchT_lutMap_height":	0,
-										"sw_ldchT_lutMap_width":	0,
-										"sw_ldchT_lutMap_size":	0,
-										"sw_ldchT_lutMapBuf_fd":	[0, 0]
 									}
 								}
 							}
@@ -38444,6 +38415,27 @@
 									"hdrgain_ctrl_enable":	0,
 									"hdr_gain_scale_s":	0,
 									"hdr_gain_scale_m":	0
+								}
+							}
+						},
+						"ldc":	{
+							"opMode":	"RK_AIQ_OP_MODE_AUTO",
+							"en":	0,
+							"bypass":	0,
+							"tunning":	{
+								"autoGenMesh":	{
+									"lensDistorCoeff":	{
+										"sw_ldcC_opticCenter_x":	965.94432,
+										"sw_ldcC_opticCenter_y":	524.16288,
+										"sw_ldcC_lensDistor_coeff":	[-697.06693896, 0.00016488, 2.3697320638817e-007, 2.224407027e-011]
+									},
+									"sw_ldcT_correctStrg_val":	200,
+									"sw_ldcC_correctStrg_maxLimit":	250,
+									"sw_ldcT_saveMaxFovX_bit":	0
+								},
+								"extMeshFile":	{
+									"sw_ldcT_extMeshFile_path":	"/mnt",
+									"sw_ldcT_ldchExtMeshFile_name":	"ldch_mesh.bin"
 								}
 							}
 						}

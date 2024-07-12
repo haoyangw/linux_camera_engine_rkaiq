@@ -45,13 +45,15 @@
 #include "newStruct/gain/include/gain_algo_api.h"
 #include "newStruct/ccm/include/ccm_algo_api.h"
 #ifdef ISP_HW_V39
+#include "newStruct/3dlut/include/3dlut_algo_api.h"
 #include "newStruct/dehaze/include/dehaze_algo_api.h"
+#include "newStruct/ldc/include/ldc_algo_api.h"
 #include "newStruct/rgbir/include/rgbir_algo_api.h"
 #include "newStruct/yme/include/yme_algo_api.h"
-#include "newStruct/3dlut/include/3dlut_algo_api.h"
 #endif
 #ifdef ISP_HW_V33
 #include "newStruct/hsv/include/hsv_algo_api.h"
+#include "newStruct/ldc/include/ldc_algo_api.h"
 #endif
 #endif
 
@@ -446,6 +448,7 @@ typedef struct _RkAiqAlgoConfigLdch {
     bool is_multi_isp;
     uint8_t multi_isp_extended_pixel;
 } RkAiqAlgoConfigLdch;
+
 typedef struct _RkAiqAlgoProcResCsm {
     RkAiqAlgoResCom res_com;
 #if USE_NEWSTRUCT
@@ -613,5 +616,20 @@ typedef struct {
     RkAiqAlgoCom com;
     illu_estm_info_t illu_info;
 } RkAiqAlgoProcLsc;
+
+#if USE_NEWSTRUCT
+// aldc
+typedef struct _RkAiqAlgoConfigLdc {
+    RkAiqAlgoCom com;
+    isp_drv_share_mem_ops_t* mem_ops;
+    bool is_multi_isp;
+    char iqpath[255];
+} RkAiqAlgoConfigLdc;
+
+typedef struct _RkAiqAlgoProcLdc {
+    RkAiqAlgoCom com;
+    AiqLdcUpdMeshMode upd_mesh_mode;
+} RkAiqAlgoProcLdc;
+#endif
 
 #endif

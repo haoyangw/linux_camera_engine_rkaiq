@@ -20,21 +20,7 @@
 
 #include "common/rk_aiq_comm.h"
 
-#define CGC_ISO_STEP_MAX 13
-
 RKAIQ_BEGIN_DECLARE
-
-typedef struct {
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(static_param),
-        M4_TYPE(struct),
-        M4_UI_MODULE(static_ui),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(1),
-        M4_NOTES(The static params of cgc module))  */
-    cgc_params_static_t sta;
-} cgc_param_auto_t;
 
 typedef struct {
     /* M4_GENERIC_DESC(
@@ -65,15 +51,6 @@ typedef struct {
         M4_ORDER(0),
         M4_NOTES(The hardware enable flag))  */
     bool bypass;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(stAuto),
-        M4_TYPE(struct),
-        M4_UI_MODULE(normal_ui_style),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(1),
-        M4_NOTES(The params of auto mode, be only valid for auto mode))  */
-    cgc_param_auto_t stAuto;
     /* M4_GENERIC_DESC(
         M4_ALIAS(stMan),
         M4_TYPE(struct),

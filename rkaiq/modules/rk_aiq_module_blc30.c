@@ -71,7 +71,13 @@ void rk_aiq_blc30_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
 
     if (cvtinfo->frameNum > 1) {
         if (phwcfg->bls1_en == 1 || phwcfg->isp_ob_offset > 0) {
-            LOGE_ABLC("When using HDR mode, obcPostTnr and ob_offset should be off");
+            if (cvtinfo->blc_warning_count < 5) {
+                LOGE_ABLC("When using HDR mode, obcPostTnr and ob_offset should be off");
+            }
+            else if (cvtinfo->blc_warning_count % 300 == 0) {
+                LOGE_ABLC("When using HDR mode, obcPostTnr and ob_offset should be off");
+            }
+            cvtinfo->blc_warning_count++;
         }
         // hdr won't use blc1 and blc_ob
         phwcfg->bls1_en = 0;

@@ -58,7 +58,7 @@ static void sample_trans_tuningtool_test(const rk_aiq_sys_ctx_t* ctx)
             \"op\":\"replace\", \n\
             \"path\": \"/uapi/0/trans_uapi/attr\", \n\
             \"value\": \n\
-            { \"opMode\": \"RK_AIQ_OP_MODE_MANUAL\", \"en\": 1,\"bypass\": 1} \n\
+            { \"opMode\": \"RK_AIQ_OP_MODE_MANUAL\", \"en\": 1,\"bypass\": 0} \n\
         }]";
     printf("trans json_cmd_str: %s\n", json_trans_str);
     ret_str = NULL;
@@ -66,17 +66,17 @@ static void sample_trans_tuningtool_test(const rk_aiq_sys_ctx_t* ctx)
                            json_trans_str, &ret_str, RKAIQUAPI_OPMODE_SET);
 
     // wait more than 2 frames
-    usleep(90 * 1000);
+    usleep(180 * 1000);
 
     trans_status_t status;
     memset(&status, 0, sizeof(trans_status_t));
 
     rk_aiq_user_api2_trans_QueryStatus(ctx, &status);
 
-    if (status.opMode != RK_AIQ_OP_MODE_MANUAL || status.en != 1 || status.bypass != 1) {
+    if (status.opMode != RK_AIQ_OP_MODE_MANUAL || status.en != 1) {
         printf("trans op set_attrib failed !\n");
-        printf("trans status: opmode:%d(EXP:%d), en:%d(EXP:%d), bypass:%d(EXP:%d)\n",
-               status.opMode, RK_AIQ_OP_MODE_MANUAL, status.en, 1, status.bypass, 1);
+        printf("trans status: opmode:%d(EXP:%d), en:%d(EXP:%d)\n",
+               status.opMode, RK_AIQ_OP_MODE_MANUAL, status.en, 1);
     } else {
         printf("trans op set_attrib success !\n");
     }
@@ -89,11 +89,8 @@ static void get_manual_attr(trans_api_attrib_t* attr) {
 }
 
 void sample_new_trans(const rk_aiq_sys_ctx_t* ctx) {
-    // sample_trans_tuningtool_test(ctx);
-
     printf("+++++++ trans module test start ++++++++\n");
     trans_api_attrib_t attr;
-    trans_status_t status;
     rk_aiq_user_api2_trans_GetAttrib(ctx, &attr);
     printf("\t attr.opMode:%d attr.en:%d\n\n",
             attr.opMode, attr.en);
@@ -101,19 +98,17 @@ void sample_new_trans(const rk_aiq_sys_ctx_t* ctx) {
     srand(time(0));
     int rand_num = rand() % 101;
 
-    if (rand_num <70) {
-        printf("update trans arrrib!\n");
-        attr.opMode = RK_AIQ_OP_MODE_MANUAL;
-        get_manual_attr(&attr);
-    }
-    else {
-        // reverse en
-        printf("reverse trans en!\n");
-        attr.en = !attr.en;
-    }
+    // reverse en
+    printf("reverse trans en!\n");
+    attr.en = !attr.en;
 
     // attr.stMan.sta.hw_transCfg_transOfDrc_offset += 1;
     rk_aiq_user_api2_trans_SetAttrib(ctx, &attr);
+
+    // wait more than 2 frames
+    usleep(90 * 1000);
+    trans_status_t status;
+    memset(&status, 0, sizeof(trans_status_t));
 
     rk_aiq_user_api2_trans_QueryStatus(ctx, &status);
     printf("\t status.opMode:%d status.en:%d\n\n",
@@ -147,6 +142,11 @@ XCamReturn sample_trans_module(const void *arg)
             case '0': {
                 printf("\t sample_new_trans\n\n");
                 sample_new_trans(ctx);
+                break;
+            }
+            case'1': {
+                printf("\t sample_trans_tuningtool_test\n\n");
+                sample_trans_tuningtool_test(ctx);
                 break;
             }
 #endif

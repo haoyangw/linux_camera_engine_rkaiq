@@ -2878,7 +2878,7 @@ static void mapModStrListToEnum(AiqCore_t* pAiqCore, TuningCalib* change_name_li
 }
 
 static XCamReturn notifyUpdate(AiqCore_t* pAiqCore, uint64_t mask) {
-    aiqMutex_unlock(&pAiqCore->_update_mutex);
+    aiqMutex_lock(&pAiqCore->_update_mutex);
     pAiqCore->groupUpdateMask |= mask;
     aiqMutex_unlock(&pAiqCore->_update_mutex);
 
@@ -2886,11 +2886,17 @@ static XCamReturn notifyUpdate(AiqCore_t* pAiqCore, uint64_t mask) {
 }
 
 static XCamReturn waitUpdateDone(AiqCore_t* pAiqCore) {
-    aiqMutex_unlock(&pAiqCore->_update_mutex);
+    aiqMutex_lock(&pAiqCore->_update_mutex);
 
-    while (pAiqCore->groupUpdateMask != 0) {
-        aiqCond_timedWait(&pAiqCore->_update_done_cond, &pAiqCore->_update_mutex, 100000ULL);
+    int times = 12;
+    while (times-- > 0 && pAiqCore->groupUpdateMask != 0) {
+        aiqCond_timedWait(&pAiqCore->_update_done_cond, &pAiqCore->_update_mutex, 10000ULL);
     }
+
+    if (pAiqCore->groupUpdateMask != 0) {
+        LOGW_ANALYZER("calib not updated completely !");
+    }
+
     aiqMutex_unlock(&pAiqCore->_update_mutex);
 
     return XCAM_RETURN_NO_ERROR;
@@ -3333,12 +3339,12 @@ AiqCore_unregister3Aalgo(AiqCore_t* pAiqCore, int algoType)
         return XCAM_RETURN_ERROR_ANALYZER;
 	}
 
-	if (algoType != RK_AIQ_ALGO_TYPE_AE || algoType != RK_AIQ_ALGO_TYPE_AWB) return XCAM_RETURN_ERROR_ANALYZER;
+	if (algoType != RK_AIQ_ALGO_TYPE_AE && algoType != RK_AIQ_ALGO_TYPE_AWB) return XCAM_RETURN_ERROR_ANALYZER;
+
+	AiqAnalyzeGroupManager_rmAlgoHandle(&pAiqCore->mRkAiqCoreGroupManager, algoType);
 
 	if (pAiqCore->mAlgoHandleMaps[algoType]) destroyAlgoHandler(pAiqCore->mAlgoHandleMaps[algoType]);
 	pAiqCore->mAlgoHandleMaps[algoType] = NULL;
-
-	AiqAnalyzeGroupManager_rmAlgoHandle(&pAiqCore->mRkAiqCoreGroupManager, algoType);
 
     EXIT_ANALYZER_FUNCTION();
 

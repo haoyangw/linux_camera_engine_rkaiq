@@ -160,7 +160,7 @@ int bayertnr_wgt_sqrt_tab_V40(int index)
     return res;
 }
 
-void bayertnr_luma2sigmax_config_v41(btnr_trans_params_t *pTransParams)
+void bayertnr_luma2sigmax_config_v41(btnr_trans_params_t *pTransParams, blc_res_cvt_t *pBlc, float preDgain)
 {
     // tnr sigma curve
     float kcoef0, kcoef1;
@@ -191,9 +191,9 @@ void bayertnr_luma2sigmax_config_v41(btnr_trans_params_t *pTransParams)
         }
         */
 
-        for(i = 0; i < lgbins; i++)
-        {
-            pTransParams->tnr_luma_sigma_x[i] = pix_max * (i + 1) / lgbins; //pSelect->bayertnr_tnr_lum[i];
+        for(i = 0; i < lgbins; i++) {
+            tmp = pix_max * (i + 1) / lgbins; //pSelect->bayertnr_tnr_lum[i];
+            pTransParams->tnr_luma_sigma_x[i] = CLIP(tmp, 0, pix_max);
         }
         pTransParams->tnr_luma_sigma_x[lgbins - 1] = pix_max;
 
@@ -202,12 +202,12 @@ void bayertnr_luma2sigmax_config_v41(btnr_trans_params_t *pTransParams)
         i = 8;
         pix_max = !transf_bypass_en  ? ((1 << 12) * (1 << i) - 1) : bayertnr_logtrans((1 << 12) * (1 << i) - 1, pTransParams);
         for(i = lgbins; i < lgbins + 6; i++) {
-            tmp0 = 128 * (i - lgbins + 1)  + pTransParams->tnr_luma_sigma_x[lgbins - 1]; //pParser->bayertnr_tnr_lum[i];
-            pTransParams->tnr_luma_sigma_x[i] = tmp0;
+            tmp = 128 * (i - lgbins + 1)  + pTransParams->tnr_luma_sigma_x[lgbins - 1]; //pParser->bayertnr_tnr_lum[i];
+            pTransParams->tnr_luma_sigma_x[i] = CLIP(tmp, 0, pix_max);
         }
         for(i = lgbins + 6; i < sigbins; i++) {
-            tmp0 = 256 * (i - lgbins - 6 + 1)  + pTransParams->tnr_luma_sigma_x[lgbins + 6 - 1]; //pParser->bayertnr_tnr_lum[i];
-            pTransParams->tnr_luma_sigma_x[i] = tmp0;
+            tmp = 256 * (i - lgbins - 6 + 1)  + pTransParams->tnr_luma_sigma_x[lgbins + 6 - 1]; //pParser->bayertnr_tnr_lum[i];
+            pTransParams->tnr_luma_sigma_x[i] = CLIP(tmp, 0, pix_max);
         }
         pTransParams->tnr_luma_sigma_x[sigbins - 1] = pix_max;
 
@@ -216,46 +216,45 @@ void bayertnr_luma2sigmax_config_v41(btnr_trans_params_t *pTransParams)
         pTransParams->bayertnr_tnr_sigma_curve_double_en = 0;
         pTransParams->bayertnr_tnr_sigma_curve_double_pos = 0;
 
-        float blc_remain_log = 0;
+        float blc_remain = 0;
         /*
-        if(pExpInfo->blc1_enable) {
-            blc_remain_log = MAX(blc_remain_log, pExpInfo->blc1_r);
-            blc_remain_log = MAX(blc_remain_log, pExpInfo->blc1_gr);
-            blc_remain_log = MAX(blc_remain_log, pExpInfo->blc1_gb);
-            blc_remain_log = MAX(blc_remain_log, pExpInfo->blc1_b);
-        }
-
-        if(pExpInfo->blc_ob_offset != 0 && pExpInfo->blc_ob_enable) {
-            blc_remain_log += pExpInfo->blc_ob_offset;
-        }
+            #ifdef supportManualOBC
+            if(pBlc->obcPostTnr.sw_blcT_obcPostTnr_mode == blc_manualOBCPostTnr_mode) {
+                blc_remain = MAX(blc_remain, pBlc->obcPostTnr.hw_blcT_manualOBR_val);
+                blc_remain = MAX(blc_remain, pBlc->obcPostTnr.hw_blcT_manualOBGr_val);
+                blc_remain = MAX(blc_remain, pBlc->obcPostTnr.hw_blcT_manualOBGb_val);
+                blc_remain = MAX(blc_remain, pBlc->obcPostTnr.hw_blcT_manualOBB_val);
+            }
+           #endif
         */
+
+        if(pBlc->obcPostTnr.sw_blcT_autoOB_offset && pBlc->obcPostTnr.sw_blcT_obcPostTnr_en) {
+            blc_remain = pBlc->obcPostTnr.sw_blcT_autoOB_offset;
+        }
 
         int small_step = 32;
-
-        /*
-        if(pExpInfo->blc_ob_predgain > 1.0) {
-            blc_remain_log *= pExpInfo->blc_ob_predgain;
-            pix_max = bayertnr_logtrans((1 << 12) * pExpInfo->blc_ob_predgain - 1);
-
+        if(preDgain > 1.0) {
+            blc_remain *= preDgain;
+            pix_max = bayertnr_logtrans(((1 << 12) * preDgain - 1), pTransParams);
         } else {
-            pix_max = bayertnr_logtrans((1 << 12) * 1 - 1, pFix);
+            pix_max = bayertnr_logtrans(((1 << 12) - 1), pTransParams);
         }
-        */
 
-        if(blc_remain_log != 0) {
-            pTransParams->tnr_luma_sigma_x[0] = bayertnr_logtrans(blc_remain_log, pTransParams);
-            small_step = (pix_max - pTransParams->tnr_luma_sigma_x[0]) / 33;
+        if(blc_remain != 0) {
+            pTransParams->tnr_luma_sigma_x[0] = bayertnr_logtrans(blc_remain, pTransParams);
+            small_step = (pix_max - pTransParams->tnr_luma_sigma_x[0]) / (segs + 2 * (sigbins - segs) - 1);
         } else {
-            small_step = (pix_max) / 34;
+            //small_step = (pix_max) / (segs + 2*(sigbins -segs));
             pTransParams->tnr_luma_sigma_x[0] = small_step;
         }
 
-
         for(i = 1; i < segs; i++) {
-            pTransParams->tnr_luma_sigma_x[i] = small_step * (i + 0) + pTransParams->tnr_luma_sigma_x[0];
+            tmp = small_step * (i + 0) + pTransParams->tnr_luma_sigma_x[0];
+            pTransParams->tnr_luma_sigma_x[i] = CLIP(tmp, 0, pix_max);
         }
         for(i = segs; i < sigbins; i++) {
-            pTransParams->tnr_luma_sigma_x[i] = small_step * 2 * (i - segs + 1) + pTransParams->tnr_luma_sigma_x[segs - 1];
+            tmp = small_step * 2 * (i - segs + 1) + pTransParams->tnr_luma_sigma_x[segs - 1];
+            pTransParams->tnr_luma_sigma_x[i] = CLIP(tmp, 0, pix_max);
         }
         pTransParams->tnr_luma_sigma_x[sigbins - 1] = pix_max;
     }
@@ -265,16 +264,20 @@ void bayertnr_luma2sigmax_config_v41(btnr_trans_params_t *pTransParams)
         pTransParams->bayertnr_tnr_sigma_curve_double_pos = 0;
         float blc_remain = 0;
         /*
-        if(pExpInfo->blc1_enable) {
-            blc_remain = MAX(blc_remain, pExpInfo->blc1_r);
-            blc_remain = MAX(blc_remain, pExpInfo->blc1_gr);
-            blc_remain = MAX(blc_remain, pExpInfo->blc1_gb);
-            blc_remain = MAX(blc_remain, pExpInfo->blc1_b);
-        }
-        if(pExpInfo->blc_ob_offset != 0 && pExpInfo->blc_ob_enable) {
-            blc_remain += pExpInfo->blc_ob_offset;
-        }
+            #ifdef supportManualOBC
+            if(pBlc->obcPostTnr.sw_blcT_obcPostTnr_mode == blc_manualOBCPostTnr_mode) {
+                blc_remain = MAX(blc_remain, pBlc->obcPostTnr.hw_blcT_manualOBR_val);
+                blc_remain = MAX(blc_remain, pBlc->obcPostTnr.hw_blcT_manualOBGr_val);
+                blc_remain = MAX(blc_remain, pBlc->obcPostTnr.hw_blcT_manualOBGb_val);
+                blc_remain = MAX(blc_remain, pBlc->obcPostTnr.hw_blcT_manualOBB_val);
+            }
+           #endif
         */
+
+
+        if(pBlc->obcPostTnr.sw_blcT_autoOB_offset && pBlc->obcPostTnr.sw_blcT_obcPostTnr_en) {
+            blc_remain += pBlc->obcPostTnr.sw_blcT_autoOB_offset;
+        }
 
         if(blc_remain != 0) {
             pTransParams->tnr_luma_sigma_x[0] = blc_remain;
@@ -283,11 +286,12 @@ void bayertnr_luma2sigmax_config_v41(btnr_trans_params_t *pTransParams)
         }
 
         for(i = 1; i < 8; i++) {
-            pTransParams->tnr_luma_sigma_x[i] = 128 * (i + 0) + pTransParams->tnr_luma_sigma_x[0];
+            tmp = 128 * (i + 0) + pTransParams->tnr_luma_sigma_x[0];
+            pTransParams->tnr_luma_sigma_x[i] = CLIP(tmp, 0, pix_max);
         }
         for(i = 8; i < sigbins; i++) {
-            tmp0 = 256 * (i - 8 + 1)  + pTransParams->tnr_luma_sigma_x[ 8 - 1];
-            pTransParams->tnr_luma_sigma_x[i] = tmp0;
+            tmp = 256 * (i - 8 + 1)  + pTransParams->tnr_luma_sigma_x[ 8 - 1];
+            pTransParams->tnr_luma_sigma_x[i] = CLIP(tmp, 0, pix_max);
         }
         pTransParams->tnr_luma_sigma_x[sigbins - 1] = pix_max;
     }
@@ -307,7 +311,7 @@ void rk_aiq_btnr41_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
             pBtnrInfo->btnr_stats_miss_cnt ++;
             if ((pBtnrInfo->btnr_stats_miss_cnt > 10) && (pBtnrInfo->btnr_stats_miss_cnt % 30 == 0)) {
                 LOGE_ANR("Btnr stats miss match! frameId: %d stats [%d %d %d]", cvtinfo->frameId,
-                        pBtnrInfo->mBtnrStats[0].id, pBtnrInfo->mBtnrStats[1].id, pBtnrInfo->mBtnrStats[2].id);
+                         pBtnrInfo->mBtnrStats[0].id, pBtnrInfo->mBtnrStats[1].id, pBtnrInfo->mBtnrStats[2].id);
             }
         } else {
             pBtnrInfo->btnr_stats_miss_cnt = 0;
@@ -330,11 +334,11 @@ void rk_aiq_btnr41_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
     pTransParams->isFirstFrame = cvtinfo->isFirstFrame;
     pTransParams->isHdrMode = cvtinfo->frameNum == 2;
 
-    if (cvtinfo->frameNum > 1 || cvtinfo->preDGain > 1.0) {
+    if (cvtinfo->frameNum > 1) {
         if (psta->hw_btnrCfg_pixDomain_mode != btnr_pixLog2Domain_mode) {
-            LOGW_ANR("Btnr must run in pixLog2Domain(ori mode is %d) when isp is HDR mode(framenum=%d) or preDGain(%f) > 1, btnr_pixLog2Domain_mode is be forcibly set to hw_btnrCfg_pixDomain_mode in HWI\n"
+            LOGW_ANR("Btnr must run in pixLog2Domain(ori mode is %d) when isp is HDR mode(framenum=%d), btnr_pixLog2Domain_mode is be forcibly set to hw_btnrCfg_pixDomain_mode in HWI\n"
                      "You can set by btnr.static.hw_btnrCfg_pixDomain_mode, but change hw_btnrCfg_pixDomain_mode in running time may cause abnormal image transitions\n",
-                     psta->hw_btnrCfg_pixDomain_mode, cvtinfo->frameNum, cvtinfo->preDGain, psta->hw_btnrCfg_pixDomain_mode);
+                     psta->hw_btnrCfg_pixDomain_mode, cvtinfo->frameNum, psta->hw_btnrCfg_pixDomain_mode);
             psta->hw_btnrCfg_pixDomain_mode = btnr_pixLog2Domain_mode;
         }
         if (psta->transCfg.hw_btnrCfg_trans_mode != btnr_pixInBw20b_mode) {
@@ -384,6 +388,7 @@ void rk_aiq_btnr41_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
         break;
     case btnr_pixLinearDomain_mode:
         pCfg->transf_bypass_en = 1;
+        pCfg->transf_mode  = 0;
         break;
     }
     switch (pmdDyn->loMd.hw_btnrT_loMd_mode) {
@@ -456,8 +461,15 @@ void rk_aiq_btnr41_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
         pCfg->pre_spnr_sigma_curve_double_en = 1;
     if (cvtinfo->frameNum > 1) {
         if (pCfg->pre_spnr_sigma_curve_double_en == 0) {
-            LOGW_ANR("When isp is HDR mode, hw_btnrT_sigmaCurve_mode recommends using btnr_midSegmInterpOff_mode. "
-                     "You can set by dyn.curFrmSpNr.hw_btnrT_sigmaCurve_mode\n");
+            if (cvtinfo->btnr_warning_count < 5) {
+                LOGW_ANR("When isp is HDR mode, hw_btnrT_sigmaCurve_mode recommends using btnr_midSegmInterpOff_mode. "
+                     "You can set by dyn.curFrmSpNr.hw_btnrT_sigmaCurve_mode");
+            }
+            else if (cvtinfo->btnr_warning_count % 300 == 0) {
+                LOGW_ANR("When isp is HDR mode, hw_btnrT_sigmaCurve_mode recommends using btnr_midSegmInterpOff_mode. "
+                     "You can set by dyn.curFrmSpNr.hw_btnrT_sigmaCurve_mode");
+            }
+            cvtinfo->btnr_warning_count++;
             // pCfg->pre_spnr_sigma_curve_double_en  = 1;
         }
     }
@@ -575,7 +587,7 @@ void rk_aiq_btnr41_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
     }
 
     // REG: BAY3D_CURHI_SIGSCL
-    tmp = (pdyn->preSpNr.sigma.hw_btnrT_preSigma_scale) * (1 << 0);
+    tmp = (pdyn->preSpNr.sigma.hw_btnrT_preSigma_scale) * (1 << FIXBITDGAIN);
     pCfg->pre_sig_ctrl_scl = CLIP(tmp, 0, 0xfff);
     // REG: BAY3D_CURHI_SIGOF
     tmp = (pdyn->preSpNr.hiNr.hw_btnrT_guideLpf3_alpha) * (1 << 6);
@@ -613,9 +625,9 @@ void rk_aiq_btnr41_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
     //tmp = MAX((1 - pdyn->preSpNr.hiNr.hw_btnrT_hiNrOut_alpha) * (1 << 7), 0);
     tmp = 0;
     pCfg->pre_spnr_hi_filter_out_wgt = CLIP(tmp, 0, 0xff);
-    tmp = (pdyn->preSpNr.sigma.hw_btnrT_sigma_offset) * (1 << FIXBITDGAIN);
+    tmp = (pdyn->preSpNr.sigma.hw_btnrT_sigma_offset) * (1 << 0);
     pCfg->pre_spnr_sigma_offset = CLIP(tmp, 0, 0xff);
-    tmp = (pdyn->preSpNr.sigma.hw_btnrT_sigmaHdrS_offset) * (1 << FIXBITDGAIN);
+    tmp = (pdyn->preSpNr.sigma.hw_btnrT_sigmaHdrS_offset) * (1 << 0);
     pCfg->pre_spnr_sigma_hdr_sht_offset = CLIP(tmp, 0, 0xff);
     // REG: BAY3D_PREHISIGSCL
     tmp = (pdyn->preSpNr.sigma.hw_btnrT_sigma_scale) * (1 << FIXBITDGAIN);
@@ -912,15 +924,16 @@ void rk_aiq_btnr41_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
     pCfg->md_large_lo_wgt_scale = CLIP(tmp, 0, 0xfff);
 
     // tnr sigma curve must calculate before spnr sigma
-    if(cvtinfo->isFirstFrame || (pTransParams->transf_mode != pCfg->transf_mode) ||
-            (pTransParams->transf_mode_scale != pCfg->transf_mode_scale)) {
-        pTransParams->transf_mode = pCfg->transf_mode;
-        pTransParams->transf_mode_scale = pCfg->transf_mode_scale;
-        pTransParams->transf_mode_offset = pCfg->transf_mode_offset;
-        pTransParams->transf_data_max_limit = pCfg->transf_data_max_limit;
-        pTransParams->itransf_mode_offset = pCfg->itransf_mode_offset;
+    if(cvtinfo->isFirstFrame || (pTransParams->transf_mode != pCfg->transf_mode)
+            || (pTransParams->transf_mode_scale != pCfg->transf_mode_scale)) {
         bayertnr_logtrans_init(pCfg->transf_mode, pCfg->transf_mode_scale, pTransParams);
     }
+    pTransParams->transf_mode = pCfg->transf_mode;
+    pTransParams->transf_mode_scale = pCfg->transf_mode_scale;
+    pTransParams->transf_mode_offset = pCfg->transf_mode_offset;
+    pTransParams->transf_data_max_limit = pCfg->transf_data_max_limit;
+    pTransParams->itransf_mode_offset = pCfg->itransf_mode_offset;
+
     // REG: BAY3D_PIXMAX
     if(pCfg->transf_bypass_en) {
         pCfg->pix_max_limit  = ((1 << 12) - 1);
@@ -933,7 +946,7 @@ void rk_aiq_btnr41_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
     }
 
     pTransParams->isTransfBypass = pCfg->transf_bypass_en;
-    bayertnr_luma2sigmax_config_v41(pTransParams);
+    bayertnr_luma2sigmax_config_v41(pTransParams, &cvtinfo->blc_res, cvtinfo->preDGain);
 
     sigbins = 20;
     for(i = 0; i < sigbins; i++) {
@@ -949,7 +962,7 @@ void rk_aiq_btnr41_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
         pTransParams->bayertnr_auto_sig_count_en = 1;
         pTransParams->bayertnr_auto_sig_count_filt_wgt = pdyn->sigmaEnv.sw_btnrT_autoSgmIIR_alpha * (1 << 10);
         pTransParams->bayertnr_auto_sig_count_max = cvtinfo->rawWidth * cvtinfo->rawHeight / 3;
-        bayertnr_autosigma_config(btnr_stats, pTransParams);
+        bayertnr_autosigma_config(btnr_stats, pTransParams, &cvtinfo->blc_res);
     }
     int max_sig = ((1 << 12) - 1);
     for(i = 0; i < sigbins; i++) {

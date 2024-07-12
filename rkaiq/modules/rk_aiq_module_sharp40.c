@@ -94,12 +94,25 @@ static void SharpKernelCoeffsNormalization(int *kernel_coeffs, int radius, int c
     kernel_coeffs[0] = kernel_coeffs[0] + offset;
 }
 
-void noiseCurveInterp(uint16_t *noise_curve_stats, int *noise_curve_ext)
+void noiseCurveInterp(uint16_t *noise_curve_stats, int *noise_curve_ext, uint16_t* last_noise_curve)
 {
     int32_t noise_curve_bak[17] = { 0 };
+    int zero_sum = 0;
     for(int k = 0; k < 17; k++) {
         noise_curve_bak[k] = noise_curve_stats[k];
+        if(noise_curve_stats[k] == 0) {
+            zero_sum++;
+        }
     }
+
+    if(zero_sum == 17) {
+        LOGD_ASHARP("warning: sharp noise stats are all zero! use last noise curve instead.\n");
+        for (int i = 0; i < 17; i++) {
+            noise_curve_ext[i] = last_noise_curve[i];
+        }
+        return;
+    }
+
     for (int cur = 0; cur < 17; cur++)
     {
         if (noise_curve_bak[cur] == 0)
@@ -151,10 +164,12 @@ void noiseCurveInterp(uint16_t *noise_curve_stats, int *noise_curve_ext)
                 }
                 int wgt_left  = right_idx - cur;
                 int wgt_right = cur - left_idx;
-                int val_interp = ROUND_F((wgt_left * noise_curve_bak[left_idx] + wgt_right * noise_curve_bak[right_idx]) / (right_idx - left_idx));
+                int val_interp;
                 if (right_idx == 0)
                 {
                     val_interp = noise_curve_bak[left_idx];
+                } else {
+                    val_interp = ROUND_F((wgt_left * noise_curve_bak[left_idx] + wgt_right * noise_curve_bak[right_idx]) / (right_idx - left_idx));
                 }
                 noise_curve_bak[cur] = val_interp;
             }
@@ -173,6 +188,27 @@ void noiseCurveInterp(uint16_t *noise_curve_stats, int *noise_curve_ext)
         */
         noise_curve_ext[i] = noise_curve_modify;
     }
+
+#if 0
+    printf("sharp stats:%u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u\n",
+           noise_curve_ext[0],
+           noise_curve_ext[1],
+           noise_curve_ext[2],
+           noise_curve_ext[3],
+           noise_curve_ext[4],
+           noise_curve_ext[5],
+           noise_curve_ext[6],
+           noise_curve_ext[7],
+           noise_curve_ext[8],
+           noise_curve_ext[9],
+           noise_curve_ext[10],
+           noise_curve_ext[11],
+           noise_curve_ext[12],
+           noise_curve_ext[13],
+           noise_curve_ext[14],
+           noise_curve_ext[15],
+           noise_curve_ext[16]);
+#endif
 }
 
 void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_info_t *cvtinfo, btnr_cvt_info_t* pBtnrInfo)
@@ -986,13 +1022,15 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
                 pBtnrInfo->sharp_stats_miss_cnt ++;
                 if ((pBtnrInfo->sharp_stats_miss_cnt > 10) && (pBtnrInfo->sharp_stats_miss_cnt % 30 == 0)) {
                     LOGE_ANR("Sharp stats miss match! frameId: %d stats [%d %d %d]", cvtinfo->frameId,
-                            pBtnrInfo->mSharpStats[0].id, pBtnrInfo->mSharpStats[1].id, pBtnrInfo->mSharpStats[2].id);
+                             pBtnrInfo->mSharpStats[0].id, pBtnrInfo->mSharpStats[1].id, pBtnrInfo->mSharpStats[2].id);
+                    for (i = 0; i < 17; i++) {
+                        noise_curve_ext[i] = pBtnrInfo->sharp_noise_curve_pre[i];
+                    }
+
                 } else {
-                    pBtnrInfo->sharp_stats_miss_cnt = 0;
+                    noiseCurveInterp(sharp_stats->noise_curve, noise_curve_ext, pBtnrInfo->sharp_noise_curve_pre);
                 }
             }
-
-            noiseCurveInterp(sharp_stats->noise_curve, noise_curve_ext);
         }
     } else {
         for (i = 0; i < 17; i++) {

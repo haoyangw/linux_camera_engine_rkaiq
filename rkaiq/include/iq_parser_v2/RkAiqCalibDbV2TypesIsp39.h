@@ -108,6 +108,8 @@
 #include "algos/rk_aiq_api_types_ccm.h"
 #include "isp/awb_head2.h"
 #include "algos/rk_aiq_api_types_awb.h"
+#include "isp/rk_aiq_isp_ldc22.h"
+#include "algos/rk_aiq_api_types_ldc.h"
 
 RKAIQ_BEGIN_DECLARE
 
@@ -222,8 +224,6 @@ typedef struct CamCalibDbV2ContextIsp39_s {
     rgbir_api_attrib_t rgbir;
     // M4_STRUCT_DESC("dpc", "normal_ui_style")
     dpc_api_attrib_t dpc;
-    // M4_STRUCT_DESC("ldch", "normal_ui_style")
-    ldch_api_attrib_t ldch;
     // M4_STRUCT_DESC("cp", "normal_ui_style")
     cp_api_attrib_t cp;
     // M4_STRUCT_DESC("ie", "normal_ui_style")
@@ -313,8 +313,10 @@ typedef struct CamCalibDbV2ContextIsp39_s {
     // M4_STRUCT_DESC("gain_v2", "normal_ui_style")
     CalibDbV2_GainV2_t gain_v2;
 #endif
-    // M4_STRUCT_DESC("aldc", "normal_ui_style")
-    CalibDbV2_LDC_t ldc;
+#ifdef USE_NEWSTRUCT
+    // M4_STRUCT_DESC("ldc", "normal_ui_style")
+    ldc_api_attrib_t ldc;
+#endif
 } CamCalibDbV2ContextIsp39_t;
 
 RKAIQ_END_DECLARE

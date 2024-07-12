@@ -1,6 +1,7 @@
 #ifndef _RK_AIQ_UAPI_ALDC_INT_H_
 #define _RK_AIQ_UAPI_ALDC_INT_H_
 
+#ifndef USE_NEWSTRUCT
 #include "algos/aldc/rk_aiq_types_aldc_algo_int.h"
 #include "algos/rk_aiq_algo_des.h"
 #include "xcore/base/xcam_common.h"
@@ -22,5 +23,6 @@ enum LdcGenMeshState {
 XCamReturn rk_aiq_uapi_aldc_SetAttrib(RkAiqAlgoContext* ctx, const rk_aiq_ldc_attrib_t* attr,
                                       bool need_sync);
 XCamReturn rk_aiq_uapi_aldc_GetAttrib(const RkAiqAlgoContext* ctx, rk_aiq_ldc_attrib_t* attr);
+#endif
 
 #endif

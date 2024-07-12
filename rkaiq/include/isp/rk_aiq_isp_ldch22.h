@@ -173,6 +173,20 @@ typedef struct ldch_userCfg_s {
         Freq of use: low))  */
     // @reg: hw_ldch_map3BitFix_en
     uint8_t hw_ldchCfg_mapFix3Bit_en;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(hw_ldchCfg_dstWid),
+        M4_TYPE(u16),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0, 1024),
+        M4_DEFAULT(0),
+        M4_DIGIT_EX(0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(if ldch output hsize not equal input size,then use this reg.\n
+        Freq of use: low))  */
+    // @reg: out_size
+    uint16_t hw_ldcvCfg_outSize_height;
 } ldch_userCfg_t;
 
 typedef struct ldch_lutMapCfg_s {

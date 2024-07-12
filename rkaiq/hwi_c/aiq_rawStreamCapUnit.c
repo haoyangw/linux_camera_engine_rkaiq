@@ -632,6 +632,27 @@ void AiqRawStreamCapUnit_skip_frames(AiqRawStreamCapUnit_t* pRawStrCapUnit, int 
     aiqMutex_unlock(&pRawStrCapUnit->_mipi_mutex);
 }
 
+void AiqRawStreamCapUnit_stop_vicap_stream_only(AiqRawStreamCapUnit_t* pRawStrCapUnit) {
+
+    int skip_frm = 0;
+    if (pRawStrCapUnit->_dev[0]) {
+        pRawStrCapUnit->_dev[0]->io_control(pRawStrCapUnit->_dev[0], RKCIF_CMD_SET_SENSOR_FLIP_START,
+                                            &skip_frm);
+    }
+}
+
+void AiqRawStreamCapUnit_skip_frame_and_restart_vicap_stream(AiqRawStreamCapUnit_t* pRawStrCapUnit, int skip_frm_cnt) {
+
+    if (skip_frm_cnt < 2) {
+        skip_frm_cnt = 2;
+    }
+
+    if (pRawStrCapUnit->_dev[0]) {
+        pRawStrCapUnit->_dev[0]->io_control(pRawStrCapUnit->_dev[0], RKCIF_CMD_SET_SENSOR_FLIP_END,
+                                            &skip_frm_cnt);
+    }
+}
+
 XCamReturn AiqRawStreamCapUnit_reset_hardware(AiqRawStreamCapUnit_t* pRawStrCapUnit) {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
     if (pRawStrCapUnit->_dev[0]) {

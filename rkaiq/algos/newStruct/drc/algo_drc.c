@@ -111,6 +111,7 @@ static XCamReturn processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
     pDrcCtx->FrameID                 = inparams->frame_id;
     drc_api_attrib_t* drc_attrib     = pDrcCtx->drc_attrib;
     RkAiqAlgoProcDrc* drc_proc_param = (RkAiqAlgoProcDrc*)inparams;
+    drc_param_t* drcRes              = outparams->algoRes;
     pDrcCtx->NextData                = drc_proc_param->NextData;
 
     LOGV_ATMO("%s: (enter)\n", __FUNCTION__);
@@ -189,6 +190,9 @@ static XCamReturn processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
         DrcExpoParaProcessing(pDrcCtx, outparams->algoRes);
 #endif
 #if RKAIQ_HAVE_DRC_V20
+#if ISP_HW_V33
+        drcRes->sta = pDrcCtx->drc_attrib->stAuto.sta;
+#endif
         DrcSelectParam(pDrcCtx, outparams->algoRes, iso);
         drcApplyStrength(pDrcCtx, outparams->algoRes);
 #endif

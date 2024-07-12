@@ -366,6 +366,22 @@ typedef struct rk_tool_awb_illInf2_s {
     // M4_ARRAY_DESC("bigWp_wgt", "f32", M4_SIZE(1,1), M4_RANGE(0,1), "1", M4_DIGIT(4), M4_DYNAMIC(0))
     float bigWp_wgt;
 } rk_tool_awb_illInf2_t;
+typedef struct rk_tool_awb_sgc_result2_s {
+    // M4_ARRAY_DESC("illEst", "u32", M4_SIZE(1,1), M4_RANGE(0,14), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+    int illEst;
+    // M4_ARRAY_DESC("colorEst", "u32", M4_SIZE(1,1), M4_RANGE(0,14), "0", M4_DIGIT(0), M4_DYNAMIC(0))
+    int colorEst;
+    // M4_ARRAY_DESC("voteResult", "u32", M4_SIZE(1,14), M4_RANGE(0,225), "1", M4_DIGIT(0), M4_DYNAMIC(0))
+    int voteResult[14];
+    // M4_ARRAY_DESC("bigWp_wgt", "f32", M4_SIZE(1,1), M4_RANGE(0,1), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float wgt_lv;
+    // M4_ARRAY_DESC("wgt_wpnum", "f32", M4_SIZE(1,1), M4_RANGE(0,1), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float wgt_wpnum;
+    // M4_ARRAY_DESC("wgt_meandis", "f32", M4_SIZE(1,1), M4_RANGE(0,1), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float wgt_meandis;
+    // M4_ARRAY_DESC("wgt_clrGrad", "f32", M4_SIZE(1,1), M4_RANGE(0,1), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float wgt_clrGrad;
+} rk_tool_awb_sgc_result2_t;
 
 typedef struct rk_tool_awb_strategy_result_s {
     // M4_BOOL_DESC("awbConverged", "0")
@@ -410,8 +426,8 @@ typedef struct rk_tool_awb_strategy_result_s {
     rk_tool_awb_illInf2_t illInf[RK_TOOL_AWB_MAX_WHITEREGIONS_NUM2];//information and measure result in different illuminations
     // M4_ARRAY_DESC("wbGainTepTp3", "f32", M4_SIZE(1,4), M4_RANGE(0,8), "1", M4_DIGIT(4), M4_DYNAMIC(0))
     float wbGainTepTp3[RK_TOOL_AWB_CHANNEL_MAX];
-    // M4_ARRAY_DESC("wbWeiTepTp3", "f32", M4_SIZE(1,1), M4_RANGE(0,100), "1", M4_DIGIT(4), M4_DYNAMIC(0))
-    float wbWeiTepTp3;//temporal mix statistics
+    // M4_ARRAY_DESC("wgtPrfNgt", "f32", M4_SIZE(1,1), M4_RANGE(0,100), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float wgtPrfNgt;//temporal mix statistics
     // M4_ARRAY_DESC("xy_area_type", "u8", M4_SIZE(1,1), M4_RANGE(0,255), "1", M4_DIGIT(4), M4_DYNAMIC(0))
     uint8_t xy_area_type; //enalbe type
     // M4_BOOL_DESC("spaGainEqu2Tem", "0")
@@ -430,10 +446,8 @@ typedef struct rk_tool_awb_strategy_result_s {
     float wbGainSgc[RK_TOOL_AWB_CHANNEL_MAX];
     // M4_ARRAY_DESC("wbWeightSgc", "f32", M4_SIZE(1,1), M4_RANGE(0,100), "1", M4_DIGIT(4), M4_DYNAMIC(0))
     float wbWeightSgc;
-    // M4_ARRAY_DESC("wbGainSpa", "f32", M4_SIZE(1,4), M4_RANGE(0,8), "1", M4_DIGIT(4), M4_DYNAMIC(0))
-    float  wbGainSpa[RK_TOOL_AWB_CHANNEL_MAX];//day gain
-    // M4_ARRAY_DESC("wbWeightSpa", "f32", M4_SIZE(1,1), M4_RANGE(0,100), "1", M4_DIGIT(4), M4_DYNAMIC(0))
-    float wbWeightSpa;
+    // M4_ARRAY_DESC("wgtWbGnRef2T1", "f32", M4_SIZE(1,1), M4_RANGE(0,100), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float wgtWbGnRef2T1;
     // M4_ARRAY_DESC("varianceLuma", "f32", M4_SIZE(1,1), M4_RANGE(0,2147483647), "1", M4_DIGIT(4), M4_DYNAMIC(0))
     float varianceLuma;
     // M4_ARRAY_DESC("wbGainDampFactor", "f32", M4_SIZE(1,1), M4_RANGE(0,1), "1", M4_DIGIT(4), M4_DYNAMIC(0))
@@ -466,6 +480,15 @@ typedef struct rk_tool_awb_strategy_result_s {
     float  stat3aAwbGainOut[RK_TOOL_AWB_CHANNEL_MAX];// final gain
     // M4_ARRAY_DESC("WPType", "s32", M4_SIZE(1,1), M4_RANGE(-2147483648,2147483647), "0", M4_DIGIT(0), M4_DYNAMIC(0))
     int gnCalc_method;
+    // M4_ARRAY_DESC("wbGainDampFactor2", "f32", M4_SIZE(1,1), M4_RANGE(0,1), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float wbGainDampFactor2;
+    // M4_ARRAY_DESC("extraWp_wgt", "f32", M4_SIZE(1,1), M4_RANGE(0,1), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float extraWp_wgt;
+    // M4_ARRAY_DESC("extraWp_wbGainUsed", "u32", M4_SIZE(1,2), M4_RANGE(0,8), "1", M4_DIGIT(0), M4_DYNAMIC(0))
+    int extraWp_wbGainUsed[2];
+    // M4_ARRAY_DESC("aec_iso", "f32", M4_SIZE(1,1), M4_RANGE(0,1), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float aec_iso;
+    rk_tool_awb_sgc_result2_t sinColorResult;
 } rk_tool_awb_strategy_result_t;
 #endif
 

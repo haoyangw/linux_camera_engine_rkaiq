@@ -124,6 +124,7 @@
 #cmakedefine01 RKAIQ_HAVE_BAYERTNR_V30
 #cmakedefine01 RKAIQ_HAVE_YUVME_V1
 #cmakedefine01 RKAIQ_HAVE_CNR_V31
-#cmakedefine01 RKAIQ_HAVE_LDC
+#cmakedefine01 RKAIQ_HAVE_LDCH_V22
+#cmakedefine01 RKAIQ_HAVE_LDCV_V22
 
 #endif /* RKAIQ_CONFIG_H */

@@ -2568,7 +2568,54 @@ void sample_btnr_test(const rk_aiq_sys_ctx_t* ctx)
         printf("btnr test failed\n");
     printf("-------- BTNR module test done --------\n");
 }
+#if ISP_HW_V39
+void sample_yuvme_test(const rk_aiq_sys_ctx_t* ctx)
+{
+    // get cur mode
+    printf("+++++++ yme module test start ++++++++\n");
 
+    yme_api_attrib_t attr;
+    memset(&attr, 0, sizeof(attr));
+
+    rk_aiq_user_api2_yme_GetAttrib(ctx, &attr);
+
+    printf("yme attr: opmode:%d, en:%d, bypass:%d\n", attr.opMode, attr.en, attr.bypass);
+
+    srand(time(0));
+    int rand_num = rand() % 101;
+
+    if (0 && rand_num <70) {
+        printf("update yme arrrib!\n");
+        if (attr.opMode == RK_AIQ_OP_MODE_AUTO) {
+            attr.opMode = RK_AIQ_OP_MODE_MANUAL;
+        }
+        else {
+            attr.opMode = RK_AIQ_OP_MODE_AUTO;
+        }
+    }
+    else {
+        // reverse en
+        printf("reverse yme en!\n");
+        attr.en = !attr.en;
+    }
+
+    rk_aiq_user_api2_yme_SetAttrib(ctx, &attr);
+
+    // wait more than 2 frames
+    usleep(90 * 1000);
+
+    yme_status_t status;
+    memset(&status, 0, sizeof(yme_status_t));
+
+    rk_aiq_user_api2_yme_QueryStatus(ctx, &status);
+
+    printf("yme status: opmode:%d, en:%d, bypass:%d\n", status.opMode, status.en, status.bypass);
+
+    if (status.opMode != attr.opMode || status.en != attr.en)
+        printf("yme test failed\n");
+    printf("-------- yme module test done --------\n");
+}
+#endif
 XCamReturn sample_btnr_strength_test(const rk_aiq_sys_ctx_t* ctx)
 {
     abtnr_strength_t strg;
@@ -2910,6 +2957,11 @@ XCamReturn sample_abayertnr_module (const void *arg)
         case 'k':
             sample_btnr_strength_test(ctx);
             break;
+#if ISP_HW_V39
+        case 'l':
+            sample_yuvme_test(ctx);
+            break;
+#endif
 #endif
         default:
             printf("not support test\n\n");

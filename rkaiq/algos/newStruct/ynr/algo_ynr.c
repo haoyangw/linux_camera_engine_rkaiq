@@ -473,7 +473,7 @@ XCamReturn YnrApplyStrength
         for (i = 0; i < 9; i++) {
             pdyn->loNr.epf.hw_ynrT_locSgmStrg2NrOut_alpha[i] *= fPercent;
         }
-        printf("YnrApplyStrength: fStrength %f, fPercent %f\n", pYnrCtx->fStrength, fPercent);
+        LOGI_ANR("YnrApplyStrength: fStrength %f, fPercent %f\n", pYnrCtx->fStrength, fPercent);
     }
 
     return XCAM_RETURN_NO_ERROR;

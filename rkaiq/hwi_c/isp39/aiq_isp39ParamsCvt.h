@@ -40,4 +40,6 @@ void convertAiqCgcToIsp21Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBas
 void convertAiqGainToIsp3xParams(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase);
 void convertAiqCpToIsp20Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase);
 void convertAiqIeToIsp20Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase);
+void convertAiqAldcToIsp39Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase,
+                                 bool is_multi_isp);
 #endif

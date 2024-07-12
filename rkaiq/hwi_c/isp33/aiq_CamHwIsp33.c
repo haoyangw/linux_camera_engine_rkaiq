@@ -226,9 +226,6 @@ bool CamHwIsp33_processTb(AiqCamHwBase_t* pCamHw, void* params) {
 XCamReturn AiqCamHwIsp33_init(AiqCamHwBase_t* pCamHw, const char* sns_ent_name) {
     XCamReturn ret                    = AiqCamHwBase_init(pCamHw, sns_ent_name);
     pCamHw->mVicapIspPhyLinkSupported = true;
-    if (g_mIsMultiIspMode) {
-        pCamHw->mNoReadBack = false;
-    }
 
     pCamHw->updateEffParams = CamHwIsp33_updateEffParams;
     pCamHw->processTb       = CamHwIsp33_processTb;

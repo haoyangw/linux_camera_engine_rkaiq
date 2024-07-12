@@ -208,9 +208,13 @@ XCamReturn AiqLensHw_setZoomFocusRebackSync(AiqLensHw_t* pLensHw, rk_aiq_focus_p
                                             bool is_update_time);
 XCamReturn AiqLensHw_endZoomChgSync(AiqLensHw_t* pLensHw, rk_aiq_focus_params_t* attrPtr,
                                     bool is_update_time);
+XCamReturn AiqLensHw_startZoomChgSync(AiqLensHw_t* pLensHw, rk_aiq_focus_params_t* attrPtr,
+                                    bool is_update_time);
 XCamReturn AiqLensHw_getPIrisParams(AiqLensHw_t* pLensHw, int* step);
 XCamReturn AiqLensHw_getFocusParams(AiqLensHw_t* pLensHw, int* position);
 XCamReturn AiqLensHw_getZoomParams(AiqLensHw_t* pLensHw, int* position);
+bool AiqLensHw_IsFocusInCorrectionSync(AiqLensHw_t* pLensHw);
+bool AiqLensHw_IsZoomInCorrectionSync(AiqLensHw_t* pLensHw);
 XCamReturn AiqLensHw_FocusCorrectionSync(AiqLensHw_t* pLensHw);
 XCamReturn AiqLensHw_ZoomCorrectionSync(AiqLensHw_t* pLensHw);
 XCamReturn AiqLensHw_FocusCorrection(AiqLensHw_t* pLensHw);

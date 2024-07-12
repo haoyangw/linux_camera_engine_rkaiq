@@ -71,6 +71,11 @@ typedef struct {
 #if defined(ISP_HW_V33)
     texEst_param_t texEst_param;
 #endif
+    bool btnr_en;
+    int btnrCfg_pixDomain_mode;
+    int drc_warning_count;
+    int blc_warning_count;
+    int btnr_warning_count;
 } common_cvt_info_t;
 
 typedef struct {

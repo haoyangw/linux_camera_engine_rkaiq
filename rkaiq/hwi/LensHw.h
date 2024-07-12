@@ -174,9 +174,12 @@ public:
     XCamReturn setZoomFocusParamsSync(SmartPtr<rk_aiq_focus_params_t> attrPtr, bool is_update_time);
     XCamReturn setZoomFocusRebackSync(SmartPtr<rk_aiq_focus_params_t> attrPtr, bool is_update_time);
     XCamReturn endZoomChgSync(SmartPtr<rk_aiq_focus_params_t> attrPtr, bool is_update_time);
+    XCamReturn startZoomChgSync(SmartPtr<rk_aiq_focus_params_t> attrPtr, bool is_update_time);
     XCamReturn getPIrisParams(int* step);
     XCamReturn getFocusParams(int* position);
     XCamReturn getZoomParams(int* position);
+    bool IsFocusInCorrectionSync();
+    bool IsZoomInCorrectionSync();
     XCamReturn FocusCorrectionSync();
     XCamReturn ZoomCorrectionSync();
     XCamReturn FocusCorrection();

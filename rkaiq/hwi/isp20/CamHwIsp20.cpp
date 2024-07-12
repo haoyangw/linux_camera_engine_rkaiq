@@ -4112,6 +4112,7 @@ CamHwIsp20::setFocusParams(SmartPtr<RkAiqFocusParamsProxy>& focus_params)
     bool zoom_correction = p_focus->zoom_correction;
     bool zoomfocus_modifypos = p_focus->zoomfocus_modifypos;
     bool end_zoom_chg = p_focus->end_zoom_chg;
+    bool IsNeedCkRebackAtStart = p_focus->IsNeedCkRebackAtStart;
     bool vcm_config_valid = p_focus->vcm_config_valid;
 
     if (!mLensSubdev)
@@ -4129,7 +4130,7 @@ CamHwIsp20::setFocusParams(SmartPtr<RkAiqFocusParamsProxy>& focus_params)
             LOGE_CAMHW_SUBM(ISP20HW_SUBM, "set focus result failed to device");
             return XCAM_RETURN_ERROR_IOCTL;
         }
-    } else if ((focus_valid && zoom_valid) || end_zoom_chg) {
+    } else if ((focus_valid && zoom_valid) || end_zoom_chg || IsNeedCkRebackAtStart) {
         LOGD_CAMHW_SUBM(ISP20HW_SUBM, "|||setZoomFocusParams");
         if (mLensSubdev->setZoomFocusParams(focus_params) < 0) {
             LOGE_CAMHW_SUBM(ISP20HW_SUBM, "set setZoomFocusParams failed to device");

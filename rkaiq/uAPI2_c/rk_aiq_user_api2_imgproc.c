@@ -3433,12 +3433,12 @@ XCamReturn rk_aiq_uapi2_getWBMode(const rk_aiq_sys_ctx_t* ctx, opMode_t *mode)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
     IMGPROC_FUNC_ENTER
-    awb_gainCtrl_t attr;
-    ret =rk_aiq_user_api2_awb_GetWbGainCtrlAttrib(ctx,&attr );
+    rk_aiq_wb_querry_info_t query_info;
+    ret = rk_aiq_user_api2_awb_QueryWBInfo(ctx, &query_info);
     RKAIQ_IMGPROC_CHECK_RET(ret, "getWBMode failed!");
-    if (attr.opMode == RK_AIQ_OP_MODE_AUTO) {
+    if (query_info.opMode == RK_AIQ_OP_MODE_AUTO) {
         *mode = OP_AUTO;
-    } else if (attr.opMode == RK_AIQ_OP_MODE_MANUAL) {
+    } else if (query_info.opMode == RK_AIQ_OP_MODE_MANUAL) {
         *mode = OP_MANUAL;
     } else {
         *mode = OP_INVAL;
@@ -4596,17 +4596,24 @@ XCamReturn rk_aiq_uapi2_getA3dLutName(const rk_aiq_sys_ctx_t* ctx, char* name)
 XCamReturn rk_aiq_uapi2_setLdchEn(const rk_aiq_sys_ctx_t* ctx, bool en)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-#if RKAIQ_HAVE_LDCH_V21
+#if RKAIQ_HAVE_LDCH_V22
     IMGPROC_FUNC_ENTER
     if (ctx == NULL) {
         ret = XCAM_RETURN_ERROR_PARAM;
         RKAIQ_IMGPROC_CHECK_RET(ret, "param error!");
     }
-    ldch_api_attrib_t ldchAttr;
-    ret = rk_aiq_user_api2_ldch_GetAttrib(ctx, &ldchAttr);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "get ldch attrib failed!");
-    ldchAttr.en = en;
-    ret = rk_aiq_user_api2_ldch_SetAttrib(ctx, &ldchAttr);
+
+    ldc_api_attrib_t attr;
+    ret = rk_aiq_user_api2_ldc_GetAttrib(ctx, &attr);
+    RKAIQ_IMGPROC_CHECK_RET(ret, "Failed to get LDCH attrib.");
+
+    attr.en     = en;
+    attr.opMode = RK_AIQ_OP_MODE_AUTO;
+    attr.bypass = 0;
+
+    ret = rk_aiq_user_api2_ldc_SetAttrib(ctx, &attr);
+    RKAIQ_IMGPROC_CHECK_RET(ret, "Failed to set LDCH attrib.");
+
     IMGPROC_FUNC_EXIT
 #else
     LOGE("not support to call %s for current chip", __FUNCTION__);
@@ -4618,17 +4625,45 @@ XCamReturn rk_aiq_uapi2_setLdchEn(const rk_aiq_sys_ctx_t* ctx, bool en)
 XCamReturn rk_aiq_uapi2_setLdchCorrectLevel(const rk_aiq_sys_ctx_t* ctx, int correctLevel)
 {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
-#if RKAIQ_HAVE_LDCH_V21
+#if RKAIQ_HAVE_LDCH_V22
+    ldc_api_attrib_t attr;
+
+    ret = rk_aiq_user_api2_ldc_GetAttrib(ctx, &attr);
+    RKAIQ_IMGPROC_CHECK_RET(ret, "Failed to get LDCH attrib.");
+
+    attr.tunning.autoGenMesh.sw_ldcT_correctStrg_val = correctLevel;
+
+    ret = rk_aiq_user_api2_ldc_SetAttrib(ctx, &attr);
+    RKAIQ_IMGPROC_CHECK_RET(ret, "Failed to set LDCH attrib.");
+#else
+    LOGE("not support to call %s for current chip", __FUNCTION__);
+    ret = XCAM_RETURN_ERROR_UNKNOWN;
+#endif
+    return ret;
+}
+
+XCamReturn rk_aiq_uapi2_setLdchLdcvEn(const rk_aiq_sys_ctx_t* ctx, bool en) {
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+#if RKAIQ_HAVE_LDCV
     IMGPROC_FUNC_ENTER
     if (ctx == NULL) {
         ret = XCAM_RETURN_ERROR_PARAM;
         RKAIQ_IMGPROC_CHECK_RET(ret, "param error!");
     }
-    ldch_api_attrib_t ldchAttr;
-    ret = rk_aiq_user_api2_ldch_GetAttrib(ctx, &ldchAttr);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "get ldch attrib failed!");
-    ldchAttr.stAuto.sta.baseCtrl.sw_ldchT_correct_strg = correctLevel;
-    ret = rk_aiq_user_api2_ldch_SetAttrib(ctx, &ldchAttr);
+
+    ldc_api_attrib_t attr;
+    ret = rk_aiq_user_api2_ldc_GetAttrib(ctx, &attr);
+    RKAIQ_IMGPROC_CHECK_RET(ret, "Failed to get LDCH attrib.");
+
+    attr.en     = en;
+    attr.opMode = RK_AIQ_OP_MODE_AUTO;
+    attr.bypass = 0;
+
+    attr.tunning.enMode = LDC_LDCH_LDCV_EN;
+
+    ret = rk_aiq_user_api2_ldc_SetAttrib(ctx, &attr);
+    RKAIQ_IMGPROC_CHECK_RET(ret, "Failed to set LDCH attrib.");
+
     IMGPROC_FUNC_EXIT
 #else
     LOGE("not support to call %s for current chip", __FUNCTION__);
@@ -4636,6 +4671,26 @@ XCamReturn rk_aiq_uapi2_setLdchCorrectLevel(const rk_aiq_sys_ctx_t* ctx, int cor
 #endif
     return ret;
 }
+
+XCamReturn rk_aiq_uapi2_setLdchLdcvCorrectLevel(const rk_aiq_sys_ctx_t* ctx, int correctLevel) {
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+#if RKAIQ_HAVE_LDCV
+    ldc_api_attrib_t attr;
+
+    ret = rk_aiq_user_api2_ldc_GetAttrib(ctx, &attr);
+    RKAIQ_IMGPROC_CHECK_RET(ret, "Failed to get LDCH attrib.");
+
+    attr.tunning.autoGenMesh.sw_ldcT_correctStrg_val = correctLevel;
+
+    ret = rk_aiq_user_api2_ldc_SetAttrib(ctx, &attr);
+    RKAIQ_IMGPROC_CHECK_RET(ret, "Failed to set LDCH attrib.");
+#else
+    LOGE("not support to call %s for current chip", __FUNCTION__);
+    ret = XCAM_RETURN_ERROR_UNKNOWN;
+#endif
+    return ret;
+}
+
 #endif
 #ifdef USE_IMPLEMENT_C
 XCamReturn rk_aiq_uapi2_setFecEn(const rk_aiq_sys_ctx_t* ctx, bool en)
@@ -4748,7 +4803,35 @@ XCamReturn rk_aiq_uapi2_setMirrorFlip(const rk_aiq_sys_ctx_t* ctx, bool mirror, 
         ret = XCAM_RETURN_ERROR_PARAM;
         RKAIQ_IMGPROC_CHECK_RET(ret, "param error!");
     }
-    return AiqManager_setMirrorFlip(ctx->_rkAiqManager, mirror, flip, skip_frm_cnt);
+
+    bool set_btnr_bypass = false;
+    btnr_status_t btnr_sta;
+    btnr_api_attrib_t btnr_attr;
+    ret = rk_aiq_user_api2_btnr_GetAttrib(ctx, &btnr_attr);
+    if (btnr_sta.en && !btnr_sta.bypass) {
+        btnr_attr.bypass = true;
+        rk_aiq_user_api2_btnr_SetAttrib(ctx, &btnr_attr);
+        int wait_param_effect_sleep_cnt = 13;
+        do {
+            if (wait_param_effect_sleep_cnt == 0) {
+                LOGW("BTNR bypass no current effect before set mirror/flip");
+                break;
+            }
+            usleep(5 * 1000);
+            rk_aiq_user_api2_btnr_QueryStatus(ctx, &btnr_sta);
+            wait_param_effect_sleep_cnt--;
+        } while((btnr_sta.en && !btnr_sta.bypass));
+        set_btnr_bypass = true;
+    }
+    ret = AiqManager_setMirrorFlip(ctx->_rkAiqManager, mirror, flip, skip_frm_cnt);
+    if (set_btnr_bypass) {
+        rk_aiq_user_api2_btnr_GetAttrib(ctx, &btnr_attr);
+        if (btnr_sta.en && btnr_sta.bypass) {
+            btnr_attr.bypass = false;
+            rk_aiq_user_api2_btnr_SetAttrib(ctx, &btnr_attr);
+        }
+    }
+    return ret;
 }
 
 XCamReturn rk_aiq_uapi2_getMirrorFlip(const rk_aiq_sys_ctx_t* ctx, bool* mirror, bool* flip) {
@@ -4825,8 +4908,9 @@ XCamReturn rk_aiq_uapi2_setContrast(const rk_aiq_sys_ctx_t* ctx, unsigned int le
     memset(&attr, 0, sizeof(enh_api_attrib_t));
     ret = rk_aiq_user_api2_enh_GetAttrib(ctx, &attr);
     RKAIQ_IMGPROC_CHECK_RET(ret, "set contrast(enh GetAttrib) failed!");
-    if (attr.opMode == RK_AIQ_OP_MODE_MANUAL || attr.en == false) {
+    if (attr.opMode == RK_AIQ_OP_MODE_MANUAL || attr.en == false || attr.bypass) {
         attr.en = true;
+        attr.bypass = false;
         attr.opMode = RK_AIQ_OP_MODE_AUTO;
         LOGW_ADEHAZE("%s is only supported in AUTO mode.", __FUNCTION__);
         ret = rk_aiq_user_api2_enh_SetAttrib(ctx, &attr);

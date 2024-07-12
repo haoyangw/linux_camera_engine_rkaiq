@@ -65,38 +65,22 @@ rk_aiq_user_api2_trans_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, trans_api_attr
 				type, man_param_size, &attr->stMan, aut_param_size,  NULL);
 }
 
-static XCamReturn
-_trans_QueryStatus(const rk_aiq_sys_ctx_t* sys_ctx, trans_status_t* status)
-{
-    XCamReturn ret = XCAM_RETURN_NO_ERROR;
-
-    if (GlobalParamsManager_isFullManualMode(&sys_ctx->_rkAiqManager->mGlobalParamsManager)) {
-        // get cur manual params
-        rk_aiq_global_params_wrap_t params;
-        params.type = RESULT_TYPE_TRANS_PARAM;
-        params.man_param_size = sizeof(trans_param_t);
-        params.man_param_ptr = &status->stMan;
-        params.aut_param_ptr = NULL;
-        ret = GlobalParamsManager_get(&sys_ctx->_rkAiqManager->mGlobalParamsManager, &params);
-        if (ret == XCAM_RETURN_NO_ERROR) {
-            status->en = params.en;
-            status->bypass = params.bypass;
-            status->opMode = (RKAiqOPMode_t)params.opMode;
-        }
-    }
-
-    return ret;
-}
-
 XCamReturn
 rk_aiq_user_api2_trans_QueryStatus(const rk_aiq_sys_ctx_t* sys_ctx, trans_status_t* status)
 {
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
     CHECK_USER_API_ENABLE2(sys_ctx);
-    CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_ATRANS);
+    CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_ADRC);
     RKAIQ_API_SMART_LOCK(sys_ctx);
 
 	const rk_aiq_sys_ctx_t* ctx = rk_aiq_user_api2_common_getSysCtx(sys_ctx);
-	return _trans_QueryStatus(ctx , status);
+
+	AiqDrcHandler_t* algo_handle =
+		(AiqDrcHandler_t*)ctx->_analyzer->mAlgoHandleMaps[RK_AIQ_ALGO_TYPE_ADRC];
+	if (algo_handle) {
+		ret = AiqDrcHandler_queryTransStatus(algo_handle, status);
+	}
+    return ret;
 }
 
 RKAIQ_END_DECLARE

@@ -78,17 +78,17 @@ rk_aiq_user_api2_common_processParams(const rk_aiq_sys_ctx_t* sys_ctx, bool set,
 	params.aut_param_size = aut_param_size;
 	params.aut_param_ptr = aut_param_ptr;
 	if (set) {
-        params.opMode = *opMode;
-        params.bypass = *bypass;
-        params.en = *en;
-        ret = GlobalParamsManager_set(&sys_ctx->_rkAiqManager->mGlobalParamsManager, &params);
+            if (opMode) params.opMode = *opMode;
+            if (bypass) params.bypass = *bypass;
+            if (en) params.en = *en;
+            ret = GlobalParamsManager_set(&sys_ctx->_rkAiqManager->mGlobalParamsManager, &params);
 	} else {
 		ret = GlobalParamsManager_get(&sys_ctx->_rkAiqManager->mGlobalParamsManager, &params);
 		if (ret == XCAM_RETURN_NO_ERROR) {
-			*en = params.en;
-			*bypass = params.bypass;
-			*opMode = (RKAiqOPMode_t)params.opMode;
-		}
+                    if (en) *en = params.en;
+                    if (bypass) *bypass = params.bypass;
+                    if (opMode) *opMode = (RKAiqOPMode_t)params.opMode;
+                }
 	}
 	return ret;
 }

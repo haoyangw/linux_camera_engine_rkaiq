@@ -90,5 +90,7 @@
 #include "uAPI2/rk_aiq_user_api2_texEst.h"
 #include "isp/rk_aiq_isp_stats_v33.h"
 #include "uAPI2/rk_aiq_user_api2_stats.h"
+#include "isp/rk_aiq_isp_ldc22.h"
+#include "uAPI2/rk_aiq_user_api2_ldc.h"
 
 #endif

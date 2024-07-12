@@ -799,10 +799,16 @@
  *  - not fully implemented now
  * v6.0x6.3-rc1
  * - fix lots of v6.6.3 bugs
+ * v6.0x6.3-rc2
+ * - fix imgproc API bugs
+ *   sensor mirro/flip API depends on:
+ *      https://10.10.10.29/c/rk/kernel/+/228249
+ *      https://10.10.10.29/c/rk/kernel/+/228250
+ * - add ldc C source
  */
 
-#define RK_AIQ_VERSION_REAL_V "v6.0x6.3-rc1"
-#define RK_AIQ_RELEASE_DATE "2024-06-18"
+#define RK_AIQ_VERSION_REAL_V "v6.0x6.3-rc2"
+#define RK_AIQ_RELEASE_DATE "2024-07-18"
 
 #define RK_AIQ_IQ_HEAD_VERSION_REAL_V "v1.0.2"
 

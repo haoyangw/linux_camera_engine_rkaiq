@@ -415,7 +415,7 @@ static XCamReturn _handlerAe_genIspResult(AiqAlgoHandler_t* pAlgoHandler, AiqFul
     rk_aiq_isp_ae_stats_cfg_t* ae_stats_cfg   = (rk_aiq_isp_ae_stats_cfg_t*)pBase->_data;
     // TODO: Why need to copy again?
     //ae_stats_cfg->result = *ae_proc->ae_stats_cfg;
-    memcpy(ae_stats_cfg, ae_proc->ae_stats_cfg, sizeof(*ae_stats_cfg));
+    // memcpy(ae_stats_cfg, ae_proc->ae_stats_cfg, sizeof(*ae_stats_cfg));
     if (sharedCom->init) {
         pBase->frame_id  = 0;
     } else {

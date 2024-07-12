@@ -72,19 +72,25 @@ void rk_aiq_gain20_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
         for(int i = 0; i < 3; i++) {
             if(curExp->HdrExp[i].exp_real_params.analog_gain < 1.0) {
                 stExpInfo.arAGain[i] = 1.0;
-                LOGW_ANR("hdr mode again is wrong, use 1.0 instead\n");
+                if (i < cvtinfo->frameNum) {
+                    LOGW_ANR("hdr mode again is wrong, use 1.0 instead\n");
+                }
             } else {
                 stExpInfo.arAGain[i] = curExp->HdrExp[i].exp_real_params.analog_gain;
             }
             if(curExp->HdrExp[i].exp_real_params.digital_gain < 1.0) {
                 stExpInfo.arDGain[i] = 1.0;
-                LOGW_ANR("hdr mode dgain is wrong, use 1.0 instead\n");
+                if (i < cvtinfo->frameNum) {
+                    LOGW_ANR("hdr mode dgain is wrong, use 1.0 instead\n");
+                }
             } else {
                 stExpInfo.arDGain[i] = curExp->HdrExp[i].exp_real_params.digital_gain;
             }
             if(curExp->HdrExp[i].exp_real_params.isp_dgain < 1.0) {
                 stExpInfo.isp_dgain[i] = 1.0;
-                LOGW_ANR("hdr mode isp_dgain is wrong, use 1.0 instead\n");
+                if (i < cvtinfo->frameNum) {
+                    LOGW_ANR("hdr mode isp_dgain is wrong, use 1.0 instead\n");
+                }
             } else {
                 stExpInfo.isp_dgain[i] = curExp->HdrExp[i].exp_real_params.isp_dgain;
             }
