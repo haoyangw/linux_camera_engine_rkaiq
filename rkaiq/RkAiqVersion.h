@@ -805,10 +805,14 @@
  *      https://10.10.10.29/c/rk/kernel/+/228249
  *      https://10.10.10.29/c/rk/kernel/+/228250
  * - add ldc C source
+ * v6.0x7.1
+ * - fix some bugs of group mode
+ * - fix initial blc error for fastboot
+ * - update iq structs of btnr, histeq, enh ...
  */
 
-#define RK_AIQ_VERSION_REAL_V "v6.0x6.3-rc2"
-#define RK_AIQ_RELEASE_DATE "2024-07-18"
+#define RK_AIQ_VERSION_REAL_V "v6.0x7.1"
+#define RK_AIQ_RELEASE_DATE "2024-08-05"
 
 #define RK_AIQ_IQ_HEAD_VERSION_REAL_V "v1.0.2"
 

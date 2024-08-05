@@ -2237,7 +2237,7 @@ static XCamReturn rk_aiq_aiisp_defaut_cb(rk_aiq_aiisp_t* aiisp_evt, void* ctx) {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
     rk_aiq_sys_ctx_t* aiisp_ctx= (rk_aiq_sys_ctx_t *)ctx;
     aiisp_ctx->_wr_linecnt_now += aiisp_evt->height;
-    if (aiisp_ctx->_wr_linecnt_now >= aiisp_ctx->_camHw->aiisp_param->rawHgt * 3/4) {
+    if (aiisp_ctx->_wr_linecnt_now >= aiisp_ctx->_camHw->aiisp_param->rawHgt) {
         aiisp_ctx->_wr_linecnt_now = 0;
         aiisp_ctx->_camHw->aiisp_processing(aiisp_ctx->_camHw, aiisp_evt);
         ret = rk_aiq_uapi2_sysctl_ReadAiisp(aiisp_ctx);
@@ -2263,7 +2263,7 @@ XCamReturn rk_aiq_uapi2_sysctl_initAiisp(rk_aiq_sys_ctx_t* sys_ctx, rk_aiq_aiisp
         aiisp_cfg_tmp.rd_mode = 0;
         // set 3/4 frame as whole frame to decrease frame delay, may cause frame
         // corruption
-        aiisp_cfg_tmp.wr_linecnt = height * 3 / 4;
+        aiisp_cfg_tmp.wr_linecnt = height - 1 ;
         aiisp_cfg_tmp.rd_linecnt = 0;
 #else // half frame mode, not support now
         aiisp_cfg_tmp.wr_mode = 1;

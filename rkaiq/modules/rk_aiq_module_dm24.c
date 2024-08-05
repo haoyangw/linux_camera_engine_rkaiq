@@ -1,5 +1,51 @@
 #include "rk_aiq_isp39_modules.h"
 
+/*
+"sw_dmT_luma_val": 实际寄存器 luma_dx
+线性域
+	luma_val : {0, 256, 512, 1024, 1536, 2560, 3584, 4096}
+	luma_dx  : {8, 8, 9, 9, 10, 10, 9}
+
+15bit模式
+	luma_val : {0, 2048, 4096, 8192, 12288, 20480, 28672, 32768}
+	logtrans : {0, 1623, 2093, 2583, 2875, 3246, 3492, 3584}
+	2次幂对齐: {0, 1024, 2048, 2560, 2816, 3328, 3456, 3584}
+	luma_dx  : {10, 10, 9, 8, 9, 7, 7}
+
+20bit模式
+	luma_val : {0, 65536, 131072, 262144, 393216, 655360, 917504, 1048576}
+	logtrans : {0, 2049, 2305, 2560, 2710, 2899, 3023, 3072}
+	2次幂对齐: {0, 2048, 2304, 2560, 2688, 2816, 2944, 3072}
+	luma_dx  : {11, 8, 8, 7, 7, 7, 7}
+*/
+
+#if 0
+void rk_aiq_dm24_params_logtrans(struct isp33_debayer_cfg *pCfg, uint8_t is15bit, uint8_t offsetbit)
+{
+    uint8_t luma_dx_15bit[7] = {10, 10, 9, 8, 9, 7, 7};
+    uint8_t luma_dx_20bit[7] = {11, 8, 8, 7, 7, 7, 7};
+
+    if (is15bit) {
+        for (uint8_t i=0; i<7; i++)
+            pCfg->luma_dx[i] = luma_dx_15bit[i];
+    } else {
+        for (uint8_t i=0; i<7; i++)
+            pCfg->luma_dx[i] = luma_dx_20bit[i];
+    }
+
+#define LOGTRANSF_VAR(a) a = isp39_logtransf(a, is15bit, offsetbit)
+    LOGTRANSF_VAR(pCfg->gflt_offset);
+    LOGTRANSF_VAR(pCfg->g_interp_sharp_strg_offset);
+    for (uint8_t i=0; i<8; i++) {
+        LOGTRANSF_VAR(pCfg->gflt_vsigma[i]);
+    }
+    for (uint8_t i=0; i<8; i++) {
+        LOGTRANSF_VAR(pCfg->drct_offset[i]);
+    }
+#undef LOGTRANSF_VAR
+}
+#endif
+
 void rk_aiq_dm24_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_info_t *cvtinfo)
 {
     struct isp33_debayer_cfg *phwcfg = &isp_params->isp_cfg->others.debayer_cfg;
@@ -106,5 +152,11 @@ void rk_aiq_dm24_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_inf
     phwcfg->gflt_vsigma[5] = ROUND_F((1 << RK_DM23_FIX_BIT_INV_BF_SIGMA) / pdyn->gOutlsFlt_bifilt.hw_dmT_luma2RgeSgm_val[5]);
     phwcfg->gflt_vsigma[6] = ROUND_F((1 << RK_DM23_FIX_BIT_INV_BF_SIGMA) / pdyn->gOutlsFlt_bifilt.hw_dmT_luma2RgeSgm_val[6]);
     phwcfg->gflt_vsigma[7] = ROUND_F((1 << RK_DM23_FIX_BIT_INV_BF_SIGMA) / pdyn->gOutlsFlt_bifilt.hw_dmT_luma2RgeSgm_val[7]);
+
+#if 0
+    if (cvtinfo->cmps_on) {
+        rk_aiq_dm24_params_logtrans(phwcfg, cvtinfo->cmps_is15bit, cvtinfo->cmps_offsetbit);
+    }
+#endif
     return;
 }

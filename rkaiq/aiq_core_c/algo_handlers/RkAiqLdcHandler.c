@@ -141,7 +141,7 @@ static XCamReturn _handlerLdc_updMeshFromFile(AiqAlgoHandler_t* pAlgoHandler,
     sprintf(file_name, "%s/%s", path, name);
     LOGK_ALDC("try reading mesh from %s", file_name);
     if (access(file_name, F_OK) == 0) {
-        const LdcLutBuffer* lut_buf = algo_ldc_getLdchFreeLutBuf(pAlgoHandler->mAlgoCtx);
+        LdcLutBuffer* lut_buf = algo_ldc_getLdchFreeLutBuf(pAlgoHandler->mAlgoCtx);
         if (lut_buf && lut_buf->Addr && lut_buf->Fd > 0) {
             if (_handlerLdc_readMeshFile(file_name, lut_buf->Addr) < 0) {
                 LOGE_ALDC("Failed to read mesh from %s for LDCH", file_name);
@@ -149,6 +149,8 @@ static XCamReturn _handlerLdc_updMeshFromFile(AiqAlgoHandler_t* pAlgoHandler,
             } else {
                 man_param->sta.ldchCfg.en                                = true;
                 man_param->sta.ldchCfg.lutMapCfg.sw_ldcT_lutMapBuf_fd[0] = lut_buf->Fd;
+
+                lut_buf->Fd = LDC_BUF_FD_DEFAULT;
             }
         }
     } else {
@@ -164,7 +166,7 @@ static XCamReturn _handlerLdc_updMeshFromFile(AiqAlgoHandler_t* pAlgoHandler,
         sprintf(file_name, "%s/%s", path, name);
         LOGK_ALDC("try reading mesh from %s", file_name);
         if (access(file_name, F_OK) == 0) {
-            const LdcLutBuffer* lut_buf = algo_ldc_getLdcvFreeLutBuf(pAlgoHandler->mAlgoCtx);
+            LdcLutBuffer* lut_buf = algo_ldc_getLdcvFreeLutBuf(pAlgoHandler->mAlgoCtx);
             if (lut_buf->Addr && lut_buf->Fd > 0) {
                 if (_handlerLdc_readMeshFile(file_name, lut_buf->Addr) < 0) {
                     LOGE_ALDC("Failed to read mesh from %s for LDCV", file_name);
@@ -172,6 +174,8 @@ static XCamReturn _handlerLdc_updMeshFromFile(AiqAlgoHandler_t* pAlgoHandler,
                 } else {
                     man_param->sta.ldcvCfg.en                                = true;
                     man_param->sta.ldcvCfg.lutMapCfg.sw_ldcT_lutMapBuf_fd[0] = lut_buf->Fd;
+
+                    lut_buf->Fd = LDC_BUF_FD_DEFAULT;
                 }
             }
         } else {
@@ -190,7 +194,7 @@ static XCamReturn _handlerLdc_updMeshFromUapiBuf(AiqAlgoHandler_t* pAlgoHandler,
         uint32_t size = ldc_param->sta.ldchCfg.lutMapCfg.sw_ldcT_lutMap_size;
         void* vaddr   = ldc_param->sta.ldchCfg.lutMapCfg.sw_ldcT_lutMapBuf_vaddr[0];
         if (size > 0 && vaddr) {
-            const LdcLutBuffer* lut_buf = algo_ldc_getLdchFreeLutBuf(pAlgoHandler->mAlgoCtx);
+            LdcLutBuffer* lut_buf = algo_ldc_getLdchFreeLutBuf(pAlgoHandler->mAlgoCtx);
             if (lut_buf && lut_buf->Addr && lut_buf->Fd > 0) {
                 memcpy(lut_buf->Addr, vaddr, size);
                 ldc_param->sta.ldchCfg.lutMapCfg.sw_ldcT_lutMap_size = 0;
@@ -198,6 +202,8 @@ static XCamReturn _handlerLdc_updMeshFromUapiBuf(AiqAlgoHandler_t* pAlgoHandler,
                 ldc_param->sta.ldchCfg.lutMapCfg.sw_ldcT_lutMapBuf_fd[0] = lut_buf->Fd;
                 LOGD_ALDC("copy lut buf(%p, size %d) to ldch mesh buf(%p, fd %d)", vaddr, size,
                           lut_buf->Addr, lut_buf->Fd);
+
+                lut_buf->Fd = LDC_BUF_FD_DEFAULT;
 
                 uint16_t* addr = (uint16_t*)lut_buf->Addr;
                 LOGD_ALDC("LDCH lut[0:15]: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
@@ -221,13 +227,15 @@ static XCamReturn _handlerLdc_updMeshFromUapiBuf(AiqAlgoHandler_t* pAlgoHandler,
         uint32_t size = ldc_param->sta.ldcvCfg.lutMapCfg.sw_ldcT_lutMap_size;
         void* vaddr   = ldc_param->sta.ldcvCfg.lutMapCfg.sw_ldcT_lutMapBuf_vaddr[0];
         if (size > 0 && vaddr) {
-            const LdcLutBuffer* lut_buf = algo_ldc_getLdcvFreeLutBuf(pAlgoHandler->mAlgoCtx);
+            LdcLutBuffer* lut_buf = algo_ldc_getLdcvFreeLutBuf(pAlgoHandler->mAlgoCtx);
             memcpy(lut_buf->Addr, vaddr, size);
             ldc_param->sta.ldcvCfg.lutMapCfg.sw_ldcT_lutMap_size = 0;
 
             ldc_param->sta.ldchCfg.lutMapCfg.sw_ldcT_lutMapBuf_fd[0] = lut_buf->Fd;
             LOGK("copy api lut buf : %p, %d to cur buf : %p, %d for LDCV", vaddr, size,
                  lut_buf->Addr, lut_buf->Fd);
+
+            lut_buf->Fd = LDC_BUF_FD_DEFAULT;
 
             uint16_t* addr = (uint16_t*)lut_buf->Addr;
             LOGD_ALDC("LDCV lut[0:15]: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", addr[0],

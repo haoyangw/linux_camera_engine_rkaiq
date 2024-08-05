@@ -97,9 +97,9 @@ rk_aiq_user_api2_hsv_QueryStatus(const rk_aiq_sys_ctx_t* sys_ctx, hsv_status_t* 
 static XCamReturn check_hsv_param(ahsv_hsvCalib_t* calibdb){
     int tblAll_len = calibdb->sw_hsvCfg_tblAll_len;
     for (int i = 0;i < tblAll_len;i++) {
-        int lut0_mode = calibdb->tableAll[i].meshGain.lut0.hw_hsvT_lut1d_mode == 3? 1:calibdb->tableAll[i].meshGain.lut0.hw_hsvT_lut1d_mode;
-        int lut1_mode = calibdb->tableAll[i].meshGain.lut1.hw_hsvT_lut1d_mode == 3? 1:calibdb->tableAll[i].meshGain.lut1.hw_hsvT_lut1d_mode;
-        int lut2_mode = calibdb->tableAll[i].meshGain.lut2.hw_hsvT_lut2d_mode / 2;
+        int lut0_mode = calibdb->tableAll[i].meshGain.lut1d0.hw_hsvT_lut1d_mode == 3? 1:calibdb->tableAll[i].meshGain.lut1d0.hw_hsvT_lut1d_mode;
+        int lut1_mode = calibdb->tableAll[i].meshGain.lut1d1.hw_hsvT_lut1d_mode == 3? 1:calibdb->tableAll[i].meshGain.lut1d1.hw_hsvT_lut1d_mode;
+        int lut2_mode = calibdb->tableAll[i].meshGain.lut2d.hw_hsvT_lut2d_mode / 2;
         if (lut0_mode == lut1_mode || lut1_mode == lut2_mode || lut2_mode == lut0_mode) {
             LOGE("HSV config failed, hsv.calibdb is invaild. Three output channels of hsv lut must be different."
                 "Please configure by hsv.calibdb.tableAll.meshGain.");

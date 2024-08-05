@@ -226,6 +226,23 @@ void bayertnr_luma2sigmax_config_v30(btnr_trans_params_t *pTransParams)
     (mode) == 1 ? "btnr_pixInBw20b_mode" : \
     "INVALID MODE"
 
+void rk_aiq_btnr40_params_logtrans(struct isp39_bay3d_cfg *pCfg)
+{
+    uint8_t is15bit = pCfg->transf_mode_scale;
+    uint8_t offsetbit = bayertnr_find_top_one_pos(pCfg->transf_mode_offset);
+
+#define LOGTRANSF_VAR(a) a = isp39_logtransf(a, is15bit, offsetbit)
+    LOGTRANSF_VAR(pCfg->cur_spnr_sigma_offset);
+    LOGTRANSF_VAR(pCfg->cur_spnr_sigma_hdr_sht_offset);
+    LOGTRANSF_VAR(pCfg->cur_spnr_pix_diff_max_limit);
+    LOGTRANSF_VAR(pCfg->cur_spnr_wgt_cal_offset);
+    LOGTRANSF_VAR(pCfg->pre_spnr_sigma_offset);
+    LOGTRANSF_VAR(pCfg->pre_spnr_sigma_hdr_sht_offset);
+    LOGTRANSF_VAR(pCfg->pre_spnr_pix_diff_max_limit);
+    LOGTRANSF_VAR(pCfg->pre_spnr_wgt_cal_offset);
+#undef LOGTRANSF_VAR
+}
+
 void rk_aiq_btnr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_info_t* cvtinfo, btnr_cvt_info_t* pBtnrInfo)
 {
     btnr_trans_params_t *pTransParams = &pBtnrInfo->mBtnrTransParams;
@@ -265,7 +282,7 @@ void rk_aiq_btnr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
 
     // BAY3D_CTRL0 0x2c00
     //pFix->bypass_en = bypass;
-    pFix->iirsparse_en = 0;
+    pFix->iirsparse_en = cvtinfo->use_aiisp ? 1 : 0;
 
     if (cvtinfo->frameNum > 1) {
         if (psta->hw_btnrCfg_pixDomain_mode != btnr_pixLog2Domain_mode) {
@@ -787,5 +804,9 @@ void rk_aiq_btnr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
     pTransParams->bayertnr_lo_wgt_clip_min_limit = pFix->tnr_lo_wgt_clip_min_limit;
     pTransParams->bayertnr_lo_wgt_clip_max_limit = pFix->tnr_lo_wgt_clip_max_limit;
     pFix->tnr_out_sigma_sq = bayertnr_update_sq(pTransParams);
+
+    if (!pFix->transf_bypass_en) {
+        rk_aiq_btnr40_params_logtrans(pFix);
+    }
     return;
 }

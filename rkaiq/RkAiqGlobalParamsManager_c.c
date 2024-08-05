@@ -353,24 +353,6 @@ static void init_withCalib(GlobalParamsManager_t* pMan)
         LOGE("no cac calib !");
     }
 
-    wrap_ptr = &pMan->mGlobalParams[RESULT_TYPE_LDCH_PARAM];
-    ldch_api_attrib_t* ldch_calib = (ldch_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
-                (void*)(pMan->mCalibDb), ldch));
-    if (ldch_calib) {
-        wrap_ptr->opMode = &ldch_calib->opMode;
-        wrap_ptr->en = &ldch_calib->en;
-        wrap_ptr->bypass = &ldch_calib->bypass;
-        wrap_ptr->aut_param_ptr = &ldch_calib->stAuto;
-        pMan->mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_LDCH_PARAM;
-        if (ldch_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
-            ldch_calib->opMode = RK_AIQ_OP_MODE_AUTO;
-        }
-        LOGK("Module LDCH: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
-             *wrap_ptr->opMode, *wrap_ptr->en, *wrap_ptr->bypass, wrap_ptr->man_param_ptr);
-    } else {
-        LOGE("no ldch calib !");
-    }
-
     wrap_ptr = &pMan->mGlobalParams[RESULT_TYPE_LDC_PARAM];
     if (!wrap_ptr->man_param_ptr)
         wrap_ptr->man_param_ptr = (ldc_param_t*)aiq_mallocz(sizeof(ldc_param_t));
@@ -807,9 +789,9 @@ checkAlgoEnableInit(GlobalParamsManager_t* pMan) {
         ahsv_hsvCalib_t* calibdb = &hsv_calib->calibdb;
         int tblAll_len = calibdb->sw_hsvCfg_tblAll_len;
         for (int i = 0;i < tblAll_len;i++) {
-            int lut0_mode = calibdb->tableAll[i].meshGain.lut0.hw_hsvT_lut1d_mode == 3? 1:calibdb->tableAll[i].meshGain.lut0.hw_hsvT_lut1d_mode;
-            int lut1_mode = calibdb->tableAll[i].meshGain.lut1.hw_hsvT_lut1d_mode == 3? 1:calibdb->tableAll[i].meshGain.lut1.hw_hsvT_lut1d_mode;
-            int lut2_mode = calibdb->tableAll[i].meshGain.lut2.hw_hsvT_lut2d_mode / 2;
+            int lut0_mode = calibdb->tableAll[i].meshGain.lut1d0.hw_hsvT_lut1d_mode == 3? 1:calibdb->tableAll[i].meshGain.lut1d0.hw_hsvT_lut1d_mode;
+            int lut1_mode = calibdb->tableAll[i].meshGain.lut1d1.hw_hsvT_lut1d_mode == 3? 1:calibdb->tableAll[i].meshGain.lut1d1.hw_hsvT_lut1d_mode;
+            int lut2_mode = calibdb->tableAll[i].meshGain.lut2d.hw_hsvT_lut2d_mode / 2;
             if (lut0_mode == lut1_mode || lut1_mode == lut2_mode || lut2_mode == lut0_mode) {
                 LOGE("HSV config failed, hsv.calibdb is invaild. Three output channels of hsv lut must be different."
                     "Please configure by hsv.calibdb.tableAll.meshGain.");
@@ -1274,7 +1256,7 @@ XCamReturn GlobalParamsManager_checkAlgoEnableBypass(GlobalParamsManager_t* pMan
 
     if (type == RESULT_TYPE_BLC_PARAM || type == RESULT_TYPE_DPCC_PARAM || type == RESULT_TYPE_CCM_PARAM ||
         type == RESULT_TYPE_RGBIR_PARAM || type == RESULT_TYPE_AGAMMA_PARAM || type == RESULT_TYPE_LSC_PARAM ||
-        type == RESULT_TYPE_LDCH_PARAM || type == RESULT_TYPE_CSM_PARAM || type == RESULT_TYPE_CGC_PARAM ||
+        type == RESULT_TYPE_CSM_PARAM || type == RESULT_TYPE_CGC_PARAM ||
         type == RESULT_TYPE_LDC_PARAM || type == RESULT_TYPE_TRANS_PARAM || type == RESULT_TYPE_HSV_PARAM ||
         type == RESULT_TYPE_LUT3D_PARAM || type == RESULT_TYPE_MERGE_PARAM) {
         if (*bypass == 1) {
@@ -1488,14 +1470,14 @@ static bool checkAlgoParams(GlobalParamsManager_t* pMan, rk_aiq_global_params_wr
         hsv_api_attrib_t attr;
         if (param->opMode == RK_AIQ_OP_MODE_MANUAL) {
             memcpy(&attr.stMan, param->man_param_ptr, param->man_param_size);
-            int lut0_mode = attr.stMan.dyn.lut0.hw_hsvT_lut1d_mode==3? 1: attr.stMan.dyn.lut0.hw_hsvT_lut1d_mode;
-            int lut1_mode = attr.stMan.dyn.lut1.hw_hsvT_lut1d_mode==3? 1: attr.stMan.dyn.lut1.hw_hsvT_lut1d_mode;
-            int lut2_mode = attr.stMan.dyn.lut2.hw_hsvT_lut2d_mode / 2;
+            int lut0_mode = attr.stMan.dyn.lut1d0.hw_hsvT_lut1d_mode==3? 1: attr.stMan.dyn.lut1d0.hw_hsvT_lut1d_mode;
+            int lut1_mode = attr.stMan.dyn.lut1d1.hw_hsvT_lut1d_mode==3? 1: attr.stMan.dyn.lut1d1.hw_hsvT_lut1d_mode;
+            int lut2_mode = attr.stMan.dyn.lut2d.hw_hsvT_lut2d_mode / 2;
             if (lut0_mode == lut1_mode || lut1_mode == lut2_mode || lut2_mode == lut0_mode) {
                 LOGE("Three output channels of hsv lut must be different. "
-                    "Please configure by hsv.dyn.lut0.hw_hsvT_lut1d_mode, hsv.dyn.lut1.hw_hsvT_lut1d_mode, hsv.dyn.lut2.hw_hsvT_lut2d_mode!");
+                    "Please configure by hsv.dyn.lut1d0.hw_hsvT_lut1d_mode, hsv.dyn.lut1d1.hw_hsvT_lut1d_mode, hsv.dyn.lut2d.hw_hsvT_lut2d_mode!");
                 socket_client_setNote(pMan->_socket, IPC_RET_UAPI_ERROR, "Three output channels of hsv lut must be different. "
-                    "Please configure by hsv.dyn.lut0.hw_hsvT_lut1d_mode, hsv.dyn.lut1.hw_hsvT_lut1d_mode, hsv.dyn.lut2.hw_hsvT_lut2d_mode!\n");
+                    "Please configure by hsv.dyn.lut1d0.hw_hsvT_lut1d_mode, hsv.dyn.lut1d1.hw_hsvT_lut1d_mode, hsv.dyn.lut2d.hw_hsvT_lut2d_mode!\n");
                 return false;
             }
         }

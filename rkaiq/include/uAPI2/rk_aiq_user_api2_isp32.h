@@ -50,8 +50,6 @@
 #include "uAPI2/rk_aiq_user_api2_gic.h"
 #include "isp/rk_aiq_isp_cac21.h"
 #include "uAPI2/rk_aiq_user_api2_cac.h"
-#include "isp/rk_aiq_isp_ldch22.h"
-#include "uAPI2/rk_aiq_user_api2_ldch.h"
 #include "isp/rk_aiq_isp_merge22.h"
 #include "uAPI2/rk_aiq_user_api2_merge.h"
 #include "isp/rk_aiq_isp_lsc21.h"

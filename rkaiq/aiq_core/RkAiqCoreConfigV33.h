@@ -28,7 +28,6 @@
 #include "newStruct/blc/include/blc_algo_api.h"
 #include "newStruct/dpc/include/dpc_algo_api.h"
 #include "newStruct/cac/include/cac_algo_api.h"
-#include "newStruct/ldch/include/ldch_algo_api.h"
 #include "newStruct/csm/include/csm_algo_api.h"
 #include "newStruct/merge/include/merge_algo_api.h"
 #include "newStruct/lsc/include/lsc_algo_api.h"

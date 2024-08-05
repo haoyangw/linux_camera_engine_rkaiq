@@ -38,7 +38,7 @@ typedef struct LdchAdaptee_s {
     const ldc_api_attrib_t* calib_;
     const RkAiqAlgoConfigLdc* config_;
     LdcLutBufferManager* lut_manger_;
-    LdcLutBuffer* cached_lut_[2];
+    LdcLutBuffer cached_lut_[2];
     LdcMeshBufInfo_t chip_in_use_lut[2];
 } LdchAdaptee;
 
@@ -56,7 +56,7 @@ static inline void LdchAdaptee_setGenMeshState(LdchAdaptee* ldch, LdcGenMeshStat
     aiqMutex_unlock(&ldch->_mutex);
 }
 
-const LdcLutBuffer* LdchAdaptee_getFreeLutBuf(LdchAdaptee* ldch, int8_t isp_id);
+LdcLutBuffer* LdchAdaptee_getFreeLutBuf(LdchAdaptee* ldch, int8_t isp_id);
 
 XCamReturn LdchAdaptee_updateMesh(LdchAdaptee* ldch, uint8_t level, LdcMeshBufInfo_t buf_info);
 

@@ -557,8 +557,8 @@ XCamReturn AiqManager_init(AiqManager_t* pAiqManager, const char* sns_ent_name, 
 
     GlobalParamsManager_setManager(&pAiqManager->mGlobalParamsManager, pAiqManager);
     CamHW_setManager(pAiqManager->mCamHw, pAiqManager);
-    ret = GlobalParamsManager_init(&pAiqManager->mGlobalParamsManager, false, pAiqManager->mCalibDbV2);
-	AiqCore_setGlobalParamsManager(pAiqManager->mRkAiqAnalyzer, &pAiqManager->mGlobalParamsManager);
+    //ret = GlobalParamsManager_init(&pAiqManager->mGlobalParamsManager, false, pAiqManager->mCalibDbV2);
+	//AiqCore_setGlobalParamsManager(pAiqManager->mRkAiqAnalyzer, &pAiqManager->mGlobalParamsManager);
 
     ret |= AiqCore_init(pAiqManager->mRkAiqAnalyzer, pAiqManager->mSnsEntName, pAiqManager->mCalibDbV2);
     RKAIQMNG_CHECK_RET(ret, "analyzer init error %d !", ret);
@@ -578,6 +578,8 @@ XCamReturn AiqManager_init(AiqManager_t* pAiqManager, const char* sns_ent_name, 
 #endif
 	}
     RKAIQMNG_CHECK_RET(ret, "camHw init error %d !", ret);
+    ret = GlobalParamsManager_init(&pAiqManager->mGlobalParamsManager, false, pAiqManager->mCalibDbV2);
+    AiqCore_setGlobalParamsManager(pAiqManager->mRkAiqAnalyzer, &pAiqManager->mGlobalParamsManager);
     pAiqManager->_state = AIQ_STATE_INITED;
 
     isp_drv_share_mem_ops_t *mem_ops = NULL;
@@ -770,6 +772,8 @@ XCamReturn AiqManager_deinit(AiqManager_t* pAiqManager)
 		aiqList_deinit(pAiqManager->mParamsList);
 		pAiqManager->mParamsList = NULL;
 	}
+
+    GlobalParamsManager_deinit(&pAiqManager->mGlobalParamsManager);
 
     pAiqManager->_state = AIQ_STATE_INVALID;
 

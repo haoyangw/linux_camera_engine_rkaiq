@@ -1379,7 +1379,7 @@ int j2s_json_to_bin(j2s_ctx *ctx, cJSON *json, const char *name, void **ptr,
   bin_size = map_start + sizeof(map_index_t) * map_len;
 
   if (strlen(RK_AIQ_IQ_HEAD_VERSION) > 63) {
-    printf("RK_AIQ_IQ_HEAD_VERSION: %s %z is too long\n", RK_AIQ_IQ_HEAD_VERSION, strlen(RK_AIQ_IQ_HEAD_VERSION));
+    printf("RK_AIQ_IQ_HEAD_VERSION: %s %zu is too long\n", RK_AIQ_IQ_HEAD_VERSION, strlen(RK_AIQ_IQ_HEAD_VERSION));
     goto error;
   }
   snprintf(iq_v, 64, "%s", RK_AIQ_IQ_HEAD_VERSION);

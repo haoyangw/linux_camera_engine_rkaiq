@@ -196,6 +196,10 @@ static XCamReturn _get_sensor_caps(rk_sensor_full_info_t* sensor_info) {
             frameSize.height   = fie.height;
             frameSize.fps      = fie.interval.denominator / fie.interval.numerator;
             frameSize.hdr_mode = fie.reserved[0];
+            if (sensor_info->frame_size_cnt == SUPPORT_FMT_MAX) {
+               LOGW_CAMHW ("fmts num over %d, ignore !", SUPPORT_FMT_MAX);
+               break;
+            }
             sensor_info->frame_size[sensor_info->frame_size_cnt++] = frameSize;
             fie.index++;
         }
@@ -1898,6 +1902,11 @@ void AiqCamHwBase_deinit(AiqCamHwBase_t* pCamHw) {
         aiq_free(pCamHw->mIspStatsDev);
         pCamHw->mIspStatsDev = NULL;
     }
+    if (pCamHw->_mIspParamsCvt) {
+        AiqIspParamsCvt_deinit(pCamHw->_mIspParamsCvt);
+        aiq_free(pCamHw->_mIspParamsCvt);
+        pCamHw->_mIspParamsCvt = NULL;
+    }
     if (pCamHw->mIspCoreDev) {
         AiqV4l2SubDevice_deinit(pCamHw->mIspCoreDev);
         aiq_free(pCamHw->mIspCoreDev);
@@ -1907,11 +1916,6 @@ void AiqCamHwBase_deinit(AiqCamHwBase_t* pCamHw) {
         AiqV4l2SubDevice_deinit(pCamHw->mVicapItfDev);
         aiq_free(pCamHw->mVicapItfDev);
         pCamHw->mVicapItfDev = NULL;
-    }
-    if (pCamHw->_mIspParamsCvt) {
-        AiqIspParamsCvt_deinit(pCamHw->_mIspParamsCvt);
-        aiq_free(pCamHw->_mIspParamsCvt);
-        pCamHw->_mIspParamsCvt = NULL;
     }
     if (pCamHw->_mSensorDev) {
         AiqSensorHw_deinit(pCamHw->_mSensorDev);

@@ -1104,13 +1104,8 @@ typedef struct __aiq_uapi_t {
     // M4_STRUCT_DESC("lut3d_uapi", "double_list_template")
     lut3d_uapi_t lut3d_uapi;
 #endif
-#if defined(ISP_HW_V39) || defined(ISP_HW_V33)
     // M4_STRUCT_DESC("ldc_uapi", "normal_ui_style")
     ldc_uapi_t ldc_uapi;
-#else
-    // M4_STRUCT_DESC("ldch_uapi", "iso_list_template")
-    ldch_uapi_t ldch_uapi;
-#endif
 #if defined(ISP_HW_V33)
     // M4_STRUCT_DESC("hsv_uapi", "double_list_template")
     hsv_uapi_t hsv_uapi;

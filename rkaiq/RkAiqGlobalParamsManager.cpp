@@ -329,24 +329,6 @@ GlobalParamsManager::init_withCalib()
         LOGE("no cac calib !");
     }
 
-    wrap_ptr = &mGlobalParams[RESULT_TYPE_LDCH_PARAM];
-    ldch_api_attrib_t* ldch_calib = (ldch_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
-                (void*)(mCalibDb), ldch));
-    if (ldch_calib) {
-        wrap_ptr->opMode = &ldch_calib->opMode;
-        wrap_ptr->en = &ldch_calib->en;
-        wrap_ptr->bypass = &ldch_calib->bypass;
-        wrap_ptr->aut_param_ptr = &ldch_calib->stAuto;
-        mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_LDCH_PARAM;
-        if (ldch_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
-            ldch_calib->opMode = RK_AIQ_OP_MODE_AUTO;
-        }
-        LOGK("Module LDCH: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
-             *wrap_ptr->opMode, *wrap_ptr->en, *wrap_ptr->bypass, wrap_ptr->man_param_ptr);
-    } else {
-        LOGE("no ldch calib !");
-    }
-
     wrap_ptr = &mGlobalParams[RESULT_TYPE_HISTEQ_PARAM];
     histeq_api_attrib_t* histeq_calib = (histeq_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
                 (void*)(mCalibDb), histeq));

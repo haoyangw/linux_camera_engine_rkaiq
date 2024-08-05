@@ -54,7 +54,9 @@ enum RK_ISP_HW_MODULE_e {
     RK_ISP_CSM,
     RK_ISP_ABLC,
     RK_ISP_AGIC,
+#ifndef USE_NEWSTRUCT
     RK_ISP_ALDCH,
+#endif
     RK_ISP_ADEBAYER,
     RK_ISP_ACP,
     RK_ISP_AIE,
@@ -62,7 +64,9 @@ enum RK_ISP_HW_MODULE_e {
     RK_ISP_CAC,
     RK_ISP_AGAIN,
     RK_ISP_ACCM_V2,
+#ifndef USE_NEWSTRUCT
     RK_ISP_ALDCH_V21,
+#endif
     RK_SMARTIR,
     RK_ISP_ALDC,
     RK_AINR,

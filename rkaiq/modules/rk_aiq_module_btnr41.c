@@ -298,6 +298,20 @@ void bayertnr_luma2sigmax_config_v41(btnr_trans_params_t *pTransParams, blc_res_
 
 }
 
+void rk_aiq_btnr41_params_logtrans(struct isp33_bay3d_cfg *pCfg)
+{
+    uint8_t is15bit = pCfg->transf_mode_scale;
+    uint8_t offsetbit = bayertnr_find_top_one_pos(pCfg->transf_mode_offset);
+
+#define LOGTRANSF_VAR(a) a = isp39_logtransf(a, is15bit, offsetbit)
+    LOGTRANSF_VAR(pCfg->lo_wgt_vfilt_offset);
+    LOGTRANSF_VAR(pCfg->lo_pre_soft_thresh_max_limit);
+    LOGTRANSF_VAR(pCfg->lo_pre_soft_thresh_min_limit);
+    LOGTRANSF_VAR(pCfg->pre_spnr_sigma_offset);
+    LOGTRANSF_VAR(pCfg->pre_spnr_sigma_hdr_sht_offset);
+#undef LOGTRANSF_VAR
+}
+
 void rk_aiq_btnr41_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_info_t* cvtinfo, btnr_cvt_info_t* pBtnrInfo)
 {
     btnr_trans_params_t *pTransParams = &pBtnrInfo->mBtnrTransParams;
@@ -839,7 +853,7 @@ void rk_aiq_btnr41_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
     tmp = (pmdDyn->mdSigma.hw_btnrT_sigmaHdrS_scale) * (1 << 10);
     pCfg->sigma_hdr_sht_scale = CLIP(tmp, 0, 0x3fff);
     // REG: BAY3D_DSOFF
-    tmp = (pmdDyn->subLoMd1.hw_btnrT_vIIRWgt_offset) * (1 << 10);
+    tmp = (pmdDyn->subLoMd1.hw_btnrT_vIIRWgt_offset);
     pCfg->lo_wgt_vfilt_offset = CLIP(tmp, 0, 0x3ff);
     tmp = (pmdDyn->subLoMd0.diffCh.hw_btnrT_vIIRWgt_offset) * (1 << 12);
     pCfg->lo_diff_vfilt_offset = CLIP(tmp, 0, 0xfff);
@@ -1017,6 +1031,74 @@ void rk_aiq_btnr41_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
     pTransParams->bayertnr_lo_wgt_clip_min_limit = pCfg->lo_wgt_clip_min_limit ;
     pTransParams->bayertnr_lo_wgt_clip_max_limit = pCfg->lo_wgt_clip_max_limit;
     pCfg->tnr_out_sigma_sq  = bayertnr_update_sq(pTransParams);
+
+    if (!pCfg->transf_bypass_en) {
+        rk_aiq_btnr41_params_logtrans(pCfg);
+    }
+
     return;
 }
 
+// enable this if you want to test isp39_logtransf
+#if 0
+void bayertnr_isp39_logtrans_test(struct isp33_bay3d_cfg *pCfg, btnr_trans_params_t *pTransParams)
+{
+    static bool logtransf_test = true;
+    if (logtransf_test) {
+        printf("*************** enter logtransf_test ************** \n");
+        printf("transf_bypass : %d\n", pCfg->transf_bypass_en);
+        printf("data_maxlimit : %d\n", pCfg->transf_data_max_limit);
+        printf("is15bit mode  : %d\n", pCfg->transf_mode_scale);
+        printf("transf_offset : %d\n", pCfg->transf_mode_offset);
+
+        int data_maxlimit = pCfg->transf_data_max_limit;
+        uint8_t is15bit = pCfg->transf_mode_scale;
+        uint8_t offsetbit = bayertnr_find_top_one_pos(pCfg->transf_mode_offset);
+        printf("----> test correctness ...\n");
+        for (int testi=0; testi<data_maxlimit; testi++) {
+            uint16_t test_ret1 = isp39_logtransf(testi, is15bit, offsetbit);
+            uint16_t test_ret2 = bayertnr_logtrans(testi, pTransParams);
+
+            if (abs(test_ret1 - test_ret2) > 1) {
+                printf("ERROR logtrans missmatch %d %d %d!!!\n", testi, test_ret1, test_ret2);
+            }
+        }
+        printf("----> done!\n");
+
+        struct timespec tp;
+        uint64_t test_time_start, test_time_tmp, test_time1, test_time2;
+        uint64_t test_sum = 0; // prevent optimization
+
+        printf("----> test execution time ...\n");
+
+        clock_gettime(CLOCK_MONOTONIC_RAW, &tp);
+        test_time_start = tp.tv_sec * 1000 * 1000 * 1000 + tp.tv_nsec;
+        for (int testi=0; testi<data_maxlimit; testi++) {
+            uint16_t test_ret1 = isp39_logtransf(testi, is15bit, offsetbit);
+            test_sum += test_ret1;
+        }
+        clock_gettime(CLOCK_MONOTONIC_RAW, &tp);
+        test_time_tmp = tp.tv_sec * 1000 * 1000 * 1000 + tp.tv_nsec;
+        test_time1 = test_time_tmp - test_time_start;
+        printf("isp39_logtransf sum %lld, time %lld\n", test_sum, test_time1);
+
+        test_sum = 0;
+        clock_gettime(CLOCK_MONOTONIC_RAW, &tp);
+        test_time_start = tp.tv_sec * 1000 * 1000 * 1000 + tp.tv_nsec;
+        for (int testi=0; testi<data_maxlimit; testi++) {
+            uint16_t test_ret2 = bayertnr_logtrans(testi, pTransParams);
+            test_sum += test_ret2;
+        }
+        clock_gettime(CLOCK_MONOTONIC_RAW, &tp);
+        test_time_tmp = tp.tv_sec * 1000 * 1000 * 1000 + tp.tv_nsec;
+        test_time2 = test_time_tmp - test_time_start;
+        printf("bayertnr_logtrans sum %lld, time %lld\n", test_sum, test_time2);
+
+        float fast_percent = (1.0 * test_time2) / (1.0 * test_time1);
+        printf("----> time test done, %.2f%%, faster!\n", fast_percent * 100);
+
+        logtransf_test = false;
+        printf("*************** logtransf_test done! ************** \n");
+    }
+}
+#endif

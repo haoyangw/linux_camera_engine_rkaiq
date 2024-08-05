@@ -100,8 +100,6 @@ struct IspParamsCvt_Ops {
                                    const rk_aiq_isp_af_params_t* af_data);
     XCamReturn (*ConvertGaingParams)(AiqIspParamsCvt_t* pCvt, void* isp_cfg,
                                      rk_aiq_isp_gain_params_t* gain);
-    XCamReturn (*ConvertAldchgParams)(AiqIspParamsCvt_t* pCvt, void* isp_cfg,
-                                      const rk_aiq_isp_ldch_params_t* ldch_cfg);
     XCamReturn (*ConvertGicgParams)(AiqIspParamsCvt_t* pCvt, void* isp_cfg,
                                     const rk_aiq_isp_gic_params_t* gic_cfg);
     XCamReturn (*ConvertCacgParams)(AiqIspParamsCvt_t* pCvt, void* isp_cfg,

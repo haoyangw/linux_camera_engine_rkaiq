@@ -69,11 +69,10 @@ RKAIQ_BEGIN_DECLARE
 // }
 //
 
+__RKAIQUAPI_SET_WRAPPER(rk_aiq_user_api2_ae_setExpSwAttr, ae_api_expSwAttr_t);
+
 #if 0
 /*****************Add UAPI wrapper here if necessary*****************/
-#ifndef USE_NEWSTRUCT
-__RKAIQUAPI_SET_WRAPPER(rk_aiq_user_api2_ae_setExpSwAttr, Uapi_ExpSwAttrV2_t);
-#endif
 __RKAIQUAPI_SET_WRAPPER(rk_aiq_user_api2_aie_SetAttrib, aie_attrib_t*);
 __RKAIQUAPI_SET_WRAPPER(rk_aiq_user_api2_acp_SetAttrib, acp_attrib_t*);
 
@@ -192,8 +191,6 @@ __RKAIQUAPI_CALLER(gic_api_attrib_t);
 __RKAIQUAPI_CALLER(gic_status_t);
 __RKAIQUAPI_CALLER(cac_api_attrib_t);
 __RKAIQUAPI_CALLER(cac_status_t);
-__RKAIQUAPI_CALLER(ldch_api_attrib_t);
-__RKAIQUAPI_CALLER(ldch_status_t);
 __RKAIQUAPI_CALLER(csm_api_attrib_t);
 __RKAIQUAPI_CALLER(csm_status_t);
 __RKAIQUAPI_CALLER(mge_api_attrib_t);
@@ -517,7 +514,7 @@ RkAiqUapiDesc_t rkaiq_uapidesc_list[] = {
 
 #if USE_NEWSTRUCT
     __RKAIQUAPI_DESC_DEF("/uapi/0/ae_uapi/attr", ae_param_t, rk_aiq_user_api2_ae_setAttr, rk_aiq_user_api2_ae_getAttr),
-    __RKAIQUAPI_DESC_DEF("/uapi/0/ae_uapi/expSwAttr", ae_api_expSwAttr_t, rk_aiq_user_api2_ae_setExpSwAttr, rk_aiq_user_api2_ae_getExpSwAttr),
+    __RKAIQUAPI_DESC_DEF("/uapi/0/ae_uapi/expSwAttr", ae_api_expSwAttr_t, __RKAIQUAPI_SET_WRAPPER_NAME(rk_aiq_user_api2_ae_setExpSwAttr), rk_aiq_user_api2_ae_getExpSwAttr),
     __RKAIQUAPI_DESC_DEF("/uapi/0/ae_uapi/queryExpInfo", ae_queryInfo_t, NULL, rk_aiq_user_api2_ae_queryExpResInfo),
     __RKAIQUAPI_DESC_DEF("/uapi/0/dm_uapi/attr", dm_api_attrib_t, rk_aiq_user_api2_dm_SetAttrib, rk_aiq_user_api2_dm_GetAttrib),
     __RKAIQUAPI_DESC_DEF("/uapi/0/dm_uapi/info", dm_status_t, NULL, rk_aiq_user_api2_dm_QueryStatus),
@@ -553,10 +550,6 @@ RkAiqUapiDesc_t rkaiq_uapidesc_list[] = {
     __RKAIQUAPI_DESC_DEF("/uapi/0/gic_uapi/info", gic_status_t, NULL, rk_aiq_user_api2_gic_QueryStatus),
     __RKAIQUAPI_DESC_DEF("/uapi/0/cac_uapi/attr", cac_api_attrib_t, rk_aiq_user_api2_cac_SetAttrib, rk_aiq_user_api2_cac_GetAttrib),
     __RKAIQUAPI_DESC_DEF("/uapi/0/cac_uapi/info", cac_status_t, NULL, rk_aiq_user_api2_cac_QueryStatus),
-#if RKAIQ_HAVE_LDCH_V21
-    __RKAIQUAPI_DESC_DEF("/uapi/0/ldch_uapi/attr", ldch_api_attrib_t, rk_aiq_user_api2_ldch_SetAttrib, rk_aiq_user_api2_ldch_GetAttrib),
-    __RKAIQUAPI_DESC_DEF("/uapi/0/ldch_uapi/info", ldch_status_t, NULL, rk_aiq_user_api2_ldch_QueryStatus),
-#endif
 #if RKAIQ_HAVE_LDC
     __RKAIQUAPI_DESC_DEF("/uapi/0/ldc_uapi/attr", ldc_api_attrib_t, rk_aiq_user_api2_ldc_SetAttrib, rk_aiq_user_api2_ldc_GetAttrib),
     __RKAIQUAPI_DESC_DEF("/uapi/0/ldc_uapi/info", ldc_status_t, NULL, rk_aiq_user_api2_ldc_QueryStatus),

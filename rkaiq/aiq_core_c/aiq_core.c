@@ -77,6 +77,7 @@ AiqPool_t* AiqCore_createPool(const char* name, int num, int itemSize, int type)
 			LOG1("pool:%s, %p", poolCfg._name, pBase->_data);
         } else if (type == AIQCORE_POOL_TYPE_PARAMS) {
             aiq_params_base_t* pBase = (aiq_params_base_t*)(pItem->_pData);
+            AIQ_PARAMS_BASE_INIT(pBase);
             AIQ_REF_BASE_INIT(&pBase->_ref_base, pItem, aiqPoolItem_ref, aiqPoolItem_unref);
             SET_HEAD_DATA_PTR(pBase);
 			LOG1("pool:%s, %p", poolCfg._name, pBase->_data);
@@ -225,9 +226,6 @@ static XCamReturn newAiqParamPool(AiqCore_t* pAiqCore, int type) {
 #else
             NEW_PARAMS_POOL(RESULT_TYPE_DEBAYER_PARAM, rk_aiq_isp_debayer_params_t);
 #endif
-            break;
-        case RK_AIQ_ALGO_TYPE_ALDCH:
-            NEW_PARAMS_POOL(RESULT_TYPE_LDCH_PARAM, rk_aiq_isp_ldch_params_t);
             break;
         case RK_AIQ_ALGO_TYPE_A3DLUT:
 #if RKAIQ_HAVE_3DLUT
@@ -607,9 +605,6 @@ static uint64_t getReqAlgoResMask(AiqCore_t* pAiqCore, int algoType) {
             break;
         case RK_AIQ_ALGO_TYPE_ADEBAYER:
             tmp |= 1ULL << RESULT_TYPE_DEBAYER_PARAM;
-            break;
-        case RK_AIQ_ALGO_TYPE_ALDCH:
-            tmp |= 1ULL << RESULT_TYPE_LDCH_PARAM;
             break;
         case RK_AIQ_ALGO_TYPE_A3DLUT:
             tmp |= 1ULL << RESULT_TYPE_LUT3D_PARAM;
@@ -1486,9 +1481,6 @@ static XCamReturn getAiqParamsBuffer(AiqCore_t* pAiqCore, AiqFullParams_t* aiqPa
             break;
         case RK_AIQ_ALGO_TYPE_A3DLUT:
             NEW_PARAMS_BUFFER(LUT3D);
-            break;
-        case RK_AIQ_ALGO_TYPE_ALDCH:
-            NEW_PARAMS_BUFFER(LDCH);
             break;
         case RK_AIQ_ALGO_TYPE_ACSM:
             NEW_PARAMS_BUFFER(CSM);
@@ -2814,8 +2806,6 @@ static struct iqModStrToAlgoMap_s iqModuleStrToAlgoEnumMap[] = {
     {"hsv", RK_AIQ_ALGO_TYPE_AHSV},
     {"adpcc", RK_AIQ_ALGO_TYPE_ADPCC},
     {"dpc", RK_AIQ_ALGO_TYPE_ADPCC},
-    {"aldch", RK_AIQ_ALGO_TYPE_ALDCH},
-    {"ldch", RK_AIQ_ALGO_TYPE_ALDCH},
     {"cproc", RK_AIQ_ALGO_TYPE_ACP},
     {"cp", RK_AIQ_ALGO_TYPE_ACP},
     {"ie", RK_AIQ_ALGO_TYPE_AIE},

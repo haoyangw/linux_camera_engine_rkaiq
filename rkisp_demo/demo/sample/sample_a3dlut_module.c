@@ -522,21 +522,21 @@ int sample_query_hsv_status(const rk_aiq_sys_ctx_t* ctx)
     rk_aiq_user_api2_hsv_QueryStatus(ctx, &info);
     printf("Query hsv status:\n\n");
     printf("  opMode: %d, en: %d, bypass: %d,\n"
-           "  stMan: {\n    sta: %d, %d, %d,\n    dyn: {lut0={mode: %d, [%d,...,%d,...]}, lut1={mode: %d, [%d,...,%d,...]}, lut2={mode: %d, [...,%d,...,%d,...]}}\n"
+           "  stMan: {\n    sta: %d, %d, %d,\n    dyn: {lut1d0={mode: %d, [%d,...,%d,...]}, lut1d1={mode: %d, [%d,...,%d,...]}, lut2d={mode: %d, [...,%d,...,%d,...]}}\n"
            "  }\n  astatus: {illu: %s, alp: %f}\n", 
             info.opMode, info.en, info.bypass,
-            info.stMan.sta.hw_hsvT_lut0_en,
-            info.stMan.sta.hw_hsvT_lut1_en,
-            info.stMan.sta.hw_hsvT_lut2_en,
-            info.stMan.dyn.lut0.hw_hsvT_lut1d_mode,
-            info.stMan.dyn.lut0.hw_hsvT_lut1d_val[0],
-            info.stMan.dyn.lut0.hw_hsvT_lut1d_val[32],
-            info.stMan.dyn.lut1.hw_hsvT_lut1d_mode,
-            info.stMan.dyn.lut1.hw_hsvT_lut1d_val[0],
-            info.stMan.dyn.lut1.hw_hsvT_lut1d_val[32],
-            info.stMan.dyn.lut2.hw_hsvT_lut2d_mode,
-            info.stMan.dyn.lut2.hw_hsvT_lut2d_val[16],
-            info.stMan.dyn.lut2.hw_hsvT_lut2d_val[144],
+            info.stMan.sta.hw_hsvT_lut1d0_en,
+            info.stMan.sta.hw_hsvT_lut1d1_en,
+            info.stMan.sta.hw_hsvT_lut2d_en,
+            info.stMan.dyn.lut1d0.hw_hsvT_lut1d_mode,
+            info.stMan.dyn.lut1d0.hw_hsvT_lut1d_val[0],
+            info.stMan.dyn.lut1d0.hw_hsvT_lut1d_val[32],
+            info.stMan.dyn.lut1d1.hw_hsvT_lut1d_mode,
+            info.stMan.dyn.lut1d1.hw_hsvT_lut1d_val[0],
+            info.stMan.dyn.lut1d1.hw_hsvT_lut1d_val[32],
+            info.stMan.dyn.lut2d.hw_hsvT_lut2d_mode,
+            info.stMan.dyn.lut2d.hw_hsvT_lut2d_val[16],
+            info.stMan.dyn.lut2d.hw_hsvT_lut2d_val[144],
             info.ahsvStatus.sw_hsvC_illuUsed_name,
             info.ahsvStatus.sw_hsvT_alpha_val);
     return 0;
@@ -553,17 +553,17 @@ int sample_hsv_setCalib_test(const rk_aiq_sys_ctx_t* ctx)
     printf("GetCALIB:\n\n");
     printf("\t effect Table_len = %d\n", calib.sw_hsvCfg_tblAll_len);
     for (int i = 0; i < calib.sw_hsvCfg_tblAll_len; i++) {
-        printf("\t %s = {lut0={mode: %d, [%d,...,%d,...]}, lut1={mode: %d, [%d,...,%d,...]}, lut2={mode: %d, [...,%d,...,%d,...]}}, \n",
+        printf("\t %s = {lut1d0={mode: %d, [%d,...,%d,...]}, lut1d1={mode: %d, [%d,...,%d,...]}, lut2d={mode: %d, [...,%d,...,%d,...]}}, \n",
                 calib.tableAll[i].sw_hsvC_illu_name,
-                calib.tableAll[i].meshGain.lut0.hw_hsvT_lut1d_mode,
-                calib.tableAll[i].meshGain.lut0.hw_hsvT_lut1d_val[0],
-                calib.tableAll[i].meshGain.lut0.hw_hsvT_lut1d_val[32],
-                calib.tableAll[i].meshGain.lut1.hw_hsvT_lut1d_mode,
-                calib.tableAll[i].meshGain.lut1.hw_hsvT_lut1d_val[0],
-                calib.tableAll[i].meshGain.lut1.hw_hsvT_lut1d_val[32],
-                calib.tableAll[i].meshGain.lut2.hw_hsvT_lut2d_mode,
-                calib.tableAll[i].meshGain.lut2.hw_hsvT_lut2d_val[16],
-                calib.tableAll[i].meshGain.lut2.hw_hsvT_lut2d_val[144]);
+                calib.tableAll[i].meshGain.lut1d0.hw_hsvT_lut1d_mode,
+                calib.tableAll[i].meshGain.lut1d0.hw_hsvT_lut1d_val[0],
+                calib.tableAll[i].meshGain.lut1d0.hw_hsvT_lut1d_val[32],
+                calib.tableAll[i].meshGain.lut1d1.hw_hsvT_lut1d_mode,
+                calib.tableAll[i].meshGain.lut1d1.hw_hsvT_lut1d_val[0],
+                calib.tableAll[i].meshGain.lut1d1.hw_hsvT_lut1d_val[32],
+                calib.tableAll[i].meshGain.lut2d.hw_hsvT_lut2d_mode,
+                calib.tableAll[i].meshGain.lut2d.hw_hsvT_lut2d_val[16],
+                calib.tableAll[i].meshGain.lut2d.hw_hsvT_lut2d_val[144]);
     }
     //modify
     srand(time(0));
@@ -571,19 +571,19 @@ int sample_hsv_setCalib_test(const rk_aiq_sys_ctx_t* ctx)
 
     if (rand_num <70) {
         printf("update lsc calib!\n");
-        calib.tableAll[0].meshGain.lut0.hw_hsvT_lut1d_val[0] += 32;
-        calib.tableAll[0].meshGain.lut0.hw_hsvT_lut1d_val[32] += 32;
-        calib.tableAll[0].meshGain.lut1.hw_hsvT_lut1d_val[0] -= 64;
-        calib.tableAll[0].meshGain.lut1.hw_hsvT_lut1d_val[32] -= 64;
-        calib.tableAll[0].meshGain.lut2.hw_hsvT_lut2d_val[16] += 64;
-        calib.tableAll[0].meshGain.lut2.hw_hsvT_lut2d_val[144] +=64;
+        calib.tableAll[0].meshGain.lut1d0.hw_hsvT_lut1d_val[0] += 32;
+        calib.tableAll[0].meshGain.lut1d0.hw_hsvT_lut1d_val[32] += 32;
+        calib.tableAll[0].meshGain.lut1d1.hw_hsvT_lut1d_val[0] -= 64;
+        calib.tableAll[0].meshGain.lut1d1.hw_hsvT_lut1d_val[32] -= 64;
+        calib.tableAll[0].meshGain.lut2d.hw_hsvT_lut2d_val[16] += 64;
+        calib.tableAll[0].meshGain.lut2d.hw_hsvT_lut2d_val[144] +=64;
 
-        calib.tableAll[1].meshGain.lut0.hw_hsvT_lut1d_val[0] += 64;
-        calib.tableAll[1].meshGain.lut0.hw_hsvT_lut1d_val[32] += 64;
-        calib.tableAll[1].meshGain.lut1.hw_hsvT_lut1d_val[0] -= 128;
-        calib.tableAll[1].meshGain.lut1.hw_hsvT_lut1d_val[32] -= 128;
-        calib.tableAll[1].meshGain.lut2.hw_hsvT_lut2d_val[16] += 10;
-        calib.tableAll[1].meshGain.lut2.hw_hsvT_lut2d_val[144] +=10;
+        calib.tableAll[1].meshGain.lut1d0.hw_hsvT_lut1d_val[0] += 64;
+        calib.tableAll[1].meshGain.lut1d0.hw_hsvT_lut1d_val[32] += 64;
+        calib.tableAll[1].meshGain.lut1d1.hw_hsvT_lut1d_val[0] -= 128;
+        calib.tableAll[1].meshGain.lut1d1.hw_hsvT_lut1d_val[32] -= 128;
+        calib.tableAll[1].meshGain.lut2d.hw_hsvT_lut2d_val[16] += 10;
+        calib.tableAll[1].meshGain.lut2d.hw_hsvT_lut2d_val[144] +=10;
     } else {
         memcpy(&calib.tableAll[0], &calib.tableAll[calib.sw_hsvCfg_tblAll_len-1], sizeof(ahsv_tableAll_t));
         if (calib.sw_hsvCfg_tblAll_len > 1)
@@ -602,20 +602,20 @@ int sample_hsv_setCalib_test(const rk_aiq_sys_ctx_t* ctx)
 
     printf("\t new table_len = %d\n", calib_new.sw_hsvCfg_tblAll_len);
     for (int i = 0; i < calib_new.sw_hsvCfg_tblAll_len; i++) {
-        printf("\t %s = {lut0={mode: %d, [%d,...,%d,...]}, lut1={mode: %d, [%d,...,%d,...]}, lut2={mode: %d, [...,%d,...,%d,...]}}, \n",
+        printf("\t %s = {lut1d0={mode: %d, [%d,...,%d,...]}, lut1d1={mode: %d, [%d,...,%d,...]}, lut2d={mode: %d, [...,%d,...,%d,...]}}, \n",
                 calib_new.tableAll[i].sw_hsvC_illu_name,
-                calib_new.tableAll[i].meshGain.lut0.hw_hsvT_lut1d_mode,
-                calib_new.tableAll[i].meshGain.lut0.hw_hsvT_lut1d_val[0],
-                calib_new.tableAll[i].meshGain.lut0.hw_hsvT_lut1d_val[32],
-                calib_new.tableAll[i].meshGain.lut1.hw_hsvT_lut1d_mode,
-                calib_new.tableAll[i].meshGain.lut1.hw_hsvT_lut1d_val[0],
-                calib_new.tableAll[i].meshGain.lut1.hw_hsvT_lut1d_val[32],
-                calib_new.tableAll[i].meshGain.lut2.hw_hsvT_lut2d_mode,
-                calib_new.tableAll[i].meshGain.lut2.hw_hsvT_lut2d_val[16],
-                calib_new.tableAll[i].meshGain.lut2.hw_hsvT_lut2d_val[144]);
+                calib_new.tableAll[i].meshGain.lut1d0.hw_hsvT_lut1d_mode,
+                calib_new.tableAll[i].meshGain.lut1d0.hw_hsvT_lut1d_val[0],
+                calib_new.tableAll[i].meshGain.lut1d0.hw_hsvT_lut1d_val[32],
+                calib_new.tableAll[i].meshGain.lut1d1.hw_hsvT_lut1d_mode,
+                calib_new.tableAll[i].meshGain.lut1d1.hw_hsvT_lut1d_val[0],
+                calib_new.tableAll[i].meshGain.lut1d1.hw_hsvT_lut1d_val[32],
+                calib_new.tableAll[i].meshGain.lut2d.hw_hsvT_lut2d_mode,
+                calib_new.tableAll[i].meshGain.lut2d.hw_hsvT_lut2d_val[16],
+                calib_new.tableAll[i].meshGain.lut2d.hw_hsvT_lut2d_val[144]);
     }
     if (calib_new.sw_hsvCfg_tblAll_len != calib.sw_hsvCfg_tblAll_len || 
-        calib_new.tableAll[0].meshGain.lut0.hw_hsvT_lut1d_val[0] != calib.tableAll[0].meshGain.lut0.hw_hsvT_lut1d_val[0])
+        calib_new.tableAll[0].meshGain.lut1d0.hw_hsvT_lut1d_val[0] != calib.tableAll[0].meshGain.lut1d0.hw_hsvT_lut1d_val[0])
         printf("hsv calib test failed\n");
     printf("-------- hsv module calib test done --------\n");  
 

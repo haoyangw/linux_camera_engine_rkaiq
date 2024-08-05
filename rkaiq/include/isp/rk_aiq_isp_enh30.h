@@ -19,7 +19,7 @@
 
 typedef struct {
     /* M4_GENERIC_DESC(
-        M4_ALIAS(iir_inv_sigma),
+        M4_ALIAS(hw_enhT_sigma_val),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0,8),
@@ -29,9 +29,9 @@ typedef struct {
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(The inverse sigma of iir filter.\n Freq of use: low))  */
-    float hw_enhT_iir_inv_sigma;
+    float hw_enhT_sigma_val;
     /* M4_GENERIC_DESC(
-    M4_ALIAS(iir_soft_thed),
+    M4_ALIAS(hw_enhT_softThd_val),
     M4_TYPE(f32),
     M4_SIZE_EX(1,1),
     M4_RANGE_EX(0,31),
@@ -41,9 +41,9 @@ typedef struct {
     M4_RO(0),
     M4_ORDER(0),
     M4_NOTES(The soft thread sigma of iir filter.\n Freq of use: low))  */
-    float hw_enhT_iir_soft_thed;
+    float hw_enhT_softThd_val;
     /* M4_GENERIC_DESC(
-    M4_ALIAS(iir_cur_wgt),
+    M4_ALIAS(hw_enhT_centerPix_wgt),
     M4_TYPE(f32),
     M4_SIZE_EX(1,1),
     M4_RANGE_EX(0,1),
@@ -53,50 +53,12 @@ typedef struct {
     M4_RO(0),
     M4_ORDER(0),
     M4_NOTES(The current pixel weight of iir filter.\n Freq of use: low))  */
-    float hw_enhT_iir_cur_wgt;
-} enh_iirFlt_params_t;
+    float hw_enhT_centerPix_wgt;
+} enh_iir_spatial_params_t;
 
 typedef struct {
     /* M4_GENERIC_DESC(
-    M4_ALIAS(hw_enhT_loBlf_bypass),
-    M4_GROUP_CTRL(loBlf_bypass_group),
-    M4_TYPE(bool),
-    M4_DEFAULT(0),
-    M4_HIDE_EX(0),
-    M4_RO(0),
-    M4_ORDER(1),
-    M4_NOTES(The enable of low frequency bilateral filter.\n
-    Freq of use: low))  */
-    bool hw_enhT_loBlf_bypass;
-    /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_enhT_loBlf_inv_sigma),
-        M4_GROUP(!loBlf_bypass_group),
-        M4_TYPE(f32),
-        M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0,8),
-        M4_DEFAULT(6),
-        M4_DIGIT_EX(0f8b),
-        M4_HIDE_EX(0),
-        M4_RO(0),
-        M4_ORDER(0),
-        M4_NOTES(The inverse sigma of low frequency bilateral filter.\n Freq of use: low))  */
-    float hw_enhT_loBlf_inv_sigma;
-    /* M4_GENERIC_DESC(
-    M4_ALIAS(hw_enhT_loBlf_cur_wgt),
-    M4_GROUP(!loBlf_bypass_group),
-    M4_TYPE(f32),
-    M4_SIZE_EX(1,1),
-    M4_RANGE_EX(0,1),
-    M4_DEFAULT(0.5),
-    M4_DIGIT_EX(2f8b),
-    M4_HIDE_EX(0),
-    M4_RO(0),
-    M4_ORDER(0),
-    M4_NOTES(The current pixel weight of low frequency bilateral filter.\n Freq of use: low))  */
-    float hw_enhT_loBlf_cur_wgt;
-    /* M4_GENERIC_DESC(
-    M4_ALIAS(hw_enhT_loBlf_thumb_cur_wgt),
-    M4_GROUP(!loBlf_bypass_group),
+    M4_ALIAS(hw_enhT_iirFrm_maxLimit),
     M4_TYPE(f32),
     M4_SIZE_EX(1,1),
     M4_RANGE_EX(1,15),
@@ -106,12 +68,73 @@ typedef struct {
     M4_RO(0),
     M4_ORDER(0),
     M4_NOTES(The current thumb weight of low frequency bilateral filter.\n Freq of use: low))  */
-    float hw_enhT_loBlf_thumb_cur_wgt;
-} enh_loBlfFlt_params_t;
+    float hw_enhT_iirFrm_maxLimit;
+} enh_iir_temporal_params_t;
 
 typedef struct {
     /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_enhT_midBlf_inv_sigma),
+    M4_ALIAS(spatial),
+    M4_TYPE(struct),
+    M4_UI_MODULE(normal_ui_style),
+    M4_HIDE_EX(0),
+    M4_RO(0),
+    M4_ORDER(2),
+    M4_NOTES(All spatial params corresponded with iso array))  */
+    enh_iir_spatial_params_t spatial;
+    /* M4_GENERIC_DESC(
+    M4_ALIAS(temporal),
+    M4_TYPE(struct),
+    M4_UI_MODULE(normal_ui_style),
+    M4_HIDE_EX(0),
+    M4_RO(0),
+    M4_ORDER(2),
+    M4_NOTES(All temporal params corresponded with iso array))  */
+    enh_iir_temporal_params_t temporal;
+} enh_guideImg_iir_params_t;
+
+typedef struct {
+    /* M4_GENERIC_DESC(
+    M4_ALIAS(hw_enhT_loBlf_en),
+    M4_GROUP_CTRL(loBlf_en_group),
+    M4_TYPE(bool),
+    M4_DEFAULT(0),
+    M4_HIDE_EX(0),
+    M4_RO(0),
+    M4_ORDER(1),
+    M4_NOTES(The enable of low frequency bilateral filter.\n
+    Freq of use: low))  */
+    bool hw_enhT_loBlf_en;
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(hw_enhT_sigma_val),
+        M4_GROUP(loBlf_en_group),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0,8),
+        M4_DEFAULT(6),
+        M4_DIGIT_EX(0f8b),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(The inverse sigma of low frequency bilateral filter.\n Freq of use: low))  */
+    float hw_enhT_sigma_val;
+    /* M4_GENERIC_DESC(
+    M4_ALIAS(hw_enhT_centerPix_wgt),
+    M4_GROUP(loBlf_en_group),
+    M4_TYPE(f32),
+    M4_SIZE_EX(1,1),
+    M4_RANGE_EX(0,1),
+    M4_DEFAULT(0.5),
+    M4_DIGIT_EX(2f8b),
+    M4_HIDE_EX(0),
+    M4_RO(0),
+    M4_ORDER(0),
+    M4_NOTES(The current pixel weight of low frequency bilateral filter.\n Freq of use: low))  */
+    float hw_enhT_centerPix_wgt;
+} enh_loBifilt_params_t;
+
+typedef struct {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(hw_enhT_sigma_val),
         M4_TYPE(f32),
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0,8),
@@ -121,9 +144,9 @@ typedef struct {
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(The inverse sigma of mid frequency bilateral filter.\n Freq of use: low))  */
-    float hw_enhT_midBlf_inv_sigma;
+    float hw_enhT_sigma_val;
     /* M4_GENERIC_DESC(
-    M4_ALIAS(hw_enhT_midBlf_cur_wgt),
+    M4_ALIAS(hw_enhT_centerPix_wgt),
     M4_TYPE(f32),
     M4_SIZE_EX(1,1),
     M4_RANGE_EX(0,1),
@@ -133,8 +156,8 @@ typedef struct {
     M4_RO(0),
     M4_ORDER(0),
     M4_NOTES(The current pixel weight of mid frequency bilateral filter.\n Freq of use: low))  */
-    float hw_enhT_midBlf_cur_wgt;
-} enh_midBlfFlt_params_t;
+    float hw_enhT_centerPix_wgt;
+} enh_midBifilt_params_t;
 
 typedef struct enh_detail2strg_curve_s {
     /* M4_GENERIC_DESC(
@@ -181,7 +204,7 @@ typedef struct {
     M4_NOTES(The global strength of enhance.\n Freq of use: high))  */
     float hw_enhT_global_strg;
     /* M4_GENERIC_DESC(
-    M4_ALIAS(diff2strg_en),
+    M4_ALIAS(hw_enhT_detail2Strg_en),
     M4_GROUP_CTRL(detail2strg_en_group),
     M4_TYPE(bool),
     M4_DEFAULT(0),
@@ -190,9 +213,9 @@ typedef struct {
     M4_ORDER(1),
     M4_NOTES(The enable of using luma as index to control the enhance strength.\n
     Freq of use: low))  */
-    bool hw_enhT_detail2strg_en;
+    bool hw_enhT_detail2Strg_en;
     /* M4_GENERIC_DESC(
-    M4_ALIAS(hw_enhT_detail2strg_curve),
+    M4_ALIAS(hw_enhT_detail2Strg_curve),
     M4_GROUP(detail2strg_en_group),
     M4_TYPE(struct),
     M4_UI_MODULE(curve_ui),
@@ -201,9 +224,9 @@ typedef struct {
     M4_ORDER(2),
     M4_NOTES(The contrast strength of enhance when hw_dhazT_luma2strg_en == 1.\n
     Freq of use: high))  */
-    enh_detail2strg_curve_t hw_enhT_detail2strg_curve;
+    enh_detail2strg_curve_t hw_enhT_detail2Strg_curve;
     /* M4_GENERIC_DESC(
-    M4_ALIAS(luma2strg_en),
+    M4_ALIAS(hw_enhT_luma2Strg_en),
     M4_GROUP_CTRL(luma2strg_en_group),
     M4_TYPE(bool),
     M4_DEFAULT(0),
@@ -212,9 +235,9 @@ typedef struct {
     M4_ORDER(1),
     M4_NOTES(The enable of using luma as index to control the enhance strength.\n
     Freq of use: low))  */
-    bool hw_enhT_luma2strg_en;
+    bool hw_enhT_luma2Strg_en;
     /* M4_GENERIC_DESC(
-    M4_ALIAS(lum2strg),
+    M4_ALIAS(hw_enhT_luma2Strg_val),
     M4_GROUP(luma2strg_en_group),
     M4_TYPE(f32),
     M4_UI_MODULE(drc_curve),
@@ -228,37 +251,37 @@ typedef struct {
     M4_ORDER(0),
     M4_NOTES(The contrast strength of enhance when hw_dhazT_luma2strg_en == 1.\n
     Freq of use: high))  */
-    float hw_enhT_lum2strg[17];
+    float hw_enhT_luma2Strg_val[17];
 } enh_strg_params_t;
 
 typedef struct {
     /* M4_GENERIC_DESC(
-    M4_ALIAS(iir),
+    M4_ALIAS(guideImg_iir),
     M4_TYPE(struct),
     M4_UI_MODULE(normal_ui_style),
     M4_HIDE_EX(0),
     M4_RO(0),
     M4_ORDER(2),
     M4_NOTES(All iir filter params corresponded with iso array))  */
-    enh_iirFlt_params_t iir;
+    enh_guideImg_iir_params_t guideImg_iir;
     /* M4_GENERIC_DESC(
-    M4_ALIAS(loBlf),
+    M4_ALIAS(loBifilt),
     M4_TYPE(struct),
     M4_UI_MODULE(normal_ui_style),
     M4_HIDE_EX(0),
     M4_RO(0),
     M4_ORDER(2),
     M4_NOTES(All low frequency bilateral filter params corresponded with iso array))  */
-    enh_loBlfFlt_params_t loBlf;
+    enh_loBifilt_params_t loBifilt;
     /* M4_GENERIC_DESC(
-    M4_ALIAS(midBlf),
+    M4_ALIAS(midBifilt),
     M4_TYPE(struct),
     M4_UI_MODULE(normal_ui_style),
     M4_HIDE_EX(0),
     M4_RO(0),
     M4_ORDER(2),
     M4_NOTES(All mid frequency bilateral filter params corresponded with iso array))  */
-    enh_midBlfFlt_params_t midBlf;
+    enh_midBifilt_params_t midBifilt;
     /* M4_GENERIC_DESC(
     M4_ALIAS(strg),
     M4_TYPE(struct),

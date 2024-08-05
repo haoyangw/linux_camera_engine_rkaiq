@@ -139,6 +139,9 @@ typedef struct ae_queryInfo_s {
     // M4_BOOL_DESC("isExpMax", "0", M4_HIDE(1))
     bool isExpMax;
 
+    // M4_BOOL_DESC("isExpMin", "0", M4_HIDE(1))
+    bool isExpMin;
+
     // M4_BOOL_DESC("envChange", "0", M4_HIDE(1))
     bool envChange;
 

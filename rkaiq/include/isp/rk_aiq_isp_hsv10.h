@@ -118,37 +118,37 @@ typedef struct {
 
 typedef struct {
     /* M4_GENERIC_DESC(
-        M4_ALIAS(lut0),
+        M4_ALIAS(lut1d0),
         M4_TYPE(struct),
         M4_UI_MODULE(HSV_1DLut0),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(TODO)) */
-    hsv_lut1d_dyn_t lut0;
+    hsv_lut1d_dyn_t lut1d0;
     /* M4_GENERIC_DESC(
-        M4_ALIAS(lut1),
+        M4_ALIAS(lut1d1),
         M4_TYPE(struct),
         M4_UI_MODULE(HSV_1DLut1),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(TODO)) */
-    hsv_lut1d_dyn_t lut1;
+    hsv_lut1d_dyn_t lut1d1;
     /* M4_GENERIC_DESC(
-        M4_ALIAS(lut2),
+        M4_ALIAS(lut2d),
         M4_TYPE(struct),
         M4_UI_MODULE(HSV_2DLut),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(TODO)) */
-    hsv_lut2d_dyn_t lut2;
+    hsv_lut2d_dyn_t lut2d;
 } hsv_param_dyn_t;
 
 typedef struct {
     /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_hsvT_lut0_en),
+        M4_ALIAS(hw_hsvT_lut1d0_en),
         M4_TYPE(bool),
         M4_DEFAULT(0),
         M4_HIDE_EX(0),
@@ -156,9 +156,9 @@ typedef struct {
         M4_ORDER(0),
         M4_NOTES(Enable lut0.\nFreq of use: high))  */
     // @reg: sw_hsv_1dlut0_en
-    bool hw_hsvT_lut0_en;
+    bool hw_hsvT_lut1d0_en;
     /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_hsvT_lut1_en),
+        M4_ALIAS(hw_hsvT_lut1d1_en),
         M4_TYPE(bool),
         M4_DEFAULT(0),
         M4_HIDE_EX(0),
@@ -166,9 +166,9 @@ typedef struct {
         M4_ORDER(0),
         M4_NOTES(Enable lut1.\nFreq of use: high))  */
     // @reg: sw_hsv_1dlut1_en
-    bool hw_hsvT_lut1_en;
+    bool hw_hsvT_lut1d1_en;
     /* M4_GENERIC_DESC(
-        M4_ALIAS(hw_hsvT_lut2_en),
+        M4_ALIAS(hw_hsvT_lut2d_en),
         M4_TYPE(bool),
         M4_DEFAULT(0),
         M4_HIDE_EX(0),
@@ -176,7 +176,7 @@ typedef struct {
         M4_ORDER(0),
         M4_NOTES(Enable lut2.\nFreq of use: high))  */
     // @reg: sw_hsv_2dlut_en
-    bool hw_hsvT_lut2_en;
+    bool hw_hsvT_lut2d_en;
 } hsv_param_static_t;
 
 typedef struct {

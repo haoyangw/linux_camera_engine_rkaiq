@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
+#if RKAIQ_HAVE_YUVME
 #include "newStruct/yme/include/yme_algo_api.h"
 #include "aiq_core_c/algo_handlers/RkAiqYmeHandler.h"
+#endif
 #include "RkAiqGlobalParamsManager_c.h"
 #include "uAPI2_c/rk_aiq_user_api2_common.h"
 
@@ -25,6 +27,7 @@ RKAIQ_BEGIN_DECLARE
 #define CHECK_USER_API_ENABLE
 #endif
 
+#if RKAIQ_HAVE_YUVME
 XCamReturn
 rk_aiq_user_api2_yme_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, yme_api_attrib_t* attr)
 {
@@ -86,5 +89,23 @@ rk_aiq_user_api2_yme_QueryStatus(const rk_aiq_sys_ctx_t* sys_ctx, yme_status_t* 
 
 	return ret;
 }
+#else
+XCamReturn
+rk_aiq_user_api2_yme_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, yme_api_attrib_t* attr)
+{
+    return XCAM_RETURN_ERROR_UNKNOWN;
+}
 
+XCamReturn
+rk_aiq_user_api2_yme_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, yme_api_attrib_t* attr)
+{
+    return XCAM_RETURN_ERROR_UNKNOWN;
+}
+
+XCamReturn
+rk_aiq_user_api2_yme_QueryStatus(const rk_aiq_sys_ctx_t* sys_ctx, yme_status_t* status)
+{
+    return XCAM_RETURN_ERROR_UNKNOWN;
+}
+#endif
 RKAIQ_END_DECLARE

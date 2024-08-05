@@ -162,8 +162,8 @@ static int sample_hall_dciris_calib(const rk_aiq_sys_ctx_t* ctx) {
                 break;
         }
         zoom_target_val = (int)(1.0 * (tmp_iris_gain - iris_gain[dot]) / (iris_gain[dot + 1] - iris_gain[dot]) *
-                              (iris_val[dot + 1] - iris_val[dot]) +
-                              iris_val[dot] + 0.5f);
+                                (iris_val[dot + 1] - iris_val[dot]) +
+                                iris_val[dot] + 0.5f);
         printf("num=%d, iris diameter=%f, val=%d, gain=%d\n", i, iris_diam[i], zoom_target_val, (int)(tmp_iris_gain));
     }
 
@@ -1002,7 +1002,7 @@ static int sample_set_exp_manual(const rk_aiq_sys_ctx_t* ctx)
     //LinearAE
     expSwAttr.commCtrl.meCtrl.linMe.sw_aeT_manGain_en = true;
     expSwAttr.commCtrl.meCtrl.linMe.sw_aeT_manTime_en = true;
-    expSwAttr.commCtrl.meCtrl.linMe.sw_aeT_manGain_en = 1.0f;   /*gain = 1x*/
+    expSwAttr.commCtrl.meCtrl.linMe.sw_aeT_manGain_val = 1.0f;   /*gain = 1x*/
     expSwAttr.commCtrl.meCtrl.linMe.sw_aeT_manTime_val = 0.02f; /*time = 1/50s*/
     //HdrAE (should set all frames)
     expSwAttr.commCtrl.meCtrl.hdrMe.sw_aeT_manGain_en = true;
@@ -1470,8 +1470,8 @@ static int sample_hall_dciris_calib(const rk_aiq_sys_ctx_t* ctx)
                 break;
         }
         zoom_target_val = (int)(1.0 * (tmp_iris_gain - iris_gain[dot]) / (iris_gain[dot + 1] - iris_gain[dot]) *
-                              (iris_val[dot + 1] - iris_val[dot]) +
-                              iris_val[dot] + 0.5f);
+                                (iris_val[dot + 1] - iris_val[dot]) +
+                                iris_val[dot] + 0.5f);
         printf("num=%d, iris diameter=%f, val=%d, gain=%d\n", i, iris_diam[i], zoom_target_val, (int)(tmp_iris_gain));
     }
 

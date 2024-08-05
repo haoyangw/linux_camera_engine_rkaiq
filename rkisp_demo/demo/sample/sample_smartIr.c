@@ -190,82 +190,82 @@ static void sample_smartIr_start(const void* arg)
 #else
 
 // SMARTIR_VERSION 2.0.0
-static void* sample_smartIr_switch_thread(void* args)
+static void* switch_thread_irled(void* args)
 {
-    sample_smartIr_t* smartIr_ctx = &g_sample_smartIr_ctx;
-    rk_smart_ir_result_t result;
-    rk_aiq_isp_stats_t *stats_ref = NULL;
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
 
-    // cam group
-    rk_aiq_camgroup_ctx_t* camgroup_ctx = NULL;
-    rk_aiq_camgroup_camInfos_t camInfos;
-    rk_aiq_sys_ctx_t* group_ctxs[RK_AIQ_CAM_GROUP_MAX_CAMS];
-    rk_aiq_isp_stats_t* group_stats[RK_AIQ_CAM_GROUP_MAX_CAMS];
+    sample_smartIr_t* smartIr_ctx = &g_sample_smartIr_ctx;
+    rk_smart_ir_result_t result;
+    RK_SMART_IR_STATUS_t last_status;
+    rk_smart_ir_attr_t init_attr;
+
+    rk_smart_ir_getAttr(smartIr_ctx->ir_ctx, &init_attr);
+    last_status = init_attr.init_status;
 
     while (!smartIr_ctx->tquit) {
 
-        if (smartIr_ctx->camGroup) {
-            camgroup_ctx = (rk_aiq_camgroup_ctx_t *)smartIr_ctx->aiq_ctx;
-            ret = rk_aiq_uapi2_camgroup_getCamInfos(camgroup_ctx, &camInfos);
-            if (ret != XCAM_RETURN_NO_ERROR) {
-                printf("ret=%d, getCamInfos fail!\n", ret);
-                break;
-            }
-            for (int i = 0; i < camInfos.valid_sns_num; i++) {
-                group_ctxs[i] = rk_aiq_uapi2_camgroup_getAiqCtxBySnsNm(camgroup_ctx, camInfos.sns_ent_nm[i]);
-                if (group_ctxs[i] == NULL) {
-                    printf("getAiqCtxBySnsNm fail!\n");
-                    break;
-                }
-                ret = rk_aiq_uapi2_sysctl_get3AStatsBlk(group_ctxs[i], &group_stats[i], -1);
-                if (ret != XCAM_RETURN_NO_ERROR || group_stats[i] == NULL) {
-                    printf("ret=%d, get3AStatsBlk fail!\n", ret);
-                    break;
-                }
-            }
-            rk_smart_ir_groupRunOnce(smartIr_ctx->ir_ctx, group_stats, camInfos.valid_sns_num, &result);
-            for (int i = 0; i < camInfos.valid_sns_num; i++) {
-                rk_aiq_uapi2_sysctl_release3AStatsRef(group_ctxs[i], group_stats[i]);
-            }
+        rk_smart_ir_run(smartIr_ctx->ir_ctx, smartIr_ctx->camGroup, &result);
 
-        } else {
-            ret = rk_aiq_uapi2_sysctl_get3AStatsBlk(smartIr_ctx->aiq_ctx, &stats_ref, -1);
-            if (ret != XCAM_RETURN_NO_ERROR || stats_ref == NULL) {
-                printf("ret=%d, get3AStatsBlk fail!\n", ret);
-                break;
-            }
-            rk_smart_ir_runOnce(smartIr_ctx->ir_ctx, stats_ref, &result);
-            rk_aiq_uapi2_sysctl_release3AStatsRef(smartIr_ctx->aiq_ctx, stats_ref);
-        }
+        if (result.status == RK_SMART_IR_STATUS_NIGHT && last_status == RK_SMART_IR_STATUS_DAY) {
+            last_status = RK_SMART_IR_STATUS_NIGHT;
+            printf("SAMPLE_SMART_IR: switch to Night\n");
 
-        if (result.gray_on) {
-            // 1) switch to isp night params
+            // 1) switch isp night params
             rk_aiq_uapi2_sysctl_switch_scene(smartIr_ctx->aiq_ctx, "normal", "night");
             // 2) ir-cutter off
             ir_cutter_ctrl(false);
-            // 3) auto ir-led, set result.fill_value
+            // 3) manual/auto ir-led, set result.fill_value
+            // TODO: user should define led control func here
 
-        } else {
-            if (result.status == RK_SMART_IR_STATUS_DAY) {
-                // 1) ir-cutter on
-                ir_cutter_ctrl(true);
-                // 2) ir-led off
-                // 3) switch to isp day params
-                rk_aiq_uapi2_sysctl_switch_scene(smartIr_ctx->aiq_ctx, "normal", "day");
+        } else if (result.status == RK_SMART_IR_STATUS_DAY && last_status == RK_SMART_IR_STATUS_NIGHT) {
+            last_status = RK_SMART_IR_STATUS_DAY;
+            printf("SAMPLE_SMART_IR: switch to Day\n");
 
-            } else if (result.status == RK_SMART_IR_STATUS_NIGHT) {
-                // 1) ir-cutter on
-                ir_cutter_ctrl(true);
-                // 2) auto vis-led, set result.fill_value
-                // 3) switch to isp day params
-                rk_aiq_uapi2_sysctl_switch_scene(smartIr_ctx->aiq_ctx, "normal", "day");
-            }
-
+            // 1) ir-cutter on
+            ir_cutter_ctrl(true);
+            // 2) ir-led off
+            // TODO: user should define led control func here
+            // 3) switch isp day params
+            rk_aiq_uapi2_sysctl_switch_scene(smartIr_ctx->aiq_ctx, "normal", "day");
         }
+    }
 
-        printf("SAMPLE_SMART_IR: switch to %s\n", result.status == RK_SMART_IR_STATUS_DAY ? "DAY" : "Night");
+    return NULL;
+}
 
+static void* switch_thread_visled(void* args)
+{
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+    sample_smartIr_t* smartIr_ctx = &g_sample_smartIr_ctx;
+    rk_smart_ir_result_t result;
+    RK_SMART_IR_STATUS_t last_status;
+    rk_smart_ir_attr_t init_attr;
+
+    rk_smart_ir_getAttr(smartIr_ctx->ir_ctx, &init_attr);
+    last_status = init_attr.init_status;
+
+    // ir-cutter on
+    ir_cutter_ctrl(true);
+    // switch isp day params
+    rk_aiq_uapi2_sysctl_switch_scene(smartIr_ctx->aiq_ctx, "normal", "day");
+
+    while (!smartIr_ctx->tquit) {
+
+        rk_smart_ir_run(smartIr_ctx->ir_ctx, smartIr_ctx->camGroup, &result);
+
+        if (result.status == RK_SMART_IR_STATUS_NIGHT && last_status == RK_SMART_IR_STATUS_DAY) {
+            last_status = RK_SMART_IR_STATUS_NIGHT;
+            printf("SAMPLE_SMART_IR: switch to Night\n");
+            // manual/auto vis-led, set result.fill_value
+            // TODO: user should define led control func here
+
+        } else if (result.status == RK_SMART_IR_STATUS_DAY && last_status == RK_SMART_IR_STATUS_NIGHT) {
+            last_status = RK_SMART_IR_STATUS_DAY;
+            printf("SAMPLE_SMART_IR: switch to Day\n");
+            // vis-led off
+            // TODO: user should define led control func here
+        }
     }
 
     return NULL;
@@ -298,7 +298,7 @@ static void sample_smartIr_start_irled(const void* arg)
 
     // 3) create thread
     smartIr_ctx->tquit = false;
-    pthread_create(&smartIr_ctx->tid, NULL, sample_smartIr_switch_thread, NULL);
+    pthread_create(&smartIr_ctx->tid, NULL, switch_thread_irled, NULL);
     smartIr_ctx->started = true;
 }
 
@@ -330,7 +330,7 @@ static void sample_smartIr_start_visled(const void* arg)
 
     // 3) create thread
     smartIr_ctx->tquit = false;
-    pthread_create(&smartIr_ctx->tid, NULL, sample_smartIr_switch_thread, NULL);
+    pthread_create(&smartIr_ctx->tid, NULL, switch_thread_visled, NULL);
     smartIr_ctx->started = true;
 }
 

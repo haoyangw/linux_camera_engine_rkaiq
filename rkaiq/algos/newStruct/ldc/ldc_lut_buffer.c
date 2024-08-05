@@ -44,23 +44,21 @@ void LdcLutBufMng_releaseHwBuffers(LdcLutBufferManager* m, uint8_t isp_id) {
     if (m->mem_ctx_ != NULL && m->mem_ops_ != NULL) m->mem_ops_->release_mem(isp_id, m->mem_ctx_);
 }
 
-LdcLutBuffer* LdcLutBufMng_getFreeHwBuffer(LdcLutBufferManager* m, uint8_t isp_id) {
-    if (m->mem_ops_ == NULL || m->mem_ctx_ == NULL) {
-        return NULL;
-    }
+XCamReturn LdcLutBufMng_getFreeHwBuffer(LdcLutBufferManager* m, uint8_t isp_id, LdcLutBuffer* buf) {
+    if (m->mem_ops_ == NULL || m->mem_ctx_ == NULL) return XCAM_RETURN_ERROR_PARAM;
 
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
     rk_aiq_lut_share_mem_info_t* mem_info =
         (rk_aiq_lut_share_mem_info_t*)(m->mem_ops_->get_free_item(isp_id, m->mem_ctx_));
     if (mem_info != NULL) {
         *mem_info->state      = MESH_BUF_WAIT2CHIP;
-        LdcLutBuffer* lut_buf = (LdcLutBuffer*)aiq_mallocz(sizeof(LdcLutBuffer));
-        if (lut_buf != NULL) {
-            LdcLutBuffer_init(lut_buf, m->config_, mem_info);
-            return lut_buf;
-        }
+        LdcLutBuffer_init(buf, m->config_, mem_info);
+    } else {
+        LOGE_ALDC("Can't get free lut buf for LDC");
+        ret = XCAM_RETURN_ERROR_MEM;
     }
 
-    return NULL;
+    return ret;
 }
 
 void LdcLutBufMng_init(LdcLutBufferManager* m, LdcLutBufferConfig config,

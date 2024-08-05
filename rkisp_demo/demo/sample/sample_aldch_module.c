@@ -15,6 +15,8 @@
  *
  */
 
+#ifndef USE_NEWSTRUCT
+
 #include "sample_comm.h"
 
 static void sample_aldch_usage()
@@ -136,3 +138,5 @@ XCamReturn sample_aldch_module (const void *arg)
 
     return XCAM_RETURN_NO_ERROR;
 }
+
+#endif

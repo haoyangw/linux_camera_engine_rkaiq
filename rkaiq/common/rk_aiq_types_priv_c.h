@@ -66,7 +66,6 @@ typedef gic_param_t                     rk_aiq_isp_gic_params_t;
 typedef yme_param_t                     rk_aiq_isp_yme_params_t;
 #endif
 typedef cac_param_t                     rk_aiq_isp_cac_params_t;
-typedef ldch_param_t                    rk_aiq_isp_ldch_params_t;
 typedef ldc_param_t                     rk_aiq_isp_ldc_params_t;
 typedef mge_param_t                     rk_aiq_isp_merge_params_t;
 typedef lsc_param_t                     rk_aiq_isp_lsc_params_t;

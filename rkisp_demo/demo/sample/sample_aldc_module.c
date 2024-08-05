@@ -162,7 +162,7 @@ XCamReturn sample_aldc_setCorrectLevel(const rk_aiq_sys_ctx_t* ctx, int level) {
 }
 
 #define LDCH_MESH_1 "/tmp/ldch_mesh_1.bin"
-#define LDCH_MESH_2 "/tmp/ldcv_mesh_2.bin"
+#define LDCH_MESH_2 "/tmp/ldch_mesh_2.bin"
 XCamReturn sample_aldc_setManualAttrib(const rk_aiq_sys_ctx_t* ctx, bool en) {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
     if (ctx == NULL) {
@@ -188,12 +188,11 @@ XCamReturn sample_aldc_setManualAttrib(const rk_aiq_sys_ctx_t* ctx, bool en) {
                                &size)) {
             attr.sta.ldchCfg.en                            = true;
             attr.sta.ldchCfg.lutMapCfg.sw_ldcT_lutMap_size = size;
+
+            ret = rk_aiq_user_api2_ldc_SetManualAttrib(ctx, &attr);
+            RKAIQ_SAMPLE_CHECK_RET(ret, "Ldc set manual attrib error!\n");
         }
     }
-
-    attr.sta.ldchCfg.en = en;
-    ret                 = rk_aiq_user_api2_ldc_SetManualAttrib(ctx, &attr);
-    RKAIQ_SAMPLE_CHECK_RET(ret, "Ldc set manual attrib error!\n");
 
     return ret;
 }

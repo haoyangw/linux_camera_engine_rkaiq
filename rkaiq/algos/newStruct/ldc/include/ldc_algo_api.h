@@ -31,9 +31,9 @@ typedef enum {
     kAiqLdcUpdMeshFromFile,    // import mesh from file
 } AiqLdcUpdMeshMode;
 
-const LdcLutBuffer* algo_ldc_getLdchFreeLutBuf(RkAiqAlgoContext* ctx);
+LdcLutBuffer* algo_ldc_getLdchFreeLutBuf(RkAiqAlgoContext* ctx);
 #if RKAIQ_HAVE_LDCV
-const LdcLutBuffer* algo_ldc_getLdcvFreeLutBuf(RkAiqAlgoContext* ctx);
+LdcLutBuffer* algo_ldc_getLdcvFreeLutBuf(RkAiqAlgoContext* ctx);
 #endif
 
 #endif  // _LDC_ALOG_API_H_

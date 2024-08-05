@@ -10,8 +10,8 @@ endif()
 endif()
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
 
-add_compile_options(-std=c++11)
-add_compile_options(-fPIC -Wall -Wno-error -O0 -g)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+add_compile_options(-fPIC -Wall -Wno-error -O0 -g -D_FORTIFY_SOURCE=0)
 add_compile_options(-Wno-unused-variable
     -Wno-unused-but-set-variable
     -Wno-unused-function

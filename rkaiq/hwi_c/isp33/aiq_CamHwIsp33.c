@@ -31,7 +31,7 @@ static void CamHwIsp33_updateEffParams(AiqCamHwBase_t* pCamHw, void* params, voi
 
     if (XCAM_RETURN_NO_ERROR ==
             AiqCamHw_getEffectiveIspParams(pCamHw, &latestIspParams, latest_id) &&
-        latestIspParams)
+            latestIspParams)
         is_got_latest_params = true;
 #endif
 
@@ -190,7 +190,7 @@ bool CamHwIsp33_processTb(AiqCamHwBase_t* pCamHw, void* params) {
                            isp_params->frame_id, skip_cfg_up);
                 if (skip_cfg_up & ISP32_MODULE_RAWAF) {
                     new_param->module_cfg_update |= ISP32_MODULE_RAWAF;
-					// TODO
+                    // TODO
                     //new_param->meas.rawaf = skip_param->meas.rawaf;
                 }
             }
@@ -203,6 +203,10 @@ bool CamHwIsp33_processTb(AiqCamHwBase_t* pCamHw, void* params) {
                     new_param->module_ens |= skip_param->module_ens & ISP32_MODULE_RAWAF;
                 }
             }
+
+            //special cfg for btnr, fastboot F0 not update btnr
+            new_param->module_en_update &= ~ISP33_MODULE_BAY3D;
+            new_param->module_cfg_update &= ~ISP33_MODULE_BAY3D;
 
             aiq_free(pCamHw->_skipped_params);
             pCamHw->_skipped_params = NULL;

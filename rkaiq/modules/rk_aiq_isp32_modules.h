@@ -66,6 +66,8 @@ typedef struct {
     float ynr_sigma[HIST_SIGMA_LUT_NUM];
 #endif
     bool cmps_on;
+    bool cmps_is15bit;
+    uint8_t cmps_offsetbit;
     bool dehaze_en;
     bool histeq_en;
 #if defined(ISP_HW_V33)

@@ -33,7 +33,6 @@
 #include "newStruct/gic/include/gic_algo_api.h"
 #include "newStruct/cac/include/cac_algo_api.h"
 // #include "newStruct/cac/include/lut_buffer.h"
-#include "newStruct/ldch/include/ldch_algo_api.h"
 #include "newStruct/csm/include/csm_algo_api.h"
 #include "newStruct/lsc/include/lsc_algo_api.h"
 #include "newStruct/merge/include/merge_algo_api.h"
@@ -49,7 +48,9 @@
 #include "newStruct/dehaze/include/dehaze_algo_api.h"
 #include "newStruct/ldc/include/ldc_algo_api.h"
 #include "newStruct/rgbir/include/rgbir_algo_api.h"
+#if RKAIQ_HAVE_YUVME
 #include "newStruct/yme/include/yme_algo_api.h"
+#endif
 #endif
 #ifdef ISP_HW_V33
 #include "newStruct/hsv/include/hsv_algo_api.h"
@@ -436,9 +437,6 @@ typedef struct _RkAiqAlgoProcCac {
 
 typedef struct _RkAiqAlgoProcResLdch {
     RkAiqAlgoResCom res_com;
-#if USE_NEWSTRUCT
-    ldch_param_t* ldchRes;
-#endif
 } RkAiqAlgoProcResLdch;
 
 typedef struct _RkAiqAlgoConfigLdch {

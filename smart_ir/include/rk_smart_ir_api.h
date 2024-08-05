@@ -100,12 +100,16 @@ typedef struct rk_smart_ir_autoled_s {
 
 rk_smart_ir_ctx_t* rk_smart_ir_init(const rk_aiq_sys_ctx_t* aiq_ctx);
 XCamReturn rk_smart_ir_deInit(const rk_smart_ir_ctx_t* ctx);
+
+// SMARTIR_VERSION 2.0.0
 XCamReturn rk_smart_ir_setAttr(rk_smart_ir_ctx_t* ctx, rk_smart_ir_attr_t* attr);
 XCamReturn rk_smart_ir_getAttr(rk_smart_ir_ctx_t* ctx, rk_smart_ir_attr_t* attr);
+XCamReturn rk_smart_ir_run(rk_smart_ir_ctx_t* ctx, bool camGroup, rk_smart_ir_result_t* result);
 XCamReturn rk_smart_ir_queryInfo(rk_smart_ir_ctx_t* ctx, rk_smart_ir_query_info_t* query_info);
+
+// SMARTIR_VERSION 1.0.0
 XCamReturn rk_smart_ir_runOnce(rk_smart_ir_ctx_t* ctx, rk_aiq_isp_stats_t* stats_ref, rk_smart_ir_result_t* result);
 XCamReturn rk_smart_ir_groupRunOnce(rk_smart_ir_ctx_t* ctx, rk_aiq_isp_stats_t** grp_stats, int cam_num, rk_smart_ir_result_t* result);
-
 XCamReturn rk_smart_ir_config(rk_smart_ir_ctx_t* ctx, rk_smart_ir_params_t* config);
 XCamReturn rk_smart_ir_set_status(rk_smart_ir_ctx_t* ctx, rk_smart_ir_result_t result);
 XCamReturn rk_smart_ir_auto_irled(rk_smart_ir_ctx_t* ctx, rk_smart_ir_autoled_t* auto_irled);

@@ -27,7 +27,7 @@ RKAIQ_BEGIN_DECLARE
 typedef struct {
     /* M4_GENERIC_DESC(
         M4_ALIAS(dyn),
-        M4_TYPE(struct),
+        M4_TYPE(struct_list),
         M4_UI_MODULE(dynamic_ui),
         M4_HIDE_EX(0),
         M4_RO(0),

@@ -109,11 +109,10 @@ typedef struct btnr_subLoMd0_diffCh_dyn_s {
     float hw_btnrT_vIIRWgt_scale;
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_btnr_loDiffVfilt_offset),
-        M4_TYPE(f32),
+        M4_TYPE(u32),
         M4_SIZE_EX(1,1),
-        M4_RANGE_EX(0.0,1.0),
-        M4_DEFAULT(0.0),
-        M4_DIGIT_EX(3),
+        M4_RANGE_EX(0, 4096),
+        M4_DEFAULT(0),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
@@ -121,7 +120,7 @@ typedef struct btnr_subLoMd0_diffCh_dyn_s {
         The larger the value, the stronger the filtering strength\n
         Freq of use: low))  */
     // reg: hw_btnrT_loDiffVfilt_offset
-    float hw_btnrT_vIIRWgt_offset;
+    uint32_t hw_btnrT_vIIRWgt_offset;
 
 } btnr_subLoMd0_diffCh_dyn_t;
 
@@ -547,7 +546,7 @@ typedef struct btnr_subDeepLoMd_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_GROUP(largeLoMd_en_group),
+        M4_GROUP(dLoMd_en_group),
         M4_NOTES(The enable bit of min gauss filter for Large low motion detection.\n
         Freq of use: low))  */
     // reg: !en == hw_btnr_mdLargeLoMinGauss_bypss_en
@@ -2188,11 +2187,11 @@ typedef enum btnr_pixDomain_mode_e {
 
 typedef enum btnr_trans_mode_e {
     /*
-    reg: hw_btnr_transfMode_scale == 1
+    reg: hw_btnr_transfMode_scale == 0
     */
     btnr_pixInBw20b_mode = 0,
     /*
-    reg: hw_btnr_transfMode_scale == 0
+    reg: hw_btnr_transfMode_scale == 1
     */
     btnr_pixInBw15b_mode = 1
 } btnr_trans_mode_t;

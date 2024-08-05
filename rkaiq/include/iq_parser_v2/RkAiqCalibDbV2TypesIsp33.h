@@ -125,8 +125,6 @@ typedef struct {
     cp_api_attrib_t cp;
     // M4_STRUCT_DESC("ie", "normal_ui_style")
     ie_api_attrib_t ie;
-    // M4_STRUCT_DESC("cpsl", "normal_ui_style")
-    CalibDbV2_Cpsl_t cpsl;
     // M4_STRUCT_DESC("colorAsGrey", "normal_ui_style")
     CalibDbV2_ColorAsGrey_t colorAsGrey;
     // M4_STRUCT_DESC("lsc", "normal_ui_style")

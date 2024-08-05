@@ -78,7 +78,7 @@ static XCamReturn processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
     return XCAM_RETURN_NO_ERROR;
 }
 
-const LdcLutBuffer* algo_ldc_getLdchFreeLutBuf(RkAiqAlgoContext* ctx) {
+LdcLutBuffer* algo_ldc_getLdchFreeLutBuf(RkAiqAlgoContext* ctx) {
     LdcContext_t* ctx_  = (LdcContext_t*)ctx;
     LdcAlgoAdaptor* adp = (LdcAlgoAdaptor*)(ctx_->handler);
 
@@ -86,7 +86,7 @@ const LdcLutBuffer* algo_ldc_getLdchFreeLutBuf(RkAiqAlgoContext* ctx) {
 }
 
 #if RKAIQ_HAVE_LDCV
-const LdcLutBuffer* algo_ldc_getLdcvFreeLutBuf(RkAiqAlgoContext* ctx) {
+LdcLutBuffer* algo_ldc_getLdcvFreeLutBuf(RkAiqAlgoContext* ctx) {
     LdcContext_t* ctx_  = (LdcContext_t*)ctx;
     LdcAlgoAdaptor* adp = (LdcAlgoAdaptor*)(ctx_->handler);
 

@@ -2391,22 +2391,6 @@ void convertAiqBlcToIsp39Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBas
 
 }
 
-#if RKAIQ_HAVE_LDCH_V21
-static void convertAiqLdchToIsp39Params(aiq_params_base_t* pBase, bool is_multi_isp_right) {
-    if (pBase->en) {
-        pCvt->isp_params.isp_cfg->module_ens |= ISP39_MODULE_LDCH;
-        pCvt->isp_params.isp_cfg->module_en_update |= ISP39_MODULE_LDCH;
-        pCvt->isp_params.isp_cfg->module_cfg_update |= ISP39_MODULE_LDCH;
-    } else {
-        pCvt->isp_params.isp_cfg->module_ens &= ~ISP39_MODULE_LDCH;
-        pCvt->isp_params.isp_cfg->module_en_update |= ISP39_MODULE_LDCH;
-        return;
-    }
-
-    rk_aiq_ldch22_params_cvt(pBase->_data, &pCvt->isp_params, &pCvt->isp_params, is_multi_isp);
-}
-#endif
-
 #if RKAIQ_HAVE_LDC
 static void convertAiqAldchToIsp39Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase,
                                          bool is_multi_isp) {

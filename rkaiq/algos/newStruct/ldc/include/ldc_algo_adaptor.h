@@ -67,7 +67,6 @@ XCamReturn LdcAlgoAdaptor_prepare(LdcAlgoAdaptor* ldc, const RkAiqAlgoConfigLdc*
 
 void LdcAlgoAdaptor_onFrameEvent(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams);
 
-const LdcLutBuffer* LdcAlgoAdaptor_getFreeLutBuf(LdcAlgoAdaptor* adp, LdcModType type,
-                                                 int8_t isp_id);
+LdcLutBuffer* LdcAlgoAdaptor_getFreeLutBuf(LdcAlgoAdaptor* adp, LdcModType type, int8_t isp_id);
 
 #endif  // ALGOS_LDC_ALGO_H

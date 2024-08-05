@@ -224,6 +224,8 @@ typedef struct Uapi_ExpQueryInfo_s {
     bool              EnvChange;
     // M4_BOOL_DESC("IsExpMax", "0",M4_HIDE(1))
     bool              IsExpMax;
+    // M4_BOOL_DESC("IsExpMin", "0",M4_HIDE(1))
+    bool              IsExpMin;
 
     // M4_STRUCT_DESC("LinAeInfo", "normal_ui_style")
     Uapi_LinAeInfo_t  LinAeInfo;

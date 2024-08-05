@@ -68,8 +68,6 @@
 #include "uAPI2/rk_aiq_user_api2_yme.h"
 #include "isp/rk_aiq_isp_cac21.h"
 #include "uAPI2/rk_aiq_user_api2_cac.h"
-#include "isp/rk_aiq_isp_ldch22.h"
-#include "uAPI2/rk_aiq_user_api2_ldch.h"
 #include "isp/rk_aiq_isp_csm21.h"
 #include "uAPI2/rk_aiq_user_api2_csm.h"
 #include "isp/rk_aiq_isp_merge22.h"
@@ -92,5 +90,7 @@
 #include "uAPI2/rk_aiq_user_api2_ccm.h"
 #include "isp/rk_aiq_isp_stats_v39.h"
 #include "uAPI2/rk_aiq_user_api2_stats.h"
+#include "isp/rk_aiq_isp_ldc22.h"
+#include "uAPI2/rk_aiq_user_api2_ldc.h"
 
 #endif

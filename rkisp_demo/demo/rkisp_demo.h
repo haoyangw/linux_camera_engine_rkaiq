@@ -90,6 +90,14 @@ typedef struct _demo_context {
     fakecam_rawbuffer       rawBufs[RAWBUF_MAX_FRAME];
     pthread_mutex_t         mutex;
     struct list_head        queue;
+
+    bool                    aovEnterSleep;
+    bool                    aovPauseAiq;
+    bool                    isAovMode;
+    int                     aovLoopCnt;
+    int                     aovContinueCnt;
+    int                     aovLoopRunCnt;
+    int                     aovContinueRunCnt;
 } demo_context_t;
 
 #ifndef CAM_STATIC_FPS_CALCULATION

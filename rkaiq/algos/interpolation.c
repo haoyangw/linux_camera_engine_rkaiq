@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #define DEFAULT_ISO_STEP_MAX 13
-const int default_iso_list[] = {50, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 16300, 51200, 102400, 204800};
+const int default_iso_list[] = {50, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400, 204800};
 
 void pre_interp(int iso, int *iso_list, int num, int *lo, int *hi, float *ratio)
 {

@@ -54,6 +54,8 @@ typedef struct {
     uint16_t current_lut_size;
     float hdr_ratio;
 } cac_cvt_info_t;
+
+void LutBufferManagerDeinit(cac_cvt_info_t *cacInfo, LutBufferManager* man);
 #endif
 
 RKAIQ_BEGIN_DECLARE

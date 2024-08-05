@@ -50,7 +50,6 @@ void rk_aiq_blc30_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
 
     // pre_dgain
     phwcfg->isp_ob_predgain = CLIP((int)(pre_dgain * (1 << 8)), 0, 65535);
-
     // blc1 aiq 6.0 does not support manualOBC, set to 0.
     phwcfg->bls1_val.r = 0;
     phwcfg->bls1_val.gr = 0;
@@ -85,7 +84,7 @@ void rk_aiq_blc30_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
         phwcfg->isp_ob_predgain = CLIP((int)(1 * (1 << 8)), 0, 65535);
     }
 
-    if (fabs(phwcfg->isp_ob_predgain - (float)0x100) > FLT_EPSILON) {
+    if (phwcfg->isp_ob_predgain != 0 && fabs(phwcfg->isp_ob_predgain - (float)0x100) > FLT_EPSILON) {
         phwcfg->bls1_en = 1;
         phwcfg->isp_ob_max = CLIP((int)(4096 * pre_dgain) - phwcfg->isp_ob_offset, 0, 1048575);
     } else {

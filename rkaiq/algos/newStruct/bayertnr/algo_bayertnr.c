@@ -388,6 +388,28 @@ XCamReturn BtnrSelectParam
     out->mdMeDyn = paut->mdMeDyn[inear];
     out->spNrDyn = paut->spNrDyn[inear];
 
+    out->mdMeDyn.mdSigma.hw_btnrT_sigma_scale = interpolation_f32(
+                paut->mdMeDyn[ilow].mdSigma.hw_btnrT_sigma_scale, paut->mdMeDyn[ihigh].mdSigma.hw_btnrT_sigma_scale, ratio);
+    out->mdMeDyn.mdSigma.hw_btnrT_sigmaHdrS_scale = interpolation_f32(
+                paut->mdMeDyn[ilow].mdSigma.hw_btnrT_sigmaHdrS_scale, paut->mdMeDyn[ihigh].mdSigma.hw_btnrT_sigmaHdrS_scale, ratio);
+    out->spNrDyn.preSpNr.sigma.hw_btnrT_sigma_scale = interpolation_f32(
+                paut->spNrDyn[ilow].preSpNr.sigma.hw_btnrT_sigma_scale, paut->spNrDyn[ihigh].preSpNr.sigma.hw_btnrT_sigma_scale, ratio);
+    out->spNrDyn.preSpNr.sigma.hw_btnrT_sigmaHdrS_scale = interpolation_f32(
+                paut->spNrDyn[ilow].preSpNr.sigma.hw_btnrT_sigmaHdrS_scale, paut->spNrDyn[ihigh].preSpNr.sigma.hw_btnrT_sigmaHdrS_scale, ratio);
+
+    out->spNrDyn.sigmaEnv.sw_btnrT_autoSgmIIR_alpha = interpolation_f32(
+                paut->spNrDyn[ilow].sigmaEnv.sw_btnrT_autoSgmIIR_alpha, paut->spNrDyn[ihigh].sigmaEnv.sw_btnrT_autoSgmIIR_alpha, ratio);
+    out->spNrDyn.sigmaEnv.hw_btnrT_statsPixAlpha_thred = interpolation_f32(
+                paut->spNrDyn[ilow].sigmaEnv.hw_btnrT_statsPixAlpha_thred, paut->spNrDyn[ihigh].sigmaEnv.hw_btnrT_statsPixAlpha_thred, ratio);
+
+    for (i = 0; i < 20; i++) {
+        out->spNrDyn.sigmaEnv.hw_btnrC_mdSigma_curve.val[i] = interpolation_f32(
+                    paut->spNrDyn[ilow].sigmaEnv.hw_btnrC_mdSigma_curve.val[i], paut->spNrDyn[ihigh].sigmaEnv.hw_btnrC_mdSigma_curve.val[i], ratio);
+    }
+    for (i = 0; i < 16; i++) {
+        out->spNrDyn.sigmaEnv.hw_btnrC_preSpNrSgm_curve.val[i] = interpolation_f32(
+                    paut->spNrDyn[ilow].sigmaEnv.hw_btnrC_preSpNrSgm_curve.val[i], paut->spNrDyn[ihigh].sigmaEnv.hw_btnrC_preSpNrSgm_curve.val[i], ratio);
+    }
     return XCAM_RETURN_NO_ERROR;
 }
 

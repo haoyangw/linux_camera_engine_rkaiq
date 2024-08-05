@@ -353,7 +353,12 @@ rk_aiq_uapi2_awb_register(const rk_aiq_sys_ctx_t* ctx, rk_aiq_customeAwb_cbs_t* 
         LOGI_AWB_SUBM(0xff, "group awb");
 #ifdef RKAIQ_ENABLE_CAMGROUP
         group_ctx  = (const rk_aiq_camgroup_ctx_t*)ctx;
-        single_ctx = group_ctx->cam_ctxs_array[0];
+        for (int i = 0; i < RK_AIQ_CAM_GROUP_MAX_CAMS; i++) {
+            if (!single_ctx && group_ctx->cam_ctxs_array[i]) {
+                single_ctx = group_ctx->cam_ctxs_array[i];
+                break;
+            }
+        }
         algoType   = g_RkIspAlgoDescCamgroupAwb.common.type;
         algoId     = g_RkIspAlgoDescCamgroupAwb.common.id;
 #endif
@@ -419,20 +424,22 @@ rk_aiq_uapi2_awb_register(const rk_aiq_sys_ctx_t* ctx, rk_aiq_customeAwb_cbs_t* 
 
     if (group_ctx) {
 #ifdef RKAIQ_ENABLE_CAMGROUP
-        for (int i = 0; i < group_ctx->cam_ctxs_num; i++) {
-            isAwbRgst = rk_aiq_uapi2_sysctl_getAxlibStatus(group_ctx->cam_ctxs_array[i],
-                                                           algoType, algoId);
-            if (isAwbRgst) {
-                continue;
-            }
+        for (int i = 0; i < RK_AIQ_CAM_GROUP_MAX_CAMS; i++) {
+            if (group_ctx->cam_ctxs_array[i]) {
+                isAwbRgst = rk_aiq_uapi2_sysctl_getAxlibStatus(group_ctx->cam_ctxs_array[i],
+                                                               algoType, algoId);
+                if (isAwbRgst) {
+                    continue;
+                }
 
-            ret = rk_aiq_uapi2_sysctl_register3Aalgo(group_ctx->cam_ctxs_array[i], &algoDes, NULL);
-            if (ret == XCAM_RETURN_ERROR_ANALYZER) {
-                LOGE_AWB_SUBM(0xff, "no current aiq core status, please stop aiq before register custome awb!");
-                return ret;
-            } else if (ret != XCAM_RETURN_NO_ERROR) {
-                LOGE_AWB_SUBM(0xff, "awb register error, ret %d", ret);
-                return ret;
+                ret = rk_aiq_uapi2_sysctl_register3Aalgo(group_ctx->cam_ctxs_array[i], &algoDes, NULL);
+                if (ret == XCAM_RETURN_ERROR_ANALYZER) {
+                    LOGE_AWB_SUBM(0xff, "no current aiq core status, please stop aiq before register custome awb!");
+                    return ret;
+                } else if (ret != XCAM_RETURN_NO_ERROR) {
+                    LOGE_AWB_SUBM(0xff, "awb register error, ret %d", ret);
+                    return ret;
+                }
             }
         }
 #endif

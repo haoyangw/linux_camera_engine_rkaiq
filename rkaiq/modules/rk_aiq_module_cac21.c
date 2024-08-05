@@ -74,10 +74,11 @@ static LutBuffer* LutBufferManagerGetFreeHwBuffer(LutBufferManager *man, uint8_t
     return NULL;
 }
 
-static void LutBufferManagerDeinit(LutBufferManager *man)
+void LutBufferManagerDeinit(cac_cvt_info_t *cacInfo, LutBufferManager *man)
 {
     LutBufferManagerReleaseHwBuffers(man, 0);
-    LutBufferManagerReleaseHwBuffers(man, 1);
+    if (cacInfo->is_multi_isp)
+        LutBufferManagerReleaseHwBuffers(man, 1);
 }
 
 static inline bool IsIspBigMode(uint32_t width, uint32_t height, bool is_multi_sensor) {

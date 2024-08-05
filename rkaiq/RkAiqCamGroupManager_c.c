@@ -599,24 +599,32 @@ static void _syncParams(AiqFullParams_t* src, AiqFullParams_t* dst)
         aiq_params_base_t* pYnrBase    = dst->pParamsArray[RESULT_TYPE_YNR_PARAM];
         aiq_params_base_t* pDhzeBase   = dst->pParamsArray[RESULT_TYPE_DEHAZE_PARAM];
         if (pYnrBase && pDhzeBase &&
-            (pYnrBase->is_update && !pDhzeBase->is_update)) {
+            (pYnrBase->is_update && src->pParamsArray[RESULT_TYPE_DEHAZE_PARAM] && !pDhzeBase->is_update)) {
             pDhzeBase->is_update = true;
+            pDhzeBase->en = src->pParamsArray[RESULT_TYPE_DEHAZE_PARAM]->en;
+            pDhzeBase->bypass = src->pParamsArray[RESULT_TYPE_DEHAZE_PARAM]->bypass;
             memcpy(pDhzeBase->_data, src->pParamsArray[RESULT_TYPE_DEHAZE_PARAM]->_data,
                     sizeof(dehaze_param_t));
         }
 
         aiq_params_base_t* pHisteqBase = dst->pParamsArray[RESULT_TYPE_HISTEQ_PARAM];
-        if (pDhzeBase && pHisteqBase &&
-            pDhzeBase->is_update ^ pHisteqBase->is_update) {
-            if (!pDhzeBase->is_update) {
-                memcpy(pDhzeBase->_data, src->pParamsArray[RESULT_TYPE_DEHAZE_PARAM]->_data,
-                        sizeof(dehaze_param_t));
-            } else {
-                memcpy(pHisteqBase->_data, src->pParamsArray[RESULT_TYPE_HISTEQ_PARAM]->_data,
-                        sizeof(histeq_param_t));
+        if (src->pParamsArray[RESULT_TYPE_DEHAZE_PARAM]) {
+            if (pDhzeBase && pHisteqBase &&
+                pDhzeBase->is_update ^ pHisteqBase->is_update) {
+                if (!pDhzeBase->is_update) {
+                    pDhzeBase->en = src->pParamsArray[RESULT_TYPE_DEHAZE_PARAM]->en;
+                    pDhzeBase->bypass = src->pParamsArray[RESULT_TYPE_DEHAZE_PARAM]->bypass;
+                    memcpy(pDhzeBase->_data, src->pParamsArray[RESULT_TYPE_DEHAZE_PARAM]->_data,
+                            sizeof(dehaze_param_t));
+                } else {
+                    pHisteqBase->en = src->pParamsArray[RESULT_TYPE_HISTEQ_PARAM]->en;
+                    pHisteqBase->bypass = src->pParamsArray[RESULT_TYPE_HISTEQ_PARAM]->bypass;
+                    memcpy(pHisteqBase->_data, src->pParamsArray[RESULT_TYPE_HISTEQ_PARAM]->_data,
+                            sizeof(histeq_param_t));
+                }
+                pDhzeBase->is_update   = true;
+                pHisteqBase->is_update = true;
             }
-            pDhzeBase->is_update   = true;
-            pHisteqBase->is_update = true;
         }
 
         if (pDhzeBase && pDhzeBase->is_update)
@@ -629,20 +637,26 @@ static void _syncParams(AiqFullParams_t* src, AiqFullParams_t* dst)
         aiq_params_base_t* pAwbBase  = dst->pParamsArray[RESULT_TYPE_AWB_PARAM];
         aiq_params_base_t* pBlcBase  = dst->pParamsArray[RESULT_TYPE_BLC_PARAM];
         if (pDrcBase && pDrcBase->is_update ) {
-            if (pAwbBase && !pAwbBase->is_update) {
+            if (pAwbBase && src->pParamsArray[RESULT_TYPE_AWB_PARAM] && !pAwbBase->is_update) {
                 pAwbBase->is_update = true;
+                pAwbBase->en = src->pParamsArray[RESULT_TYPE_AWB_PARAM]->en;
+                pAwbBase->bypass = src->pParamsArray[RESULT_TYPE_AWB_PARAM]->bypass;
                 memcpy(pAwbBase->_data, src->pParamsArray[RESULT_TYPE_AWB_PARAM]->_data,
                         sizeof(rk_aiq_isp_awb_params_t));
             }
 
-            if (pBlcBase && !pBlcBase->is_update) {
+            if (pBlcBase && src->pParamsArray[RESULT_TYPE_BLC_PARAM] && !pBlcBase->is_update) {
                 pBlcBase->is_update = true;
+                pBlcBase->en = src->pParamsArray[RESULT_TYPE_BLC_PARAM]->en;
+                pBlcBase->bypass = src->pParamsArray[RESULT_TYPE_BLC_PARAM]->bypass;
                 memcpy(pBlcBase->_data, src->pParamsArray[RESULT_TYPE_BLC_PARAM]->_data,
                         sizeof(blc_param_t));
             }
 
-            if (pBtnrBase && !pBtnrBase->is_update) {
+            if (pBtnrBase && src->pParamsArray[RESULT_TYPE_TNR_PARAM] && !pBtnrBase->is_update) {
                 pBtnrBase->is_update = true;
+                pBtnrBase->en = src->pParamsArray[RESULT_TYPE_TNR_PARAM]->en;
+                pBtnrBase->bypass = src->pParamsArray[RESULT_TYPE_TNR_PARAM]->bypass;
                 memcpy(pBtnrBase->_data, src->pParamsArray[RESULT_TYPE_TNR_PARAM]->_data,
                         sizeof(btnr_param_t));
             }
@@ -651,15 +665,19 @@ static void _syncParams(AiqFullParams_t* src, AiqFullParams_t* dst)
         // TODO: TNR/SHARP need update HWI params for each frame now
         aiq_params_base_t* psharpBase = dst->pParamsArray[RESULT_TYPE_SHARPEN_PARAM];
 
-        if (psharpBase && !psharpBase->is_update) {
+        if (psharpBase && src->pParamsArray[RESULT_TYPE_SHARPEN_PARAM] && !psharpBase->is_update) {
             psharpBase->is_update = true;
+            psharpBase->en = src->pParamsArray[RESULT_TYPE_SHARPEN_PARAM]->en;
+            psharpBase->bypass = src->pParamsArray[RESULT_TYPE_SHARPEN_PARAM]->bypass;
             memcpy(psharpBase->_data, src->pParamsArray[RESULT_TYPE_SHARPEN_PARAM]->_data,
                     sizeof(sharp_param_t));
             src->pParamsArray[RESULT_TYPE_SHARPEN_PARAM] = psharpBase;
         }
 
-        if (pBtnrBase && !pBtnrBase->is_update) {
+        if (pBtnrBase && src->pParamsArray[RESULT_TYPE_TNR_PARAM] && !pBtnrBase->is_update) {
             pBtnrBase->is_update = true;
+            pBtnrBase->en = src->pParamsArray[RESULT_TYPE_TNR_PARAM]->en;
+            pBtnrBase->bypass = src->pParamsArray[RESULT_TYPE_TNR_PARAM]->bypass;
             memcpy(pBtnrBase->_data, src->pParamsArray[RESULT_TYPE_TNR_PARAM]->_data,
                     sizeof(btnr_param_t));
         }
@@ -1071,7 +1089,6 @@ void AiqCamGroupManager_RelayAiqCoreResults(AiqCamGroupManager_t* pCamGrpMan, Ai
     SET_TO_CAMGROUP(AwbGain, AWBGAIN);
     SET_TO_CAMGROUP(Dpcc, DPCC);
     SET_TO_CAMGROUP(Lsc, LSC);
-    SET_TO_CAMGROUP(Ldch, LDCH);
     SET_TO_CAMGROUP(Lut3d, LUT3D);
     SET_TO_CAMGROUP(Hsv, HSV);
     SET_TO_CAMGROUP(Adegamma, ADEGAMMA);

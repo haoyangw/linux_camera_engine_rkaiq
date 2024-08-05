@@ -80,14 +80,6 @@ void rk_aiq_merge22_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
     }
     bool LongFrmMode = cvtinfo->ae_exp->HdrExp[cvtinfo->frameNum - 1].exp_real_params.longfrm_mode;
 
-    float SGain = cvtinfo->ae_exp->HdrExp[0].exp_real_params.analog_gain *
-                  cvtinfo->ae_exp->HdrExp[0].exp_real_params.digital_gain *
-                  cvtinfo->ae_exp->HdrExp[0].exp_real_params.isp_dgain;
-    if (pdyn->sw_mgeT_baseFrm_mode == mge_baseHdrS_mode) {
-        float Coef = pdyn->mdWgt_baseHdrS.sw_mgeT_wgtMaxTh_strg * SHORT_MODE_COEF_MAX;
-        pdyn->mdWgt_baseHdrS.sw_mgeT_wgtMaxTh_strg = pow(100.0f * Coef * SGain, 0.5f);
-    }
-
     phwcfg->mode = cvtinfo->frameNum - 1;
     phwcfg->gain0_inv =
         mergeClipValue(RATIO_DEFAULT / psta->expRat.sw_mgeCfg_expRatFix_val, 0, 12, false);
@@ -181,9 +173,15 @@ void rk_aiq_merge22_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
 
     phwcfg->s_base = pdyn->sw_mgeT_baseFrm_mode;
     if (pdyn->sw_mgeT_baseFrm_mode == mge_baseHdrS_mode) {
+        float SGain = cvtinfo->ae_exp->HdrExp[0].exp_real_params.analog_gain *
+                      cvtinfo->ae_exp->HdrExp[0].exp_real_params.digital_gain *
+                      cvtinfo->ae_exp->HdrExp[0].exp_real_params.isp_dgain;
+        float Coef = pdyn->mdWgt_baseHdrS.sw_mgeT_wgtMaxTh_strg * SHORT_MODE_COEF_MAX;
+        float sw_mgeT_wgtMaxTh_strg = pow(100.0f * Coef * SGain, 0.5f);
+
         // calc md curve
         float sw_hdrmge_ms_thd0 = pdyn->mdWgt_baseHdrS.hw_mgeT_wgtZero_thred;
-        float sw_hdrmge_ms_thd1 = pdyn->mdWgt_baseHdrS.sw_mgeT_wgtMaxTh_strg;
+        float sw_hdrmge_ms_thd1 = sw_mgeT_wgtMaxTh_strg;
         // phwcfg->lm_thd0 = mergeClipValue(pdyn->mdWgt_baseHdrS.hw_mgeT_wgtZero_thred, 0, 10,
         // false); phwcfg->lm_thd1 = pdyn->mdWgt_baseHdrS.sw_mgeT_wgtMaxTh_strg;
         float sw_hdrmge_ms_scl = (sw_hdrmge_ms_thd0 == sw_hdrmge_ms_thd1)

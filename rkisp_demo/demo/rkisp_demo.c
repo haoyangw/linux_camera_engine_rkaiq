@@ -77,6 +77,10 @@
 #define LOOP_QUEUE_ONE_RAW_IMAGE
 #define DEMO_DISPLAY_TO_HDMI       1
 #define DEMO_DISPLAY_TO_DSI        2
+#define SOC_SLEEP_STR "mem"
+#define SOC_SLEEP_PATH "/sys/power/state"
+#define SUSPEND_TIME_REG 0xff300048
+
 #ifdef ISPFEC_API
 #include "IspFec/rk_ispfec_api.h"
 #include <xf86drm.h>
@@ -1215,6 +1219,9 @@ static int read_frame(demo_context_t *ctx)
 
         if (r == 0) {
             ERR("select timeout\n");
+            if (ctx->isAovMode) {
+                return 0;
+            }
             exit(EXIT_FAILURE);
         }
 
@@ -1403,11 +1410,39 @@ static int read_frame_pp_oneframe(demo_context_t *ctx)
     return 1;
 }
 
+static int aov_read_frame(demo_context_t *ctx) {
+    int ret = read_frame(ctx);
+    if (ret == 1) {
+        if (!ctx->aovPauseAiq) {
+            ctx->aovContinueRunCnt++;
+            if (ctx->aovContinueRunCnt == ctx->aovContinueCnt) {
+                rk_aiq_uapi2_sysctl_pause(ctx->aiq_ctx, true);
+                ctx->aovPauseAiq = true;
+                ctx->aovLoopRunCnt = 0;
+            }
+        } else {
+            ctx->aovLoopRunCnt++;
+            if (ctx->aovLoopRunCnt < ctx->aovLoopCnt) {
+                ctx->aovEnterSleep = true;
+            } else {
+                ctx->aovContinueRunCnt = 0;
+                rk_aiq_uapi2_sysctl_resume(ctx->aiq_ctx);
+                ctx->aovPauseAiq = false;
+            }
+        }
+    } else if (ctx->aovPauseAiq) {
+        ctx->aovEnterSleep = true;
+    }
+    return ret;
+}
+
 static void mainloop(demo_context_t *ctx)
 {
     while ((ctx->frame_count == -1) || (ctx->frame_count-- > 0)) {
         if (ctx->pponeframe) {
             read_frame_pp_oneframe(ctx);
+        } else if (ctx->isAovMode) {
+            aov_read_frame(ctx);
         } else {
             read_frame(ctx);
             XCAM_STATIC_FPS_CALCULATION(rkisp_demo, 30);
@@ -1831,11 +1866,14 @@ static void parse_args(int argc, char **argv, demo_context_t *ctx)
             //{"sensor",   required_argument,       0, 'b' },
             {"camgroup",   no_argument,       0, '3' },
             {"stream-poll",   no_argument,       0, '4' },
+            {"aov",   no_argument,       0, '5' },
+            {"aov-loop",   required_argument, 0, '6' },
+            {"aov-continue",   required_argument, 0, '7' },
             {0,          0,                 0,  0  }
         };
 
         //c = getopt_long(argc, argv, "w:h:f:i:d:o:c:ps",
-        c = getopt_long(argc, argv, "w:h:f:i:g:j:y:d:o:c:n:k:a:t:1:2:v::34mpserl",
+        c = getopt_long(argc, argv, "w:h:f:i:g:j:y:d:o:c:n:k:a:t:1:2:v::3456:7:mpserl",
                         long_options, &option_index);
         if (c == -1)
             break;
@@ -1969,6 +2007,16 @@ static void parse_args(int argc, char **argv, demo_context_t *ctx)
         case '4':
             ctx->use_poll = true;
             break;
+        case '5':
+            ctx->use_poll = true;
+            ctx->isAovMode = true;
+            break;
+        case '6':
+            ctx->aovLoopCnt = atoi(optarg);
+            break;
+        case '7':
+            ctx->aovContinueCnt = atoi(optarg);
+            break;
         case '?':
         case 'p':
             ERR("Usage: %s to capture rkisp1 frames\n"
@@ -1998,7 +2046,10 @@ static void parse_args(int argc, char **argv, demo_context_t *ctx)
                 "                                                     BA10 -> SGRBG10, RG10 -> SRGGB10 \n"
                 "                                            rawbuf_type: RAW_ADDR, RAW_FD, RAW_DATA, RAW_FILE \n"
                 "         --stream-poll                      use non-blocking mode and select() to stream.\n"
-                "         --sensor,  default os04a10,        optional, sensor names\n",
+                "         --aov                              optional, use aov mode.\n"
+                "         --aov-continue, default 30         optional, sequential frame mode run count\n"
+                "         --aov-loop, default 30             optional, one frame mode run count\n"
+                "         --sensor,  default os04a10,        optional, optional, sensor names\n",
                 argv[0]);
             exit(-1);
 
@@ -3080,6 +3131,123 @@ restart:
     }
 }
 
+static int aov_test_writeReg(uintptr_t addr, int value) {
+    int mem_fd = open("/dev/mem", O_RDWR | O_SYNC);
+    if (mem_fd < 0) {
+        perror("Error opening /dev/mem");
+        return -1;
+    }
+
+    // 获取页大小
+    size_t page_size = getpagesize();
+
+    // 计算页对齐的地址和偏移量
+    off_t page_base = (addr & ~(page_size - 1));
+    off_t page_offset = addr - page_base;
+
+    // 映射内存
+    void *mem_map =
+        mmap(NULL, page_size, PROT_READ | PROT_WRITE, MAP_SHARED, mem_fd, page_base);
+    if (mem_map == MAP_FAILED) {
+        perror("Error mapping memory");
+        close(mem_fd);
+        return -1;
+    }
+
+    // 计算寄存器地址
+    int *target_reg = (int *)((char *)mem_map + page_offset);
+
+    // 写入数据
+    *target_reg = value;
+
+    // 解除内存映射
+    munmap(mem_map, page_size);
+    close(mem_fd);
+
+    return 0;
+}
+
+static int aov_test_setSuspendTime(int wakeup_suspend_time) {
+    int result = aov_test_writeReg(SUSPEND_TIME_REG, wakeup_suspend_time * 32.768);
+    if (result != 0) {
+        printf("Failed to set suspend time!\n");
+        return -1;
+    }
+    printf("[%s()] wakeup suspend time = %d\n", __func__, wakeup_suspend_time);
+    return 0;
+}
+
+static int g_wakeup_period_time = 100;
+
+static void adjust_suspend_time() {
+    if (g_wakeup_period_time != -1) {
+        static struct timespec last_time = {0, 0};
+        struct timespec current_time;
+        clock_gettime(CLOCK_BOOTTIME, &current_time);
+        if (last_time.tv_sec != 0 || last_time.tv_nsec != 0) {
+            long diff_ms = ((current_time.tv_sec - last_time.tv_sec) * 1000) +
+                           ((current_time.tv_nsec - last_time.tv_nsec) / 1000000);
+            static int last_suspend_time = 0;
+            if (last_suspend_time == 0)
+                last_suspend_time = g_wakeup_period_time;
+            int current_suspend_time =
+                last_suspend_time - (diff_ms - g_wakeup_period_time);
+            if (current_suspend_time > 0) {
+                aov_test_setSuspendTime(current_suspend_time);
+                last_suspend_time = current_suspend_time;
+            } else {
+                printf("cpu run time > suspend_time, so not set !!!\n");
+            }
+        }
+        last_time = current_time;
+    }
+}
+
+static int aov_test_common_echo(const char *file_path, const char *buf, int length) {
+    int fd = -1;
+    ssize_t ret = -1;
+
+    fd = open(file_path, O_WRONLY | O_TRUNC);
+    if (fd == -1) {
+        perror("open error\n");
+        return -1;
+    }
+
+    ret = write(fd, buf, length);
+    if (ret == -1) {
+        perror("write error\n");
+        close(fd);
+        return -1;
+    }
+
+    printf("echo \"%s\" > %s successfully\n", buf, file_path);
+
+    close(fd);
+
+    return 0;
+}
+
+
+static void aov_test_enter_sleep(void *args) {
+
+    // adjust_suspend_time();
+    aov_test_common_echo(SOC_SLEEP_PATH, SOC_SLEEP_STR, strlen(SOC_SLEEP_STR));
+
+}
+
+static void* aov_enter_sleep_thread(void* args) {
+    pthread_detach (pthread_self());
+    demo_context_t *ctx = (demo_context_t *)args;
+    while (1) {
+        if (ctx->aovEnterSleep) {
+            aov_test_enter_sleep(args);
+            ctx->aovEnterSleep = false;
+        }
+        usleep(10 * 1000);
+    }
+    return 0;
+}
+
 static void* others_thread(void* args) {
     pthread_detach (pthread_self());
     demo_context_t* ctx = (demo_context_t*) args;
@@ -3167,6 +3335,13 @@ int main(int argc, char **argv)
         .orpStopped = false,
         .camGroup = false,
         .use_poll = false,
+        .aovEnterSleep = false,
+        .aovPauseAiq = false,
+        .isAovMode = false,
+        .aovLoopCnt = 30,
+        .aovContinueCnt = 30,
+        .aovLoopRunCnt = 0,
+        .aovContinueRunCnt = 0,
     };
     demo_context_t second_ctx;
     demo_context_t third_ctx;
@@ -3246,6 +3421,11 @@ int main(int argc, char **argv)
     if (main_ctx.isOrp) {
         pthread_t tid_offline;
         pthread_create(&tid_offline, NULL, test_offline_thread, &main_ctx);
+    }
+
+    if (main_ctx.isAovMode) {
+        pthread_t tid_aov;
+        pthread_create(&tid_aov, NULL, aov_enter_sleep_thread, &main_ctx);
     }
 
 //#define TEST_BLOCKED_STATS_FUNC

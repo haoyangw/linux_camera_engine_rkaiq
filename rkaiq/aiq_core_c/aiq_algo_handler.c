@@ -91,7 +91,9 @@ struct {
     {RK_AIQ_ALGO_TYPE_ADHAZ, AiqAlgoHandlerDehaze_constructor, AiqAlgoHandler_destructor},
     {RK_AIQ_ALGO_TYPE_A3DLUT, AiqAlgoHandler3dlut_constructor, AiqAlgoHandler_destructor},
     {RK_AIQ_ALGO_TYPE_ARGBIR, AiqAlgoHandlerRgbir_constructor, AiqAlgoHandler_destructor},
+#if RKAIQ_HAVE_YUVME
     {RK_AIQ_ALGO_TYPE_AMD, AiqAlgoHandlerYme_constructor, AiqAlgoHandler_destructor},
+#endif
 #ifdef RKAIQ_HAVE_AF
     {RK_AIQ_ALGO_TYPE_AF, AiqAlgoHandlerAf_constructor, AiqAlgoHandler_destructor},
 #endif

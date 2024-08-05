@@ -28,7 +28,7 @@
 
 #define ALDC_LDCH_SUBM (0x1)
 
-const LdcLutBuffer* LdchAdaptee_getFreeLutBuf(LdchAdaptee* ldch, int8_t isp_id) {
+LdcLutBuffer* LdchAdaptee_getFreeLutBuf(LdchAdaptee* ldch, int8_t isp_id) {
     if (ldch->lut_manger_ == NULL) {
         LdcLutBufferConfig lut_config = {};
 
@@ -42,22 +42,29 @@ const LdcLutBuffer* LdchAdaptee_getFreeLutBuf(LdchAdaptee* ldch, int8_t isp_id) 
         LdcLutBufMng_importHwBuffers(ldch->lut_manger_, 0, MEM_TYPE_LDCH);
     }
 
-    LdcLutBuffer* buf = LdcLutBufMng_getFreeHwBuffer(ldch->lut_manger_, 0);
-    if (buf == NULL) {
-        LOGW_ALDC_SUBM(ALDC_LDCH_SUBM, "No buffer available, maybe only one buffer ?!");
+    aiqMutex_lock(&ldch->_mutex);
+    if (ldch->cached_lut_[0].Fd != LDC_BUF_FD_DEFAULT) {
+        LOGW_ALDC_SUBM(ALDC_LDCH_SUBM, "the cached lut of LDCH is in use!!");
+        aiqMutex_unlock(&ldch->_mutex);
+        return NULL;
+    }
+    aiqMutex_unlock(&ldch->_mutex);
+
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+    ret            = LdcLutBufMng_getFreeHwBuffer(ldch->lut_manger_, 0, &ldch->cached_lut_[0]);
+    if (ret != XCAM_RETURN_NO_ERROR) {
+        LOGW_ALDC_SUBM(ALDC_LDCH_SUBM, "LDCH hasn't buffer available, maybe only one buffer ?!");
         return NULL;
     }
 
-    if (buf->State != kLdcLutBufWait2Chip) {
+    if (ldch->cached_lut_[0].State != kLdcLutBufWait2Chip) {
         LOGW_ALDC_SUBM(ALDC_LDCH_SUBM, "Buffer in use, will not update lut!");
         return NULL;
     }
 
-    if (isp_id < 2) ldch->cached_lut_[0] = buf;
+    LOGD_ALDC_SUBM(ALDC_LDCH_SUBM, "LDCH get lut buf fd %d", ldch->cached_lut_[0].Fd);
 
-    LOGD_ALDC_SUBM(ALDC_LDCH_SUBM, "LDCH get lut buf fd %d", buf->Fd);
-
-    return ldch->cached_lut_[0];
+    return &ldch->cached_lut_[0];
 }
 
 void LdchAdaptee_init(LdchAdaptee* ldch) {
@@ -74,9 +81,10 @@ void LdchAdaptee_init(LdchAdaptee* ldch) {
 
     ldch->lut_manger_ = NULL;
     for (int i = 0; i < 2; i++) {
-        ldch->cached_lut_[i]          = NULL;
+        ldch->cached_lut_[i].Addr     = NULL;
+        ldch->cached_lut_[i].Fd       = LDC_BUF_FD_DEFAULT;
         ldch->chip_in_use_lut[i].addr = NULL;
-        ldch->chip_in_use_lut[i].fd   = BUF_FD_DEFAULT;
+        ldch->chip_in_use_lut[i].fd   = LDC_BUF_FD_DEFAULT;
     }
 };
 
@@ -92,18 +100,18 @@ void LdchAdaptee_deinit(LdchAdaptee* ldch) {
 XCamReturn LdchAdaptee_updateMesh(LdchAdaptee* ldch, uint8_t level, LdcMeshBufInfo_t cfg) {
     ENTER_ALDC_FUNCTION();
 
-    if (!ldch->cached_lut_[0]) XCAM_RETURN_BYPASS;
+    if (ldch->cached_lut_[0].Fd == LDC_BUF_FD_DEFAULT) XCAM_RETURN_BYPASS;
 
     LOGD_ALDC_SUBM(ALDC_LDCH_SUBM, "LDCH update mesh fd: correct level %d", level);
 
     aiqMutex_lock(&ldch->_mutex);
-    ldch->gen_mesh_state_ = kLdcGenMeshFinish;
-    if (ldch->cached_lut_[0]) {
-        ldch->chip_in_use_lut[0].fd   = ldch->cached_lut_[0]->Fd;
-        ldch->chip_in_use_lut[0].addr = ldch->cached_lut_[0]->Addr;
-    }
-    ldch->correct_level_ = level;
-    ldch->enable_        = ldch->calib_->en;
+    ldch->chip_in_use_lut[0].fd   = ldch->cached_lut_[0].Fd;
+    ldch->chip_in_use_lut[0].addr = ldch->cached_lut_[0].Addr;
+    ldch->correct_level_          = level;
+    ldch->enable_                 = ldch->calib_->en;
+    ldch->gen_mesh_state_         = kLdcGenMeshFinish;
+
+    ldch->cached_lut_[0].Fd = LDC_BUF_FD_DEFAULT;
     aiqMutex_unlock(&ldch->_mutex);
 
     LOGD_ALDC_SUBM(ALDC_LDCH_SUBM, "%s LDCH and update chip_in_use_lut_fd_ %d",
@@ -169,7 +177,7 @@ void LdchAdaptee_onFrameEvent(LdchAdaptee* ldch, const RkAiqAlgoCom* inparams,
     if (ldch->enable_) {
         if (ldch->chip_in_use_lut[0].fd >= 0) {
             userCfg->lutMapCfg.sw_ldcT_lutMapBuf_fd[0] = ldch->chip_in_use_lut[0].fd;
-            ldch->chip_in_use_lut[0].fd                = BUF_FD_DEFAULT;
+            ldch->chip_in_use_lut[0].fd                = LDC_BUF_FD_DEFAULT;
             userCfg->en = ldch->enable_ = true;
             outparams->cfg_update       = true;
         } else {

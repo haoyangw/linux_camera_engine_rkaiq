@@ -2033,6 +2033,7 @@ if (RKAIQ_HAVE_LDC)
             list(APPEND RK_AIQ_STATIC_LIB_ARS
                 ${STATIC_LIB_PREFIX}rkAlgoMapSeparate${STATIC_LIB_SUFFIX})
         endif()
+        list(APPEND RK_AIQ_STATIC_LIB_ARS ${STATIC_LIB_PREFIX}rkAlgoGenMesh${STATIC_LIB_SUFFIX})
         set (LDC_GENMESH_LIBS rkAlgoGenMesh)
     endif()
     target_link_libraries(rkaiq

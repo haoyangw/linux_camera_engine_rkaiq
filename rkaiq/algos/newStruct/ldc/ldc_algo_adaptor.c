@@ -192,15 +192,17 @@ void LdcAlgoAdaptor_init(LdcAlgoAdaptor* adaptor) {
 }
 
 void LdcAlgoAdaptor_deinit(LdcAlgoAdaptor* adaptor) {
-    if (adaptor->gen_mesh_) {
-        aiq_free(adaptor->gen_mesh_);
-        adaptor->gen_mesh_ = NULL;
-    }
-
     if (adaptor->gen_mesh_helper_) {
         LdcGenMeshHelperThd_stop(adaptor->gen_mesh_helper_);
+        LdcGenMeshHelperThd_deinit(adaptor->gen_mesh_helper_);
         aiq_free(adaptor->gen_mesh_helper_);
         adaptor->gen_mesh_helper_ = NULL;
+    }
+
+    if (adaptor->gen_mesh_) {
+        LdcAlgoGenMesh_deinit(adaptor->gen_mesh_);
+        aiq_free(adaptor->gen_mesh_);
+        adaptor->gen_mesh_ = NULL;
     }
 
     if (adaptor->ldch_adaptee_) {
@@ -334,8 +336,7 @@ void LdcAlgoAdaptor_onFrameEvent(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* 
     EXIT_ALDC_FUNCTION();
 }
 
-const LdcLutBuffer* LdcAlgoAdaptor_getFreeLutBuf(LdcAlgoAdaptor* adp, LdcModType type,
-                                                 int8_t isp_id) {
+LdcLutBuffer* LdcAlgoAdaptor_getFreeLutBuf(LdcAlgoAdaptor* adp, LdcModType type, int8_t isp_id) {
     if (type == kLdch)
         return LdchAdaptee_getFreeLutBuf(adp->ldch_adaptee_, 0);
     else if (type == kLdcv)

@@ -474,6 +474,11 @@ void pfnAeRes2AeRes(rk_aiq_ae_algo_config_t* pConfig, ae_pfnAe_results_t* pfnAeR
         AeProcRes->ae_stats_cfg->entityGroup.coWkEntity03.mainWin.hw_aeCfg_win_width = pfnAeResult->statsCfg.pSwCoWkEnt03->mainWin.hw_aeCfg_win_width;
         AeProcRes->ae_stats_cfg->entityGroup.coWkEntity03.mainWin.hw_aeCfg_win_height = pfnAeResult->statsCfg.pSwCoWkEnt03->mainWin.hw_aeCfg_win_height;
 
+        AeProcRes->ae_stats_cfg->entityGroup.coWkEntity03.hist.hw_aeCfg_win_x = pfnAeResult->statsCfg.pSwCoWkEnt03->mainWin.hw_aeCfg_win_x;
+        AeProcRes->ae_stats_cfg->entityGroup.coWkEntity03.hist.hw_aeCfg_win_y = pfnAeResult->statsCfg.pSwCoWkEnt03->mainWin.hw_aeCfg_win_y;
+        AeProcRes->ae_stats_cfg->entityGroup.coWkEntity03.hist.hw_aeCfg_win_width = pfnAeResult->statsCfg.pSwCoWkEnt03->mainWin.hw_aeCfg_win_width;
+        AeProcRes->ae_stats_cfg->entityGroup.coWkEntity03.hist.hw_aeCfg_win_height = pfnAeResult->statsCfg.pSwCoWkEnt03->mainWin.hw_aeCfg_win_height;
+
         memcpy(AeProcRes->ae_stats_cfg->entityGroup.coWkEntity03.hist.hw_aeCfg_zone_wgt, \
                pfnAeResult->statsCfg.pSwCoWkEnt03->hist.hw_aeCfg_zone_wgt, AESTATS_ZONE_15x15_NUM * sizeof(uint8_t));
     } else {
@@ -482,6 +487,11 @@ void pfnAeRes2AeRes(rk_aiq_ae_algo_config_t* pConfig, ae_pfnAe_results_t* pfnAeR
         AeProcRes->ae_stats_cfg->entityGroup.entities.entity0.mainWin.hw_aeCfg_win_width = pfnAeResult->statsCfg.hwEnt0.mainWin.hw_aeCfg_win_width;
         AeProcRes->ae_stats_cfg->entityGroup.entities.entity0.mainWin.hw_aeCfg_win_height = pfnAeResult->statsCfg.hwEnt0.mainWin.hw_aeCfg_win_height;
 
+        AeProcRes->ae_stats_cfg->entityGroup.entities.entity0.hist.hw_aeCfg_win_x = pfnAeResult->statsCfg.hwEnt0.mainWin.hw_aeCfg_win_x;
+        AeProcRes->ae_stats_cfg->entityGroup.entities.entity0.hist.hw_aeCfg_win_y = pfnAeResult->statsCfg.hwEnt0.mainWin.hw_aeCfg_win_y;
+        AeProcRes->ae_stats_cfg->entityGroup.entities.entity0.hist.hw_aeCfg_win_width = pfnAeResult->statsCfg.hwEnt0.mainWin.hw_aeCfg_win_width;
+        AeProcRes->ae_stats_cfg->entityGroup.entities.entity0.hist.hw_aeCfg_win_height = pfnAeResult->statsCfg.hwEnt0.mainWin.hw_aeCfg_win_height;
+
         memcpy(AeProcRes->ae_stats_cfg->entityGroup.entities.entity0.hist.hw_aeCfg_zone_wgt, \
                pfnAeResult->statsCfg.hwEnt0.hist.hw_aeCfg_zone_wgt, AESTATS_ZONE_15x15_NUM * sizeof(uint8_t));
 
@@ -489,6 +499,11 @@ void pfnAeRes2AeRes(rk_aiq_ae_algo_config_t* pConfig, ae_pfnAe_results_t* pfnAeR
         AeProcRes->ae_stats_cfg->entityGroup.entities.entity3.mainWin.hw_aeCfg_win_y = pfnAeResult->statsCfg.hwEnt3.mainWin.hw_aeCfg_win_y;
         AeProcRes->ae_stats_cfg->entityGroup.entities.entity3.mainWin.hw_aeCfg_win_width = pfnAeResult->statsCfg.hwEnt3.mainWin.hw_aeCfg_win_width;
         AeProcRes->ae_stats_cfg->entityGroup.entities.entity3.mainWin.hw_aeCfg_win_height = pfnAeResult->statsCfg.hwEnt3.mainWin.hw_aeCfg_win_height;
+
+        AeProcRes->ae_stats_cfg->entityGroup.entities.entity3.hist.hw_aeCfg_win_x = pfnAeResult->statsCfg.hwEnt3.mainWin.hw_aeCfg_win_x;
+        AeProcRes->ae_stats_cfg->entityGroup.entities.entity3.hist.hw_aeCfg_win_y = pfnAeResult->statsCfg.hwEnt3.mainWin.hw_aeCfg_win_y;
+        AeProcRes->ae_stats_cfg->entityGroup.entities.entity3.hist.hw_aeCfg_win_width = pfnAeResult->statsCfg.hwEnt3.mainWin.hw_aeCfg_win_width;
+        AeProcRes->ae_stats_cfg->entityGroup.entities.entity3.hist.hw_aeCfg_win_height = pfnAeResult->statsCfg.hwEnt3.mainWin.hw_aeCfg_win_height;
 
         memcpy(AeProcRes->ae_stats_cfg->entityGroup.entities.entity3.hist.hw_aeCfg_zone_wgt, \
                pfnAeResult->statsCfg.hwEnt3.hist.hw_aeCfg_zone_wgt, AESTATS_ZONE_15x15_NUM * sizeof(uint8_t));
@@ -1099,7 +1114,12 @@ rk_aiq_uapi2_ae_register(const rk_aiq_sys_ctx_t* ctx, rk_aiq_pfnAe_t* cbs)
         LOGI_AEC_SUBM(0xff, "group ae");
         group_ctx = (const rk_aiq_camgroup_ctx_t*)ctx;
 #ifdef RKAIQ_ENABLE_CAMGROUP
-        cast_ctx = group_ctx->cam_ctxs_array[0];
+        for (int i = 0; i < RK_AIQ_CAM_GROUP_MAX_CAMS; i++) {
+            if (!cast_ctx && group_ctx->cam_ctxs_array[i]) {
+                cast_ctx = group_ctx->cam_ctxs_array[i];
+                break;
+            }
+        }
 #endif
         algoType   = RK_AIQ_ALGO_TYPE_AE;
         algoId     = 0;
@@ -1168,20 +1188,22 @@ rk_aiq_uapi2_ae_register(const rk_aiq_sys_ctx_t* ctx, rk_aiq_pfnAe_t* cbs)
 
     if (group_ctx) {
 #ifdef RKAIQ_ENABLE_CAMGROUP
-        for (int i = 0; i < group_ctx->cam_ctxs_num; i++) {
-            isAeRgst = rk_aiq_uapi2_sysctl_getAxlibStatus(group_ctx->cam_ctxs_array[i],
-                       algoType, algoId);
-            if (isAeRgst) {
-                continue;
-            }
+        for (int i = 0; i < RK_AIQ_CAM_GROUP_MAX_CAMS; i++) {
+            if (group_ctx->cam_ctxs_array[i]) {
+                isAeRgst = rk_aiq_uapi2_sysctl_getAxlibStatus(group_ctx->cam_ctxs_array[i],
+                           algoType, algoId);
+                if (isAeRgst) {
+                    continue;
+                }
 
-            ret = rk_aiq_uapi2_sysctl_register3Aalgo(group_ctx->cam_ctxs_array[i], &algoDes, NULL);
-            if (ret == XCAM_RETURN_ERROR_ANALYZER) {
-                LOGE_AEC_SUBM(0xff, "no current aiq core status, please stop aiq before register custome ae!");
-                return ret;
-            } else if (ret != XCAM_RETURN_NO_ERROR) {
-                LOGE_AEC_SUBM(0xff, "ae register error, ret %d", ret);
-                return ret;
+                ret = rk_aiq_uapi2_sysctl_register3Aalgo(group_ctx->cam_ctxs_array[i], &algoDes, NULL);
+                if (ret == XCAM_RETURN_ERROR_ANALYZER) {
+                    LOGE_AEC_SUBM(0xff, "no current aiq core status, please stop aiq before register custome ae!");
+                    return ret;
+                } else if (ret != XCAM_RETURN_NO_ERROR) {
+                    LOGE_AEC_SUBM(0xff, "ae register error, ret %d", ret);
+                    return ret;
+                }
             }
         }
 #endif

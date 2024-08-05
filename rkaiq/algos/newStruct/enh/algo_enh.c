@@ -46,55 +46,56 @@ XCamReturn EnhSelectParam(EnhContext_t* pEnhCtx, enh_param_t* out, int iso) {
     else
         inear = ilow;
 
-    out->dyn.iir.hw_enhT_iir_inv_sigma =
-        interpolation_f32(paut->dyn[ilow].iir.hw_enhT_iir_inv_sigma,
-                          paut->dyn[ihigh].iir.hw_enhT_iir_inv_sigma, ratio);
-    out->dyn.iir.hw_enhT_iir_soft_thed =
-        interpolation_f32(paut->dyn[ilow].iir.hw_enhT_iir_soft_thed,
-                          paut->dyn[ihigh].iir.hw_enhT_iir_soft_thed, ratio);
-    out->dyn.iir.hw_enhT_iir_cur_wgt = interpolation_f32(
-        paut->dyn[ilow].iir.hw_enhT_iir_cur_wgt, paut->dyn[ihigh].iir.hw_enhT_iir_cur_wgt, ratio);
+    out->dyn.guideImg_iir.spatial.hw_enhT_sigma_val =
+        interpolation_f32(paut->dyn[ilow].guideImg_iir.spatial.hw_enhT_sigma_val,
+                          paut->dyn[ihigh].guideImg_iir.spatial.hw_enhT_sigma_val, ratio);
+    out->dyn.guideImg_iir.spatial.hw_enhT_softThd_val =
+        interpolation_f32(paut->dyn[ilow].guideImg_iir.spatial.hw_enhT_softThd_val,
+                          paut->dyn[ihigh].guideImg_iir.spatial.hw_enhT_softThd_val, ratio);
+    out->dyn.guideImg_iir.spatial.hw_enhT_centerPix_wgt =
+        interpolation_f32(paut->dyn[ilow].guideImg_iir.spatial.hw_enhT_centerPix_wgt,
+                          paut->dyn[ihigh].guideImg_iir.spatial.hw_enhT_centerPix_wgt, ratio);
+    out->dyn.guideImg_iir.temporal.hw_enhT_iirFrm_maxLimit =
+        interpolation_f32(paut->dyn[ilow].guideImg_iir.temporal.hw_enhT_iirFrm_maxLimit,
+                          paut->dyn[ihigh].guideImg_iir.temporal.hw_enhT_iirFrm_maxLimit, ratio);
 
-    out->dyn.loBlf.hw_enhT_loBlf_bypass =
-        interpolation_bool(paut->dyn[ilow].loBlf.hw_enhT_loBlf_bypass,
-                           paut->dyn[ihigh].loBlf.hw_enhT_loBlf_bypass, uratio);
-    out->dyn.loBlf.hw_enhT_loBlf_inv_sigma =
-        interpolation_f32(paut->dyn[ilow].loBlf.hw_enhT_loBlf_inv_sigma,
-                          paut->dyn[ihigh].loBlf.hw_enhT_loBlf_inv_sigma, ratio);
-    out->dyn.loBlf.hw_enhT_loBlf_cur_wgt =
-        interpolation_f32(paut->dyn[ilow].loBlf.hw_enhT_loBlf_cur_wgt,
-                          paut->dyn[ihigh].loBlf.hw_enhT_loBlf_cur_wgt, ratio);
-    out->dyn.loBlf.hw_enhT_loBlf_thumb_cur_wgt =
-        interpolation_f32(paut->dyn[ilow].loBlf.hw_enhT_loBlf_thumb_cur_wgt,
-                          paut->dyn[ihigh].loBlf.hw_enhT_loBlf_thumb_cur_wgt, ratio);
+    out->dyn.loBifilt.hw_enhT_loBlf_en =
+        interpolation_bool(paut->dyn[ilow].loBifilt.hw_enhT_loBlf_en,
+                           paut->dyn[ihigh].loBifilt.hw_enhT_loBlf_en, uratio);
+    out->dyn.loBifilt.hw_enhT_sigma_val =
+        interpolation_f32(paut->dyn[ilow].loBifilt.hw_enhT_sigma_val,
+                          paut->dyn[ihigh].loBifilt.hw_enhT_sigma_val, ratio);
+    out->dyn.loBifilt.hw_enhT_centerPix_wgt =
+        interpolation_f32(paut->dyn[ilow].loBifilt.hw_enhT_centerPix_wgt,
+                          paut->dyn[ihigh].loBifilt.hw_enhT_centerPix_wgt, ratio);
 
-    out->dyn.midBlf.hw_enhT_midBlf_inv_sigma =
-        interpolation_f32(paut->dyn[ilow].midBlf.hw_enhT_midBlf_inv_sigma,
-                          paut->dyn[ihigh].midBlf.hw_enhT_midBlf_inv_sigma, ratio);
-    out->dyn.midBlf.hw_enhT_midBlf_cur_wgt =
-        interpolation_f32(paut->dyn[ilow].midBlf.hw_enhT_midBlf_cur_wgt,
-                          paut->dyn[ihigh].midBlf.hw_enhT_midBlf_cur_wgt, ratio);
+    out->dyn.midBifilt.hw_enhT_sigma_val =
+        interpolation_f32(paut->dyn[ilow].midBifilt.hw_enhT_sigma_val,
+                          paut->dyn[ihigh].midBifilt.hw_enhT_sigma_val, ratio);
+    out->dyn.midBifilt.hw_enhT_centerPix_wgt =
+        interpolation_f32(paut->dyn[ilow].midBifilt.hw_enhT_centerPix_wgt,
+                          paut->dyn[ihigh].midBifilt.hw_enhT_centerPix_wgt, ratio);
 
     out->dyn.strg.hw_enhT_global_strg = interpolation_f32(
         paut->dyn[ilow].strg.hw_enhT_global_strg, paut->dyn[ihigh].strg.hw_enhT_global_strg, ratio);
-    out->dyn.strg.hw_enhT_detail2strg_en =
-        interpolation_bool(paut->dyn[ilow].strg.hw_enhT_detail2strg_en,
-                           paut->dyn[ihigh].strg.hw_enhT_detail2strg_en, uratio);
+    out->dyn.strg.hw_enhT_detail2Strg_en =
+        interpolation_bool(paut->dyn[ilow].strg.hw_enhT_detail2Strg_en,
+                           paut->dyn[ihigh].strg.hw_enhT_detail2Strg_en, uratio);
     for (i = 0; i < 8; i++) {
-        out->dyn.strg.hw_enhT_detail2strg_curve.idx[i] =
-            interpolation_f32(paut->dyn[ilow].strg.hw_enhT_detail2strg_curve.idx[i],
-                              paut->dyn[ihigh].strg.hw_enhT_detail2strg_curve.idx[i], ratio);
-        out->dyn.strg.hw_enhT_detail2strg_curve.val[i] =
-            interpolation_f32(paut->dyn[ilow].strg.hw_enhT_detail2strg_curve.val[i],
-                              paut->dyn[ihigh].strg.hw_enhT_detail2strg_curve.val[i], ratio);
+        out->dyn.strg.hw_enhT_detail2Strg_curve.idx[i] =
+            interpolation_f32(paut->dyn[ilow].strg.hw_enhT_detail2Strg_curve.idx[i],
+                              paut->dyn[ihigh].strg.hw_enhT_detail2Strg_curve.idx[i], ratio);
+        out->dyn.strg.hw_enhT_detail2Strg_curve.val[i] =
+            interpolation_f32(paut->dyn[ilow].strg.hw_enhT_detail2Strg_curve.val[i],
+                              paut->dyn[ihigh].strg.hw_enhT_detail2Strg_curve.val[i], ratio);
     }
-    out->dyn.strg.hw_enhT_luma2strg_en =
-        interpolation_bool(paut->dyn[ilow].strg.hw_enhT_luma2strg_en,
-                           paut->dyn[ihigh].strg.hw_enhT_luma2strg_en, uratio);
+    out->dyn.strg.hw_enhT_luma2Strg_en =
+        interpolation_bool(paut->dyn[ilow].strg.hw_enhT_luma2Strg_en,
+                           paut->dyn[ihigh].strg.hw_enhT_luma2Strg_en, uratio);
     for (i = 0; i < 17; i++) {
-        out->dyn.strg.hw_enhT_lum2strg[i] =
-            interpolation_f32(paut->dyn[ilow].strg.hw_enhT_lum2strg[i],
-                              paut->dyn[ihigh].strg.hw_enhT_lum2strg[i], ratio);
+        out->dyn.strg.hw_enhT_luma2Strg_val[i] =
+            interpolation_f32(paut->dyn[ilow].strg.hw_enhT_luma2Strg_val[i],
+                              paut->dyn[ihigh].strg.hw_enhT_luma2Strg_val[i], ratio);
     }
     return XCAM_RETURN_NO_ERROR;
 }

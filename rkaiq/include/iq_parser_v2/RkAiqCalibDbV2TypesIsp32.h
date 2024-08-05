@@ -73,8 +73,6 @@
 #include "algos/rk_aiq_api_types_dpcc20.h"
 #include "isp/rk_aiq_isp_cac21.h"
 #include "algos/rk_aiq_api_types_cac.h"
-#include "isp/rk_aiq_isp_ldch22.h"
-#include "algos/rk_aiq_api_types_ldch.h"
 #include "isp/rk_aiq_isp_merge22.h"
 #include "algos/rk_aiq_api_types_merge22.h"
 #include "isp/rk_aiq_isp_lsc21.h"
@@ -167,8 +165,6 @@ typedef struct CamCalibDbV2ContextIsp32_s {
 #ifdef USE_NEWSTRUCT
     // M4_STRUCT_DESC("dpcc", "normal_ui_style")
     dpcc_api_attrib_t dpcc;
-    // M4_STRUCT_DESC("ldch", "normal_ui_style")
-    ldch_api_attrib_t ldch;
 #else
     // M4_STRUCT_DESC("adpcc_calib", "normal_ui_style")
     CalibDbV2_Dpcc_t adpcc_calib;

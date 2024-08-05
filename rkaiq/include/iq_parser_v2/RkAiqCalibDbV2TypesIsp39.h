@@ -84,8 +84,6 @@
 #include "algos/rk_aiq_api_types_histeq.h"
 #include "isp/rk_aiq_isp_cac21.h"
 #include "algos/rk_aiq_api_types_cac.h"
-#include "isp/rk_aiq_isp_ldch22.h"
-#include "algos/rk_aiq_api_types_ldch.h"
 #include "isp/rk_aiq_isp_csm21.h"
 #include "algos/rk_aiq_api_types_csm.h"
 #include "isp/rk_aiq_isp_merge22.h"
@@ -203,8 +201,10 @@ typedef struct CamCalibDbV2ContextIsp39_s {
     trans_api_attrib_t trans;
     // M4_STRUCT_DESC("dhzEhz", "normal_ui_style")
     dehaze_api_attrib_t dhzEhz;
+#if 0 // disable for some reason now
     // M4_STRUCT_DESC("yme", "normal_ui_style")
     yme_api_attrib_t yme;
+#endif
     // M4_STRUCT_DESC("histEQ", "normal_ui_style")
     histeq_api_attrib_t histEQ;
     #else
@@ -240,8 +240,6 @@ typedef struct CamCalibDbV2ContextIsp39_s {
     // M4_STRUCT_DESC("aie_calib", "normal_ui_style")
     CalibDbV2_IE_t ie;
     #endif
-    // M4_STRUCT_DESC("cpsl", "normal_ui_style")
-    CalibDbV2_Cpsl_t cpsl;
     // M4_STRUCT_DESC("colorAsGrey", "normal_ui_style")
     CalibDbV2_ColorAsGrey_t colorAsGrey;
     #ifdef USE_NEWSTRUCT

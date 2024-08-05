@@ -20,7 +20,9 @@
 
 #include <stdint.h>
 
-#define BUF_FD_DEFAULT (-1)
+#include "xcore/base/xcam_common.h"
+
+#define LDC_BUF_FD_DEFAULT (-1)
 
 typedef struct isp_drv_share_mem_ops_s isp_drv_share_mem_ops_t;
 typedef struct rk_aiq_lut_share_mem_info_s rk_aiq_lut_share_mem_info_t;
@@ -63,6 +65,6 @@ void LdcLutBufMng_init(LdcLutBufferManager* m, LdcLutBufferConfig config,
 void LdcLutBufMng_deinit(LdcLutBufferManager* m);
 void LdcLutBufMng_importHwBuffers(LdcLutBufferManager* m, uint8_t isp_id, int32_t mem_type);
 void LdcLutBufMng_releaseHwBuffers(LdcLutBufferManager* m, uint8_t isp_id);
-LdcLutBuffer* LdcLutBufMng_getFreeHwBuffer(LdcLutBufferManager* m, uint8_t isp_id);
+XCamReturn LdcLutBufMng_getFreeHwBuffer(LdcLutBufferManager* m, uint8_t isp_id, LdcLutBuffer* buf);
 
 #endif  // ALGOS_ALDC_LUT_BUFFER_H

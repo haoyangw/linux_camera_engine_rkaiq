@@ -38,7 +38,7 @@ typedef struct LdcvAdaptee_s {
     const ldc_api_attrib_t* calib_;
     const RkAiqAlgoConfigLdc* config_;
     LdcLutBufferManager* lut_manger_;
-    LdcLutBuffer* cached_lut_[2];
+    LdcLutBuffer cached_lut_[2];
     LdcMeshBufInfo_t chip_in_use_lut[2];
 } LdcvAdaptee;
 

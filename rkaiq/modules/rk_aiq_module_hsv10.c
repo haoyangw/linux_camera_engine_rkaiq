@@ -25,11 +25,11 @@ void rk_aiq_hsv10_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
     hsv_param_static_t* psta = &hsv_param->sta;
     hsv_param_dyn_t* pdyn = &hsv_param->dyn;
 
-    cfg->hsv_1dlut0_en        = psta->hw_hsvT_lut0_en;
-    cfg->hsv_1dlut1_en        = psta->hw_hsvT_lut1_en;
-    cfg->hsv_2dlut_en         = psta->hw_hsvT_lut2_en;
+    cfg->hsv_1dlut0_en        = psta->hw_hsvT_lut1d0_en;
+    cfg->hsv_1dlut1_en        = psta->hw_hsvT_lut1d1_en;
+    cfg->hsv_2dlut_en         = psta->hw_hsvT_lut2d_en;
 
-    switch ((uint8_t)pdyn->lut0.hw_hsvT_lut1d_mode) {
+    switch ((uint8_t)pdyn->lut1d0.hw_hsvT_lut1d_mode) {
         case hsv_lut1d_h2hDiff_mode: {
             cfg->hsv_1dlut0_idx_mode  = 0;
             cfg->hsv_1dlut0_item_mode = 0;
@@ -50,7 +50,7 @@ void rk_aiq_hsv10_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
             break;
     }
 
-    switch ((uint8_t)pdyn->lut1.hw_hsvT_lut1d_mode) {
+    switch ((uint8_t)pdyn->lut1d1.hw_hsvT_lut1d_mode) {
         case hsv_lut1d_h2hDiff_mode: {
             cfg->hsv_1dlut1_idx_mode  = 0;
             cfg->hsv_1dlut1_item_mode = 0;
@@ -71,7 +71,7 @@ void rk_aiq_hsv10_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
             break;
     }
     
-    switch (pdyn->lut2.hw_hsvT_lut2d_mode) {
+    switch (pdyn->lut2d.hw_hsvT_lut2d_mode) {
         case hsv_lut2d_hs2h_mode: {
             cfg->hsv_2dlut_idx_mode  = 0;
             cfg->hsv_2dlut_item_mode = 0;
@@ -101,15 +101,15 @@ void rk_aiq_hsv10_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
     }
     
     for (int i = 0; i < ISP33_HSV_1DLUT_NUM; i++)
-        cfg->lut0_1d[i] = ((uint16_t)pdyn->lut0.hw_hsvT_lut1d_val[i]) << 2;
+        cfg->lut0_1d[i] = ((uint16_t)pdyn->lut1d0.hw_hsvT_lut1d_val[i]) << 2;
 
     for (int i = 0; i < ISP33_HSV_1DLUT_NUM; i++)
-        cfg->lut1_1d[i] = ((uint16_t)pdyn->lut1.hw_hsvT_lut1d_val[i]) << 2;
+        cfg->lut1_1d[i] = ((uint16_t)pdyn->lut1d1.hw_hsvT_lut1d_val[i]) << 2;
     
     int count = 0;
     for (int i = 0; i < ISP33_HSV_2DLUT_ROW; i++){
         for (int j = 0; j < ISP33_HSV_2DLUT_COL; j++) {
-            cfg->lut_2d[i][j] = ((uint16_t)pdyn->lut2.hw_hsvT_lut2d_val[count]) << 2;
+            cfg->lut_2d[i][j] = ((uint16_t)pdyn->lut2d.hw_hsvT_lut2d_val[count]) << 2;
             count ++;
         }
     }

@@ -381,9 +381,8 @@ void rk_aiq_drc40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
         tmp                = 2048.0f * pdyn->drcProc.hw_drcT_luma2DrcStrg_val[i];
         phwcfg->scale_y[i] = tmp > 0x800 ? 0x800 : tmp;
     }
-    if (!cvtinfo->use_aiisp) cvtinfo->preDGain = preDGain;
+    cvtinfo->preDGain = cvtinfo->use_aiisp ? 0 : preDGain;
     LOGD_ATMO("%s: cvtinfo->preDGain %f\n", __FUNCTION__, cvtinfo->preDGain);
-
     if (cvtinfo->frameNum ==1 && (!cvtinfo->btnr_en || cvtinfo->btnrCfg_pixDomain_mode == btnr_pixLinearDomain_mode)) {
         phwcfg->cmps_byp_en = 1;
     }
@@ -391,6 +390,8 @@ void rk_aiq_drc40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
         phwcfg->cmps_byp_en = 0;
     }
     cvtinfo->cmps_on = phwcfg->cmps_byp_en == 0 ? 1 : 0;
+    cvtinfo->cmps_is15bit = phwcfg->cmps_fixbit_mode;
+    cvtinfo->cmps_offsetbit = phwcfg->cmps_offset_bits_int;
 #if ISP_HW_V33
     phwcfg->position &= 0x3ff0;
     for (int i = 0; i < DRC_CURVE_LEN; ++i) {

@@ -65,13 +65,14 @@ class LutBufferManager {
  public:
     LutBufferManager() = delete;
     LutBufferManager(const LutBufferConfig& config, const isp_drv_share_mem_ops_t* mem_ops)
-        : mem_ops_(mem_ops), mem_ctx_(nullptr), config_(config) {}
+        : mem_ops_(mem_ops), mem_ctx_(nullptr), config_(config), is_multi_isp(false) {}
     LutBufferManager(const LutBufferManager&) = delete;
     LutBufferManager& operator=(const LutBufferManager&) = delete;
     ~LutBufferManager() {
         // TODO(Cody)
         ReleaseHwBuffers(0);
-        ReleaseHwBuffers(1);
+        if(is_multi_isp)
+            ReleaseHwBuffers(1);
     }
 
     void ImportHwBuffers(uint8_t isp_id) {
@@ -93,6 +94,8 @@ class LutBufferManager {
         if (mem_ops_ == nullptr || mem_ctx_ == nullptr) {
             return nullptr;
         }
+        if (isp_id == 1)
+            is_multi_isp = true;
 
         const auto* mem_info = static_cast<const rk_aiq_cac_share_mem_info_t*>(
             mem_ops_->get_free_item(isp_id, mem_ctx_));
@@ -109,6 +112,7 @@ class LutBufferManager {
     const isp_drv_share_mem_ops_t* mem_ops_;
     void* mem_ctx_;
     LutBufferConfig config_;
+    bool is_multi_isp;
 };
 
 }  // namespace RkCam
