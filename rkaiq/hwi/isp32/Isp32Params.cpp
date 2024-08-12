@@ -987,7 +987,7 @@ void Isp32Params::convertAiqAfLiteToIsp32Params(struct isp32_isp_params_cfg& isp
     } else {
         isp_cfg.meas.rawaf.ae_mode = 0;
         isp_cfg.meas.rawaf.ae_config_use = 1;
-        isp_cfg.meas.rawaf.ae_sel = 1;
+        isp_cfg.meas.rawaf.ae_sel = 0;
     }
 
     memcpy(isp_cfg.meas.rawaf.line_en, af_data.line_en,

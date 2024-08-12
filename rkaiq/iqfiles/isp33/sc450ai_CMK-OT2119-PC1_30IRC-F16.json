@@ -629,10 +629,10 @@
 									"luma2WpWgt_ccm":	[1, 0, 0, 0, 1, 0, 0, 0, 1],
 									"perfectWpBin":	[0, 0, 0, 1, 1, 1, 1, 0],
 									"luma2WpWgt_luma":	[0, 16, 32, 64, 96, 128, 192, 224, 240],
-									"luma2WpWgt_lvSet_len":	5,
+									"luma2WpWgt_lvSet_len":	2,
 									"luma2WpWgt_lvSet":	[{
 											"luma_val":	256,
-											"ratioSet_len":	8,
+											"ratioSet_len":	3,
 											"ratioSet":	[{
 													"perfectWpNum_rat":	0,
 													"luma2WpWgt_wgt":	[1, 1, 1, 1, 1, 1, 1, 1, 1]
@@ -660,7 +660,7 @@
 												}]
 										}, {
 											"luma_val":	8192,
-											"ratioSet_len":	8,
+											"ratioSet_len":	3,
 											"ratioSet":	[{
 													"perfectWpNum_rat":	0,
 													"luma2WpWgt_wgt":	[1, 1, 1, 1, 1, 1, 1, 1, 1]
@@ -4038,13 +4038,26 @@
 							"en":	1,
 							"bypass":	0,
 							"stAuto":	{
-								"sta":	{
-									"hw_gammaT_outCurve_offset":	0,
-									"hw_gammaT_outCurve_val":	[0, 9, 18, 27, 36, 45, 54, 63, 72, 90, 108, 125, 142, 176, 209, 239, 268, 320, 366, 406, 444, 516, 583, 647, 707, 815, 909, 993, 1069, 1209, 1338, 1464, 1584, 1802, 1993, 2161, 2314, 2591, 2823, 3005, 3156, 3296, 3428, 3553, 3671, 3782, 3889, 3993, 4095]
-								}
+								"dyn":	[{
+										"iso":	50,
+										"hw_gammaT_outCurve_offset":	0,
+										"hw_gammaT_outCurve_val":	[0, 9, 18, 27, 36, 45, 54, 63, 72, 90, 108, 125, 142, 176, 209, 239, 268, 320, 366, 406, 444, 516, 583, 647, 707, 815, 909, 993, 1069, 1209, 1338, 1464, 1584, 1802, 1993, 2161, 2314, 2591, 2823, 3005, 3156, 3296, 3428, 3553, 3671, 3782, 3889, 3993, 4095]
+									}, {
+										"iso":	400,
+										"hw_gammaT_outCurve_offset":	0,
+										"hw_gammaT_outCurve_val":	[0, 9, 18, 27, 36, 45, 54, 63, 72, 90, 108, 125, 142, 176, 209, 239, 268, 320, 366, 406, 444, 516, 583, 647, 707, 815, 909, 993, 1069, 1209, 1338, 1464, 1584, 1802, 1993, 2161, 2314, 2591, 2823, 3005, 3156, 3296, 3428, 3553, 3671, 3782, 3889, 3993, 4095]
+									}, {
+										"iso":	800,
+										"hw_gammaT_outCurve_offset":	0,
+										"hw_gammaT_outCurve_val":	[0, 9, 18, 27, 36, 45, 54, 63, 72, 90, 108, 125, 142, 176, 209, 239, 268, 320, 366, 406, 444, 516, 583, 647, 707, 815, 909, 993, 1069, 1209, 1338, 1464, 1584, 1802, 1993, 2161, 2314, 2591, 2823, 3005, 3156, 3296, 3428, 3553, 3671, 3782, 3889, 3993, 4095]
+									}, {
+										"iso":	1600,
+										"hw_gammaT_outCurve_offset":	0,
+										"hw_gammaT_outCurve_val":	[0, 9, 18, 27, 36, 45, 54, 63, 72, 90, 108, 125, 142, 176, 209, 239, 268, 320, 366, 406, 444, 516, 583, 647, 707, 815, 909, 993, 1069, 1209, 1338, 1464, 1584, 1802, 1993, 2161, 2314, 2591, 2823, 3005, 3156, 3296, 3428, 3553, 3671, 3782, 3889, 3993, 4095]
+									}]
 							},
 							"stMan":	{
-								"sta":	{
+								"dyn":	{
 									"hw_gammaT_outCurve_offset":	0,
 									"hw_gammaT_outCurve_val":	[0, 6, 12, 18, 24, 30, 36, 42, 49, 61, 73, 85, 97, 121, 144, 168, 190, 234, 275, 314, 350, 414, 469, 519, 567, 667, 769, 871, 970, 1149, 1309, 1457, 1592, 1818, 2002, 2162, 2308, 2568, 2794, 2991, 3163, 3316, 3453, 3577, 3691, 3798, 3900, 3998, 4095]
 								}
@@ -4100,9 +4113,18 @@
 										"drcProc":	{
 											"hw_drcT_hfDarkRegion_strg":	0,
 											"hw_drcT_locDetail_strg":	0,
-											"sw_drcT_drcCurve_mode":	"drc_vendorDefault_mode",
+											"sw_drcT_drcCurve_mode":	"adrc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale":	0,
 											"hw_drcT_hdr2Sdr_curve":	[0, 101, 183, 250, 306, 353, 395, 432, 466, 528, 587, 647, 710, 778, 852, 934, 1024],
+											"sw_drcT_drcCurve_auto":	{
+												"sw_drcT_wp_val":	0.95,
+												"sw_drcT_anchorPoint_x1":	0.05,
+												"sw_drcT_anchorPoint_x2":	0.5,
+												"sw_drcT_anchorPoint_x3":	0.8,
+												"sw_drcT_anchorPoint_y1":	0.05,
+												"sw_drcT_anchorPoint_y2":	0.2,
+												"sw_drcT_anchorPoint_y3":	0.8
+											},
 											"sw_drcT_drcStrgLut_mode":	"drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale":	0.25,
 											"hw_drcT_luma2DrcStrg_val":	[0, 0.000976563, 0.00976563, 0.0371094, 0.0942383, 0.186035, 0.308105, 0.376953, 0.44873, 0.520508, 0.591309, 0.722168, 0.830078, 0.909668, 0.960938, 0.988281, 1],
@@ -4147,9 +4169,18 @@
 										"drcProc":	{
 											"hw_drcT_hfDarkRegion_strg":	0,
 											"hw_drcT_locDetail_strg":	0,
-											"sw_drcT_drcCurve_mode":	"drc_vendorDefault_mode",
+											"sw_drcT_drcCurve_mode":	"adrc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale":	0,
 											"hw_drcT_hdr2Sdr_curve":	[0, 101, 183, 250, 306, 353, 395, 432, 420, 458, 443, 489, 534, 557, 611, 703, 1024],
+											"sw_drcT_drcCurve_auto":	{
+												"sw_drcT_wp_val":	0.95,
+												"sw_drcT_anchorPoint_x1":	0.05,
+												"sw_drcT_anchorPoint_x2":	0.5,
+												"sw_drcT_anchorPoint_x3":	0.8,
+												"sw_drcT_anchorPoint_y1":	0.05,
+												"sw_drcT_anchorPoint_y2":	0.2,
+												"sw_drcT_anchorPoint_y3":	0.8
+											},
 											"sw_drcT_drcStrgLut_mode":	"drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale":	0.25,
 											"hw_drcT_luma2DrcStrg_val":	[0, 0.000976563, 0.00976563, 0.0371094, 0.0942383, 0.186035, 0.308105, 0.376953, 0.44873, 0.520508, 0.591309, 0.722168, 0.830078, 0.909668, 0.960938, 0.988281, 1],
@@ -4194,9 +4225,18 @@
 										"drcProc":	{
 											"hw_drcT_hfDarkRegion_strg":	0,
 											"hw_drcT_locDetail_strg":	0,
-											"sw_drcT_drcCurve_mode":	"drc_vendorDefault_mode",
+											"sw_drcT_drcCurve_mode":	"adrc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale":	0,
 											"hw_drcT_hdr2Sdr_curve":	[0, 101, 183, 250, 306, 353, 395, 432, 466, 528, 587, 647, 710, 778, 852, 934, 1024],
+											"sw_drcT_drcCurve_auto":	{
+												"sw_drcT_wp_val":	0.95,
+												"sw_drcT_anchorPoint_x1":	0.05,
+												"sw_drcT_anchorPoint_x2":	0.5,
+												"sw_drcT_anchorPoint_x3":	0.8,
+												"sw_drcT_anchorPoint_y1":	0.05,
+												"sw_drcT_anchorPoint_y2":	0.2,
+												"sw_drcT_anchorPoint_y3":	0.8
+											},
 											"sw_drcT_drcStrgLut_mode":	"drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale":	0.25,
 											"hw_drcT_luma2DrcStrg_val":	[0, 0.000976563, 0.00976563, 0.0371094, 0.0942383, 0.186035, 0.308105, 0.376953, 0.44873, 0.520508, 0.591309, 0.722168, 0.830078, 0.909668, 0.960938, 0.988281, 1],
@@ -4241,9 +4281,18 @@
 										"drcProc":	{
 											"hw_drcT_hfDarkRegion_strg":	0,
 											"hw_drcT_locDetail_strg":	0,
-											"sw_drcT_drcCurve_mode":	"drc_vendorDefault_mode",
+											"sw_drcT_drcCurve_mode":	"adrc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale":	0,
 											"hw_drcT_hdr2Sdr_curve":	[0, 101, 183, 250, 306, 353, 395, 432, 466, 528, 587, 647, 710, 778, 852, 934, 1024],
+											"sw_drcT_drcCurve_auto":	{
+												"sw_drcT_wp_val":	0.95,
+												"sw_drcT_anchorPoint_x1":	0.05,
+												"sw_drcT_anchorPoint_x2":	0.5,
+												"sw_drcT_anchorPoint_x3":	0.8,
+												"sw_drcT_anchorPoint_y1":	0.05,
+												"sw_drcT_anchorPoint_y2":	0.2,
+												"sw_drcT_anchorPoint_y3":	0.8
+											},
 											"sw_drcT_drcStrgLut_mode":	"drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale":	0.25,
 											"hw_drcT_luma2DrcStrg_val":	[0, 0.000976563, 0.00976563, 0.0371094, 0.0942383, 0.186035, 0.308105, 0.376953, 0.44873, 0.520508, 0.591309, 0.722168, 0.830078, 0.909668, 0.960938, 0.988281, 1],
@@ -4288,9 +4337,18 @@
 										"drcProc":	{
 											"hw_drcT_hfDarkRegion_strg":	0,
 											"hw_drcT_locDetail_strg":	0,
-											"sw_drcT_drcCurve_mode":	"drc_vendorDefault_mode",
+											"sw_drcT_drcCurve_mode":	"adrc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale":	0,
 											"hw_drcT_hdr2Sdr_curve":	[0, 101, 183, 250, 306, 353, 395, 432, 466, 528, 587, 647, 710, 778, 852, 934, 1024],
+											"sw_drcT_drcCurve_auto":	{
+												"sw_drcT_wp_val":	0.95,
+												"sw_drcT_anchorPoint_x1":	0.05,
+												"sw_drcT_anchorPoint_x2":	0.5,
+												"sw_drcT_anchorPoint_x3":	0.8,
+												"sw_drcT_anchorPoint_y1":	0.05,
+												"sw_drcT_anchorPoint_y2":	0.2,
+												"sw_drcT_anchorPoint_y3":	0.8
+											},
 											"sw_drcT_drcStrgLut_mode":	"drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale":	0.25,
 											"hw_drcT_luma2DrcStrg_val":	[0, 0.000976563, 0.00976563, 0.0371094, 0.0942383, 0.186035, 0.308105, 0.376953, 0.44873, 0.520508, 0.591309, 0.722168, 0.830078, 0.909668, 0.960938, 0.988281, 1],
@@ -4335,9 +4393,18 @@
 										"drcProc":	{
 											"hw_drcT_hfDarkRegion_strg":	0,
 											"hw_drcT_locDetail_strg":	0,
-											"sw_drcT_drcCurve_mode":	"drc_vendorDefault_mode",
+											"sw_drcT_drcCurve_mode":	"adrc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale":	0,
 											"hw_drcT_hdr2Sdr_curve":	[0, 101, 183, 250, 306, 353, 395, 432, 466, 528, 587, 647, 710, 778, 852, 934, 1024],
+											"sw_drcT_drcCurve_auto":	{
+												"sw_drcT_wp_val":	0.95,
+												"sw_drcT_anchorPoint_x1":	0.05,
+												"sw_drcT_anchorPoint_x2":	0.5,
+												"sw_drcT_anchorPoint_x3":	0.8,
+												"sw_drcT_anchorPoint_y1":	0.05,
+												"sw_drcT_anchorPoint_y2":	0.2,
+												"sw_drcT_anchorPoint_y3":	0.8
+											},
 											"sw_drcT_drcStrgLut_mode":	"drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale":	0.25,
 											"hw_drcT_luma2DrcStrg_val":	[0, 0.000976563, 0.00976563, 0.0371094, 0.0942383, 0.186035, 0.308105, 0.376953, 0.44873, 0.520508, 0.591309, 0.722168, 0.830078, 0.909668, 0.960938, 0.988281, 1],
@@ -4382,9 +4449,18 @@
 										"drcProc":	{
 											"hw_drcT_hfDarkRegion_strg":	0,
 											"hw_drcT_locDetail_strg":	0,
-											"sw_drcT_drcCurve_mode":	"drc_vendorDefault_mode",
+											"sw_drcT_drcCurve_mode":	"adrc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale":	0,
 											"hw_drcT_hdr2Sdr_curve":	[0, 101, 183, 250, 306, 353, 395, 432, 466, 528, 587, 647, 710, 778, 852, 934, 1024],
+											"sw_drcT_drcCurve_auto":	{
+												"sw_drcT_wp_val":	0.95,
+												"sw_drcT_anchorPoint_x1":	0.05,
+												"sw_drcT_anchorPoint_x2":	0.5,
+												"sw_drcT_anchorPoint_x3":	0.8,
+												"sw_drcT_anchorPoint_y1":	0.05,
+												"sw_drcT_anchorPoint_y2":	0.2,
+												"sw_drcT_anchorPoint_y3":	0.8
+											},
 											"sw_drcT_drcStrgLut_mode":	"drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale":	0.25,
 											"hw_drcT_luma2DrcStrg_val":	[0, 0.000976563, 0.00976563, 0.0371094, 0.0942383, 0.186035, 0.308105, 0.376953, 0.44873, 0.520508, 0.591309, 0.722168, 0.830078, 0.909668, 0.960938, 0.988281, 1],
@@ -4429,9 +4505,18 @@
 										"drcProc":	{
 											"hw_drcT_hfDarkRegion_strg":	0,
 											"hw_drcT_locDetail_strg":	0,
-											"sw_drcT_drcCurve_mode":	"drc_vendorDefault_mode",
+											"sw_drcT_drcCurve_mode":	"adrc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale":	0,
 											"hw_drcT_hdr2Sdr_curve":	[0, 101, 183, 250, 306, 353, 395, 432, 466, 528, 587, 647, 710, 778, 852, 934, 1024],
+											"sw_drcT_drcCurve_auto":	{
+												"sw_drcT_wp_val":	0.95,
+												"sw_drcT_anchorPoint_x1":	0.05,
+												"sw_drcT_anchorPoint_x2":	0.5,
+												"sw_drcT_anchorPoint_x3":	0.8,
+												"sw_drcT_anchorPoint_y1":	0.05,
+												"sw_drcT_anchorPoint_y2":	0.2,
+												"sw_drcT_anchorPoint_y3":	0.8
+											},
 											"sw_drcT_drcStrgLut_mode":	"drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale":	0.25,
 											"hw_drcT_luma2DrcStrg_val":	[0, 0.000976563, 0.00976563, 0.0371094, 0.0942383, 0.186035, 0.308105, 0.376953, 0.44873, 0.520508, 0.591309, 0.722168, 0.830078, 0.909668, 0.960938, 0.988281, 1],
@@ -4476,9 +4561,18 @@
 										"drcProc":	{
 											"hw_drcT_hfDarkRegion_strg":	0,
 											"hw_drcT_locDetail_strg":	0,
-											"sw_drcT_drcCurve_mode":	"drc_vendorDefault_mode",
+											"sw_drcT_drcCurve_mode":	"adrc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale":	0,
 											"hw_drcT_hdr2Sdr_curve":	[0, 101, 183, 250, 306, 353, 395, 432, 466, 528, 587, 647, 710, 778, 852, 934, 1024],
+											"sw_drcT_drcCurve_auto":	{
+												"sw_drcT_wp_val":	0.95,
+												"sw_drcT_anchorPoint_x1":	0.05,
+												"sw_drcT_anchorPoint_x2":	0.5,
+												"sw_drcT_anchorPoint_x3":	0.8,
+												"sw_drcT_anchorPoint_y1":	0.05,
+												"sw_drcT_anchorPoint_y2":	0.2,
+												"sw_drcT_anchorPoint_y3":	0.8
+											},
 											"sw_drcT_drcStrgLut_mode":	"drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale":	0.25,
 											"hw_drcT_luma2DrcStrg_val":	[0, 0.000976563, 0.00976563, 0.0371094, 0.0942383, 0.186035, 0.308105, 0.376953, 0.44873, 0.520508, 0.591309, 0.722168, 0.830078, 0.909668, 0.960938, 0.988281, 1],
@@ -4523,9 +4617,18 @@
 										"drcProc":	{
 											"hw_drcT_hfDarkRegion_strg":	0,
 											"hw_drcT_locDetail_strg":	0,
-											"sw_drcT_drcCurve_mode":	"drc_vendorDefault_mode",
+											"sw_drcT_drcCurve_mode":	"adrc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale":	0,
 											"hw_drcT_hdr2Sdr_curve":	[0, 101, 183, 250, 306, 353, 395, 432, 466, 528, 587, 647, 710, 778, 852, 934, 1024],
+											"sw_drcT_drcCurve_auto":	{
+												"sw_drcT_wp_val":	0.95,
+												"sw_drcT_anchorPoint_x1":	0.05,
+												"sw_drcT_anchorPoint_x2":	0.5,
+												"sw_drcT_anchorPoint_x3":	0.8,
+												"sw_drcT_anchorPoint_y1":	0.05,
+												"sw_drcT_anchorPoint_y2":	0.2,
+												"sw_drcT_anchorPoint_y3":	0.8
+											},
 											"sw_drcT_drcStrgLut_mode":	"drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale":	0.25,
 											"hw_drcT_luma2DrcStrg_val":	[0, 0.000976563, 0.00976563, 0.0371094, 0.0942383, 0.186035, 0.308105, 0.376953, 0.44873, 0.520508, 0.591309, 0.722168, 0.830078, 0.909668, 0.960938, 0.988281, 1],
@@ -4570,9 +4673,18 @@
 										"drcProc":	{
 											"hw_drcT_hfDarkRegion_strg":	0,
 											"hw_drcT_locDetail_strg":	0,
-											"sw_drcT_drcCurve_mode":	"drc_vendorDefault_mode",
+											"sw_drcT_drcCurve_mode":	"adrc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale":	0,
 											"hw_drcT_hdr2Sdr_curve":	[0, 101, 183, 250, 306, 353, 395, 432, 466, 528, 587, 647, 710, 778, 852, 934, 1024],
+											"sw_drcT_drcCurve_auto":	{
+												"sw_drcT_wp_val":	0.95,
+												"sw_drcT_anchorPoint_x1":	0.05,
+												"sw_drcT_anchorPoint_x2":	0.5,
+												"sw_drcT_anchorPoint_x3":	0.8,
+												"sw_drcT_anchorPoint_y1":	0.05,
+												"sw_drcT_anchorPoint_y2":	0.2,
+												"sw_drcT_anchorPoint_y3":	0.8
+											},
 											"sw_drcT_drcStrgLut_mode":	"drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale":	0.25,
 											"hw_drcT_luma2DrcStrg_val":	[0, 0.000976563, 0.00976563, 0.0371094, 0.0942383, 0.186035, 0.308105, 0.376953, 0.44873, 0.520508, 0.591309, 0.722168, 0.830078, 0.909668, 0.960938, 0.988281, 1],
@@ -4617,9 +4729,18 @@
 										"drcProc":	{
 											"hw_drcT_hfDarkRegion_strg":	0,
 											"hw_drcT_locDetail_strg":	0,
-											"sw_drcT_drcCurve_mode":	"drc_vendorDefault_mode",
+											"sw_drcT_drcCurve_mode":	"adrc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale":	0,
 											"hw_drcT_hdr2Sdr_curve":	[0, 101, 183, 250, 306, 353, 395, 432, 466, 528, 587, 647, 710, 778, 852, 934, 1024],
+											"sw_drcT_drcCurve_auto":	{
+												"sw_drcT_wp_val":	0.95,
+												"sw_drcT_anchorPoint_x1":	0.05,
+												"sw_drcT_anchorPoint_x2":	0.5,
+												"sw_drcT_anchorPoint_x3":	0.8,
+												"sw_drcT_anchorPoint_y1":	0.05,
+												"sw_drcT_anchorPoint_y2":	0.2,
+												"sw_drcT_anchorPoint_y3":	0.8
+											},
 											"sw_drcT_drcStrgLut_mode":	"drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale":	0.25,
 											"hw_drcT_luma2DrcStrg_val":	[0, 0.000976563, 0.00976563, 0.0371094, 0.0942383, 0.186035, 0.308105, 0.376953, 0.44873, 0.520508, 0.591309, 0.722168, 0.830078, 0.909668, 0.960938, 0.988281, 1],
@@ -4664,9 +4785,18 @@
 										"drcProc":	{
 											"hw_drcT_hfDarkRegion_strg":	0,
 											"hw_drcT_locDetail_strg":	0,
-											"sw_drcT_drcCurve_mode":	"drc_vendorDefault_mode",
+											"sw_drcT_drcCurve_mode":	"adrc_vendorDefault_mode",
 											"hw_drcT_drcCurveIdx_scale":	0,
 											"hw_drcT_hdr2Sdr_curve":	[0, 101, 183, 250, 306, 353, 395, 432, 466, 528, 587, 647, 710, 778, 852, 934, 1024],
+											"sw_drcT_drcCurve_auto":	{
+												"sw_drcT_wp_val":	0.95,
+												"sw_drcT_anchorPoint_x1":	0.05,
+												"sw_drcT_anchorPoint_x2":	0.5,
+												"sw_drcT_anchorPoint_x3":	0.8,
+												"sw_drcT_anchorPoint_y1":	0.05,
+												"sw_drcT_anchorPoint_y2":	0.2,
+												"sw_drcT_anchorPoint_y3":	0.8
+											},
 											"sw_drcT_drcStrgLut_mode":	"drc_usrConfig_mode",
 											"hw_drcT_drcStrgLutLuma_scale":	0.25,
 											"hw_drcT_luma2DrcStrg_val":	[0, 0.000976563, 0.00976563, 0.0371094, 0.0942383, 0.186035, 0.308105, 0.376953, 0.44873, 0.520508, 0.591309, 0.722168, 0.830078, 0.909668, 0.960938, 0.988281, 1],
@@ -5226,7 +5356,7 @@
 										},
 										"lut1d1":	{
 											"hw_hsvT_lut1d_mode":	"hsv_lut1d_h2vDiff_mode",
-											"hw_hsvT_lut1d_val":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 16, 16, 18, 20, 20, 32, 32, 32, 48, 48, 50, 52, 56, 64, 68, 72, 76, 78, 80, 78, 78, 78, 74, 70, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 32, 32, 0, 0, 0]
+											"hw_hsvT_lut1d_val":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 										},
 										"lut2d":	{
 											"hw_hsvT_lut2d_mode":	"hsv_lut2d_hs2s_mode",
@@ -5244,11 +5374,11 @@
 												"hw_hsvT_lut1d_val":	[6, 7, 8, 9, 10, 10, 10, 10, 10, 13, 17, 21, 25, 24, 23, 22, 22, 18, 14, 10, 6, 1, -3, -8, -13, -13, -13, -13, -13, -13, -13, -13, -13, -9, -6, -3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 7, 10, 14, 12, 10, 8, 6]
 											},
 											"lut1d1":	{
-												"hw_hsvT_lut1d_mode":	"hsv_lut1d_h2sDiff_mode",
-												"hw_hsvT_lut1d_val":	[-41, -43, -45, -47, -49, -41, -33, -25, -18, -13, -9, -4, 0, 13, 27, 40, 54, 95, 137, 179, 221, 218, 216, 214, 212, 177, 142, 107, 72, 54, 36, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -4, -9, -13, -18, -27, -37, -46, -56, -52, -48, -44, -41, -41, -41, -41, -41]
+												"hw_hsvT_lut1d_mode":	"hsv_lut1d_h2vDiff_mode",
+												"hw_hsvT_lut1d_val":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 											},
 											"lut2d":	{
-												"hw_hsvT_lut2d_mode":	"hsv_lut2d_hv2v_mode",
+												"hw_hsvT_lut2d_mode":	"hsv_lut2d_hs2s_mode",
 												"hw_hsvT_lut2d_val":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 384, 384, 384, 384, 384, 384, 384, 384, 384, 384, 384, 384, 384, 384, 384, 384, 384, 448, 448, 448, 448, 448, 448, 448, 448, 448, 448, 448, 448, 448, 448, 448, 448, 448, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 640, 640, 640, 640, 640, 640, 640, 640, 640, 640, 640, 640, 640, 640, 640, 640, 640, 704, 704, 704, 704, 704, 704, 704, 704, 704, 704, 704, 704, 704, 704, 704, 704, 704, 768, 768, 768, 768, 768, 768, 768, 768, 768, 768, 768, 768, 768, 768, 768, 768, 768, 832, 832, 832, 832, 832, 832, 832, 832, 832, 832, 832, 832, 832, 832, 832, 832, 832, 896, 896, 896, 896, 896, 896, 896, 896, 896, 896, 896, 896, 896, 896, 896, 896, 896, 960, 960, 960, 960, 960, 960, 960, 960, 960, 960, 960, 960, 960, 960, 960, 960, 960, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023]
 											}
 										}
@@ -5260,11 +5390,11 @@
 												"hw_hsvT_lut1d_val":	[6, 7, 8, 9, 10, 10, 10, 10, 10, 13, 17, 21, 25, 24, 23, 22, 22, 18, 14, 10, 6, 1, -3, -8, -13, -13, -13, -13, -13, -13, -13, -13, -13, -9, -6, -3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 7, 10, 14, 12, 10, 8, 6]
 											},
 											"lut1d1":	{
-												"hw_hsvT_lut1d_mode":	"hsv_lut1d_h2sDiff_mode",
-												"hw_hsvT_lut1d_val":	[-41, -43, -45, -47, -49, -41, -33, -25, -18, -13, -9, -4, 0, 13, 27, 40, 54, 95, 137, 179, 221, 218, 216, 214, 212, 177, 142, 107, 72, 54, 36, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -4, -9, -13, -18, -27, -37, -46, -56, -52, -48, -44, -41, -41, -41, -41, -41]
+												"hw_hsvT_lut1d_mode":	"hsv_lut1d_h2vDiff_mode",
+												"hw_hsvT_lut1d_val":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 											},
 											"lut2d":	{
-												"hw_hsvT_lut2d_mode":	"hsv_lut2d_hv2v_mode",
+												"hw_hsvT_lut2d_mode":	"hsv_lut2d_hs2s_mode",
 												"hw_hsvT_lut2d_val":	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 384, 384, 384, 384, 384, 384, 384, 384, 384, 384, 384, 384, 384, 384, 384, 384, 384, 448, 448, 448, 448, 448, 448, 448, 448, 448, 448, 448, 448, 448, 448, 448, 448, 448, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 640, 640, 640, 640, 640, 640, 640, 640, 640, 640, 640, 640, 640, 640, 640, 640, 640, 704, 704, 704, 704, 704, 704, 704, 704, 704, 704, 704, 704, 704, 704, 704, 704, 704, 768, 768, 768, 768, 768, 768, 768, 768, 768, 768, 768, 768, 768, 768, 768, 768, 768, 832, 832, 832, 832, 832, 832, 832, 832, 832, 832, 832, 832, 832, 832, 832, 832, 832, 896, 896, 896, 896, 896, 896, 896, 896, 896, 896, 896, 896, 896, 896, 896, 896, 896, 960, 960, 960, 960, 960, 960, 960, 960, 960, 960, 960, 960, 960, 960, 960, 960, 960, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023]
 											}
 										}
@@ -7731,8 +7861,8 @@
 										"lscCfg":	{
 											"sw_lscT_meshGrid_mode":	"lsc_equalSector_mode",
 											"meshGrid":	{
-												"posX_f":	[0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 100],
-												"posY_f":	[0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 100]
+												"posX_f":	[0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1],
+												"posY_f":	[0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1]
 											}
 										}
 									},
@@ -11106,7 +11236,7 @@
 										"sigmaEnv":	{
 											"sw_ynrCfg_sgmCurve_mode":	"ynr_cfgByCoeff2Curve_mode",
 											"coeff2SgmCurve":	{
-												"sigma_coeff":	[-0, 0, -5e-006, 0.001909, 18.053211],
+												"sigma_coeff":	[0, 0, -5e-006, 0.001909, 18.053211],
 												"lowFreqCoeff":	0.257
 											},
 											"hw_ynrC_luma2Sigma_curve":	{
@@ -11181,7 +11311,7 @@
 										"sigmaEnv":	{
 											"sw_ynrCfg_sgmCurve_mode":	"ynr_cfgByCoeff2Curve_mode",
 											"coeff2SgmCurve":	{
-												"sigma_coeff":	[-0, 0, -5e-006, 4.4e-005, 25.828682],
+												"sigma_coeff":	[0, 0, -5e-006, 4.4e-005, 25.828682],
 												"lowFreqCoeff":	0.252
 											},
 											"hw_ynrC_luma2Sigma_curve":	{
@@ -11256,7 +11386,7 @@
 										"sigmaEnv":	{
 											"sw_ynrCfg_sgmCurve_mode":	"ynr_cfgByCoeff2Curve_mode",
 											"coeff2SgmCurve":	{
-												"sigma_coeff":	[-0, 0, -9e-006, 0.00626, 29.582655],
+												"sigma_coeff":	[0, 0, -9e-006, 0.00626, 29.582655],
 												"lowFreqCoeff":	0.255
 											},
 											"hw_ynrC_luma2Sigma_curve":	{
@@ -11331,7 +11461,7 @@
 										"sigmaEnv":	{
 											"sw_ynrCfg_sgmCurve_mode":	"ynr_cfgByCoeff2Curve_mode",
 											"coeff2SgmCurve":	{
-												"sigma_coeff":	[-0, 0, -2.3e-005, 0.018296, 38.529724],
+												"sigma_coeff":	[0, 0, -2.3e-005, 0.018296, 38.529724],
 												"lowFreqCoeff":	0.26
 											},
 											"hw_ynrC_luma2Sigma_curve":	{
@@ -11406,7 +11536,7 @@
 										"sigmaEnv":	{
 											"sw_ynrCfg_sgmCurve_mode":	"ynr_cfgByCoeff2Curve_mode",
 											"coeff2SgmCurve":	{
-												"sigma_coeff":	[-0, 0, -4.4e-005, 0.029113, 55.93264],
+												"sigma_coeff":	[0, 0, -4.4e-005, 0.029113, 55.93264],
 												"lowFreqCoeff":	0.261
 											},
 											"hw_ynrC_luma2Sigma_curve":	{
@@ -11481,7 +11611,7 @@
 										"sigmaEnv":	{
 											"sw_ynrCfg_sgmCurve_mode":	"ynr_cfgByCoeff2Curve_mode",
 											"coeff2SgmCurve":	{
-												"sigma_coeff":	[-0, 0, -5.1e-005, 0.026447, 82.334717],
+												"sigma_coeff":	[0, 0, -5.1e-005, 0.026447, 82.334717],
 												"lowFreqCoeff":	0.256
 											},
 											"hw_ynrC_luma2Sigma_curve":	{
@@ -11556,7 +11686,7 @@
 										"sigmaEnv":	{
 											"sw_ynrCfg_sgmCurve_mode":	"ynr_cfgByCoeff2Curve_mode",
 											"coeff2SgmCurve":	{
-												"sigma_coeff":	[-0, 0, 3e-006, -0.071024, 171.118393],
+												"sigma_coeff":	[0, 0, 3e-006, -0.071024, 171.118393],
 												"lowFreqCoeff":	0.249
 											},
 											"hw_ynrC_luma2Sigma_curve":	{
@@ -11631,7 +11761,7 @@
 										"sigmaEnv":	{
 											"sw_ynrCfg_sgmCurve_mode":	"ynr_cfgByCoeff2Curve_mode",
 											"coeff2SgmCurve":	{
-												"sigma_coeff":	[-0, 0, -3.3e-005, -0.050792, 226.616974],
+												"sigma_coeff":	[0, 0, -3.3e-005, -0.050792, 226.616974],
 												"lowFreqCoeff":	0.244
 											},
 											"hw_ynrC_luma2Sigma_curve":	{
@@ -11706,7 +11836,7 @@
 										"sigmaEnv":	{
 											"sw_ynrCfg_sgmCurve_mode":	"ynr_cfgByCoeff2Curve_mode",
 											"coeff2SgmCurve":	{
-												"sigma_coeff":	[-0, 0, -0.00029, 0.246485, 197.064697],
+												"sigma_coeff":	[0, 0, -0.00029, 0.246485, 197.064697],
 												"lowFreqCoeff":	0.238
 											},
 											"hw_ynrC_luma2Sigma_curve":	{
@@ -11781,7 +11911,7 @@
 										"sigmaEnv":	{
 											"sw_ynrCfg_sgmCurve_mode":	"ynr_cfgByCoeff2Curve_mode",
 											"coeff2SgmCurve":	{
-												"sigma_coeff":	[-0, 0, -0.000675, 0.860124, 138.503342],
+												"sigma_coeff":	[0, 0, -0.000675, 0.860124, 138.503342],
 												"lowFreqCoeff":	0.259
 											},
 											"hw_ynrC_luma2Sigma_curve":	{
@@ -11856,7 +11986,7 @@
 										"sigmaEnv":	{
 											"sw_ynrCfg_sgmCurve_mode":	"ynr_cfgByCoeff2Curve_mode",
 											"coeff2SgmCurve":	{
-												"sigma_coeff":	[-0, 0, -0.000422, 0.63634, 263.958374],
+												"sigma_coeff":	[0, 0, -0.000422, 0.63634, 263.958374],
 												"lowFreqCoeff":	0.263
 											},
 											"hw_ynrC_luma2Sigma_curve":	{
@@ -11931,7 +12061,7 @@
 										"sigmaEnv":	{
 											"sw_ynrCfg_sgmCurve_mode":	"ynr_cfgByCoeff2Curve_mode",
 											"coeff2SgmCurve":	{
-												"sigma_coeff":	[-0, 0, -0.000596, 0.899921, 373.293488],
+												"sigma_coeff":	[0, 0, -0.000596, 0.899921, 373.293488],
 												"lowFreqCoeff":	0.263
 											},
 											"hw_ynrC_luma2Sigma_curve":	{
@@ -12006,7 +12136,7 @@
 										"sigmaEnv":	{
 											"sw_ynrCfg_sgmCurve_mode":	"ynr_cfgByCoeff2Curve_mode",
 											"coeff2SgmCurve":	{
-												"sigma_coeff":	[-0, 0, -0.000843, 1.272681, 527.916748],
+												"sigma_coeff":	[0, 0, -0.000843, 1.272681, 527.916748],
 												"lowFreqCoeff":	0.263
 											},
 											"hw_ynrC_luma2Sigma_curve":	{
@@ -16351,7 +16481,7 @@
 		"algoSwitch":	{
 			"enable":	0,
 			"disable_algos":	["DISABLE_AF", "DISABLE_AFD", "DISABLE_AFEC", "DISABLE_ALDCH", "DISABLE_ADEGAMMA", "DISABLE_AMERGE", "DISABLE_AWDR"],
-			"disable_algos_len":	7
+			"disable_algos_len":	1
 		}
 	}
 }

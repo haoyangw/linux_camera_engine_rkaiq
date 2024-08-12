@@ -337,12 +337,21 @@ typedef struct {
 #endif
 } RkAiqAlgoProcResDrc;
 
+#define DRC_AE_HIST_BIN_NUM (256)
+typedef struct rkisp_adrc_stats_s {
+    bool stats_true;
+    int ae_hist_total_num;
+    unsigned int aeHiatBins[DRC_AE_HIST_BIN_NUM];
+} rkisp_adrc_stats_t;
+
 typedef struct {
     RkAiqAlgoCom com;
     bool LongFrmMode;
     bool blc_ob_enable;
     float isp_ob_predgain;
+    rkisp_adrc_stats_t drc_stats;
 #if USE_NEWSTRUCT
+    trans_params_static_t staTrans;
     FrameNumber_t FrameNumber;
     NextData_t NextData;
 #endif

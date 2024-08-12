@@ -192,12 +192,25 @@ static XCamReturn _handlerLdc_updMeshFromUapiBuf(AiqAlgoHandler_t* pAlgoHandler,
                                                  ldc_param_t* ldc_param) {
     if (ldc_param->sta.ldchCfg.en) {
         uint32_t size = ldc_param->sta.ldchCfg.lutMapCfg.sw_ldcT_lutMap_size;
-        void* vaddr   = ldc_param->sta.ldchCfg.lutMapCfg.sw_ldcT_lutMapBuf_vaddr[0];
+        uint16_t* vaddr = (uint16_t*)ldc_param->sta.ldchCfg.lutMapCfg.sw_ldcT_lutMapBuf_vaddr[0];
         if (size > 0 && vaddr) {
             LdcLutBuffer* lut_buf = algo_ldc_getLdchFreeLutBuf(pAlgoHandler->mAlgoCtx);
             if (lut_buf && lut_buf->Addr && lut_buf->Fd > 0) {
+                uint16_t hpic, vpic, hsize, vsize, hstep, vstep;
+                uint32_t lut_size = 0;
+
+                hpic  = *vaddr++;
+                vpic  = *vaddr++;
+                hsize = *vaddr++;
+                vsize = *vaddr++;
+                hstep = *vaddr++;
+                vstep = *vaddr++;
+
+                lut_size = hsize * vsize * sizeof(uint16_t);
+                LOGD_ALDC("lut info: [%d-%d-%d-%d-%d-%d]", hpic, vpic, hsize, vsize, hstep, vstep);
+                LOGD_ALDC("calculate lut size: %u, sw_ldcT_lutMap_size %u", lut_size, size);
+
                 memcpy(lut_buf->Addr, vaddr, size);
-                ldc_param->sta.ldchCfg.lutMapCfg.sw_ldcT_lutMap_size = 0;
 
                 ldc_param->sta.ldchCfg.lutMapCfg.sw_ldcT_lutMapBuf_fd[0] = lut_buf->Fd;
                 LOGD_ALDC("copy lut buf(%p, size %d) to ldch mesh buf(%p, fd %d)", vaddr, size,
@@ -205,11 +218,10 @@ static XCamReturn _handlerLdc_updMeshFromUapiBuf(AiqAlgoHandler_t* pAlgoHandler,
 
                 lut_buf->Fd = LDC_BUF_FD_DEFAULT;
 
-                uint16_t* addr = (uint16_t*)lut_buf->Addr;
                 LOGD_ALDC("LDCH lut[0:15]: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
-                          addr[0], addr[1], addr[2], addr[3], addr[4], addr[5], addr[6], addr[7],
-                          addr[8], addr[9], addr[10], addr[11], addr[12], addr[13], addr[14],
-                          addr[15]);
+                          vaddr[0], vaddr[1], vaddr[2], vaddr[3], vaddr[4], vaddr[5], vaddr[6],
+                          vaddr[7], vaddr[8], vaddr[9], vaddr[10], vaddr[11], vaddr[12], vaddr[13],
+                          vaddr[14], vaddr[15]);
 
                 return XCAM_RETURN_NO_ERROR;
             } else {
@@ -217,7 +229,7 @@ static XCamReturn _handlerLdc_updMeshFromUapiBuf(AiqAlgoHandler_t* pAlgoHandler,
                 return XCAM_RETURN_ERROR_FAILED;
             }
         } else {
-            LOGE_ALDC("ldch map addr %p, size %d is error, don't update cfg!", vaddr, size);
+            LOGE_ALDC("LDCH map addr %p, size %d is error, don't update cfg!", vaddr, size);
             return XCAM_RETURN_ERROR_FAILED;
         }
     }
@@ -225,25 +237,42 @@ static XCamReturn _handlerLdc_updMeshFromUapiBuf(AiqAlgoHandler_t* pAlgoHandler,
 #if RKAIQ_HAVE_LDCV
     if (ldc_param->sta.ldcvCfg.en) {
         uint32_t size = ldc_param->sta.ldcvCfg.lutMapCfg.sw_ldcT_lutMap_size;
-        void* vaddr   = ldc_param->sta.ldcvCfg.lutMapCfg.sw_ldcT_lutMapBuf_vaddr[0];
+        uint16_t* vaddr = ldc_param->sta.ldcvCfg.lutMapCfg.sw_ldcT_lutMapBuf_vaddr[0];
         if (size > 0 && vaddr) {
-            LdcLutBuffer* lut_buf = algo_ldc_getLdcvFreeLutBuf(pAlgoHandler->mAlgoCtx);
-            memcpy(lut_buf->Addr, vaddr, size);
-            ldc_param->sta.ldcvCfg.lutMapCfg.sw_ldcT_lutMap_size = 0;
+            const LdcLutBuffer* lut_buf = algo_ldc_getLdcvFreeLutBuf(pAlgoHandler->mAlgoCtx);
+            if (lut_buf && lut_buf->Addr && lut_buf->Fd > 0) {
+                uint16_t hpic, vpic, hsize, vsize, hstep, vstep;
+                uint32_t lut_size = 0;
 
-            ldc_param->sta.ldchCfg.lutMapCfg.sw_ldcT_lutMapBuf_fd[0] = lut_buf->Fd;
-            LOGK("copy api lut buf : %p, %d to cur buf : %p, %d for LDCV", vaddr, size,
-                 lut_buf->Addr, lut_buf->Fd);
+                hpic  = *vaddr++;
+                vpic  = *vaddr++;
+                hsize = *vaddr++;
+                vsize = *vaddr++;
+                hstep = *vaddr++;
+                vstep = *vaddr++;
 
-            lut_buf->Fd = LDC_BUF_FD_DEFAULT;
+                lut_size = hsize * vsize * sizeof(uint16_t);
+                LOGD_ALDC("lut info: [%d-%d-%d-%d-%d-%d]", hpic, vpic, hsize, vsize, hstep, vstep);
+                LOGD_ALDC("calculate lut size: %u, sw_ldcT_lutMap_size %u", lut_size, size);
 
-            uint16_t* addr = (uint16_t*)lut_buf->Addr;
-            LOGD_ALDC("LDCV lut[0:15]: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", addr[0],
-                      addr[1], addr[2], addr[3], addr[4], addr[5], addr[6], addr[7], addr[8],
-                      addr[9], addr[10], addr[11], addr[12], addr[13], addr[14], addr[15]);
+                memcpy(lut_buf->Addr, vaddr, size);
 
-            return XCAM_RETURN_NO_ERROR;
+                ldc_param->sta.ldcvCfg.lutMapCfg.sw_ldcT_lutMapBuf_fd[0] = lut_buf->Fd;
+                LOGD_ALDC("copy lut buf(%p, size %d) to ldcv mesh buf(%p, fd %d)", vaddr, size,
+                          lut_buf->Addr, lut_buf->Fd);
+
+                LOGD_ALDC("LDCV lut[0:15]: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+                          vaddr[0], vaddr[1], vaddr[2], vaddr[3], vaddr[4], vaddr[5], vaddr[6],
+                          vaddr[7], vaddr[8], vaddr[9], vaddr[10], vaddr[11], vaddr[12], vaddr[13],
+                          vaddr[14], vaddr[15]);
+
+                return XCAM_RETURN_NO_ERROR;
+            } else {
+                LOGE_ALDC("Failed to get free lut buf for LDCV, don't update cfg!");
+                return XCAM_RETURN_ERROR_FAILED;
+            }
         } else {
+            LOGE_ALDC("LDCV map addr %p, size %d is error, don't update cfg!", vaddr, size);
             return XCAM_RETURN_ERROR_FAILED;
         }
     }
@@ -294,12 +323,16 @@ XCamReturn _handlerLdc_do_processing_common(AiqAlgoHandler_t* pAlgoHandler) {
             pAlgoHandler->mOpMode = RK_AIQ_OP_MODE_MANUAL;
 
             ldc_param_t* man_param = (ldc_param_t*)(wrap_param.man_param_ptr);
-            LOGD_ALDC("%s, man sta ldch en %d, ldcv en %d, upd_mesh_mode %d", ResTypeStr,
-                      man_param->sta.ldchCfg.en, man_param->sta.ldchCfg.en,
-                      ldc_proc_int->upd_mesh_mode);
+            LOGD_ALDC("%s, man sta ldch en %d, upd_mesh_mode %d", ResTypeStr,
+                      man_param->sta.ldchCfg.en, ldc_proc_int->upd_mesh_mode);
+
+#if RKAIQ_HAVE_LDCV
+            LOGD_ALDC("ldcv en %d", man_param->sta.ldchCfg.en);
+#endif
 
             // 1. Check whether to enable the LDC in manual mode.
-            if (man_param->sta.ldchCfg.en) {
+            if (man_param->sta.ldchCfg.en &&
+                ldc_proc_int->upd_mesh_mode != kAiqLdcUpdMeshFromFile) {
                 // 1.1 Check whether the uapi updates mesh with vaddr.
                 XCamReturn ret_b = _handlerLdc_updMeshFromUapiBuf(pAlgoHandler, man_param);
                 if (ret_b < 0) {
@@ -358,6 +391,7 @@ XCamReturn _handlerLdc_do_processing_common(AiqAlgoHandler_t* pAlgoHandler) {
 
     return ret;
 }
+
 static XCamReturn _handlerLdc_processing(AiqAlgoHandler_t* pAlgoHandler) {
     ENTER_ANALYZER_FUNCTION();
 

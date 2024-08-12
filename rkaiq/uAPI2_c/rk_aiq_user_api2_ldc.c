@@ -201,9 +201,15 @@ XCamReturn rk_aiq_user_api2_ldc_GetManualAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
 
     int type           = RESULT_TYPE_LDC_PARAM;
     int man_param_size = sizeof(ldc_param_t);
+    ldc_param_t man    = {0};
 
-    return rk_aiq_user_api2_common_processParams(ctx, false, NULL, NULL, NULL, type, man_param_size,
-                                                 attr, 0, NULL);
+    ret = rk_aiq_user_api2_common_processParams(ctx, false, NULL, NULL, NULL, type, man_param_size,
+                                                &man, 0, NULL);
+
+    attr->sta.ldchCfg.en = man.sta.ldchCfg.en;
+#if RKAIQ_HAVE_LDCV
+    attr->sta.ldcvCfg.en = man.sta.ldcvCfg.en;
+#endif
 
     return ret;
 }

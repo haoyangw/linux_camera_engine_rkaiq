@@ -45,7 +45,7 @@ _gamma_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, gamma_api_attrib_t* attr)
     params.type = RESULT_TYPE_AGAMMA_PARAM;
     params.man_param_size = sizeof(gamma_param_t);
     params.man_param_ptr = &attr->stMan;
-    params.aut_param_size = sizeof(gamma_param_auto_t);
+    params.aut_param_size = sizeof(agamma_param_auto_t);
     params.aut_param_ptr = &attr->stAuto;
     ret = sys_ctx->_rkAiqManager->getGlobalParamsManager()->set(&params);
 

@@ -819,9 +819,17 @@ RkAiqCore::analyzeInternal(enum rk_aiq_core_analyze_type_e grp_type)
                 if (mAlogsComSharedParams.init || !isGroupAlgo(type)) {
                     ret = curHdl->updateConfig(true);
                     ret = curHdl->preProcess();
-                    if (ret) break;
+                    if (ret) {
+                        LOGW("cid[%d], preProc %d error", mAlogsComSharedParams.mCamPhyId, type);
+                        curHdl->genIspResult(aiqParams, curParams.ptr());
+                        break;
+                    }
                     ret = curHdl->processing();
-                    if (ret) break;
+                    if (ret) {
+                        LOGW("cid[%d], Proc %d error", mAlogsComSharedParams.mCamPhyId, type);
+                        curHdl->genIspResult(aiqParams, curParams.ptr());
+                        break;
+                    }
                     ret = algoHdl->postProcess();
                     curHdl->genIspResult(aiqParams, curParams.ptr());
                 }

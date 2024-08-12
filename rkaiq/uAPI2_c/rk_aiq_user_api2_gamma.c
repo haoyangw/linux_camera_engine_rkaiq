@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-#include "isp/rk_aiq_isp_gamma21.h"
 #include "uAPI2/rk_aiq_user_api2_gamma.h"
-#include "aiq_core_c/algo_handlers/RkAiqGammaHandler.h"
+
 #include "RkAiqGlobalParamsManager_c.h"
+#include "aiq_core_c/algo_handlers/RkAiqGammaHandler.h"
+#include "isp/rk_aiq_isp_gamma21.h"
 #include "uAPI2_c/rk_aiq_user_api2_common.h"
 
 RKAIQ_BEGIN_DECLARE
@@ -26,24 +27,23 @@ RKAIQ_BEGIN_DECLARE
 #define CHECK_USER_API_ENABLE
 #endif
 
-XCamReturn
-rk_aiq_user_api2_gamma_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, gamma_api_attrib_t* attr)
-{
+XCamReturn rk_aiq_user_api2_gamma_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
+                                            gamma_api_attrib_t* attr) {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
     CHECK_USER_API_ENABLE2(sys_ctx);
     CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_AGAMMA);
     RKAIQ_API_SMART_LOCK(sys_ctx);
-	rk_aiq_sys_ctx_array_t ctx_array = rk_aiq_user_api2_common_getSysCtxArray(sys_ctx);
+    rk_aiq_sys_ctx_array_t ctx_array = rk_aiq_user_api2_common_getSysCtxArray(sys_ctx);
 
-	int type = RESULT_TYPE_AGAMMA_PARAM;
-	int man_param_size = sizeof(gamma_param_t);
-	int aut_param_size = sizeof(gamma_param_auto_t);
+    int type           = RESULT_TYPE_AGAMMA_PARAM;
+    int man_param_size = sizeof(gamma_param_t);
+    int aut_param_size = sizeof(agamma_param_auto_t);
 
     for (int i = 0; i < ctx_array.num; i++) {
         if (attr->opMode == RK_AIQ_OP_MODE_MANUAL || attr->opMode == RK_AIQ_OP_MODE_AUTO) {
-            ret = rk_aiq_user_api2_common_processParams(ctx_array.ctx[i], true,
-                    &attr->opMode, &attr->en, &attr->bypass,
-                    type, man_param_size, &attr->stMan, aut_param_size,  &attr->stAuto);
+            ret = rk_aiq_user_api2_common_processParams(
+                ctx_array.ctx[i], true, &attr->opMode, &attr->en, &attr->bypass, type,
+                man_param_size, &attr->stMan, aut_param_size, &attr->stAuto);
         } else {
             ret = XCAM_RETURN_ERROR_FAILED;
             LOGE_AGAMMA("wrong mode %d !", attr->opMode);
@@ -53,40 +53,37 @@ rk_aiq_user_api2_gamma_SetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, gamma_api_attr
     return ret;
 }
 
-XCamReturn
-rk_aiq_user_api2_gamma_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx, gamma_api_attrib_t* attr)
-{
+XCamReturn rk_aiq_user_api2_gamma_GetAttrib(const rk_aiq_sys_ctx_t* sys_ctx,
+                                            gamma_api_attrib_t* attr) {
     CHECK_USER_API_ENABLE2(sys_ctx);
     CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_AGAMMA);
     RKAIQ_API_SMART_LOCK(sys_ctx);
-	const rk_aiq_sys_ctx_t* ctx = rk_aiq_user_api2_common_getSysCtx(sys_ctx);
-	int type = RESULT_TYPE_AGAMMA_PARAM;
-	int man_param_size = sizeof(gamma_param_t);
-	int aut_param_size = sizeof(gamma_param_auto_t);
+    const rk_aiq_sys_ctx_t* ctx = rk_aiq_user_api2_common_getSysCtx(sys_ctx);
+    int type                    = RESULT_TYPE_AGAMMA_PARAM;
+    int man_param_size          = sizeof(gamma_param_t);
+    int aut_param_size          = sizeof(agamma_param_auto_t);
 
-    return rk_aiq_user_api2_common_processParams(ctx, false,
-				&attr->opMode, &attr->en, &attr->bypass,
-				type, man_param_size, &attr->stMan, aut_param_size,  &attr->stAuto);
+    return rk_aiq_user_api2_common_processParams(ctx, false, &attr->opMode, &attr->en,
+                                                 &attr->bypass, type, man_param_size, &attr->stMan,
+                                                 aut_param_size, &attr->stAuto);
 }
 
-XCamReturn
-rk_aiq_user_api2_gamma_QueryStatus(const rk_aiq_sys_ctx_t* sys_ctx, gamma_status_t* status)
-{
+XCamReturn rk_aiq_user_api2_gamma_QueryStatus(const rk_aiq_sys_ctx_t* sys_ctx,
+                                              gamma_status_t* status) {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
     CHECK_USER_API_ENABLE2(sys_ctx);
     CHECK_USER_API_ENABLE(RK_AIQ_ALGO_TYPE_AGAMMA);
     RKAIQ_API_SMART_LOCK(sys_ctx);
-	const rk_aiq_sys_ctx_t* ctx = rk_aiq_user_api2_common_getSysCtx(sys_ctx);
+    const rk_aiq_sys_ctx_t* ctx = rk_aiq_user_api2_common_getSysCtx(sys_ctx);
 
-	AiqAlgoHandler_t* algo_handle =
-		ctx->_analyzer->mAlgoHandleMaps[RK_AIQ_ALGO_TYPE_AGAMMA];
+    AiqAlgoHandler_t* algo_handle = ctx->_analyzer->mAlgoHandleMaps[RK_AIQ_ALGO_TYPE_AGAMMA];
 
-	if (algo_handle) {
-		ret = AiqAlgoHandler_queryStatus_common(algo_handle,
-				&status->opMode, &status->en, &status->bypass, &status->stMan);
-	}
+    if (algo_handle) {
+        ret = AiqAlgoHandler_queryStatus_common(algo_handle, &status->opMode, &status->en,
+                                                &status->bypass, &status->stMan);
+    }
 
-	return ret;
+    return ret;
 }
 
 RKAIQ_END_DECLARE

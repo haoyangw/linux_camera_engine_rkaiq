@@ -4379,6 +4379,42 @@ XCamReturn AiqCamHw_handleIspRstList(AiqCamHwBase_t* pCamHw, AiqList_t* pList) {
                 LOGE_CAMHW_SUBM(ISP20HW_SUBM, "prepare isp params dev err: %d\n", ret);
             }
 
+#if defined(RKAIQ_HAVE_MULTIISP)
+            if (g_mIsMultiIspMode) {
+                // dequeue param buffer to judge whether unite isp is splitted into two sides or not.
+                AiqV4l2Buffer_t* pV4l2Buf    = NULL;
+                int              buf_length  = 0;
+                int              struct_size = 0;
+                pV4l2Buf = AiqV4l2Device_getBuf(pCamHw->mIspParamsDev, -1);
+                if (!pV4l2Buf) {
+                    LOGE_CAMHW_SUBM(ISP20HW_SUBM, "Can not get isp params buffer, queued cnts:%d \n",
+                                    AiqV4l2Device_getQueuedBufCnt(pCamHw->mIspParamsDev));
+                } else {
+                   buf_length = pV4l2Buf->_buf.length;
+                }
+#if defined(ISP_HW_V33)
+                struct_size = sizeof(struct isp33_isp_params_cfg);
+#elif defined(ISP_HW_V39)
+                struct_size = sizeof(struct isp39_isp_params_cfg);
+#elif defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
+                struct_size = sizeof(struct isp32_isp_params_cfg);
+#elif defined(ISP_HW_V30)
+                struct_size = sizeof(struct isp3x_isp_params_cfg);
+#elif defined(ISP_HW_V21)
+                struct_size = sizeof(struct isp21_isp_params_cfg);
+#endif
+                if (struct_size && buf_length && (buf_length / struct_size) != 2) {
+                    LOGE_CAMHW("isp param buf length %d, isp param struct size %d", buf_length, struct_size);
+                    LOGE_CAMHW("unite isp size error!!!!! raw size is %s than expect size",
+                                    (buf_length / struct_size) > 2 ? "largger": "smaller");
+                }
+
+                if (pV4l2Buf) {
+                    AiqV4l2Device_returnBufToPool(pCamHw->mIspParamsDev, pV4l2Buf);
+                }
+
+            }
+#endif
             ret = _hdr_mipi_prepare_mode(pCamHw, pCamHw->_hdr_mode);
             if (ret < 0) {
                 LOGE_CAMHW_SUBM(ISP20HW_SUBM, "hdr mipi start err: %d\n", ret);
@@ -4749,6 +4785,16 @@ static XCamReturn _setIspConfig(AiqCamHwBase_t* pCamHw, AiqList_t* result_list) 
 		}
         if (oldEns == pCamHw->_isp_module_ens && pCamHw->_state == CAM_HW_STATE_STARTED)
 			isp_params->module_en_update = 0;
+
+#if defined(RKAIQ_HAVE_MULTIISP)
+        // sync ispparam 0 module_en_update to ispparam 1 module_en_update
+        if (g_mIsMultiIspMode) {
+            if (isp_params->module_en_update != (isp_params + 1)->module_en_update) {
+                (isp_params + 1)->module_en_update = isp_params->module_en_update;
+            }
+        }
+#endif
+
         if (AiqV4l2Device_qbuf(pCamHw->mIspParamsDev, pV4l2Buf, true) != 0) {
             LOGE_CAMHW_SUBM(ISP20HW_SUBM,
                             "RKISP1: failed to ioctl VIDIOC_QBUF for index %d, %d %s.\n", buf_index,

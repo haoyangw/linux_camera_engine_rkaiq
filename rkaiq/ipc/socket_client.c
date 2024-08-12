@@ -233,6 +233,8 @@ void socket_client_exit(SocketClientCtx_t *ctx) {
 
     if (ctx->recvbuf)
         aiq_free(ctx->recvbuf);
+    if (ctx->data_fd && ctx->data_fd != ctx->sockfd)
+        close(ctx->data_fd);
     if (ctx->sockfd)
         close(ctx->sockfd);
     if (ctx->stopfd[0])

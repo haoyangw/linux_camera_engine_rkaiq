@@ -1180,6 +1180,7 @@ static void convertAiqAwbToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_
     // pCvt->isp_params.isp_cfg->module_cfg_update |= ISP2X_MODULE_BLS;
     // pCvt->isp_params.isp_cfg->module_en_update |= ISP2X_MODULE_BLS;
     struct isp33_rawawb_meas_cfg* awb_cfg_v32 = &pCvt->isp_params.isp_cfg->meas.rawawb;
+    awb_cfg_v32->ovexp_2ddr_dis = 0;
     RKAiqAecExpInfo_t* ae_exp                 = pCvt->mCommonCvtInfo.ae_exp;
     float isp_dgain                           = 1;
     float hdrmge_gain0_1                      = 1;

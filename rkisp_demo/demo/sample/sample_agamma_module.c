@@ -56,7 +56,7 @@ void sample_print_agamma_info(const void *arg)
 }
 #ifdef USE_NEWSTRUCT
 static void get_auto_attr(gamma_api_attrib_t* attr) {
-    gamma_param_auto_t* stAuto = &attr->stAuto;
+    agamma_param_auto_t* stAuto = &attr->stAuto;
     for (int i = 0;i < 13;i++) {
     }
 }

@@ -315,6 +315,21 @@ static XCamReturn _handlerAe_processing(AiqAlgoHandler_t* pAlgoHandler) {
             measGroupshared->frameId                 = shared->frameId;
         }
 
+        int hdr_iso[3] = {0};
+        if (pAlgoHandler->mAiqCore->mAlogsComSharedParams.hdr_mode == 0) {
+            hdr_iso[0] = 50 *
+                            ae_proc_res_int->new_ae_exp->LinearExp.exp_real_params.analog_gain *
+                            ae_proc_res_int->new_ae_exp->LinearExp.exp_real_params.digital_gain *
+                            ae_proc_res_int->new_ae_exp->LinearExp.exp_real_params.isp_dgain;
+        } else {
+            for(int i = 0; i < 3; i++) {
+                hdr_iso[i] = 50 *
+                                ae_proc_res_int->new_ae_exp->HdrExp[i].exp_real_params.analog_gain *
+                                ae_proc_res_int->new_ae_exp->HdrExp[i].exp_real_params.digital_gain *
+                                ae_proc_res_int->new_ae_exp->HdrExp[i].exp_real_params.isp_dgain;
+            }
+        }
+
         /* Transfer the initial exposure to other algorithm modules */
         RkAiqAlgosGroupShared_t* grpShared = NULL;
         for (int type = RK_AIQ_CORE_ANALYZE_MEAS; type < RK_AIQ_CORE_ANALYZE_MAX; \
@@ -324,6 +339,7 @@ static XCamReturn _handlerAe_processing(AiqAlgoHandler_t* pAlgoHandler) {
                 grpShared->preExp = *ae_proc_res_int->new_ae_exp;
                 grpShared->curExp = *ae_proc_res_int->new_ae_exp;
                 grpShared->nxtExp = *ae_proc_res_int->new_ae_exp;
+                grpShared->iso    = hdr_iso[0];
             }
 
         }

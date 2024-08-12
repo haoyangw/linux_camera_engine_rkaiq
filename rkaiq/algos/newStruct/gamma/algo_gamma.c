@@ -17,49 +17,37 @@
  *
  */
 
-#include "algo_types_priv.h"
-#include "gamma_types_prvt.h"
-#include "xcam_log.h"
-
 #include "RkAiqCalibDbTypes.h"
 #include "RkAiqCalibDbTypesV2.h"
 #include "RkAiqCalibDbV2Helper.h"
+#include "algo_types_priv.h"
 #include "c_base/aiq_base.h"
+#include "gamma_types_prvt.h"
+#include "interpolation.h"
+#include "xcam_log.h"
 
-//RKAIQ_BEGIN_DECLARE
+// RKAIQ_BEGIN_DECLARE
 
-static XCamReturn
-create_context
-(
-    RkAiqAlgoContext** context,
-    const AlgoCtxInstanceCfg* cfg
-)
-{
-    XCamReturn result = XCAM_RETURN_NO_ERROR;
-    CamCalibDbV2Context_t *pCalibDbV2 = cfg->calibv2;
+static XCamReturn create_context(RkAiqAlgoContext** context, const AlgoCtxInstanceCfg* cfg) {
+    XCamReturn result                 = XCAM_RETURN_NO_ERROR;
+    CamCalibDbV2Context_t* pCalibDbV2 = cfg->calibv2;
 
-    GammaContext_t *ctx = aiq_mallocz(sizeof(GammaContext_t));
+    GammaContext_t* ctx = aiq_mallocz(sizeof(GammaContext_t));
     if (ctx == NULL) {
-        LOGE_AGAMMA( "%s: create Gamma context fail!\n", __FUNCTION__);
+        LOGE_AGAMMA("%s: create Gamma context fail!\n", __FUNCTION__);
         return XCAM_RETURN_ERROR_MEM;
     }
 
-    ctx->isReCal_ = true;
+    ctx->isReCal_       = true;
     ctx->prepare_params = NULL;
-    ctx->gamma_attrib =
-        (gamma_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(pCalibDbV2, gamma));
+    ctx->gamma_attrib   = (gamma_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(pCalibDbV2, gamma));
 
-    *context = (RkAiqAlgoContext* )ctx;
-    LOGV_AGAMMA("%s: (exit)\n", __FUNCTION__ );
+    *context = (RkAiqAlgoContext*)ctx;
+    LOGV_AGAMMA("%s: (exit)\n", __FUNCTION__);
     return result;
 }
 
-static XCamReturn
-destroy_context
-(
-    RkAiqAlgoContext* context
-)
-{
+static XCamReturn destroy_context(RkAiqAlgoContext* context) {
     XCamReturn result = XCAM_RETURN_NO_ERROR;
 
     GammaContext_t* pGammaCtx = (GammaContext_t*)context;
@@ -67,16 +55,11 @@ destroy_context
     return result;
 }
 
-static XCamReturn
-prepare
-(
-    RkAiqAlgoCom* params
-)
-{
-    XCamReturn result = XCAM_RETURN_NO_ERROR;
+static XCamReturn prepare(RkAiqAlgoCom* params) {
+    XCamReturn result         = XCAM_RETURN_NO_ERROR;
     GammaContext_t* pGammaCtx = (GammaContext_t*)params->ctx;
 
-	if(!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB )){
+    if (!!(params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB)) {
         // just update calib ptr
         if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
             pGammaCtx->gamma_attrib =
@@ -88,24 +71,18 @@ prepare
     pGammaCtx->gamma_attrib =
         (gamma_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, gamma));
     pGammaCtx->prepare_params = &params->u.prepare;
-    pGammaCtx->isReCal_ = true;
+    pGammaCtx->isReCal_       = true;
 
     return result;
 }
 
-static XCamReturn
-processing
-(
-    const RkAiqAlgoCom* inparams,
-    RkAiqAlgoResCom* outparams
-)
-{
+static XCamReturn processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams) {
     XCamReturn result = XCAM_RETURN_NO_ERROR;
 
-    GammaContext_t* pGammaCtx = (GammaContext_t*)inparams->ctx;
+    GammaContext_t* pGammaCtx        = (GammaContext_t*)inparams->ctx;
     gamma_api_attrib_t* gamma_attrib = pGammaCtx->gamma_attrib;
 
-    LOGV_AGAMMA("%s: (enter)\n", __FUNCTION__ );
+    LOGV_AGAMMA("%s: (enter)\n", __FUNCTION__);
 
     if (!gamma_attrib) {
         LOGE_AGAMMA("gamma_attrib is NULL !");
@@ -120,54 +97,65 @@ processing
     if (inparams->u.proc.is_attrib_update) {
         pGammaCtx->isReCal_ = true;
     }
+    int iso = inparams->u.proc.iso;
+    float delta_iso = (float)abs(iso - pGammaCtx->iso);
+    if (delta_iso > DEFAULT_RECALCULATE_DELTA_ISO) {
+        pGammaCtx->isReCal_ = true;
+    }
 
     if (pGammaCtx->isReCal_) {
-        GammaSelectParam(&pGammaCtx->gamma_attrib->stAuto, outparams->algoRes);
+        GammaSelectParam(&pGammaCtx->gamma_attrib->stAuto, outparams->algoRes, iso);
         outparams->cfg_update = true;
-        outparams->en = gamma_attrib->en;
-        outparams->bypass = gamma_attrib->bypass;
+        outparams->en         = gamma_attrib->en;
+        outparams->bypass     = gamma_attrib->bypass;
         LOGI_AGAMMA("gamma en:%d, bypass:%d", outparams->en, outparams->bypass);
     }
 
     pGammaCtx->isReCal_ = false;
+    pGammaCtx->iso = iso;
 
-    LOGV_AGAMMA("%s: (exit)\n", __FUNCTION__ );
+    LOGV_AGAMMA("%s: (exit)\n", __FUNCTION__);
     return XCAM_RETURN_NO_ERROR;
 }
 
-XCamReturn GammaSelectParam
-(
-    gamma_param_auto_t* paut,
-    gamma_param_t* out)
-{
+XCamReturn GammaSelectParam(agamma_param_auto_t* paut, gamma_param_t* out, int iso) {
     LOGI_AGAMMA("%s(%d): enter!\n", __FUNCTION__, __LINE__);
 
-    if(paut == NULL || out ==NULL) {
+    if (paut == NULL || out == NULL) {
         LOGE_AGAMMA("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
         return XCAM_RETURN_ERROR_PARAM;
     }
+    int i       = 0;
+    int iso_low = 0, iso_high = 0, ilow = 0, ihigh = 0;
+    float ratio = 0.0f;
+    uint16_t uratio;
+    int iso_list[GAMMA_ISO_STEP_MAX] = {0};
+    for (int i = 0; i < GAMMA_ISO_STEP_MAX; i++) {
+        iso_list[i] = paut->dyn[i].iso;
+    }
+    pre_interp(iso, iso_list, GAMMA_ISO_STEP_MAX, &ilow, &ihigh, &ratio);
+    uratio = ratio * (1 << RATIO_FIXBIT);
 
-    out->sta.hw_gammaT_outCurve_offset = paut->sta.hw_gammaT_outCurve_offset;
+    out->dyn.hw_gammaT_outCurve_offset =
+        interpolation_u16(paut->dyn[ilow].hw_gammaT_outCurve_offset,
+                          paut->dyn[ihigh].hw_gammaT_outCurve_offset, uratio);
     for (int i = 0; i < CALIBDB_AGAMMA_KNOTS_NUM_V11; i++) {
-        out->sta.hw_gammaT_outCurve_val[i] = paut->sta.hw_gammaT_outCurve_val[i];
+        out->dyn.hw_gammaT_outCurve_val[i] =
+            interpolation_u16(paut->dyn[ilow].hw_gammaT_outCurve_val[i],
+                              paut->dyn[ihigh].hw_gammaT_outCurve_val[i], uratio);
     }
 
     return XCAM_RETURN_NO_ERROR;
 }
 
-#if 0
-XCamReturn
-algo_gamma_SetAttrib
-(
-    RkAiqAlgoContext* ctx,
-    gamma_api_attrib_t *attr
-) {
-    if(ctx == NULL || attr == NULL) {
+#if 1
+XCamReturn algo_gamma_SetAttrib(RkAiqAlgoContext* ctx, gamma_api_attrib_t* attr) {
+    if (ctx == NULL || attr == NULL) {
         LOGE_AGAMMA("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
         return XCAM_RETURN_ERROR_PARAM;
     }
 
-    GammaContext_t* pGammaCtx = (GammaContext_t*)ctx;
+    GammaContext_t* pGammaCtx        = (GammaContext_t*)ctx;
     gamma_api_attrib_t* gamma_attrib = pGammaCtx->gamma_attrib;
 
     if (attr->opMode != RK_AIQ_OP_MODE_AUTO) {
@@ -176,7 +164,7 @@ algo_gamma_SetAttrib
     }
 
     gamma_attrib->opMode = attr->opMode;
-    gamma_attrib->en = attr->en;
+    gamma_attrib->en     = attr->en;
     gamma_attrib->bypass = attr->bypass;
 
     if (attr->opMode == RK_AIQ_OP_MODE_AUTO)
@@ -192,19 +180,13 @@ algo_gamma_SetAttrib
     return XCAM_RETURN_NO_ERROR;
 }
 
-XCamReturn
-algo_gamma_GetAttrib
-(
-    RkAiqAlgoContext* ctx,
-    gamma_api_attrib_t* attr
-)
-{
-    if(ctx == NULL || attr == NULL) {
+XCamReturn algo_gamma_GetAttrib(RkAiqAlgoContext* ctx, gamma_api_attrib_t* attr) {
+    if (ctx == NULL || attr == NULL) {
         LOGE_AGAMMA("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
         return XCAM_RETURN_ERROR_PARAM;
     }
 
-    GammaContext_t* pGammaCtx = (GammaContext_t*)ctx;
+    GammaContext_t* pGammaCtx        = (GammaContext_t*)ctx;
     gamma_api_attrib_t* gamma_attrib = pGammaCtx->gamma_attrib;
 
 #if 0
@@ -215,9 +197,9 @@ algo_gamma_GetAttrib
 #endif
 
     attr->opMode = gamma_attrib->opMode;
-    attr->en = gamma_attrib->en;
+    attr->en     = gamma_attrib->en;
     attr->bypass = gamma_attrib->bypass;
-    memcpy(&attr->stAuto, &gamma_attrib->stAuto, sizeof(gamma_param_auto_t));
+    memcpy(&attr->stAuto, &gamma_attrib->stAuto, sizeof(agamma_param_auto_t));
 
     return XCAM_RETURN_NO_ERROR;
 }
@@ -228,19 +210,20 @@ algo_gamma_GetAttrib
 #define RKISP_ALGO_GAMMA_DESCRIPTION "Rockchip gamma algo for ISP2.0"
 
 RkAiqAlgoDescription g_RkIspAlgoDescGamma = {
-    .common = {
-        .version = RKISP_ALGO_GAMMA_VERSION,
-        .vendor  = RKISP_ALGO_GAMMA_VENDOR,
-        .description = RKISP_ALGO_GAMMA_DESCRIPTION,
-        .type    = RK_AIQ_ALGO_TYPE_AGAMMA,
-        .id      = 0,
-        .create_context  = create_context,
-        .destroy_context = destroy_context,
-    },
-    .prepare = prepare,
-    .pre_process = NULL,
-    .processing = processing,
+    .common =
+        {
+            .version         = RKISP_ALGO_GAMMA_VERSION,
+            .vendor          = RKISP_ALGO_GAMMA_VENDOR,
+            .description     = RKISP_ALGO_GAMMA_DESCRIPTION,
+            .type            = RK_AIQ_ALGO_TYPE_AGAMMA,
+            .id              = 0,
+            .create_context  = create_context,
+            .destroy_context = destroy_context,
+        },
+    .prepare      = prepare,
+    .pre_process  = NULL,
+    .processing   = processing,
     .post_process = NULL,
 };
 
-//RKAIQ_END_DECLARE
+// RKAIQ_END_DECLARE

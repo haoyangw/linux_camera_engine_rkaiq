@@ -2454,7 +2454,10 @@ void convertAiqExpIspDgainToIsp39Params(AiqIspParamsCvt_t* pCvt,
     if (pCvt->_working_mode == RK_AIQ_WORKING_MODE_NORMAL) {
         float isp_dgain = MAX(1.0f, ae_exp->LinearExp.exp_real_params.isp_dgain);
 
-        if (!((isp_dgain != pCvt->mLatestIspDgain) || (isp_dgain != 1.0f))) return;
+        if (fabs(isp_dgain - pCvt->mLatestIspDgain) < FLT_EPSILON &&
+            fabs(isp_dgain - 1.0f) < FLT_EPSILON)
+            return;
+
         pCvt->mLatestIspDgain = isp_dgain;
 
         dest_cfg->gain0_red     = MIN(cfg->gain0_red * isp_dgain + 0.5, max_wb_gain);
@@ -2471,15 +2474,22 @@ void convertAiqExpIspDgainToIsp39Params(AiqIspParamsCvt_t* pCvt,
         dest_cfg->gain2_green_r = MIN(cfg->gain2_green_r * isp_dgain + 0.5, max_wb_gain);
         dest_cfg->gain2_green_b = MIN(cfg->gain2_green_b * isp_dgain + 0.5, max_wb_gain);
         dest_cfg->gain2_blue    = MIN(cfg->gain2_blue * isp_dgain + 0.5, max_wb_gain);
-        pCvt->isp_params.isp_cfg->module_cfg_update |= 1LL << RK_ISP2X_AWB_GAIN_ID;
 
+        dest_cfg->awb1_gain_r  = cfg->awb1_gain_r;
+        dest_cfg->awb1_gain_gr = cfg->awb1_gain_gr;
+        dest_cfg->awb1_gain_b  = cfg->awb1_gain_b;
+        dest_cfg->awb1_gain_gb = cfg->awb1_gain_gb;
+
+        pCvt->isp_params.isp_cfg->module_cfg_update |= ISP39_MODULE_AWB_GAIN;
     } else {
         float isp_dgain0 = MAX(1.0f, ae_exp->HdrExp[0].exp_real_params.isp_dgain);
         float isp_dgain1 = MAX(1.0f, ae_exp->HdrExp[1].exp_real_params.isp_dgain);
         float isp_dgain2 = MAX(1.0f, ae_exp->HdrExp[2].exp_real_params.isp_dgain);
 
         float isp_dgain = isp_dgain0 + isp_dgain1 + isp_dgain2;
-        if (!((isp_dgain != pCvt->mLatestIspDgain) || (isp_dgain != 3.0f))) return;
+        if (fabs(isp_dgain - pCvt->mLatestIspDgain) < FLT_EPSILON &&
+            fabs(isp_dgain - 3.0f) < FLT_EPSILON)
+            return;
         pCvt->mLatestIspDgain = isp_dgain;
 
         dest_cfg->gain0_red     = MIN(cfg->gain0_red * isp_dgain0 + 0.5, max_wb_gain);
@@ -2496,7 +2506,13 @@ void convertAiqExpIspDgainToIsp39Params(AiqIspParamsCvt_t* pCvt,
         dest_cfg->gain2_green_r = MIN(cfg->gain2_green_r * isp_dgain2 + 0.5, max_wb_gain);
         dest_cfg->gain2_green_b = MIN(cfg->gain2_green_b * isp_dgain2 + 0.5, max_wb_gain);
         dest_cfg->gain2_blue    = MIN(cfg->gain2_blue * isp_dgain2 + 0.5, max_wb_gain);
-        pCvt->isp_params.isp_cfg->module_cfg_update |= 1LL << RK_ISP2X_AWB_GAIN_ID;
+
+        dest_cfg->awb1_gain_r  = cfg->awb1_gain_r;
+        dest_cfg->awb1_gain_gr = cfg->awb1_gain_gr;
+        dest_cfg->awb1_gain_b  = cfg->awb1_gain_b;
+        dest_cfg->awb1_gain_gb = cfg->awb1_gain_gb;
+
+        pCvt->isp_params.isp_cfg->module_cfg_update |= ISP39_MODULE_AWB_GAIN;
     }
 }
 

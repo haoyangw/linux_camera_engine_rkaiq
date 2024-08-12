@@ -50,6 +50,8 @@ typedef struct GammaContext_s {
     const RkAiqAlgoCom_prepare_t* prepare_params;
     gamma_api_attrib_t* gamma_attrib;
     bool isReCal_;
+    int iso;
 } GammaContext_t;
+#define DEFAULT_RECALCULATE_DELTA_ISO (0.01)
 
 #endif//__RKAIQ_TYPES_Gamma_ALGO_PRVT_H__

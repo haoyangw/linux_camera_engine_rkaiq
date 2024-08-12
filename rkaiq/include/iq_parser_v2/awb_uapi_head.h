@@ -340,7 +340,7 @@ typedef struct rk_tool_awb_strategy_result_s {
     // M4_ARRAY_DESC("algMethod", "s32", M4_SIZE(1,1), M4_RANGE(0,100), "1", M4_DIGIT(0), M4_DYNAMIC(0))
     int  algMethod;
 } rk_tool_awb_strategy_result_t;
-#endif
+#endif//ifndef USE_NEWSTRUCT
 
 
 #ifdef USE_NEWSTRUCT
@@ -398,16 +398,6 @@ typedef struct rk_tool_awb_strategy_result_s {
     uint32_t runInterval;
     // M4_NUMBER_DESC("tolerance", "f32", M4_RANGE(0,10000), "5000", M4_DIGIT(0))
     float tolerance;
-    // M4_ARRAY_DESC("dsRateWt", "u8", M4_SIZE(1,1), M4_RANGE(0,255), "0", M4_DIGIT(0), M4_DYNAMIC(0))
-    uint8_t dsRateWh; //downsample 8x8->Pixel(R,G,B)
-    // M4_ARRAY_DESC("dsRateHt", "u8", M4_SIZE(1,1), M4_RANGE(0,255), "0", M4_DIGIT(0), M4_DYNAMIC(0))
-    uint8_t dsRateHt; //downsample 8x8->Pixel(R,G,B)
-    // M4_ARRAY_DESC("width_ds", "u32", M4_SIZE(1,1), M4_RANGE(0,4294967295), "0", M4_DIGIT(0), M4_DYNAMIC(0))
-    uint32_t width_ds;
-    // M4_ARRAY_DESC("height_ds", "u32", M4_SIZE(1,1), M4_RANGE(0,4294967295), "0", M4_DIGIT(0), M4_DYNAMIC(0))
-    uint32_t height_ds;
-    // M4_ARRAY_DESC("WPmode", "s32", M4_SIZE(1,1), M4_RANGE(-2147483648,2147483647), "0", M4_DIGIT(0), M4_DYNAMIC(0))
-    int WPmode;
     // M4_ARRAY_DESC("WPTotalNUM", "u32", M4_SIZE(1,1), M4_RANGE(0,4294967295), "0", M4_DIGIT(0), M4_DYNAMIC(0))
     uint32_t WPTotalNUM;
     // M4_ARRAY_DESC("WPType", "s32", M4_SIZE(1,1), M4_RANGE(-2147483648,2147483647), "0", M4_DIGIT(0), M4_DYNAMIC(0))
@@ -486,11 +476,13 @@ typedef struct rk_tool_awb_strategy_result_s {
     float extraWp_wgt;
     // M4_ARRAY_DESC("extraWp_wbGainUsed", "u32", M4_SIZE(1,2), M4_RANGE(0,8), "1", M4_DIGIT(0), M4_DYNAMIC(0))
     int extraWp_wbGainUsed[2];
+     // M4_ARRAY_DESC("extraWp_domainWgt", "f32", M4_SIZE(1,1), M4_RANGE(0,1), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float extraWp_domainWgt;
     // M4_ARRAY_DESC("aec_iso", "f32", M4_SIZE(1,1), M4_RANGE(0,1), "1", M4_DIGIT(4), M4_DYNAMIC(0))
     float aec_iso;
     rk_tool_awb_sgc_result2_t sinColorResult;
 } rk_tool_awb_strategy_result_t;
-#endif
+#endif//ifdef USE_NEWSTRUCT
 
 typedef struct __uapi_wbV21_log_info_t {
     // M4_STRUCT_DESC("awb_stat", "normal_ui_style")

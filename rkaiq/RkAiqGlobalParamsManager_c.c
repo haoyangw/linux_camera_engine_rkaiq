@@ -23,6 +23,7 @@ static void
 checkAlgoEnableInit(GlobalParamsManager_t* pMan);
 static bool checkAlgoParams(GlobalParamsManager_t* pMan, rk_aiq_global_params_wrap_t* param);
 static bool checkLscAlgoParams(GlobalParamsManager_t* pMan, lsc_param_static_t* psta, char* print_buf);
+static bool ProcessLdcAlgoManParams(void* src, void* dst);
 
 static inline XCamReturn
 get_locked(GlobalParamsManager_t* pMan, rk_aiq_global_params_wrap_t* param)
@@ -651,6 +652,19 @@ void GlobalParamsManager_deinit(GlobalParamsManager_t* pMan)
 {
     void* man_param_ptr = pMan->mGlobalParams[RESULT_TYPE_LDC_PARAM].man_param_ptr;
     if (man_param_ptr) {
+        ldc_param_t* man = (ldc_param_t*)man_param_ptr;
+        for (int i = 0; i < 2; i++) {
+            if (man->sta.ldchCfg.lutMapCfg.sw_ldcT_lutMapBuf_vaddr[i]) {
+                aiq_free(man->sta.ldchCfg.lutMapCfg.sw_ldcT_lutMapBuf_vaddr[i]);
+                man->sta.ldchCfg.lutMapCfg.sw_ldcT_lutMapBuf_vaddr[i] = NULL;
+            }
+#if RKAIQ_HAVE_LDCV
+            if (man->sta.ldcvCfg.lutMapCfg.sw_ldcT_lutMapBuf_vaddr[i]) {
+                aiq_free(man->sta.ldcvCfg.lutMapCfg.sw_ldcT_lutMapBuf_vaddr[i]);
+                man->sta.ldcvCfg.lutMapCfg.sw_ldcT_lutMapBuf_vaddr[i] = NULL;
+            }
+#endif
+        }
         aiq_free(man_param_ptr);
         pMan->mGlobalParams[RESULT_TYPE_LDC_PARAM].man_param_ptr = NULL;
     }
@@ -916,12 +930,17 @@ XCamReturn GlobalParamsManager_set(GlobalParamsManager_t* pMan, rk_aiq_global_pa
 
     bool isUpdateManParam = false;
     if (param->opMode == RK_AIQ_OP_MODE_MANUAL) {
-        if (param->man_param_ptr && param->man_param_size) {
-            memcpy(wrap_ptr->man_param_ptr, param->man_param_ptr, param->man_param_size);
-            isUpdateManParam = true;
-        }
+        if (param->type != RESULT_TYPE_LDC_PARAM) {
+            if (param->man_param_ptr && param->man_param_size) {
+                memcpy(wrap_ptr->man_param_ptr, param->man_param_ptr, param->man_param_size);
+                isUpdateManParam = true;
+            }
+        } else {
+            if (param->man_param_ptr && param->man_param_size) {
+                ProcessLdcAlgoManParams(param->man_param_ptr, wrap_ptr->man_param_ptr);
+                isUpdateManParam = true;
+            }
 
-        if (param->type == RESULT_TYPE_LDC_PARAM) {
             if (param->aut_param_ptr && param->aut_param_size > 0)
                 memcpy(wrap_ptr->aut_param_ptr, param->aut_param_ptr, param->aut_param_size);
         }
@@ -1530,5 +1549,66 @@ static bool checkLscAlgoParams(GlobalParamsManager_t* pMan, lsc_param_static_t* 
             y0 = y1;
         }
     }
+    return true;
+}
+
+static bool ProcessLdcAlgoManParams(void* src, void* dst) {
+    ldc_param_t* pSrc = (ldc_param_t*)src;
+    ldc_param_t* pDst = (ldc_param_t*)dst;
+
+    pDst->sta.ldchCfg.en = pSrc->sta.ldchCfg.en;
+    if (pDst->sta.ldchCfg.en) {
+        ldc_lutMapCfg_t* pSrcLutCfgX = &pSrc->sta.ldchCfg.lutMapCfg;
+        ldc_lutMapCfg_t* pDstLutCfgX = &pDst->sta.ldchCfg.lutMapCfg;
+
+        uint32_t size = pSrcLutCfgX->sw_ldcT_lutMap_size;
+        if (!size) return false;
+
+        if (!pDstLutCfgX->sw_ldcT_lutMapBuf_vaddr[0]) {
+            pDstLutCfgX->sw_ldcT_lutMapBuf_vaddr[0] = aiq_mallocz(size);
+            LOGK_ALDC("Malloc lut buf size %u for ldch", size);
+        } else if (size != pDstLutCfgX->sw_ldcT_lutMap_size) {
+            aiq_free(pDstLutCfgX->sw_ldcT_lutMapBuf_vaddr[0]);
+            pDstLutCfgX->sw_ldcT_lutMapBuf_vaddr[0] = aiq_mallocz(size);
+            LOGK_ALDC("Old lut buf size %u, remalloc lut buf size %u for ldch",
+                      pDstLutCfgX->sw_ldcT_lutMap_size, size);
+        }
+
+        pDstLutCfgX->sw_ldcT_lutMap_size = size;
+
+        // copy ldch lut buffer from api
+        if (pSrcLutCfgX->sw_ldcT_lutMapBuf_vaddr[0] && pDstLutCfgX->sw_ldcT_lutMapBuf_vaddr[0])
+            memcpy(pDstLutCfgX->sw_ldcT_lutMapBuf_vaddr[0], pSrcLutCfgX->sw_ldcT_lutMapBuf_vaddr[0],
+                   size);
+    }
+
+#if RKAIQ_HAVE_LDCV
+    pDst->sta.ldcvCfg.en = pSrc->sta.ldcvCfg.en;
+    if (pDst->sta.ldcvCfg.en) {
+        ldc_lutMapCfg_t* pSrcLutCfgY = &pSrc->sta.ldcvCfg.lutMapCfg;
+        ldc_lutMapCfg_t* pDstLutCfgY = &pDst->sta.ldcvCfg.lutMapCfg;
+
+        uint32_t size = pSrcLutCfgY->sw_ldcT_lutMap_size;
+        if (!size) return false;
+
+        if (!pDstLutCfgY->sw_ldcT_lutMapBuf_vaddr[0]) {
+            pDstLutCfgY->sw_ldcT_lutMapBuf_vaddr[0] = aiq_mallocz(size);
+            LOGK_ALDC("Malloc lut buf size %u for ldcv", size);
+        } else if (size != pDstLutCfgY->sw_ldcT_lutMap_size) {
+            aiq_free(pDstLutCfgY->sw_ldcT_lutMapBuf_vaddr[0]);
+            pDstLutCfgY->sw_ldcT_lutMapBuf_vaddr[0] = aiq_mallocz(size);
+            LOGK_ALDC("Old lut buf size %u, remalloc lut buf size %u for ldcv",
+                      pDstLutCfgY->sw_ldcT_lutMap_size, size);
+        }
+
+        pDstLutCfgY->sw_ldcT_lutMap_size = size;
+
+        // copy ldcv lut buffer from api
+        if (pSrcLutCfgY->sw_ldcT_lutMapBuf_vaddr[0] && pDstLutCfgY->sw_ldcT_lutMapBuf_vaddr[0])
+            memcpy(pDstLutCfgY->sw_ldcT_lutMapBuf_vaddr[0], pSrcLutCfgY->sw_ldcT_lutMapBuf_vaddr[0],
+                   size);
+    }
+#endif
+
     return true;
 }

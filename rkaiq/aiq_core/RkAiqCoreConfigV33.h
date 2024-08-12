@@ -103,8 +103,9 @@ static RkAiqGrpCondition_t grp0Cond[] = {
     [1] = {XCAM_MESSAGE_AE_PRE_RES_OK, 0},
     [2] = {XCAM_MESSAGE_AWB_PROC_RES_OK, 0},
 #if USE_NEWSTRUCT
+    [3] = {XCAM_MESSAGE_AEC_STATS_OK, ISP_PARAMS_EFFECT_DELAY_CNT},
 #if RK_GAIN_V2_ENABLE_GAIN2DDR
-    [3] = {XCAM_MESSAGE_AGAIN_STATS_OK, ISP_PARAMS_EFFECT_DELAY_CNT3},
+    [4] = {XCAM_MESSAGE_AGAIN_STATS_OK, ISP_PARAMS_EFFECT_DELAY_CNT3},
 #endif
 #else
     [3] = {XCAM_MESSAGE_BLC_V32_PROC_RES_OK, 0},
@@ -259,7 +260,7 @@ static struct RkAiqAlgoDesCommExt g_camgroup_algos[] = {
 #ifndef ENABLE_PARTIAL_ALOGS
     // { &g_RkIspAlgoDescCamgroupAdpcc.common,      RK_AIQ_CORE_ANALYZE_AWB,    0,  0,  0, {0, 0} },
     // { &g_RkIspAlgoDescamgroupAgamma.common,      RK_AIQ_CORE_ANALYZE_GRP0,   0,  0,  0, {0, 0} },
-    { &g_RkIspAlgoDescCamgroupDrc.common,          RK_AIQ_CORE_ANALYZE_GRP0,   0,  1,  0, {0, 0} },
+    { &g_RkIspAlgoDescCamgroupDrc.common,          RK_AIQ_CORE_ANALYZE_GRP0,   0,  0,  0, {0, 0} },
     // { &g_RkIspAlgoDescCamgroupAmerge.common,     RK_AIQ_CORE_ANALYZE_GRP0,   0,  0,  0, {0, 0} },
     { &g_RkIspAlgoDescCamgroupYnr.common,       RK_AIQ_CORE_ANALYZE_OTHER, 24, 24, 24, {0, 0} },
 

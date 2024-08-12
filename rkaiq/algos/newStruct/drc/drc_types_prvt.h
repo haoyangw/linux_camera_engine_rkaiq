@@ -43,6 +43,7 @@
 #include "RkAiqCalibDbTypes.h"
 #include "RkAiqCalibDbTypesV2.h"
 #include "RkAiqCalibDbV2Helper.h"
+#include "algo_types_priv.h"
 #include "include/drc_algo_api.h"
 #include "xcam_log.h"
 
@@ -54,14 +55,6 @@
 #define ISP_HDR_BIT_NUM_MAX           (20)
 #define ISP_HDR_BIT_NUM_MIN           (12)
 #define ISP_PREDGAIN_DEFAULT          (1.0f)
-#define SW_DRC_OFFSET_POW2_FIX        (8)
-#define MFHDR_LOG_Q_BITS              (11)
-#define DSTBITS                       (ISP_RAW_BIT << MFHDR_LOG_Q_BITS)
-#define DRC_COMPRESS_Y_OFFSET         (0.0156f)
-#define OFFSETBITS_INT                (SW_DRC_OFFSET_POW2_FIX)
-#define OFFSETBITS                    (OFFSETBITS_INT << MFHDR_LOG_Q_BITS)
-#define VALIDBITS                     (DSTBITS - OFFSETBITS)
-#define DELTA_SCALEIN_FIX             ((256 << MFHDR_LOG_Q_BITS) / VALIDBITS)
 #define GAS_L0_DEFAULT                (24)
 #define GAS_L1_DEFAULT                (10)
 #define GAS_L2_DEFAULT                (10)
@@ -75,7 +68,6 @@
 
 typedef struct CurrData_s {
     float MotionCoef;
-    drc_OpMode_t ApiMode;
     DrcAEData_t AEData;
     drc_params_dyn_t dynParams;
 } CurrData_t;
@@ -95,13 +87,24 @@ typedef struct DrcContext_s {
     CurrData_t CurrData;
     NextData_t NextData;
     adrc_strength_t strg;
+    rkisp_adrc_stats_t* drc_stats;
 } DrcContext_t;
 
 XCAM_BEGIN_DECLARE
 
-XCamReturn DrcSelectParam(DrcContext_t* pDrcCtx, drc_param_t* out, int iso);
 #if RKAIQ_HAVE_DRC_V12
+XCamReturn DrcSelectParam(DrcContext_t* pDrcCtx, drc_param_t* out, int iso);
+bool DrcDamping(drc_param_t* out, CurrData_t* pCurrData, int FrameID);
 void DrcExpoParaProcessing(DrcContext_t* pDrcCtx, drc_param_t* out);
+#endif
+
+#if RKAIQ_HAVE_DRC_V20
+XCamReturn DrcSelectParam(DrcContext_t* pDrcCtx, drc_param_t* out, trans_params_static_t* pstaTrans,
+                          int iso);
+static XCamReturn drcApplyStrength(DrcContext_t* pDrcCtx, drc_param_t* out);
+static void drcApplyStats(DrcContext_t* pDrcCtx, drc_param_t* out, trans_params_static_t* pstaTrans,
+                          int ilow, int ihigh, float ratio);
+bool DrcDamping(drc_param_t* out, CurrData_t* pCurrData, int FrameID);
 #endif
 
 XCAM_END_DECLARE

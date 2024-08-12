@@ -1737,10 +1737,18 @@ static AiqFullParams_t* analyzeInternal(AiqCore_t * pAiqCore,
 				if (true/*pAiqCore->mAlogsComSharedParams.init || !AiqCore_isGroupAlgo(pAiqCore, type)*/) {
 					if (pHdl->preProcess)
 						ret = pHdl->preProcess(pHdl);
-					if (ret) break;
+                    if (ret) {
+                        LOGW("cid[%d], preProc %d error", pAiqCore->mAlogsComSharedParams.mCamPhyId, type);
+                        pHdl->genIspResult(pHdl, pAiqFullParams, pAiqCore->mAiqCurParams);
+                        break;
+                    }
 					if (pHdl->processing)
 						ret = pHdl->processing(pHdl);
-					if (ret) break;
+                    if (ret) {
+                        LOGW("cid[%d], Proc %d error", pAiqCore->mAlogsComSharedParams.mCamPhyId, type);
+                        pHdl->genIspResult(pHdl, pAiqFullParams, pAiqCore->mAiqCurParams);
+                        break;
+                    }
 					if (pHdl->postProcess)
 						ret = pHdl->postProcess(pHdl);
 					pHdl->genIspResult(pHdl, pAiqFullParams, pAiqCore->mAiqCurParams);

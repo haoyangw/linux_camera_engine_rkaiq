@@ -44,22 +44,21 @@ typedef struct {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_NOTES(GAMMA curve y-axis point definition for gamma_out input pixels.\n
-        Freq of use: low))  */
+        M4_NOTES(GAMMA curve y-axis point definition for gamma_out input pixels.\n Freq of use: low))  */
     // reg: sw_gamma_out_y0~sw_gamma_out_y48
     uint16_t hw_gammaT_outCurve_val[CALIBDB_GAMMA_KNOTS_NUM_V11];
-} gamma_params_static_t;
+} gamma_params_dyn_t;
 
 typedef struct {
     /* M4_GENERIC_DESC(
-        M4_ALIAS(static_param),
+        M4_ALIAS(dyn),
         M4_TYPE(struct),
-        M4_UI_MODULE(static_ui),
+        M4_UI_MODULE(dynamic_ui),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
-        M4_NOTES(The static params of gamma module))  */
-    gamma_params_static_t sta;
+        M4_NOTES(The dyn params of gamma module))  */
+    gamma_params_dyn_t dyn;
 } gamma_param_t;
 
 #endif

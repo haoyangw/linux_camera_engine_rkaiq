@@ -1512,7 +1512,7 @@ XCamReturn rk_aiq_uapi2_setGammaCoef(const rk_aiq_sys_ctx_t* ctx, float GammaCoe
 
     gammaAttr.opMode                                    = RK_AIQ_OP_MODE_AUTO;
     gammaAttr.en         = true;
-    gammaAttr.stAuto.sta.hw_gammaT_outCurve_offset = 0;
+
     float gamma_X_v11[CALIBDB_GAMMA_KNOTS_NUM_V11]   = {
         0,    1,    2,    3,    4,    5,    6,    7,    8,    10,  12,   14,   16,
         20,   24,   28,   32,   40,   48,   56,   64,   80,   96,  112,  128,  160,
@@ -1520,10 +1520,13 @@ XCamReturn rk_aiq_uapi2_setGammaCoef(const rk_aiq_sys_ctx_t* ctx, float GammaCoe
         1792, 2048, 2304, 2560, 2816, 3072, 3328, 3584, 3840, 4095
     };
     float gamma_Y_v11[CALIBDB_GAMMA_KNOTS_NUM_V11];
-    for (int i = 0; i < CALIBDB_GAMMA_KNOTS_NUM_V11; i++) {
-        gamma_Y_v11[i] = 4095 * pow(gamma_X_v11[i] / 4095, 1 / GammaCoef + SlopeAtZero);
-        gamma_Y_v11[i] = gamma_Y_v11[i] > 4095 ? 4095 : gamma_Y_v11[i] < 0 ? 0 : gamma_Y_v11[i];
-        gammaAttr.stAuto.sta.hw_gammaT_outCurve_val[i] = (int)(gamma_Y_v11[i] + 0.5);
+    for (int i = 0; i < GAMMA_ISO_STEP_MAX; i++) {
+        gammaAttr.stAuto.dyn[i].hw_gammaT_outCurve_offset = 0;
+        for (int j = 0; j < CALIBDB_GAMMA_KNOTS_NUM_V11; j++) {
+            gamma_Y_v11[j] = 4095 * pow(gamma_X_v11[j] / 4095, 1 / GammaCoef + SlopeAtZero);
+            gamma_Y_v11[j] = gamma_Y_v11[j] > 4095 ? 4095 : gamma_Y_v11[j] < 0 ? 0 : gamma_Y_v11[j];
+            gammaAttr.stAuto.dyn[i].hw_gammaT_outCurve_val[j] = (int)(gamma_Y_v11[j] + 0.5);
+        }
     }
     ret = rk_aiq_user_api2_gamma_SetAttrib(ctx, &gammaAttr);
 

@@ -299,7 +299,7 @@ int BinMapLoader::findDuplicate(map_index_t *map_item, size_t map_index,
     return -1;
   }
 
-  for (curr_index = 0; curr_index < block_count; curr_index++) {
+  for (curr_index = 0; curr_index < block_count;) {
     map_index_t *item =
         (map_index_t *)&map_vec[curr_index * sizeof(map_index_t)];
 
@@ -381,7 +381,7 @@ int BinMapLoader::removeMap(map_index_t *map_item, size_t map_index) {
   uint64_t start_addr = (uint64_t)map_item->ptr_offset;
   uint64_t end_addr = (uint64_t)map_item->ptr_offset + map_item->len;
 
-  for (curr_index = 0; curr_index < block_count; curr_index++) {
+  for (curr_index = 0; curr_index < block_count;) {
     map_index_t *temp_item =
         (map_index_t *)&map_vec[curr_index * sizeof(map_index_t)];
     if ((uint64_t)temp_item->dst_offset >= start_addr &&
@@ -392,6 +392,8 @@ int BinMapLoader::removeMap(map_index_t *map_item, size_t map_index) {
       map_vec.erase(map_vec.begin() + curr_index * sizeof(map_index_t),
                     map_vec.begin() + (1 + curr_index) * sizeof(map_index_t));
       block_count--;
+    } else {
+       curr_index++;
     }
   }
 

@@ -437,7 +437,7 @@ RkAiqUapiDesc_t rkaiq_uapidesc_list[] = {
 #elif defined(ISP_HW_V32) || defined(ISP_HW_V32_LITE)
     __RKAIQUAPI_DESC_DEF("/uapi/0/measure_info/wb_log/info/awb_stat", rk_tool_isp_awb_stats_v32_t,
                          NULL, rk_aiq_uapi_get_awbV32_stat),
-#elif defined(ISP_HW_V39)
+#elif defined(USE_NEWSTRUCT)
     __RKAIQUAPI_DESC_DEF("/uapi/0/measure_info/wb_log/info/awb_stat", rk_tool_isp_awb_stats_v32_t,
                          NULL, rk_aiq_uapi_get_awbV39_stat),
 #endif
