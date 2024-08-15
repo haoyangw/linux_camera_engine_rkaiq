@@ -4356,7 +4356,11 @@ XCamReturn Isp20Params::merge_isp_results(cam3aResultList &results, void* isp_cf
 #if USE_NEWSTRUCT
     getCommonCvtInfo(results, use_aiisp);
 #endif
-    mBlcResult = get_3a_result(results, RESULT_TYPE_BLC_PARAM).ptr();
+
+    cam3aResult* new_blcRes = get_3a_result(results, RESULT_TYPE_BLC_PARAM).ptr();
+
+    if (new_blcRes)
+        mBlcResult = new_blcRes;
 
     for (cam3aResultList::iterator iter = results.begin();
             iter != results.end (); iter++)
