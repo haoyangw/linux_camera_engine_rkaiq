@@ -228,7 +228,13 @@ char* timeString() {
     gettimeofday(&tv, NULL);
     struct tm * timeinfo = localtime(&tv.tv_sec);
     static char timeStr[64];
-    sprintf(timeStr, "%.2d:%.2d:%.2d.%.6ld", timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, tv.tv_usec);
+    sprintf(timeStr, "%.2d:%.2d:%.2d."
+#ifdef __UCLIBC_USE_TIME64__
+			"%.6lld",
+#else
+			"%.6ld",
+#endif
+			timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, tv.tv_usec);
     return timeStr;
 }
 
