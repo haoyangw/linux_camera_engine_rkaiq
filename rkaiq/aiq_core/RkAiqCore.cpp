@@ -2539,6 +2539,7 @@ void RkAiqCore::mapModStrListToEnum(TuningCalib* change_name_list) {
         {"cp", RK_AIQ_ALGO_TYPE_ACP},
         {"ie", RK_AIQ_ALGO_TYPE_AIE},
         {"lsc", RK_AIQ_ALGO_TYPE_ALSC},
+        {"bayernr", RK_AIQ_ALGO_TYPE_ARAWNR},
         {"bayer2dnr", RK_AIQ_ALGO_TYPE_ARAWNR},
         {"bayertnr", RK_AIQ_ALGO_TYPE_AMFNR},
         {"ynr", RK_AIQ_ALGO_TYPE_AYNR},

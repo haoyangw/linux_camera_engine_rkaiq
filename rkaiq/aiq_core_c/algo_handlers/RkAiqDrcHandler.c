@@ -89,73 +89,100 @@ static void DrcProchelper(AiqAlgoHandler_t* pAlgoHandler, RkAiqAlgoProcDrc* drc_
 
     drc_proc_param->NextData.AEData.LongFrmMode = drc_proc_param->LongFrmMode;
     if (FrameNumber == LINEAR_NUM) {
+        drc_proc_param->NextData.AEData.STime =
+            drc_proc_param->com.u.proc.nxtExp->LinearExp.exp_real_params.integration_time;
         drc_proc_param->NextData.AEData.SExpo =
             drc_proc_param->com.u.proc.nxtExp->LinearExp.exp_real_params.analog_gain *
             drc_proc_param->com.u.proc.nxtExp->LinearExp.exp_real_params.digital_gain *
             drc_proc_param->com.u.proc.nxtExp->LinearExp.exp_real_params.isp_dgain *
             drc_proc_param->com.u.proc.nxtExp->LinearExp.exp_real_params.integration_time;
         if (drc_proc_param->NextData.AEData.SExpo < FLT_EPSILON) {
+            drc_proc_param->NextData.AEData.STime =
+                drc_proc_param->com.u.proc.curExp->LinearExp.exp_real_params.integration_time;
             drc_proc_param->NextData.AEData.SExpo =
                 drc_proc_param->com.u.proc.curExp->LinearExp.exp_real_params.analog_gain *
                 drc_proc_param->com.u.proc.curExp->LinearExp.exp_real_params.digital_gain *
                 drc_proc_param->com.u.proc.curExp->LinearExp.exp_real_params.isp_dgain *
                 drc_proc_param->com.u.proc.curExp->LinearExp.exp_real_params.integration_time;
         }
+        drc_proc_param->NextData.AEData.MTime = drc_proc_param->NextData.AEData.STime;
         drc_proc_param->NextData.AEData.MExpo = drc_proc_param->NextData.AEData.SExpo;
+        drc_proc_param->NextData.AEData.LTime = drc_proc_param->NextData.AEData.STime;
         drc_proc_param->NextData.AEData.LExpo = drc_proc_param->NextData.AEData.SExpo;
     }
     else if(FrameNumber == HDR_2X_NUM) {
+        drc_proc_param->NextData.AEData.STime =
+            drc_proc_param->com.u.proc.nxtExp->HdrExp[0].exp_real_params.integration_time;
         drc_proc_param->NextData.AEData.SExpo =
             drc_proc_param->com.u.proc.nxtExp->HdrExp[0].exp_real_params.analog_gain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[0].exp_real_params.digital_gain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[0].exp_real_params.isp_dgain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[0].exp_real_params.integration_time;
+        drc_proc_param->NextData.AEData.MTime =
+            drc_proc_param->com.u.proc.nxtExp->HdrExp[1].exp_real_params.integration_time;
         drc_proc_param->NextData.AEData.MExpo =
             drc_proc_param->com.u.proc.nxtExp->HdrExp[1].exp_real_params.analog_gain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[1].exp_real_params.digital_gain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[1].exp_real_params.isp_dgain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[1].exp_real_params.integration_time;
         if (drc_proc_param->NextData.AEData.SExpo < FLT_EPSILON) {
+            drc_proc_param->NextData.AEData.STime =
+                drc_proc_param->com.u.proc.curExp->HdrExp[0].exp_real_params.integration_time;
             drc_proc_param->NextData.AEData.SExpo =
                 drc_proc_param->com.u.proc.curExp->HdrExp[0].exp_real_params.analog_gain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[0].exp_real_params.digital_gain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[0].exp_real_params.isp_dgain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[0].exp_real_params.integration_time;
+            drc_proc_param->NextData.AEData.MTime =
+                drc_proc_param->com.u.proc.curExp->HdrExp[1].exp_real_params.integration_time;
             drc_proc_param->NextData.AEData.MExpo =
                 drc_proc_param->com.u.proc.curExp->HdrExp[1].exp_real_params.analog_gain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[1].exp_real_params.digital_gain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[1].exp_real_params.isp_dgain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[1].exp_real_params.integration_time;
         }
+        drc_proc_param->NextData.AEData.LTime = drc_proc_param->NextData.AEData.MTime;
         drc_proc_param->NextData.AEData.LExpo = drc_proc_param->NextData.AEData.MExpo;
     }
     else if(FrameNumber == HDR_3X_NUM) {
+        drc_proc_param->NextData.AEData.STime =
+            drc_proc_param->com.u.proc.nxtExp->HdrExp[0].exp_real_params.integration_time;
         drc_proc_param->NextData.AEData.SExpo =
             drc_proc_param->com.u.proc.nxtExp->HdrExp[0].exp_real_params.analog_gain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[0].exp_real_params.digital_gain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[0].exp_real_params.isp_dgain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[0].exp_real_params.integration_time;
+        drc_proc_param->NextData.AEData.MTime =
+            drc_proc_param->com.u.proc.nxtExp->HdrExp[1].exp_real_params.integration_time;
         drc_proc_param->NextData.AEData.MExpo =
             drc_proc_param->com.u.proc.nxtExp->HdrExp[1].exp_real_params.analog_gain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[1].exp_real_params.digital_gain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[1].exp_real_params.isp_dgain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[1].exp_real_params.integration_time;
+        drc_proc_param->NextData.AEData.LTime =
+            drc_proc_param->com.u.proc.nxtExp->HdrExp[2].exp_real_params.integration_time;
         drc_proc_param->NextData.AEData.LExpo =
             drc_proc_param->com.u.proc.nxtExp->HdrExp[2].exp_real_params.analog_gain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[2].exp_real_params.digital_gain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[2].exp_real_params.isp_dgain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[2].exp_real_params.integration_time;
         if (drc_proc_param->NextData.AEData.SExpo < FLT_EPSILON) {
+            drc_proc_param->NextData.AEData.STime =
+                drc_proc_param->com.u.proc.curExp->HdrExp[0].exp_real_params.integration_time;
             drc_proc_param->NextData.AEData.SExpo =
                 drc_proc_param->com.u.proc.curExp->HdrExp[0].exp_real_params.analog_gain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[0].exp_real_params.digital_gain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[0].exp_real_params.isp_dgain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[0].exp_real_params.integration_time;
+            drc_proc_param->NextData.AEData.MTime =
+                drc_proc_param->com.u.proc.curExp->HdrExp[1].exp_real_params.integration_time;
             drc_proc_param->NextData.AEData.MExpo =
                 drc_proc_param->com.u.proc.curExp->HdrExp[1].exp_real_params.analog_gain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[1].exp_real_params.digital_gain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[1].exp_real_params.isp_dgain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[1].exp_real_params.integration_time;
+            drc_proc_param->NextData.AEData.LTime =
+                drc_proc_param->com.u.proc.curExp->HdrExp[2].exp_real_params.integration_time;
             drc_proc_param->NextData.AEData.LExpo =
                 drc_proc_param->com.u.proc.curExp->HdrExp[2].exp_real_params.analog_gain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[2].exp_real_params.digital_gain *
@@ -240,23 +267,30 @@ static void DrcProchelper(AiqAlgoHandler_t* pAlgoHandler, RkAiqAlgoProcDrc* drc_
     drcRes->L2S_Ratio = drc_proc_param->NextData.AEData.L2S_Ratio;
 }
 
-static void DrcStatsConfig(AiqAlgoHandler_t* pAlgoHandler, RkAiqAlgoProcDrc* drc_proc_param) {
-    AiqAlgoHandler_t* pAeHdl    = pAlgoHandler->mAiqCore->mAlgoHandleMaps[RK_AIQ_ALGO_TYPE_AE];
-    Uapi_RkAeStats_t* xAecStats = aiq_mallocz(sizeof(Uapi_RkAeStats_t));
-    ;
-    rk_aiq_uapi_ae_getRKAeStats(pAeHdl->mAlgoCtx, xAecStats, false);
-    if (!xAecStats) LOGE_ATMO("aec stats is null");
+static void DrcStatsConfig(AiqAlgoHandler_t* pAlgoHandler, aiq_stats_base_t* xAecStats,
+                           RkAiqAlgoProcDrc* drc_proc_param) {
+    aiq_ae_stats_wrapper_t* pAeStatsWrap = NULL;
     if (xAecStats) {
+        drc_proc_param->drc_stats.frame_id = xAecStats->frame_id;
+        pAeStatsWrap                       = (aiq_ae_stats_wrapper_t*)xAecStats->_data;
+    }
+
+    if (pAeStatsWrap) {
         drc_proc_param->drc_stats.stats_true = true;
+        bool isHDR                           = false;
+        if (pAlgoHandler->mProcInParam->u.prepare.working_mode >= RK_AIQ_WORKING_MODE_ISP_HDR2)
+            isHDR = true;
+
         for (int i = 0; i < DRC_AE_HIST_BIN_NUM; i++) {
-            int select_num = 0;
-            if (pAlgoHandler->mProcInParam->u.prepare.working_mode < RK_AIQ_WORKING_MODE_ISP_HDR2)
-                select_num = 0;
-            else if (pAlgoHandler->mProcInParam->u.prepare.working_mode >=
-                     RK_AIQ_WORKING_MODE_ISP_HDR2)
-                select_num = 1;
-            drc_proc_param->drc_stats.aeHiatBins[i] =
-                xAecStats->chn[select_num].rawhist_big.bins[i];
+            if (isHDR) {
+                drc_proc_param->drc_stats.aeHiatBins[i] =
+                    pAeStatsWrap->aec_stats_v25.ae_data.entityGroup.entities.entity3.hist
+                        .hw_ae_histBin_val[i];
+            } else {
+                drc_proc_param->drc_stats.aeHiatBins[i] =
+                    pAeStatsWrap->aec_stats_v25.ae_data.entityGroup.entities.entity0.hist
+                        .hw_ae_histBin_val[i];
+            }
 
             int hist_total_num = 0;
             for (int i = 0; i < DRC_AE_HIST_BIN_NUM; ++i)
@@ -268,22 +302,17 @@ static void DrcStatsConfig(AiqAlgoHandler_t* pAlgoHandler, RkAiqAlgoProcDrc* drc
         drc_proc_param->drc_stats.ae_hist_total_num = 0;
         for (int i = 0; i < DRC_AE_HIST_BIN_NUM; i++) drc_proc_param->drc_stats.aeHiatBins[i] = 0;
     }
-    aiq_free(xAecStats);
 
 #if 0
-	for (int i = 0; i < 16; i++) {
-        LOG1_ATMO(
-            "%s: stats_true:%d aeHiatBins(%d~%d): %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d "
-            "%d\n",
-            __FUNCTION__, drc_proc_param->drc_stats.stats_true, 16 * i, 16 * i + 15,
-            drc_proc_param->drc_stats.aeHiatBins[16 * i], drc_proc_param->drc_stats.aeHiatBins[16 * i + 1],
-            drc_proc_param->drc_stats.aeHiatBins[16 * i + 2], drc_proc_param->drc_stats.aeHiatBins[16 * i + 3],
-            drc_proc_param->drc_stats.aeHiatBins[16 * i + 4], drc_proc_param->drc_stats.aeHiatBins[16 * i + 5],
-            drc_proc_param->drc_stats.aeHiatBins[16 * i + 6], drc_proc_param->drc_stats.aeHiatBins[16 * i + 7],
-            drc_proc_param->drc_stats.aeHiatBins[16 * i + 8], drc_proc_param->drc_stats.aeHiatBins[16 * i + 9],
-            drc_proc_param->drc_stats.aeHiatBins[16 * i + 10], drc_proc_param->drc_stats.aeHiatBins[16 * i + 11],
-            drc_proc_param->drc_stats.aeHiatBins[16 * i + 12], drc_proc_param->drc_stats.aeHiatBins[16 * i + 13],
-            drc_proc_param->drc_stats.aeHiatBins[16 * i + 14], drc_proc_param->drc_stats.aeHiatBins[16 * i + 15]);
+    printf("%s: frame_id:%d stats_true:%d ae_hist_total_num:%d\n", __FUNCTION__,
+           drc_proc_param->drc_stats.frame_id, drc_proc_param->drc_stats.stats_true,
+           drc_proc_param->drc_stats.ae_hist_total_num);
+    for (int m = 0; m < 16; m++) {
+        printf("%s: aeHiatBins[%d]: %d ", __FUNCTION__, m,
+               drc_proc_param->drc_stats.aeHiatBins[16 * m]);
+        for (int n = 1; n < 15; n++)
+            printf("%d ", drc_proc_param->drc_stats.aeHiatBins[16 * m + n]);
+        printf("%d \n", drc_proc_param->drc_stats.aeHiatBins[16 * m + 15]);
     }
 #endif
 }
@@ -295,6 +324,7 @@ static XCamReturn _handlerDrc_processing(AiqAlgoHandler_t* pAlgoHandler) {
 
     RkAiqAlgosGroupShared_t* shared =
         (RkAiqAlgosGroupShared_t*)(pAlgoHandler->mAlogsGroupSharedParams);
+    RkAiqAlgosComShared_t* sharedCom = &pAlgoHandler->mAiqCore->mAlogsComSharedParams;
 
     ret = AiqAlgoHandler_processing(pAlgoHandler);
     if (ret) {
@@ -307,11 +337,23 @@ static XCamReturn _handlerDrc_processing(AiqAlgoHandler_t* pAlgoHandler) {
         return XCAM_RETURN_BYPASS;
     }
 
+    aiq_stats_base_t* xAecStats = NULL;
+    if (shared->aecStatsBuf) {
+        xAecStats = shared->aecStatsBuf;
+        if (!xAecStats) LOGE_ATMO("aec stats is null");
+    } else {
+        LOGW_ATMO("the xcamvideobuffer of aec stats is null");
+    }
+    if ((!xAecStats || !xAecStats->bValid) && !sharedCom->init) {
+        LOGW_ATMO("fid:%d no aec stats, ignore!", shared->frameId);
+        return XCAM_RETURN_BYPASS;
+    }
+
     RkAiqAlgoProcDrc* drc_proc_param = (RkAiqAlgoProcDrc*)pAlgoHandler->mProcInParam;
     drc_proc_param->isp_ob_predgain = 1.0;
 
     DrcProchelper(pAlgoHandler, drc_proc_param);
-    DrcStatsConfig(pAlgoHandler, drc_proc_param);
+    DrcStatsConfig(pAlgoHandler, xAecStats, drc_proc_param);
 
     GlobalParamsManager_t * globalParamsManager = pAlgoHandler->mAiqCore->mGlobalParamsManger;
 

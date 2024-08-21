@@ -52,7 +52,7 @@ static XCamReturn DmSelectParam
     // test use default iso list;
     //int *iso_list = (int *)pDmCtx->p_auto_param->iso;
 
-    pre_interp(iso, NULL, 0, &ilow, &ihigh, &ratio);
+    pre_interp(iso, pDmCtx->iso_list, 13, &ilow, &ihigh, &ratio);
     uratio = ratio * (1 << RATIO_FIXBIT);
 
     //iso_low = iso_list[ilow];
@@ -136,7 +136,7 @@ static XCamReturn DmSelectParam
     // test use default iso list;
     //int *iso_list = (int *)pDmCtx->p_auto_param->iso;
 
-    pre_interp(iso, NULL, 0, &ilow, &ihigh, &ratio);
+    pre_interp(iso, pDmCtx->iso_list, 13, &ilow, &ihigh, &ratio);
     uratio = ratio * (1 << RATIO_FIXBIT);
 
     if (ratio > 0.5)
@@ -271,12 +271,14 @@ prepare
         if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
             pDmCtx->dm_attrib =
                 (dm_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, demosaic));
+            pDmCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
             return XCAM_RETURN_NO_ERROR;
         }
     }
 
     pDmCtx->dm_attrib =
         (dm_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, demosaic));
+    pDmCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
     pDmCtx->prepare_params = &params->u.prepare;
     pDmCtx->isReCal_ = true;
 

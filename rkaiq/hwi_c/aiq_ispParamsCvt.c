@@ -60,12 +60,18 @@ static void AiqIspParamsCvt_checkModuleEnable(AiqIspParamsCvt_t* pCvt, AiqList_t
             pCvt->mCommonCvtInfo.cnr_path_en = ynrResult->en;
             update_vaild = true;
         }
+        else {
+            pCvt->mCommonCvtInfo.cnr_path_en = true;
+        }
     }
 #elif ISP_HW_V33
     if (ynrResult != NULL && cnrResult != NULL && sharpResult != NULL && enhResult != NULL) {
         if (ynrResult->en == cnrResult->en && ynrResult->en == sharpResult->en && sharpResult->en == enhResult->en) {
             pCvt->mCommonCvtInfo.cnr_path_en = ynrResult->en;
             update_vaild = true;
+        }
+        else {
+            pCvt->mCommonCvtInfo.cnr_path_en = true;
         }
     }
 #endif
@@ -176,7 +182,6 @@ static void AiqIspParamsCvt_checkModuleEnable(AiqIspParamsCvt_t* pCvt, AiqList_t
 
 void AiqIspParamsCvt_getCommonCvtInfo(AiqIspParamsCvt_t* pCvt, AiqList_t* results, bool use_aiisp) {
     pCvt->mCommonCvtInfo.isGrayMode   = false;
-    pCvt->mCommonCvtInfo.isFirstFrame = false;
     pCvt->mCommonCvtInfo.frameNum     = 1;
     pCvt->mCommonCvtInfo.ae_exp = NULL;
     pCvt->mCommonCvtInfo.use_aiisp    = use_aiisp;
@@ -191,17 +196,11 @@ void AiqIspParamsCvt_getCommonCvtInfo(AiqIspParamsCvt_t* pCvt, AiqList_t* result
 
     uint32_t frameId             = params->frame_id;
     pCvt->mCommonCvtInfo.frameId = frameId;
-    if (frameId == 0) {
+    if (frameId == 0 && !pCvt->mCommonCvtInfo.isFirstFrame) {
         pCvt->mCommonCvtInfo.isFirstFrame = true;
-        pCvt->mCommonCvtInfo.preDGain = 1.0;
-        pCvt->mCommonCvtInfo.L2S_Ratio = 1.0;
-#if RKAIQ_HAVE_DEHAZE_V14
-        for (int i = 0; i < YNR_ISO_CURVE_POINT_NUM; i++)
-            pCvt->mCommonCvtInfo.ynr_sigma[i] = 0.0f;
-#endif
-        pCvt->mCommonCvtInfo.warning_count = 0;
-        pCvt->mCommonCvtInfo.cnr_path_en = true;
-        pCvt->mCommonCvtInfo.cmps_on = false;
+    }
+    else {
+        pCvt->mCommonCvtInfo.isFirstFrame = false;
     }
     // NOTICE: from _expParamsPool of AiqSensorHw_t, type is AiqSensorExpInfo_t*
     // should be different from AiqAecExpInfoWrapper_t

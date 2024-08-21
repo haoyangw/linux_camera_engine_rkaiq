@@ -2653,16 +2653,20 @@ void convertAiqCgcToIsp21Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBas
 
 #if RKAIQ_HAVE_GAIN_V2
 void convertAiqGainToIsp3xParams(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase) {
-    if (pBase->en) {
+    if (pBase->en && pCvt->mCommonCvtInfo.cnr_path_en) {
         pCvt->isp_params.isp_cfg->module_ens |= ISP3X_MODULE_GAIN;
     } else {
         pCvt->isp_params.isp_cfg->module_ens &= ~ISP3X_MODULE_GAIN;
     }
 
     pCvt->isp_params.isp_cfg->module_en_update |= ISP3X_MODULE_GAIN;
-    pCvt->isp_params.isp_cfg->module_cfg_update |= ISP3X_MODULE_GAIN;
 
     rk_aiq_gain20_params_cvt(pBase->_data, &pCvt->isp_params, &pCvt->mCommonCvtInfo);
+
+    if (memcmp(&pCvt->mLatestGainCfg, &pCvt->isp_params.isp_cfg->others.gain_cfg, sizeof(pCvt->mLatestGainCfg)) != 0) {
+        pCvt->mLatestGainCfg = pCvt->isp_params.isp_cfg->others.gain_cfg;
+        pCvt->isp_params.isp_cfg->module_cfg_update |= ISP3X_MODULE_GAIN;
+    }
 }
 #endif
 

@@ -66,6 +66,7 @@
 typedef struct DehazeContext_s {
     const RkAiqAlgoCom_prepare_t* prepare_params;
     dehaze_api_attrib_t* dehaze_attrib;
+    uint32_t *iso_list;
     int iso;
     bool isReCal_;
     int width;

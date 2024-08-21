@@ -44,22 +44,10 @@ static XCamReturn groupGammaProcessing(const RkAiqAlgoCom* inparams, RkAiqAlgoRe
         return XCAM_RETURN_NO_ERROR;
     }
 
-    if (procParaGroup->attribUpdated) {
-        LOGI("%s attribUpdated", __func__);
-        pGammaGroupCtx->isReCal_ = true;
-    }
     int iso = inparams->u.proc.iso;
 
-    gamma_param_t* gamma_param = procResParaGroup->camgroupParmasArray[0]->gamma;
-
-    if (pGammaGroupCtx->isReCal_) {
-        GammaSelectParam(&pGammaGroupCtx->gamma_attrib->stAuto, gamma_param, iso);
-        outparams->cfg_update = true;
-        outparams->en         = pGammaGroupCtx->gamma_attrib->en;
-        outparams->bypass     = pGammaGroupCtx->gamma_attrib->bypass;
-    } else {
-        outparams->cfg_update = false;
-    }
+    outparams->algoRes = procResParaGroup->camgroupParmasArray[0]->gamma;
+    Agamma_processing(inparams, outparams, iso);
 
     void* gp_ptrs[procResParaGroup->arraySize];
     int gp_size = sizeof(*procResParaGroup->camgroupParmasArray[0]->gamma);
@@ -67,8 +55,6 @@ static XCamReturn groupGammaProcessing(const RkAiqAlgoCom* inparams, RkAiqAlgoRe
         gp_ptrs[i] = procResParaGroup->camgroupParmasArray[i]->gamma;
 
     algo_camgroup_update_results(inparams, outparams, gp_ptrs, gp_size);
-
-    pGammaGroupCtx->isReCal_ = false;
 
     LOGD_AGAMMA("%s exit\n", __FUNCTION__);
     return ret;

@@ -22,6 +22,7 @@
 
 typedef struct {
     sharp_api_attrib_t* sharp_attrib;
+    uint32_t *iso_list;
     int working_mode;
     int pre_iso;
 

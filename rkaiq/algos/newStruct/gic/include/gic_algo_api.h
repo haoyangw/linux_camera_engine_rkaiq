@@ -21,7 +21,8 @@ algo_gic_GetAttrib(
     gic_api_attrib_t *attr
 );
 #endif
-XCamReturn GicSelectParam(gic_param_auto_t *pAuto, gic_param_t* out, int iso);
+//XCamReturn GicSelectParam(gic_param_auto_t *pAuto, gic_param_t* out, int iso);
+XCamReturn Agic_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams, int iso);
 
 extern RkAiqAlgoDescription g_RkIspAlgoDescGic;
 RKAIQ_END_DECLARE

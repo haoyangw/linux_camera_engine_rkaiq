@@ -120,6 +120,7 @@ typedef struct cac_strgInterp_s {
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0, 16.00),
         M4_DEFAULT(0),
+        M4_DIGIT_EX(4f7)
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
@@ -132,6 +133,7 @@ typedef struct cac_strgInterp_s {
         M4_SIZE_EX(1,22),
         M4_RANGE_EX(0, 16.00),
         M4_DEFAULT(1),
+        M4_DIGIT_EX(4f7)
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),

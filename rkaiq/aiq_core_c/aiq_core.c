@@ -1826,6 +1826,7 @@ XCamReturn AiqCore_prepare(AiqCore_t * pAiqCore,
 			pAiqCore->mAlogsComSharedParams.gray_mode = false;
 		}
 	}
+
 #if defined(RKAIQ_HAVE_MULTIISP)
 
 	if (pAiqCore->mHwInfo.is_multi_isp_mode) {
@@ -3252,6 +3253,7 @@ static XCamReturn fixAiqParamsIsp(AiqCore_t* pAiqCore, AiqFullParams_t* aiqParam
     aiq_params_base_t* pAwbBase  = aiqParams->pParamsArray[RESULT_TYPE_AWB_PARAM];
     aiq_params_base_t* pBlcBase  = aiqParams->pParamsArray[RESULT_TYPE_BLC_PARAM];
     aiq_params_base_t* pBtnrBase = aiqParams->pParamsArray[RESULT_TYPE_TNR_PARAM];
+    aiq_params_base_t* pGainBase = aiqParams->pParamsArray[RESULT_TYPE_GAIN_PARAM];
 
     // drc update, maybe predgain update
     if (pDrcBase && pDrcBase->is_update ) {
@@ -3277,6 +3279,10 @@ static XCamReturn fixAiqParamsIsp(AiqCore_t* pAiqCore, AiqFullParams_t* aiqParam
 
     if (pBtnrBase && !pBtnrBase->is_update) {
         pBtnrBase->is_update = true;
+    }
+
+    if (pGainBase && !pGainBase->is_update) {
+        pGainBase->is_update = true;
     }
 
     return XCAM_RETURN_NO_ERROR;

@@ -24,6 +24,7 @@
 
 typedef struct {
     cnr_api_attrib_t* cnr_attrib;
+    uint32_t *iso_list;
     int working_mode;
     int pre_iso;
 

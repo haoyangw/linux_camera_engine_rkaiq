@@ -391,7 +391,44 @@ static void initAeResult(rk_aiq_ae_result_t* pAeResult, rk_aiq_ae_algo_config_t*
     pAeResult->pfn_result.statsCfg.pSwCoWkEnt03 = &pAeResult->pfn_result.statsCfg.hwEnt0;
 }
 
+static
+void pfnAePreRes2AePreRes(RkAiqAlgoContext* algo_ctx, RKAiqAecExpInfo_t exp_params, aeStats_entitiesStats_t stats, float* glb_env) {
 
+    if(algo_ctx->aeCfg.isHdr) {
+
+        float exp[2] = {0.0f, 0.0f};
+        float luma[2] = {0.0f, 0.0f};
+
+        exp[0] = exp_params.HdrExp[0].exp_real_params.integration_time * 1000 * exp_params.HdrExp[0].exp_real_params.analog_gain \
+                 * exp_params.HdrExp[0].exp_real_params.isp_dgain * exp_params.HdrExp[0].exp_real_params.digital_gain;
+
+        exp[1] = exp_params.HdrExp[1].exp_real_params.integration_time * 1000 * exp_params.HdrExp[1].exp_real_params.analog_gain \
+                 * exp_params.HdrExp[1].exp_real_params.isp_dgain * exp_params.HdrExp[1].exp_real_params.digital_gain;
+
+        for(int i = 0; i < AESTATS_ZONE_15x15_NUM; i++) {
+            luma[0] += (float)(stats.entity0.mainWin.hw_ae_meanBayerGrGb_val[i] >> 4); //channelg is 12bit, channelr/channelb is 10bit
+            luma[1] += (float)(stats.entity3.mainWin.hw_ae_meanBayerGrGb_val[i] >> 4); //channelg is 12bit, channelr/channelb is 10bit
+        }
+        luma[0] /= AESTATS_ZONE_15x15_NUM;
+        luma[1] /= AESTATS_ZONE_15x15_NUM;
+
+        glb_env[0] = luma[0] / exp[0];
+        glb_env[1] = luma[1] / exp[1];
+
+    } else {
+        float exp = exp_params.LinearExp.exp_real_params.integration_time * 1000 * exp_params.LinearExp.exp_real_params.analog_gain \
+                    * exp_params.LinearExp.exp_real_params.isp_dgain * exp_params.LinearExp.exp_real_params.digital_gain;
+
+        float luma = 0.0f;
+        for(int i = 0; i < AESTATS_ZONE_15x15_NUM; i++)
+            luma += (float)(stats.entity0.mainWin.hw_ae_meanBayerGrGb_val[i] >> 4); //channelg is 12bit, channelr/channelb is 10bit
+        luma /= AESTATS_ZONE_15x15_NUM;
+
+        glb_env[0] = luma / exp;
+    }
+
+
+}
 
 static
 void pfnAeRes2AeRes(rk_aiq_ae_algo_config_t* pConfig, ae_pfnAe_results_t* pfnAeResult, RkAiqAlgoProcResAe* AeProcRes)
@@ -854,47 +891,41 @@ static XCamReturn AeDemoPreProcess(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom
 
     if(algo_ctx->cbs) {
 
-        RkAiqAlgoPreResAe* AePreResParams = (RkAiqAlgoPreResAe*)outparams;
+        if(algo_ctx->aeCfg.isGroupMode) {
+            RkAiqAlgoCamGroupProcOut* AeProcResParams = (RkAiqAlgoCamGroupProcOut*)outparams;
+            if(!inparams->u.proc.init) {
 
-        if(!inparams->u.proc.init) {
+                for(int j = 0; j < AeProcResParams->arraySize; j++) {
 
-            if(algo_ctx->aeCfg.isHdr) {
-
-                float exp[3] = {0};
-                float luma[3] = {0.0f};
-
-                for(int i = 0; i < algo_ctx->aeCfg.hdrFrmNum; i++) {
-                    exp[i] = algo_ctx->aeInfo.pfn_info.cisRkExp.hdr_exp[i].exp_real_params.integration_time * 1000 \
-                             * algo_ctx->aeInfo.pfn_info.cisRkExp.hdr_exp[i].exp_real_params.analog_gain \
-                             * algo_ctx->aeInfo.pfn_info.cisRkExp.hdr_exp[i].exp_real_params.isp_dgain;
-                }
-#if defined(ISP_HW_V39) || defined(ISP_HW_V33)
-                for(int i = 0; i < AESTATS_ZONE_15x15_NUM; i++) {
-                    luma[0] += (float)(algo_ctx->aeInfo.pfn_info.pHwEnt0->mainWin.hw_ae_meanBayerGrGb_val[i] >> 4); //channelg is 12bit, channelr/channelb is 10bit
-                    luma[1] += (float)(algo_ctx->aeInfo.pfn_info.pHwEnt3->mainWin.hw_ae_meanBayerGrGb_val[i] >> 4); //channelg is 12bit, channelr/channelb is 10bit
-                }
-
-                luma[0] /= AESTATS_ZONE_15x15_NUM;
-                luma[1] /= AESTATS_ZONE_15x15_NUM;
-
-                AePreResParams->ae_pre_res_rk.GlobalEnvLv[0] = luma[0] / exp[0];
-                AePreResParams->ae_pre_res_rk.GlobalEnvLv[1] = luma[1] / exp[1];
+#ifdef USE_IMPLEMENT_C
+                    AlgoRstShared_t* aePreRes_c = AeProcResParams->camgroupParmasArray[j]->aec._aePreRes_c;
+                    RkAiqAlgoPreResAe* aePreRes = (RkAiqAlgoPreResAe*)aePreRes_c->_data;
+#else
+                    XCamVideoBuffer* XaePreRes = AeProcResParams->camgroupParmasArray[j]->aec._aePreRes;
+                    RkAiqAlgoPreResAe* aePreRes = (RkAiqAlgoPreResAe*)XaePreRes->map(XaePreRes);
 #endif
 
-            } else {
+                    pfnAePreRes2AePreRes(algo_ctx, AeProcResParams->camgroupParmasArray[j]->aec.aec_stats_v25->ae_exp, \
+                                         AeProcResParams->camgroupParmasArray[j]->aec.aec_stats_v25->ae_data.entityGroup.entities, \
+                                         aePreRes->ae_pre_res_rk.GlobalEnvLv);
 
-                float exp = algo_ctx->aeInfo.pfn_info.cisRkExp.linear_exp.exp_real_params.integration_time * 1000 \
-                            * algo_ctx->aeInfo.pfn_info.cisRkExp.linear_exp.exp_real_params.analog_gain \
-                            * algo_ctx->aeInfo.pfn_info.cisRkExp.linear_exp.exp_real_params.isp_dgain;
+                }
 
-                float luma = 0.0f;
-                for(int i = 0; i < AESTATS_ZONE_15x15_NUM; i++)
-                    luma += (float)(algo_ctx->aeInfo.pfn_info.pHwEnt0->mainWin.hw_ae_meanBayerGrGb_val[i] >> 4); //channelg is 12bit, channelr/channelb is 10bit
-                luma /= AESTATS_ZONE_15x15_NUM;
+            }
+        } else {
 
-                AePreResParams->ae_pre_res_rk.GlobalEnvLv[0] = luma / exp;
+            RkAiqAlgoPreResAe* AePreResParams = (RkAiqAlgoPreResAe*)outparams;
+
+            if(!inparams->u.proc.init) {
+                RkAiqAlgoPreAe* AePreParams = (RkAiqAlgoPreAe*)inparams;
+
+                RKAiqAecStatsV25_t* xAecStats = AePreParams->aecStatsV25Buf;
+
+                pfnAePreRes2AePreRes(algo_ctx, xAecStats->ae_exp, xAecStats->ae_data.entityGroup.entities, AePreResParams->ae_pre_res_rk.GlobalEnvLv);
+
             }
         }
+
     } else {
         if(algo_ctx->isGrpMode == false)
             ret = g_RkIspAlgoDescAe.pre_process(inparams, outparams);

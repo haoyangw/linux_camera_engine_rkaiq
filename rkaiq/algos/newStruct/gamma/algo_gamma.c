@@ -27,6 +27,7 @@
 #include "xcam_log.h"
 
 // RKAIQ_BEGIN_DECLARE
+XCamReturn GammaSelectParam(GammaContext_t* pGammaCtx, gamma_param_t* out, int iso);
 
 static XCamReturn create_context(RkAiqAlgoContext** context, const AlgoCtxInstanceCfg* cfg) {
     XCamReturn result                 = XCAM_RETURN_NO_ERROR;
@@ -76,9 +77,8 @@ static XCamReturn prepare(RkAiqAlgoCom* params) {
     return result;
 }
 
-static XCamReturn processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams) {
-    XCamReturn result = XCAM_RETURN_NO_ERROR;
-
+XCamReturn Agamma_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams, int iso)
+{
     GammaContext_t* pGammaCtx        = (GammaContext_t*)inparams->ctx;
     gamma_api_attrib_t* gamma_attrib = pGammaCtx->gamma_attrib;
 
@@ -97,14 +97,13 @@ static XCamReturn processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
     if (inparams->u.proc.is_attrib_update) {
         pGammaCtx->isReCal_ = true;
     }
-    int iso = inparams->u.proc.iso;
     float delta_iso = (float)abs(iso - pGammaCtx->iso);
     if (delta_iso > DEFAULT_RECALCULATE_DELTA_ISO) {
         pGammaCtx->isReCal_ = true;
     }
 
     if (pGammaCtx->isReCal_) {
-        GammaSelectParam(&pGammaCtx->gamma_attrib->stAuto, outparams->algoRes, iso);
+        GammaSelectParam(pGammaCtx, outparams->algoRes, iso);
         outparams->cfg_update = true;
         outparams->en         = gamma_attrib->en;
         outparams->bypass     = gamma_attrib->bypass;
@@ -118,9 +117,17 @@ static XCamReturn processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
     return XCAM_RETURN_NO_ERROR;
 }
 
-XCamReturn GammaSelectParam(agamma_param_auto_t* paut, gamma_param_t* out, int iso) {
+static XCamReturn processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
+{
+    int iso = inparams->u.proc.iso;
+    Agamma_processing(inparams, outparams, iso);
+    return XCAM_RETURN_NO_ERROR;
+}
+
+XCamReturn GammaSelectParam(GammaContext_t* pGammaCtx, gamma_param_t* out, int iso) {
     LOGI_AGAMMA("%s(%d): enter!\n", __FUNCTION__, __LINE__);
 
+    agamma_param_auto_t *paut = &pGammaCtx->gamma_attrib->stAuto;
     if (paut == NULL || out == NULL) {
         LOGE_AGAMMA("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
         return XCAM_RETURN_ERROR_PARAM;
@@ -129,7 +136,7 @@ XCamReturn GammaSelectParam(agamma_param_auto_t* paut, gamma_param_t* out, int i
     int iso_low = 0, iso_high = 0, ilow = 0, ihigh = 0;
     float ratio = 0.0f;
     uint16_t uratio;
-    int iso_list[GAMMA_ISO_STEP_MAX] = {0};
+    uint32_t iso_list[GAMMA_ISO_STEP_MAX] = {0};
     for (int i = 0; i < GAMMA_ISO_STEP_MAX; i++) {
         iso_list[i] = paut->dyn[i].iso;
     }

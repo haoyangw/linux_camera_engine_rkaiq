@@ -34,6 +34,7 @@
 typedef struct DpcContext_s {
     const RkAiqAlgoCom_prepare_t* prepare_params;
     dpc_api_attrib_t* dpc_attrib;
+    uint32_t *iso_list;
     int iso;
     bool isReCal_;
     bool isBlackSensor;

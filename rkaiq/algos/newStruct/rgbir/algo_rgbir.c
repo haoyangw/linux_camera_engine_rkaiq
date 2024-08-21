@@ -25,6 +25,8 @@
 #include "interpolation.h"
 #include "c_base/aiq_base.h"
 
+XCamReturn RgbirSelectParam(RgbirContext_t *pRgbirCtx, rgbir_param_t* out, int iso);
+
 static XCamReturn
 create_context(RkAiqAlgoContext **context, const AlgoCtxInstanceCfg* cfg)
 {
@@ -69,6 +71,7 @@ prepare(RkAiqAlgoCom* params)
         if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
             pRgbirCtx->rgbir_attrib =
                 (rgbir_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, rgbir));
+            pRgbirCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
             return XCAM_RETURN_NO_ERROR;
         }
     }
@@ -76,17 +79,15 @@ prepare(RkAiqAlgoCom* params)
     pRgbirCtx->working_mode = params->u.prepare.working_mode;
     pRgbirCtx->rgbir_attrib =
         (rgbir_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, rgbir));
+    pRgbirCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
     pRgbirCtx->prepare_params = &params->u.prepare;
     pRgbirCtx->isReCal_ = true;
 
     return result;
 }
 
-static XCamReturn
-processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
+XCamReturn Argbir_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams, int iso)
 {
-    XCamReturn result = XCAM_RETURN_NO_ERROR;
-
     RgbirContext_t* pRgbirCtx = (RgbirContext_t *)inparams->ctx;
     rgbir_api_attrib_t* rgbir_attrib = pRgbirCtx->rgbir_attrib;
     rgbir_param_t* pRgbirProcResParams = outparams->algoRes;
@@ -100,7 +101,6 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
     }
 
     float blc_ob_predgain = 1.0;
-    int iso = inparams->u.proc.iso;
 
     if (pRgbirCtx->working_mode == RK_AIQ_WORKING_MODE_NORMAL)
         iso = iso * blc_ob_predgain;
@@ -126,7 +126,7 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
         pRgbirCtx->isReCal_ = true;
 
     if (pRgbirCtx->isReCal_) {
-        RgbirSelectParam(&pRgbirCtx->rgbir_attrib->stAuto, pRgbirProcResParams, iso);
+        RgbirSelectParam(pRgbirCtx, pRgbirProcResParams, iso);
         outparams->cfg_update = true;
         outparams->en = rgbir_attrib->en;
         outparams->bypass = rgbir_attrib->bypass;
@@ -137,6 +137,13 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
     pRgbirCtx->isReCal_ = false;
 
     LOGV_ARGBIR("%s: Rgbir (exit)\n", __FUNCTION__ );
+    return XCAM_RETURN_NO_ERROR;
+}
+static XCamReturn
+processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
+{
+    int iso = inparams->u.proc.iso;
+    Argbir_processing(inparams, outparams, iso);
     return XCAM_RETURN_NO_ERROR;
 }
 
@@ -202,11 +209,13 @@ algo_rgbir_GetAttrib(const RkAiqAlgoContext *ctx,
 #if RKAIQ_HAVE_RGBIR_REMOSAIC
 XCamReturn RgbirSelectParam
 (
-    rgbir_param_auto_t *pAuto,
+    RgbirContext_t *pRgbirCtx,
     rgbir_param_t* out,
     int iso)
 {
-    if(pAuto == NULL || out == NULL) {
+    rgbir_param_auto_t *paut = &pRgbirCtx->rgbir_attrib->stAuto;
+
+    if(paut == NULL || out == NULL) {
         LOGE_ARGBIR("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
         return XCAM_RETURN_ERROR_PARAM;
     }
@@ -215,9 +224,8 @@ XCamReturn RgbirSelectParam
     int iso_low = 0, iso_high = 0, ilow = 0, ihigh = 0, inear = 0;
     float ratio = 0.0f;
     uint16_t uratio;
-    rgbir_param_auto_t *paut = pAuto;
 
-    pre_interp(iso, NULL, 0, &ilow, &ihigh, &ratio);
+    pre_interp(iso, pRgbirCtx->iso_list, 13, &ilow, &ihigh, &ratio);
     uratio = ratio * (1 << RATIO_FIXBIT);
 
     out->dyn.hw_rgbir_remosaic_edge_coef = interpolation_u16(

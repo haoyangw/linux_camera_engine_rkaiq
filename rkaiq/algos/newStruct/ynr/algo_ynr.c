@@ -146,7 +146,7 @@ XCamReturn YnrSelectParam
         return XCAM_RETURN_ERROR_PARAM;
     }
 
-    pre_interp(iso, NULL, 0, &ilow, &ihigh, &ratio);
+    pre_interp(iso, pYnrCtx->iso_list, 13, &ilow, &ihigh, &ratio);
     uratio = ratio * (1 << RATIO_FIXBIT);
 
     if (ratio > 0.5)
@@ -332,7 +332,7 @@ XCamReturn YnrSelectParam
         return XCAM_RETURN_ERROR_PARAM;
     }
 
-    pre_interp(iso, NULL, 0, &ilow, &ihigh, &ratio);
+    pre_interp(iso, pYnrCtx->iso_list, 13, &ilow, &ihigh, &ratio);
     uratio = ratio * (1 << RATIO_FIXBIT);
 
     if (ratio > 0.5) {
@@ -581,6 +581,7 @@ prepare(RkAiqAlgoCom* params)
         if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
             pYnrCtx->ynr_attrib =
                 (ynr_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, ynr));
+            pYnrCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
             return XCAM_RETURN_NO_ERROR;
         }
     }
@@ -588,6 +589,7 @@ prepare(RkAiqAlgoCom* params)
     pYnrCtx->working_mode = params->u.prepare.working_mode;
     pYnrCtx->ynr_attrib =
         (ynr_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, ynr));
+    pYnrCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
     pYnrCtx->isReCal_ = true;
     pYnrCtx->init_json = true;
 

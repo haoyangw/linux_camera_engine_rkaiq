@@ -148,7 +148,7 @@ XCamReturn BtnrSelectParam
         return XCAM_RETURN_ERROR_PARAM;
     }
 
-    pre_interp(iso, NULL, 0, &ilow, &ihigh, &ratio);
+    pre_interp(iso, pBtnrCtx->iso_list, 13, &ilow, &ihigh, &ratio);
     uratio = ratio * (1 << RATIO_FIXBIT);
 
     if (ratio > 0.5)
@@ -376,7 +376,7 @@ XCamReturn BtnrSelectParam
         return XCAM_RETURN_ERROR_PARAM;
     }
 
-    pre_interp(iso, NULL, 0, &ilow, &ihigh, &ratio);
+    pre_interp(iso, pBtnrCtx->iso_list, 13, &ilow, &ihigh, &ratio);
     uratio = ratio * (1 << RATIO_FIXBIT);
 
     if (ratio > 0.5)
@@ -480,6 +480,7 @@ prepare(RkAiqAlgoCom* params)
         if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
             pBtnrCtx->btnr_attrib =
                 (btnr_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, bayertnr));
+            pBtnrCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
             return XCAM_RETURN_NO_ERROR;
         }
     }
@@ -487,6 +488,7 @@ prepare(RkAiqAlgoCom* params)
     pBtnrCtx->working_mode = params->u.prepare.working_mode;
     pBtnrCtx->btnr_attrib =
         (btnr_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, bayertnr));
+    pBtnrCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
     pBtnrCtx->isReCal_ = true;
     return result;
 }

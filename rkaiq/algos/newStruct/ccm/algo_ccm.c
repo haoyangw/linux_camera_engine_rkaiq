@@ -309,7 +309,7 @@ CcmSelectParam(CcmContext_t *pCcmCtx, ccm_param_t* out, int iso)
     ccm_api_attrib_t* tunning = &pCcmCtx->ccm_attrib->tunning;
     accm_param_isoLink_t* isoLink = tunning->stAuto.dyn.isoLink;
 
-    pre_interp(iso, NULL, 0, &ilow, &ihigh, &ratio);
+    pre_interp(iso, pCcmCtx->iso_list, 13, &ilow, &ihigh, &ratio);
     uratio = ratio * (1 << RATIO_FIXBIT);
 
     if (ratio > 0.5)
@@ -354,6 +354,7 @@ XCamReturn Accm_prepare(RkAiqAlgoCom* params)
     CcmContext_t* pCcmCtx = (CcmContext_t *)params->ctx;
     pCcmCtx->ccm_attrib =
         (ccm_calib_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, ccm));
+    pCcmCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
 
     pCcmCtx->pre_illu_idx = INVALID_ILLU_IDX;
     pCcmCtx->pre_saturation = 0.0;

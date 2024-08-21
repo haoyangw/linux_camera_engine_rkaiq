@@ -88,12 +88,14 @@ prepare(RkAiqAlgoCom* params)
         if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
             pDpcCtx->dpc_attrib =
                 (dpc_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, dpc));
+            pDpcCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
             return XCAM_RETURN_NO_ERROR;
         }
     }
 
     pDpcCtx->dpc_attrib =
         (dpc_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, dpc));
+    pDpcCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
     pDpcCtx->prepare_params = &params->u.prepare;
     pDpcCtx->isReCal_ = true;
 
@@ -163,7 +165,7 @@ XCamReturn DpcSelectParam(DpcContext_t *pDpcCtx, dpc_param_t* out, int iso)
     int i = 0;
     int iso_low = 0, iso_high = 0, ilow = 0, ihigh = 0;
     float ratio = 0.0f;
-    pre_interp(iso, NULL, 0, &ilow, &ihigh, &ratio);
+    pre_interp(iso, pDpcCtx->iso_list, 13, &ilow, &ihigh, &ratio);
 
     bool fast_enable = paut->sta.fast_mode_en == 0 ? false : true;
     if(fast_enable == false)
@@ -1740,7 +1742,7 @@ XCamReturn DpcSelectParam(DpcContext_t* pDpcCtx, dpc_param_t* out, int iso) {
     int i = 0;
     int iso_low = 0, iso_high = 0, ilow = 0, ihigh = 0;
     float ratio = 0.0f;
-    pre_interp(iso, NULL, 0, &ilow, &ihigh, &ratio);
+    pre_interp(iso, pDpcCtx->iso_list, 13, &ilow, &ihigh, &ratio);
     uint16_t uratio = ratio * (1 << RATIO_FIXBIT);
 
     out->sta.dpcProc = paut->sta.dpcProc;

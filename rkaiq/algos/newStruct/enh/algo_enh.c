@@ -38,7 +38,7 @@ XCamReturn EnhSelectParam(EnhContext_t* pEnhCtx, enh_param_t* out, int iso) {
     uint16_t uratio;
     enh_param_auto_t* paut = &pEnhCtx->enh_attrib->stAuto;
 
-    pre_interp(iso, NULL, 0, &ilow, &ihigh, &ratio);
+    pre_interp(iso, pEnhCtx->iso_list, 13, &ilow, &ihigh, &ratio);
     uratio = ratio * (1 << RATIO_FIXBIT);
 
     if (ratio > 0.5)
@@ -169,6 +169,7 @@ static XCamReturn prepare(RkAiqAlgoCom* params) {
 
     pEnhCtx->enh_attrib =
         (enh_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, enh));
+    pEnhCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
     pEnhCtx->isReCal_ = true;
 
     return result;

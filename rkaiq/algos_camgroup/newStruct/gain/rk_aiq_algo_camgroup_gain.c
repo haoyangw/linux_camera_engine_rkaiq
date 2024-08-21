@@ -45,7 +45,7 @@ static XCamReturn groupGainProcessing(const RkAiqAlgoCom* inparams, RkAiqAlgoRes
         return XCAM_RETURN_NO_ERROR;
     }
 
-    int iso = pGainGroupCtx->iso;
+    int iso = 50;
     float blc_ob_predgain = procParaGroup->stAblcV32_proc_res.isp_ob_predgain;
     rk_aiq_singlecam_3a_result_t* scam_3a_res = procParaGroup->camgroupParmasArray[0];
     if(scam_3a_res->aec._bEffAecExpValid) {
@@ -57,23 +57,8 @@ static XCamReturn groupGainProcessing(const RkAiqAlgoCom* inparams, RkAiqAlgoRes
         }
     }
 
-    if (procParaGroup->attribUpdated) {
-        LOGI("%s attribUpdated", __func__);
-        pGainGroupCtx->isReCal_ = true;
-    }
-
-    int delta_iso = abs(iso - pGainGroupCtx->iso);
-    if (delta_iso > AGAINV2_RECALCULATE_DELTA_ISO)
-        pGainGroupCtx->isReCal_ = true;
-
-    gain_param_t *gain_param = procResParaGroup->camgroupParmasArray[0]->gain;
-
-    if (pGainGroupCtx->isReCal_) {
-        GainSelectParam(&pGainGroupCtx->gain_attrib->stAuto, gain_param, iso);
-		outparams->cfg_update = true;
-	} else {
-		outparams->cfg_update = false;
-	}
+    outparams->algoRes = procResParaGroup->camgroupParmasArray[0]->gain;
+    Again_processing(inparams, outparams, iso);
 
 	void* gp_ptrs[procResParaGroup->arraySize];
 	int gp_size = sizeof(*procResParaGroup->camgroupParmasArray[0]->gain);
@@ -81,9 +66,6 @@ static XCamReturn groupGainProcessing(const RkAiqAlgoCom* inparams, RkAiqAlgoRes
 		gp_ptrs[i] = procResParaGroup->camgroupParmasArray[i]->gain;
 
 	algo_camgroup_update_results(inparams, outparams, gp_ptrs, gp_size);
-
-    pGainGroupCtx->iso = iso;
-    pGainGroupCtx->isReCal_ = false;
 
     LOGD_ANR("%s exit\n", __FUNCTION__);
     return ret;

@@ -25,6 +25,8 @@
 #include "interpolation.h"
 #include "c_base/aiq_base.h"
 
+XCamReturn GicSelectParam(GicContext_t *pGicCtx, gic_param_t* out, int iso);
+
 #define GIC_V22_ISO_CURVE_POINT_BIT          4
 #define GIC_V22_ISO_CURVE_POINT_NUM          ((1 << GIC_V22_ISO_CURVE_POINT_BIT)+1)
 
@@ -72,6 +74,7 @@ prepare(RkAiqAlgoCom* params)
         if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
             pGicCtx->gic_attrib =
                 (gic_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, gic));
+            pGicCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
             return XCAM_RETURN_NO_ERROR;
         }
     }
@@ -79,17 +82,15 @@ prepare(RkAiqAlgoCom* params)
     pGicCtx->working_mode = params->u.prepare.working_mode;
     pGicCtx->gic_attrib =
         (gic_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, gic));
+    pGicCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
     pGicCtx->prepare_params = &params->u.prepare;
     pGicCtx->isReCal_ = true;
 
     return result;
 }
 
-static XCamReturn
-processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
+XCamReturn Agic_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams, int iso)
 {
-    XCamReturn result = XCAM_RETURN_NO_ERROR;
-
     GicContext_t* pGicCtx = (GicContext_t *)inparams->ctx;
     gic_api_attrib_t* gic_attrib = pGicCtx->gic_attrib;
 
@@ -99,8 +100,6 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
         LOGE_ANR("gic_attrib is NULL !");
         return XCAM_RETURN_ERROR_MEM;
     }
-    int iso = inparams->u.proc.iso;
-
     bool init = inparams->u.proc.init;
     int delta_iso = abs(iso - pGicCtx->iso);
 
@@ -124,7 +123,7 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
     if (pGicCtx->isReCal_) {
         gic_param_t* gic_res = outparams->algoRes;
         gic_res->sta = pGicCtx->gic_attrib->stAuto.sta;
-        GicSelectParam(&pGicCtx->gic_attrib->stAuto, outparams->algoRes, iso);
+        GicSelectParam(pGicCtx, outparams->algoRes, iso);
         outparams->cfg_update = true;
         outparams->en = gic_attrib->en;
         outparams->bypass = gic_attrib->bypass;
@@ -135,6 +134,14 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
     pGicCtx->isReCal_ = false;
 
     LOGV_ANR("%s: Gic (exit)\n", __FUNCTION__ );
+    return XCAM_RETURN_NO_ERROR;
+}
+
+static XCamReturn
+processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
+{
+    int iso = inparams->u.proc.iso;
+    Agic_processing(inparams, outparams, iso);
     return XCAM_RETURN_NO_ERROR;
 }
 
@@ -162,11 +169,13 @@ algo_gic_GetAttrib(const RkAiqAlgoContext *ctx,
 #endif
 XCamReturn GicSelectParam
 (
-    gic_param_auto_t *pAuto,
+    GicContext_t *pGicCtx,
     gic_param_t* out,
     int iso)
 {
-    if(pAuto == NULL || out == NULL) {
+    gic_param_auto_t *paut = &pGicCtx->gic_attrib->stAuto;
+
+    if(paut == NULL || out == NULL) {
         LOGE_ANR("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
         return XCAM_RETURN_ERROR_PARAM;
     }
@@ -175,9 +184,8 @@ XCamReturn GicSelectParam
     int iso_low = 0, iso_high = 0, ilow = 0, ihigh = 0, inear = 0;
     float ratio = 0.0f;
     uint16_t uratio;
-    gic_param_auto_t *paut = pAuto;
 
-    pre_interp(iso, NULL, 0, &ilow, &ihigh, &ratio);
+    pre_interp(iso, pGicCtx->iso_list, 13, &ilow, &ihigh, &ratio);
     uratio = ratio * (1 << RATIO_FIXBIT);
 
     if (ratio > 0.5)

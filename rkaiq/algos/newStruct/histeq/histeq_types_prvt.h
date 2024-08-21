@@ -38,6 +38,7 @@
 
 typedef struct {
     histeq_api_attrib_t* histeq_attrib;
+    uint32_t *iso_list;
     int iso;
     bool isReCal_;
 } HisteqContext_t;

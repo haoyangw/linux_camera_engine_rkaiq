@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
+#include <sys/prctl.h>
+#include <signal.h>
 #include "aiq_thread.h"
 #include "c_base/aiq_base.h"
-
-#include <signal.h>
-
 #include "base/xcam_log.h"
 
 AiqThread_t* aiqThread_init(const char* name, AiqThread_func loop, void* arg) {
@@ -106,6 +105,12 @@ static void* thread_func(void* user_data) {
     sigaddset(&set, SIGINT);
     sigaddset(&set, SIGTERM);
     pthread_sigmask(SIG_BLOCK, &set, NULL);
+    if (thread->_name) {
+        char thread_name[16];
+        xcam_mem_clear(thread_name);
+        snprintf(thread_name, sizeof(thread_name), "xc:%s", XCAM_STR(thread->_name));
+        prctl(PR_SET_NAME, thread_name);
+    }
     while (true) {
         {
             aiqMutex_lock(&thread->_mutex);

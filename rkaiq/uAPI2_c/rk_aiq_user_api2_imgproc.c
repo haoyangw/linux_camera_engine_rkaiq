@@ -3522,7 +3522,6 @@ XCamReturn rk_aiq_uapi2_setMWBGain(const rk_aiq_sys_ctx_t* ctx, rk_aiq_wb_gain_t
     awb_gainCtrl_t attr;
     ret = rk_aiq_user_api2_awb_GetWbGainCtrlAttrib(ctx, &attr );
     RKAIQ_IMGPROC_CHECK_RET(ret, "GetWbGainCtrlAttrib failed!");
-    attr.opMode = RK_AIQ_OP_MODE_MANUAL;
     attr.manualPara.mode = mwb_mode_wbgain;
     attr.manualPara.cfg.manual_wbgain[0] = gain->rgain;
     attr.manualPara.cfg.manual_wbgain[1] = gain->grgain;
@@ -4829,10 +4828,8 @@ XCamReturn rk_aiq_uapi2_setMirrorFlip(const rk_aiq_sys_ctx_t* ctx, bool mirror, 
     ret = AiqManager_setMirrorFlip(ctx->_rkAiqManager, mirror, flip, skip_frm_cnt);
     if (set_btnr_bypass) {
         rk_aiq_user_api2_btnr_GetAttrib(ctx, &btnr_attr);
-        if (btnr_sta.en && btnr_sta.bypass) {
-            btnr_attr.bypass = false;
-            rk_aiq_user_api2_btnr_SetAttrib(ctx, &btnr_attr);
-        }
+        btnr_attr.bypass = false;
+        rk_aiq_user_api2_btnr_SetAttrib(ctx, &btnr_attr);
     }
     return ret;
 }
@@ -5305,7 +5302,7 @@ XCamReturn rk_aiq_uapi2_setColorSpace(const rk_aiq_sys_ctx_t* ctx, int Cspace)
     cgc_api_attrib_t cgc_attrib;
     memset(&csm_attrib, 0, sizeof(csm_api_attrib_t));
     memset(&cgc_attrib, 0, sizeof(cgc_api_attrib_t));
-    if (Cspace < 0 || Cspace > 3) {
+    if (Cspace < 0 || Cspace > 255) {
         ret = XCAM_RETURN_ERROR_PARAM;
         RKAIQ_IMGPROC_CHECK_RET(ret, "mode out of range, setColorSpace failed!");
     }

@@ -26,6 +26,7 @@
 
 typedef struct {
     ynr_api_attrib_t* ynr_attrib;
+    uint32_t *iso_list;
     int working_mode;
     int pre_iso;
 

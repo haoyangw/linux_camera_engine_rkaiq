@@ -69,7 +69,7 @@ XCamReturn CnrSelectParam
         return XCAM_RETURN_ERROR_PARAM;
     }
 
-    pre_interp(iso, NULL, 0, &ilow, &ihigh, &ratio);
+    pre_interp(iso, pCnrCtx->iso_list, 13, &ilow, &ihigh, &ratio);
     uratio = ratio * (1 << RATIO_FIXBIT);
 
     if (ratio > 0.5)
@@ -203,7 +203,7 @@ XCamReturn CnrSelectParam
         return XCAM_RETURN_ERROR_PARAM;
     }
 
-    pre_interp(iso, NULL, 0, &ilow, &ihigh, &ratio);
+    pre_interp(iso, pCnrCtx->iso_list, 13, &ilow, &ihigh, &ratio);
     uratio = ratio * (1 << RATIO_FIXBIT);
 
     if (ratio > 0.5)
@@ -372,6 +372,7 @@ prepare(RkAiqAlgoCom* params)
         if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
             pCnrCtx->cnr_attrib =
                 (cnr_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, cnr));
+            pCnrCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
             return XCAM_RETURN_NO_ERROR;
         }
     }
@@ -379,6 +380,7 @@ prepare(RkAiqAlgoCom* params)
     pCnrCtx->working_mode = params->u.prepare.working_mode;
     pCnrCtx->cnr_attrib =
         (cnr_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, cnr));
+    pCnrCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
     pCnrCtx->isReCal_ = true;
 
     return result;

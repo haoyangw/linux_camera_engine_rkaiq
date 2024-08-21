@@ -1492,10 +1492,12 @@ rk_aiq_uapi2_sysctl_getModuleEn(const rk_aiq_sys_ctx_t* ctx,
     mod->module_ctl[RESULT_TYPE_AEC_PARAM].en = mode == OP_AUTO ? 1 : 0;
     mod->module_ctl[RESULT_TYPE_AEC_PARAM].bypass = 0;
     mod->module_ctl[RESULT_TYPE_AEC_PARAM].opMode = mode == OP_AUTO ? RK_AIQ_OP_MODE_AUTO : RK_AIQ_OP_MODE_MANUAL;
-    rk_aiq_uapi2_getWBMode(sys_ctx, &mode);
-    mod->module_ctl[RESULT_TYPE_AWB_PARAM].en = mode == OP_AUTO ? 1 : 0;
-    mod->module_ctl[RESULT_TYPE_AWB_PARAM].bypass = 0;
-    mod->module_ctl[RESULT_TYPE_AWB_PARAM].opMode = mode == OP_AUTO ? RK_AIQ_OP_MODE_AUTO : RK_AIQ_OP_MODE_MANUAL;
+    // rk_aiq_uapi2_getWBMode(sys_ctx, &mode);
+    awb_gainCtrl_t attr;
+    ret = rk_aiq_user_api2_awb_GetWbGainCtrlAttrib(ctx, &attr);
+    mod->module_ctl[RESULT_TYPE_AWB_PARAM].en = attr.opMode == RK_AIQ_OP_MODE_AUTO ? 1 : 0;
+    mod->module_ctl[RESULT_TYPE_AWB_PARAM].bypass = attr.byPass;
+    mod->module_ctl[RESULT_TYPE_AWB_PARAM].opMode = attr.opMode;
 #ifdef RKAIQ_HAVE_AF
     rk_aiq_uapi2_getFocusMode(sys_ctx, &mode);
     mod->module_ctl[RESULT_TYPE_AF_PARAM].en = mode == OP_AUTO ? 1 : 0;
@@ -1531,12 +1533,11 @@ rk_aiq_uapi2_sysctl_setModuleEn(const rk_aiq_sys_ctx_t* ctx,
             }
         }
         else if (cur_type == RESULT_TYPE_AWB_PARAM) {
-            if (mod->module_ctl[i].opMode == RK_AIQ_OP_MODE_AUTO) {
-                rk_aiq_uapi2_setWBMode(ctx, OP_AUTO);
-            }
-            else {
-                rk_aiq_uapi2_setWBMode(ctx, OP_MANUAL);
-            }
+            awb_gainCtrl_t attr;
+            ret = rk_aiq_user_api2_awb_GetWbGainCtrlAttrib(ctx, &attr);
+            attr.opMode = mod->module_ctl[i].opMode;
+            attr.byPass = mod->module_ctl[i].bypass;
+            ret = rk_aiq_user_api2_awb_SetWbGainCtrlAttrib(ctx, &attr);
         }
 #ifdef RKAIQ_HAVE_AF
         else if (cur_type == RESULT_TYPE_AF_PARAM) {

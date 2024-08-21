@@ -25,6 +25,7 @@
 typedef struct {
     const RkAiqAlgoCom_prepare_t* prepare_params;
     gain_api_attrib_t* gain_attrib;
+    uint32_t *iso_list;
     int iso;
     bool isReCal_;
 } GainContext_t;

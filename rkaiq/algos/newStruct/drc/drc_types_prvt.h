@@ -75,6 +75,7 @@ typedef struct CurrData_s {
 typedef struct DrcContext_s {
     const RkAiqAlgoCom_prepare_t* prepare_params;
     drc_api_attrib_t* drc_attrib;
+    uint32_t *iso_list;
     int iso;
     bool isReCal_;
     FrameNumber_t FrameNumber;

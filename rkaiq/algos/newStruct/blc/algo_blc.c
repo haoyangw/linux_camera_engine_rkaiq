@@ -78,10 +78,12 @@ prepare(RkAiqAlgoCom* params)
         if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
             pBlcCtx->blc_attrib =
                 (blc_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, blc));
+            pBlcCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
             pBlcCtx->isReCal_ = true;
         }
     }
 
+    pBlcCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
     LOG1_ABLC("%s: (exit)\n", __FUNCTION__ );
     return result;
 }
@@ -183,7 +185,7 @@ BlcSelectParam(BlcContext_t *pBlcCtx, blc_param_t* out, int iso)
     uint16_t uratio;
     blc_param_auto_t *paut = &pBlcCtx->blc_attrib->stAuto;
 
-    pre_interp(iso, NULL, 0, &ilow, &ihigh, &ratio);
+    pre_interp(iso, pBlcCtx->iso_list, 13, &ilow, &ihigh, &ratio);
     uratio = ratio * (1 << RATIO_FIXBIT);
 
     // TODO: selecct param

@@ -38,6 +38,7 @@
 
 typedef struct {
     enh_api_attrib_t* enh_attrib;
+    uint32_t *iso_list;
     aenh_strength_t strg;
     int iso;
     bool isReCal_;

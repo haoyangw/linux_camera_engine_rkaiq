@@ -81,7 +81,7 @@ void rk_aiq_blc30_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
         // hdr won't use blc1 and blc_ob
         phwcfg->bls1_en = 0;
         phwcfg->isp_ob_offset = 0;
-        phwcfg->isp_ob_predgain = CLIP((int)(1 * (1 << 8)), 0, 65535);
+        phwcfg->isp_ob_predgain = 0;
     }
 
     if (phwcfg->isp_ob_predgain != 0 && fabs(phwcfg->isp_ob_predgain - (float)0x100) > FLT_EPSILON) {

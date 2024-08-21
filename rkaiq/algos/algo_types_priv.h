@@ -339,6 +339,7 @@ typedef struct {
 
 #define DRC_AE_HIST_BIN_NUM (256)
 typedef struct rkisp_adrc_stats_s {
+    uint32_t frame_id;
     bool stats_true;
     int ae_hist_total_num;
     unsigned int aeHiatBins[DRC_AE_HIST_BIN_NUM];
@@ -528,13 +529,6 @@ typedef struct _RkAiqAlgoConfigGain {
 typedef struct {
     RkAiqAlgoCom com;
 } RkAiqAlgoProcGain;
-
-typedef struct {
-    RkAiqAlgoResCom res_com;
-#if USE_NEWSTRUCT
-    gain_param_t* gainRes;
-#endif
-} RkAiqAlgoProcResGain;
 
 typedef struct _RkAiqAlgoConfigAf {
     RkAiqAlgoCom com;

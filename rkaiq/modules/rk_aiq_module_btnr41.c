@@ -853,9 +853,9 @@ void rk_aiq_btnr41_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
     tmp = (pmdDyn->mdSigma.hw_btnrT_sigmaHdrS_scale) * (1 << 10);
     pCfg->sigma_hdr_sht_scale = CLIP(tmp, 0, 0x3fff);
     // REG: BAY3D_DSOFF
-    tmp = (pmdDyn->subLoMd1.hw_btnrT_vIIRWgt_offset);
+    tmp = (pmdDyn->subLoMd1.hw_btnrT_vIIRWgt_offset) * (1 << 10);
     pCfg->lo_wgt_vfilt_offset = CLIP(tmp, 0, 0x3ff);
-    tmp = (pmdDyn->subLoMd0.diffCh.hw_btnrT_vIIRWgt_offset) * (1 << 12);
+    tmp = (pmdDyn->subLoMd0.diffCh.hw_btnrT_vIIRWgt_offset);
     pCfg->lo_diff_vfilt_offset = CLIP(tmp, 0, 0xfff);
     tmp = (0) * (1 << 4);
     pCfg->lo_wgt_cal_first_line_vfilt_wgt = CLIP(tmp, 0, 0x3f);

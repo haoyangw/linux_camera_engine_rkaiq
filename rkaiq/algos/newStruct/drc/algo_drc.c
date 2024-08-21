@@ -36,6 +36,7 @@
 #define LIMIT_VALUE_UNSIGNED(value, max_value) (value > max_value ? max_value : value)
 #endif
 #define MANUALCURVEMAX (8192)
+#define POW_E_NEG6     (0.0025f)
 
 // RKAIQ_BEGIN_DECLARE
 static XCamReturn create_context(RkAiqAlgoContext** context, const AlgoCtxInstanceCfg* cfg) {
@@ -81,6 +82,7 @@ static XCamReturn prepare(RkAiqAlgoCom* params) {
         if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
             pDrcCtx->drc_attrib =
                 (drc_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, drc));
+            pDrcCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
             return XCAM_RETURN_NO_ERROR;
         }
     } else if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_CHANGERES) {
@@ -89,6 +91,7 @@ static XCamReturn prepare(RkAiqAlgoCom* params) {
 
     pDrcCtx->drc_attrib =
         (drc_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, drc));
+    pDrcCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
     pDrcCtx->prepare_params = &params->u.prepare;
     pDrcCtx->isReCal_       = true;
 
@@ -152,7 +155,11 @@ static XCamReturn processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
         return XCAM_RETURN_NO_ERROR;
     }
 
-    if (delta_iso > DEFAULT_RECALCULATE_DELTA_ISO) {
+    bool isExpoTimeChange =
+        (pDrcCtx->CurrData.AEData.LTime - pDrcCtx->NextData.AEData.LTime) > FLT_EPSILON ||
+        (pDrcCtx->CurrData.AEData.LTime - pDrcCtx->NextData.AEData.LTime) < -FLT_EPSILON;
+
+    if (delta_iso > DEFAULT_RECALCULATE_DELTA_ISO || isExpoTimeChange) {
         pDrcCtx->isReCal_ = true;
     }
 
@@ -201,6 +208,9 @@ static XCamReturn processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
     pDrcCtx->CurrData.AEData.L2M_Ratio   = pDrcCtx->NextData.AEData.L2M_Ratio;
     pDrcCtx->CurrData.AEData.M2S_Ratio   = pDrcCtx->NextData.AEData.M2S_Ratio;
     pDrcCtx->CurrData.AEData.L2S_Ratio   = pDrcCtx->NextData.AEData.L2S_Ratio;
+    pDrcCtx->CurrData.AEData.LTime       = pDrcCtx->NextData.AEData.LTime;
+    pDrcCtx->CurrData.AEData.MTime       = pDrcCtx->NextData.AEData.MTime;
+    pDrcCtx->CurrData.AEData.STime       = pDrcCtx->NextData.AEData.STime;
 
     LOGV_ATMO("%s: (exit)\n", __FUNCTION__);
     return XCAM_RETURN_NO_ERROR;
@@ -219,7 +229,7 @@ XCamReturn DrcSelectParam(DrcContext_t* pDrcCtx, drc_param_t* out, int iso) {
     int i                  = 0;
     int iso_low = 0, iso_high = 0, ilow = 0, ihigh = 0;
     float ratio = 0.0f;
-    pre_interp(iso, NULL, 0, &ilow, &ihigh, &ratio);
+    pre_interp(iso, pDrcCtx->iso_list, 13, &ilow, &ihigh, &ratio);
 
     out->dyn.DrcGain.DrcGain =
         interpolation_f32(paut->dyn[ilow].DrcGain.DrcGain, paut->dyn[ihigh].DrcGain.DrcGain, ratio);
@@ -530,7 +540,7 @@ XCamReturn DrcSelectParam(DrcContext_t* pDrcCtx, drc_param_t* out, trans_params_
     int iso_low = 0, iso_high = 0, ilow = 0, ihigh = 0, inear = 0;
     float ratio = 0.0f;
     uint16_t uratio;
-    pre_interp(iso, NULL, 0, &ilow, &ihigh, &ratio);
+    pre_interp(iso, pDrcCtx->iso_list, 13, &ilow, &ihigh, &ratio);
     uratio = ratio * (1 << RATIO_FIXBIT);
 
     if (ratio > 0.5)
@@ -765,33 +775,35 @@ static void drcApplyStats(DrcContext_t* pDrcCtx, drc_param_t* out, trans_params_
     int thd_num3 = drc_stats->ae_hist_total_num * percentage3;
     int thd_num4 = drc_stats->ae_hist_total_num * percentage4;
     int cnt = 0, cnt2 = 0, cnt3 = 0, cnt4 = 0;
-    float quantile = 0.0f, quantile2 = 0.0f, quantile3 = 0.0f, quantile4 = 0.0f;
-    for (int i = 0; i < DRC_AE_HIST_BIN_NUM; ++i) {
-        cnt += drc_stats->aeHiatBins[i];
-        if (cnt >= thd_num) {
-            quantile = (float)i / 255.0f;
-            break;
+    float quantile = 1.0f, quantile2 = 0.2f, quantile3 = 0.5f, quantile4 = 0.8f;
+    if (drc_stats->stats_true) {
+        for (int i = 0; i < DRC_AE_HIST_BIN_NUM; ++i) {
+            cnt += drc_stats->aeHiatBins[i];
+            if (cnt > thd_num) {
+                quantile = (float)i / 255.0f;
+                break;
+            }
         }
-    }
-    for (int i = 0; i < DRC_AE_HIST_BIN_NUM; ++i) {
-        cnt2 += drc_stats->aeHiatBins[i];
-        if (cnt2 >= thd_num2) {
-            quantile2 = (float)i / 255.0f;
-            break;
+        for (int i = 0; i < DRC_AE_HIST_BIN_NUM; ++i) {
+            cnt2 += drc_stats->aeHiatBins[i];
+            if (cnt2 >= thd_num2) {
+                quantile2 = (float)i / 255.0f;
+                break;
+            }
         }
-    }
-    for (int i = 0; i < DRC_AE_HIST_BIN_NUM; ++i) {
-        cnt3 += drc_stats->aeHiatBins[i];
-        if (cnt3 >= thd_num3) {
-            quantile3 = (float)i / 255.0f;
-            break;
+        for (int i = 0; i < DRC_AE_HIST_BIN_NUM; ++i) {
+            cnt3 += drc_stats->aeHiatBins[i];
+            if (cnt3 >= thd_num3) {
+                quantile3 = (float)i / 255.0f;
+                break;
+            }
         }
-    }
-    for (int i = 0; i < DRC_AE_HIST_BIN_NUM; ++i) {
-        cnt4 += drc_stats->aeHiatBins[i];
-        if (cnt4 >= thd_num4) {
-            quantile4 = (float)i / 255.0f;
-            break;
+        for (int i = 0; i < DRC_AE_HIST_BIN_NUM; ++i) {
+            cnt4 += drc_stats->aeHiatBins[i];
+            if (cnt4 >= thd_num4) {
+                quantile4 = (float)i / 255.0f;
+                break;
+            }
         }
     }
     float x[5];
@@ -838,6 +850,12 @@ static void drcApplyStats(DrcContext_t* pDrcCtx, drc_param_t* out, trans_params_
         (log(anchor_point[1][2] * 4096.0f + (1 << offsetbits_int)) / log(2.0f) - offsetbits_int) /
         cmps_max;  // 3.1699 / cmps_max;
     y[4] = 1.0f;
+    x[1] = MIN(x[1], 1.0f);
+    x[2] = MIN(x[2], 1.0f);
+    x[3] = MIN(x[3], 1.0f);
+    y[1] = MIN(y[1], 1.0f);
+    y[2] = MIN(y[2], 1.0f);
+    y[3] = MIN(y[3], 1.0f);
     float cmps_curve[DRC_V12_Y_NUM];
     float input_luma[DRC_V12_Y_NUM];
     for (int i = 0; i < DRC_V12_Y_NUM; ++i) {
@@ -851,8 +869,9 @@ static void drcApplyStats(DrcContext_t* pDrcCtx, drc_param_t* out, trans_params_
             LIMIT_VALUE_UNSIGNED(out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[i], MANUALCURVEMAX);
     }
     // change min gain for this mode
-    out->dyn.drcProc.hw_drcT_drcGain_minLimit =
-        MIN(1.0f / (wp * pDrcCtx->NextData.AEData.L2S_Ratio * adrc_gain), 1.0f);
+    float tmp                                 = wp * pDrcCtx->NextData.AEData.L2S_Ratio * adrc_gain;
+    tmp                                       = tmp > POW_E_NEG6 ? tmp : POW_E_NEG6;
+    out->dyn.drcProc.hw_drcT_drcGain_minLimit = MIN(1.0f / tmp, 1.0f);
 }
 
 static XCamReturn drcApplyStrength(DrcContext_t* pDrcCtx, drc_param_t* out) {

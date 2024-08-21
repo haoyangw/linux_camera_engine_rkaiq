@@ -38,7 +38,7 @@ XCamReturn HisteqSelectParam(HisteqContext_t* pHisteqCtx, histeq_param_t* out, i
     uint16_t uratio;
     histeq_param_auto_t* paut = &pHisteqCtx->histeq_attrib->stAuto;
 
-    pre_interp(iso, NULL, 0, &ilow, &ihigh, &ratio);
+    pre_interp(iso, pHisteqCtx->iso_list, 13, &ilow, &ihigh, &ratio);
     uratio = ratio * (1 << RATIO_FIXBIT);
 
     if (ratio > 0.5)
@@ -155,6 +155,7 @@ static XCamReturn prepare(RkAiqAlgoCom* params) {
 
     pHisteqCtx->histeq_attrib =
         (histeq_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, histEQ));
+    pHisteqCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
     pHisteqCtx->isReCal_ = true;
 
     return result;

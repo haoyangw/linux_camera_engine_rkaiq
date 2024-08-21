@@ -25,7 +25,8 @@ algo_rgbir_GetAttrib(
     rgbir_api_attrib_t *attr
 );
 #endif
-XCamReturn RgbirSelectParam(rgbir_param_auto_t *pAuto, rgbir_param_t* out, int iso);
+//XCamReturn RgbirSelectParam(rgbir_param_auto_t *pAuto, rgbir_param_t* out, int iso);
+XCamReturn Argbir_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams, int iso);
 
 extern RkAiqAlgoDescription g_RkIspAlgoDescRgbir;
 RKAIQ_END_DECLARE

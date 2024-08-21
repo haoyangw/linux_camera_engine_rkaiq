@@ -25,6 +25,7 @@
 typedef struct {
     const RkAiqAlgoCom_prepare_t* prepare_params;
     gic_api_attrib_t* gic_attrib;
+    uint32_t *iso_list;
     int working_mode;
     int iso;
     bool isReCal_;

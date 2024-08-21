@@ -235,6 +235,9 @@ typedef struct CalibDb_Sensor_ParaV2_s {
 
     // M4_NUMBER_DESC("CISFlip", "u8", M4_RANGE(0,3), "0", M4_DIGIT(0),M4_HIDE(0))
     uint8_t                         CISFlip; // bit 0 : mirror, bit 1 : flip , range[0,3]
+
+    // M4_ARRAY_DESC("iso_list", "u32", M4_SIZE(1,13), M4_RANGE(0,2048000), "[50, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400, 204800]", M4_DIGIT(1), M4_DYNAMIC(0))
+    uint32_t                        iso_list[13];
 } CalibDb_Sensor_ParaV2_t;
 
 RKAIQ_END_DECLARE

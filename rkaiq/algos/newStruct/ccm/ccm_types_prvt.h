@@ -56,6 +56,7 @@
 
 typedef struct CcmContext_s {
     ccm_calib_attrib_t* ccm_attrib;
+    uint32_t *iso_list;
 
     uint8_t illu_mesh_len;
     uint8_t illu_mesh_all[ACCM_CALIBDB_LEN];

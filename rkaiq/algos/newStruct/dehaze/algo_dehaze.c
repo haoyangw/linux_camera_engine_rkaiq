@@ -87,6 +87,7 @@ static XCamReturn prepare(RkAiqAlgoCom* params) {
         if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
             pDehazeCtx->dehaze_attrib =
                 (dehaze_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, dhzEhz));
+            pDehazeCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
             return XCAM_RETURN_NO_ERROR;
         }
     }
@@ -96,6 +97,7 @@ static XCamReturn prepare(RkAiqAlgoCom* params) {
     pDehazeCtx->height       = params->u.prepare.sns_op_height;
     pDehazeCtx->dehaze_attrib =
         (dehaze_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, dhzEhz));
+    pDehazeCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
     pDehazeCtx->prepare_params = &params->u.prepare;
     pDehazeCtx->isReCal_       = true;
 
@@ -203,7 +205,7 @@ XCamReturn DehazeSelectParam(DehazeContext_t* pDehazeCtx, dehaze_param_t* out, i
     int i       = 0;
     int iso_low = 0, iso_high = 0, ilow = 0, ihigh = 0;
     float ratio = 0.0f;
-    pre_interp(iso, NULL, 0, &ilow, &ihigh, &ratio);
+    pre_interp(iso, pDehazeCtx->iso_list, 13, &ilow, &ihigh, &ratio);
 
     out->sta.cfg_alpha = paut->sta.cfg_alpha;
     out->sta.round_en  = FUNCTION_ENABLE;
@@ -482,7 +484,7 @@ XCamReturn DehazeSelectParam(DehazeContext_t* pDehazeCtx, dehaze_param_t* out, i
     uint16_t uratio;
     dehaze_param_auto_t* paut = &pDehazeCtx->dehaze_attrib->stAuto;
 
-    pre_interp(iso, NULL, 0, &ilow, &ihigh, &ratio);
+    pre_interp(iso, pDehazeCtx->iso_list, 13, &ilow, &ihigh, &ratio);
     uratio = ratio * (1 << RATIO_FIXBIT);
 
     if (ratio > 0.5)

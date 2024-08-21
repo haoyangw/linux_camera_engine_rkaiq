@@ -24,7 +24,7 @@ static void _handlerGain_init(AiqAlgoHandler_t* pHdl) {
 
     AiqAlgoHandler_deinit(pHdl);
     pHdl->mConfig       = (RkAiqAlgoCom*)(aiq_mallocz(sizeof(RkAiqAlgoCom)));
-    pHdl->mProcInParam  = (RkAiqAlgoCom*)(aiq_mallocz(sizeof(RkAiqAlgoProcGain)));
+    pHdl->mProcInParam  = (RkAiqAlgoCom*)(aiq_mallocz(sizeof(RkAiqAlgoCom)));
     pHdl->mProcOutParam = (RkAiqAlgoResCom*)(aiq_mallocz(sizeof(RkAiqAlgoResCom)));
 
     pHdl->mResultType = RESULT_TYPE_GAIN_PARAM;

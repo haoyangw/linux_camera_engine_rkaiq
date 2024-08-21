@@ -55,6 +55,7 @@
 typedef struct DmContext_s {
     const RkAiqAlgoCom_prepare_t* prepare_params;
     dm_api_attrib_t* dm_attrib;
+    uint32_t *iso_list;
     int iso;
     bool isReCal_;
 } DmContext_t;

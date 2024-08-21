@@ -26,6 +26,8 @@
 #include "interpolation.h"
 #include "c_base/aiq_base.h"
 
+XCamReturn GainSelectParam(GainContext_t *pGainCtx, gain_param_t* out, int iso);
+
 static XCamReturn
 create_context(RkAiqAlgoContext **context, const AlgoCtxInstanceCfg* cfg)
 {
@@ -70,27 +72,25 @@ prepare(RkAiqAlgoCom* params)
         if (params->u.prepare.conf_type & RK_AIQ_ALGO_CONFTYPE_UPDATECALIB_PTR) {
             pGainCtx->gain_attrib =
                 (gain_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, gain));
+            pGainCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
             return XCAM_RETURN_NO_ERROR;
         }
     }
 
     pGainCtx->gain_attrib =
         (gain_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(params->u.prepare.calibv2, gain));
+    pGainCtx->iso_list = params->u.prepare.calibv2->sensor_info->iso_list;
     pGainCtx->prepare_params = &params->u.prepare;
     pGainCtx->isReCal_ = true;
 
     return result;
 }
 
-static XCamReturn
-processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
+XCamReturn Again_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams, int iso)
 {
-    XCamReturn result = XCAM_RETURN_NO_ERROR;
-
     GainContext_t* pGainCtx = (GainContext_t *)inparams->ctx;
     gain_api_attrib_t* gain_attrib = pGainCtx->gain_attrib;
     gain_param_t* pGainProcResParams = outparams->algoRes;
-    RkAiqAlgoProcGain* gain_proc_param = (RkAiqAlgoProcGain*)inparams;
 
     LOGV_ANR("%s: Gain (enter)\n", __FUNCTION__ );
 
@@ -100,10 +100,6 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
     }
 
     float blc_ob_predgain = 1.0;
-    int iso = 50;
-    if (!inparams->u.proc.init) {
-        iso = inparams->u.proc.iso;
-    }
 
     bool init = inparams->u.proc.init;
     int delta_iso = abs(iso - pGainCtx->iso);
@@ -126,7 +122,7 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
         pGainCtx->isReCal_ = true;
 
     if (pGainCtx->isReCal_) {
-        GainSelectParam(&pGainCtx->gain_attrib->stAuto, pGainProcResParams, iso);
+        GainSelectParam(pGainCtx, pGainProcResParams, iso);
         outparams->cfg_update = true;
         outparams->en = gain_attrib->en;
         outparams->bypass = gain_attrib->bypass;
@@ -137,6 +133,17 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
     pGainCtx->isReCal_ = false;
 
     LOGV_ANR("%s: Gain (exit)\n", __FUNCTION__ );
+    return XCAM_RETURN_NO_ERROR;
+}
+
+static XCamReturn
+processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
+{
+    int iso = 50;
+    if (!inparams->u.proc.init) {
+        iso = inparams->u.proc.iso;
+    }
+    Again_processing(inparams, outparams, iso);
     return XCAM_RETURN_NO_ERROR;
 }
 
@@ -202,20 +209,21 @@ algo_gain_GetAttrib(const RkAiqAlgoContext *ctx,
 #if RKAIQ_HAVE_GAIN_V2
 XCamReturn GainSelectParam
 (
-    gain_param_auto_t *pAuto,
+    GainContext_t *pGainCtx,
     gain_param_t* out,
     int iso)
 {
-    if(pAuto == NULL || out == NULL) {
+    gain_param_auto_t *paut = &pGainCtx->gain_attrib->stAuto;
+
+    if(paut == NULL || out == NULL) {
         LOGE_ANR("%s(%d): null pointer\n", __FUNCTION__, __LINE__);
         return XCAM_RETURN_ERROR_PARAM;
     }
-    gain_param_auto_t* paut = pAuto;
     int i = 0;
     int iso_low = 0, iso_high = 0, ilow = 0, ihigh = 0, inear = 0;
     float ratio = 0.0f;
     uint16_t uratio;
-    pre_interp(iso, NULL, 0, &ilow, &ihigh, &ratio);
+    pre_interp(iso, pGainCtx->iso_list, 13, &ilow, &ihigh, &ratio);
     uratio = ratio * (1 << RATIO_FIXBIT);
 
     out->dyn.hdrgain_ctrl_enable = interpolation_bool(paut->dyn[ilow].hdrgain_ctrl_enable,

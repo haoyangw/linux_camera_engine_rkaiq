@@ -336,7 +336,14 @@ XCamReturn _handlerLdc_do_processing_common(AiqAlgoHandler_t* pAlgoHandler) {
                 // 1.1 Check whether the uapi updates mesh with vaddr.
                 XCamReturn ret_b = _handlerLdc_updMeshFromUapiBuf(pAlgoHandler, man_param);
                 if (ret_b < 0) {
-                    proc_res->cfg_update = false;
+                    if (sharedCom->init) {
+                        man_param->sta.ldchCfg.en = false;
+#if RKAIQ_HAVE_LDCV
+                        man_param->sta.ldcvCfg.en = false;
+#endif
+                    } else {
+                        proc_res->cfg_update = false;
+                    }
                 } else {
                     ldc_proc_int->upd_mesh_mode = kAiqLdcUpdMeshFromExtBuf;
                     LOGK_ALDC("upd mesh from extern buffer in manual mode");
@@ -345,7 +352,14 @@ XCamReturn _handlerLdc_do_processing_common(AiqAlgoHandler_t* pAlgoHandler) {
                 // 1.2 Check whether the mesh file exist in 'calidb -> sw_ldcT_meshfile_pathfile'.
                 XCamReturn ret_b = _handlerLdc_updMeshFromFile(pAlgoHandler, &aut_param, man_param);
                 if (ret_b < 0) {
-                    proc_res->cfg_update = false;
+                    if (sharedCom->init) {
+                        man_param->sta.ldchCfg.en = false;
+#if RKAIQ_HAVE_LDCV
+                        man_param->sta.ldcvCfg.en = false;
+#endif
+                    } else {
+                        proc_res->cfg_update = false;
+                    }
                 } else {
                     ldc_proc_int->upd_mesh_mode = kAiqLdcUpdMeshFromFile;
                     LOGK_ALDC("upd mesh from file in manual mode");

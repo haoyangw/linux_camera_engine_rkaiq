@@ -835,7 +835,7 @@ typedef struct dpc_params_static_s {
         M4_TYPE(enum),
         M4_ENUM_DEF(dpc_srcFmt_t),
         M4_DEFAULT(dpc_srcFmt_bayer),
-        M4_HIDE_EX(0),
+        M4_HIDE_EX(1),
         M4_RO(0),
         M4_ORDER(0),
         M4_NOTES(TODO.\n

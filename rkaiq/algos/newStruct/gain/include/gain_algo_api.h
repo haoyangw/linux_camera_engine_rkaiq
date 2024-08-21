@@ -27,7 +27,8 @@ algo_gain_GetAttrib(
 );
 #endif
 
-XCamReturn GainSelectParam(gain_param_auto_t *pAuto, gain_param_t* out, int iso);
+//XCamReturn GainSelectParam(gain_param_auto_t *pAuto, gain_param_t* out, int iso);
+XCamReturn Again_processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams, int iso);
 
 
 extern RkAiqAlgoDescription g_RkIspAlgoDescGain;

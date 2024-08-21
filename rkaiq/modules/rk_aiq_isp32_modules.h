@@ -15,6 +15,7 @@
 #if RKAIQ_HAVE_SHARP_V40
 #include "rk_aiq_isp_texEst40.h"
 #endif
+#include "rk_aiq_isp_gain20.h"
 
 typedef struct RKAiqAecExpInfo_s RKAiqAecExpInfo_t;
 

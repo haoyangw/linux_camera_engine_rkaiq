@@ -3631,11 +3631,6 @@ XCamReturn rk_aiq_uapi2_setMWBScene(const rk_aiq_sys_ctx_t* ctx, rk_aiq_wb_scene
         ret = XCAM_RETURN_ERROR_PARAM;
         RKAIQ_IMGPROC_CHECK_RET(ret, "invalid scene mode, setMWBScene failed!");
     }
-    rk_aiq_uapiV2_wb_opMode_t opMode;
-    memset(&opMode, 0, sizeof(opMode));
-    opMode.mode = RK_AIQ_WB_MODE_MANUAL;
-    ret = rk_aiq_user_api2_awb_SetWpModeAttrib(ctx, opMode);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "setWbMode failed!");
     attr.mode = RK_AIQ_MWB_MODE_SCENE;
     attr.para.scene = scene;
     ret = rk_aiq_user_api2_awb_SetMwbAttrib(ctx, attr);
@@ -3686,11 +3681,6 @@ XCamReturn rk_aiq_uapi2_setMWBGain(const rk_aiq_sys_ctx_t* ctx, rk_aiq_wb_gain_t
         ret = XCAM_RETURN_ERROR_PARAM;
         RKAIQ_IMGPROC_CHECK_RET(ret, "param error, setMWBGain failed!");
     }
-    rk_aiq_uapiV2_wb_opMode_t opMode;
-    memset(&opMode, 0, sizeof(opMode));
-    opMode.mode = RK_AIQ_WB_MODE_MANUAL;
-    ret = rk_aiq_user_api2_awb_SetWpModeAttrib(ctx, opMode);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "setWbMode failed!");
     attr.mode = RK_AIQ_MWB_MODE_WBGAIN;
     attr.para.gain = *gain;
     ret = rk_aiq_user_api2_awb_SetMwbAttrib(ctx, attr);
@@ -3736,11 +3726,6 @@ XCamReturn rk_aiq_uapi2_setMWBCT(const rk_aiq_sys_ctx_t* ctx, unsigned int ct)
         ret = XCAM_RETURN_ERROR_PARAM;
         RKAIQ_IMGPROC_CHECK_RET(ret, "param error, setMWBCT failed!");
     }
-    rk_aiq_uapiV2_wb_opMode_t opMode;
-    memset(&opMode, 0, sizeof(opMode));
-    opMode.mode = RK_AIQ_WB_MODE_MANUAL;
-    ret = rk_aiq_user_api2_awb_SetWpModeAttrib(ctx, opMode);
-    RKAIQ_IMGPROC_CHECK_RET(ret, "setWbMode failed!");
     attr.mode = RK_AIQ_MWB_MODE_CCT;
     attr.para.cct.CCT = (float)ct;
     attr.para.cct.CCRI = 0.0f;

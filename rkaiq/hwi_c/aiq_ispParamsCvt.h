@@ -147,11 +147,13 @@ struct AiqIspParamsCvt_s {
     struct isp32_bls_cfg mLatestBlsCfg;
     struct isp32_awb_gain_cfg mLatestWbGainCfg;
     rk_aiq_wb_gain_v32_t awb_gain_final;
+    struct isp3x_gain_cfg mLatestGainCfg;
 #elif defined(ISP_HW_V33)
     struct isp33_isp_meas_cfg mLatestMeasCfg;
     struct isp32_bls_cfg mLatestBlsCfg;
     struct isp32_awb_gain_cfg mLatestWbGainCfg;
     rk_aiq_wb_gain_v32_t awb_gain_final;
+    struct isp3x_gain_cfg mLatestGainCfg;
 #endif
 #if defined(ISP_HW_V30) || defined(ISP_HW_V21)
     struct isp21_awb_gain_cfg mLatestWbGainCfg;

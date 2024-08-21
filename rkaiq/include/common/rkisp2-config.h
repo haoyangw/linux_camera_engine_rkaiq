@@ -2053,6 +2053,8 @@ enum {
     RKISP_RTT_MODE_ONE_FRAME,
 };
 
+#define MAX_PRE_BUF_NUM (4)
+
 /**
  * struct rkisp_thunderboot_resmem_head
  */
@@ -2076,6 +2078,8 @@ struct rkisp_thunderboot_resmem_head {
     u32 dcg_mode[3];
     u32 nr_buf_size;
     u32 share_mem_size;
+    u32 pre_buf_num;
+    u32 pre_buf_addr[MAX_PRE_BUF_NUM];
 } __attribute__ ((packed));
 
 /**

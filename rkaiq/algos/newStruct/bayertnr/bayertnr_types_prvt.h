@@ -26,6 +26,7 @@
 
 typedef struct {
     btnr_api_attrib_t* btnr_attrib;
+    uint32_t *iso_list;
     int working_mode;
     int pre_iso;
 

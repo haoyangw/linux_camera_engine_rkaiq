@@ -12,7 +12,9 @@ extern "C"
 void interpolation_f(const float *x, const float *y, int Num, float x0, float*y0);
 void interpolation_s(const float *x, const unsigned short *y, int Num, float x0, unsigned short *y0);
 int interpolation_b(unsigned char *x, bool *y, int xNum, unsigned char x0, bool *y0);
-void pre_interp(int iso, int *iso_list, int num, int *lo, int *hi, float *ratio);
+void pre_interp(int iso, uint32_t *iso_list, int num, int *lo, int *hi, float *ratio);
+void interpolation_set_iso_list(const uint32_t *iso_list);
+void interpolation_get_iso_list(uint32_t *iso_list);
 
 #define RATIO_FIXBIT 14
 
