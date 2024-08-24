@@ -63,6 +63,8 @@ set(RK_VI_STREAM_CFG_LIB rkrawstream)
 add_library(${RK_VI_STREAM_CFG_LIB} SHARED ${STREAMCFG_SRC} ${XCORE_SRC} )
 target_link_libraries(${RK_VI_STREAM_CFG_LIB} PRIVATE)
 install(TARGETS ${RK_VI_STREAM_CFG_LIB} LIBRARY DESTINATION lib)
+install(DIRECTORY include/ DESTINATION include/rk_stream FILES_MATCHING PATTERN "*.h")
+install(DIRECTORY rkvi_demo/ DESTINATION include/rk_stream FILES_MATCHING PATTERN "*.h")
 
 
 if(RKVIDEMO_HAVE_AIQ)
