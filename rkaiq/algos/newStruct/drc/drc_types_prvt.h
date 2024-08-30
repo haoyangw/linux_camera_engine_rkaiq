@@ -66,10 +66,19 @@
 #define AE_RATIO_MAX                  (256)
 #define AE_RATIO_L2M_MAX              (32.0f)
 
+typedef struct drc_auto_curve_iir_s {
+    int reCalcNum;
+    adrc_drcCurve_mode_t sw_drcT_drcCurve_mode;
+    int sw_drcT_iirFrm_maxLimit;
+    float hw_drcT_hdr2Sdr_curve[DRC_CURVE_LEN];
+    float hw_drcT_drcGain_minLimit;
+} drc_auto_curve_iir_t;
+
 typedef struct CurrData_s {
     float MotionCoef;
     DrcAEData_t AEData;
     drc_params_dyn_t dynParams;
+    drc_auto_curve_iir_t autoCurveIIRParams;
 } CurrData_t;
 
 typedef struct DrcContext_s {

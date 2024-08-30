@@ -426,6 +426,8 @@ XCamReturn YnrSelectParam
         out->dyn.loNr.locYnrStrg_locSgmStrg.hw_ynrT_locSgmStrg2NrStrg_val[i] = interpolation_f32(
                     paut->dyn[ilow].loNr.locYnrStrg_locSgmStrg.hw_ynrT_locSgmStrg2NrStrg_val[i], paut->dyn[ihigh].loNr.locYnrStrg_locSgmStrg.hw_ynrT_locSgmStrg2NrStrg_val[i], ratio);
     }
+    out->dyn.loNr.epf.hw_ynrT_rgeSgm_scale = interpolation_f32(
+                paut->dyn[ilow].loNr.epf.hw_ynrT_rgeSgm_scale, paut->dyn[ihigh].loNr.epf.hw_ynrT_rgeSgm_scale, ratio);
     for (i = 0; i < 6; i++) {
         out->dyn.loNr.epf.hw_ynrT_luma2RgeSgm_scale[i] = interpolation_f32(
                     paut->dyn[ilow].loNr.epf.hw_ynrT_luma2RgeSgm_scale[i], paut->dyn[ihigh].loNr.epf.hw_ynrT_luma2RgeSgm_scale[i], ratio);
@@ -436,6 +438,8 @@ XCamReturn YnrSelectParam
                 paut->dyn[ilow].loNr.epf.hw_ynrT_centerPix_wgt, paut->dyn[ihigh].loNr.epf.hw_ynrT_centerPix_wgt, ratio);
     out->dyn.loNr.epf.hw_ynrT_softThd_scale = interpolation_f32(
                 paut->dyn[ilow].loNr.epf.hw_ynrT_softThd_scale, paut->dyn[ihigh].loNr.epf.hw_ynrT_softThd_scale, ratio);
+    out->dyn.loNr.epf.hw_ynrT_loNrOut_alpha = interpolation_f32(
+                paut->dyn[ilow].loNr.epf.hw_ynrT_loNrOut_alpha, paut->dyn[ihigh].loNr.epf.hw_ynrT_loNrOut_alpha, ratio);
     for (i = 0; i < 9; i++) {
         out->dyn.loNr.epf.hw_ynrT_locSgmStrg2NrOut_alpha[i] = interpolation_f32(
                     paut->dyn[ilow].loNr.epf.hw_ynrT_locSgmStrg2NrOut_alpha[i], paut->dyn[ihigh].loNr.epf.hw_ynrT_locSgmStrg2NrOut_alpha[i], ratio);
@@ -466,10 +470,12 @@ XCamReturn YnrApplyStrength
         pdyn->midNr.sw_ynr_centerPix_wgt /= fPercent;
         pdyn->midNr.hw_ynrT_midNrOut_alpha *= fPercent;
 
+        pdyn->loNr.epf.hw_ynrT_rgeSgm_scale *= fPercent;
         for (i = 0; i < 6; i++) {
             pdyn->loNr.epf.hw_ynrT_luma2RgeSgm_scale[i] *= fPercent;
         }
         pdyn->loNr.epf.hw_ynrT_centerPix_wgt /= fPercent;
+        pdyn->loNr.epf.hw_ynrT_loNrOut_alpha *= fPercent;
         for (i = 0; i < 9; i++) {
             pdyn->loNr.epf.hw_ynrT_locSgmStrg2NrOut_alpha[i] *= fPercent;
         }

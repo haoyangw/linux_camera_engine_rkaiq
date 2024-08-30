@@ -49,6 +49,7 @@ typedef struct {
     bool isFirstFrame;
     uint8_t frameNum;
     float preDGain;
+    float preDGain_preFrm;
     int frameIso[3];
     float frameEt[3];
     float frameDGain[3];
@@ -76,6 +77,9 @@ typedef struct {
 #endif
     bool btnr_en;
     int btnrCfg_pixDomain_mode;
+#if defined(ISP_HW_V33)
+    int sw_btnrT_outFrmBase_mode;
+#endif
     int drc_warning_count;
     int blc_warning_count;
     int btnr_warning_count;

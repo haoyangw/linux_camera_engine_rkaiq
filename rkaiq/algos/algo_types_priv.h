@@ -349,6 +349,7 @@ typedef struct {
     RkAiqAlgoCom com;
     bool LongFrmMode;
     bool blc_ob_enable;
+    bool aeIsConverged;
     float isp_ob_predgain;
     rkisp_adrc_stats_t drc_stats;
 #if USE_NEWSTRUCT

@@ -280,6 +280,10 @@ void AiqIspParamsCvt_getCommonCvtInfo(AiqIspParamsCvt_t* pCvt, AiqList_t* result
     if (tnrResult != NULL) {
         btnr_param_t* btnr_param = (btnr_param_t*)tnrResult->_data;
         btnr_params_static_t* psta = &btnr_param->sta;
+#if ISP_HW_V33
+        btnr_other_dyn_t* pdyn = &btnr_param->spNrDyn;
+        pCvt->mCommonCvtInfo.sw_btnrT_outFrmBase_mode = pdyn->sw_btnrT_outFrmBase_mode;
+#endif
         pCvt->mCommonCvtInfo.btnrCfg_pixDomain_mode = psta->hw_btnrCfg_pixDomain_mode;
         pCvt->mCommonCvtInfo.btnr_en = tnrResult->en;
     }
@@ -323,6 +327,14 @@ inline void AiqIspParamsCvt_set_working_mode(AiqIspParamsCvt_t* pCvt, int mode) 
     if (!pCvt) return;
 
     pCvt->_working_mode = mode;
+}
+
+void AiqIspParamsCvt_setCalib(AiqIspParamsCvt_t* pCvt, const CamCalibDbV2Context_t* calibv2) {
+#if (defined(ISP_HW_V39) || defined(ISP_HW_V33)) && (USE_NEWSTRUCT)
+    btnr_api_attrib_t * btnr_attrib = (btnr_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR((void *)calibv2, bayertnr));
+    btnr_cvt_info_t *btnr_info = &pCvt->mBtnrInfo;
+    pCvt->btnr_attrib = btnr_attrib;
+#endif
 }
 
 XCamReturn AiqIspParamsCvt_init(AiqIspParamsCvt_t* pCvt) {

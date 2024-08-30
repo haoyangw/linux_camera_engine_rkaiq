@@ -39,8 +39,19 @@ void rk_aiq_cac30_params_cvt(void* attr, struct isp33_isp_params_cfg* isp_cfg,
     RKAiqAecExpInfo_t *ae_exp = cvtinfo->ae_exp;
     float hdrmge_gain0_1 = 1;
     float isp_ob_predgain = 1;
-    if(cvtinfo->frameNum <= 1){
-        isp_ob_predgain = cvtinfo->preDGain>1?cvtinfo->preDGain:1;
+    float preDGain_cac = 1.0f;
+#if defined(ISP_HW_V33)
+    if (cvtinfo->isFirstFrame || cvtinfo->sw_btnrT_outFrmBase_mode == btnr_curBaseOut_mode) {
+        preDGain_cac = cvtinfo->preDGain;
+    }
+    else {
+        preDGain_cac = cvtinfo->preDGain_preFrm;
+    }
+#else
+    preDGain_cac = cvtinfo->preDGain;
+#endif
+    if (cvtinfo->frameNum <= 1) {
+        isp_ob_predgain = preDGain_cac>1?preDGain_cac:1;
     }
 
     if(ae_exp!=NULL){

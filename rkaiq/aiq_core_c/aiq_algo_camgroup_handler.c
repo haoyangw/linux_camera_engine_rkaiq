@@ -220,7 +220,7 @@ XCamReturn AiqAlgoCamGroupHandler_processing(AiqAlgoCamGroupHandler_t* pAlgoCamG
     com->u.proc.init = pAlgoCamGroupHandler->mGroupMg->mInit;
     com->u.proc.iso = procIn->camgroupParmasArray[0]->hdrIso;
     AiqAlgoHandler_t* pSglHdl = pAlgoCamGroupHandler->mSingleHdl;
-    GlobalParamsManager_t * globalParamsManager = pSglHdl->mAiqCore->mGlobalParamsManger;
+    GlobalParamsManager_t* globalParamsManager = pSglHdl->mAiqCore->mGlobalParamsManger;
     if (pSglHdl->mResultType != -1)
         GlobalParamsManager_lockAlgoParam(globalParamsManager, pSglHdl->mResultType);
     procIn->attribUpdated = pSglHdl->mIsUpdateGrpAttr;

@@ -123,12 +123,6 @@ void rk_aiq_ynr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
         pCfg->radius2strg[16] = CLIP(radius2strg[16], 0, 0xff);
     }
 
-    float loSpnr_strg = 9999.0;
-    for (i = 0; i < 6; i++) {
-        loSpnr_strg = MIN(loSpnr_strg, pdyn->loNr.epf.hw_ynrT_luma2RgeSgm_scale[i]);
-    }
-    loSpnr_strg = MAX(loSpnr_strg, 0.001);
-
     for (i = 0; i < ISO_CURVE_POINT_NUM; i++) {
         tmp = pdyn->sigmaEnv.hw_ynrC_luma2Sigma_curve.idx[i];
         pCfg->luma2sima_x[i] = CLIP(tmp, 0, 0x7ff);;
@@ -139,7 +133,7 @@ void rk_aiq_ynr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
     float loFreqLumaNrCurvePoint[6] = {0, 32, 64, 128, 192, 256};
     float loFreqLumaNrCurveRatio[6];
     for (i = 0; i < 6; i++) {
-        loFreqLumaNrCurveRatio[i] = pdyn->loNr.epf.hw_ynrT_luma2RgeSgm_scale[i] / loSpnr_strg;
+        loFreqLumaNrCurveRatio[i] = pdyn->loNr.epf.hw_ynrT_luma2RgeSgm_scale[i] ;
         loFreqLumaNrCurvePoint[i] *= 4;
     }
 
@@ -297,7 +291,7 @@ void rk_aiq_ynr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
     pCfg->mi_ehance_scale = CLIP(tmp, 0, 255);
 
     // REG: LO_STRG_DETAIL
-    tmp = (loSpnr_strg) * (1 << 6);
+    tmp = (pdyn->loNr.epf.hw_ynrT_rgeSgm_scale) * (1 << 6);
     pCfg->lo_spnr_strg = CLIP(tmp, 0, 0x3ff);
     tmp = (pdyn->loNr.epf.hw_ynrT_softThd_scale) * (1 << 10);
     pCfg->lo_spnr_soft_thred_scale = CLIP(tmp, 0, 0xfff);
@@ -305,7 +299,8 @@ void rk_aiq_ynr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
     tmp = (pdyn->loNr.epf.hw_ynrT_guideSoftThd_scale) * (1 << 6);
     pCfg->lo_spnr_thumb_thred_scale = CLIP(tmp, 0, 0x3ff);
     // REG: LO_WEIGHT
-    pCfg->lo_spnr_wgt = 1 * (1 << 7);
+    tmp = (pdyn->loNr.epf.hw_ynrT_loNrOut_alpha) * (1 << 7);
+    pCfg->lo_spnr_wgt = CLIP(tmp, 0, 0x80);
     tmp = (pdyn->loNr.epf.hw_ynrT_centerPix_wgt) * (1 << 8) * 6;
     pCfg->lo_spnr_filt_center_wgt = CLIP(tmp, 0, 0x1fff);
 
@@ -326,8 +321,8 @@ void rk_aiq_ynr40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
     pCfg->tex2lo_strg_exponent = tex2strg_step_exponent - 10;  // [0, 10]
 
     for (i = 0; i < 9; i++) {
-        tmp = pdyn->loNr.epf.hw_ynrT_locSgmStrg2NrOut_alpha[i] * (1 << 8);
-        pCfg->lo_gain2wgt[i] = CLIP(tmp, 0, 128);
+        tmp = pdyn->loNr.epf.hw_ynrT_locSgmStrg2NrOut_alpha[i] * (1 << 7);
+        pCfg->lo_gain2wgt[i] = CLIP(tmp, 0, 0x80);
     }
 
     return;

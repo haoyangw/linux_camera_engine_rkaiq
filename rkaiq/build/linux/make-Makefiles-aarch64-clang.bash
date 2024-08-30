@@ -26,4 +26,8 @@ cmake -G "Ninja" \
 && ninja -j$(nproc) \
 && ninja install
 
+status_code=$?
+
 popd
+
+exit $status_code

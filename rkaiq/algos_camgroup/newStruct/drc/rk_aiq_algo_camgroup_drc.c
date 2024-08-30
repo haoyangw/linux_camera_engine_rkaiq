@@ -26,6 +26,51 @@
 
 typedef DrcContext_t DrcGroupContext_t;
 
+static void DrcStatsConfig(RkAiqAlgoCamGroupProcIn* procParaGroup,
+                           rkisp_adrc_stats_t* drc_stats) {
+
+    if (procParaGroup->camgroupParmasArray[0]->aec.aec_stats_v25) {
+        drc_stats->stats_true = true;
+        bool isHDR                           = false;
+        if (procParaGroup->working_mode >= RK_AIQ_WORKING_MODE_ISP_HDR2)
+            isHDR = true;
+
+        for (int i = 0; i < DRC_AE_HIST_BIN_NUM; i++) {
+            if (isHDR) {
+                drc_stats->aeHiatBins[i] =
+                    procParaGroup->camgroupParmasArray[0]->aec.aec_stats_v25->ae_data.entityGroup.entities.entity3.hist
+                        .hw_ae_histBin_val[i];
+            } else {
+                drc_stats->aeHiatBins[i] =
+                    procParaGroup->camgroupParmasArray[0]->aec.aec_stats_v25->ae_data.entityGroup.entities.entity0.hist
+                        .hw_ae_histBin_val[i];
+            }
+            int hist_total_num = 0;
+            for (int i = 0; i < DRC_AE_HIST_BIN_NUM; ++i)
+                hist_total_num += drc_stats->aeHiatBins[i];
+            drc_stats->ae_hist_total_num = hist_total_num;
+        }
+    }
+    else {
+        drc_stats->stats_true        = false;
+        drc_stats->ae_hist_total_num = 0;
+        for (int i = 0; i < DRC_AE_HIST_BIN_NUM; i++) drc_stats->aeHiatBins[i] = 0;
+    }
+
+#if 0
+    printf("%s: frame_id:%d stats_true:%d ae_hist_total_num:%d\n", __FUNCTION__,
+           drc_stats->frame_id, drc_stats->stats_true,
+           drc_stats->ae_hist_total_num);
+    for (int m = 0; m < 16; m++) {
+        printf("%s: aeHiatBins[%d]: %d ", __FUNCTION__, m,
+               drc_stats->aeHiatBins[16 * m]);
+        for (int n = 1; n < 15; n++)
+            printf("%d ", drc_stats->aeHiatBins[16 * m + n]);
+        printf("%d \n", drc_stats->aeHiatBins[16 * m + 15]);
+    }
+#endif
+}
+
 static XCamReturn groupDrcProcessing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams) {
     XCamReturn ret = XCAM_RETURN_NO_ERROR;
     LOGD_ATMO("%s enter", __FUNCTION__);
@@ -37,6 +82,7 @@ static XCamReturn groupDrcProcessing(const RkAiqAlgoCom* inparams, RkAiqAlgoResC
     pDrcGroupCtx->blc_ob_enable                = procParaGroup->stAblcV32_proc_res.blc_ob_enable;
     pDrcGroupCtx->isp_ob_predgain              = procParaGroup->stAblcV32_proc_res.isp_ob_predgain;
     drc_api_attrib_t* drc_attrib               = pDrcGroupCtx->drc_attrib;
+
     // TODO
     // pDrcGroupCtx->compr_bit = procParaGroup->camgroupParmasArray[0]->aec.compr_bit;
     // group empty
@@ -84,92 +130,69 @@ static XCamReturn groupDrcProcessing(const RkAiqAlgoCom* inparams, RkAiqAlgoResC
             &procParaGroup->camgroupParmasArray[0]->aec._aeProcRes;
         pDrcGroupCtx->NextData.AEData.LongFrmMode = pAEProcRes->LongFrmMode;
     }
+    RKAiqAecExpInfo_t pExpInfo = procParaGroup->camgroupParmasArray[0]->aec._effAecExpInfo;
+    if (inparams->u.proc.init) {
+        pExpInfo = procParaGroup->camgroupParmasArray[0]->aec.exp_tbl[0];
+    }
 
     if (pDrcGroupCtx->FrameNumber == LINEAR_NUM) {
         pDrcGroupCtx->NextData.AEData.SExpo =
-            procParaGroup->camgroupParmasArray[0]
-                ->aec._effAecExpInfo.LinearExp.exp_real_params.analog_gain *
-            procParaGroup->camgroupParmasArray[0]
-                ->aec._effAecExpInfo.LinearExp.exp_real_params.digital_gain *
-            procParaGroup->camgroupParmasArray[0]
-                ->aec._effAecExpInfo.LinearExp.exp_real_params.isp_dgain *
-            procParaGroup->camgroupParmasArray[0]
-                ->aec._effAecExpInfo.LinearExp.exp_real_params.integration_time;
+            pExpInfo.LinearExp.exp_real_params.analog_gain *
+            pExpInfo.LinearExp.exp_real_params.digital_gain *
+            pExpInfo.LinearExp.exp_real_params.isp_dgain *
+            pExpInfo.LinearExp.exp_real_params.integration_time;
         pDrcGroupCtx->NextData.AEData.MExpo = pDrcGroupCtx->NextData.AEData.SExpo;
         pDrcGroupCtx->NextData.AEData.LExpo = pDrcGroupCtx->NextData.AEData.SExpo;
-    } else if (pDrcGroupCtx->FrameNumber == HDR_2X_NUM) {
-        pDrcGroupCtx->NextData.AEData.SExpo = procParaGroup->camgroupParmasArray[0]
-                                                  ->aec._effAecExpInfo.HdrExp[0]
+    }
+    else if (pDrcGroupCtx->FrameNumber == HDR_2X_NUM) {
+        pDrcGroupCtx->NextData.AEData.SExpo = pExpInfo.HdrExp[0]
                                                   .exp_real_params.analog_gain *
-                                              procParaGroup->camgroupParmasArray[0]
-                                                  ->aec._effAecExpInfo.HdrExp[0]
+                                              pExpInfo.HdrExp[0]
                                                   .exp_real_params.digital_gain *
-                                              procParaGroup->camgroupParmasArray[0]
-                                                  ->aec._effAecExpInfo.HdrExp[0]
+                                              pExpInfo.HdrExp[0]
                                                   .exp_real_params.isp_dgain *
-                                              procParaGroup->camgroupParmasArray[0]
-                                                  ->aec._effAecExpInfo.HdrExp[0]
+                                              pExpInfo.HdrExp[0]
                                                   .exp_real_params.integration_time;
-        pDrcGroupCtx->NextData.AEData.MExpo = procParaGroup->camgroupParmasArray[0]
-                                                  ->aec._effAecExpInfo.HdrExp[1]
+        pDrcGroupCtx->NextData.AEData.MExpo = pExpInfo.HdrExp[1]
                                                   .exp_real_params.analog_gain *
-                                              procParaGroup->camgroupParmasArray[0]
-                                                  ->aec._effAecExpInfo.HdrExp[1]
+                                              pExpInfo.HdrExp[1]
                                                   .exp_real_params.digital_gain *
-                                              procParaGroup->camgroupParmasArray[0]
-                                                  ->aec._effAecExpInfo.HdrExp[1]
+                                              pExpInfo.HdrExp[1]
                                                   .exp_real_params.isp_dgain *
-                                              procParaGroup->camgroupParmasArray[0]
-                                                  ->aec._effAecExpInfo.HdrExp[1]
+                                              pExpInfo.HdrExp[1]
                                                   .exp_real_params.integration_time;
         pDrcGroupCtx->NextData.AEData.LExpo = pDrcGroupCtx->NextData.AEData.MExpo;
     } else if (pDrcGroupCtx->FrameNumber == HDR_3X_NUM) {
-        pDrcGroupCtx->NextData.AEData.SExpo = procParaGroup->camgroupParmasArray[0]
-                                                  ->aec._effAecExpInfo.HdrExp[0]
+        pDrcGroupCtx->NextData.AEData.SExpo = pExpInfo.HdrExp[0]
                                                   .exp_real_params.analog_gain *
-                                              procParaGroup->camgroupParmasArray[0]
-                                                  ->aec._effAecExpInfo.HdrExp[0]
+                                              pExpInfo.HdrExp[0]
                                                   .exp_real_params.digital_gain *
-                                              procParaGroup->camgroupParmasArray[0]
-                                                  ->aec._effAecExpInfo.HdrExp[0]
+                                              pExpInfo.HdrExp[0]
                                                   .exp_real_params.isp_dgain *
-                                              procParaGroup->camgroupParmasArray[0]
-                                                  ->aec._effAecExpInfo.HdrExp[0]
+                                              pExpInfo.HdrExp[0]
                                                   .exp_real_params.integration_time;
-        pDrcGroupCtx->NextData.AEData.MExpo = procParaGroup->camgroupParmasArray[0]
-                                                  ->aec._effAecExpInfo.HdrExp[1]
+        pDrcGroupCtx->NextData.AEData.MExpo = pExpInfo.HdrExp[1]
                                                   .exp_real_params.analog_gain *
-                                              procParaGroup->camgroupParmasArray[0]
-                                                  ->aec._effAecExpInfo.HdrExp[1]
+                                              pExpInfo.HdrExp[1]
                                                   .exp_real_params.digital_gain *
-                                              procParaGroup->camgroupParmasArray[0]
-                                                  ->aec._effAecExpInfo.HdrExp[1]
+                                              pExpInfo.HdrExp[1]
                                                   .exp_real_params.isp_dgain *
-                                              procParaGroup->camgroupParmasArray[0]
-                                                  ->aec._effAecExpInfo.HdrExp[1]
+                                              pExpInfo.HdrExp[1]
                                                   .exp_real_params.integration_time;
-        pDrcGroupCtx->NextData.AEData.LExpo = procParaGroup->camgroupParmasArray[0]
-                                                  ->aec._effAecExpInfo.HdrExp[2]
+        pDrcGroupCtx->NextData.AEData.LExpo = pExpInfo.HdrExp[2]
                                                   .exp_real_params.analog_gain *
-                                              procParaGroup->camgroupParmasArray[0]
-                                                  ->aec._effAecExpInfo.HdrExp[2]
+                                              pExpInfo.HdrExp[2]
                                                   .exp_real_params.digital_gain *
-                                              procParaGroup->camgroupParmasArray[0]
-                                                  ->aec._effAecExpInfo.HdrExp[2]
+                                              pExpInfo.HdrExp[2]
                                                   .exp_real_params.isp_dgain *
-                                              procParaGroup->camgroupParmasArray[0]
-                                                  ->aec._effAecExpInfo.HdrExp[2]
+                                              pExpInfo.HdrExp[2]
                                                   .exp_real_params.integration_time;
     } else if (pDrcGroupCtx->FrameNumber == SENSOR_MGE) {
         pDrcGroupCtx->NextData.AEData.MExpo =
-            procParaGroup->camgroupParmasArray[0]
-                ->aec._effAecExpInfo.LinearExp.exp_real_params.analog_gain *
-            procParaGroup->camgroupParmasArray[0]
-                ->aec._effAecExpInfo.LinearExp.exp_real_params.digital_gain *
-            procParaGroup->camgroupParmasArray[0]
-                ->aec._effAecExpInfo.LinearExp.exp_real_params.isp_dgain *
-            procParaGroup->camgroupParmasArray[0]
-                ->aec._effAecExpInfo.LinearExp.exp_real_params.integration_time;
+            pExpInfo.LinearExp.exp_real_params.analog_gain *
+            pExpInfo.LinearExp.exp_real_params.digital_gain *
+            pExpInfo.LinearExp.exp_real_params.isp_dgain *
+            pExpInfo.LinearExp.exp_real_params.integration_time;
         pDrcGroupCtx->NextData.AEData.LExpo = pDrcGroupCtx->NextData.AEData.MExpo;
         pDrcGroupCtx->NextData.AEData.SExpo =
             pDrcGroupCtx->NextData.AEData.MExpo /
@@ -232,17 +255,16 @@ static XCamReturn groupDrcProcessing(const RkAiqAlgoCom* inparams, RkAiqAlgoResC
             AE_RATIO_MAX / pDrcGroupCtx->NextData.AEData.L2M_Ratio;
     }
 
-    int iso                                   = pDrcGroupCtx->iso;
-    float blc_ob_predgain                     = procParaGroup->stAblcV32_proc_res.isp_ob_predgain;
+    int iso = 50;
     rk_aiq_singlecam_3a_result_t* scam_3a_res = procParaGroup->camgroupParmasArray[0];
     if (scam_3a_res->aec._bEffAecExpValid) {
-        RKAiqAecExpInfo_t* pCurExp = &scam_3a_res->aec._effAecExpInfo;
-        if ((rk_aiq_working_mode_t)procParaGroup->working_mode == RK_AIQ_WORKING_MODE_NORMAL) {
-            iso = blc_ob_predgain * scam_3a_res->hdrIso;
-        } else {
-            iso = scam_3a_res->hdrIso;
-        }
+        iso = scam_3a_res->hdrIso;
     }
+
+    rkisp_adrc_stats_t drc_stats;
+    memset(&drc_stats, 0, sizeof(rkisp_adrc_stats_t));
+    DrcStatsConfig(procParaGroup, &drc_stats);
+    pDrcGroupCtx->drc_stats = &drc_stats;
 
     if (procParaGroup->attribUpdated) {
         LOGI("%s attribUpdated", __func__);
@@ -250,31 +272,30 @@ static XCamReturn groupDrcProcessing(const RkAiqAlgoCom* inparams, RkAiqAlgoResC
     }
 
     int delta_iso = abs(iso - pDrcGroupCtx->iso);
-    if (delta_iso > DEFAULT_RECALCULATE_DELTA_ISO) pDrcGroupCtx->isReCal_ = true;
+    if (delta_iso > DEFAULT_RECALCULATE_DELTA_ISO ||
+        !procParaGroup->camgroupParmasArray[0]->aec._aeProcRes.IsConverged) 
+        pDrcGroupCtx->isReCal_ = true;
 
-    bool bypass_expo_params = true;
-    // get bypass_expo_params
-    if (!pDrcGroupCtx->CurrData.AEData.LongFrmMode != !pDrcGroupCtx->NextData.AEData.LongFrmMode)
-        bypass_expo_params = false;
-    else if ((pDrcGroupCtx->CurrData.AEData.L2M_Ratio - pDrcGroupCtx->NextData.AEData.L2M_Ratio) >
-                 FLT_EPSILON ||
-             (pDrcGroupCtx->CurrData.AEData.L2M_Ratio - pDrcGroupCtx->NextData.AEData.L2M_Ratio) <
-                 -FLT_EPSILON ||
-             (pDrcGroupCtx->CurrData.AEData.M2S_Ratio - pDrcGroupCtx->NextData.AEData.M2S_Ratio) >
-                 FLT_EPSILON ||
-             (pDrcGroupCtx->CurrData.AEData.M2S_Ratio - pDrcGroupCtx->NextData.AEData.M2S_Ratio) <
-                 -FLT_EPSILON ||
-             (pDrcGroupCtx->CurrData.AEData.L2S_Ratio - pDrcGroupCtx->NextData.AEData.L2S_Ratio) >
-                 FLT_EPSILON ||
-             (pDrcGroupCtx->CurrData.AEData.L2S_Ratio - pDrcGroupCtx->NextData.AEData.L2S_Ratio) <
-                 -FLT_EPSILON)
-        bypass_expo_params = false;
-    else
-        bypass_expo_params = true;
+#if RKAIQ_HAVE_DRC_V20
+    bool isIIRReclac = false;
+    if (pDrcGroupCtx->CurrData.autoCurveIIRParams.sw_drcT_drcCurve_mode == adrc_auto_mode) {
+        if (procParaGroup->camgroupParmasArray[0]->aec._aeProcRes.IsConverged) {
+            pDrcGroupCtx->CurrData.autoCurveIIRParams.reCalcNum++;
+            if (pDrcGroupCtx->CurrData.autoCurveIIRParams.reCalcNum <=
+                2 * pDrcGroupCtx->CurrData.autoCurveIIRParams.sw_drcT_iirFrm_maxLimit)
+                isIIRReclac = true;
+        } else {
+            pDrcGroupCtx->CurrData.autoCurveIIRParams.reCalcNum = 0;
+        }
+    } else {
+        pDrcGroupCtx->CurrData.autoCurveIIRParams.reCalcNum = 0;
+    }
+    pDrcGroupCtx->isReCal_ = pDrcGroupCtx->isReCal_ || isIIRReclac;
+#endif
 
     rk_aiq_isp_drc_v39_t* drc_param = procResParaGroup->camgroupParmasArray[0]->drc;
 
-    if (pDrcGroupCtx->isReCal_ || !bypass_expo_params) {
+    if (pDrcGroupCtx->isReCal_) {
 #if RKAIQ_HAVE_DRC_V12
         DrcSelectParam(pDrcGroupCtx, &drc_param->result, iso);
         DrcExpoParaProcessing(pDrcGroupCtx, &drc_param->result);
@@ -301,7 +322,7 @@ static XCamReturn groupDrcProcessing(const RkAiqAlgoCom* inparams, RkAiqAlgoResC
     pDrcGroupCtx->CurrData.AEData.LongFrmMode = pDrcGroupCtx->NextData.AEData.LongFrmMode;
     pDrcGroupCtx->CurrData.AEData.L2M_Ratio   = pDrcGroupCtx->NextData.AEData.L2M_Ratio;
     pDrcGroupCtx->CurrData.AEData.M2S_Ratio   = pDrcGroupCtx->NextData.AEData.M2S_Ratio;
-    pDrcGroupCtx->CurrData.AEData.L2S_Ratio   = pDrcGroupCtx->NextData.AEData.L2S_Ratio;
+    pDrcGroupCtx->CurrData.AEData.L2S_Ratio = pDrcGroupCtx->NextData.AEData.L2S_Ratio;
     LOGD_ATMO("%s exit\n", __FUNCTION__);
     return ret;
 }

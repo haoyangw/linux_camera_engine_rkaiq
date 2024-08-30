@@ -129,6 +129,19 @@ typedef struct drcCurve_auto_s {
     M4_NOTES(TODO.
             Freq of use: low))  */
     float sw_drcT_anchorPoint_y3;
+    /* M4_GENERIC_DESC(
+    M4_ALIAS(sw_drcT_iirFrm_maxLimit),
+    M4_TYPE(f32),
+    M4_SIZE_EX(1,1),
+    M4_RANGE_EX(1,256),
+    M4_DEFAULT(16),
+    M4_DIGIT_EX(0),
+    M4_HIDE_EX(0),
+    M4_RO(0),
+    M4_ORDER(0),
+    M4_NOTES(The current weight of IIR filter.
+        Freq of use: low))  */
+    float sw_drcT_iirFrm_maxLimit;
 } drcCurve_auto_t;
 
 typedef struct adrc_drcProc_s {

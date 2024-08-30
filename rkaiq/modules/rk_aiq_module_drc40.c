@@ -22,7 +22,7 @@
 #define DRC_GAIN_MAX            (8.0f)
 #define GAINMIN             (1.0f)
 #define PREDGAIN_MAX        (4.0f)
-#define PREDGAIN_DEFAULT    (2.0f)
+#define PREDGAIN_DEFAULT    (8.0f)
 #define ISP_HDR_BIT_NUM_MAX (20)
 #define ISP_HDR_BIT_NUM_MIN (12)
 #define ISP_RAW_BIT         (12)
@@ -173,7 +173,7 @@ void rk_aiq_drc40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
     }
 
     // clip drc gain
-    float drc_gain = 1.0f, preDGain = 1.0f;
+    float drc_gain = 1.0f, preDGain = 1.0f, preDGain_drc = 1.0f;
     if (pdyn->preProc.sw_drcT_toneCurve_mode == drc_cfgCurveCtrlCoeff_mode)
         drc_gain = pdyn->preProc.toneCurveCtrl.sw_drcT_toneGain_maxLimit;
     else if (pdyn->preProc.sw_drcT_toneCurve_mode == drc_cfgCurveDirect_mode)
@@ -238,14 +238,37 @@ void rk_aiq_drc40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
 #endif
     if (cvtinfo->frameNum == 1) {
         if (cvtinfo->btnr_en && cvtinfo->btnrCfg_pixDomain_mode == btnr_pixLog2Domain_mode &&
-            cvtinfo->blc_res.obcPostTnr.sw_blcT_obcPostTnr_en) {
+            cvtinfo->blc_res.obcPostTnr.sw_blcT_obcPostTnr_en && !cvtinfo->use_aiisp) {
+            float totalGain = cvtinfo->ae_exp->LinearExp.exp_real_params.analog_gain
+                             * cvtinfo->ae_exp->LinearExp.exp_real_params.digital_gain
+                             * cvtinfo->ae_exp->LinearExp.exp_real_params.isp_dgain;
+            LOGD_ATMO("totalGain is %f", totalGain);
             preDGain = PREDGAIN_DEFAULT;
-            drc_gain = drc_gain / preDGain;
-            LOGD_ATMO(
-                "preDGain is forsed to 2.0f when btnrCfg_pixDomain_mode is "
-                "btnr_pixLog2Domain_mode");
-        } else {
+            while (totalGain >= 64.0f && preDGain > 1.0f) {
+                preDGain = MAX(preDGain * 0.707, 1);
+                totalGain /= 2;
+            }
+            if (totalGain > 32.0f && preDGain > 1.0f) {
+                float ratio = (totalGain / 32.0f - 1);
+                preDGain = MAX(preDGain * 0.707 * ratio + preDGain * (1 - ratio), 1);
+            }
+#if defined(ISP_HW_V33)
+            if (cvtinfo->isFirstFrame || cvtinfo->sw_btnrT_outFrmBase_mode == btnr_curBaseOut_mode) {
+                preDGain_drc = preDGain;
+            }
+            else {
+                preDGain_drc = cvtinfo->preDGain_preFrm;
+            }
+#else
+            preDGain_drc = preDGain;
+#endif
+            drc_gain = drc_gain / preDGain_drc;
+            cvtinfo->preDGain_preFrm = preDGain;
+            LOGD_ATMO("preDGain is set to %f when btnrCfg_pixDomain_mode is btnr_pixLog2Domain_mode\n", preDGain);
+        }
+        else {
             preDGain = 1.0f;
+            preDGain_drc = 1.0f;
         }
     }
 
@@ -258,13 +281,13 @@ void rk_aiq_drc40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
                                      0.0625f, 0.0352f, 0.0156f, 0.0039f, 0.0f};
         float alpha               = pdyn->preProc.toneCurveCtrl.sw_drcT_toneCurveK_coeff;
         for (int i = 0; i < DRC_CURVE_LEN; ++i) {
-            tmp_float = pow(drc_gain, 1 - alpha * luma[i]) * pow(preDGain, -alpha * luma[i]);
+            tmp_float = pow(drc_gain, 1 - alpha * luma[i]) * pow(preDGain_drc, -alpha * luma[i]);
             pdyn->preProc.hw_drcT_luma2ToneGain_val[i] = tmp_float;
         }
     } else if (pdyn->preProc.sw_drcT_toneCurve_mode == drc_cfgCurveDirect_mode) {
         for (int i = 0; i < 17; i++) {
             pdyn->preProc.hw_drcT_luma2ToneGain_val[i] =
-                pdyn->preProc.hw_drcT_luma2ToneGain_val[i] / preDGain;
+                pdyn->preProc.hw_drcT_luma2ToneGain_val[i] / preDGain_drc;
             pdyn->preProc.hw_drcT_luma2ToneGain_val[i] =
                 pdyn->preProc.hw_drcT_luma2ToneGain_val[i] > drc_gain
                     ? drc_gain
@@ -289,9 +312,10 @@ void rk_aiq_drc40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
     phwcfg->gainx32_en  = 1;
     phwcfg->raw_dly_dis = 0;
 
-    phwcfg->position = CLIP(pdyn->preProc.hw_drcT_toneCurveIdx_scale * (1 << 8), 0, (1 << 14) - 1);
+    float toneCurveIdx_scale_toIsp = pdyn->preProc.hw_drcT_toneCurveIdx_scale / preDGain_drc;
+    phwcfg->position = CLIP(toneCurveIdx_scale_toIsp * (1 << 8), 0, (1 << 14) - 1);
     // get sw_drc_compres_scl
-    float log_ratio2     = log(L2S_Ratio * drc_gain * preDGain) / log(2.0f) + 12.0f;
+    float log_ratio2     = log(L2S_Ratio * drc_gain * preDGain_drc) / log(2.0f) + 12.0f;
     float offsetbits_int = CLIP(ptransSta->hw_transCfg_transOfDrc_offset, 0, 15);
 
     unsigned char cmps_fixbit_mode =
@@ -310,7 +334,7 @@ void rk_aiq_drc40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
     if (LongFrmMode) {
         pdyn->drcProc.hw_drcT_drcGain_minLimit = 1.0f;
     } else if (pdyn->drcProc.sw_drcT_drcGainLimit_mode == drc_drcGainLmt_auto_mode) {
-        pdyn->drcProc.hw_drcT_drcGain_minLimit = 1.0f / (L2S_Ratio * drc_gain * preDGain);
+        pdyn->drcProc.hw_drcT_drcGain_minLimit = 1.0f / (L2S_Ratio * drc_gain * preDGain_drc);
     }
 
     // get sw_drc_compres_y

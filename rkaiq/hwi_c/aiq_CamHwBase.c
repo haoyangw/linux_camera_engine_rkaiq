@@ -1531,7 +1531,6 @@ XCamReturn AiqCamHwBase_init(AiqCamHwBase_t* pCamHw, const char* sns_ent_name) {
     pCamHw->_dbg_drv_mem_ctx.ops_ctx  = pCamHw;
     pCamHw->_dbg_drv_mem_ctx.mem_info = (void*)(pCamHw->dbg_mem_info_array);
     pCamHw->_isp_stream_status        = ISP_STREAM_STATUS_INVALID;
-    pCamHw->mRawStreamInfo.mode       = RK_ISP_RKRAWSTREAM_MODE_INVALID;
 
     {
         // init pool
@@ -2699,6 +2698,8 @@ void AiqCamHw_setCalib(AiqCamHwBase_t* pCamHw, const CamCalibDbV2Context_t* cali
 
     // update infos to sensor hw
     _setExpDelayInfo(pCamHw, pCamHw->_hdr_mode);
+
+    AiqIspParamsCvt_setCalib(pCamHw->_mIspParamsCvt, pCamHw->mCalibDbV2);
 }
 
 static XCamReturn _setupHdrLink_vidcap(AiqCamHwBase_t* pCamHw, int hdr_mode, int cif_index,
@@ -5366,7 +5367,7 @@ void AiqCamHw_setDevBufCnt(AiqCamHwBase_t* pCamHw, AiqDevBufCnt_t* devBufCntsInf
 }
 
 void AiqCamHw_setRawStreamInfo(AiqCamHwBase_t* pCamHw, rk_aiq_rkrawstream_info_t* info) {
-    if (pCamHw) return;
+    if (!pCamHw) return;
 
     pCamHw->mRawStreamInfo = *info;
 }
@@ -5900,6 +5901,8 @@ static XCamReturn SetLastAeExpToRttShared(AiqCamHwBase_t* pCamHw) {
             fastAeAwbInfo.head.exp_isp_dgain[0] =
                 (uint32_t)(last_ae->aecExpInfo.HdrExp[2].exp_real_params.isp_dgain * (1 << 16));
         }
+
+        AIQ_REF_BASE_UNREF(&last_ae->_base._ref_base);
 
 #if defined(ISP_HW_V33)
         cmd = RKISP_CMD_SET_TB_HEAD_V33;

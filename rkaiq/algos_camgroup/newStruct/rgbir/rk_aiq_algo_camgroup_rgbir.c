@@ -47,15 +47,9 @@ static XCamReturn groupRgbirProcessing(const RkAiqAlgoCom* inparams, RkAiqAlgoRe
     }
 
     int iso = pRgbirGroupCtx->iso;
-    float blc_ob_predgain = procParaGroup->stAblcV32_proc_res.isp_ob_predgain;
     rk_aiq_singlecam_3a_result_t* scam_3a_res = procParaGroup->camgroupParmasArray[0];
     if(scam_3a_res->aec._bEffAecExpValid) {
-        RKAiqAecExpInfo_t* pCurExp = &scam_3a_res->aec._effAecExpInfo;
-        if((rk_aiq_working_mode_t)procParaGroup->working_mode == RK_AIQ_WORKING_MODE_NORMAL) {
-            iso =  blc_ob_predgain * scam_3a_res->hdrIso;
-        } else {
-            iso = scam_3a_res->hdrIso;
-        }
+        iso = scam_3a_res->hdrIso;
     }
 
     outparams->algoRes = procResParaGroup->camgroupParmasArray[0]->rgbir;

@@ -155,35 +155,28 @@ static XCamReturn processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
         return XCAM_RETURN_NO_ERROR;
     }
 
-    bool isExpoTimeChange =
-        (pDrcCtx->CurrData.AEData.LTime - pDrcCtx->NextData.AEData.LTime) > FLT_EPSILON ||
-        (pDrcCtx->CurrData.AEData.LTime - pDrcCtx->NextData.AEData.LTime) < -FLT_EPSILON;
-
-    if (delta_iso > DEFAULT_RECALCULATE_DELTA_ISO || isExpoTimeChange) {
+    if (delta_iso > DEFAULT_RECALCULATE_DELTA_ISO || !drc_proc_param->aeIsConverged) {
         pDrcCtx->isReCal_ = true;
     }
 
-    bool bypass_expo_params = true;
-    // get bypass_expo_params
-    if (!pDrcCtx->CurrData.AEData.LongFrmMode != !pDrcCtx->NextData.AEData.LongFrmMode)
-        bypass_expo_params = false;
-    else if ((pDrcCtx->CurrData.AEData.L2M_Ratio - pDrcCtx->NextData.AEData.L2M_Ratio) >
-                 FLT_EPSILON ||
-             (pDrcCtx->CurrData.AEData.L2M_Ratio - pDrcCtx->NextData.AEData.L2M_Ratio) <
-                 -FLT_EPSILON ||
-             (pDrcCtx->CurrData.AEData.M2S_Ratio - pDrcCtx->NextData.AEData.M2S_Ratio) >
-                 FLT_EPSILON ||
-             (pDrcCtx->CurrData.AEData.M2S_Ratio - pDrcCtx->NextData.AEData.M2S_Ratio) <
-                 -FLT_EPSILON ||
-             (pDrcCtx->CurrData.AEData.L2S_Ratio - pDrcCtx->NextData.AEData.L2S_Ratio) >
-                 FLT_EPSILON ||
-             (pDrcCtx->CurrData.AEData.L2S_Ratio - pDrcCtx->NextData.AEData.L2S_Ratio) <
-                 -FLT_EPSILON)
-        bypass_expo_params = false;
-    else
-        bypass_expo_params = true;
+#if RKAIQ_HAVE_DRC_V20
+    bool isIIRReclac = false;
+    if (pDrcCtx->CurrData.autoCurveIIRParams.sw_drcT_drcCurve_mode == adrc_auto_mode) {
+        if (drc_proc_param->aeIsConverged) {
+            pDrcCtx->CurrData.autoCurveIIRParams.reCalcNum++;
+            if (pDrcCtx->CurrData.autoCurveIIRParams.reCalcNum <=
+                2 * pDrcCtx->CurrData.autoCurveIIRParams.sw_drcT_iirFrm_maxLimit)
+                isIIRReclac = true;
+        } else {
+            pDrcCtx->CurrData.autoCurveIIRParams.reCalcNum = 0;
+        }
+    } else {
+        pDrcCtx->CurrData.autoCurveIIRParams.reCalcNum = 0;
+    }
+    pDrcCtx->isReCal_ = pDrcCtx->isReCal_ || isIIRReclac;
+#endif
 
-    if (pDrcCtx->isReCal_ || !bypass_expo_params) {
+    if (pDrcCtx->isReCal_) {
 #if RKAIQ_HAVE_DRC_V12
         DrcSelectParam(pDrcCtx, outparams->algoRes, iso);
         DrcExpoParaProcessing(pDrcCtx, outparams->algoRes);
@@ -208,9 +201,6 @@ static XCamReturn processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outp
     pDrcCtx->CurrData.AEData.L2M_Ratio   = pDrcCtx->NextData.AEData.L2M_Ratio;
     pDrcCtx->CurrData.AEData.M2S_Ratio   = pDrcCtx->NextData.AEData.M2S_Ratio;
     pDrcCtx->CurrData.AEData.L2S_Ratio   = pDrcCtx->NextData.AEData.L2S_Ratio;
-    pDrcCtx->CurrData.AEData.LTime       = pDrcCtx->NextData.AEData.LTime;
-    pDrcCtx->CurrData.AEData.MTime       = pDrcCtx->NextData.AEData.MTime;
-    pDrcCtx->CurrData.AEData.STime       = pDrcCtx->NextData.AEData.STime;
 
     LOGV_ATMO("%s: (exit)\n", __FUNCTION__);
     return XCAM_RETURN_NO_ERROR;
@@ -689,6 +679,8 @@ XCamReturn DrcSelectParam(DrcContext_t* pDrcCtx, drc_param_t* out, trans_params_
         out->dyn.drcProc.sw_drcT_drcGainLimit_mode = drc_drcGainLmt_manual_mode;
         drcApplyStats(pDrcCtx, out, pstaTrans, ilow, ihigh, ratio);
     }
+    pDrcCtx->CurrData.autoCurveIIRParams.sw_drcT_drcCurve_mode =
+        paut->dyn[inear].drcProc.sw_drcT_drcCurve_mode;
 
     // pDrcCtx->isDampStable = DrcDamping(out, &pDrcCtx->CurrData, pDrcCtx->FrameID);
 
@@ -809,10 +801,17 @@ static void drcApplyStats(DrcContext_t* pDrcCtx, drc_param_t* out, trans_params_
     float x[5];
     float y[5];
     float wp         = quantile;
-    float cmps_max   = 12.0f - offsetbits_int;
-    float log_max    = log(pDrcCtx->NextData.AEData.L2S_Ratio * adrc_gain) / log(2.0f) + 12.0f;
-    log_max          = log_max - offsetbits_int;
-    float log_wp     = log(wp * pDrcCtx->NextData.AEData.L2S_Ratio * adrc_gain) / log(2.0f) + 12.0f;
+    float cmps_max   = log(1.0f + (1 << offsetbits_int) / 4096.0f) / log(2.0f) + 12.0f;
+    cmps_max -= offsetbits_int;
+    float log_max =
+        log(pDrcCtx->NextData.AEData.L2S_Ratio * adrc_gain + (1 << offsetbits_int) / 4096.0f) /
+            log(2.0f) +
+        12.0f;
+    log_max -= offsetbits_int;
+    float log_wp =
+        log(wp * pDrcCtx->NextData.AEData.L2S_Ratio * adrc_gain + (1 << offsetbits_int) / 4096.0f) /
+            log(2.0f) +
+        12.0f;
     log_wp           = log_wp - offsetbits_int;
     float luma_scale = log_max / log_wp;
     float anchor_point[2][3];
@@ -863,15 +862,101 @@ static void drcApplyStats(DrcContext_t* pDrcCtx, drc_param_t* out, trans_params_
         input_luma[i] = MIN(tmp * luma_scale, 1.0f);
     }
     drc_create_curve(x, y, input_luma, cmps_curve);
+    drc_auto_curve_iir_t autoCurve;
     for (int i = 0; i < DRC_V12_Y_NUM; ++i) {
-        out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[i] = cmps_curve[i] * validbits;
-        out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[i] =
-            LIMIT_VALUE_UNSIGNED(out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[i], MANUALCURVEMAX);
+        autoCurve.hw_drcT_hdr2Sdr_curve[i] = cmps_curve[i] * validbits;
+        autoCurve.hw_drcT_hdr2Sdr_curve[i] =
+            LIMIT_VALUE_UNSIGNED(autoCurve.hw_drcT_hdr2Sdr_curve[i], MANUALCURVEMAX);
     }
     // change min gain for this mode
     float tmp                                 = wp * pDrcCtx->NextData.AEData.L2S_Ratio * adrc_gain;
     tmp                                       = tmp > POW_E_NEG6 ? tmp : POW_E_NEG6;
-    out->dyn.drcProc.hw_drcT_drcGain_minLimit = MIN(1.0f / tmp, 1.0f);
+    autoCurve.hw_drcT_drcGain_minLimit        = MIN(1.0f / tmp, 1.0f);
+
+    // damp
+    int iir_frame = interpolation_f32(
+        paut->dyn[ilow].drcProc.sw_drcT_drcCurve_auto.sw_drcT_iirFrm_maxLimit,
+        paut->dyn[ihigh].drcProc.sw_drcT_drcCurve_auto.sw_drcT_iirFrm_maxLimit, ratio);
+    pDrcCtx->CurrData.autoCurveIIRParams.sw_drcT_iirFrm_maxLimit = iir_frame;
+
+    iir_frame = MIN((int)pDrcCtx->FrameID, iir_frame);
+
+    bool isDrcCurveModeChange =
+        pDrcCtx->CurrData.autoCurveIIRParams.sw_drcT_drcCurve_mode != adrc_auto_mode;
+
+    if (drc_stats->stats_true && !isDrcCurveModeChange) {
+        out->dyn.drcProc.hw_drcT_drcGain_minLimit =
+            pDrcCtx->CurrData.autoCurveIIRParams.hw_drcT_drcGain_minLimit * (iir_frame - 1) /
+                iir_frame +
+            autoCurve.hw_drcT_drcGain_minLimit / iir_frame;
+        for (int i = 0; i < DRC_V12_Y_NUM; ++i) {
+            out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[i] =
+                pDrcCtx->CurrData.autoCurveIIRParams.hw_drcT_hdr2Sdr_curve[i] * (iir_frame - 1) /
+                    iir_frame +
+                autoCurve.hw_drcT_hdr2Sdr_curve[i] / iir_frame;
+        }
+    } else {
+        out->dyn.drcProc.hw_drcT_drcGain_minLimit = autoCurve.hw_drcT_drcGain_minLimit;
+        for (int i = 0; i < DRC_V12_Y_NUM; ++i) {
+            out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[i] = autoCurve.hw_drcT_hdr2Sdr_curve[i];
+        }
+    }
+
+#if 0
+    printf("iir_frame:%d x[0~1]:%f %f %f %f %f\n", iir_frame, x[0], x[1], x[2], x[3], x[4]);
+    printf("wp:%f y[0~1]:%f %f %f %f %f\n", wp, y[0], y[1], y[2], y[3], y[4]);
+    printf(
+        "%s: cur curve: %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f "
+        "%f\n",
+        __FUNCTION__, autoCurve.hw_drcT_hdr2Sdr_curve[0], autoCurve.hw_drcT_hdr2Sdr_curve[1],
+        autoCurve.hw_drcT_hdr2Sdr_curve[2], autoCurve.hw_drcT_hdr2Sdr_curve[3],
+        autoCurve.hw_drcT_hdr2Sdr_curve[4], autoCurve.hw_drcT_hdr2Sdr_curve[5],
+        autoCurve.hw_drcT_hdr2Sdr_curve[6], autoCurve.hw_drcT_hdr2Sdr_curve[7],
+        autoCurve.hw_drcT_hdr2Sdr_curve[8], autoCurve.hw_drcT_hdr2Sdr_curve[9],
+        autoCurve.hw_drcT_hdr2Sdr_curve[10], autoCurve.hw_drcT_hdr2Sdr_curve[11],
+        autoCurve.hw_drcT_hdr2Sdr_curve[12], autoCurve.hw_drcT_hdr2Sdr_curve[13],
+        autoCurve.hw_drcT_hdr2Sdr_curve[14], autoCurve.hw_drcT_hdr2Sdr_curve[15],
+        autoCurve.hw_drcT_hdr2Sdr_curve[16]);
+    printf(
+        "%s: iir curve: %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f "
+        "%f\n",
+        __FUNCTION__, pDrcCtx->CurrData.autoCurveIIRParams.hw_drcT_hdr2Sdr_curve[0],
+        pDrcCtx->CurrData.autoCurveIIRParams.hw_drcT_hdr2Sdr_curve[1],
+        pDrcCtx->CurrData.autoCurveIIRParams.hw_drcT_hdr2Sdr_curve[2],
+        pDrcCtx->CurrData.autoCurveIIRParams.hw_drcT_hdr2Sdr_curve[3],
+        pDrcCtx->CurrData.autoCurveIIRParams.hw_drcT_hdr2Sdr_curve[4],
+        pDrcCtx->CurrData.autoCurveIIRParams.hw_drcT_hdr2Sdr_curve[5],
+        pDrcCtx->CurrData.autoCurveIIRParams.hw_drcT_hdr2Sdr_curve[6],
+        pDrcCtx->CurrData.autoCurveIIRParams.hw_drcT_hdr2Sdr_curve[7],
+        pDrcCtx->CurrData.autoCurveIIRParams.hw_drcT_hdr2Sdr_curve[8],
+        pDrcCtx->CurrData.autoCurveIIRParams.hw_drcT_hdr2Sdr_curve[9],
+        pDrcCtx->CurrData.autoCurveIIRParams.hw_drcT_hdr2Sdr_curve[10],
+        pDrcCtx->CurrData.autoCurveIIRParams.hw_drcT_hdr2Sdr_curve[11],
+        pDrcCtx->CurrData.autoCurveIIRParams.hw_drcT_hdr2Sdr_curve[12],
+        pDrcCtx->CurrData.autoCurveIIRParams.hw_drcT_hdr2Sdr_curve[13],
+        pDrcCtx->CurrData.autoCurveIIRParams.hw_drcT_hdr2Sdr_curve[14],
+        pDrcCtx->CurrData.autoCurveIIRParams.hw_drcT_hdr2Sdr_curve[15],
+        pDrcCtx->CurrData.autoCurveIIRParams.hw_drcT_hdr2Sdr_curve[16]);
+    printf(
+        "%s: finnal curve: %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d "
+        "%d\n",
+        __FUNCTION__, out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[0],
+        out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[1], out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[2],
+        out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[3], out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[4],
+        out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[5], out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[6],
+        out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[7], out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[8],
+        out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[9], out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[10],
+        out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[11], out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[12],
+        out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[13], out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[14],
+        out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[15], out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[16]);
+#endif
+
+    pDrcCtx->CurrData.autoCurveIIRParams.hw_drcT_drcGain_minLimit =
+        out->dyn.drcProc.hw_drcT_drcGain_minLimit;
+    for (int i = 0; i < DRC_V12_Y_NUM; ++i) {
+        pDrcCtx->CurrData.autoCurveIIRParams.hw_drcT_hdr2Sdr_curve[i] =
+            out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[i];
+    }
 }
 
 static XCamReturn drcApplyStrength(DrcContext_t* pDrcCtx, drc_param_t* out) {

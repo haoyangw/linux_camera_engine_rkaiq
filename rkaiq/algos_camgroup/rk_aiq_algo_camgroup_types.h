@@ -35,7 +35,7 @@
 typedef struct rk_aiq_singlecam_3a_result_s {
     uint8_t _camId;
     uint32_t _frameId;
-    int16_t hdrIso;
+    int hdrIso;
     // ae params
     struct {
         RKAiqAecExpInfo_t* exp_tbl;

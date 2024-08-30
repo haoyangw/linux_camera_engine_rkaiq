@@ -32,9 +32,6 @@ typedef struct DrcAEData_s {
     float LExpo;  // invaild in Curr
     float MExpo;  // invaild in Curr
     float SExpo;  // invaild in Curr
-    float LTime;  // invaild in Curr
-    float MTime;  // invaild in Curr
-    float STime;  // invaild in Curr
 } DrcAEData_t;
 
 typedef struct NextData_s {

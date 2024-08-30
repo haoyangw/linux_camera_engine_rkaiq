@@ -1663,6 +1663,7 @@ static void convertAiqBtnrToIsp33Params(AiqIspParamsCvt_t* pCvt, aiq_params_base
     }
 
     pCvt->isp_params.isp_cfg->others.bay3d_cfg.bypass_en = pBase->bypass;
+    pCvt->mBtnrInfo.btnr_attrib = pCvt->btnr_attrib;
     rk_aiq_btnr41_params_cvt(pBase->_data, &pCvt->isp_params, &pCvt->mCommonCvtInfo, &pCvt->mBtnrInfo);
 }
 #endif

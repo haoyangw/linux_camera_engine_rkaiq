@@ -160,6 +160,7 @@ struct AiqIspParamsCvt_s {
 #endif
 #if (defined(ISP_HW_V39) || defined(ISP_HW_V33)) && (USE_NEWSTRUCT)
     btnr_cvt_info_t mBtnrInfo;
+    void *btnr_attrib;
 #endif
     float mLatestIspDgain;
 #if defined(ISP_HW_V39) && (USE_NEWSTRUCT)
@@ -187,6 +188,7 @@ void AiqIspParamsCvt_updateIspModuleForceEns(AiqIspParamsCvt_t* pCvt, u64 module
 aiq_params_base_t* AiqIspParamsCvt_get_3a_result(AiqIspParamsCvt_t* pCvt, AiqList_t* results,
                                                  int32_t type);
 void AiqIspParamsCvt_getCommonCvtInfo(AiqIspParamsCvt_t* pCvt, AiqList_t* results, bool use_aiisp);
+void AiqIspParamsCvt_setCalib(AiqIspParamsCvt_t* pCvt, const CamCalibDbV2Context_t* calibv2);
 
 XCAM_END_DECLARE
 #endif

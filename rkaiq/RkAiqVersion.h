@@ -809,10 +809,36 @@
  * - fix some bugs of group mode
  * - fix initial blc error for fastboot
  * - update iq structs of btnr, histeq, enh ...
+ *
+ * v6.0x7.3-rc0
+ * - fix some bugs of group mode
+ * - camgroup: fix camgroup iso bug
+ * - drc: bring up auto mode to camgroup
+ * - sensor: no set hdr mode if same to drv
+ * - camhw: fix unref exp param in SetLastAeExpToRttShared function
+ * - manager: add ref cnt when push algo result to list
+ * - drc40: add sw_drcT_iirFrm_maxLimit in auto mode to avoid luma change
+ * - drc40: use n-1 frame ae hist bin for n+1 frame
+ * - predgain: dynamic updates in btnr_pixLog2Domain_mode
+ * - rk1103b newstruct: btnr set x step on manualSigmaMode & x step must be 2^n
+ * - btnr: access attrib in cvt.
+ * - rv1103b: ynr add rgeSgm_scale & loNrOut_alpha params in loNr
+ * - iqfiles: isp33: remove HDR scene of sc200ai
+ * - common: sync rkisp2-config.h
+ * - rv1103b: update toolchain
+ * - interpolation: add set iso_list.
+ * - hwi: fix duplicate initialization issues
+ * - gain: run cvt every frame
+ * - imgproc: fix no recover set bypass btnr when prepare set mirror/flip
+ * - Fix ae fliker caused by blc from v5.1.3 for isp3x/isp21
+ * - AeHandler: set iso value to shared info when aiq prepare
+ * - algos: ldc: add cache buffer for ldc lut in GlobalParamsManager
+ * - drc: bring up changes in drc manual compress curve
+ * - isp dgain: update awb gain simultaneously when ispdgain is updated
  */
 
-#define RK_AIQ_VERSION_REAL_V "v6.0x7.1"
-#define RK_AIQ_RELEASE_DATE "2024-08-05"
+#define RK_AIQ_VERSION_REAL_V "v6.0x7.3-rc0"
+#define RK_AIQ_RELEASE_DATE "2024-08-30"
 
 #define RK_AIQ_IQ_HEAD_VERSION_REAL_V "v1.0.2"
 

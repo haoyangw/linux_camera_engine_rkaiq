@@ -19,7 +19,7 @@ cmake -G "Ninja" \
     -DRKAIQ_TARGET_SOC=${RKAIQ_TARGET_SOC} \
     -DARCH=${AIQ_BUILD_ARCH} \
     -DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_FILE \
-    -DRKAIQ_BUILD_BINARY_IQ=ON \
+    -DRKAIQ_BUILD_BINARY_IQ=OFF \
     -DCMAKE_SKIP_RPATH=TRUE \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=YES \
     -DISP_HW_VERSION=${ISP_HW_VERSION} \
@@ -27,9 +27,12 @@ cmake -G "Ninja" \
     -DRKAIQ_USE_RAWSTREAM_LIB=OFF \
     -DRKAIQ_HAVE_FAKECAM=ON \
     -DRKAIQ_ENABLE_AF=ON \
-    -DRKAIQ_ENABLE_CAMGROUP=ON \
     $SOURCE_PATH \
 && ninja -j$(nproc) \
 && ninja install
 
+status_code=$?
+
 popd
+
+exit $status_code

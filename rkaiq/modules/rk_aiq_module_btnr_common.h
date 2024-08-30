@@ -37,6 +37,7 @@ typedef struct {
     uint16_t tnr_luma_sigma_y[20];
     bool bayertnr_tnr_sigma_curve_double_en;
     uint8_t bayertnr_tnr_sigma_curve_double_pos;
+
 } btnr_trans_params_t;
 
 typedef struct {
@@ -64,6 +65,8 @@ typedef struct {
     int hw_btnrCfg_pixDomain_mode;
     uint16_t btnr_stats_miss_cnt;
     uint16_t sharp_stats_miss_cnt;
+
+    void *btnr_attrib;
 } btnr_cvt_info_t;
 
 void bayertnr_logtrans_init(int bayertnr_trans_mode,  int bayertnr_trans_mode_scale, btnr_trans_params_t *pTransPrarms);

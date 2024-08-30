@@ -1390,6 +1390,7 @@ AiqSensorExpInfo_t* SensorHw_getEffectiveExpParams(AiqSensorHw_t* pSnsHw, uint32
 
 static XCamReturn _SensorHw_set_working_mode(AiqSensorHw_t* pSnsHw, int mode) {
     struct rkmodule_hdr_cfg hdr_cfg;
+    struct rkmodule_hdr_cfg hdr_cfg_get;
     __u32 hdr_mode = NO_HDR;
 
     xcam_mem_clear(hdr_cfg);
@@ -1404,11 +1405,21 @@ static XCamReturn _SensorHw_set_working_mode(AiqSensorHw_t* pSnsHw, int mode) {
         return XCAM_RETURN_ERROR_FAILED;
     }
     hdr_cfg.hdr_mode = hdr_mode;
+
+    if (AiqV4l2SubDevice_ioctl(pSnsHw->mSd, RKMODULE_GET_HDR_CFG, &hdr_cfg_get) < 0) {
+        LOGE_CAMHW_SUBM(SENSOR_SUBM, "failed to set hdr mode %d", hdr_mode);
+    } else {
+        if (hdr_cfg.hdr_mode == hdr_cfg_get.hdr_mode) {
+            goto out;
+        }
+    }
+
     if (AiqV4l2SubDevice_ioctl(pSnsHw->mSd, RKMODULE_SET_HDR_CFG, &hdr_cfg) < 0) {
         LOGE_CAMHW_SUBM(SENSOR_SUBM, "failed to set hdr mode %d", hdr_mode);
         // return XCAM_RETURN_ERROR_IOCTL;
     }
 
+out:
     pSnsHw->_working_mode = mode;
 
     LOGD_CAMHW_SUBM(SENSOR_SUBM, "%s _working_mode: %d\n", __func__, pSnsHw->_working_mode);

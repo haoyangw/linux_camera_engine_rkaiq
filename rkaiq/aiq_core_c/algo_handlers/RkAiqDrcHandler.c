@@ -60,6 +60,7 @@ static void DrcProchelper(AiqAlgoHandler_t* pAlgoHandler, RkAiqAlgoProcDrc* drc_
     RkAiqAlgosGroupShared_t* shared =
         (RkAiqAlgosGroupShared_t*)(pAlgoHandler->mAlogsGroupSharedParams);
     RkAiqAlgosComShared_t* sharedCom = &pAlgoHandler->mAiqCore->mAlogsComSharedParams;
+    AiqDrcHandler_t* pdrcHandler     = (AiqDrcHandler_t*)pAlgoHandler;
 
     aiq_params_base_t* pBase = shared->fullParams->pParamsArray[RESULT_TYPE_DRC_PARAM];
     rk_aiq_isp_drc_v39_t* drcRes = (rk_aiq_isp_drc_params_t*)pBase->_data;
@@ -87,102 +88,77 @@ static void DrcProchelper(AiqAlgoHandler_t* pAlgoHandler, RkAiqAlgoProcDrc* drc_
     drc_proc_param->FrameNumber = FrameNumber;
     drcRes->compr_bit = compr_bit;
 
+    drc_proc_param->aeIsConverged               = pdrcHandler->mAeProcRes.IsConverged;
     drc_proc_param->NextData.AEData.LongFrmMode = drc_proc_param->LongFrmMode;
     if (FrameNumber == LINEAR_NUM) {
-        drc_proc_param->NextData.AEData.STime =
-            drc_proc_param->com.u.proc.nxtExp->LinearExp.exp_real_params.integration_time;
         drc_proc_param->NextData.AEData.SExpo =
             drc_proc_param->com.u.proc.nxtExp->LinearExp.exp_real_params.analog_gain *
             drc_proc_param->com.u.proc.nxtExp->LinearExp.exp_real_params.digital_gain *
             drc_proc_param->com.u.proc.nxtExp->LinearExp.exp_real_params.isp_dgain *
             drc_proc_param->com.u.proc.nxtExp->LinearExp.exp_real_params.integration_time;
         if (drc_proc_param->NextData.AEData.SExpo < FLT_EPSILON) {
-            drc_proc_param->NextData.AEData.STime =
-                drc_proc_param->com.u.proc.curExp->LinearExp.exp_real_params.integration_time;
             drc_proc_param->NextData.AEData.SExpo =
                 drc_proc_param->com.u.proc.curExp->LinearExp.exp_real_params.analog_gain *
                 drc_proc_param->com.u.proc.curExp->LinearExp.exp_real_params.digital_gain *
                 drc_proc_param->com.u.proc.curExp->LinearExp.exp_real_params.isp_dgain *
                 drc_proc_param->com.u.proc.curExp->LinearExp.exp_real_params.integration_time;
         }
-        drc_proc_param->NextData.AEData.MTime = drc_proc_param->NextData.AEData.STime;
         drc_proc_param->NextData.AEData.MExpo = drc_proc_param->NextData.AEData.SExpo;
-        drc_proc_param->NextData.AEData.LTime = drc_proc_param->NextData.AEData.STime;
         drc_proc_param->NextData.AEData.LExpo = drc_proc_param->NextData.AEData.SExpo;
     }
     else if(FrameNumber == HDR_2X_NUM) {
-        drc_proc_param->NextData.AEData.STime =
             drc_proc_param->com.u.proc.nxtExp->HdrExp[0].exp_real_params.integration_time;
         drc_proc_param->NextData.AEData.SExpo =
             drc_proc_param->com.u.proc.nxtExp->HdrExp[0].exp_real_params.analog_gain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[0].exp_real_params.digital_gain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[0].exp_real_params.isp_dgain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[0].exp_real_params.integration_time;
-        drc_proc_param->NextData.AEData.MTime =
-            drc_proc_param->com.u.proc.nxtExp->HdrExp[1].exp_real_params.integration_time;
         drc_proc_param->NextData.AEData.MExpo =
             drc_proc_param->com.u.proc.nxtExp->HdrExp[1].exp_real_params.analog_gain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[1].exp_real_params.digital_gain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[1].exp_real_params.isp_dgain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[1].exp_real_params.integration_time;
         if (drc_proc_param->NextData.AEData.SExpo < FLT_EPSILON) {
-            drc_proc_param->NextData.AEData.STime =
-                drc_proc_param->com.u.proc.curExp->HdrExp[0].exp_real_params.integration_time;
             drc_proc_param->NextData.AEData.SExpo =
                 drc_proc_param->com.u.proc.curExp->HdrExp[0].exp_real_params.analog_gain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[0].exp_real_params.digital_gain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[0].exp_real_params.isp_dgain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[0].exp_real_params.integration_time;
-            drc_proc_param->NextData.AEData.MTime =
-                drc_proc_param->com.u.proc.curExp->HdrExp[1].exp_real_params.integration_time;
             drc_proc_param->NextData.AEData.MExpo =
                 drc_proc_param->com.u.proc.curExp->HdrExp[1].exp_real_params.analog_gain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[1].exp_real_params.digital_gain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[1].exp_real_params.isp_dgain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[1].exp_real_params.integration_time;
         }
-        drc_proc_param->NextData.AEData.LTime = drc_proc_param->NextData.AEData.MTime;
         drc_proc_param->NextData.AEData.LExpo = drc_proc_param->NextData.AEData.MExpo;
     }
     else if(FrameNumber == HDR_3X_NUM) {
-        drc_proc_param->NextData.AEData.STime =
-            drc_proc_param->com.u.proc.nxtExp->HdrExp[0].exp_real_params.integration_time;
         drc_proc_param->NextData.AEData.SExpo =
             drc_proc_param->com.u.proc.nxtExp->HdrExp[0].exp_real_params.analog_gain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[0].exp_real_params.digital_gain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[0].exp_real_params.isp_dgain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[0].exp_real_params.integration_time;
-        drc_proc_param->NextData.AEData.MTime =
-            drc_proc_param->com.u.proc.nxtExp->HdrExp[1].exp_real_params.integration_time;
         drc_proc_param->NextData.AEData.MExpo =
             drc_proc_param->com.u.proc.nxtExp->HdrExp[1].exp_real_params.analog_gain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[1].exp_real_params.digital_gain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[1].exp_real_params.isp_dgain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[1].exp_real_params.integration_time;
-        drc_proc_param->NextData.AEData.LTime =
-            drc_proc_param->com.u.proc.nxtExp->HdrExp[2].exp_real_params.integration_time;
         drc_proc_param->NextData.AEData.LExpo =
             drc_proc_param->com.u.proc.nxtExp->HdrExp[2].exp_real_params.analog_gain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[2].exp_real_params.digital_gain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[2].exp_real_params.isp_dgain *
             drc_proc_param->com.u.proc.nxtExp->HdrExp[2].exp_real_params.integration_time;
         if (drc_proc_param->NextData.AEData.SExpo < FLT_EPSILON) {
-            drc_proc_param->NextData.AEData.STime =
-                drc_proc_param->com.u.proc.curExp->HdrExp[0].exp_real_params.integration_time;
             drc_proc_param->NextData.AEData.SExpo =
                 drc_proc_param->com.u.proc.curExp->HdrExp[0].exp_real_params.analog_gain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[0].exp_real_params.digital_gain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[0].exp_real_params.isp_dgain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[0].exp_real_params.integration_time;
-            drc_proc_param->NextData.AEData.MTime =
-                drc_proc_param->com.u.proc.curExp->HdrExp[1].exp_real_params.integration_time;
             drc_proc_param->NextData.AEData.MExpo =
                 drc_proc_param->com.u.proc.curExp->HdrExp[1].exp_real_params.analog_gain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[1].exp_real_params.digital_gain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[1].exp_real_params.isp_dgain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[1].exp_real_params.integration_time;
-            drc_proc_param->NextData.AEData.LTime =
-                drc_proc_param->com.u.proc.curExp->HdrExp[2].exp_real_params.integration_time;
             drc_proc_param->NextData.AEData.LExpo =
                 drc_proc_param->com.u.proc.curExp->HdrExp[2].exp_real_params.analog_gain *
                 drc_proc_param->com.u.proc.curExp->HdrExp[2].exp_real_params.digital_gain *

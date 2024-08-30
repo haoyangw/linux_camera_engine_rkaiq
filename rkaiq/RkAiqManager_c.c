@@ -290,6 +290,7 @@ XCamReturn AiqManager_applyAnalyzerResult(AiqManager_t* pAiqManager, AiqFullPara
 				(ignoreIsUpdate || aiqParams->pParamsArray[RESULT_TYPE_##BC##_PARAM]->is_update)) { \
             aiqParams->pParamsArray[RESULT_TYPE_##BC##_PARAM]->is_update = false; \
 			aiqList_push(pAiqManager->mParamsList, &aiqParams->pParamsArray[RESULT_TYPE_##BC##_PARAM]); \
+            AIQ_REF_BASE_REF(&aiqParams->pParamsArray[RESULT_TYPE_##BC##_PARAM]->_ref_base); \
         } \
     } \
 

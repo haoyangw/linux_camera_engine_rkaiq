@@ -844,6 +844,25 @@ XCamReturn AiqCamHwFake_init(AiqCamHwFake_t* pFakeCamHw, const char* sns_ent_nam
         AiqRawStreamCapUnit_set_tx_devices(pCamBase->mRawCapUnit, pFakeCamHw->_mipi_tx_devs);
         AiqRawStreamProcUnit_set_rx_devices(pCamBase->mRawProcUnit, pFakeCamHw->_mipi_rx_devs);
         AiqRawStreamProcUnit_setPollCallback(pCamBase->mRawProcUnit, &pFakeCamHw->mPollCb);
+    } else {
+        rk_aiq_raw_prop_t prop;
+        memset(&prop, 0, sizeof(rk_aiq_raw_prop_t));
+        if (pCamBase->mRawStreamInfo.width) {
+            prop.frame_width = pCamBase->mRawStreamInfo.width;
+        } else {
+            LOGE_CAMHW("fake sensor width no set, will cause ae to error");
+        }
+        if (pCamBase->mRawStreamInfo.height) {
+            prop.frame_height = pCamBase->mRawStreamInfo.height;
+        } else {
+            LOGE_CAMHW("fake sensor height no set, will cause ae to error");
+        }
+        if (pCamBase->mRawStreamInfo.format) {
+            prop.format = pCamBase->mRawStreamInfo.format;
+        } else {
+            LOGE_CAMHW("fake sensor format no set, will cause ae to error");
+        }
+        fakeSensorHw->prepare(pCamBase->_mSensorDev, &prop);
     }
 
     return ret;

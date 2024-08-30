@@ -186,7 +186,7 @@ typedef struct ynr_hiNrEPF_dyn_s {
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0.0,16.0),
         M4_DEFAULT(0.5),
-        M4_DIGIT_EX(2f6b),
+        M4_DIGIT_EX(3f6b),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(2),
@@ -293,7 +293,7 @@ typedef struct ynr_hiNr_tex2SFAlpha_s {
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0.0,128.0),
         M4_DEFAULT(1.0),
-        M4_DIGIT_EX(2f10),
+        M4_DIGIT_EX(3f10),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(6),
@@ -307,7 +307,7 @@ typedef struct ynr_hiNr_tex2SFAlpha_s {
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0.0,1.0),
         M4_DEFAULT(1.0),
-        M4_DIGIT_EX(2f10),
+        M4_DIGIT_EX(3f10),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(6),
@@ -458,7 +458,7 @@ typedef struct ynr_midNr_dyn_s {
         M4_SIZE_EX(1,1),
         M4_RANGE_EX(0.0,4.0),
         M4_DEFAULT(0.0783),
-        M4_DIGIT_EX(1f7),
+        M4_DIGIT_EX(3f7),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(6),
@@ -588,6 +588,20 @@ typedef struct ynr_loNr_locSgmStrg2NrStrg_s {
 
 typedef struct ynr_loNrEPF_s {
     /* M4_GENERIC_DESC(
+        M4_ALIAS(hw_ynr_loSpnr_strg),
+        M4_TYPE(f32),
+        M4_SIZE_EX(1,1),
+        M4_RANGE_EX(0.0,16.0),
+        M4_DEFAULT(1.0),
+        M4_DIGIT_EX(3f6b),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(2),
+        M4_NOTES(The scale of lowFreq filter sigma.The higher the value, the strength of filter is higher.\n
+        Freq of use: high))  */
+    // reg: hw_ynr_loSpnr_strg
+    float hw_ynrT_rgeSgm_scale;
+    /* M4_GENERIC_DESC(
         M4_ALIAS(sw_ynr_loSpnr_strg),
         M4_TYPE(f32),
         M4_SIZE_EX(1,6),
@@ -646,6 +660,20 @@ typedef struct ynr_loNrEPF_s {
         Freq of use: low))  */
     // reg: sw_ynr_loSpnrSoftThred_scale
     float hw_ynrT_softThd_scale;
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(sw_ynr_miSpnr_wgt),
+       M4_TYPE(f32),
+       M4_SIZE_EX(1,1),
+       M4_RANGE_EX(0.0,1.0),
+       M4_DEFAULT(1.0),
+       M4_DIGIT_EX(3),
+       M4_HIDE_EX(0),
+       M4_RO(0),
+       M4_ORDER(6),
+       M4_NOTES(Blending weight of input for lo-NR.
+       Freq of use: high))  */
+    //reg: hw_ynr_miSpnr_wgt
+    float hw_ynrT_loNrOut_alpha;
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_ynr_loSpnrGain2strg_val),
         M4_TYPE(f32),
