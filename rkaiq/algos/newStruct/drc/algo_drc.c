@@ -880,6 +880,7 @@ static void drcApplyStats(DrcContext_t* pDrcCtx, drc_param_t* out, trans_params_
     pDrcCtx->CurrData.autoCurveIIRParams.sw_drcT_iirFrm_maxLimit = iir_frame;
 
     iir_frame = MIN((int)pDrcCtx->FrameID, iir_frame);
+    iir_frame = MAX(1, iir_frame);
 
     bool isDrcCurveModeChange =
         pDrcCtx->CurrData.autoCurveIIRParams.sw_drcT_drcCurve_mode != adrc_auto_mode;

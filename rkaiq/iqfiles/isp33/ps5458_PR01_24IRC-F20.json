@@ -16561,9 +16561,9 @@
 							"tunning":	{
 								"autoGenMesh":	{
 									"lensDistorCoeff":	{
-										"sw_ldcC_opticCenter_x":	0,
-										"sw_ldcC_opticCenter_y":	0,
-										"sw_ldcC_lensDistor_coeff":	[0, 0, 0, 0]
+										"sw_ldcC_opticCenter_x":	1351.12,
+										"sw_ldcC_opticCenter_y":	739.486,
+										"sw_ldcC_lensDistor_coeff":	[-1830.26, 0.000423795, -2.50767e-007, 1.27247e-010]
 									},
 									"sw_ldcT_correctStrg_val":	255,
 									"sw_ldcC_correctStrg_maxLimit":	255,

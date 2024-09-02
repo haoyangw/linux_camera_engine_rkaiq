@@ -363,8 +363,10 @@ void AiqIspParamsCvt_deinit(AiqIspParamsCvt_t* pCvt) {
         pCvt->mCacInfo.current_lut_[i] = NULL;
     }
     pCvt->mCacInfo.current_lut_size = 0;
-    LutBufferManagerDeinit(&pCvt->mCacInfo, pCvt->mCacInfo.lut_manger_);
-    aiq_free(pCvt->mCacInfo.lut_manger_);
-    pCvt->mCacInfo.lut_manger_ = NULL;
+    if (pCvt->mCacInfo.lut_manger_) {
+        LutBufferManagerDeinit(&pCvt->mCacInfo, pCvt->mCacInfo.lut_manger_);
+        aiq_free(pCvt->mCacInfo.lut_manger_);
+        pCvt->mCacInfo.lut_manger_ = NULL;
+    }
 #endif
 }

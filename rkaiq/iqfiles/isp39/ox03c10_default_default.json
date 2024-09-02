@@ -13112,12 +13112,12 @@
 								"enMode":	"LDC_LDCH_EN",
 								"autoGenMesh":	{
 									"lensDistorCoeff":	{
-										"sw_ldcC_opticCenter_x":	0,
-										"sw_ldcC_opticCenter_y":	0,
-										"sw_ldcC_lensDistor_coeff":	[0, 0, 0, 0]
+										"sw_ldcC_opticCenter_x":	965.94432,
+										"sw_ldcC_opticCenter_y":	524.16288,
+										"sw_ldcC_lensDistor_coeff":	[-697.06693896, 0.00016488, 2.3697320638817e-007, 2.224407027e-011]
 									},
-									"sw_ldcT_correctStrg_val":	255,
-									"sw_ldcC_correctStrg_maxLimit":	255,
+									"sw_ldcT_correctStrg_val":	168,
+									"sw_ldcC_correctStrg_maxLimit":	168,
 									"sw_ldcT_saveMaxFovX_bit":	0
 								},
 								"extMeshFile":	{
