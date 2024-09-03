@@ -860,6 +860,7 @@ rk_aiq_uapi_sysctl_prepare(const rk_aiq_sys_ctx_t* ctx,
             LOGE_ANALYZER("Aiisp does not supported HDR mode !");
             return XCAM_RETURN_ERROR_FAILED;
         }
+#ifdef RKAIQ_HAVE_RGBIR_REMOSAIC
         rk_aiq_global_params_wrap_t rgbir_params;
         rgbir_params.type = RESULT_TYPE_RGBIR_PARAM;
         rgbir_params.man_param_ptr = NULL;
@@ -868,6 +869,7 @@ rk_aiq_uapi_sysctl_prepare(const rk_aiq_sys_ctx_t* ctx,
             LOGE_ANALYZER("Rgbir does not supported HDR mode !");
             return XCAM_RETURN_ERROR_FAILED;
         }
+#endif
     }
 
     if (ctx->_use_fakecam && ctx->_raw_prop.format &&
