@@ -1714,7 +1714,7 @@ static XCamReturn _SensorHw_setEffExpMap(AiqSensorHw_t* pSns, uint32_t sequence,
         pSnsExp->aecExpInfo.HdrExp[0].exp_real_params.isp_dgain             = 1.0f;
 
         pItem = aiqMap_insert(pSns->_effecting_exp_map, (void*)(intptr_t)sequence, &pSnsExp);
-        if (pItem) {
+        if (!pItem) {
             AIQ_REF_BASE_UNREF(&pSnsExp->_base._ref_base);
             aiqMutex_unlock(&pSns->_mutex);
             return XCAM_RETURN_ERROR_FAILED;

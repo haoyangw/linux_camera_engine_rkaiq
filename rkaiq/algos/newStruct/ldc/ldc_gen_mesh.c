@@ -459,7 +459,9 @@ XCamReturn LdcGenMeshHelperThd_start(LdcGenMeshHelperThd_t* pHelpThd) {
 
 XCamReturn LdcGenMeshHelperThd_stop(LdcGenMeshHelperThd_t* pHelpThd) {
     ENTER_ANALYZER_FUNCTION();
+    aiqMutex_lock(&pHelpThd->_mutex);
     pHelpThd->bQuit = true;
+    aiqMutex_unlock(&pHelpThd->_mutex);
     aiqCond_broadcast(&pHelpThd->_cond);
     aiqThread_stop(pHelpThd->_base);
     AiqListItem_t* pItem = NULL;

@@ -91,4 +91,6 @@
 #include "isp/rk_aiq_isp_ldc22.h"
 #include "uAPI2/rk_aiq_user_api2_ldc.h"
 
+#include "uAPI2/rk_aiq_user_api2_postisp.h"
+
 #endif

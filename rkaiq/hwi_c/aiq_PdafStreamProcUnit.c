@@ -194,7 +194,9 @@ XCamReturn PdafStreamHelperThd_start(PdafStreamHelperThd_t* pHelpThd) {
 
 XCamReturn PdafStreamHelperThd_stop(PdafStreamHelperThd_t* pHelpThd) {
     ENTER_ANALYZER_FUNCTION();
+    aiqMutex_lock(&pHelpThd->_mutex);
     pHelpThd->bQuit = true;
+    aiqMutex_unlock(&pHelpThd->_mutex);
     aiqCond_broadcast(&pHelpThd->_cond);
     aiqThread_stop(pHelpThd->_base);
     AiqListItem_t* pItem = NULL;

@@ -369,6 +369,7 @@ static calibdb_ctx_member_offset_info_t info_CamCalibDbV2ContextIsp33_t[] = {
     {"csm", CALIBV2_MODULE_RELATIVE_OFFSET_ISP33(csm)},
     {"cgc", CALIBV2_MODULE_RELATIVE_OFFSET_ISP33(cgc)},
     {"ldc", CALIBV2_MODULE_RELATIVE_OFFSET_ISP33(ldc)},
+    {"postisp", CALIBV2_MODULE_RELATIVE_OFFSET_ISP33(postisp)},
     {NULL, 0},
 };
 #endif

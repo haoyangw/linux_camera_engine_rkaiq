@@ -124,6 +124,8 @@ typedef enum _camAlgoResultType {
     RESULT_TYPE_ENH_PARAM,
     RESULT_TYPE_TEXEST_PARAM,
     RESULT_TYPE_HSV_PARAM,
+    // hold postisp params
+    RESULT_TYPE_POSTISP_PARAM,
     RESULT_TYPE_MAX_PARAM,
 } camAlgoResultType;
 

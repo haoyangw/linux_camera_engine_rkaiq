@@ -592,6 +592,8 @@ RkAiqUapiDesc_t rkaiq_uapidesc_list[] = {
 #if defined(ISP_HW_V33)
     __RKAIQUAPI_DESC_DEF("/uapi/0/texEst_uapi/attr", texEst_api_attrib_t, rk_aiq_user_api2_texEst_SetAttrib, rk_aiq_user_api2_texEst_GetAttrib),
     __RKAIQUAPI_DESC_DEF("/uapi/0/texEst_uapi/info", texEst_status_t, NULL, rk_aiq_user_api2_texEst_QueryStatus),
+    __RKAIQUAPI_DESC_DEF("/uapi/0/postisp_uapi/attr", postisp_api_attrib_t, rk_aiq_user_api2_postisp_SetAttrib, rk_aiq_user_api2_postisp_GetAttrib),
+    __RKAIQUAPI_DESC_DEF("/uapi/0/postisp_uapi/info", postisp_status_t, NULL, rk_aiq_user_api2_postisp_QueryStatus),
 #endif
 };
 /***********************END OF CUSTOM AREA**************************/

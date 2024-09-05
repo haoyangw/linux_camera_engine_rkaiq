@@ -549,7 +549,9 @@ void AiqAnalyzeGroupMsgHdlThread_start(AiqAnalyzeGroupMsgHdlThread_t* pHdlTh) {
 
 void AiqAnalyzeGroupMsgHdlThread_stop(AiqAnalyzeGroupMsgHdlThread_t* pHdlTh) {
     ENTER_ANALYZER_FUNCTION();
+    aiqMutex_lock(&pHdlTh->_mutex);
     pHdlTh->bQuit = true;
+    aiqMutex_unlock(&pHdlTh->_mutex);
     aiqCond_broadcast(&pHdlTh->_cond);
     aiqThread_stop(pHdlTh->_base);
     EXIT_ANALYZER_FUNCTION();

@@ -624,6 +624,26 @@ static void init_withCalib(GlobalParamsManager_t* pMan)
     } else {
         LOGE("no ccm calib !");
     }
+#if ISP_HW_V33
+    wrap_ptr = &pMan->mGlobalParams[RESULT_TYPE_POSTISP_PARAM];
+    postisp_api_attrib_t* postisp_calib = (postisp_api_attrib_t*)(CALIBDBV2_GET_MODULE_PTR(
+                (void*)(pMan->mCalibDb), postisp));
+    if (postisp_calib) {
+        wrap_ptr->opMode = &postisp_calib->opMode;
+        wrap_ptr->en = &postisp_calib->en;
+        wrap_ptr->bypass = &postisp_calib->bypass;
+        wrap_ptr->man_param_ptr = &postisp_calib->stMan;
+        wrap_ptr->aut_param_ptr = &postisp_calib->stAuto;
+		pMan->mIsGlobalModulesUpdateBits |= ((uint64_t)1) << RESULT_TYPE_POSTISP_PARAM;
+        if (postisp_calib->opMode == RK_AIQ_OP_MODE_INVALID) {
+            postisp_calib->opMode = RK_AIQ_OP_MODE_MANUAL;
+        }
+        LOGK("Module postisp: opMode:%d,en:%d,bypass:%d,man_ptr:%p",
+             *wrap_ptr->opMode, *wrap_ptr->en, *wrap_ptr->bypass, wrap_ptr->man_param_ptr);
+    } else {
+        LOGE("no postisp calib !");
+    }
+#endif
 #endif
     EXIT_ANALYZER_FUNCTION();
 }

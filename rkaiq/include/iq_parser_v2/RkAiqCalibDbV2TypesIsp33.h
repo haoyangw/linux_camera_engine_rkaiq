@@ -77,6 +77,7 @@
 #include "algos/rk_aiq_api_types_awb.h"
 #include "isp/rk_aiq_isp_ldc22.h"
 #include "algos/rk_aiq_api_types_ldc.h"
+#include "rkpostisp_head_v2.h"
 
 RKAIQ_BEGIN_DECLARE
 
@@ -149,6 +150,8 @@ typedef struct {
     gain_api_attrib_t gain;
     // M4_STRUCT_DESC("ldc", "normal_ui_style")
     ldc_api_attrib_t ldc;
+    // M4_STRUCT_DESC("postisp", "normal_ui_style")
+    postisp_api_attrib_t postisp;
 } CamCalibDbV2ContextIsp33_t;
 
 RKAIQ_END_DECLARE

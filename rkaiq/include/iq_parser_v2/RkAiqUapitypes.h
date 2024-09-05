@@ -76,6 +76,10 @@
 #include "iq_parser_v2/ablc_uapi_head.h"
 #endif
 
+#if defined(ISP_HW_V33)
+#include "iq_parser_v2/rkpostisp_head_v2.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -197,6 +201,19 @@ typedef struct {
     // M4_STRUCT_DESC("info", "tuning_status")
     texEst_status_t info;
 } texEst_uapi_t;
+#endif
+
+#if defined(ISP_HW_V33)
+typedef struct {
+    /* M4_GENERIC_DESC(
+       M4_ALIAS(attr),
+       M4_TYPE(struct),
+       M4_UI_MODULE(tuning_param),
+       M4_REF(/postisp)) */
+    postisp_api_attrib_t attr;
+    // M4_STRUCT_DESC("info", "tuning_status")
+    postisp_status_t info;
+} postisp_uapi_t;
 #endif
 
 typedef struct {
@@ -1118,6 +1135,10 @@ typedef struct __aiq_uapi_t {
     lsc_uapi_t lsc_uapi;
     // M4_STRUCT_DESC("ccm_uapi", "double_list_template")
     ccm_uapi_t ccm_uapi;
+#if defined(ISP_HW_V33)
+    // M4_STRUCT_DESC("postisp_uapi", "iso_list_template")
+    postisp_uapi_t postisp_uapi;
+#endif
 #endif
 } RkaiqUapi_t;
 

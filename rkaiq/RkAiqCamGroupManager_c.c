@@ -178,7 +178,9 @@ void AiqCamGroupReprocTh_start(AiqCamGroupReprocTh_t* pReprocTh)
 void AiqCamGroupReprocTh_stop(AiqCamGroupReprocTh_t* pReprocTh)
 {
     ENTER_CAMGROUP_FUNCTION();
+    aiqMutex_lock(&pReprocTh->_mutex);
     pReprocTh->bQuit = true;
+    aiqMutex_unlock(&pReprocTh->_mutex);
     aiqCond_broadcast(&pReprocTh->_cond);
     aiqThread_stop(pReprocTh->_base);
     AiqListItem_t* pItem = NULL;
