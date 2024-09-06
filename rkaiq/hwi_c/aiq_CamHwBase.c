@@ -1825,6 +1825,21 @@ void AiqCamHwBase_deinit(AiqCamHwBase_t* pCamHw) {
         pCamHw->mIspSofStream = NULL;
     }
 
+    if (pCamHw->use_aiisp) {
+        if (pCamHw->mIspAiispStream) {
+            AiqAiIspStream_deinit(pCamHw->mIspAiispStream);
+            aiq_free(pCamHw->mIspAiispStream);
+            pCamHw->mIspAiispStream = NULL;
+        }
+        pCamHw->lib_aiisp_.Deinit(&pCamHw->lib_aiisp_);
+        struct AiispOps* ops = AiqAiIsp_GetOps(&pCamHw->lib_aiisp_);
+        ops->aiisp_deinit(pCamHw->aiisp_param);
+        if (pCamHw->aiisp_param) {
+            aiq_free(pCamHw->aiisp_param);
+            pCamHw->aiisp_param = NULL;
+        }
+    }
+
     if (pCamHw->mIspStremEvtTh) {
         AiqStreamEventPollThread_deinit(pCamHw->mIspStremEvtTh);
         aiq_free(pCamHw->mIspStremEvtTh);
@@ -1928,14 +1943,6 @@ void AiqCamHwBase_deinit(AiqCamHwBase_t* pCamHw) {
     if (pCamHw->mEffectIspParamsPool) {
         aiqPool_deinit(pCamHw->mEffectIspParamsPool);
         pCamHw->mEffectIspParamsPool = NULL;
-    }
-    if (pCamHw->use_aiisp) {
-        struct AiispOps* ops = AiqAiIsp_GetOps(&pCamHw->lib_aiisp_);
-        ops->aiisp_deinit(pCamHw->aiisp_param);
-        if (pCamHw->aiisp_param) {
-            aiq_free(pCamHw->aiisp_param);
-            pCamHw->aiisp_param = NULL;
-        }
     }
 
     aiqMutex_deInit(&pCamHw->_stop_cond_mutex);

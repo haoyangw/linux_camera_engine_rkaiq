@@ -56,7 +56,8 @@ typedef struct Again_ExpInfo_V2_s {
     int isoLevelLow;
     // M4_NUMBER_DESC("isoLevelHig", "u8", M4_RANGE(0, 12), "0", M4_DIGIT(0))
     int isoLevelHig;
-
+    // M4_ARRAY_DESC("blc_ob_predgain", "f32", M4_SIZE(1,1), M4_RANGE(0, 16), "1", M4_DIGIT(3))
+    float blc_ob_predgain;
 } Again_ExpInfo_V2_t;
 
 typedef struct rk_aiq_gain_info_v2_s {

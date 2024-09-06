@@ -139,7 +139,13 @@ void rk_aiq_gain20_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_i
     {
         uint32_t a = (1 << (GAIN_HDR_MERGE_IN2_FIX_BITS_INTE + GAIN_HDR_MERGE_IN_FIX_BITS_DECI)) - 1;
         dGain[i] = (frame_exp_ratio[i] * exp_gain[i]) / exp_gain[2];
+        if (!CHECK_ISP_HW_V20() && !CHECK_ISP_HW_V21() && !CHECK_ISP_HW_V30() ) {
+            if(stExpInfo.hdr_mode == 0 && cvtinfo->blc_res.obcPostTnr.sw_blcT_obcPostTnr_en &&  cvtinfo->preDGain > 1.0) {
+                dGain[i] *= cvtinfo->preDGain;
+            }
+        }
         sw_gain[i] = gain_float_lim2_int(dGain[i], GAIN_HDR_MERGE_IN_FIX_BITS_DECI, 1);       // 12:6
+
 
         if(stExpInfo.hdr_mode == 0) {
             if (i == 0)

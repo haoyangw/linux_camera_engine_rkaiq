@@ -24,7 +24,24 @@
 
 RKAIQ_BEGIN_DECLARE
 
+typedef enum {
+    postisp_nr_mode0 = 0,
+    postisp_nr_mode1,
+    postisp_nr_mode2,
+    postisp_nr_mode3
+} postisp_nr_mode_t;
+
 typedef struct {
+    /* M4_GENERIC_DESC(
+        M4_ALIAS(mode),
+        M4_TYPE(enum),
+        M4_ENUM_DEF(postisp_nr_mode_t),
+        M4_DEFAULT(postisp_nr_mode0),
+        M4_HIDE_EX(0),
+        M4_RO(0),
+        M4_ORDER(0),
+        M4_NOTES(The current nr mode))  */
+    postisp_nr_mode_t mode;
     // M4_NUMBER_DESC("gain_max", "f32", M4_RANGE(0, 8192.0), "1", M4_DIGIT(1))
     float gain_max;
     // M4_NUMBER_DESC("gain_tab_len", "u8", M4_RANGE(1, 13), "13", M4_DIGIT(0))
@@ -50,8 +67,6 @@ typedef struct {
 } postisp_params_static_t;
 
 typedef struct {
-    // M4_NUMBER_DESC("gain", "f32", M4_RANGE(1.0, 8192.0), "1.0", M4_DIGIT(2))
-    float gain;
     // M4_NUMBER_DESC("sigma", "f32", M4_RANGE(0.0, 32.0), "2.0", M4_DIGIT(2))
     float sigma;
     // M4_NUMBER_DESC("shade", "f32", M4_RANGE(-4.0, 4.0), "0.0", M4_DIGIT(2))

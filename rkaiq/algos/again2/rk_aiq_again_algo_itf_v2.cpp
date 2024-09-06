@@ -63,24 +63,24 @@ bool get_gain2ddr_flg_func(int* mode) {
         write_localgain_flg = 1;
         fp = open(name, O_RDONLY | O_SYNC);
 
-         if (read(fp, buffer, sizeof(buffer)) <= 0) {
-                printf("%s read %s fail! empty\n", __func__, name);
-                write_localgain_flg = 0;
-                remove(name);
-            } else {
-                char *p = NULL;
-                p = strtok(buffer, delim);
-                if (p != NULL) {
-                    int value = atoi(p);
-                    if(value < 0 || value > 3) {
-                        printf("%s not supported mode %d!\n", __func__, value);
-                        remove(name);
-                    } else {
-                        printf("%s read success value %d\n", __func__, value);
-                        *mode = value;
-                    }
+        if (read(fp, buffer, sizeof(buffer)) <= 0) {
+            printf("%s read %s fail! empty\n", __func__, name);
+            write_localgain_flg = 0;
+            remove(name);
+        } else {
+            char *p = NULL;
+            p = strtok(buffer, delim);
+            if (p != NULL) {
+                int value = atoi(p);
+                if(value < 0 || value > 3) {
+                    printf("%s not supported mode %d!\n", __func__, value);
+                    remove(name);
+                } else {
+                    printf("%s read success value %d\n", __func__, value);
+                    *mode = value;
                 }
             }
+        }
     } else {
         write_localgain_flg                 = 0;
     }
@@ -93,7 +93,7 @@ static XCamReturn release_dbg_buf(Again_Context_V2_t* again_contex)
     if (again_contex->wrt2ddr.mem_ctx)
         again_contex->wrt2ddr.mem_ops->release_mem(0, again_contex->wrt2ddr.mem_ctx);
     again_contex->wrt2ddr.mem_ctx = nullptr;
-    for(int i = 0; i < again_contex->wrt2ddr.buf_cnt; i++){
+    for(int i = 0; i < again_contex->wrt2ddr.buf_cnt; i++) {
         again_contex->wrt2ddr.store_addr[i] = nullptr;
     }
     return XCAM_RETURN_NO_ERROR;
@@ -101,13 +101,13 @@ static XCamReturn release_dbg_buf(Again_Context_V2_t* again_contex)
 
 static XCamReturn restore_dbg_buf(Again_Context_V2_t* again_contex)
 {
-    if(again_contex->wrt2ddr.store_addr[0] != nullptr){
+    if(again_contex->wrt2ddr.store_addr[0] != nullptr) {
         LOGE_ANR("restore_dbg_buf return");
         return XCAM_RETURN_NO_ERROR;
     }
-    for(int i = 0; i < again_contex->wrt2ddr.buf_cnt; i++){
+    for(int i = 0; i < again_contex->wrt2ddr.buf_cnt; i++) {
         again_contex->wrt2ddr.mem_info = (rk_aiq_dbg_share_mem_info_t *)
-                again_contex->wrt2ddr.mem_ops->get_free_item(0, again_contex->wrt2ddr.mem_ctx);
+                                         again_contex->wrt2ddr.mem_ops->get_free_item(0, again_contex->wrt2ddr.mem_ctx);
         if (again_contex->wrt2ddr.mem_info == NULL) {
             LOGE_ANR( "%s(%d): no free dbg buf", __FUNCTION__, __LINE__);
             return XCAM_RETURN_ERROR_MEM;
@@ -118,7 +118,7 @@ static XCamReturn restore_dbg_buf(Again_Context_V2_t* again_contex)
             LOGD_ANR("get stored fd: %d(%d)", again_contex->wrt2ddr.store_fd[i], i);
         }
     }
-    for(int i = 0; i < again_contex->wrt2ddr.buf_cnt; i++){
+    for(int i = 0; i < again_contex->wrt2ddr.buf_cnt; i++) {
         if (again_contex->wrt2ddr.store_addr[i] != NULL) {
             unsigned int* tmp1 = (unsigned int* )again_contex->wrt2ddr.store_addr[i];
             tmp1[0] = RKISP_INFO2DDR_BUF_INIT;
@@ -129,7 +129,7 @@ static XCamReturn restore_dbg_buf(Again_Context_V2_t* again_contex)
 
 static XCamReturn alloc_dbg_buf(Again_Context_V2_t* again_contex)
 {
-    if(again_contex->wrt2ddr.mem_ctx){
+    if(again_contex->wrt2ddr.mem_ctx) {
         LOGD_ANR("no need to alloc");
         return XCAM_RETURN_NO_ERROR;//no need to alloc
     }
@@ -147,14 +147,14 @@ static XCamReturn alloc_dbg_buf(Again_Context_V2_t* again_contex)
     dbg_mem_config.alloc_param.reserved[1] = again_contex->wrt2ddr.again2ddr_mode;
     dbg_mem_config.alloc_param.reserved[2] = again_contex->wrt2ddr.buf_cnt;
     again_contex->wrt2ddr.mem_ops->alloc_mem(0, again_contex->wrt2ddr.mem_ops,
-                                      &dbg_mem_config,
-                                      &again_contex->wrt2ddr.mem_ctx);
+            &dbg_mem_config,
+            &again_contex->wrt2ddr.mem_ctx);
     return XCAM_RETURN_NO_ERROR;
 }
 
 static XCamReturn alloc_dbg_buf_mode(Again_Context_V2_t* again_contex, int mode)
 {
-    if(again_contex->wrt2ddr.mem_ctx){
+    if(again_contex->wrt2ddr.mem_ctx) {
         LOGD_ANR("no need to alloc");
         return XCAM_RETURN_NO_ERROR;//no need to alloc
     }
@@ -172,8 +172,8 @@ static XCamReturn alloc_dbg_buf_mode(Again_Context_V2_t* again_contex, int mode)
     dbg_mem_config.alloc_param.reserved[1] = mode;
     dbg_mem_config.alloc_param.reserved[2] = again_contex->wrt2ddr.buf_cnt;
     again_contex->wrt2ddr.mem_ops->alloc_mem(0, again_contex->wrt2ddr.mem_ops,
-                                      &dbg_mem_config,
-                                      &again_contex->wrt2ddr.mem_ctx);
+            &dbg_mem_config,
+            &again_contex->wrt2ddr.mem_ctx);
     return XCAM_RETURN_NO_ERROR;
 }
 
@@ -181,7 +181,7 @@ static XCamReturn write_dbg_buf_and_release(Again_Context_V2_t* again_contex, in
 {
     int ds_width = 0, ds_hight = 0;
 
-    for(int i=0; i < again_contex->wrt2ddr.buf_cnt; i++){
+    for(int i = 0; i < again_contex->wrt2ddr.buf_cnt; i++) {
         unsigned int* tmp2 = (unsigned int* )again_contex->wrt2ddr.store_addr[i];
         if (tmp2 != NULL) {
             if(again_contex->wrt2ddr.store_fd[i] == fd) {
@@ -194,7 +194,7 @@ static XCamReturn write_dbg_buf_and_release(Again_Context_V2_t* again_contex, in
                     ds_width = (again_contex->rawWidth + 7) / 8;
                     ds_hight = again_contex->rawHeight / 2;
                     totalpixel = ds_width * ds_hight;
-                } else if (again_contex->wrt2ddr.again2ddr_mode == RK_AIQ_AGAIN_DS_1X8){
+                } else if (again_contex->wrt2ddr.again2ddr_mode == RK_AIQ_AGAIN_DS_1X8) {
                     ds_width = (again_contex->rawWidth + 7) / 8;
                     ds_hight = again_contex->rawHeight;
                     totalpixel = ds_width * ds_hight;
@@ -223,11 +223,11 @@ static XCamReturn write_dbg_buf_and_release(Again_Context_V2_t* again_contex, in
 }
 
 static XCamReturn write_dbg_buf_and_release_mode(Again_Context_V2_t* again_contex,
-                                                 int fd, int fd2, int* mode)
+        int fd, int fd2, int* mode)
 {
     int ds_width = 0, ds_hight = 0;
 
-    for(int i=0; i < again_contex->wrt2ddr.buf_cnt; i++){
+    for(int i = 0; i < again_contex->wrt2ddr.buf_cnt; i++) {
         unsigned int* tmp2 = (unsigned int* )again_contex->wrt2ddr.store_addr[i];
         if (tmp2 != NULL) {
             if(again_contex->wrt2ddr.store_fd[i] == fd) {
@@ -240,7 +240,7 @@ static XCamReturn write_dbg_buf_and_release_mode(Again_Context_V2_t* again_conte
                     ds_width = (again_contex->rawWidth + 7) / 8;
                     ds_hight = again_contex->rawHeight / 2;
                     totalpixel = ds_width * ds_hight;
-                } else if (*mode == RK_AIQ_AGAIN_DS_1X8){
+                } else if (*mode == RK_AIQ_AGAIN_DS_1X8) {
                     ds_width = (again_contex->rawWidth + 7) / 8;
                     ds_hight = again_contex->rawHeight;
                     totalpixel = ds_width * ds_hight;
@@ -269,12 +269,12 @@ static XCamReturn write_dbg_buf_and_release_mode(Again_Context_V2_t* again_conte
     return XCAM_RETURN_NO_ERROR;
 }
 
-static XCamReturn init_dbg_buf(Again_Context_V2_t* again_contex,int fd)
+static XCamReturn init_dbg_buf(Again_Context_V2_t* again_contex, int fd)
 {
-    for(int i=0; i < again_contex->wrt2ddr.buf_cnt; i++){
+    for(int i = 0; i < again_contex->wrt2ddr.buf_cnt; i++) {
         unsigned int* tmp1 = (unsigned int* )again_contex->wrt2ddr.store_addr[i];
         if (tmp1 != NULL) {
-            if(again_contex->wrt2ddr.store_fd[i] == fd){
+            if(again_contex->wrt2ddr.store_fd[i] == fd) {
                 unsigned int* tmp1 = (unsigned int* )again_contex->wrt2ddr.store_addr[i];
                 tmp1[0] = RKISP_INFO2DDR_BUF_INIT;
                 break;
@@ -439,17 +439,22 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
         stExpInfo.arDGain[i] = 1.0;
         stExpInfo.arTime[i] = 0.01;
     }
-
-    if(pAgainProcParams->hdr_mode == RK_AIQ_WORKING_MODE_NORMAL) {
-        stExpInfo.hdr_mode = 0;
-    } else if(pAgainProcParams->hdr_mode == RK_AIQ_ISP_HDR_MODE_2_FRAME_HDR
-              || pAgainProcParams->hdr_mode == RK_AIQ_ISP_HDR_MODE_2_LINE_HDR ) {
-        stExpInfo.hdr_mode = 1;
-    } else if(pAgainProcParams->hdr_mode == RK_AIQ_ISP_HDR_MODE_3_FRAME_HDR
-              || pAgainProcParams->hdr_mode == RK_AIQ_ISP_HDR_MODE_3_LINE_HDR ) {
-        stExpInfo.hdr_mode = 2;
-    }
     stExpInfo.snr_mode = 0;
+
+
+    if(pAgainProcParams != NULL) {
+        if(pAgainProcParams->hdr_mode == RK_AIQ_WORKING_MODE_NORMAL) {
+            stExpInfo.hdr_mode = 0;
+        } else if(pAgainProcParams->hdr_mode == RK_AIQ_ISP_HDR_MODE_2_FRAME_HDR
+                  || pAgainProcParams->hdr_mode == RK_AIQ_ISP_HDR_MODE_2_LINE_HDR ) {
+            stExpInfo.hdr_mode = 1;
+        } else if(pAgainProcParams->hdr_mode == RK_AIQ_ISP_HDR_MODE_3_FRAME_HDR
+                  || pAgainProcParams->hdr_mode == RK_AIQ_ISP_HDR_MODE_3_LINE_HDR ) {
+            stExpInfo.hdr_mode = 2;
+        }
+        stExpInfo.blc_ob_predgain = pAgainProcParams->stAblcV32_proc_res->isp_ob_predgain;
+    }
+
 
     RKAiqAecExpInfo_t *curExp = pAgainProcParams->com.u.proc.curExp;
 

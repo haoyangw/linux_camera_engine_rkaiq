@@ -2131,6 +2131,7 @@ rk_aiq_uapi2_sysctl_getAinrParams(const rk_aiq_sys_ctx_t* sys_ctx, rk_ainr_param
     postisp_params_static_t *psta = &paut->sta;
     postisp_params_dyn_t *pdyn = paut->dyn;
 
+    para->mode = psta->data.mode;
     para->gain_tab_len = psta->data.gain_tab_len;
     para->gain_max = psta->data.gain_max;
     para->tuning_visual_flag = psta->data.tuning_visual_flag;
@@ -2140,7 +2141,7 @@ rk_aiq_uapi2_sysctl_getAinrParams(const rk_aiq_sys_ctx_t* sys_ctx, rk_ainr_param
     }
 
     for (int i = 0; i < 13; i++) {
-        para->gain_tab[i] = pdyn[i].data.gain;
+        para->gain_tab[i] = (float)(1 << i);
         para->sigma_tab[i] = pdyn[i].data.sigma;
         para->shade_tab[i] = pdyn[i].data.shade;
         para->sharp_tab[i] = pdyn[i].data.sharp;

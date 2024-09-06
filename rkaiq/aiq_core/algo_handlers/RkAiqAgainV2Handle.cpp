@@ -161,7 +161,7 @@ XCamReturn RkAiqAgainV2HandleInt::writeAginIn(rk_aiq_uapiV2_again_wrtIn_attr_t a
     // called by RkAiqCore
     bool isChanged = false;
     if (att.sync.sync_mode == RK_AIQ_UAPI_MODE_ASYNC && \
-        memcmp(&mNewWriteInputAttr, &att, sizeof(att)))
+            memcmp(&mNewWriteInputAttr, &att, sizeof(att)))
         isChanged = true;
     else if (att.sync.sync_mode != RK_AIQ_UAPI_MODE_ASYNC && \
              memcmp(&mCurWriteInputAttr, &att, sizeof(att)))
@@ -236,7 +236,7 @@ XCamReturn RkAiqAgainV2HandleInt::processing() {
 
     RkAiqAlgoProcAgainV2* again_proc_int        = (RkAiqAlgoProcAgainV2*)mProcInParam;
     RkAiqAlgoProcResAgainV2* again_proc_res_int = (RkAiqAlgoProcResAgainV2*)mProcOutParam;
- 
+
     RkAiqCore::RkAiqAlgosGroupShared_t* shared =
         (RkAiqCore::RkAiqAlgosGroupShared_t*)(getGroupShared());
 
@@ -275,6 +275,7 @@ XCamReturn RkAiqAgainV2HandleInt::processing() {
     // TODO: fill procParam
     again_proc_int->iso      = sharedCom->iso;
     again_proc_int->hdr_mode = sharedCom->working_mode;
+    again_proc_int->stAblcV32_proc_res = shared->res_comb.ablcV32_proc_res;
 
 #ifdef DISABLE_HANDLE_ATTRIB
     mCfgMutex.lock();

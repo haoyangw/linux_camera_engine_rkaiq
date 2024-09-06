@@ -22,7 +22,8 @@ extern "C"
 
 typedef struct rk_ainr_param_t
 {
-    int   enable;
+    int enable;
+    int mode;   //  0: post ai ynr, 1: post ai motion enhance, 2, ...
     float gain;
     float RawMeanluma;
     float YuvMeanluma;
