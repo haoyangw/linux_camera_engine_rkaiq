@@ -1481,7 +1481,7 @@ XCamReturn AiqCamHwBase_init(AiqCamHwBase_t* pCamHw, const char* sns_ent_name) {
         return XCAM_RETURN_ERROR_SENSOR;
     }
 
-    pCamHw->mAweekId               = 0;
+    pCamHw->mAweekId               = -1;
     pCamHw->use_aiisp              = false;
     pCamHw->aiisp_param            = NULL;
     pCamHw->_skipped_params        = NULL;
@@ -4775,7 +4775,7 @@ static XCamReturn _setIspConfig(AiqCamHwBase_t* pCamHw, AiqList_t* result_list) 
                 AiqV4l2Device_returnBufToPool(pCamHw->mIspParamsDev, pV4l2Buf);
                 return XCAM_RETURN_NO_ERROR;
             }
-            if (frameId == 0) is_wait_params_done = true;
+            if (pCamHw->mAweekId == frameId) is_wait_params_done = true;
         }
         if (pCamHw->mAweekId == frameId) {
             isp_params->module_cfg_update |= ISP32_MODULE_RTT_FST;

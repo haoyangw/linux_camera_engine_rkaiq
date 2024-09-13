@@ -120,7 +120,7 @@ typedef struct texEst_noiseEst_dyn_s {
         M4_NOTES(The manual noise curve value when noiseCurve_mode  == texEst_noiseManualCurve_mode. \n
         Freq of use: high))  */
     // @reg: hw_sharp_noise_curve_ext0~16
-    uint16_t hw_texEstT_luma2ManualTex_thred[17];
+    uint16_t hw_texEstT_nsEstTexManual_thred[17];
     /* M4_GENERIC_DESC(
         M4_ALIAS(noiseCountThred_ratio),
         M4_TYPE(f32),
@@ -169,7 +169,7 @@ typedef struct texEst_noiseEst_dyn_s {
         M4_NOTES(the lower limit of noise estimation threshold.\n
         Freq of use: low))  */
     // @reg: hw_sharp_noiseClip_minLimit
-    float hw_texEstT_luma2TexThd_minLimit;
+    float hw_texEstT_nsEstTexThd_minLimit;
     /* M4_GENERIC_DESC(
         M4_ALIAS(noiseClip_maxLimit),
         M4_TYPE(f32),
@@ -185,7 +185,7 @@ typedef struct texEst_noiseEst_dyn_s {
         M4_NOTES(the higer limit of noise estimation threshold.\n
         Freq of use: low))  */
     // @reg: hw_sharp_noiseClip_maxLimit
-    float hw_texEstT_luma2TexThd_maxLimit;
+    float hw_texEstT_nsEstTexThd_maxLimit;
 } texEst_noiseEst_dyn_t;
 
 typedef struct texEst_texEst_dyn_s {

@@ -450,6 +450,12 @@ typedef enum drc_drcGainLimit_mode_e {
     drc_drcGainLmt_manual_mode = 1
 } drc_drcGainLimit_mode_t;
 
+typedef enum adrc_drcCurve_mode_e {
+    adrc_usrConfig_mode     = 0,
+    adrc_vendorDefault_mode = 1,
+    adrc_auto_mode          = 2
+} adrc_drcCurve_mode_t;
+
 typedef struct drc_drcProc_s {
     /* M4_GENERIC_DESC(
    M4_ALIAS(hw_drcT_hfDarkRegion_strg),
@@ -483,8 +489,8 @@ typedef struct drc_drcProc_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_drcT_drcCurve_mode),
         M4_TYPE(enum),
-        M4_ENUM_DEF(drc_drcCurve_mode_t),
-        M4_DEFAULT(drc_vendorDefault_mode),
+        M4_ENUM_DEF(adrc_drcCurve_mode_t),
+        M4_DEFAULT(adrc_vendorDefault_mode),
         M4_GROUP_CTRL(drcCurve_mode_group),
         M4_HIDE_EX(0),
         M4_RO(0),
@@ -492,7 +498,7 @@ typedef struct drc_drcProc_s {
         M4_NOTES(Through this parameter, users can select two configuration options for the dynamic
        range compression curve(hdr2sdr_curve): user config and vendor default. Reference enum types.
         Freq of use: high))  */
-    drc_drcCurve_mode_t sw_drcT_drcCurve_mode;
+    adrc_drcCurve_mode_t sw_drcT_drcCurve_mode;
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_adrc_compsIdxLuma_scale),
         M4_TYPE(f32),
@@ -515,13 +521,13 @@ typedef struct drc_drcProc_s {
         M4_UI_MODULE(drc_curve),
         M4_DEFAULT([0, 71, 139, 203, 263, 320, 374, 426, 475, 566, 649, 724, 794, 858, 918, 972, 1024]),
         M4_DATAX([0, 1024, 2048, 3072, 4096, 5120, 6144, 7168, 8192, 10240, 12288, 14336, 16384, 18432, 20480, 22528, 24576]),
-        M4_GROUP(drcCurve_mode_group:drc_usrConfig_mode),
+        M4_GROUP(drcCurve_mode_group:adrc_usrConfig_mode),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(1),
         M4_NOTES(Users
        can directly configure the drc curve  through hdr2sdr_curve when drcCurve_mode ==
-       drc_usrConfig_mode.\n Freq of use: high))  */
+       adrc_usrConfig_mode.\n Freq of use: high))  */
     // reg: hw_adrc_luma2compsLuma_mVal0~16
     uint16_t hw_drcT_hdr2Sdr_curve[DRC_CURVE_LEN];
     /* M4_GENERIC_DESC(

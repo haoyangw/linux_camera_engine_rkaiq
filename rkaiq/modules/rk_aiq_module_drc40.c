@@ -338,7 +338,8 @@ void rk_aiq_drc40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_in
     }
 
     // get sw_drc_compres_y
-    if (pdyn->drcProc.sw_drcT_drcCurve_mode == drc_vendorDefault_mode) {
+    if (pdyn->drcProc.sw_drcT_drcCurve_mode == adrc_vendorDefault_mode ||
+        pdyn->drcProc.sw_drcT_drcCurve_mode == adrc_auto_mode) {
         float luma2[DRC_CURVE_LEN] = {0.0f,     1024.0f,  2048.0f,  3072.0f,  4096.0f,  5120.0f,
                                       6144.0f,  7168.0f,  8192.0f,  10240.0f, 12288.0f, 14336.0f,
                                       16384.0f, 18432.0f, 20480.0f, 22528.0f, 24576.0f};

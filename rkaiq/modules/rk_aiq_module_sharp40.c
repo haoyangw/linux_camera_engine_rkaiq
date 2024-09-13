@@ -1009,9 +1009,9 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
     tmp = (pTexDyn->noiseEst.hw_texEstT_nsEstTexThd_scale) * (1 << 4);
     pCfg->noise_clip_scale = CLIP(tmp, 0, 0xff);
     // REG: NOISE_CLIP
-    tmp = (pTexDyn->noiseEst.hw_texEstT_luma2TexThd_minLimit) * (1 << 0);
+    tmp = (pTexDyn->noiseEst.hw_texEstT_nsEstTexThd_minLimit) * (1 << 0);
     pCfg->noise_clip_min_limit = CLIP(tmp, 0, 0x7ff);
-    tmp = (pTexDyn->noiseEst.hw_texEstT_luma2TexThd_maxLimit) * (1 << 0);
+    tmp = (pTexDyn->noiseEst.hw_texEstT_nsEstTexThd_maxLimit) * (1 << 0);
     pCfg->noise_clip_max_limit = CLIP(tmp, 0, 0x7ff);
 
     if (pTexDyn->noiseEst.hw_texEstT_nsEstTexThd_mode == texEst_baseNoiseStats_mode) {
@@ -1034,7 +1034,7 @@ void rk_aiq_sharp40_params_cvt(void* attr, isp_params_t* isp_params, common_cvt_
         }
     } else {
         for (i = 0; i < 17; i++) {
-            noise_curve_ext[i] = pTexDyn->noiseEst.hw_texEstT_luma2ManualTex_thred[i];
+            noise_curve_ext[i] = pTexDyn->noiseEst.hw_texEstT_nsEstTexManual_thred[i];
         }
     }
 

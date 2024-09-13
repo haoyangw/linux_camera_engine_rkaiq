@@ -70,6 +70,7 @@ static int sample_unlock_awb(const rk_aiq_sys_ctx_t* ctx)
 
 static int sample_set_mwb_scene(const rk_aiq_sys_ctx_t* ctx)
 {
+    rk_aiq_uapi2_setWBMode(ctx, OP_MANUAL);
     rk_aiq_uapi2_setMWBScene(ctx, RK_AIQ_WBCT_TWILIGHT);
     return 0;
 }
@@ -84,6 +85,7 @@ static int sample_get_mwb_scene(const rk_aiq_sys_ctx_t* ctx)
 
 static int sample_set_mwb_gain(const rk_aiq_sys_ctx_t* ctx)
 {
+    rk_aiq_uapi2_setWBMode(ctx, OP_MANUAL);
     rk_aiq_wb_gain_t gain;
     gain.rgain = 0.5f;
     gain.grgain = 0.5f;
@@ -103,6 +105,7 @@ static int sample_get_mwb_gain(const rk_aiq_sys_ctx_t* ctx)
 
 static int sample_set_mwb_ct(const rk_aiq_sys_ctx_t* ctx)
 {
+    rk_aiq_uapi2_setWBMode(ctx, OP_MANUAL);
     unsigned int cct;
     cct = 6000;
     rk_aiq_uapi2_setMWBCT(ctx, cct);

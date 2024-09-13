@@ -53,6 +53,7 @@ void LdcvAdaptee_deinit(LdcvAdaptee* ldcv) {
     aiqMutex_deInit(&ldcv->_mutex);
 
     if (ldcv->lut_manger_) {
+        LdcLutBufMng_deinit(ldcv->lut_manger_);
         aiq_free(ldcv->lut_manger_);
         ldcv->lut_manger_ = NULL;
     }

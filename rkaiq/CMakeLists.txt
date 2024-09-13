@@ -1450,6 +1450,10 @@ if (RKAIQ_J2S4B_DEV)
     add_dependencies(rkaiq_tmp j2s4b_dev)
 endif()
 
+if (RKAIQ_BUILD_IQBINFORRTT)
+    add_dependencies(rkaiq_tmp iqbin_for_rtt)
+endif()
+
 add_library(rkaiq SHARED ${RK_AIQ_SRC})
 set_target_properties(rkaiq PROPERTIES FOLDER "rk_aiq")
 set_target_properties(rkaiq PROPERTIES CLEAN_DIRECT_OUTPUT 1)

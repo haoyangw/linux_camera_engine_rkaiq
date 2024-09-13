@@ -92,6 +92,7 @@ void LdchAdaptee_deinit(LdchAdaptee* ldch) {
     aiqMutex_deInit(&ldch->_mutex);
 
     if (ldch->lut_manger_) {
+        LdcLutBufMng_deinit(ldch->lut_manger_);
         aiq_free(ldch->lut_manger_);
         ldch->lut_manger_ = NULL;
     }

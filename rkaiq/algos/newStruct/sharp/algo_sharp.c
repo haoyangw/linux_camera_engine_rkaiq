@@ -282,8 +282,8 @@ XCamReturn texEstSelectParam
 
     out->dyn.noiseEst.hw_texEstT_nsEstTexThd_mode = paut->dyn[inear].noiseEst.hw_texEstT_nsEstTexThd_mode;
     for (i = 0; i < 17; i++) {
-        out->dyn.noiseEst.hw_texEstT_luma2ManualTex_thred[i] = interpolation_f32(
-                    paut->dyn[ilow].noiseEst.hw_texEstT_luma2ManualTex_thred[i], paut->dyn[ihigh].noiseEst.hw_texEstT_luma2ManualTex_thred[i], ratio);
+        out->dyn.noiseEst.hw_texEstT_nsEstTexManual_thred[i] = interpolation_f32(
+                    paut->dyn[ilow].noiseEst.hw_texEstT_nsEstTexManual_thred[i], paut->dyn[ihigh].noiseEst.hw_texEstT_nsEstTexManual_thred[i], ratio);
     }
     out->dyn.noiseEst.hw_texEstT_nsStatsCntThd_ratio = interpolation_f32(
                 paut->dyn[ilow].noiseEst.hw_texEstT_nsStatsCntThd_ratio, paut->dyn[ihigh].noiseEst.hw_texEstT_nsStatsCntThd_ratio, ratio);
@@ -292,10 +292,10 @@ XCamReturn texEstSelectParam
                 paut->dyn[ilow].noiseEst.hw_texEstT_nsEstMean_alpha, paut->dyn[ihigh].noiseEst.hw_texEstT_nsEstMean_alpha, ratio);
     out->dyn.noiseEst.hw_texEstT_nsEstTexThd_scale = interpolation_f32(
                 paut->dyn[ilow].noiseEst.hw_texEstT_nsEstTexThd_scale, paut->dyn[ihigh].noiseEst.hw_texEstT_nsEstTexThd_scale, ratio);
-    out->dyn.noiseEst.hw_texEstT_luma2TexThd_minLimit = interpolation_f32(
-                paut->dyn[ilow].noiseEst.hw_texEstT_luma2TexThd_minLimit, paut->dyn[ihigh].noiseEst.hw_texEstT_luma2TexThd_minLimit, ratio);
-    out->dyn.noiseEst.hw_texEstT_luma2TexThd_maxLimit = interpolation_f32(
-                paut->dyn[ilow].noiseEst.hw_texEstT_luma2TexThd_maxLimit, paut->dyn[ihigh].noiseEst.hw_texEstT_luma2TexThd_maxLimit, ratio);
+    out->dyn.noiseEst.hw_texEstT_nsEstTexThd_minLimit = interpolation_f32(
+                paut->dyn[ilow].noiseEst.hw_texEstT_nsEstTexThd_minLimit, paut->dyn[ihigh].noiseEst.hw_texEstT_nsEstTexThd_minLimit, ratio);
+    out->dyn.noiseEst.hw_texEstT_nsEstTexThd_maxLimit = interpolation_f32(
+                paut->dyn[ilow].noiseEst.hw_texEstT_nsEstTexThd_maxLimit, paut->dyn[ihigh].noiseEst.hw_texEstT_nsEstTexThd_maxLimit, ratio);
     out->dyn.texEst.hw_texEstT_texEst_mode = paut->dyn[inear].texEst.hw_texEstT_texEst_mode;
     out->dyn.texEst.hw_texEstT_nsEstDf1_scale = interpolation_f32(
                 paut->dyn[ilow].texEst.hw_texEstT_nsEstDf1_scale, paut->dyn[ihigh].texEst.hw_texEstT_nsEstDf1_scale, ratio);

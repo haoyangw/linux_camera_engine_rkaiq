@@ -39,6 +39,7 @@
 #include "iq_parser_v2/RkAiqCalibDbV2TypesIsp33.h"
 #endif
 #include "iq_parser_v2/RkAiqUapitypes.h"
+#include "RkAiqCalibDbJustForRtt.h"
 
 RKAIQ_BEGIN_DECLARE
 

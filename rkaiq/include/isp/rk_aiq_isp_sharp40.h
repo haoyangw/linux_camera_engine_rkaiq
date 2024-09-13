@@ -716,11 +716,11 @@ typedef struct shp_sigmaCurve_s {
 
 typedef enum shp_edge_filtRadius_mode_e {
     // @note: radius = 1
-    shp_edgeFiltRadius3_mode = 1,
+    shp_edgeFilt3x3_mode = 1,
     // @note: radius = 2
-    shp_edgeFiltRadius5_mode = 2,
+    shp_edgeFilt5x5_mode = 2,
     // @note: radius = 3
-    shp_edgeFiltRadius7_mode = 3
+    shp_edgeFilt7x7_mode = 3
 } shp_edge_filtRadius_mode_t;
 
 typedef struct shp_edge_glbShpStrg_s {
@@ -763,7 +763,7 @@ typedef struct shp_edgeExtra_s {
         M4_ALIAS(edgeLpf_radius),
         M4_TYPE(enum),
         M4_ENUM_DEF(shp_edge_filtRadius_mode_t),
-        M4_DEFAULT(shp_edgeFiltRadius7_mode),
+        M4_DEFAULT(shp_edgeFilt7x7_mode),
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),

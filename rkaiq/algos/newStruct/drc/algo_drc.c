@@ -658,12 +658,8 @@ XCamReturn DrcSelectParam(DrcContext_t* pDrcCtx, drc_param_t* out, trans_params_
                               paut->dyn[ihigh].drcProc.hw_drcT_luma2DrcStrg_val[i], ratio);
 	
     // get sw_drcT_drcCurve_mode
-    if (paut->dyn[inear].drcProc.sw_drcT_drcCurve_mode < 2) {
-        if (paut->dyn[inear].drcProc.sw_drcT_drcCurve_mode == adrc_usrConfig_mode)
-            out->dyn.drcProc.sw_drcT_drcCurve_mode = drc_usrConfig_mode;
-        else if (paut->dyn[inear].drcProc.sw_drcT_drcCurve_mode == adrc_vendorDefault_mode)
-            out->dyn.drcProc.sw_drcT_drcCurve_mode = drc_vendorDefault_mode;
-
+    out->dyn.drcProc.sw_drcT_drcCurve_mode = paut->dyn[inear].drcProc.sw_drcT_drcCurve_mode;
+    if (out->dyn.drcProc.sw_drcT_drcCurve_mode < adrc_auto_mode) {
         for (int i = 0; i < DRC_CURVE_LEN; ++i)
             out->dyn.drcProc.hw_drcT_hdr2Sdr_curve[i] =
                 interpolation_u16(paut->dyn[ilow].drcProc.hw_drcT_hdr2Sdr_curve[i],
@@ -675,12 +671,11 @@ XCamReturn DrcSelectParam(DrcContext_t* pDrcCtx, drc_param_t* out, trans_params_
             interpolation_f32(paut->dyn[ilow].drcProc.hw_drcT_drcGain_minLimit,
                               paut->dyn[ihigh].drcProc.hw_drcT_drcGain_minLimit, ratio);
     } else {
-        out->dyn.drcProc.sw_drcT_drcCurve_mode     = drc_usrConfig_mode;
         out->dyn.drcProc.sw_drcT_drcGainLimit_mode = drc_drcGainLmt_manual_mode;
         drcApplyStats(pDrcCtx, out, pstaTrans, ilow, ihigh, ratio);
     }
     pDrcCtx->CurrData.autoCurveIIRParams.sw_drcT_drcCurve_mode =
-        paut->dyn[inear].drcProc.sw_drcT_drcCurve_mode;
+        out->dyn.drcProc.sw_drcT_drcCurve_mode;
 
     // pDrcCtx->isDampStable = DrcDamping(out, &pDrcCtx->CurrData, pDrcCtx->FrameID);
 

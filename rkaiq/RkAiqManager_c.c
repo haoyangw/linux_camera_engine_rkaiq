@@ -63,10 +63,17 @@ static XCamReturn hwResCb(void* pCtx, AiqHwEvt_t* hwres)
             return XCAM_RETURN_BYPASS;
         }
 
-        if ((stats->meas_type & ISP32_STAT_RTT_FST) && (seq != pAiqManager->mLastAweekId)) {
+        if (stats->meas_type & ISP32_STAT_RTT_FST) {
+            if (pAiqManager->mTBStatsCnt && pAiqManager->mLastAweekId == seq) {
+                seq++;
+                hwres->frame_id = seq;
+                stats->frame_id = seq;
+                AiqV4l2Buffer_setSequence((AiqV4l2Buffer_t*)hwres->vb, seq);
+            }
             AiqCore_awakenClean(pAiqManager->mRkAiqAnalyzer, seq);
 			//TODO
             //ret = AiqCamHw_setFastAeExp(pAiqManager->mmCamHw, seq);
+            pAiqManager->mCamHw->mAweekId = seq;
             pAiqManager->mLastAweekId = seq;
 
             // push sof msg
@@ -82,8 +89,9 @@ static XCamReturn hwResCb(void* pCtx, AiqHwEvt_t* hwres)
             LOGI_ANALYZER("stats meas is special, buf frame id %d", seq);
         } else if (seq == pAiqManager->mLastAweekId) {
             return ret;
-        } else if (pAiqManager->mTbInfo.is_fastboot && !pAiqManager->mTBStatsCnt && seq) {
-            pAiqManager->mTBStatsCnt++;
+        } else if (pAiqManager->mTbInfo.is_fastboot && pAiqManager->mTBStatsCnt && seq > 1) {
+            pAiqManager->mTBStatsCnt = 0;
+            LOGK_ANALYZER("<TB> stats id %d, not the first run aiq", seq);
         }
 
         ret = AiqCore_pushStats(pAiqManager->mRkAiqAnalyzer, hwres);
@@ -91,11 +99,11 @@ static XCamReturn hwResCb(void* pCtx, AiqHwEvt_t* hwres)
     } else if (hwres->type == ISP_POLL_PARAMS) {
         rk_aiq_err_msg_t msg;
         msg.err_code = XCAM_RETURN_BYPASS;
-        if (pAiqManager->mTbInfo.is_fastboot && !pAiqManager->mTBStatsCnt) {
-            if (pAiqManager->mErrCb) {
+        if (pAiqManager->mTbInfo.is_fastboot && pAiqManager->mTBStatsCnt) {
+            if (pAiqManager->mErrCb && pAiqManager->mTBStatsCnt == 1) {
                 (*pAiqManager->mErrCb)(&msg);
             }
-            pAiqManager->mTBStatsCnt++;
+            pAiqManager->mTBStatsCnt--;
         }
 
         if (pAiqManager->mHwEvtCb) {
@@ -116,7 +124,7 @@ static XCamReturn hwResCb(void* pCtx, AiqHwEvt_t* hwres)
     } else if (hwres->type == ISPP_POLL_NR_STATS) {
         ret = AiqCore_pushStats(pAiqManager->mRkAiqAnalyzer, hwres);
     } else if (hwres->type == ISP_POLL_SOF) {
-        if (pAiqManager->mTbInfo.is_fastboot && !pAiqManager->mTBStatsCnt) {
+        if (pAiqManager->mTbInfo.is_fastboot && pAiqManager->mTBStatsCnt) {
             return ret;
         }
 		AiqCamHw_notify_sof(pAiqManager->mCamHw, hwres);
@@ -571,8 +579,10 @@ XCamReturn AiqManager_init(AiqManager_t* pAiqManager, const char* sns_ent_name, 
 		AiqCamHwFake_init((AiqCamHwFake_t*)pAiqManager->mCamHw, pAiqManager->mSnsEntName);
 	} else {
 #if defined(ISP_HW_V39)
+        pAiqManager->mTBStatsCnt = 1;
         ret = AiqCamHwIsp39_init(pAiqManager->mCamHw, pAiqManager->mSnsEntName);
 #elif defined(ISP_HW_V33)
+        pAiqManager->mTBStatsCnt = 2;
         ret = AiqCamHwIsp33_init(pAiqManager->mCamHw, pAiqManager->mSnsEntName);
 #else
 		XCAM_ASSERT(0);

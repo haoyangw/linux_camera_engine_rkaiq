@@ -193,6 +193,7 @@ add_custom_target(
     -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE:PATH="${rk_aiq_BINARY_DIR}/bin"
     -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
     -DRKAIQ_TARGET_ARCH=${ARCH}
+    -DCMAKE_EXPORT_COMPILE_COMMANDS=YES
     -B"host_tool"
     -H"${rk_aiq_SOURCE_DIR}/tools/j2s4b"
     COMMAND ${CMAKE_COMMAND} --build host_tool
@@ -246,3 +247,22 @@ SET(IQ_PARSERV2_SRC
     )
 
 SET(RK_AIQ_SRC ${RK_AIQ_SRC} ${IQ_PARSERV2_SRC} PARENT_SCOPE)
+
+
+add_custom_target(
+    iqbin_for_rtt
+    COMMAND ${CMAKE_COMMAND}
+    -DCMAKE_CXX_FLAGS="-std=c++11"
+    -DROOT_PROJ_BIN_DIR:STRING=${rk_aiq_BINARY_DIR}
+    -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE:PATH="${rk_aiq_BINARY_DIR}/bin"
+    -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+    -DRKAIQ_TARGET_ARCH=${ARCH}
+    -DCMAKE_EXPORT_COMPILE_COMMANDS=YES
+    -DRKAIQ_NEWSTRUCT_TEST=${RKAIQ_NEWSTRUCT_TEST}
+    -DISP_HW_VERSION=${ISP_HW_VERSION}
+    -B"host_iqBinTool"
+    -H"${rk_aiq_SOURCE_DIR}/tools/iqBinForRtt"
+    COMMAND ${CMAKE_COMMAND} --build host_iqBinTool
+    COMMAND make -C host_iqBinTool install
+    DEPENDS j2s_parser
+    )

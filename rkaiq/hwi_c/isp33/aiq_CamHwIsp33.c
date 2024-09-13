@@ -111,7 +111,7 @@ out:
 }
 
 bool CamHwIsp33_processTb(AiqCamHwBase_t* pCamHw, void* params) {
-#if defined(ISP_HW_V33)
+#if defined(ISP_HW_V33) && 0
     struct isp33_isp_params_cfg* isp_params = (struct isp33_isp_params_cfg*)params;
     if (pCamHw->mTbInfo.is_fastboot) {
         if (isp_params->frame_id == 0 && pCamHw->_not_skip_first) {

@@ -835,10 +835,14 @@
  * - algos: ldc: add cache buffer for ldc lut in GlobalParamsManager
  * - drc: bring up changes in drc manual compress curve
  * - isp dgain: update awb gain simultaneously when ispdgain is updated
+ * v6.0x8.0
+ * - new fastboot procedure for rv1103b
+ * - fix ldc memleak
+ * - isp33 support post aiisp
  */
 
-#define RK_AIQ_VERSION_REAL_V "v6.0x7.3-rc0"
-#define RK_AIQ_RELEASE_DATE "2024-08-30"
+#define RK_AIQ_VERSION_REAL_V "v6.0x8.0"
+#define RK_AIQ_RELEASE_DATE "2024-09-13"
 
 #define RK_AIQ_IQ_HEAD_VERSION_REAL_V "v1.0.2"
 

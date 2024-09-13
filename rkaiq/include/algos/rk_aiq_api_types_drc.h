@@ -31,12 +31,6 @@ typedef struct {
     unsigned int hdrStrength;
 } adrc_strength_t;
 
-typedef enum adrc_drcCurve_mode_e {
-    adrc_usrConfig_mode     = 0,
-    adrc_vendorDefault_mode = 1,
-    adrc_auto_mode          = 2
-} adrc_drcCurve_mode_t;
-
 typedef struct drcCurve_auto_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(sw_drcT_wp_val),

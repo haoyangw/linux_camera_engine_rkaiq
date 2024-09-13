@@ -5030,7 +5030,7 @@
 									"drcProc":	{
 										"hw_drcT_hfDarkRegion_strg":	0,
 										"hw_drcT_locDetail_strg":	0,
-										"sw_drcT_drcCurve_mode":	"drc_vendorDefault_mode",
+										"sw_drcT_drcCurve_mode":	"adrc_vendorDefault_mode",
 										"hw_drcT_drcCurveIdx_scale":	0,
 										"hw_drcT_hdr2Sdr_curve":	[0, 71, 139, 203, 263, 320, 374, 426, 475, 566, 649, 724, 794, 858, 918, 972, 1024],
 										"sw_drcT_drcStrgLut_mode":	"drc_usrConfig_mode",
@@ -18205,7 +18205,7 @@
 									"drcProc":	{
 										"hw_drcT_hfDarkRegion_strg":	0,
 										"hw_drcT_locDetail_strg":	0,
-										"sw_drcT_drcCurve_mode":	"drc_vendorDefault_mode",
+										"sw_drcT_drcCurve_mode":	"adrc_vendorDefault_mode",
 										"hw_drcT_drcCurveIdx_scale":	0,
 										"hw_drcT_hdr2Sdr_curve":	[0, 71, 139, 203, 263, 320, 374, 426, 475, 566, 649, 724, 794, 858, 918, 972, 1024],
 										"sw_drcT_drcStrgLut_mode":	"drc_usrConfig_mode",

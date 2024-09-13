@@ -137,7 +137,7 @@ typedef struct blc_obcPostTnr_dyn_s {
         M4_HIDE_EX(0),
         M4_RO(0),
         M4_ORDER(0),
-        M4_GROUP(obcPostTnr_en_group; obcPostTnr_mode_group:blc_autoOBCPostTnr_mode),
+        M4_GROUP(obcPostTnr_en_group),
         M4_NOTES(In automatic mode, the OB offset value is added before tnr.\n
         It is only recommended for use in low SNR situations in linear mode.\n
         Freq of use: high))  */

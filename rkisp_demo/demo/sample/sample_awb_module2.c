@@ -360,7 +360,16 @@ static int sample_awb_printflog(const rk_aiq_sys_ctx_t* ctx)
 		printf("WpNum:t(%d,%f),n(%d,%f),b(%d,%f),e(%d)\n",strategy_result.WPTotalNUM,
 				 strategy_result.WPTotalNUMProp,awb_measure_result.WpNo[0], strategy_result.wpNorNumRat,
 				 awb_measure_result.WpNo[1],strategy_result.wpBigNumRat,awb_measure_result.extraLightResult.WpNo);
-		printf("wbgns1 (mix wpT1 and wpT3 ) :(%f,%f,%f,%f),updated (%d), wgt_wpT3(%f)\n", strategy_result.wbGainIntpStrategy[AWB_CHANNEL_R],
+ 		 printf("wbgns5 (wbGainOffset) :(%f,%f,%f,%f)\n", strategy_result.wbGainOffset[AWB_CHANNEL_R],
+				 strategy_result.wbGainOffset[AWB_CHANNEL_GR], strategy_result.wbGainOffset[AWB_CHANNEL_GB],
+				 strategy_result.wbGainOffset[AWB_CHANNEL_B]);
+		 printf("wbgns4 (wbGainAdjust) :(%f,%f,%f,%f)\n", strategy_result.wbGainAdjust[AWB_CHANNEL_R],
+				 strategy_result.wbGainAdjust[AWB_CHANNEL_GR], strategy_result.wbGainAdjust[AWB_CHANNEL_GB],
+				 strategy_result.wbGainAdjust[AWB_CHANNEL_B]);
+		 printf("wbgns3 (wbGainClip) :(%f,%f,%f,%f)\n", strategy_result.wbGainClip[AWB_CHANNEL_R],
+				 strategy_result.wbGainClip[AWB_CHANNEL_GR], strategy_result.wbGainClip[AWB_CHANNEL_GB],
+				 strategy_result.wbGainClip[AWB_CHANNEL_B]);
+        printf("wbgns1 (mix wpT1 and wpT3 ) :(%f,%f,%f,%f),updated (%d), wgt_wpT3(%f)\n", strategy_result.wbGainIntpStrategy[AWB_CHANNEL_R],
 				 strategy_result.wbGainIntpStrategy[AWB_CHANNEL_GR], strategy_result.wbGainIntpStrategy[AWB_CHANNEL_GB],
 				 strategy_result.wbGainIntpStrategy[AWB_CHANNEL_B], strategy_result.updateFlag, strategy_result.wbWeightType3);
 		printf("wpgnT3:(%f,%f,%f,%f)\n", strategy_result.wbGainType3[AWB_CHANNEL_R], strategy_result.wbGainType3[AWB_CHANNEL_GR],
@@ -384,7 +393,7 @@ static int sample_awb_printflog(const rk_aiq_sys_ctx_t* ctx)
 			awb_measure_result.extraLightResult.gain[1],awb_measure_result.extraLightResult.gain[2],
 			awb_measure_result.extraLightResult.gain[3],strategy_result.extraWp_wgt,
 			strategy_result.extraWp_wbGainUsed[0],strategy_result.extraWp_wbGainUsed[1],
-			strategy_result.extraWp_wgt);
+			strategy_result.extraWp_domainWgt);
 		printf("wgtPrfNgt (%f)\n",  strategy_result.wgtPrfNgt);
 
 		if (1 ) {

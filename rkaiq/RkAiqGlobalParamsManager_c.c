@@ -1539,6 +1539,23 @@ static bool checkAlgoParams(GlobalParamsManager_t* pMan, rk_aiq_global_params_wr
             socket_client_setNote(pMan->_socket, IPC_RET_UAPI_ERROR, print_buf);
         }
     }
+
+    if (param->type == RESULT_TYPE_DRC_PARAM) {
+        drc_api_attrib_t attr;
+        if (param->opMode == RK_AIQ_OP_MODE_MANUAL) {
+            memcpy(&attr.stMan, param->man_param_ptr, param->man_param_size);
+            if (attr.stMan.dyn.drcProc.sw_drcT_drcCurve_mode == adrc_auto_mode) {
+                LOGE(
+                    "sw_drcT_drcCurve_mode == adrc_auto_mode is supported in RK_AIQ_OP_MODE_MANUAL "
+                    "mode. Using hw_drcT_hdr2Sdr_curve instead.");
+                socket_client_setNote(
+                    pMan->_socket, IPC_RET_UAPI_ERROR,
+                    "sw_drcT_drcCurve_mode == adrc_auto_mode is supported in RK_AIQ_OP_MODE_MANUAL "
+                    "mode. Using hw_drcT_hdr2Sdr_curve instead.\n");
+            }
+        }
+    }
+
     return true;
 }
 

@@ -660,7 +660,7 @@
 										}]
 								},
 								"earlierAwbAct":	{
-									"earlAct_en":	1,
+									"earlAct_en":	0,
 									"mode":	"awb_earlActXyReg_fixed_mode",
 									"norWpRegion":	[{
 											"ltVtx":	{
@@ -4727,7 +4727,7 @@
 									"drcProc":	{
 										"hw_drcT_hfDarkRegion_strg":	0,
 										"hw_drcT_locDetail_strg":	0,
-										"sw_drcT_drcCurve_mode":	"drc_vendorDefault_mode",
+										"sw_drcT_drcCurve_mode":	"adrc_vendorDefault_mode",
 										"hw_drcT_drcCurveIdx_scale":	0,
 										"hw_drcT_hdr2Sdr_curve":	[0, 101, 183, 250, 306, 353, 395, 432, 466, 528, 587, 647, 710, 778, 852, 934, 1024],
 										"sw_drcT_drcStrgLut_mode":	"drc_usrConfig_mode",
@@ -10687,11 +10687,11 @@
 											"hw_texEstT_noiseEst_mode":	"texEst_noiseEst5x5_mode",
 											"hw_texEstT_nsEstMean_alpha":	1,
 											"hw_texEstT_nsEstTexThd_mode":	"texEst_baseNoiseStats_mode",
-											"hw_texEstT_luma2ManualTex_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
+											"hw_texEstT_nsEstTexManual_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
 											"hw_texEstT_nsStatsCntThd_ratio":	0.003,
 											"hw_texEstT_nsEstTexThd_scale":	2,
-											"hw_texEstT_luma2TexThd_minLimit":	20,
-											"hw_texEstT_luma2TexThd_maxLimit":	1023
+											"hw_texEstT_nsEstTexThd_minLimit":	20,
+											"hw_texEstT_nsEstTexThd_maxLimit":	1023
 										},
 										"texEst":	{
 											"hw_texEstT_texEst_mode":	"texEst_texEst7x7_mode",
@@ -10715,11 +10715,11 @@
 											"hw_texEstT_noiseEst_mode":	"texEst_noiseEst5x5_mode",
 											"hw_texEstT_nsEstMean_alpha":	1,
 											"hw_texEstT_nsEstTexThd_mode":	"texEst_baseNoiseStats_mode",
-											"hw_texEstT_luma2ManualTex_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
+											"hw_texEstT_nsEstTexManual_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
 											"hw_texEstT_nsStatsCntThd_ratio":	0.003,
 											"hw_texEstT_nsEstTexThd_scale":	2,
-											"hw_texEstT_luma2TexThd_minLimit":	20,
-											"hw_texEstT_luma2TexThd_maxLimit":	1023
+											"hw_texEstT_nsEstTexThd_minLimit":	20,
+											"hw_texEstT_nsEstTexThd_maxLimit":	1023
 										},
 										"texEst":	{
 											"hw_texEstT_texEst_mode":	"texEst_texEst7x7_mode",
@@ -10743,11 +10743,11 @@
 											"hw_texEstT_noiseEst_mode":	"texEst_noiseEst5x5_mode",
 											"hw_texEstT_nsEstMean_alpha":	1,
 											"hw_texEstT_nsEstTexThd_mode":	"texEst_baseNoiseStats_mode",
-											"hw_texEstT_luma2ManualTex_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
+											"hw_texEstT_nsEstTexManual_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
 											"hw_texEstT_nsStatsCntThd_ratio":	0.003,
 											"hw_texEstT_nsEstTexThd_scale":	2,
-											"hw_texEstT_luma2TexThd_minLimit":	20,
-											"hw_texEstT_luma2TexThd_maxLimit":	1023
+											"hw_texEstT_nsEstTexThd_minLimit":	20,
+											"hw_texEstT_nsEstTexThd_maxLimit":	1023
 										},
 										"texEst":	{
 											"hw_texEstT_texEst_mode":	"texEst_texEst7x7_mode",
@@ -10771,11 +10771,11 @@
 											"hw_texEstT_noiseEst_mode":	"texEst_noiseEst5x5_mode",
 											"hw_texEstT_nsEstMean_alpha":	1,
 											"hw_texEstT_nsEstTexThd_mode":	"texEst_baseNoiseStats_mode",
-											"hw_texEstT_luma2ManualTex_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
+											"hw_texEstT_nsEstTexManual_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
 											"hw_texEstT_nsStatsCntThd_ratio":	0.003,
 											"hw_texEstT_nsEstTexThd_scale":	2,
-											"hw_texEstT_luma2TexThd_minLimit":	20,
-											"hw_texEstT_luma2TexThd_maxLimit":	1023
+											"hw_texEstT_nsEstTexThd_minLimit":	20,
+											"hw_texEstT_nsEstTexThd_maxLimit":	1023
 										},
 										"texEst":	{
 											"hw_texEstT_texEst_mode":	"texEst_texEst7x7_mode",
@@ -10799,11 +10799,11 @@
 											"hw_texEstT_noiseEst_mode":	"texEst_noiseEst5x5_mode",
 											"hw_texEstT_nsEstMean_alpha":	1,
 											"hw_texEstT_nsEstTexThd_mode":	"texEst_baseNoiseStats_mode",
-											"hw_texEstT_luma2ManualTex_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
+											"hw_texEstT_nsEstTexManual_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
 											"hw_texEstT_nsStatsCntThd_ratio":	0.003,
 											"hw_texEstT_nsEstTexThd_scale":	2,
-											"hw_texEstT_luma2TexThd_minLimit":	20,
-											"hw_texEstT_luma2TexThd_maxLimit":	1023
+											"hw_texEstT_nsEstTexThd_minLimit":	20,
+											"hw_texEstT_nsEstTexThd_maxLimit":	1023
 										},
 										"texEst":	{
 											"hw_texEstT_texEst_mode":	"texEst_texEst7x7_mode",
@@ -10827,11 +10827,11 @@
 											"hw_texEstT_noiseEst_mode":	"texEst_noiseEst5x5_mode",
 											"hw_texEstT_nsEstMean_alpha":	1,
 											"hw_texEstT_nsEstTexThd_mode":	"texEst_baseNoiseStats_mode",
-											"hw_texEstT_luma2ManualTex_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
+											"hw_texEstT_nsEstTexManual_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
 											"hw_texEstT_nsStatsCntThd_ratio":	0.003,
 											"hw_texEstT_nsEstTexThd_scale":	1.5,
-											"hw_texEstT_luma2TexThd_minLimit":	20,
-											"hw_texEstT_luma2TexThd_maxLimit":	1023
+											"hw_texEstT_nsEstTexThd_minLimit":	20,
+											"hw_texEstT_nsEstTexThd_maxLimit":	1023
 										},
 										"texEst":	{
 											"hw_texEstT_texEst_mode":	"texEst_texEst7x7_mode",
@@ -10855,11 +10855,11 @@
 											"hw_texEstT_noiseEst_mode":	"texEst_noiseEst5x5_mode",
 											"hw_texEstT_nsEstMean_alpha":	1,
 											"hw_texEstT_nsEstTexThd_mode":	"texEst_baseNoiseStats_mode",
-											"hw_texEstT_luma2ManualTex_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
+											"hw_texEstT_nsEstTexManual_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
 											"hw_texEstT_nsStatsCntThd_ratio":	0.003,
 											"hw_texEstT_nsEstTexThd_scale":	2,
-											"hw_texEstT_luma2TexThd_minLimit":	20,
-											"hw_texEstT_luma2TexThd_maxLimit":	1023
+											"hw_texEstT_nsEstTexThd_minLimit":	20,
+											"hw_texEstT_nsEstTexThd_maxLimit":	1023
 										},
 										"texEst":	{
 											"hw_texEstT_texEst_mode":	"texEst_texEst7x7_mode",
@@ -10883,11 +10883,11 @@
 											"hw_texEstT_noiseEst_mode":	"texEst_noiseEst5x5_mode",
 											"hw_texEstT_nsEstMean_alpha":	1,
 											"hw_texEstT_nsEstTexThd_mode":	"texEst_baseNoiseStats_mode",
-											"hw_texEstT_luma2ManualTex_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
+											"hw_texEstT_nsEstTexManual_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
 											"hw_texEstT_nsStatsCntThd_ratio":	0.003,
 											"hw_texEstT_nsEstTexThd_scale":	2,
-											"hw_texEstT_luma2TexThd_minLimit":	20,
-											"hw_texEstT_luma2TexThd_maxLimit":	1023
+											"hw_texEstT_nsEstTexThd_minLimit":	20,
+											"hw_texEstT_nsEstTexThd_maxLimit":	1023
 										},
 										"texEst":	{
 											"hw_texEstT_texEst_mode":	"texEst_texEst7x7_mode",
@@ -10911,11 +10911,11 @@
 											"hw_texEstT_noiseEst_mode":	"texEst_noiseEst5x5_mode",
 											"hw_texEstT_nsEstMean_alpha":	1,
 											"hw_texEstT_nsEstTexThd_mode":	"texEst_baseNoiseStats_mode",
-											"hw_texEstT_luma2ManualTex_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
+											"hw_texEstT_nsEstTexManual_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
 											"hw_texEstT_nsStatsCntThd_ratio":	0.003,
 											"hw_texEstT_nsEstTexThd_scale":	2,
-											"hw_texEstT_luma2TexThd_minLimit":	20,
-											"hw_texEstT_luma2TexThd_maxLimit":	1023
+											"hw_texEstT_nsEstTexThd_minLimit":	20,
+											"hw_texEstT_nsEstTexThd_maxLimit":	1023
 										},
 										"texEst":	{
 											"hw_texEstT_texEst_mode":	"texEst_texEst7x7_mode",
@@ -10939,11 +10939,11 @@
 											"hw_texEstT_noiseEst_mode":	"texEst_noiseEst5x5_mode",
 											"hw_texEstT_nsEstMean_alpha":	1,
 											"hw_texEstT_nsEstTexThd_mode":	"texEst_baseNoiseStats_mode",
-											"hw_texEstT_luma2ManualTex_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
+											"hw_texEstT_nsEstTexManual_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
 											"hw_texEstT_nsStatsCntThd_ratio":	0.003,
 											"hw_texEstT_nsEstTexThd_scale":	2,
-											"hw_texEstT_luma2TexThd_minLimit":	20,
-											"hw_texEstT_luma2TexThd_maxLimit":	1023
+											"hw_texEstT_nsEstTexThd_minLimit":	20,
+											"hw_texEstT_nsEstTexThd_maxLimit":	1023
 										},
 										"texEst":	{
 											"hw_texEstT_texEst_mode":	"texEst_texEst7x7_mode",
@@ -10967,11 +10967,11 @@
 											"hw_texEstT_noiseEst_mode":	"texEst_noiseEst5x5_mode",
 											"hw_texEstT_nsEstMean_alpha":	1,
 											"hw_texEstT_nsEstTexThd_mode":	"texEst_baseNoiseStats_mode",
-											"hw_texEstT_luma2ManualTex_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
+											"hw_texEstT_nsEstTexManual_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
 											"hw_texEstT_nsStatsCntThd_ratio":	0.003,
 											"hw_texEstT_nsEstTexThd_scale":	3,
-											"hw_texEstT_luma2TexThd_minLimit":	20,
-											"hw_texEstT_luma2TexThd_maxLimit":	1024
+											"hw_texEstT_nsEstTexThd_minLimit":	20,
+											"hw_texEstT_nsEstTexThd_maxLimit":	1024
 										},
 										"texEst":	{
 											"hw_texEstT_texEst_mode":	"texEst_texEst7x7_mode",
@@ -10995,11 +10995,11 @@
 											"hw_texEstT_noiseEst_mode":	"texEst_noiseEst5x5_mode",
 											"hw_texEstT_nsEstMean_alpha":	1,
 											"hw_texEstT_nsEstTexThd_mode":	"texEst_baseManualCfg_mode",
-											"hw_texEstT_luma2ManualTex_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
+											"hw_texEstT_nsEstTexManual_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
 											"hw_texEstT_nsStatsCntThd_ratio":	0.003,
 											"hw_texEstT_nsEstTexThd_scale":	2,
-											"hw_texEstT_luma2TexThd_minLimit":	20,
-											"hw_texEstT_luma2TexThd_maxLimit":	1023
+											"hw_texEstT_nsEstTexThd_minLimit":	20,
+											"hw_texEstT_nsEstTexThd_maxLimit":	1023
 										},
 										"texEst":	{
 											"hw_texEstT_texEst_mode":	"texEst_texEst7x7_mode",
@@ -11023,11 +11023,11 @@
 											"hw_texEstT_noiseEst_mode":	"texEst_noiseEst5x5_mode",
 											"hw_texEstT_nsEstMean_alpha":	1,
 											"hw_texEstT_nsEstTexThd_mode":	"texEst_baseManualCfg_mode",
-											"hw_texEstT_luma2ManualTex_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
+											"hw_texEstT_nsEstTexManual_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
 											"hw_texEstT_nsStatsCntThd_ratio":	0.003,
 											"hw_texEstT_nsEstTexThd_scale":	2,
-											"hw_texEstT_luma2TexThd_minLimit":	20,
-											"hw_texEstT_luma2TexThd_maxLimit":	1023
+											"hw_texEstT_nsEstTexThd_minLimit":	20,
+											"hw_texEstT_nsEstTexThd_maxLimit":	1023
 										},
 										"texEst":	{
 											"hw_texEstT_texEst_mode":	"texEst_texEst7x7_mode",
@@ -11054,11 +11054,11 @@
 										"hw_texEstT_noiseEst_mode":	"texEst_noiseEst5x5_mode",
 										"hw_texEstT_nsEstMean_alpha":	1,
 										"hw_texEstT_nsEstTexThd_mode":	"texEst_baseManualCfg_mode",
-										"hw_texEstT_luma2ManualTex_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
+										"hw_texEstT_nsEstTexManual_thred":	[7, 22, 57, 86, 98, 103, 108, 123, 134, 134, 132, 119, 125, 182, 307, 277, 277],
 										"hw_texEstT_nsStatsCntThd_ratio":	0.003,
 										"hw_texEstT_nsEstTexThd_scale":	2,
-										"hw_texEstT_luma2TexThd_minLimit":	20,
-										"hw_texEstT_luma2TexThd_maxLimit":	1023
+										"hw_texEstT_nsEstTexThd_minLimit":	20,
+										"hw_texEstT_nsEstTexThd_maxLimit":	1023
 									},
 									"texEst":	{
 										"hw_texEstT_texEst_mode":	"texEst_texEst7x7_mode",
@@ -13081,7 +13081,7 @@
 										},
 										"edgeShp":	{
 											"edgeExtra":	{
-												"sw_shpT_filtRadius_mode":	"shp_edgeFiltRadius7_mode",
+												"sw_shpT_filtRadius_mode":	"shp_edgeFilt7x7_mode",
 												"sw_shpT_filtCfg_mode":	"shp_cfgByFiltStrg_mode",
 												"sw_shpT_filtSpatial_strg":	3,
 												"hw_shpT_filtSpatial_wgt":	[0.0467, 0.0412, 0.0364, 0.0283, 0.025, 0.0172, 0.0152, 0.0134, 0.0092, 0.0049]
@@ -13275,7 +13275,7 @@
 										},
 										"edgeShp":	{
 											"edgeExtra":	{
-												"sw_shpT_filtRadius_mode":	"shp_edgeFiltRadius7_mode",
+												"sw_shpT_filtRadius_mode":	"shp_edgeFilt7x7_mode",
 												"sw_shpT_filtCfg_mode":	"shp_cfgByFiltStrg_mode",
 												"sw_shpT_filtSpatial_strg":	3,
 												"hw_shpT_filtSpatial_wgt":	[0.0467, 0.0412, 0.0364, 0.0283, 0.025, 0.0172, 0.0152, 0.0134, 0.0092, 0.0049]
@@ -13469,7 +13469,7 @@
 										},
 										"edgeShp":	{
 											"edgeExtra":	{
-												"sw_shpT_filtRadius_mode":	"shp_edgeFiltRadius7_mode",
+												"sw_shpT_filtRadius_mode":	"shp_edgeFilt7x7_mode",
 												"sw_shpT_filtCfg_mode":	"shp_cfgByFiltStrg_mode",
 												"sw_shpT_filtSpatial_strg":	3,
 												"hw_shpT_filtSpatial_wgt":	[0.0467, 0.0412, 0.0364, 0.0283, 0.025, 0.0172, 0.0152, 0.0134, 0.0092, 0.0049]
@@ -13663,7 +13663,7 @@
 										},
 										"edgeShp":	{
 											"edgeExtra":	{
-												"sw_shpT_filtRadius_mode":	"shp_edgeFiltRadius7_mode",
+												"sw_shpT_filtRadius_mode":	"shp_edgeFilt7x7_mode",
 												"sw_shpT_filtCfg_mode":	"shp_cfgByFiltStrg_mode",
 												"sw_shpT_filtSpatial_strg":	3,
 												"hw_shpT_filtSpatial_wgt":	[0.0467, 0.0412, 0.0364, 0.0283, 0.025, 0.0172, 0.0152, 0.0134, 0.0092, 0.0049]
@@ -13857,7 +13857,7 @@
 										},
 										"edgeShp":	{
 											"edgeExtra":	{
-												"sw_shpT_filtRadius_mode":	"shp_edgeFiltRadius7_mode",
+												"sw_shpT_filtRadius_mode":	"shp_edgeFilt7x7_mode",
 												"sw_shpT_filtCfg_mode":	"shp_cfgByFiltStrg_mode",
 												"sw_shpT_filtSpatial_strg":	3,
 												"hw_shpT_filtSpatial_wgt":	[0.0467, 0.0412, 0.0364, 0.0283, 0.025, 0.0172, 0.0152, 0.0134, 0.0092, 0.0049]
@@ -14051,7 +14051,7 @@
 										},
 										"edgeShp":	{
 											"edgeExtra":	{
-												"sw_shpT_filtRadius_mode":	"shp_edgeFiltRadius7_mode",
+												"sw_shpT_filtRadius_mode":	"shp_edgeFilt7x7_mode",
 												"sw_shpT_filtCfg_mode":	"shp_cfgByFiltStrg_mode",
 												"sw_shpT_filtSpatial_strg":	3,
 												"hw_shpT_filtSpatial_wgt":	[0.0467, 0.0412, 0.0364, 0.0283, 0.025, 0.0172, 0.0152, 0.0134, 0.0092, 0.0049]
@@ -14245,7 +14245,7 @@
 										},
 										"edgeShp":	{
 											"edgeExtra":	{
-												"sw_shpT_filtRadius_mode":	"shp_edgeFiltRadius7_mode",
+												"sw_shpT_filtRadius_mode":	"shp_edgeFilt7x7_mode",
 												"sw_shpT_filtCfg_mode":	"shp_cfgByFiltStrg_mode",
 												"sw_shpT_filtSpatial_strg":	3,
 												"hw_shpT_filtSpatial_wgt":	[0.0467, 0.0412, 0.0364, 0.0283, 0.025, 0.0172, 0.0152, 0.0134, 0.0092, 0.0049]
@@ -14439,7 +14439,7 @@
 										},
 										"edgeShp":	{
 											"edgeExtra":	{
-												"sw_shpT_filtRadius_mode":	"shp_edgeFiltRadius7_mode",
+												"sw_shpT_filtRadius_mode":	"shp_edgeFilt7x7_mode",
 												"sw_shpT_filtCfg_mode":	"shp_cfgByFiltStrg_mode",
 												"sw_shpT_filtSpatial_strg":	3,
 												"hw_shpT_filtSpatial_wgt":	[0.0467, 0.0412, 0.0364, 0.0283, 0.025, 0.0172, 0.0152, 0.0134, 0.0092, 0.0049]
@@ -14633,7 +14633,7 @@
 										},
 										"edgeShp":	{
 											"edgeExtra":	{
-												"sw_shpT_filtRadius_mode":	"shp_edgeFiltRadius7_mode",
+												"sw_shpT_filtRadius_mode":	"shp_edgeFilt7x7_mode",
 												"sw_shpT_filtCfg_mode":	"shp_cfgByFiltStrg_mode",
 												"sw_shpT_filtSpatial_strg":	3,
 												"hw_shpT_filtSpatial_wgt":	[0.0467, 0.0412, 0.0364, 0.0283, 0.025, 0.0172, 0.0152, 0.0134, 0.0092, 0.0049]
@@ -14827,7 +14827,7 @@
 										},
 										"edgeShp":	{
 											"edgeExtra":	{
-												"sw_shpT_filtRadius_mode":	"shp_edgeFiltRadius7_mode",
+												"sw_shpT_filtRadius_mode":	"shp_edgeFilt7x7_mode",
 												"sw_shpT_filtCfg_mode":	"shp_cfgByFiltStrg_mode",
 												"sw_shpT_filtSpatial_strg":	3,
 												"hw_shpT_filtSpatial_wgt":	[0.0467, 0.0412, 0.0364, 0.0283, 0.025, 0.0172, 0.0152, 0.0134, 0.0092, 0.0049]
@@ -15021,7 +15021,7 @@
 										},
 										"edgeShp":	{
 											"edgeExtra":	{
-												"sw_shpT_filtRadius_mode":	"shp_edgeFiltRadius7_mode",
+												"sw_shpT_filtRadius_mode":	"shp_edgeFilt7x7_mode",
 												"sw_shpT_filtCfg_mode":	"shp_cfgByFiltStrg_mode",
 												"sw_shpT_filtSpatial_strg":	3,
 												"hw_shpT_filtSpatial_wgt":	[0.0467, 0.0412, 0.0364, 0.0283, 0.025, 0.0172, 0.0152, 0.0134, 0.0092, 0.0049]
@@ -15215,7 +15215,7 @@
 										},
 										"edgeShp":	{
 											"edgeExtra":	{
-												"sw_shpT_filtRadius_mode":	"shp_edgeFiltRadius7_mode",
+												"sw_shpT_filtRadius_mode":	"shp_edgeFilt7x7_mode",
 												"sw_shpT_filtCfg_mode":	"shp_cfgByFiltStrg_mode",
 												"sw_shpT_filtSpatial_strg":	3,
 												"hw_shpT_filtSpatial_wgt":	[0.0467, 0.0412, 0.0364, 0.0283, 0.025, 0.0172, 0.0152, 0.0134, 0.0092, 0.0049]
@@ -15409,7 +15409,7 @@
 										},
 										"edgeShp":	{
 											"edgeExtra":	{
-												"sw_shpT_filtRadius_mode":	"shp_edgeFiltRadius7_mode",
+												"sw_shpT_filtRadius_mode":	"shp_edgeFilt7x7_mode",
 												"sw_shpT_filtCfg_mode":	"shp_cfgByFiltStrg_mode",
 												"sw_shpT_filtSpatial_strg":	3,
 												"hw_shpT_filtSpatial_wgt":	[0.0467, 0.0412, 0.0364, 0.0283, 0.025, 0.0172, 0.0152, 0.0134, 0.0092, 0.0049]
@@ -15625,7 +15625,7 @@
 									},
 									"edgeShp":	{
 										"edgeExtra":	{
-											"sw_shpT_filtRadius_mode":	"shp_edgeFiltRadius7_mode",
+											"sw_shpT_filtRadius_mode":	"shp_edgeFilt7x7_mode",
 											"sw_shpT_filtCfg_mode":	"shp_cfgByFiltStrg_mode",
 											"sw_shpT_filtSpatial_strg":	2,
 											"hw_shpT_filtSpatial_wgt":	[0.0467, 0.0412, 0.0364, 0.0283, 0.025, 0.0172, 0.0152, 0.0134, 0.0092, 0.0049]
