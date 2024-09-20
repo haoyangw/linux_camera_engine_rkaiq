@@ -275,7 +275,9 @@ XCamReturn RkAiqAgainV2HandleInt::processing() {
     // TODO: fill procParam
     again_proc_int->iso      = sharedCom->iso;
     again_proc_int->hdr_mode = sharedCom->working_mode;
+#if RKAIQ_HAVE_BLC_V32
     again_proc_int->stAblcV32_proc_res = shared->res_comb.ablcV32_proc_res;
+#endif
 
 #ifdef DISABLE_HANDLE_ATTRIB
     mCfgMutex.lock();

@@ -21,6 +21,9 @@
 #include "rk_aiq_user_api2_camgroup.h"
 #include "RkAiqCamGroupManager_c.h"
 #include "common/panorama_stitchingApp.h"
+#if RKAIQ_HAVE_DUMPSYS
+#include "rk_ipcs_service.h"
+#endif
 
 static XCamReturn
 _cam_group_bind(rk_aiq_camgroup_ctx_t* camgroup_ctx, rk_aiq_sys_ctx_t* aiq_ctx)
@@ -238,6 +241,12 @@ rk_aiq_uapi2_camgroup_create(rk_aiq_camgroup_instance_cfg_t* cfg)
 #if defined(ISP_HW_V39) || defined(ISP_HW_V33)
     rk_aiq_uapi2_awb_register((rk_aiq_sys_ctx_t*)camgroup_ctx, NULL);
     rk_aiq_uapi2_ae_register((rk_aiq_sys_ctx_t*)camgroup_ctx, NULL);
+#endif
+
+#if RKAIQ_HAVE_DUMPSYS
+    aiq_ipcs_init();
+    RKAIQRegistry_init();
+    RKAIQRegistry_register((rk_aiq_sys_ctx_t*)camgroup_ctx);
 #endif
 
     LOGD("%s: create camgroup 0x%x success !", __func__, camgroup_ctx);
@@ -534,6 +543,11 @@ rk_aiq_uapi2_camgroup_destroy(rk_aiq_camgroup_ctx_t* camgroup_ctx)
         aiq_free(camgroup_ctx->_srcOverlapMap_s);
     aiqMutex_deInit(&camgroup_ctx->_apiMutex);
     aiq_free(camgroup_ctx);
+
+#if RKAIQ_HAVE_DUMPSYS
+    aiq_ipcs_exit();
+    RKAIQRegistry_deinit();
+#endif
 
     LOGD("%s: destroy camgroup success !", __func__);
 

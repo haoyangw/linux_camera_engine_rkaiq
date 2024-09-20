@@ -23,6 +23,9 @@
 #include "c_base/aiq_list.h"
 #include "c_base/aiq_mutex.h"
 #include "common/rk_aiq_types_priv_c.h"
+#if RKAIQ_HAVE_DUMPSYS
+#include "dumpcam_server/info/include/st_string.h"
+#endif
 #include "include/xcore/base/xcam_defs.h"
 #include "modules/rk_aiq_isp32_modules.h"
 #if (defined(ISP_HW_V39) || defined(ISP_HW_V33)) && (USE_NEWSTRUCT)
@@ -120,9 +123,16 @@ struct IspParamsCvt_Ops {
     XCamReturn (*CheckIspParams)(AiqIspParamsCvt_t* pCvt, void* isp_cfg);
     XCamReturn (*FixedAwbOveflowToIsp3xParams)(AiqIspParamsCvt_t* pCvt, void* isp_cfg,
                                                bool multiIspMode);
+
+    void (*update)(void* src, void* dst);
     void (*Dump)(AiqIspParamsCvt_t* pCvt, uint64_t modules, int fd);
 };
 
+/**
+ * @brief - Convert the params to hardware params for isp modules
+ *
+ * @mCvtedIsp33Prams: the latest converted params.
+ */
 struct AiqIspParamsCvt_s {
     int32_t _CamPhyId;
     uint32_t sensor_output_width;
@@ -170,6 +180,11 @@ struct AiqIspParamsCvt_s {
     isp_params_t isp_params;
     AiqIspDrvParams_info_t mLatestCfgArray[ISP2X_ID_MAX];
 
+    union {
+        struct isp33_isp_params_cfg* mCvtedIsp33Prams;
+        struct isp39_isp_params_cfg* mCvtedIsp39Prams;
+    };
+
     struct IspParamsCvt_Ops mIspParamsCvtOps;
 };
 
@@ -189,6 +204,9 @@ aiq_params_base_t* AiqIspParamsCvt_get_3a_result(AiqIspParamsCvt_t* pCvt, AiqLis
                                                  int32_t type);
 void AiqIspParamsCvt_getCommonCvtInfo(AiqIspParamsCvt_t* pCvt, AiqList_t* results, bool use_aiisp);
 void AiqIspParamsCvt_setCalib(AiqIspParamsCvt_t* pCvt, const CamCalibDbV2Context_t* calibv2);
+#if RKAIQ_HAVE_DUMPSYS
+int AiqIspParamsCvt_dump(void* dumper, st_string* result, int argc, void* argv[]);
+#endif
 
 XCAM_END_DECLARE
 #endif

@@ -18,6 +18,9 @@
 #include "hwi_c/aiq_CamHwBase.h"
 
 #include <stdio.h>
+#if RKAIQ_HAVE_DUMPSYS
+#include <time.h>
+#endif
 
 #include "common/linux/rk-video-format.h"
 #ifdef ANDROID_OS
@@ -53,6 +56,13 @@
 #include "include/iq_parser_v2/RkAiqCalibDbV2Helper.h"
 #include "xcore/base/xcam_defs.h"
 #include "xcore_c/aiq_v4l2_device.h"
+
+#if RKAIQ_HAVE_DUMPSYS
+#include "aiq_CamHwBaseInfo.h"
+#include "dumpcam_server/info/include/rk_info_utils.h"
+#include "dumpcam_server/info/include/st_string.h"
+#include "dumpcam_server/third-party/argparse/argparse.h"
+#endif
 
 XCAM_BEGIN_DECLARE
 
@@ -102,6 +112,11 @@ static XCamReturn AiqCamHw_read_aiisp_result(AiqCamHwBase_t* pCamHw);
 static XCamReturn AiqCamHw_get_aiisp_bay3dbuf(AiqCamHwBase_t* pCamHw);
 static XCamReturn AiqCamHw_aiisp_processing(AiqCamHwBase_t* pCamHw, rk_aiq_aiisp_t* aiisp_evt);
 static XCamReturn SetLastAeExpToRttShared(AiqCamHwBase_t* pCamHw);
+
+// dumpsys
+static void AiqCamHwBase_initNotifier(AiqCamHwBase_t* pCamHw);
+static int AiqCamHw_dump(void* pCamHw, st_string* result, int argc, void* argv[]);
+static int __dump(void* dumper, st_string* result, int argc, void* argv[]);
 
 #ifdef ISP_HW_V30
 #define CAMHWISP_EFFECT_ISP_POOL_NUM 12
@@ -332,6 +347,8 @@ static rk_aiq_isp_t* _get_isp_subdevs(struct media_device* device, const char* d
                 isp_info[index].phy_id = isp_idx;
             }
         }
+
+        strcpy(isp_info[index].driver, device->info.driver);
     }
 
     if (model_idx == -1) {
@@ -351,6 +368,8 @@ static rk_aiq_isp_t* _get_isp_subdevs(struct media_device* device, const char* d
         isp_info[index].model_idx = 3;
     else
         isp_info[index].model_idx               = -1;
+
+    strcpy(isp_info[index].driver, device->info.driver);
 #endif
 
     strncpy(isp_info[index].media_dev_path, devpath, sizeof(isp_info[index].media_dev_path));
@@ -1451,10 +1470,41 @@ static XCamReturn _poll_buffer_ready(void* ctx, AiqHwEvt_t* evt, int dev_index) 
 		AiqCamHwBase_t* pCamHw = (AiqCamHwBase_t*)ctx;
         void* stats = (void*)AiqV4l2Buffer_getExpbufUsrptr((AiqV4l2Buffer_t*)evt->vb);
 
+#if RKAIQ_HAVE_DUMPSYS
+        // dump stats info
+        {
+            struct timespec time;
+            clock_gettime(CLOCK_MONOTONIC, &time);
+
+            pCamHw->stats.frameloss += evt->frame_id ? evt->frame_id - pCamHw->stats.id - 1 : 0;
+            pCamHw->stats.id        = evt->frame_id;
+            pCamHw->stats.interval  = evt->mTimestamp - pCamHw->stats.timestamp;
+            pCamHw->stats.timestamp = evt->mTimestamp;
+            pCamHw->stats.delay     = XCAM_TIMESPEC_2_USEC(time) - evt->mTimestamp;
+        }
+#endif
+
         btnr_cvt_info_t *btnr_info = &pCamHw->_mIspParamsCvt->mBtnrInfo;
         bayertnr_save_stats(stats, btnr_info);
-	} else if (evt->type == ISP_POLL_PARAMS) {
+
+    } else if (evt->type == ISP_POLL_PARAMS) {
         return XCAM_RETURN_NO_ERROR;
+    } else if (evt->type == ISP_POLL_SOF) {
+#if RKAIQ_HAVE_DUMPSYS
+        // dump fs info
+        {
+            AiqCamHwBase_t* pCamHw = (AiqCamHwBase_t*)ctx;
+
+            struct timespec time;
+            clock_gettime(CLOCK_MONOTONIC, &time);
+
+            pCamHw->prev_fs = pCamHw->fs;
+            pCamHw->fs.frameloss += evt->frame_id ? evt->frame_id - pCamHw->fs.id - 1 : 0;
+            pCamHw->fs.id        = evt->frame_id;
+            pCamHw->fs.timestamp = evt->mTimestamp / 1000;
+            pCamHw->fs.delay     = XCAM_TIMESPEC_2_USEC(time) - evt->mTimestamp / 1000;
+        }
+#endif
     }
 
     AiqCamHwBase_t* pCamHw = (AiqCamHwBase_t*)ctx;
@@ -1808,6 +1858,12 @@ XCamReturn AiqCamHwBase_init(AiqCamHwBase_t* pCamHw, const char* sns_ent_name) {
     pCamHw->mPollCb._pCtx             = pCamHw;
     pCamHw->mPollCb.poll_buffer_ready = _poll_buffer_ready;
     pCamHw->mPollCb.poll_event_ready  = NULL;
+
+    // dumpsys
+#if RKAIQ_HAVE_DUMPSYS
+    pCamHw->dump = AiqCamHw_dump;
+    AiqCamHwBase_initNotifier(pCamHw);
+#endif
 
     pCamHw->_state = CAM_HW_STATE_INITED;
     EXIT_CAMHW_FUNCTION();
@@ -5929,6 +5985,168 @@ static XCamReturn SetLastAeExpToRttShared(AiqCamHwBase_t* pCamHw) {
     }
 
     return ret;
+}
+
+static void AiqCamHwBase_initNotifier(AiqCamHwBase_t* pCamHw) {
+#if RKAIQ_HAVE_DUMPSYS
+    aiq_notifier_init(&pCamHw->notifier);
+
+    {
+        pCamHw->sub_base.match_type     = AIQ_NOTIFIER_MATCH_HWI_BASE;
+        pCamHw->sub_base.name           = "HWI -> base";
+        pCamHw->sub_base.dump.dump_fn_t = __dump;
+        pCamHw->sub_base.dump.dumper    = pCamHw;
+
+        aiq_notifier_add_subscriber(&pCamHw->notifier, &pCamHw->sub_base);
+    }
+
+    {
+        pCamHw->sub_stream_cap.match_type     = AIQ_NOTIFIER_MATCH_HWI_STREAM_CAP;
+        pCamHw->sub_stream_cap.name           = "HWI -> stream_cap";
+        pCamHw->sub_stream_cap.dump.dump_fn_t = AiqRawStreamCapUnit_dump;
+        pCamHw->sub_stream_cap.dump.dumper    = pCamHw->mRawCapUnit;
+
+        aiq_notifier_add_subscriber(&pCamHw->notifier, &pCamHw->sub_stream_cap);
+    }
+
+    {
+        pCamHw->sub_stream_proc.match_type     = AIQ_NOTIFIER_MATCH_HWI_STREAM_PROC;
+        pCamHw->sub_stream_proc.name           = "HWI -> stream_proc";
+        pCamHw->sub_stream_proc.dump.dump_fn_t = AiqRawStreamProcUnit_dump;
+        pCamHw->sub_stream_proc.dump.dumper    = pCamHw->mRawProcUnit;
+
+        aiq_notifier_add_subscriber(&pCamHw->notifier, &pCamHw->sub_stream_proc);
+    }
+
+    {
+        pCamHw->sub_sensor.match_type     = AIQ_NOTIFIER_MATCH_HWI_SENSOR;
+        pCamHw->sub_sensor.name           = "HWI -> sensor";
+        pCamHw->sub_sensor.dump.dump_fn_t = pCamHw->_mSensorDev->dump;
+        pCamHw->sub_sensor.dump.dumper    = pCamHw->_mSensorDev;
+
+        aiq_notifier_add_subscriber(&pCamHw->notifier, &pCamHw->sub_sensor);
+    }
+
+    {
+        pCamHw->sub_isp_params.match_type     = AIQ_NOTIFIER_MATCH_HWI_ISP_PARAMS;
+        pCamHw->sub_isp_params.name           = "HWI -> isp_params";
+        pCamHw->sub_isp_params.dump.dump_fn_t = AiqIspParamsCvt_dump;
+        pCamHw->sub_isp_params.dump.dumper    = pCamHw->_mIspParamsCvt;
+
+        aiq_notifier_add_subscriber(&pCamHw->notifier, &pCamHw->sub_isp_params);
+    }
+#endif
+}
+
+static int __dump(void* dumper, st_string* result, int argc, void* argv[]) {
+    XCamReturn ret = XCAM_RETURN_NO_ERROR;
+
+#if RKAIQ_HAVE_DUMPSYS
+    hwi_base_dump_mod_param((AiqCamHwBase_t*)dumper, result);
+    hwi_base_dump_chn_status((AiqCamHwBase_t*)dumper, result);
+    hwi_base_dump_stats_videobuf_status((AiqCamHwBase_t*)dumper, result);
+    hwi_base_dump_params_videobuf_status((AiqCamHwBase_t*)dumper, result);
+#endif
+
+    return ret;
+}
+
+#if RKAIQ_HAVE_DUMPSYS
+static const char* const usages[] = {
+    "./dumpsys hwi cmd [args]",
+    NULL,
+};
+
+static int _gHelp = 0;
+static int dbg_help_cb(struct argparse* self, const struct argparse_option* option) {
+    _gHelp = 1;
+
+    return 0;
+}
+
+static const char* _gParams = NULL;
+static int dbg_param_cb(struct argparse* self, const struct argparse_option* option) {
+    if (!strcmp(self->argv[0], "-p")) _gParams = "all";
+
+    return 0;
+}
+#endif
+
+static int AiqCamHw_dump(void* pCamHw, st_string* result, int argc, void* argv[]) {
+#if RKAIQ_HAVE_DUMPSYS
+    char argvArray[256][256];
+    char* extended_argv[256];
+    int extended_argc = 0;
+
+    snprintf(argvArray[0], sizeof(argvArray[extended_argc]), "%s", "hwi");
+    extended_argv[0] = argvArray[0];
+    extended_argc++;
+    for (int i = 0; i < argc; i++) {
+        LOG1("argv[%d]: %s", i, *((const char**)argv + i));
+        snprintf(argvArray[extended_argc], sizeof(argvArray[extended_argc]), "%s",
+                 *((const char**)argv + i));
+        extended_argv[extended_argc] = argvArray[extended_argc];
+        extended_argc++;
+    }
+
+    char buffer[MAX_LINE_LENGTH]          = {0};
+    int dump_args[AIQ_NOTIFIER_MATCH_MAX] = {0};
+    struct argparse_option options[]      = {
+        OPT_GROUP("basic options:"),
+        OPT_BOOLEAN('a', "all", &dump_args[AIQ_NOTIFIER_MATCH_ALL], "dump hwi all", NULL, 0, 0),
+        OPT_BOOLEAN('b', "base", &dump_args[AIQ_NOTIFIER_MATCH_HWI_BASE], "dump hwi base info",
+                    NULL, 0, 0),
+        OPT_BOOLEAN('s', "sensor", &dump_args[AIQ_NOTIFIER_MATCH_HWI_SENSOR], "dump sensor info ",
+                    NULL, 0, 0),
+        OPT_BOOLEAN('c', "cap", &dump_args[AIQ_NOTIFIER_MATCH_HWI_STREAM_CAP],
+                    "dump stream capture info", NULL, 0, 0),
+        OPT_BOOLEAN('r', "proc", &dump_args[AIQ_NOTIFIER_MATCH_HWI_STREAM_PROC],
+                    "dump stream proc info", NULL, 0, 0),
+        OPT_BOOLEAN('\0', "help", NULL, "show this help message and exit", dbg_help_cb, 0,
+                    OPT_NONEG),
+        OPT_STRING('p', "param", &_gParams, "dump isp params: blc-ccm-dpc-...", dbg_param_cb, 0, 0),
+        OPT_END(),
+    };
+
+    struct argparse argparse;
+    argparse_init(&argparse, options, usages, 0);
+    argparse_describe(&argparse, "\nselect a test case to run.", "\nuse --help for details.");
+
+    extended_argc = argparse_parse(&argparse, extended_argc, (const char**)extended_argv);
+    if (_gHelp || extended_argc < 0) {
+        _gHelp = 0;
+        goto __FAILED;
+    }
+
+    if (!argc) dump_args[AIQ_NOTIFIER_MATCH_ALL] = 1;
+
+    for (int32_t i = 0; i < AIQ_NOTIFIER_MATCH_MAX; i++) {
+        if (dump_args[i])
+            aiq_notifier_notify_dumpinfo(&((AiqCamHwBase_t*)pCamHw)->notifier, i, result,
+                                         extended_argc, (void**)argvArray);
+    }
+
+    if (_gParams) {
+        snprintf(argvArray[0], sizeof(argvArray[extended_argc]), "%s", _gParams);
+        extended_argv[0] = argvArray[0];
+        extended_argc    = 1;
+
+        aiq_notifier_notify_dumpinfo(&((AiqCamHwBase_t*)pCamHw)->notifier,
+                                     AIQ_NOTIFIER_MATCH_HWI_ISP_PARAMS, result, extended_argc,
+                                     (void**)(extended_argv));
+
+        _gParams = NULL;
+        return true;
+    }
+
+    return true;
+
+__FAILED:
+    argparse_usage_string(&argparse, buffer);
+    string_printf(result, buffer);
+#endif
+
+    return true;
 }
 
 XCAM_END_DECLARE

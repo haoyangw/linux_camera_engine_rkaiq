@@ -18,6 +18,7 @@
  */
 
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "common/rk_aiq_comm.h"

@@ -17,13 +17,14 @@
 #ifndef _AIQ_CAMHW_BASE_H_
 #define _AIQ_CAMHW_BASE_H_
 
+#include "algos/aiisp/rk_aiisp.h"
 #include "c_base/aiq_cond.h"
+#include "common/aiq_notifier.h"
 #include "hwi_c/aiq_aiIspLoader.h"
 #include "hwi_c/aiq_ispParamsSplitter.h"
 #include "hwi_c/aiq_sensorHw.h"
 #include "hwi_c/aiq_spStreamProcUnit.h"
 #include "hwi_c/aiq_stream.h"
-#include "algos/aiisp/rk_aiisp.h"
 #include "include/iq_parser_v2/aec_head.h"
 #include "include/iq_parser_v2/af_head.h"
 #include "include/iq_parser_v2/sensorinfo_head.h"
@@ -178,7 +179,7 @@ typedef struct AiqCamHwBase_s {
     char sns_name[32];
     uint64_t _isp_module_ens;
     exgain_t exgain_status;
-    
+
     bool mNoReadBack;
     rk_aiq_rotation_t _sharp_fbc_rotation;
 
@@ -260,6 +261,22 @@ typedef struct AiqCamHwBase_s {
     XCamReturn (*read_aiisp_result)(AiqCamHwBase_t* pCamHw);
     XCamReturn (*get_aiisp_bay3dbuf)(AiqCamHwBase_t* pCamHw);
     XCamReturn (*aiisp_processing)(AiqCamHwBase_t* pCamHw, rk_aiq_aiisp_t* aiisp_evt);
+
+    // dumpsys
+    int (*dump)(void* pCamHw, st_string* result, int argc, void* argv[]);
+#if RKAIQ_HAVE_DUMPSYS
+    struct aiq_notifier notifier;
+    struct aiq_notifier_subscriber sub_base;
+    struct aiq_notifier_subscriber sub_sensor;
+    struct aiq_notifier_subscriber sub_params_cvt;
+    struct aiq_notifier_subscriber sub_stream_cap;
+    struct aiq_notifier_subscriber sub_stream_proc;
+    struct aiq_notifier_subscriber sub_isp_params;
+
+    FrameDumpInfo_t fs;
+    FrameDumpInfo_t prev_fs;
+    FrameDumpInfo_t stats;
+#endif
 } AiqCamHwBase_t;
 
 rk_aiq_static_info_t* AiqCamHw_getStaticCamHwInfo(const char* sns_ent_name, uint16_t index);

@@ -441,7 +441,7 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
     }
     stExpInfo.snr_mode = 0;
 
-
+    stExpInfo.blc_ob_predgain = 1;
     if(pAgainProcParams != NULL) {
         if(pAgainProcParams->hdr_mode == RK_AIQ_WORKING_MODE_NORMAL) {
             stExpInfo.hdr_mode = 0;
@@ -452,7 +452,9 @@ processing(const RkAiqAlgoCom* inparams, RkAiqAlgoResCom* outparams)
                   || pAgainProcParams->hdr_mode == RK_AIQ_ISP_HDR_MODE_3_LINE_HDR ) {
             stExpInfo.hdr_mode = 2;
         }
+#if RKAIQ_HAVE_BLC_V32
         stExpInfo.blc_ob_predgain = pAgainProcParams->stAblcV32_proc_res->isp_ob_predgain;
+#endif
     }
 
 

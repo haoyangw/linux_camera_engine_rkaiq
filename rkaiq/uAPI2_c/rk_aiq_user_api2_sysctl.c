@@ -47,6 +47,11 @@
 #include "uAPI2/rk_aiq_user_ae_thread_v25_itf.h"
 #include "uAPI2/rk_aiq_user_api2_stats.h"
 
+#if RKAIQ_HAVE_DUMPSYS
+#include "rk_aiq_registry.h"
+#include "rk_ipcs_service.h"
+#endif
+
 int g_rkaiq_isp_hw_ver = 0;
 static bool g_bypass_uapi = false;
 
@@ -711,6 +716,11 @@ rk_aiq_uapi2_sysctl_deinit_locked(rk_aiq_sys_ctx_t* ctx)
     if (ctx->_sensor_entity_name)
         xcam_free((void*)(ctx->_sensor_entity_name));
 
+#if RKAIQ_HAVE_DUMPSYS
+    aiq_ipcs_exit();
+    RKAIQRegistry_deinit();
+#endif
+
     LOGK("cid[%d] %s success.", ctx->_camPhyId, __func__);
 #if 0
     // TODO: this will release all sensor's calibs, and should
@@ -1187,6 +1197,14 @@ rk_aiq_uapi2_sysctl_init(const char* sns_ent_name,
 
     rk_aiq_uapi2_awb_register(ctx, NULL);
     rk_aiq_uapi2_ae_register(ctx, NULL);
+
+#if RKAIQ_HAVE_DUMPSYS
+    if (!is_group_mode) {
+        aiq_ipcs_init();
+        RKAIQRegistry_init();
+        RKAIQRegistry_register(ctx);
+    }
+#endif
 
     LOGK("cid[%d] %s success. iq:%s", ctx->_camPhyId, __func__, config_file);
     EXIT_XCORE_FUNCTION();

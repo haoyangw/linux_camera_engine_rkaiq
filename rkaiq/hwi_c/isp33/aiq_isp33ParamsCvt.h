@@ -25,4 +25,7 @@ typedef struct aiq_params_base_s aiq_params_base_t;
 
 bool Convert3aResultsToIsp33Cfg(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase,
                                 void* isp_cfg_p, bool is_multi_isp);
+#if RKAIQ_HAVE_DUMPSYS
+void AiqIspParamsCvt_updIsp33Params(void* src, void* dst);
+#endif
 #endif

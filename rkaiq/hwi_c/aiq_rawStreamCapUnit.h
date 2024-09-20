@@ -17,6 +17,9 @@
 #ifndef _AIQ_RAW_STREAM_CAP_UNIT_H_
 #define _AIQ_RAW_STREAM_CAP_UNIT_H_
 
+#if RKAIQ_HAVE_DUMPSYS
+#include "dumpcam_server/info/include/st_string.h"
+#endif
 #include "hwi_c/aiq_stream.h"
 #include "xcore_c/aiq_v4l2_device.h"
 
@@ -54,6 +57,11 @@ typedef struct AiqRawStreamCapUnit_s {
     AiqCamHwBase_t* _camHw;
     AiqV4l2SubDevice_t* _isp_core_dev;
     AiqRawStreamProcUnit_t* _proc_stream;
+
+#if RKAIQ_HAVE_DUMPSYS
+    FrameDumpInfo_t fe;
+    int data_mode;
+#endif
 } AiqRawStreamCapUnit_t;
 
 XCamReturn AiqRawStreamCapUnit_init(AiqRawStreamCapUnit_t* pRawStrCapUnitconst,
@@ -97,4 +105,9 @@ bool check_skip_frame(AiqRawStreamCapUnit_t* pRawStrCapUnit, int32_t buf_seq);
 
 void AiqRawStreamCapUnit_stop_vicap_stream_only(AiqRawStreamCapUnit_t* pRawStrCapUnit);
 void AiqRawStreamCapUnit_skip_frame_and_restart_vicap_stream(AiqRawStreamCapUnit_t* pRawStrCapUnit, int skip_frm_cnt);
+
+#if RKAIQ_HAVE_DUMPSYS
+int AiqRawStreamCapUnit_dump(void* dumper, st_string* result, int argc, void* argv[]);
+#endif
+
 #endif

@@ -42,4 +42,8 @@ void convertAiqCpToIsp20Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase
 void convertAiqIeToIsp20Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase);
 void convertAiqAldcToIsp39Params(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBase,
                                  bool is_multi_isp);
+#if RKAIQ_HAVE_DUMPSYS
+void AiqIspParamsCvt_updIsp39Params(void* src, void* dst);
+#endif
+
 #endif

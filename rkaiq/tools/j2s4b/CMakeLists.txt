@@ -40,6 +40,7 @@ if (NOT RKAIQ_J2S4B_DEV)
 if (RKAIQ_IQFILES_DIR)
     file(GLOB RKAIQ_IQFILES  ${RKAIQ_IQFILES_DIR}/*.json)
 	file(GLOB RKAIQ_AINR_IQFILES  ${RKAIQ_IQFILES_DIR}/ainr/*.json)
+    file(GLOB RKAIQ_HDR_IQFILES  ${RKAIQ_IQFILES_DIR}/hdr/*.json)
 else()
     message(FATAL_ERROR "Could not find RKAIQ_IQFILES_DIR")
 endif()
@@ -121,6 +122,23 @@ foreach(IQPATH ${RKAIQ_AINR_IQFILES})
         )
     install(PROGRAMS "${CMAKE_BINARY_DIR}/${TAGT_AINR_NAME}" DESTINATION
 		usr/share/iqfiles/ainr RENAME ${TAGT_NAME})
+endforeach()
+
+foreach(IQPATH ${RKAIQ_HDR_IQFILES})
+    string(REGEX MATCH "${RKAIQ_IQFILES_DIR}/hdr/.*" SHORT_NAME ${IQPATH})
+    string(REGEX REPLACE "${RKAIQ_IQFILES_DIR}/hdr/" "" ORIGIN_NAME ${SHORT_NAME})
+    string(REGEX REPLACE "json" "bin" TAGT_NAME ${ORIGIN_NAME})
+    string(REGEX REPLACE "json" "bin.hdr" TAGT_HDR_NAME ${ORIGIN_NAME})
+    string(REGEX REPLACE ".json" "hdr" BIN_PROJ_NAME ${ORIGIN_NAME})
+    add_custom_target(
+        ${BIN_PROJ_NAME}
+        ALL
+        COMMAND j2s4b ${IQPATH} ${TAGT_HDR_NAME}
+        BYPRODUCTS ${TAGT_HDR_NAME}
+        DEPENDS j2s4b
+        )
+    install(PROGRAMS "${CMAKE_BINARY_DIR}/${TAGT_HDR_NAME}" DESTINATION
+		usr/share/iqfiles/hdr RENAME ${TAGT_NAME})
 endforeach()
 endif()
 

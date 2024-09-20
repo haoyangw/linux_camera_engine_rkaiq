@@ -611,4 +611,12 @@ typedef enum CamThreadType_e {
     ISP_POLL_POST_MAX,
 } CamThreadType_t;
 
+typedef struct FrameDumpInfo_s {
+    uint64_t timestamp;
+    uint32_t interval;
+    uint32_t delay;
+    uint32_t id;
+    uint32_t frameloss;
+} FrameDumpInfo_t;
+
 #endif

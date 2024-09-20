@@ -2020,6 +2020,30 @@ static cJSON *get_object_item(const cJSON * const object, const char * const nam
     return current_element;
 }
 
+static cJSON* get_option_item(const cJSON* const object,
+                              const char str[MAX_OPTION_NUM][MAX_OPTION_STR_LEN], size_t num) {
+    cJSON* current_element = NULL;
+
+    if ((object == NULL) || (str == NULL)) return NULL;
+
+    current_element = object->child;
+    for (size_t i = 0; i < num; i++) {
+        while ((current_element != NULL) && (current_element->string != NULL) &&
+               (strcmp(str[i], current_element->string) != 0)) {
+            current_element = current_element->next;
+        }
+
+        if (current_element)
+            current_element = current_element->child;
+        else
+            break;
+    }
+
+    if ((current_element == NULL) || (current_element->string == NULL)) return NULL;
+
+    return current_element;
+}
+
 CJSON_PUBLIC(cJSON *) RkCam_cJSON_GetObjectItem(const cJSON * const object, const char * const string)
 {
     return get_object_item(object, string, false);
@@ -2028,6 +2052,12 @@ CJSON_PUBLIC(cJSON *) RkCam_cJSON_GetObjectItem(const cJSON * const object, cons
 CJSON_PUBLIC(cJSON *) RkCam_cJSON_GetObjectItemCaseSensitive(const cJSON * const object, const char * const string)
 {
     return get_object_item(object, string, true);
+}
+
+CJSON_PUBLIC(cJSON*)
+RkCam_cJSON_GetOptionItem(const cJSON* const object, const char str[MAX_OPTION_NUM][MAX_OPTION_STR_LEN],
+                    size_t num) {
+    return get_option_item(object, str, num);
 }
 
 CJSON_PUBLIC(cJSON_bool) RkCam_cJSON_HasObjectItem(const cJSON *object, const char *string)

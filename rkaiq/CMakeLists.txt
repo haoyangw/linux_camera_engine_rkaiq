@@ -59,6 +59,10 @@ if (RKAIQ_IMPLEMENT_C)
 	add_compile_options(-DUSE_IMPLEMENT_C=1)
 endif()
 
+if(RKAIQ_HAVE_DUMPSYS)
+    add_definitions(-DRKAIQ_HAVE_DUMPSYS=1)
+endif()
+
 find_package(librga QUIET)
 if (librga_FOUND)
     add_compile_options(${LIBRGA_CFLAGS})
@@ -95,6 +99,12 @@ if (RKAIQ_IMPLEMENT_C)
 		aiq_core_c
 		hwi_c
 		)
+endif()
+
+if (RKAIQ_HAVE_DUMPSYS)
+    set (AIQ_DUMPSYS_INCLUEDE
+        hwi_c/info
+        )
 endif()
 
 include_directories(
@@ -192,6 +202,7 @@ include_directories(
 	c_base
 	${AIQ_C_INCLUDE}
     ${PROJECT_BINARY_DIR}
+    ${AIQ_DUMPSYS_INCLUEDE}
     )
 
 if (RKAIQ_IMPLEMENT_C)
@@ -995,6 +1006,10 @@ set(COMMON_SRC
     common/code_to_pixel_format.c
     )
 
+if (RKAIQ_HAVE_DUMPSYS)
+    set (COMMON_SRC ${COMMON_SRC} common/aiq_notifier.c)
+endif()
+
 if (RKAIQ_NEWSTRUCT_TEST)
 set(MODULES_SRC
     modules/rk_aiq_isp32_modules.c
@@ -1188,6 +1203,17 @@ set (HWI_C_SRC
     hwi_c/aiq_aiIspLoader.c
     hwi_c/aiq_dumpRkRaw.c
 )
+
+if (RKAIQ_HAVE_DUMPSYS)
+    set (HWI_C_SRC
+        ${HWI_C_SRC}
+        hwi_c/info/aiq_CamHwBaseInfo.c
+        hwi_c/info/aiq_sensorHwInfo.c
+        hwi_c/info/aiq_streamCapInfo.c
+        hwi_c/info/aiq_streamProcInfo.c
+        hwi_c/info/aiq_ispParamsCvtInfo.c
+        )
+endif()
 
 if (RKAIQ_HAVE_PDAF)
     list(APPEND HWI_C_SRC hwi_c/aiq_PdafStreamProcUnit.c)
@@ -2243,6 +2269,28 @@ if (libdrm_FOUND)
         PRIVATE
         libdrm::libdrm
         )
+endif()
+
+if(RKAIQ_HAVE_DUMPSYS)
+    add_subdirectory(tools/dumpcam)
+
+    include_directories(dumpcam_server/ipcs/include)
+    include_directories(dumpcam_server/include)
+
+    set(AIQ_DUMPCAM_SERVER_STATIC   "rkaiq_dumpcam_server")
+    set(AIQ_IPCS_STATIC             "rkaiq_ipcs")
+    set(AIQ_INFO_STATIC             "rkaiq_info")
+    set(LIB_STATIC_CJSON            "rkaiq_cjson")
+    set(LIB_STATIC_ARGPARSE         "rkaiq_argparse")
+
+    add_subdirectory(dumpcam_server)
+    target_link_libraries(rkaiq PRIVATE ${AIQ_DUMPCAM_SERVER_STATIC})
+
+    list(APPEND RK_AIQ_STATIC_LIB_ARS ${STATIC_LIB_PREFIX}${AIQ_DUMPCAM_SERVER_STATIC}${STATIC_LIB_SUFFIX})
+    list(APPEND RK_AIQ_STATIC_LIB_ARS ${STATIC_LIB_PREFIX}${AIQ_IPCS_STATIC}${STATIC_LIB_SUFFIX})
+    list(APPEND RK_AIQ_STATIC_LIB_ARS ${STATIC_LIB_PREFIX}${AIQ_INFO_STATIC}${STATIC_LIB_SUFFIX})
+    list(APPEND RK_AIQ_STATIC_LIB_ARS ${STATIC_LIB_PREFIX}${LIB_STATIC_CJSON}${STATIC_LIB_SUFFIX})
+    list(APPEND RK_AIQ_STATIC_LIB_ARS ${STATIC_LIB_PREFIX}${LIB_STATIC_ARGPARSE}${STATIC_LIB_SUFFIX})
 endif()
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Android")

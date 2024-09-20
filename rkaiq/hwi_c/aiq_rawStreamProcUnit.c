@@ -17,6 +17,9 @@
 
 #include "aiq_rawStreamProcUnit.h"
 
+#if RKAIQ_HAVE_DUMPSYS
+#include "aiq_streamProcInfo.h"
+#endif
 #include "c_base/aiq_list.h"
 #include "c_base/aiq_map.h"
 #include "c_base/aiq_thread.h"
@@ -192,6 +195,21 @@ void trigger_isp_readback(AiqRawStreamProcUnit_t* pRawStrProcUnit) {
             if (ret == XCAM_RETURN_NO_ERROR) {
                 pRawStrProcUnit->_isp_core_dev->_v4l_base.io_control(
                     &pRawStrProcUnit->_isp_core_dev->_v4l_base, RKISP_CMD_TRIGGER_READ_BACK, &tg);
+#if RKAIQ_HAVE_DUMPSYS
+                {
+                    struct timespec time;
+                    clock_gettime(CLOCK_MONOTONIC, &time);
+
+                    pRawStrProcUnit->trig.frameloss +=
+                        tg.frame_id ? tg.frame_id - pRawStrProcUnit->trig.id - 1 : 0;
+                    pRawStrProcUnit->trig.id        = tg.frame_id;
+                    pRawStrProcUnit->trig.timestamp = tg.frame_timestamp / 1000;
+                    pRawStrProcUnit->trig.delay =
+                        XCAM_TIMESPEC_2_USEC(time) - tg.frame_timestamp / 1000;
+                }
+
+                pRawStrProcUnit->trig_times = tg.times;
+#endif
             } else {
                 LOGE_CAMHW_SUBM(ISP20HW_SUBM, "%s frame[%d] queue  failed, don't read back!\n",
                                 __func__, sequence);
@@ -236,6 +254,22 @@ static bool raw_buffer_proc(void* args) {
 XCamReturn RawStreamProcUnit_poll_buffer_ready(void* ctx, AiqHwEvt_t* evt, int dev_index) {
     AiqV4l2Buffer_t* rx_buf                 = NULL;
     AiqRawStreamProcUnit_t* pRawStrProcUnit = (AiqRawStreamProcUnit_t*)ctx;
+
+#if RKAIQ_HAVE_DUMPSYS
+    // dump fe info
+    {
+        struct timespec time;
+        clock_gettime(CLOCK_MONOTONIC, &time);
+
+        pRawStrProcUnit->fe.frameloss +=
+            evt->frame_id ? evt->frame_id - pRawStrProcUnit->fe.id - 1 : 0;
+        pRawStrProcUnit->fe.id        = evt->frame_id;
+        pRawStrProcUnit->fe.timestamp = evt->mTimestamp;
+        // pRawStrProcUnit->fe.delay     = XCAM_TIMESPEC_2_USEC(time) - evt->mTimestamp;
+        pRawStrProcUnit->fe.delay = 0;
+    }
+#endif
+
     aiqMutex_lock(&pRawStrProcUnit->_buf_mutex);
     if (aiqList_size(pRawStrProcUnit->buf_list[dev_index]) > 0) {
         aiqList_get(pRawStrProcUnit->buf_list[dev_index], &rx_buf);
@@ -261,6 +295,10 @@ XCamReturn AiqRawStreamProcUnit_init(AiqRawStreamProcUnit_t* pRawStrProcUnit,
     pRawStrProcUnit->mCamPhyId      = -1;
     pRawStrProcUnit->dumpRkRawType  = DUMP_RKRAW_DEFAULT;
     pRawStrProcUnit->_isExtDev      = false;
+    pRawStrProcUnit->_isRawProcThQuit = true;
+#if RKAIQ_HAVE_DUMPSYS
+    pRawStrProcUnit->data_mode = 0;
+#endif
 
     pRawStrProcUnit->_raw_proc_thread = aiqThread_init("RawProc", raw_buffer_proc, pRawStrProcUnit);
     aiqThread_setPolicy(pRawStrProcUnit->_raw_proc_thread, SCHED_RR);
@@ -709,6 +747,9 @@ XCamReturn AiqRawStreamProcUnit_set_csi_mem_word_big_align(AiqRawStreamProcUnit_
                 ret = XCAM_RETURN_ERROR_IOCTL;
             } else {
                 LOGD_CAMHW_SUBM(ISP20HW_SUBM, "set the memory mode of isp rx to big align");
+#if RKAIQ_HAVE_DUMPSYS
+                pRawStrProcUnit->data_mode = mem_mode;
+#endif
             }
         }
     }
@@ -753,3 +794,18 @@ XCamReturn AiqRawStreamProcUnit_notify_capture_raw(AiqRawStreamProcUnit_t* pRawS
     return aiq_dumpRkRaw_notifyDumpRaw(&pRawStrProcUnit->_rawCap);
 #endif
 }
+
+#if RKAIQ_HAVE_DUMPSYS
+int AiqRawStreamProcUnit_dump(void* dumper, st_string* result, int argc, void* argv[]) {
+    AiqRawStreamProcUnit_t* pRawStrProcUnit = (AiqRawStreamProcUnit_t*)dumper;
+    if (pRawStrProcUnit->_isRawProcThQuit) return 0;
+
+    stream_proc_dump_mod_param(pRawStrProcUnit, result);
+    stream_proc_dump_dev_attr(pRawStrProcUnit, result);
+    stream_proc_dump_chn_attr1(pRawStrProcUnit, result);
+    stream_proc_dump_chn_status1(pRawStrProcUnit, result);
+    stream_proc_dump_chn_status2(pRawStrProcUnit, result);
+    stream_proc_dump_videobuf_status(pRawStrProcUnit, result);
+    return 0;
+}
+#endif

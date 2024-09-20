@@ -361,8 +361,8 @@ typedef struct rk_tool_awb_illInf2_s {
     float spatialGainValue[RK_TOOL_AWB_CHANNEL_MAX];
     // M4_ARRAY_DESC("prob_WPNO", "f32", M4_SIZE(1,1), M4_RANGE(0,1), "1", M4_DIGIT(4), M4_DYNAMIC(0))
     float prob_WPNO;
-    // M4_ARRAY_DESC("staWeight", "f32", M4_SIZE(1,1), M4_RANGE(0,1), "1", M4_DIGIT(4), M4_DYNAMIC(0))
-    float staWeight;
+    // M4_ARRAY_DESC("preferWgt", "f32", M4_SIZE(1,1), M4_RANGE(0,1), "1", M4_DIGIT(4), M4_DYNAMIC(0))
+    float preferWgt;
     // M4_ARRAY_DESC("bigWp_wgt", "f32", M4_SIZE(1,1), M4_RANGE(0,1), "1", M4_DIGIT(4), M4_DYNAMIC(0))
     float bigWp_wgt;
 } rk_tool_awb_illInf2_t;

@@ -224,6 +224,7 @@ XCamReturn AiqAlgoCamGroupHandler_processing(AiqAlgoCamGroupHandler_t* pAlgoCamG
     if (pSglHdl->mResultType != -1)
         GlobalParamsManager_lockAlgoParam(globalParamsManager, pSglHdl->mResultType);
     procIn->attribUpdated = pSglHdl->mIsUpdateGrpAttr;
+    com->u.proc.is_attrib_update = pSglHdl->mIsUpdateGrpAttr;
     pSglHdl->mIsUpdateGrpAttr = false;
     if (pSglHdl->mResultType != -1)
         GlobalParamsManager_unlockAlgoParam(globalParamsManager, pSglHdl->mResultType);

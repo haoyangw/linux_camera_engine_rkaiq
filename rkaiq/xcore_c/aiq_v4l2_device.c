@@ -591,6 +591,17 @@ XCamReturn AiqV4l2Device_setSelection(AiqV4l2Device_t* v4l2_dev, struct v4l2_sel
     return XCAM_RETURN_NO_ERROR;
 }
 
+XCamReturn AiqV4l2Device_getSelection(AiqV4l2Device_t* v4l2_dev, struct v4l2_selection* select) {
+    int ret = 0;
+    XCAM_ASSERT(AiqV4l2Device_isOpened(v4l2_dev));
+    ret = (*v4l2_dev->io_control)(v4l2_dev, VIDIOC_G_SELECTION, select);
+    if (ret < 0) {
+        XCAM_LOG_ERROR("videodev (%s) VIDIOC_G_SELECTION failed", v4l2_dev->_name);
+        return XCAM_RETURN_ERROR_IOCTL;
+    }
+    return XCAM_RETURN_NO_ERROR;
+}
+
 XCamReturn AiqV4l2Device_getV4lFmt(AiqV4l2Device_t* v4l2_dev, struct v4l2_format* format) {
     if (AiqV4l2Device_isActivated(v4l2_dev)) {
         *format = v4l2_dev->_format;

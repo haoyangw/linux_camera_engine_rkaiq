@@ -182,6 +182,15 @@ static XCamReturn groupAgainV2Processing(const RkAiqAlgoCom* inparams, RkAiqAlgo
         stExpInfoV2.arTime[i] = 0.01;
     }
 
+    stExpInfoV2.blc_ob_predgain = 1.0f;
+#if RKAIQ_HAVE_BLC_V32
+    if(procParaGroup != NULL) {
+        LOGD_ANR(" predgain:%f\n",
+                 procParaGroup->stAblcV32_proc_res.isp_ob_predgain);
+        stExpInfoV2.blc_ob_predgain = procParaGroup->stAblcV32_proc_res.isp_ob_predgain;
+
+    }
+#endif
 
     //merge ae result, iso mean value
     rk_aiq_singlecam_3a_result_t* scam_3a_res = procParaGroup->camgroupParmasArray[0];

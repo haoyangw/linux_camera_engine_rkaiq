@@ -2654,33 +2654,35 @@ static void rkisp_routine(demo_context_t *ctx)
 
     printf("work_mode %d\n", work_mode);
 
-    strcpy(sns_entity_name, rk_aiq_uapi2_sysctl_getBindedSnsEntNmByVd(get_dev_name(ctx)));
-    printf("sns_entity_name:%s\n", sns_entity_name);
-    sscanf(&sns_entity_name[6], "%s", ctx->sns_name);
-    printf("sns_name:%s\n", ctx->sns_name);
-    rk_aiq_static_info_t s_info;
-    rk_aiq_uapi2_sysctl_getStaticMetas(sns_entity_name, &s_info);
-    // check if hdr mode is supported
-    if (!ctx->isOrp && work_mode != 0) {
-        bool b_work_mode_supported = false;
-        rk_aiq_sensor_info_t* sns_info = &s_info.sensor_info;
-        for (int i = 0; i < SUPPORT_FMT_MAX; i++)
-            // TODO, should decide the resolution firstly,
-            // then check if the mode is supported on this
-            // resolution
-            if ((sns_info->support_fmt[i].hdr_mode == 5/*HDR_X2*/ &&
-                    work_mode == RK_AIQ_WORKING_MODE_ISP_HDR2) ||
-                    (sns_info->support_fmt[i].hdr_mode == 6/*HDR_X3*/ &&
-                     work_mode == RK_AIQ_WORKING_MODE_ISP_HDR3)) {
-                b_work_mode_supported = true;
-                break;
-            }
+    if (ctx->rkaiq) {
+        strcpy(sns_entity_name, rk_aiq_uapi2_sysctl_getBindedSnsEntNmByVd(get_dev_name(ctx)));
+        printf("sns_entity_name:%s\n", sns_entity_name);
+        sscanf(&sns_entity_name[6], "%s", ctx->sns_name);
+        printf("sns_name:%s\n", ctx->sns_name);
+        rk_aiq_static_info_t s_info;
+        rk_aiq_uapi2_sysctl_getStaticMetas(sns_entity_name, &s_info);
+        // check if hdr mode is supported
+        if (!ctx->isOrp && work_mode != 0) {
+            bool b_work_mode_supported = false;
+            rk_aiq_sensor_info_t* sns_info = &s_info.sensor_info;
+            for (int i = 0; i < SUPPORT_FMT_MAX; i++)
+                // TODO, should decide the resolution firstly,
+                // then check if the mode is supported on this
+                // resolution
+                if ((sns_info->support_fmt[i].hdr_mode == 5/*HDR_X2*/ &&
+                        work_mode == RK_AIQ_WORKING_MODE_ISP_HDR2) ||
+                        (sns_info->support_fmt[i].hdr_mode == 6/*HDR_X3*/ &&
+                        work_mode == RK_AIQ_WORKING_MODE_ISP_HDR3)) {
+                    b_work_mode_supported = true;
+                    break;
+                }
 
-        if (!b_work_mode_supported) {
-            printf("\nWARNING !!!"
-                   "work mode %d is not supported, changed to normal !!!\n\n",
-                   work_mode);
-            work_mode = RK_AIQ_WORKING_MODE_NORMAL;
+            if (!b_work_mode_supported) {
+                printf("\nWARNING !!!"
+                    "work mode %d is not supported, changed to normal !!!\n\n",
+                    work_mode);
+                work_mode = RK_AIQ_WORKING_MODE_NORMAL;
+            }
         }
     }
 

@@ -82,10 +82,10 @@ void bayertnr_logtrans_init(int bayertnr_trans_mode, int bayertnr_trans_mode_sca
             pTransPrarms->bayertnr_logtablef[i] = 1 * bayertnr_logtblmul;
             pTransPrarms->bayertnr_logtablei[i] = 2 * bayertnr_logtblmul;
         }
-        printf("log domain\n");
+        LOGI_ANR("log domain\n");
     }
 
-    printf("oyyf log demoain init: mode:%d scale%d\n", bayertnr_trans_mode, bayertnr_trans_mode_scale);
+    LOGI_ANR("oyyf log demoain init: mode:%d scale%d\n", bayertnr_trans_mode, bayertnr_trans_mode_scale);
     pTransPrarms->bayertnr_logprecision = bayertnr_logprecision;
     pTransPrarms->bayertnr_logfixbit = bayertnr_logfixbit;
     pTransPrarms->bayertnr_logtblbit = bayertnr_logtblbit;

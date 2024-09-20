@@ -22,6 +22,10 @@
 
 #include "c_base/aiq_cond.h"
 #include "c_base/aiq_mutex.h"
+#include "common/rk_aiq_types_priv_c.h"
+#if RKAIQ_HAVE_DUMPSYS
+#include "dumpcam_server/info/include/st_string.h"
+#endif
 #include "hwi_c/aiq_dumpRkRaw.h"
 #include "include/common/rk_aiq_types.h"
 
@@ -67,6 +71,13 @@ typedef struct AiqRawStreamProcUnit_s {
     bool _is_1608_sensor;
     int8_t dumpRkRawType;
     aiq_DumpRkRaw_t _rawCap;
+
+#if RKAIQ_HAVE_DUMPSYS
+    FrameDumpInfo_t fe;
+    FrameDumpInfo_t trig;
+    int32_t trig_times;
+    int data_mode;
+#endif
 } AiqRawStreamProcUnit_t;
 
 XCamReturn AiqRawStreamProcUnit_init(AiqRawStreamProcUnit_t* pRawStrProcUnit,
@@ -112,4 +123,8 @@ void AiqRawStreamProcUnit_setPollCallback(AiqRawStreamProcUnit_t* pRawStrProcUni
                                           AiqPollCallback_t* cb);
 
 XCamReturn setIspInfoToDump(AiqRawStreamProcUnit_t* pRawStrProcUnit);
+
+#if RKAIQ_HAVE_DUMPSYS
+int AiqRawStreamProcUnit_dump(void* dumper, st_string* result, int argc, void* argv[]);
+#endif
 #endif

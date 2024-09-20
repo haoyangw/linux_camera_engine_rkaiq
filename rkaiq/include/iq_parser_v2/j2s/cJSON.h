@@ -98,6 +98,8 @@ then using the CJSON_API_VISIBILITY flag to "export" the same symbols the way CJ
 
 #define cJSON_IsReference 256
 #define cJSON_StringIsConst 512
+#define MAX_OPTION_NUM      8
+#define MAX_OPTION_STR_LEN  64
 
 /* The cJSON structure: */
 typedef struct cJSON
@@ -173,6 +175,9 @@ CJSON_PUBLIC(cJSON *) RkCam_cJSON_GetArrayItem(const cJSON *array, int index);
 /* Get item "string" from object. Case insensitive. */
 CJSON_PUBLIC(cJSON *) RkCam_cJSON_GetObjectItem(const cJSON * const object, const char * const string);
 CJSON_PUBLIC(cJSON *) RkCam_cJSON_GetObjectItemCaseSensitive(const cJSON * const object, const char * const string);
+CJSON_PUBLIC(cJSON*)
+RkCam_cJSON_GetOptionItem(const cJSON* const object, const char str[MAX_OPTION_NUM][MAX_OPTION_STR_LEN],
+                    size_t num);
 CJSON_PUBLIC(cJSON_bool) RkCam_cJSON_HasObjectItem(const cJSON *object, const char *string);
 /* For analysing failed parses. This returns a pointer to the parse error. You'll probably need to look a few chars back to make sense of it. Defined when cJSON_Parse() returns 0. 0 when cJSON_Parse() succeeds. */
 CJSON_PUBLIC(const char *) RkCam_cJSON_GetErrorPtr(void);

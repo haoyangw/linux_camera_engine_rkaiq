@@ -287,13 +287,13 @@ Again_result_V2_t gain_fix_transfer_v2( RK_GAIN_Select_V2_t *pSelect, RK_GAIN_Fi
     {
         uint32_t a = (1 << (GAIN_HDR_MERGE_IN2_FIX_BITS_INTE + GAIN_HDR_MERGE_IN_FIX_BITS_DECI)) - 1;
         dGain[i] = (frame_exp_ratio[i] * exp_gain[i]) / exp_gain[2];
-        if (!CHECK_ISP_HW_V20() && !CHECK_ISP_HW_V21() && !CHECK_ISP_HW_V30() ) {
-            if(pExpInfo->hdr_mode == 0) {
-                if(pExpInfo->blc_ob_predgain > 1.0) {
-                    dGain[i] *= pExpInfo->blc_ob_predgain;
-                }
+
+        if(pExpInfo->hdr_mode == 0) {
+            if(pExpInfo->blc_ob_predgain > 1.0) {
+                dGain[i] *= pExpInfo->blc_ob_predgain;
             }
         }
+
         pGainFix->sw_gain[i] = gain_float_lim2_int(dGain[i], GAIN_HDR_MERGE_IN_FIX_BITS_DECI, 1);       // 12:6
 
         if(pExpInfo->hdr_mode == 0) {

@@ -1908,3 +1908,98 @@ bool Convert3aResultsToIsp33Cfg(AiqIspParamsCvt_t* pCvt, aiq_params_base_t* pBas
     }
     return true;
 }
+
+#if RKAIQ_HAVE_DUMPSYS
+static void UpdateModEn(struct isp33_isp_params_cfg* src, struct isp33_isp_params_cfg* dst) {
+    LOG1_CAMHW("%s seq:%d, module_en_update:0x%llx\n", __func__, src->frame_id,
+               src->module_en_update);
+
+    for (int i = 0; i <= ISP2X_ID_MAX; i++) {
+        if (src->module_en_update & BIT_ULL(i)) dst->module_ens |= src->module_ens & (1LL << i);
+    }
+}
+
+static void UpdateMeasModCfg(struct isp33_isp_params_cfg* src, struct isp33_isp_params_cfg* dst) {
+    u64 module_cfg_update = src->module_cfg_update;
+
+    LOG1_CAMHW("%s seq:%d, module_cfg_update:0x%llx\n", __func__, src->frame_id,
+               src->module_cfg_update);
+
+    if (module_cfg_update & ISP33_MODULE_RAWAE0) dst->meas.rawae0 = src->meas.rawae0;
+
+    if (module_cfg_update & ISP33_MODULE_RAWAE3) dst->meas.rawae3 = src->meas.rawae3;
+
+    if (module_cfg_update & ISP33_MODULE_RAWHIST0) dst->meas.rawhist0 = src->meas.rawhist0;
+
+    if (module_cfg_update & ISP33_MODULE_RAWHIST3) dst->meas.rawhist3 = src->meas.rawhist3;
+
+    if (module_cfg_update & ISP33_MODULE_RAWAWB) dst->meas.rawawb = src->meas.rawawb;
+}
+
+static void UpdateOthersModCfg(struct isp33_isp_params_cfg* src, struct isp33_isp_params_cfg* dst) {
+    u64 module_cfg_update = src->module_cfg_update;
+
+    LOG1_CAMHW("%s seq:%d, module_cfg_update:0x%llx\n", __func__, src->frame_id,
+               src->module_cfg_update);
+
+    if (module_cfg_update & ISP33_MODULE_LSC) dst->others.lsc_cfg = src->others.lsc_cfg;
+
+    if (module_cfg_update & ISP33_MODULE_DPCC) dst->others.dpcc_cfg = src->others.dpcc_cfg;
+
+    if (module_cfg_update & ISP33_MODULE_BLS) dst->others.bls_cfg = src->others.bls_cfg;
+
+    if (module_cfg_update & ISP33_MODULE_AWB_GAIN)
+        dst->others.awb_gain_cfg = src->others.awb_gain_cfg;
+
+    if (module_cfg_update & ISP33_MODULE_DEBAYER) dst->others.debayer_cfg = src->others.debayer_cfg;
+
+    if (module_cfg_update & ISP33_MODULE_CCM) dst->others.ccm_cfg = src->others.ccm_cfg;
+
+    if (module_cfg_update & ISP33_MODULE_GOC) dst->others.gammaout_cfg = src->others.gammaout_cfg;
+
+    if (module_cfg_update & ISP33_MODULE_CSM) dst->others.csm_cfg = src->others.csm_cfg;
+
+    if (module_cfg_update & ISP33_MODULE_CGC) dst->others.cgc_cfg = src->others.cgc_cfg;
+
+    if (module_cfg_update & ISP33_MODULE_CPROC) dst->others.cproc_cfg = src->others.cproc_cfg;
+
+    if (module_cfg_update & ISP33_MODULE_HDRMGE) dst->others.hdrmge_cfg = src->others.hdrmge_cfg;
+
+    if (module_cfg_update & ISP33_MODULE_DRC) dst->others.drc_cfg = src->others.drc_cfg;
+
+    if (module_cfg_update & ISP33_MODULE_GIC) dst->others.gic_cfg = src->others.gic_cfg;
+
+    if (module_cfg_update & ISP33_MODULE_ENH) dst->others.enh_cfg = src->others.enh_cfg;
+
+    if (module_cfg_update & ISP33_MODULE_HIST) dst->others.hist_cfg = src->others.hist_cfg;
+
+    if (module_cfg_update & ISP33_MODULE_LDCH) dst->others.ldch_cfg = src->others.ldch_cfg;
+
+    if (module_cfg_update & ISP33_MODULE_YNR) dst->others.ynr_cfg = src->others.ynr_cfg;
+
+    if (module_cfg_update & ISP33_MODULE_CNR) dst->others.cnr_cfg = src->others.cnr_cfg;
+
+    if (module_cfg_update & ISP33_MODULE_SHARP) dst->others.sharp_cfg = src->others.sharp_cfg;
+
+    if (module_cfg_update & ISP33_MODULE_BAY3D) dst->others.bay3d_cfg = src->others.bay3d_cfg;
+
+    if (module_cfg_update & ISP33_MODULE_CAC) dst->others.cac_cfg = src->others.cac_cfg;
+
+    if (module_cfg_update & ISP33_MODULE_GAIN) dst->others.gain_cfg = src->others.gain_cfg;
+}
+
+void AiqIspParamsCvt_updIsp33Params(void* src, void* dst) {
+    if (!src || !dst) return;
+
+    struct isp33_isp_params_cfg* pSrc = (struct isp33_isp_params_cfg*)src;
+    struct isp33_isp_params_cfg* pDst = (struct isp33_isp_params_cfg*)dst;
+
+    pDst->frame_id          = pSrc->frame_id;
+    pDst->module_en_update  = pSrc->module_en_update;
+    pDst->module_cfg_update = pSrc->module_cfg_update;
+
+    UpdateModEn(pSrc, pDst);
+    UpdateMeasModCfg(pSrc, pDst);
+    UpdateOthersModCfg(pSrc, pDst);
+}
+#endif

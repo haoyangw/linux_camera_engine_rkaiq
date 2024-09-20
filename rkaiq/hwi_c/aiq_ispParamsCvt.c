@@ -24,6 +24,12 @@
 #include "hwi_c/isp33/aiq_isp33ParamsCvt.h"
 #endif
 
+#if RKAIQ_HAVE_DUMPSYS
+#include "dumpcam_server/info/include/rk_info_utils.h"
+#include "dumpcam_server/info/include/st_string.h"
+#include "hwi_c/info/aiq_ispParamsCvtInfo.h"
+#endif
+
 void AiqIspParamsCvt_setCamPhyId(AiqIspParamsCvt_t* pCvt, int phyId) {
     pCvt->_CamPhyId = phyId;
 }
@@ -319,7 +325,17 @@ XCamReturn AiqIspParamsCvt_merge_isp_results(AiqIspParamsCvt_t* pCvt, AiqList_t*
         rm    = true;
         AIQ_REF_BASE_UNREF(&params->_ref_base);
     }
-    /* aiqList_deinit(results); */
+
+#if RKAIQ_HAVE_DUMPSYS
+    if (pCvt->mIspParamsCvtOps.update) {
+#if defined(ISP_HW_V39)
+        pCvt->mIspParamsCvtOps.update(isp_cfg, pCvt->mCvtedIsp39Prams);
+#elif defined(ISP_HW_V33)
+        pCvt->mIspParamsCvtOps.update(isp_cfg, pCvt->mCvtedIsp33Prams);
+#endif
+    }
+#endif
+
     return XCAM_RETURN_NO_ERROR;
 }
 
@@ -347,8 +363,22 @@ XCamReturn AiqIspParamsCvt_init(AiqIspParamsCvt_t* pCvt) {
     pCvt->_working_mode         = RK_AIQ_WORKING_MODE_ISP_HDR3;
 #if defined(ISP_HW_V39)
     pCvt->mIspParamsCvtOps.Convert3aResultsToIspCfg = Convert3aResultsToIsp39Cfg;
+#if RKAIQ_HAVE_DUMPSYS
+    pCvt->mCvtedIsp39Prams =
+        (struct isp39_isp_params_cfg*)aiq_mallocz(sizeof(*pCvt->mCvtedIsp39Prams));
+    pCvt->mIspParamsCvtOps.update = AiqIspParamsCvt_updIsp39Params;
+#endif
 #elif defined(ISP_HW_V33)
     pCvt->mIspParamsCvtOps.Convert3aResultsToIspCfg = Convert3aResultsToIsp33Cfg;
+#if RKAIQ_HAVE_DUMPSYS
+    pCvt->mCvtedIsp33Prams =
+        (struct isp33_isp_params_cfg*)aiq_mallocz(sizeof(*pCvt->mCvtedIsp33Prams));
+    pCvt->mIspParamsCvtOps.update = AiqIspParamsCvt_updIsp33Params;
+#endif
+#else
+    pCvt->mIspParamsCvtOps.Convert3aResultsToIspCfg = NULL;
+    pCvt->mIspParamsCvtOps.update                   = NULL;
+    pCvt->mCvtedIsp39Prams                          = NULL;
 #endif
 
     aiq_memset(&pCvt->AntiTmoFlicker, 0, sizeof(pCvt->AntiTmoFlicker));
@@ -369,4 +399,16 @@ void AiqIspParamsCvt_deinit(AiqIspParamsCvt_t* pCvt) {
         pCvt->mCacInfo.lut_manger_ = NULL;
     }
 #endif
+
+    if (pCvt->mCvtedIsp39Prams) {
+        aiq_free(pCvt->mCvtedIsp39Prams);
+        pCvt->mCvtedIsp39Prams = NULL;
+    }
 }
+
+#if RKAIQ_HAVE_DUMPSYS
+int AiqIspParamsCvt_dump(void* dumper, st_string* result, int argc, void* argv[]) {
+    cvt_isp_params_dump((AiqIspParamsCvt_t*)dumper, result, argc, argv);
+    return 0;
+}
+#endif

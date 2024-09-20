@@ -27,6 +27,9 @@
 #include "rk_aiq.h"
 #include "rk_aiq_offline_raw.h"
 #include "rk_aiq_types_priv_c.h"
+#if RKAIQ_HAVE_DUMPSYS
+#include "dumpcam_server/info/include/st_string.h"
+#endif
 
 /************ BELOW FROM kernel/include/uapi/linux/rk-preisp.h ************/
 
@@ -138,6 +141,14 @@ struct AiqSensorHw_s {
     uint32_t mPauseId;
     bool mIsSingleMode;
     int mCamPhyId;
+    int32_t dcg_mode;
+    uint32_t set_exp_cnt;
+    int16_t fps;
+#if RKAIQ_HAVE_DUMPSYS
+    // dump info
+    rk_aiq_exposure_sensor_descriptor desc;
+#endif
+
     // export api
     XCamReturn (*setExposureParams)(AiqSensorHw_t* pBaseSns, AiqAecExpInfoWrapper_t* expPar);
     XCamReturn (*getSensorModeData)(AiqSensorHw_t* pBaseSns, const char* sns_ent_name,
@@ -146,7 +157,9 @@ struct AiqSensorHw_s {
     XCamReturn (*get_sensor_descriptor)(AiqSensorHw_t* pBaseSns,
                                         rk_aiq_exposure_sensor_descriptor* sns_des);
     AiqSensorExpInfo_t* (*getEffectiveExpParams)(AiqSensorHw_t* pBaseSns, uint32_t frame_id);
-    void (*dump)(AiqSensorHw_t* pBaseSns);
+#if RKAIQ_HAVE_DUMPSYS
+    int (*dump)(void* dumper, st_string* result, int argc, void* argv[]);
+#endif
     // override v4l2
     XCamReturn (*open)(AiqSensorHw_t* pBaseSns);
     XCamReturn (*start)(AiqSensorHw_t* pBaseSns, bool prepared);

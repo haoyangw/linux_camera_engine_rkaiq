@@ -792,7 +792,7 @@ typedef struct awbStats_rotYuvVectEdp_s {
     /* M4_GENERIC_DESC(
         M4_ALIAS(hw_awbT_edpV_val),
         M4_TYPE(f32),
-        M4_SIZE_EX(1,6),
+        M4_SIZE_EX(1,1),
         M4_RANGE_EX(0,255),
         M4_DEFAULT(0),
         M4_HIDE_EX(1),

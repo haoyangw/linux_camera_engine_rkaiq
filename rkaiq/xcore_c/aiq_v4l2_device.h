@@ -124,6 +124,7 @@ bool AiqV4l2Device_setFramerate(AiqV4l2Device_t* v4l2_dev, uint32_t n, uint32_t 
 XCamReturn AiqV4l2Device_getCrop(AiqV4l2Device_t* v4l2_dev, struct v4l2_crop* crop);
 XCamReturn AiqV4l2Device_setCrop(AiqV4l2Device_t* v4l2_dev, struct v4l2_crop* crop);
 XCamReturn AiqV4l2Device_setSelection(AiqV4l2Device_t* v4l2_dev, struct v4l2_selection* select);
+XCamReturn AiqV4l2Device_getSelection(AiqV4l2Device_t* v4l2_dev, struct v4l2_selection* select);
 XCamReturn AiqV4l2Device_getV4lFmt(AiqV4l2Device_t* v4l2_dev, struct v4l2_format* format);
 XCamReturn AiqV4l2Device_setV4lFmt(AiqV4l2Device_t* v4l2_dev, struct v4l2_format* format);
 XCamReturn AiqV4l2Device_setFmt(AiqV4l2Device_t* v4l2_dev, uint32_t width, uint32_t height,

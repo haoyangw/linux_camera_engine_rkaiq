@@ -1186,7 +1186,9 @@ typedef struct _RkAiqAlgoProcAgainV2 {
     rk_aiq_again_stat_t stats;
     int iso;
     int hdr_mode;
+#if RKAIQ_HAVE_BLC_V32
     AblcProc_V32_t* stAblcV32_proc_res;
+#endif
 } RkAiqAlgoProcAgainV2;
 
 typedef struct _RkAiqAlgoProcResAgainV2 {

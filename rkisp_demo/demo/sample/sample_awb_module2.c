@@ -417,7 +417,7 @@ static int sample_awb_printflog(const rk_aiq_sys_ctx_t* ctx)
 						strategy_result.illInf[i].prob_LV, strategy_result.illInf[i].prob_WPNO,
 						strategy_result.illInf[i].weight);
 			printf("     prefwbgn:(%f,%f,%f,%f),prefWgt(%f)\n", strategy_result.illInf[i].spatialGainValue[0], strategy_result.illInf[i].spatialGainValue[1],
-						strategy_result.illInf[i].spatialGainValue[2], strategy_result.illInf[i].spatialGainValue[3], 1-strategy_result.illInf[i].staWeight);
+						strategy_result.illInf[i].spatialGainValue[2], strategy_result.illInf[i].spatialGainValue[3], strategy_result.illInf[i].preferWgt);
 			int m=0;
 			printf("     nor_wbgn:(%f,%f,%f,%f) wpnum(%d)\n",
 					awb_measure_result.light[i].xYType[m].gain[0],
