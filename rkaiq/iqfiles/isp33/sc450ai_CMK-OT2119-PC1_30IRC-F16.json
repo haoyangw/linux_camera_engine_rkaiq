@@ -192,7 +192,7 @@
 								"envLvCalib":	{
 									"sw_aeT_envCalib_en":	0,
 									"sw_aeC_envCalib_Fn":	1.6,
-									"sw_aeC_envCalib_coeff":	[0.02859, 0.5972]
+									"sw_aeC_envCalib_coeff":	[63.387896, 1.63477]
 								},
 								"winScale":	{
 									"inRawWinScale":	{
@@ -16662,7 +16662,7 @@
 								"envLvCalib":	{
 									"sw_aeT_envCalib_en":	0,
 									"sw_aeC_envCalib_Fn":	1.6,
-									"sw_aeC_envCalib_coeff":	[0.02859, 0.5972]
+									"sw_aeC_envCalib_coeff":	[63.387896, 1.63477]
 								},
 								"winScale":	{
 									"inRawWinScale":	{
