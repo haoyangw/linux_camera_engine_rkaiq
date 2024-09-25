@@ -534,6 +534,10 @@ rk_aiq_uapi2_camgroup_destroy(rk_aiq_camgroup_ctx_t* camgroup_ctx)
             LOGE("%s: deinit failed !", __func__);
             return ret;
         }
+#if defined(ISP_HW_V39) || defined(ISP_HW_V33)
+        rk_aiq_uapi2_awb_unRegister((rk_aiq_sys_ctx_t*)camgroup_ctx);
+        rk_aiq_uapi2_ae_unRegister((rk_aiq_sys_ctx_t*)camgroup_ctx);
+#endif
         aiq_free(camgroup_ctx->cam_group_manager);
     }
     if (camgroup_ctx->_camgroup_calib) {

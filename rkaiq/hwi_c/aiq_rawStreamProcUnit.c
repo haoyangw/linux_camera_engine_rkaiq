@@ -696,6 +696,11 @@ void AiqRawStreamProcUnit_send_sync_buf(AiqRawStreamProcUnit_t* pRawStrProcUnit,
                                         AiqV4l2Buffer_t* buf_l) {
     int ret = 0;
     aiqMutex_lock(&pRawStrProcUnit->_buf_mutex);
+    if (pRawStrProcUnit->_isRawProcThQuit) {
+        LOGW_CAMHW_SUBM(ISP20HW_SUBM, "quit already, ignore !");
+        aiqMutex_unlock(&pRawStrProcUnit->_buf_mutex);
+        return;
+    }
     for (int i = 0; i < pRawStrProcUnit->_mipi_dev_max; i++) {
         if (i == ISP_MIPI_HDR_S) {
             ret = aiqList_push(pRawStrProcUnit->cache_list[ISP_MIPI_HDR_S], &buf_s);

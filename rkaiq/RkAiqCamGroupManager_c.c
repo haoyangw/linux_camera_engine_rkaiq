@@ -806,6 +806,7 @@ static void clearCamgrpResMap(AiqCamGroupManager_t* pCamGrpMan)
         rk_aiq_groupcam_result_t* pMsg = *((rk_aiq_groupcam_result_t**)pItem->_pData);
 		clearGroupcamResults(pMsg);
         pItem          = aiqMap_erase_locked(pCamGrpMan->mCamGroupResMap, pItem->_key);
+        aiq_free(pMsg);
         rm             = true;
     }
 }
