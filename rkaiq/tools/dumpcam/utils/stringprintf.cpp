@@ -16,6 +16,7 @@
  */
 
 #include "stringprintf.h"
+#include <cstdint>
 #include <stdio.h>
 #include <string>
 #include <unistd.h>
