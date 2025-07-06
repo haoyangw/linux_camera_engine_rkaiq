@@ -17,7 +17,7 @@ include /usr/share/dpkg/default.mk
 #export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
 
 ifneq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
-export CMAKE_TOOLCHAIN_FILE=/etc/dpkg-cross/cmake/CMakeCross.txt
+	export CMAKE_TOOLCHAIN_FILE=/etc/dpkg-cross/cmake/CMakeCross.txt
 endif
 
 # main packaging script based on dh7 syntax
@@ -28,18 +28,18 @@ endif
 # This is example for Cmake (See http://bugs.debian.org/641051 )
 override_dh_auto_configure:
 	dh_auto_configure -- \
-	-G Ninja \
-    -DCMAKE_BUILD_TYPE=RelWithDebInfo\
-    -DARCH="aarch64" \
-    -DRKAIQ_TARGET_SOC=rk3588 \
-    -DRKAIQ_BUILD_BINARY_IQ=ON \
-    -DCMAKE_SKIP_RPATH=TRUE \
-	-DCMAKE_EXPORT_COMPILE_COMMANDS=YES \
-	-DISP_HW_VERSION=-DISP_HW_V30 \
-    -DRKAIQ_USE_RAWSTREAM_LIB=OFF \
-    -DRKAIQ_HAVE_FAKECAM=ON \
-    -DRKAIQ_ENABLE_AF=ON \
-    -DRKAIQ_ENABLE_CAMGROUP=ON
+		-G Ninja \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo\
+		-DARCH="aarch64" \
+		-DRKAIQ_TARGET_SOC=rk3588 \
+		-DRKAIQ_BUILD_BINARY_IQ=ON \
+		-DCMAKE_SKIP_RPATH=TRUE \
+		-DCMAKE_EXPORT_COMPILE_COMMANDS=YES \
+		-DISP_HW_VERSION=-DISP_HW_V30 \
+		-DRKAIQ_USE_RAWSTREAM_LIB=OFF \
+		-DRKAIQ_HAVE_FAKECAM=ON \
+		-DRKAIQ_ENABLE_AF=ON \
+		-DRKAIQ_ENABLE_CAMGROUP=ON
 
 override_dh_auto_test:
 override_dh_installdocs:
