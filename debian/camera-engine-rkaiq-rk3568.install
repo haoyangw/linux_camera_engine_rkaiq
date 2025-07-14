@@ -1,0 +1,6 @@
+debin/camera-engine-rkaiq-rk3568/init.d etc/
+debian/camera-engine-rkaiq-rk3568/usr/share/iqfiles etc/
+debian/camera-engine-rkaiq-rk3568/usr/bin usr/
+debian/camera-engine-rkaiq-rk3568/usr/include usr/
+debian/camera-engine-rkaiq-rk3568/usr/lib usr/
+debian/camera-engine-rkaiq-rk3568/usr/share/doc usr/share/

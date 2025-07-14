@@ -1,4 +1,4 @@
-Source: camera-engine-rkaiq-rk3588
+Source: camera-engine-rkaiq
 Priority: optional
 Maintainer: Caesar Wang <wxt@rock-chips.com>
 Build-Depends: debhelper (>= 9),
@@ -25,3 +25,10 @@ Provides: camera-engine-rkaiq-rk3588
 Conflicts: camera-engine-rkaiq-rk3588
 Replaces: camera-engine-rkaiq-rk3588
 
+Package: camera-engine-rkaiq-rk3568
+Architecture: arm64
+Depends: systemd
+Description: 3A libraries match Rockchip rkisp v21(rk3566_rk3568).
+Provides: camera-engine-rkaiq-rk3568
+Conflicts: camera-engine-rkaiq-rk3568
+Replaces: camera-engine-rkaiq-rk3568
