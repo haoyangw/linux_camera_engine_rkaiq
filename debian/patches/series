@@ -1,1 +1,5 @@
-
+0001-Fix-compilation-error-due-to-unsupported-build-flags.patch
+0002-Fix-implicit-declaration-of-printf-error.patch
+0003-Fix-compilation-error-from-c++-odr-warning.patch
+0004-Fix-make-install-failure-of-j2s4b.patch
+0005-Fix-destination-path-of-cmake-install.patch

@@ -1,0 +1,12 @@
+diff --git a/rkaiq/ipc_server/MessageParser.hpp b/rkaiq/ipc_server/MessageParser.hpp
+index c3a86689..2ad61434 100644
+--- a/rkaiq/ipc_server/MessageParser.hpp
++++ b/rkaiq/ipc_server/MessageParser.hpp
+@@ -17,6 +17,7 @@
+ #ifndef ___MESSAGE_PARSER_H__
+ #define ___MESSAGE_PARSER_H__
+ 
++#include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+ 

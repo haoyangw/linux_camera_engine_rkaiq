@@ -1,0 +1,85 @@
+From 54b0503385e8efcade286132f7aefcfe72bcfa3c Mon Sep 17 00:00:00 2001
+From: Wang Haoyang <haoyangw@gmail.com>
+Date: Tue, 8 Jul 2025 10:37:00 +0000
+Subject: [PATCH] Fix compilation error due to unsupported build flags
+
+Wrap x86-specific build flags in if condition
+  to ensure that these flags are only applied
+  on a x86 host.
+
+This fixes compilation error when building on
+  arm64.
+---
+ rkaiq/iq_parser_v2/CMakeLists.txt   | 12 ++++++++++--
+ rkaiq/tools/iq_check/CMakeLists.txt | 12 ++++++++++--
+ rkisp_parser_demo/CMakeLists.txt    |  4 ++--
+ 3 files changed, 22 insertions(+), 6 deletions(-)
+
+diff --git a/rkaiq/iq_parser_v2/CMakeLists.txt b/rkaiq/iq_parser_v2/CMakeLists.txt
+index d6fafa34..ab5ea787 100644
+--- a/rkaiq/iq_parser_v2/CMakeLists.txt
++++ b/rkaiq/iq_parser_v2/CMakeLists.txt
+@@ -1,9 +1,17 @@
+ cmake_minimum_required(VERSION 2.8...3.22)
+ 
+ if (ARCH STREQUAL "arm")
+-    set(J2S_HOST_CFLAGS -m32 -std=gnu99 -malign-double)
++    if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
++        set(J2S_HOST_CFLAGS -m32 -std=gnu99 -malign-double)
++    else()
++        set(j2s_host_cflags -std=gnu99)
++    endif()
+ elseif (ARCH STREQUAL "aarch64")
+-    set(J2S_HOST_CFLAGS -m64 -std=gnu99 -malign-double)
++    if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
++        set(J2S_HOST_CFLAGS -m64 -std=gnu99 -malign-double)
++    else()
++    	set(j2s_host_cflags -std=gnu99)
++    endif()
+ endif()
+ 
+ set(J2S_SRC
+diff --git a/rkaiq/tools/iq_check/CMakeLists.txt b/rkaiq/tools/iq_check/CMakeLists.txt
+index dfc3515b..bb9f9f57 100644
+--- a/rkaiq/tools/iq_check/CMakeLists.txt
++++ b/rkaiq/tools/iq_check/CMakeLists.txt
+@@ -1,9 +1,17 @@
+ cmake_minimum_required(VERSION 2.8...3.22)
+ 
+ if (ARCH STREQUAL "arm")
+-    set(J2S_HOST_CFLAGS -m32 -std=gnu99 -malign-double)
++    if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
++        set(J2S_HOST_CFLAGS -m32 -std=gnu99 -malign-double)
++    else()
++        set(j2s_host_cflags -std=gnu99)
++    endif()
+ elseif (ARCH STREQUAL "aarch64")
+-    set(J2S_HOST_CFLAGS -m64 -std=gnu99 -malign-double)
++    if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
++        set(J2S_HOST_CFLAGS -m64 -std=gnu99 -malign-double)
++    else()
++    	set(j2s_host_cflags -std=gnu99)
++    endif()
+ endif()
+ 
+ project(j2s)
+diff --git a/rkisp_parser_demo/CMakeLists.txt b/rkisp_parser_demo/CMakeLists.txt
+index 149e1012..82bcfbe2 100644
+--- a/rkisp_parser_demo/CMakeLists.txt
++++ b/rkisp_parser_demo/CMakeLists.txt
+@@ -91,10 +91,10 @@ link_directories("${LIBRARY_OUTPUT_PATH}" "${RK_AIQ_LIB_DIR}")
+ #add executable file
+ ADD_EXECUTABLE(rkisp_parser ${DIR_SRCS})
+ target_link_libraries(rkisp_parser ${RK_AIQ_LIB} ${LINK_ASAN})
+-if(ARCH STREQUAL "m32")
++if((ARCH STREQUAL "m32") AND (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)"))
+ message("arch m32")
+ set_target_properties(rkisp_parser PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+-else()
++elseif((ARCH STREQUAL "m64") AND (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)"))
+ message("arch m64")
+ set_target_properties(rkisp_parser PROPERTIES COMPILE_FLAGS "-m64" LINK_FLAGS "-m64")
+ endif()
+-- 
+2.34.1
+

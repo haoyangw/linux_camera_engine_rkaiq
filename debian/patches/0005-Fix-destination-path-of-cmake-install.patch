@@ -1,0 +1,63 @@
+diff --git a/rkaiq/tools/j2s4b/CMakeLists.txt b/rkaiq/tools/j2s4b/CMakeLists.txt
+index 88fc948e..0dc1498b 100644
+--- a/rkaiq/tools/j2s4b/CMakeLists.txt
++++ b/rkaiq/tools/j2s4b/CMakeLists.txt
+@@ -104,7 +104,7 @@ foreach(IQPATH ${RKAIQ_IQFILES})
+         BYPRODUCTS ${TAGT_NAME}
+         DEPENDS j2s4b
+         )
+-    install(PROGRAMS "${CMAKE_BINARY_DIR}/${TAGT_NAME}" DESTINATION usr/share/iqfiles)
++    install(PROGRAMS "${CMAKE_BINARY_DIR}/${TAGT_NAME}" DESTINATION share/iqfiles)
+ endforeach()
+ 
+ foreach(IQPATH ${RKAIQ_AINR_IQFILES})
+@@ -121,7 +121,7 @@ foreach(IQPATH ${RKAIQ_AINR_IQFILES})
+         DEPENDS j2s4b
+         )
+     install(PROGRAMS "${CMAKE_BINARY_DIR}/${TAGT_AINR_NAME}" DESTINATION
+-		usr/share/iqfiles/ainr RENAME ${TAGT_NAME})
++		share/iqfiles/ainr RENAME ${TAGT_NAME})
+ endforeach()
+ 
+ foreach(IQPATH ${RKAIQ_HDR_IQFILES})
+@@ -138,7 +138,7 @@ foreach(IQPATH ${RKAIQ_HDR_IQFILES})
+         DEPENDS j2s4b
+         )
+     install(PROGRAMS "${CMAKE_BINARY_DIR}/${TAGT_HDR_NAME}" DESTINATION
+-		usr/share/iqfiles/hdr RENAME ${TAGT_NAME})
++		share/iqfiles/hdr RENAME ${TAGT_NAME})
+ endforeach()
+ endif()
+ 
+diff --git a/rkaiq_3A_server/CMakeLists.txt b/rkaiq_3A_server/CMakeLists.txt
+index b8e0fcaf..73aace46 100644
+--- a/rkaiq_3A_server/CMakeLists.txt
++++ b/rkaiq_3A_server/CMakeLists.txt
+@@ -124,21 +124,21 @@ target_link_libraries(rkaiq_3A_server ${RK_AIQ_LIB} pthread dl)
+ #FIXME: buildroot and ipc sdk shall use the same setting
+ if(BUILDROOT_BUILD_PROJECT)
+ 	install(TARGETS rkaiq_3A_server
+-		RUNTIME DESTINATION /usr/bin
+-		LIBRARY DESTINATION /usr/lib
++		RUNTIME DESTINATION bin
++		LIBRARY DESTINATION lib
+ 		)
+ 
+-	install(FILES S40rkaiq_3A DESTINATION /etc/init.d/
++	install(FILES S40rkaiq_3A DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/init.d
+ 		PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
+ 		GROUP_EXECUTE GROUP_READ
+ 		WORLD_EXECUTE WORLD_READ)
+ else()
+ 	install(TARGETS rkaiq_3A_server
+-		RUNTIME DESTINATION "usr/bin"
+-		LIBRARY DESTINATION "usr/lib"
++		RUNTIME DESTINATION bin
++		LIBRARY DESTINATION lib
+ 		)
+ 
+-	install(FILES S40rkaiq_3A DESTINATION "etc/init.d"
++	install(FILES S40rkaiq_3A DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/init.d
+ 		PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
+ 		GROUP_EXECUTE GROUP_READ
+ 		WORLD_EXECUTE WORLD_READ)
