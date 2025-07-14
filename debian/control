@@ -9,7 +9,8 @@ Build-Depends: debhelper (>= 9),
                gcc,
                cmake,
                make,
-               ninja-build
+               ninja-build,
+               git
 Standards-Version: 3.9.8
 Section: libs
 Homepage: https://github.com/rockchip-linux/camera_engine_rkaiq
