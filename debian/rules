@@ -7,6 +7,13 @@
 DPKG_EXPORT_BUILDFLAGS = 1
 include /usr/share/dpkg/default.mk
 
+# Set architecture variables
+DPKG_EXPORT_BUILDFLAGS := 1
+include /usr/share/dpkg/architecture.mk
+
+# Include SoC-specific configurations
+include debian/targets.mk
+
 # see FEATURE AREAS in dpkg-buildflags(1)
 #export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
@@ -26,20 +33,40 @@ endif
 
 # debmake generated override targets
 # This is example for Cmake (See http://bugs.debian.org/641051 )
+override_dh_auto_clean:
+	dh_auto_clean
+	rm -rf debian/build
+	$(foreach rkaiq_platform,$(rkaiq_platforms), \
+		rm -rf debian/camera-engine-rkaiq-$(rkaiq_platform)
+
 override_dh_auto_configure:
-	dh_auto_configure -- \
-		-G Ninja \
-		-DCMAKE_BUILD_TYPE=RelWithDebInfo\
-		-DARCH="aarch64" \
-		-DRKAIQ_TARGET_SOC=rk3588 \
-		-DRKAIQ_BUILD_BINARY_IQ=ON \
-		-DCMAKE_SKIP_RPATH=TRUE \
-		-DCMAKE_EXPORT_COMPILE_COMMANDS=YES \
-		-DISP_HW_VERSION=-DISP_HW_V30 \
-		-DRKAIQ_USE_RAWSTREAM_LIB=OFF \
-		-DRKAIQ_HAVE_FAKECAM=ON \
-		-DRKAIQ_ENABLE_AF=ON \
-		-DRKAIQ_ENABLE_CAMGROUP=ON
+	$(foreach rkaiq_platform,$(rkaiq_platforms), \
+		mkdir -p debian/build/tmp-$(rkaiq_platform) && \
+		mkdir -p debian/camera-engine-rkaiq-$(rkaiq_platform) && \
+		dh_auto_configure --builddirectory=debian/build/tmp-$(rkaiq_platform) -- \
+			-G Ninja \
+			-DCMAKE_INSTALL_PREFIX=/usr \
+			-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+			-DARCH=$(DEB_HOST_GNU_CPU) \
+			-DRKAIQ_BUILD_BINARY_IQ=ON \
+			-DCMAKE_SKIP_RPATH=TRUE \
+			-DCMAKE_EXPORT_COMPILE_COMMANDS=YES \
+			-DRKAIQ_USE_RAWSTREAM_LIB=OFF \
+			-DRKAIQ_HAVE_FAKECAM=ON \
+			-DRKAIQ_ENABLE_AF=ON \
+			-DDEB_DESTDIR=$(CURDIR)/debian/camera-engine-rkaiq-$(rkaiq_platform) \
+			$($(rkaiq_platform)_config) &&) true
+
+override_dh_auto_build:
+	@for rkaiq_platform in $(rkaiq_platforms); do \
+		dh_auto_build --builddir=debian/build/tmp-$$rkaiq_platform; \
+	done
+
+override_dh_auto_install:
+	@for rkaiq_platform in $(rkaiq_platforms); do \
+		dh_auto_install --builddir=debian/build/tmp-$$rkaiq_platform \
+			--destdir=debian/camera-engine-rkaiq-$$rkaiq_platform; \
+	done
 
 override_dh_auto_test:
 override_dh_installdocs:
