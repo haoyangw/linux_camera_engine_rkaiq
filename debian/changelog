@@ -1,3 +1,11 @@
+camera-engine-rkaiq (6.8.0-2) unstable; urgency=medium
+
+  * Extend Debian packaging to add support for building RK3568 binary package
+  * Update Debian packaging to match the format of Debian packages from
+    Rockchip SDK
+
+ -- Wang Haoyang <haoyangw@gmail.com>  Tue, 15 Jul 2025 17:10:30 +0800
+
 camera-engine-rkaiq (6.8.0-1) unstable; urgency=medium
 
   * Merge Rockchip AIQ source code v6.0x8.0 (release date 24 Sep 2024)
