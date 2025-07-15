@@ -1,5 +1,5 @@
-debian/camera-engine-rkaiq-rk3568/init.d etc/
-debian/camera-engine-rkaiq-rk3568/usr/share/iqfiles etc/
-debian/camera-engine-rkaiq-rk3568/usr/bin usr/
-debian/camera-engine-rkaiq-rk3568/usr/include usr/
-debian/camera-engine-rkaiq-rk3568/usr/lib usr/
+debian/tmp/camera-engine-rkaiq-rk3568/init.d etc
+rkaiq/iqfiles/isp21/*.json etc/iqfiles
+debian/tmp/camera-engine-rkaiq-rk3568/usr/bin usr
+debian/tmp/camera-engine-rkaiq-rk3568/usr/include usr
+debian/tmp/camera-engine-rkaiq-rk3568/usr/lib usr
