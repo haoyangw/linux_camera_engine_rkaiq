@@ -1,3 +1,9 @@
+camera-engine-rkaiq (6.8.0-2ubuntu1~ubuntu24.04.1) noble; urgency=medium
+
+  * Release rkaiq 6.8.0 to Ubuntu Noble.
+
+ -- Wang Haoyang <haoyangw@gmail.com>  Wed, 16 Jul 2025 00:03:40 +0800
+
 camera-engine-rkaiq (6.8.0-2) unstable; urgency=medium
 
   * Extend Debian packaging to add support for building RK3568 binary package
