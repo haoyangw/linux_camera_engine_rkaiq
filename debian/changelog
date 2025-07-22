@@ -1,3 +1,16 @@
+camera-engine-rkaiq-rk3588 (6.6.3-1) jammy; urgency=medium
+
+  [ Wang Haoyang ]
+  * Package camera-engine-rkaiq v6.6.3 for Ubuntu Jammy.
+
+  [ Caesar Wang ]
+  * 809d90a0c release v6.6.3
+  * 00bbe557c Argbir: set upd_cfg in first frame
+  * 00292fd5b supplement commits
+  * 50aca86c5 fix arm compile error cause by set -march=armv7-a
+
+ -- Wang Haoyang <haoyangw@gmail.com>  Wed, 23 Jul 2025 00:10:53 +0800
+
 camera-engine-rkaiq-rk3588 (6.0x6.1-1~noble) noble; urgency=medium
 
   * Initial packaging.
