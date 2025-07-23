@@ -2,7 +2,7 @@ diff --git a/rkaiq/iq_parser_v2/CMakeLists.txt b/rkaiq/iq_parser_v2/CMakeLists.t
 index ab5ea787..705964f0 100644
 --- a/rkaiq/iq_parser_v2/CMakeLists.txt
 +++ b/rkaiq/iq_parser_v2/CMakeLists.txt
-@@ -205,8 +205,8 @@ add_custom_target(
+@@ -195,8 +203,8 @@ add_custom_target(
      -B"host_tool"
      -H"${rk_aiq_SOURCE_DIR}/tools/j2s4b"
      COMMAND ${CMAKE_COMMAND} --build host_tool
@@ -13,7 +13,7 @@ index ab5ea787..705964f0 100644
      )
  
  #build dev j2s4b-dev
-@@ -214,9 +214,9 @@ if (RKAIQ_J2S4B_DEV)
+@@ -204,9 +212,9 @@ if (RKAIQ_J2S4B_DEV)
  	# if user has not define CMAKE_INSTALL_PREFIX, do not install dev_bin to
  	# avoid of compile error for buildroot
  	if (${CMAKE_INSTALL_PREFIX} STREQUAL "/usr")
@@ -25,11 +25,3 @@ index ab5ea787..705964f0 100644
  	endif()
  add_custom_target(
      j2s4b_dev
-@@ -271,6 +271,6 @@ add_custom_target(
-     -B"host_iqBinTool"
-     -H"${rk_aiq_SOURCE_DIR}/tools/iqBinForRtt"
-     COMMAND ${CMAKE_COMMAND} --build host_iqBinTool
--    COMMAND make -C host_iqBinTool install
-+    COMMAND make DESTDIR=${DEB_DESTDIR} -C host_iqBinTool install
-     DEPENDS j2s_parser
-     )
