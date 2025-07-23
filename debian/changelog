@@ -1,3 +1,11 @@
+camera-engine-rkaiq (6.6.3-2) jammy; urgency=medium
+
+  * Rename source package to omit SoC since multiple SoCs are now supported.
+  * Add patches that fix compilation/packaging errors.
+  * Extend Debian packaging to support RK3568.
+
+ -- Wang Haoyang <haoyangw@gmail.com>  Wed, 23 Jul 2025 11:51:01 +0800
+
 camera-engine-rkaiq-rk3588 (6.6.3-1) jammy; urgency=medium
 
   [ Wang Haoyang ]
