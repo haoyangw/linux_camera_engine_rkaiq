@@ -1,4 +1,4 @@
-debian/tmp/camera-engine-rkaiq-rk3568/init.d etc
+debian/scripts/rkaiq_daemon.sh etc/init.d
 rkaiq/iqfiles/isp21/*.json etc/iqfiles
 debian/tmp/camera-engine-rkaiq-rk3568/usr/bin usr
 debian/tmp/camera-engine-rkaiq-rk3568/usr/include usr
